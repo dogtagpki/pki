@@ -1,0 +1,12 @@
+Your certificate request has been processed successfully.
+SubjectDN= $SubjectDN
+IssuerDN= $IssuerDN
+notAfter= $NotAfter
+notBefore= $NotBefore
+Serial Number= 0x$HexSerialNumber
+
+To get your certificate, please follow this URL:
+https://$HttpHost:$HttpPort/displayBySerial?op=displayBySerial&serialNumber=$SerialNumber
+
+Please contact your admin if there is any problem.
+And, of course, this is just a \$SAMPLE\$ email notification form.

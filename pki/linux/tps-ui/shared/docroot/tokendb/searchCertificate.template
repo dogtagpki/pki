@@ -1,0 +1,116 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+<HEAD>
+<TITLE>TPS</Title>
+</HEAD>
+
+<table border="0" width="100%" cellspacing="0" cellpadding="6">
+  <tr bgcolor="#666699">
+    <td width=25%>
+      <table border="0" cellspacing="0" cellpadding="6">
+        <tr>
+          <td nowrap><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<b>&reg;<br>
+            Certificate<br>System</b></font> </td>
+        </tr>
+      </table>
+    </td>
+    <td align=right width=65% nowrap><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">TPS Services</font></td>
+    <td width="10%">&nbsp;</td>
+  </tr>
+</table>
+<p>
+
+<BODY>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/JavaScript">
+<!--
+var uri0 = "";
+if (typeof(uriBase) == "undefined") {
+    uri0 += "/tus";
+} else {
+    uri0 += uriBase;
+}
+
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri0+"\">Main Menu</a> : Search Tokens</font>\n");
+document.write("<table width=\"100%\"><tr><td align=\"right\">" +
+                "<b>UID:</b>" +
+                userid + "</td></tr></table>\n");
+document.write("<HR NOSHADE SIZE=1>\n");
+
+function doFind(form) {
+        var uri = "";
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus"
+        } else {
+            uri += uriBase;
+        }
+        uri += "?op=view_certificate";
+        uri += "&tid=" + form.tid.value;
+        uri += "&uid=" + form.uid.value;
+        uri += "&maxCount=" + form.maxCount.value;
+        location.href = uri;
+}
+//-->
+</SCRIPT>
+
+<FORM NAME ="findForm" ACTION="" METHOD=GET>
+<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        Token ID:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT NAME=tid SIZE=20>
+    </td>
+  </tr>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        User ID:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT NAME=uid SIZE=20>
+    </td>
+  </tr>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        Max Count:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT SIZE=4 NAME=maxCount value="20">
+    </td>
+  </tr>
+</table>
+<HR NOSHADE SIZE=1>
+<DIV ALIGN=RIGHT>
+<input TYPE=button VALUE=Find onClick="doFind(findForm);">
+</form>
+</BODY>
+</HTML>

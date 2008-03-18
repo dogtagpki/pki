@@ -1,0 +1,55 @@
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# 
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+                           Fedora Certificate System
+                         Native Command Line Utilities
+
+
+Command Line Utility                           Purpose
+==============================================================================
+bulkissuance                                   A command line utility utilized
+                                               to send either a KEYGEN or CRMF
+                                               enrollment request to the bulk
+                                               issuance interface for the
+                                               automatic creation of
+                                               certificates.
+
+bulkissuance.data                              An example data file for use
+                                               with the bulkissuance tool.
+
+revoker                                        A command line tool which may be
+                                               conveniently utilized to
+                                               automate user management scripts
+                                               used to revoke certificates.
+
+setpin                                         A command line tool utilized
+                                               to enable Fedora Certificate
+                                               System to utilize PIN-based
+                                               authentication.
+
+setpin.conf                                    The configuration file utilized
+                                               by the setpin command line
+                                               utility.
+
+tkstool                                        A command line tool utilized
+                                               to construct DES 2 symmetric
+                                               keys utilized in conjunction
+                                               with the Fedora Certificate
+                                               System Token Key Service
+                                               subsystem.
+

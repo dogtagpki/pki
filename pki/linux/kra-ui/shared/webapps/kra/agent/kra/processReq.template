@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/helpfun.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+function renderHexNumber(number,width)
+{
+    var num = toHex(number);
+    while (num.length < width)
+        num = "0"+num;
+    return "0x"+num;
+}
+
+function renderDateFromSecs(secs)
+{
+    if (secs == null) return "";
+    var today = new Date();
+    var dateTmp = new Date();
+    dateTmp.setTime(secs * 1000);
+    var dateStr = dateTmp.toLocaleString();
+    return dateStr;
+}
+
+// 
+// This form is a template that gets a preamble defining the contents
+// of the request form as a JavaScript object called 'result.header'.
+// whose properties are filled in by the server.
+// 
+document.writeln('<body vlink="0000ff" alink="ff0000" link="0000ff" bgcolor="white">');
+document.writeln(
+	'<font face="PrimaSans BT, Verdana, sans-serif"><font size=+1>'+
+	'Request ' +
+	'<a href="/agent/kra/processReq?op=processReq&seqNum=' + 
+	result.header.seqNum + '"' + 
+	'onMouseOver=" return helpstatus(\'Click to redisplay this ' +
+	'request \')" onMouseOut="return helpstatus(\'\')">' +
+	result.header.seqNum + 
+	'</a></font></font>');
+document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD></TD></TR></TABLE>');
+
+
+document.writeln('<form action="/agent/kra/processReq" method=POST>');
+document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'
+);
+document.writeln('Request</font></td></tr>');
+document.writeln('<tr>');
+document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Status:</font></td>');
+document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.status + '</font></td>');
+document.writeln('</tr>');
+
+if (result.header.status != "complete") {
+	if (result.header.assignedTo != null) {
+	   document.write('<b> Assigned To: </b>',result.header.assignedTo);
+	} else {
+	   document.write('<b> Unassigned </b>');
+	}
+	if (result.header.assignedTo == null) {
+	  document.write('<a href="/agent/kra/processReq?op=processReq&doAssign=yes&seqNum=' +
+                     result.header.seqNum + '"' + 
+                     'onMouseOver=" return helpstatus(\'Click to assign the ' +
+                     'request to yourself\')" ' +
+                     'onMouseOut="return helpstatus(\'\')">', 
+                     ' Assign To Me','</a>');
+	} else if (result.header.assignedTo != result.header.callerName) {
+		document.write('<a href="/' +
+                     '/agent/kra/processReq?op=processReq&doAssign=yes&overrideAssignment=yes&seqNum=' + result.header.seqNum + '">',
+                 ' Re-assign To Me', '</a>');
+	}    
+}
+
+// Note these values are filtered for safety by the server.
+if (result.header.requestorName != null ||
+    result.header.requestorEmail != null ||
+    result.header.requestorPhone != null) {
+     document.writeln('<p><b> Requestor\'s Contact Information:</b><br>');
+     document.writeln('<blockquote>');
+     if (result.header.requestorName != null) {
+        document.writeln('<b> Name: </b>',
+			 result.header.requestorName,
+	                 '<br>');
+     }
+     if (result.header.requestorEmail != null) {
+        document.writeln('<b> E-mail: </b>',
+			 result.header.requestorEmail,
+	                 '<br>');
+     }
+     if (result.header.requestorPhone != null) {
+        document.writeln('<b> Phone: </b>',
+			 result.header.requestorPhone,
+	                 '<br>');
+     }
+     document.writeln('</blockquote>');
+}
+
+// request type
+document.writeln('<tr>');
+document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Type:</font></td>');
+document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.requestType + '</font></td>');
+document.writeln('</tr>');
+
+// createdOn
+document.writeln('<tr>');
+document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Created on:</font></td>');
+document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderDateFromSecs(result.header.createdOn) + '</font></td>');
+document.writeln('</tr>');
+
+// updateBy
+document.writeln('<tr>');
+document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Updated by:</font></td>');
+document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.updatedBy + '</font></td>');
+document.writeln('</tr>');
+
+// updatedOn
+document.writeln('<tr>');
+document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Updated on:</font></td>');
+document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderDateFromSecs(result.header.updatedOn) + '</font></td>');
+document.writeln('</tr>');
+
+document.writeln('<INPUT TYPE="HIDDEN" NAME="seqNum" VALUE="' +
+                 result.header.seqNum + '">');
+
+if (result.header.requestorName != null) {
+	document.writeln('<INPUT TYPE="HIDDEN" NAME="requestorName" VALUE="' +
+			result.header.requestorName + '">');
+}
+if (result.header.requestorEmail != null) {
+	document.writeln('<INPUT TYPE="HIDDEN" NAME="requestorEmail" VALUE="' +
+			result.header.requestorEmail + '">');
+}
+if (result.header.requestorPhone != null) {
+	document.writeln('<INPUT TYPE="HIDDEN" NAME="requestorPhone" VALUE="' +
+			result.header.requestorPhone + '">');
+}
+
+
+// Note: requestorComments are safely filtered by server
+if (result.header.requestorComments != null) {
+	document.writeln('<b> Comments Made When The Request Was Filed:</b><br>');
+	document.writeln('<blockquote>', result.header.requestorComments,
+		     '</blockquote>');
+	document.writeln('<b> Additional Comments:</b><br>');
+	document.writeln('<blockquote>');
+	document.writeln('<INPUT TYPE="TEXT" NAME="moreComments" SIZE=72 VALUE="">');
+	document.writeln('</blockquote>');
+}
+
+if (result.header.requestType == "enrollment") {
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Archival Infomation</font></td></tr>');
+
+	// Archival-specific UI
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Public key:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.publicKey + '</font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Owner name:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.ownerName + '</font></td>');
+	document.writeln('</tr>');
+
+	// key serial number
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key identifier:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.serialNumber + '</font></td>');
+	document.writeln('</tr>');
+
+} else if (result.header.requestType == "recovery") {
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Recovery Infomation</font></td></tr>');
+
+	// Recovery-specific UI
+	// key serial number
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key identifier:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.serialNumber + '</font></td>');
+	document.writeln('</tr>');
+}
+
+document.writeln('</table>');
+document.writeln('</form>');
+document.writeln('</body>');
+
+//-->
+</SCRIPT>
+
+</HTML>

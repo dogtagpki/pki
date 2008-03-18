@@ -1,0 +1,96 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+<h2>$panelname</h2>
+<br/>
+A security domain is a registry for all of the PKI services within an enterprise. Applications may use the security domain to locate other PKI services. <a href="javascript:toggle_details();">[Details]</a>
+<SCRIPT type="text/JavaScript">
+function toggle_details()
+{
+  d = document.getElementById('details');
+  if (d.style.display == "block") {
+    d.style.display="none";
+  } else {
+    d.style.display="block";
+  }
+}
+</script>
+                                                                                
+<div id=details style="display: none;">
+<br/>
+This PKI solution allows multiple security domains within an organization, but each security domain must host a Certificate Authority.
+<br/>
+If the user is creating a new security domain, this CA Administrator is also
+the security domain Administrator.
+<br/>
+If this subsystem is joining an existing security domain, the user will need to provide the credential information of the security domain Administrator
+requested in the next panel.
+</div>
+#if ($errorString != "")
+<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<br/>
+#if ($cstype == "CA") 
+<b><input $check_newdomain type=radio name=choice value="newdomain">&nbsp;Create a New Security Domain </b>
+<br/>
+If no security domain exists, a new one must be created for this CA.
+    <table class="details">
+      <tr>
+        <th>Security Domain Name: </th>
+        <td><input type=text size="40" name="sdomainName" value="$sdomainName"> (e.g. - Dogtag Security Domain)</td>
+      </tr>
+      <tr>
+        <th>Security Domain URL: </th>
+        <td>https://$machineName:$https_port</td>
+      </tr>
+    </table>
+<br/>
+<b><input $check_existingdomain type=radio name=choice value="existingdomain">&nbsp;Join an Existing Security Domain </b>
+#else
+<b><input disabled="disabled" type=radio name=choice value="newdomain">&nbsp;Create a New Security Domain </b>
+<br/>
+If no security domain exists, a new one must be created for this CA.
+    <table class="details">
+      <tr>
+        <th>Security Domain Name: </th>
+        <td><input disabled="disabled" type=text size="40" name="sdomainName" value="$sdomainName"> (e.g. - Dogtag Security Domain)</td>
+      </tr>
+    </table>
+<br/>
+<b><input checked type=radio name=choice value="existingdomain">&nbsp;Join an Existing Security Domain </b>
+#end
+<br/>
+Enter the URL to an existing security domain.
+<br/>
+    <table class="details">
+      <tr>
+        <th>Security Domain URL: </th>
+        <td><input type=text size="40" name="sdomainURL" value="$sdomainURL"> (e.g. - https://hostname:port)</td>
+      </tr>
+    </table>
+<br/>

@@ -1,0 +1,5 @@
+Request $RequestId is in queue.
+requestor email is $RequestorEmail.
+cert type is $CertType.
+request type is $RequestType.
+request process url: https://$HttpHost:$HttpPort/ra/processReq?seqNum=$RequestId

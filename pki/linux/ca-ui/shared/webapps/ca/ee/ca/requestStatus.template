@@ -1,0 +1,221 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Request Status</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<script LANGUAGE="JavaScript" SRC="/ee/helpfun.js"></script>
+
+<CMS_TEMPLATE>
+
+<body bgcolor="#FFFFFF" link="#6666CC" vlink="#6666CC" alink="#333399">
+<font face="PrimaSans BT, Verdana, sans-serif" size="+1">
+Request Status
+</font><br>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<table border="0" cellspacing="2" cellpadding="2" width="100%">
+<tr align="left"><td width="20%"></td><td width="80%"></td></tr>
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+function renderDateFromSecs(secs)
+{
+    if (secs == null) return "";
+    var dateTmp = new Date();
+    dateTmp.setTime(secs * 1000);
+    var year = dateTmp.getYear();
+    if (year < 100) {
+        year += 1900;
+    } else {
+        year %= 100;
+        year += 2000;
+    }
+    return (dateTmp.getMonth()+1)+"/"+dateTmp.getDate()+"/"+year+"&nbsp;"+
+            (dateTmp.getHours()<10?"&nbsp;":"")+
+            dateTmp.getHours()+":"+(dateTmp.getMinutes()<10?"0":"")+
+            dateTmp.getMinutes()+":"+(dateTmp.getSeconds()<10?"0":"")+
+            dateTmp.getSeconds();
+}
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+function renderHexNumber(number,width)
+{
+    var num = number;
+    while (num.length < width)
+        num = "0"+num;
+    return "0x"+num;
+}
+
+function renderPkcs7(pkcs7)
+{
+    var len = pkcs7.length;
+    var str = "";
+    for (var i = 0; i < len; i=i+64){
+	if (i+64 < len)
+	    str = str + pkcs7.substring(i,i+64) +"\n";
+	else
+	    str = str + pkcs7.substring(i,len) ;
+    }
+    return str;
+}
+
+if (result.header.requestId != null) {
+    document.writeln('<tr><td valign="top" align="right">'+
+                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                     'Request:</font></td>');
+    document.writeln('<td valign="top">'+
+                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                     '<a href="checkRequest?requestId='+
+                     result.header.requestId+'"'+ 
+                     'onMouseOver=" return helpstatus(\'Click to redisplay this '+
+                     'request \')" onMouseOut="return helpstatus(\'\')">'+
+                     result.header.requestId + '</a></font></td></tr>');
+
+    document.writeln('<tr><td valign="top" align="right">'+
+                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                     'Submitted on:</font></td>');
+    document.writeln('<td valign="top">'+
+                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                     renderDateFromSecs(result.header.createdOn) +
+                     '</font></td></tr>');
+
+    document.writeln('<tr><td valign="top" align="right">'+
+                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif"><b>'+
+                     'Status:</b></font></td>');
+    document.writeln('<td valign="top">'+
+                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif"><b>'+
+                     result.header.status + '</b></font></td></tr>');
+
+    if (result.header.requestNotes != null) {
+        document.writeln('<tr><td valign="top" align="right">'+
+          '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+          'Additional Notes:</font></td>');
+        document.writeln('<td valign="top">'+
+          '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+          result.header.requestNotes+'</font></td></tr>');
+    }
+    if (result.recordSet != null && result.recordSet.length > 0) {
+        document.writeln('<tr>');
+        if (result.recordSet.length > 1) {
+            document.writeln('<td valign="top" align="right">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             'Issued certificates:</font></td>');
+        } else {
+            document.writeln('<td valign="top" align="right">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             'Issued certificate:</font></td>');
+        }
+
+        if (result.header.authority != null && (result.header.authority == 'ra' ||
+            result.recordSet.length > 1)) {
+            document.write('<td valign="top">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         '<a href="displayCertFromRequest?requestId='+
+                         result.header.requestId + '"' +
+                         ' onMouseOver=" return helpstatus(\'Click to display this '+
+                         'certificate \')" onMouseOut="return helpstatus(\'\')">');
+            for (var i = 0; i < result.recordSet.length; i++) {
+                document.write(renderHexNumber(result.recordSet[i].serialNumber,8));
+                if (i+1 < result.recordSet.length) {
+                    document.write(' \& ');
+                }
+            }
+            document.writeln('</a></font></td>');
+        } else if (result.header.authority != null && result.header.authority == 'ca') {
+            if (result.recordSet[0].serialNumber != null) {
+                document.writeln('<td valign="top">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             '<a href="displayBySerial?serialNumber='+
+                             '0x'+result.recordSet[0].serialNumber + '"' +
+                             ' onMouseOver=" return helpstatus(\'Click to display this '+
+                             'certificate \')" onMouseOut="return helpstatus(\'\')">' +
+                             renderHexNumber(result.recordSet[0].serialNumber,8)+'</a>'+
+                             '</font></td>');
+            } else {
+                document.writeln('<td valign="top" ></td>');
+            }
+        }
+
+        document.writeln('</tr>');
+    }
+}
+//-->
+</SCRIPT>
+</table>
+
+<SCRIPT LANGUAUGE="JavaScript">
+if (result.header.pkcs7ChainBase64 != null) {
+
+document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+document.writeln('<tr>');
+document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<p>');
+document.writeln('Certificate with CA certificate chain in pkcs7 format:');
+document.writeln('</font>');
+document.writeln('<p><pre>');
+document.writeln('-----BEGIN CERTIFICATE-----');
+document.writeln(renderPkcs7(result.header.pkcs7ChainBase64));
+document.writeln('-----END CERTIFICATE-----');
+document.writeln('</pre>');
+document.writeln('</tr>');
+document.writeln('</table>');
+}
+
+if (result.header.cmcFullEnrollmentResponse != null) {
+document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+document.writeln('<tr>');
+document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<p>');
+document.writeln('Certificate embedded in CMC full enrollment response:');
+document.writeln('</font>');
+document.writeln('<p><pre>');
+document.writeln('-----BEGIN CERTIFICATE-----');
+document.writeln(result.header.cmcFullEnrollmentResponse);
+document.writeln('-----END CERTIFICATE-----');
+document.writeln('</pre>');
+document.writeln('</tr>');
+document.writeln('</table>');
+}
+</SCRIPT>
+
+</BODY>
+</HTML>

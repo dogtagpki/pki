@@ -1,0 +1,170 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<TITLE>Revoke a Certificate using a challenge password</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<script LANGUAGE="JavaScript" SRC="/ee/cms-funcs.js"></script>
+
+<script LANGUAGE="JavaScript" SRC="/ee/helpfun.js"></script>
+
+<SCRIPT LANGUAGE="JavaScript">
+function validate(form)
+{
+  with (form) {
+      if (challengePhrase.value == "") {
+          alert("The challenge phrase password field cannot be empty.");
+          return false;
+      }
+          if (certSerialToRevoke.value == "") {
+              alert("You must supply the Serial Number of the certificate to be revoked.");
+              return false;
+          } else {
+              if (isDecimalNumber(form.certSerialToRevoke.value) ||
+                isHexNumber(form.certSerialToRevoke.value)) {
+                  form.certSerialToRevoke.value = trim(form.certSerialToRevoke.value);
+              } else {
+                  alert("You must specify a hexadecimal or decimal number " +
+                    "for the serial number.");   
+                  return false;
+              } 
+          }
+  } 
+  return true;
+}
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript" SRC="/ee/helpfun.js">
+
+</SCRIPT>
+</head>
+<body bgcolor="#FFFFFF">
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Certificate Revocation using a challenge password</font><br>
+<p>
+  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Use this form to revoke your certificate(s) automatically.
+<p>
+After you click the submit button, the valid certificate with the serial number and the matched
+challenge phrase password will get revoked automatically.
+</font>
+<form method="post" action="challenge_revocation1" onSubmit="return validate(document.forms[0])">
+  <table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr> 
+      <td colspan="2" valign="TOP"><font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"><b>Certificate Revocation Information</b><br>
+Please enter the serial number of the certificate to be revoked in the certificate. The serial number should be in either hexadecimal form(starting with 0x) or decimal form.</font></td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+       <div align="RIGHT">
+        <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Serial Number: </font>
+       </div>
+      </td>
+      <td valign="TOP"> 
+          <input type="TEXT" name="certSerialToRevoke" size="30"> 
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="2" valign="TOP"><font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"><b>Authentication Information</b><br>
+Enter the challenge password associated with this certificate for authenticating this request.</font></td>
+    </tr>
+    <tr>
+      <td valign="TOP">
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Challenge Password: </font>
+        </div>
+      </td>
+      <td valign="TOP">
+        <input type="PASSWORD" name="challengePhrase" AutoComplete=off size="30">
+      </td>
+    </tr>
+
+</table>
+  <table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr>
+      <td colspan="2" valign="TOP"><font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"><b>Revocation Reason</b><br>
+Select a revocation reason.</font></td>
+    </tr>
+    <tr>
+      <td valign="TOP">
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+          </font>
+        </div>
+      </td>
+      <td>
+        <font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        <input type="radio" checked name="reasonCode" value=0>
+        Unspecified<br>
+        <input type="radio" name="reasonCode" value=1>
+        Key Compromise<br>
+        <input type="radio" name="reasonCode" value=5>
+        Cessation of Operation<br>
+        <input type="radio" name="reasonCode" value=3>
+        Affiliation Changed<br>
+        <input type="radio" name="reasonCode" value=4>
+        Superseded<br>
+        <!--input type="radio" name="reasonCode" value=2-->
+        <!-- CA Compromise<br> -->
+        <!--input type="radio" name="reasonCode" value=6-->
+        <!--Certificate Hold<br>-->
+        <!--input type="radio" name="reasonCode" value=8-->
+        <!--Remove from CRL<br>-->
+        </font>
+      </td>
+    </tr>
+</table>
+
+<table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr>
+      <td colspan="2">
+        <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        <b>Additional Comments</b><br>
+        If you want to include any additional comments in your revocation request, write them here.
+        </font>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <textarea name="csrRequestorComments" rows="6" cols="39" wrap="virtual"></textarea>
+      </td>
+    </tr>
+  <br>
+
+    <tr>
+      <td valign="TOP" colspan="2">
+        <table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#cccccc" background="/ca/ee/graphics/gray90.gif">
+          <tr>
+            <td>
+              <div align="RIGHT">
+                <input type="submit" value="submit" name="submit" width="72">
+                                <input type="hidden" name="templateType" value="RevocationConfirmation">
+                <img src="/ca/ee/graphics/spacer.gif" width="6" height="6">
+                <input type="reset" value="Reset" name="reset" width="72">
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  </form>
+</body>
+</html>

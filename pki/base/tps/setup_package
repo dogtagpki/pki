@@ -1,0 +1,361 @@
+#!/bin/bash
+# --- BEGIN COPYRIGHT BLOCK ---
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation;
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301  USA 
+# 
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+
+###############################################################################
+##  (1)  Check command line arguments to see how many were passed in.        ##
+###############################################################################
+
+if [ $# -eq 7 ]
+then
+	PKI_BUILD_PREFIX=$1
+	PKI_PRODUCT_NAME=$2
+	PKI_SUBSYSTEM_NAME=$3
+	VERSION=$4
+	RELEASE=$5
+	ARCHITECTURE=$6
+	PKI_STAGING_PATH=$7
+else
+	echo
+	echo "Usage:  $0 PKI_build_prefix PKI_product_name PKI_subsystem_name"
+	echo "        version release architecture pki_staging_path"
+	echo
+
+	exit 255
+fi
+
+
+###############################################################################
+##  (2)  Specify variables used by this script.                              ##
+###############################################################################
+
+# specify generic helper functions
+usage() {
+	if [ $# -gt 0 ] ; then
+		echo
+		echo "$1"
+	fi
+	echo
+	echo "Usage:  $0 PKI_build_prefix PKI_product_name PKI_subsystem_name"
+	echo "        version release architecture"
+	echo
+	echo "        where architecture MUST be 'intel',"
+	echo "                                   'sparc', or"
+	echo "                                   'sparcv9'."
+	echo
+	echo "        NOTE:  For 'intel' architectures, only the 'i386' and"
+	echo "               the 'x86_64' architectures are currently supported."
+	echo
+}
+
+# specify generic helper variables
+OS=`uname`
+if   [ ${OS} = "Linux" ] ; then
+	if   [ -e /etc/fedora-release ] ; then
+		USE_OPT_FORTITUDE="FALSE"
+	elif [ -e /etc/redhat-release ] ; then
+		RHEL_VERSION=`rpm -qf --qf='%{VERSION}' /etc/redhat-release | tr -d [A-Za-z]`
+		if [ ${RHEL_VERSION} = "4" ]; then
+			USE_OPT_FORTITUDE="TRUE"
+		else
+			USE_OPT_FORTITUDE="FALSE"
+		fi
+	else
+		usage "ERROR:  Only Fedora and Red Hat '${OS}' are supported!"
+		exit 255
+	fi
+elif [ ${OS} = "SunOS" ] ; then
+	USE_OPT_FORTITUDE="TRUE"
+else
+	usage "ERROR:  Unsupported operating system '${OS}'!"
+	exit 255
+fi
+
+if  [ ${ARCHITECTURE} = "intel" ] ; then
+	# Since "rpmbuild" fails to process "%ifarch" macros inside the
+	# "%install" section of a spec file, the actual hardware
+	# architecture will be determined at this point in time.
+	ARCHITECTURE=`uname -i`
+	if   [ ${ARCHITECTURE} = "i386" ] ; then
+		LIB_DIR="lib"
+		WRAPPER_DIR="bin"
+	elif [ ${ARCHITECTURE} = "x86_64" ] ; then
+		LIB_DIR="lib64"
+		WRAPPER_DIR="bin"
+	else
+		usage "ERROR:  Unsupported intel architecture '${ARCHITECTURE}'!"
+		exit 255
+	fi
+elif [ ${ARCHITECTURE} = "sparc" ] ; then
+	# Note that "pkgbuild" successfully processes "%ifarch" macros
+	# inside the "%install" section of a spec file.
+	LIB_DIR="lib"
+	WRAPPER_DIR="bin"
+elif [ ${ARCHITECTURE} = "sparcv9" ] ; then
+	# Note that "pkgbuild" successfully processes "%ifarch" macros
+	# inside the "%install" section of a spec file.
+	LIB_DIR="lib/sparcv9"
+	WRAPPER_DIR="bin"
+else
+	usage "ERROR:  Unsupported architecture '${ARCHITECTURE}'!"
+	exit 255
+fi
+
+# break the VERSION number into its various components
+MAJOR_VERSION=`echo ${VERSION} | awk -F. '{ print $1 }'`
+MINOR_VERSION=`echo ${VERSION} | awk -F. '{ print $2 }'`
+PATCH_VERSION=`echo ${VERSION} | awk -F. '{ print $3 }'`
+
+PRODUCT_VERSION=${MAJOR_VERSION}.${MINOR_VERSION}
+
+
+# comply with standard FHS 2.3 binary locations (executables)
+PKI_EXECUTABLES=${PKI_BUILD_PREFIX}/usr/${LIB_DIR}/${PKI_PRODUCT_NAME}/${PKI_SUBSYSTEM_NAME}
+
+# comply with standard FHS 2.3 library locations
+SYSTEM_LIBRARIES=${PKI_BUILD_PREFIX}/usr/${LIB_DIR}
+
+# comply with standard Apache 2.0 module locations
+if [ "${USE_OPT_FORTITUDE}" = "TRUE" ] ; then
+	APACHE_MODULES=${PKI_BUILD_PREFIX}/opt/fortitude/modules.local
+else
+	APACHE_MODULES=${PKI_BUILD_PREFIX}/etc/httpd/modules
+fi
+
+# comply with standard JPackage 1.6.0 jar locations
+
+# comply with standard FHS 2.3 binary locations (wrappers)
+PKI_WRAPPERS=${PKI_BUILD_PREFIX}/usr/${WRAPPER_DIR}
+
+# comply with standard FHS 2.3 shared data locations (templates)
+PKI_SHARED_DATA=${PKI_BUILD_PREFIX}/usr/share/${PKI_PRODUCT_NAME}
+PKI_SUBSYSTEM_SHARED_DATA=${PKI_SHARED_DATA}/${PKI_SUBSYSTEM_NAME}
+PKI_SUBSYSTEM_SHARED_DOCROOT_DATA=${PKI_SHARED_DATA}/${PKI_SUBSYSTEM_NAME}/docroot
+PKI_SUBSYSTEM_SHARED_PERL_MODULES=${PKI_SUBSYSTEM_SHARED_DATA}/lib/perl/PKI/TPS
+PKI_SUBSYSTEM_SHARED_PERL_TEMPLATES=${PKI_SUBSYSTEM_SHARED_DATA}/lib/perl/Template
+
+# comply with standard FHS 2.3 start/stop script locations
+
+# comply with standard FHS 2.3 configuration file locations
+
+# comply with standard FHS 2.3 documentation locations
+PKI_DOCUMENTATION=${PKI_BUILD_PREFIX}/usr/share/doc/${PKI_PRODUCT_NAME}-${PKI_SUBSYSTEM_NAME}-${VERSION}
+
+# comply with standard FHS 2.3 log file locations
+
+# comply with default FHS 2.3 instance locations
+
+
+###############################################################################
+##  (3)  Create the appropriate subdirectories.                              ##
+###############################################################################
+
+##
+## System
+##
+
+mkdir -p ${PKI_WRAPPERS}
+
+
+##
+## Product
+##
+
+mkdir -p ${SYSTEM_LIBRARIES}
+mkdir -p ${APACHE_MODULES}
+
+
+##
+## Subsystem
+##
+
+mkdir -p ${PKI_DOCUMENTATION}
+mkdir -p ${PKI_EXECUTABLES}
+mkdir -p ${PKI_SHARED_DATA}
+mkdir -p ${PKI_SUBSYSTEM_SHARED_DATA}
+mkdir -p ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
+mkdir -p ${PKI_SUBSYSTEM_SHARED_PERL_MODULES}
+mkdir -p ${PKI_SUBSYSTEM_SHARED_PERL_TEMPLATES}
+
+
+##
+## Initial Instance
+##
+
+
+###############################################################################
+##  (4)  Unpack the package contents to the appropriate subdirectories.      ##
+###############################################################################
+
+##
+## Executables
+##
+
+cp -p ${PKI_STAGING_PATH}/libexec/apachectl* ${PKI_EXECUTABLES}
+cp -p ${PKI_STAGING_PATH}/libexec/tpsclient* ${PKI_EXECUTABLES}
+
+
+##
+## Libraries
+##
+
+cp -p ${PKI_STAGING_PATH}/${LIB_DIR}/*.so     ${SYSTEM_LIBRARIES}
+cp -p ${PKI_STAGING_PATH}/apache/modules/*.so ${APACHE_MODULES}
+
+
+##
+## Jars
+##
+
+
+##
+## Wrappers
+##
+
+
+##
+## Shared Data
+##
+
+cp -rp ${PKI_STAGING_PATH}/doc/LICENSE         ${PKI_DOCUMENTATION}
+
+cp -rp ${PKI_STAGING_PATH}/templates*          ${PKI_SHARED_DATA}
+
+cp -rp ${PKI_STAGING_PATH}/alias*              ${PKI_SUBSYSTEM_SHARED_DATA}
+cp -rp ${PKI_STAGING_PATH}/applets*            ${PKI_SUBSYSTEM_SHARED_DATA}
+cp -rp ${PKI_STAGING_PATH}/cgi-bin*            ${PKI_SUBSYSTEM_SHARED_DATA}
+cp -rp ${PKI_STAGING_PATH}/conf*               ${PKI_SUBSYSTEM_SHARED_DATA}
+cp -p  ${PKI_STAGING_PATH}/docroot/index.html  ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
+cp -rp ${PKI_STAGING_PATH}/docroot/demo*       ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
+cp -rp ${PKI_STAGING_PATH}/docroot/home*       ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
+cp -rp ${PKI_STAGING_PATH}/docroot/so*         ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
+cp -rp ${PKI_STAGING_PATH}/docroot/sow*        ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
+cp -rp ${PKI_STAGING_PATH}/docroot/tokendb*    ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
+cp -rp ${PKI_STAGING_PATH}/docroot/tps*        ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
+cp -rp ${PKI_STAGING_PATH}/etc*                ${PKI_SUBSYSTEM_SHARED_DATA}
+cp -rp ${PKI_STAGING_PATH}/logs*               ${PKI_SUBSYSTEM_SHARED_DATA}
+
+cp -rp ${PKI_STAGING_PATH}/perl/modules/*      ${PKI_SUBSYSTEM_SHARED_PERL_MODULES}
+cp -rp ${PKI_STAGING_PATH}/perl/templates/*    ${PKI_SUBSYSTEM_SHARED_PERL_TEMPLATES}
+cp -rp ${PKI_STAGING_PATH}/samples*            ${PKI_SUBSYSTEM_SHARED_DATA}
+cp -rp ${PKI_STAGING_PATH}/scripts*            ${PKI_SUBSYSTEM_SHARED_DATA}
+cp -rp ${PKI_STAGING_PATH}/setup*              ${PKI_SUBSYSTEM_SHARED_DATA}
+
+
+###############################################################################
+##  (5)  Unpack the package contents to the initial instance directories.    ##
+###############################################################################
+
+##
+## Start/Stop Script
+##
+
+
+##
+## Configuration
+##
+
+
+##
+## Logs
+##
+
+
+##
+## Default Instance
+##
+
+
+###############################################################################
+##  (6)  Rename the extracted contents following appropriate naming rules.   ##
+###############################################################################
+
+# comply with standard Linux/UNIX shared library naming conventions
+cd ${SYSTEM_LIBRARIES}                      ;
+mv libldapauth.so libldapauth.so.${VERSION} ;
+mv libtokendb.so libtokendb.so.${VERSION}   ;
+mv libtps.so libtps.so.${VERSION}
+
+# comply with standard JPackage 1.6.0 jar naming conventions
+
+
+###############################################################################
+##  (7)  Create a command wrapper for each specified command.                ##
+###############################################################################
+
+COMMANDS="tpsclient"
+
+create_wrapper()
+{
+	PRODUCT=$1
+	SUBSYSTEM=$2
+	COMMAND=$3
+
+	TEMPLATE=pki_subsystem_command_wrapper
+
+	WRAPPER=${PKI_WRAPPERS}/${COMMAND}
+
+	sed	-e "s|\[PKI_PRODUCT\]|${PRODUCT}|g"     \
+		-e "s|\[PKI_SUBSYSTEM\]|${SUBSYSTEM}|g" \
+		-e "s|\[PKI_COMMAND\]|${COMMAND}|g"     \
+		${PKI_SHARED_DATA}/templates/${TEMPLATE} > ${WRAPPER} ;
+}
+
+
+for cmd in ${COMMANDS}
+do
+	create_wrapper ${PKI_PRODUCT_NAME} ${PKI_SUBSYSTEM_NAME} ${cmd}
+done
+
+
+rm -rf ${PKI_SHARED_DATA}/templates
+
+
+###############################################################################
+##  (8)  Create useful symbolic links as appropriate.                        ##
+###############################################################################
+
+# create legacy "tus" directory symbolic-link for backwards compatibility
+cd ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
+ln -s tokendb tus
+
+# create shared library sans version "linker-name" to protect this namespace
+cd ${SYSTEM_LIBRARIES}                                                  ;
+ln -s libldapauth.so.${VERSION} libldapauth.so.${PRODUCT_VERSION}       ;
+ln -s libldapauth.so.${PRODUCT_VERSION} libldapauth.so.${MAJOR_VERSION} ;
+ln -s libldapauth.so.${MAJOR_VERSION} libldapauth.so                    ;
+ln -s libtokendb.so.${VERSION} libtokendb.so.${PRODUCT_VERSION}         ;
+ln -s libtokendb.so.${PRODUCT_VERSION} libtokendb.so.${MAJOR_VERSION}   ;
+ln -s libtokendb.so.${MAJOR_VERSION} libtokendb.so                      ;
+ln -s libtps.so.${VERSION} libtps.so.${PRODUCT_VERSION}                 ;
+ln -s libtps.so.${PRODUCT_VERSION} libtps.so.${MAJOR_VERSION}           ;
+ln -s libtps.so.${MAJOR_VERSION} libtps.so
+
+# create jar sans version to be used by classpath
+
+# create assorted symbolic links to various file dependencies (Tomcat)
+
+
+###############################################################################
+##  (9)  Successfully exit from this setup script.                           ##
+###############################################################################
+
+exit 0
+

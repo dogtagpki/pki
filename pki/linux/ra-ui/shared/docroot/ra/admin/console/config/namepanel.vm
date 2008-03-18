@@ -1,0 +1,87 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+Each certificate associated with this instance needs to have a unique name within the PKI hierarchy. The following information will be used to generate these unique names. <a href="javascript:toggle_details();">[Details]</a>
+<SCRIPT type="text/JavaScript">
+function toggle_details()
+{
+  d = document.getElementById('details');
+  if (d.style.display == "block") {
+    d.style.display="none";
+  } else {
+    d.style.display="block";
+  }
+}
+</script>
+                                                                                
+<div id=details style="display: none;">
+<p>
+Each unique name, called the certificate's subject name, is referenced as the distinguished name (DN). A DN may be composed of multiple comma separated name=value fields.
+<br/>
+</div>
+
+    <p>
+#if ($errorString != "")
+<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<br/>
+#foreach ($item in $certs)
+<H2>$item.getUserFriendlyName()</H2>
+                                                                                
+    <table class="details">
+      <tr>
+        <th>DN:</th>
+        <td><input type="text" size="70" name="$item.getCertTag()" value="$item.getDN()"/></td>
+      </tr>
+    </table>
+<p>
+#end
+<p>
+<hr>
+<p>
+Please select the CA to submit these system certificate requests:
+<p>
+    <table class="details">
+      <tr>
+        <th>URL:</th>
+        <td><select name="urls">
+           #if ($urls_size != 0)
+           #set ($x=0)
+           #foreach ($p in $urls)
+               <option value="$x">$p</option>
+               #set ($x=$x+1)
+           #end
+           #end
+            </select>
+        </td>
+      </tr>
+    </table>
+                                                                                
+   <div align="right">
+      <hr />
+    </div>

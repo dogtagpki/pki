@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<title>Examine Recovery</title>
+<head>
+</head>
+<body bgcolor="white">
+
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<script language="JavaScript" src="../funcs.js"></script>
+<script language="JavaScript" src="../helpfun.js"></script>
+<script language="JavaScript">
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+	sign = "-";
+	number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+	absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+function renderHexNumber(number,width)
+{
+    var num = toHex(number);
+    while (num.length < width)
+        num = "0"+num;
+    return "0x"+num;
+}
+
+function renderDateFromSecs(secs)
+{
+    if (secs == null) return "";
+    var today = new Date();
+    var dateTmp = new Date();
+    dateTmp.setTime(secs * 1000);
+    var dateStr = dateTmp.toLocaleString();
+    return dateStr;
+}
+
+if (result.header.errorDetails != null) {
+        writeError(result.header.errorDetails);
+} else {
+	document.writeln(
+        '<font face="PrimaSans BT, Verdana, sans-serif"><font size=+1>'+
+        'Recovery Operation ' + result.header.recoveryID +
+        '</font></font>');
+
+	document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+       document.write('<form method=post ' +
+          'action="' + '/kra/agent/kra/grantRecovery' + '">\n');
+
+	document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+	document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+	document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+	document.writeln('Key</font></td></tr>');
+
+	document.writeln('<tr>');
+	document.write('<td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key Identifier:</font> <font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.serialNumber + '</font></td>');
+	document.writeln('</tr>');
+	document.writeln('<tr>');
+	document.write('<td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Owner Name:</font> <font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.ownerName + '</font></td>');
+	document.writeln('</tr>');
+	document.writeln('<tr>');
+	document.write('<td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key Algorithm:</font> <font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.keyAlgorithm + '</font></td>');
+	document.writeln('</tr>');
+	document.writeln('<tr>');
+	document.write('<td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Public Key:</font> <font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.publicKey + '</font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+        if (result.header.keySplitting == 'true') {
+          document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Agent Identifier:</font></td>');
+          document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=text name="agentID" value=""></font></td>');
+          document.writeln('</tr>');                                                      document.writeln('<tr>');                                                       document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Agent Password:</font></td>');
+          document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="agentPWD" value="" AutoComplete=off ></font></td>');
+          document.writeln('</tr>');                                              
+          document.writeln('<tr>');                                               
+        }
+	document.writeln('</tr>');
+
+	document.writeln('<input type=hidden name="op" value="grantRecovery">');
+	document.writeln('<input type=hidden name="recoveryID" VALUE="' +
+                result.header.recoveryID + '">\n');
+	document.write('</table>');
+
+	document.writeln('<table cellpadding="6" cellspacing="0" border="0" width="100%">');
+	document.writeln('<tr>');
+	document.writeln('<td align="right" bgcolor="#e5e5e5">');
+	document.writeln('<input type=submit value="Grant">');
+	document.writeln("<input type=button value=\"Help\" onClick=\"help('/manual/agt_gide/kraagt.htm#1022642')\">");
+	document.writeln('</td>');
+	document.writeln('</tr>');
+	document.writeln('</table>');
+	document.writeln('</form>');
+}
+</script>
+</body>
+</html>

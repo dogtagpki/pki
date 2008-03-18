@@ -1,0 +1,777 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// (C) 2007 Red Hat, Inc.
+// All rights reserved.
+// --- END COPYRIGHT BLOCK ---
+package com.netscape.cmscore.cert;
+
+
+import java.io.*;
+import java.util.*;
+import java.math.*;
+import java.security.cert.*;
+import netscape.security.x509.*;
+import netscape.security.extensions.*;
+import netscape.security.util.*;
+import com.netscape.cmscore.util.*;
+import com.netscape.osutil.*;
+import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.apps.CMS;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import netscape.security.pkcs.*;
+import java.net.SocketException;
+
+import javax.servlet.http.HttpServletRequest;
+
+
+/**
+ * Utility class with assorted methods to check for 
+ * smime pairs, determining the type of cert - signature
+ * or encryption ..etc.
+ *
+ * @author kanda
+ * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ */
+public class CertUtils {
+    public static final String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
+    public static final String CERT_NEW_REQUEST_TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
+    public static final String CERT_REQUEST_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
+    public static final String CERT_REQUEST_TRAILER = "-----END CERTIFICATE REQUEST-----";
+    public static final String CERT_RENEWAL_HEADER = "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
+    public static final String CERT_RENEWAL_TRAILER = "-----END RENEWAL CERTIFICATE REQUEST-----";
+    public static final String BEGIN_CRL_HEADER =
+        "-----BEGIN CERTIFICATE REVOCATION LIST-----";
+    public static final String END_CRL_HEADER =
+        "-----END CERTIFICATE REVOCATION LIST-----";
+
+    /**
+     * Remove the header and footer in the PKCS10 request.
+     */
+    public static String unwrapPKCS10(String request, boolean checkHeader)
+        throws EBaseException {
+        String unwrapped;
+        String header = null;
+        int head = -1;
+        int trail = -1;
+
+        // check for "-----BEGIN NEW CERTIFICATE REQUEST-----";
+        if (header == null) {
+            head = request.indexOf(CERT_NEW_REQUEST_HEADER);
+            trail = request.indexOf(CERT_NEW_REQUEST_TRAILER);
+
+            if (!(head == -1 && trail == -1)) {
+                header = CERT_NEW_REQUEST_HEADER;
+            }
+        }
+
+        // check for "-----BEGIN CERTIFICATE REQUEST-----";
+        if (header == null) {
+            head = request.indexOf(CERT_REQUEST_HEADER);
+            trail = request.indexOf(CERT_REQUEST_TRAILER);
+
+            // If this is not a request header, check if this is a renewal header.
+            if (!(head == -1 && trail == -1)) {
+                header = CERT_REQUEST_HEADER;
+
+            }
+        }
+
+        // check for "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
+        if (header == null) {
+            head = request.indexOf(CERT_RENEWAL_HEADER);
+            trail = request.indexOf(CERT_RENEWAL_TRAILER);
+            if (!(head == -1 && trail == -1)) {
+                header = CERT_RENEWAL_HEADER;
+            }
+        }
+
+        // Now validate if any headers or trailers are in place
+        if (head == -1 && checkHeader) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_MISSING_PKCS10_HEADER"));
+        }
+        if (trail == -1 && checkHeader) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_MISSING_PKCS10_TRAILER"));
+        }
+
+        if (header != null) {
+            unwrapped = request.substring(head + header.length(), trail);
+        } else {
+            unwrapped = request;
+        }
+
+        // strip all the crtl-characters (i.e. \r\n)
+        StringTokenizer st = new StringTokenizer(unwrapped, "\t\r\n ");
+        StringBuffer stripped = new StringBuffer();
+
+        while (st.hasMoreTokens()) {
+            stripped.append(st.nextToken());
+        }
+
+        return stripped.toString();
+    }
+
+    public static PKCS10 decodePKCS10(String req) throws EBaseException {
+        String normalized = unwrapPKCS10(req, true);
+        PKCS10 pkcs10 = null;
+
+        try {
+            byte[] decodedBytes = com.netscape.osutil.OSUtil.AtoB(normalized);
+
+            pkcs10 = new PKCS10(decodedBytes);
+        } catch (Exception e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+        }
+        return pkcs10;
+    }
+
+    public static void setRSAKeyToCertInfo(X509CertInfo info, 
+        byte encoded[]) throws EBaseException {
+        try {
+            if (info == null) {
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
+            }
+            X509Key key = new X509Key(AlgorithmId.getAlgorithmId(
+                        "RSAEncryption"), encoded);
+
+            info.set(X509CertInfo.KEY, key);
+        } catch (Exception e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
+        }
+    }
+
+    public static X509CertInfo createCertInfo(int ver,
+        BigInteger serialno, String alg, String issuerName,
+        Date notBefore, Date notAfter) throws EBaseException {
+        try {
+            X509CertInfo info = new X509CertInfo();
+
+            info.set(X509CertInfo.VERSION, new CertificateVersion(ver));
+            info.set(X509CertInfo.SERIAL_NUMBER, new 
+                CertificateSerialNumber(serialno));
+            info.set(X509CertInfo.ALGORITHM_ID, new 
+                CertificateAlgorithmId(AlgorithmId.getAlgorithmId(alg)));
+            info.set(X509CertInfo.ISSUER, new 
+                CertificateIssuerName(new X500Name(issuerName)));
+            info.set(X509CertInfo.VALIDITY, new 
+                CertificateValidity(notBefore, notAfter));
+            return info;
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            return null;
+        }
+    }
+
+    public static void sortCerts(X509CertImpl[] arr) {
+        Arrays.sort(arr, new CertDateCompare());
+    }
+
+    public static boolean isSigningCert(X509CertImpl cert) {
+        boolean[] keyUsage = null;
+
+        try {
+            keyUsage = cert.getKeyUsage();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (keyUsage == null) ? false : keyUsage[0];
+    }
+
+    public static boolean isEncryptionCert(X509CertImpl cert) {
+        boolean[] keyUsage = null;
+
+        try {
+            keyUsage = cert.getKeyUsage();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (keyUsage == null)
+            return false;
+        if (keyUsage.length < 3)
+            return false;
+        else if (keyUsage.length == 3)
+            return keyUsage[2];
+        else return keyUsage[2] || keyUsage[3];
+    }
+
+    public static boolean haveSameValidityPeriod(X509CertImpl cert1,
+        X509CertImpl cert2) {
+        long notBefDiff = 0;
+        long notAfterDiff = 0;
+
+        try {
+            notBefDiff = Math.abs(cert1.getNotBefore().getTime() -
+                        cert2.getNotBefore().getTime());
+            notAfterDiff = Math.abs(cert1.getNotAfter().getTime() -
+                        cert2.getNotAfter().getTime());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (notBefDiff > 1000 || notAfterDiff > 1000)
+            return false;
+        else
+            return true;
+    }
+
+    public static boolean isSmimePair(X509CertImpl cert1, X509CertImpl cert2, boolean matchSubjectDN) {
+        // Check for subjectDN equality.
+        if (matchSubjectDN) {
+            String dn1 = cert1.getSubjectDN().toString();
+            String dn2 = cert2.getSubjectDN().toString();
+
+            if (!sameSubjectDN(dn1, dn2))
+                return false;
+        }
+		
+        // Check for the presence of signing and encryption certs.
+        boolean hasSigningCert = isSigningCert(cert1) || isSigningCert(cert2);
+
+        if (!hasSigningCert)
+            return false;
+
+        boolean hasEncryptionCert = isEncryptionCert(cert1) || isEncryptionCert(cert2);
+
+        if (!hasEncryptionCert)
+            return false;
+
+            // If both certs have signing & encryption usage set, they are
+            // not really pairs.
+        if ((isSigningCert(cert1) && isEncryptionCert(cert1)) ||
+            (isSigningCert(cert2) && isEncryptionCert(cert2)))
+            return false;
+
+            // See if the certs have the same validity.
+        boolean haveSameValidity = 
+            haveSameValidityPeriod(cert1, cert2);
+
+        return haveSameValidity;
+    }
+
+    public static boolean isNotYetValidCert(X509CertImpl cert) {
+        boolean ret = false;
+
+        try {
+            cert.checkValidity();
+        } catch (CertificateExpiredException e) {
+        } catch (CertificateNotYetValidException e) {
+            ret = true;
+        } catch (Exception e) {
+        }
+        return ret;
+    }
+
+    public static boolean isValidCert(X509CertImpl cert) {
+        boolean ret = true;
+
+        try {
+            cert.checkValidity();
+        } catch (Exception e) {
+            ret = false;
+        }
+        return ret;
+    }
+
+    public static boolean isExpiredCert(X509CertImpl cert) {
+        boolean ret = false;
+
+        try {
+            cert.checkValidity();
+        } catch (CertificateExpiredException e) {
+            ret = true;
+        } catch (Exception e) {
+        }
+        return ret;
+    }
+
+    public static boolean sameSubjectDN(String dn1, String dn2) {
+        boolean ret = false;
+
+        // The dn cannot be null.
+        if (dn1 == null || dn2 == null)
+            return false;
+        try {
+            X500Name n1 = new X500Name(dn1);
+            X500Name n2 = new X500Name(dn2);
+
+            ret = n1.equals(n2);
+        } catch (Exception e) {
+        }
+        return ret;
+    }
+
+    public static String getValidCertsDisplayInfo(String cn, X509CertImpl[] validCerts) {
+        StringBuffer sb = new StringBuffer(1024);
+
+        sb.append(cn + "'s Currently Valid Certificates\n\n");
+        sb.append(getCertsDisplayInfo(validCerts));
+        return new String(sb);
+    }
+
+    public static String getExpiredCertsDisplayInfo(String cn, X509CertImpl[] expiredCerts) {
+        StringBuffer sb = new StringBuffer(1024);
+
+        sb.append(cn + "'s Expired Certificates\n\n");
+        sb.append(getCertsDisplayInfo(expiredCerts));
+        return new String(sb);
+    }
+
+    public static String getRenewedCertsDisplayInfo(String cn,
+        X509CertImpl[] validCerts, X509CertImpl[] renewedCerts) {
+        StringBuffer sb = new StringBuffer(1024);
+
+        if (validCerts != null) {
+            sb.append(cn + "'s Currently Valid Certificates\n\n");
+            sb.append(getCertsDisplayInfo(validCerts));
+            sb.append("\n\nRenewed Certificates\n\n\n");
+        } else
+            sb.append(cn + "'s Renewed Certificates\n\n");
+        sb.append(getCertsDisplayInfo(renewedCerts));
+        return new String(sb);
+    }
+
+    public static String getCertsDisplayInfo(X509CertImpl[] validCerts) {
+        // We assume that the given pair is a valid S/MIME pair.
+        StringBuffer sb = new StringBuffer(1024);
+
+        sb.append("Subject DN: " + validCerts[0].getSubjectDN().toString());
+        sb.append("\n");
+        X509CertImpl signingCert, encryptionCert;
+
+        if (isSigningCert(validCerts[0])) {
+            signingCert = validCerts[0];
+            encryptionCert = validCerts[1];
+        } else {
+            signingCert = validCerts[1];
+            encryptionCert = validCerts[0];
+        }
+        sb.append("Signing      Certificate Serial No: " + signingCert.getSerialNumber().toString(16).toUpperCase());
+        sb.append("\n");
+        sb.append("Encryption Certificate Serial No: " + encryptionCert.getSerialNumber().toString(16).toUpperCase());
+        sb.append("\n");
+        sb.append("Validity: From: " + signingCert.getNotBefore().toString() + "  To: " + signingCert.getNotAfter().toString());
+        sb.append("\n");
+        return new String(sb);
+    }
+
+    /**
+     * Returns the index of the given cert in an array of certs.
+     *
+     * Assumptions: The certs are issued by the same CA 
+     *
+     * @param certArray	The array of certs.
+     * @param givenCert	The certificate we are lokking for in the array.
+     * @return -1 if not found or the index of the given cert in the array.
+     */
+    public static int getCertIndex(X509CertImpl[] certArray, X509CertImpl givenCert) {
+        int i = 0;
+
+        for (; i < certArray.length; i++) {
+            if (certArray[i].getSerialNumber().equals(
+                    givenCert.getSerialNumber())) {
+                break;
+            }
+        }
+
+        return ((i == certArray.length) ? -1 : i);
+    }
+
+    /**
+     * Returns the most recently issued signing certificate from an
+     * an array of certs. 
+     *
+     * Assumptions: The certs are issued by the same CA 
+     *
+     * @param certArray	The array of certs.
+     * @param givenCert	The certificate we are lokking for in the array.
+     * @return null if there is no recent cert or the most recent cert.
+     */
+    public static X509CertImpl getRecentSigningCert(X509CertImpl[] certArray,
+        X509CertImpl currentCert) {
+        if (certArray == null || currentCert == null)
+            return null;
+
+            // Sort the certificate array.
+        Arrays.sort(certArray, new CertDateCompare());
+
+        // Get the index of the current cert in the array.
+        int i = getCertIndex(certArray, currentCert);
+
+        if (i < 0)
+            return null;
+
+        X509CertImpl recentCert = currentCert;
+
+        for (; i < certArray.length; i++) {
+            // Check if it is a signing cert and has its
+            // NotAfter later than the current cert.
+            if (isSigningCert(certArray[i]) &&
+                certArray[i].getNotAfter().after(recentCert.getNotAfter()))
+                recentCert = certArray[i];
+        }
+        return ((recentCert == currentCert) ? null : recentCert);
+    }
+
+    public static String getCertType(X509CertImpl cert) {
+        StringBuffer sb = new StringBuffer();
+
+        if (isSigningCert(cert))
+            sb.append("signing");
+        if (isEncryptionCert(cert)) {
+            if (sb.length() > 0)
+                sb.append("  ");
+            sb.append("encryption");
+        }
+
+        // Is is object signing cert?
+        try {
+            CertificateExtensions extns = (CertificateExtensions)
+                cert.get(X509CertImpl.NAME + "." + 
+                    X509CertImpl.INFO + "." + 
+                    X509CertInfo.EXTENSIONS);
+
+            if (extns != null) {
+                NSCertTypeExtension nsExtn = (NSCertTypeExtension)
+                    extns.get(NSCertTypeExtension.NAME);
+
+                if (nsExtn != null) {
+                    String nsType = getNSExtensionInfo(nsExtn);
+
+                    if (nsType != null) {
+                        if (sb.length() > 0)
+                            sb.append("  ");
+                        sb.append(nsType);
+                    }
+                }
+            }
+        }catch (Exception e) {
+        }
+        return (sb.length() > 0) ? sb.toString() : null;
+    }
+
+    public static String getNSExtensionInfo(NSCertTypeExtension nsExtn) {
+        StringBuffer sb = new StringBuffer();
+
+        try {
+            Boolean res;
+
+            res = (Boolean) nsExtn.get(NSCertTypeExtension.SSL_CLIENT);
+            if (res.equals(Boolean.TRUE))
+                sb.append("   ssl_client");
+            res = (Boolean) nsExtn.get(NSCertTypeExtension.SSL_SERVER);
+            if (res.equals(Boolean.TRUE))
+                sb.append("   ssl_server");
+            res = (Boolean) nsExtn.get(NSCertTypeExtension.EMAIL);
+            if (res.equals(Boolean.TRUE))
+                sb.append("   email");
+            res = (Boolean) nsExtn.get(NSCertTypeExtension.OBJECT_SIGNING);
+            if (res.equals(Boolean.TRUE))
+                sb.append("   object_signing");
+            res = (Boolean) nsExtn.get(NSCertTypeExtension.SSL_CA);
+            if (res.equals(Boolean.TRUE))
+                sb.append("   ssl_CA");
+            res = (Boolean) nsExtn.get(NSCertTypeExtension.EMAIL_CA);
+            if (res.equals(Boolean.TRUE))
+                sb.append("   email_CA");
+            res = (Boolean) nsExtn.get(NSCertTypeExtension.OBJECT_SIGNING_CA);
+            if (res.equals(Boolean.TRUE))
+                sb.append("   object_signing_CA");
+        }catch (Exception e) {
+        }
+
+        return (sb.length() > 0) ? sb.toString() : null;
+    }
+
+    public static byte[] readFromFile(String fileName)
+        throws IOException {
+        FileInputStream fin = new FileInputStream(fileName);
+        int available = fin.available();
+        byte[] ba = new byte[available];
+        int nRead = fin.read(ba);
+
+        if (nRead != available)
+            throw new IOException("Error reading data from file: " + fileName);
+        fin.close();
+        return ba;
+    }
+
+    public static void storeInFile(String fileName, byte[] ba)
+        throws IOException {
+        FileOutputStream fout = new FileOutputStream(fileName);
+
+        fout.write(ba);
+        fout.close();
+    }
+
+    public static String toMIME64(X509CertImpl cert) {
+        try {
+            return 
+                "-----BEGIN CERTIFICATE-----\n" +
+                com.netscape.osutil.OSUtil.BtoA(cert.getEncoded()) +
+                "-----END CERTIFICATE-----\n";
+        } catch (CertificateException e) {
+        }
+        return null;
+    }
+
+    public static X509Certificate mapCert(String mime64) 
+        throws IOException {
+        mime64 = stripCertBrackets(mime64.trim());
+        String newval = normalizeCertStr(mime64);
+        byte rawPub[] = com.netscape.osutil.OSUtil.AtoB(newval);
+        X509Certificate cert = null;
+
+        try {
+            cert = new X509CertImpl(rawPub);
+        } catch (CertificateException e) {
+        }
+        return cert;
+    }
+
+    public static X509Certificate[] mapCertFromPKCS7(String mime64) 
+        throws IOException {
+        mime64 = stripCertBrackets(mime64.trim());
+        String newval = normalizeCertStr(mime64);
+        byte rawPub[] = com.netscape.osutil.OSUtil.AtoB(newval);
+        PKCS7 p7 = null;
+
+        try {
+            p7 = new PKCS7(rawPub);
+            return p7.getCertificates();
+        } catch (Exception e) {
+            throw new IOException(e.toString());
+        }
+    }
+
+    public static X509CRL mapCRL(String mime64) 
+        throws IOException {
+        mime64 = stripCRLBrackets(mime64.trim());
+        String newval = normalizeCertStr(mime64);
+        byte rawPub[] = com.netscape.osutil.OSUtil.AtoB(newval);
+        X509CRL crl = null;
+
+        try {
+            crl = new X509CRLImpl(rawPub);
+        } catch (Exception e) {
+        }
+        return crl;
+    }
+
+    public static X509CRL mapCRL1(String mime64) 
+        throws IOException {
+        mime64 = stripCRLBrackets(mime64.trim());
+        byte rawPub[] = OSUtil.AtoB(mime64);
+        X509CRL crl = null;
+
+        try {
+            crl = new X509CRLImpl(rawPub);
+        } catch (Exception e) {
+            throw new IOException(e.toString());
+        }
+        return crl;
+    }
+
+    public static String normalizeCertStr(String s) {
+        String val = "";
+
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '\n') {
+                continue;
+            } else if (s.charAt(i) == '\r') {
+                continue;
+            } else if (s.charAt(i) == '"') {
+                continue;
+            } else if (s.charAt(i) == ' ') {
+                continue;
+            }
+            val += s.charAt(i);
+        }
+        return val;
+    }
+
+    public static String stripCRLBrackets(String s) {
+        if (s == null) {
+            return s;
+        }
+        if ((s.startsWith("-----BEGIN CERTIFICATE REVOCATION LIST-----")) &&
+            (s.endsWith("-----END CERTIFICATE REVOCATION LIST-----"))) {
+            return (s.substring(43, (s.length() - 41)));
+        }
+        return s;
+    }
+
+    /**
+     * strips out the begin and end certificate brackets
+     * @param s the string potentially bracketed with
+     * "-----BEGIN CERTIFICATE-----" and "-----END CERTIFICATE-----"
+     * @return string without the brackets
+     */
+    public static String stripCertBrackets(String s) {
+        if (s == null) {
+            return s;
+        }
+
+        if ((s.startsWith("-----BEGIN CERTIFICATE-----")) &&
+            (s.endsWith("-----END CERTIFICATE-----"))) {
+            return (s.substring(27, (s.length() - 25)));
+        }
+
+        // To support Thawte's header and footer
+        if ((s.startsWith("-----BEGIN PKCS #7 SIGNED DATA-----")) &&
+            (s.endsWith("-----END PKCS #7 SIGNED DATA-----"))) {
+            return (s.substring(35, (s.length() - 33)));
+        }
+
+        return s;
+    }
+
+    /**
+     * Returns a string that represents a cert's fingerprint.
+     * The fingerprint is a MD5 digest of the DER encoded certificate.
+     * @param  cert Certificate to get the fingerprint of.
+     * @return a String that represents the cert's fingerprint.
+     */
+    public static String getFingerPrint(Certificate cert) 
+        throws CertificateEncodingException, NoSuchAlgorithmException {
+        byte certDer[] = cert.getEncoded();
+        MessageDigest md = MessageDigest.getInstance("MD5");
+
+        md.update(certDer);
+        byte digestedCert[] = md.digest();
+        PrettyPrintFormat pp = new PrettyPrintFormat(":");
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(pp.toHexString(digestedCert, 4, 20));
+        return sb.toString();
+    }
+	
+    /**
+     * Returns a string that has the certificate's fingerprint using 
+     * MD5, MD2 and SHA1 hashes.
+     * A certificate's fingerprint is a hash digest of the DER encoded 
+     * certificate.
+     * @param cert Certificate to get the fingerprints of.
+     * @return a String with fingerprints using the MD5, MD2 and SHA1 hashes.
+     * For example, 
+     * <pre>
+     * MD2:   78:7E:D1:F9:3E:AF:50:18:68:A7:29:50:C3:21:1F:71
+     * 
+     * MD5:   0E:89:91:AC:40:50:F7:BE:6E:7B:39:4F:56:73:75:75
+     * 
+     * SHA1:  DC:D9:F7:AF:E2:83:10:B2:F7:0A:77:E8:50:E2:F7:D1:15:9A:9D:00
+     * </pre>
+     */
+    public static String getFingerPrints(Certificate cert)
+        throws NoSuchAlgorithmException, CertificateEncodingException {
+        byte certDer[] = cert.getEncoded();
+		/*
+        String[] hashes = new String[] {"MD2", "MD5", "SHA1"};
+        String certFingerprints = "";
+        PrettyPrintFormat pp = new PrettyPrintFormat(":");
+
+        for (int i = 0; i < hashes.length; i++) {
+            MessageDigest md = MessageDigest.getInstance(hashes[i]);
+
+            md.update(certDer);
+            certFingerprints += "    " + hashes[i] + ":" +
+                    pp.toHexString(md.digest(), 6 - hashes[i].length());
+        }
+        return certFingerprints;
+		*/
+		return getFingerPrints(certDer);
+    }
+	
+    /**
+     * Returns a string that has the certificate's fingerprint using 
+     * MD5, MD2 and SHA1 hashes.
+     * A certificate's fingerprint is a hash digest of the DER encoded 
+     * certificate.
+     * @param cert Certificate to get the fingerprints of.
+     * @return a String with fingerprints using the MD5, MD2 and SHA1 hashes.
+     * For example, 
+     * <pre>
+     * MD2:   78:7E:D1:F9:3E:AF:50:18:68:A7:29:50:C3:21:1F:71
+     * 
+     * MD5:   0E:89:91:AC:40:50:F7:BE:6E:7B:39:4F:56:73:75:75
+     * 
+     * SHA1:  DC:D9:F7:AF:E2:83:10:B2:F7:0A:77:E8:50:E2:F7:D1:15:9A:9D:00
+     * </pre>
+     */
+    public static String getFingerPrints(byte[] certDer)
+        throws NoSuchAlgorithmException/*, CertificateEncodingException*/ {
+		//        byte certDer[] = cert.getEncoded();
+        String[] hashes = new String[] {"MD2", "MD5", "SHA1", "SHA256", "SHA512"};
+        String certFingerprints = "";
+        PrettyPrintFormat pp = new PrettyPrintFormat(":");
+
+        for (int i = 0; i < hashes.length; i++) {
+            MessageDigest md = MessageDigest.getInstance(hashes[i]);
+
+            md.update(certDer);
+            certFingerprints += hashes[i] + ":\n" +
+                    pp.toHexString(md.digest(), 8, 16);
+        }
+        return certFingerprints;
+    }
+
+    /**
+     * Check if a object identifier in string form is valid, 
+     * that is a string in the form n.n.n.n and der encode and decode-able.
+     * @param attrName attribute name (from the configuration file)
+     * @param value object identifier string.
+     */ 
+    public static ObjectIdentifier checkOID(String attrName, String value)
+        throws EBaseException {
+        String msg = "value must be a object identifier in the form n.n.n.n";
+        String msg1 = "not a valid object identifier.";
+        ObjectIdentifier oid;
+
+        try { 
+            oid = ObjectIdentifier.getObjectIdentifier(value); 
+        } catch (Exception e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
+                        attrName, msg));
+        }
+
+        // if the OID isn't valid (ex. n.n) the error isn't caught til
+        // encoding time leaving a bad request in the request queue.
+        try { 
+            DerOutputStream derOut = new DerOutputStream();
+
+            derOut.putOID(oid);
+            new ObjectIdentifier(new DerInputStream(derOut.toByteArray()));
+        } catch (Exception e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
+                        attrName, msg1));
+        }
+        return oid;
+    }
+
+    public static String trimB64E(String b64e) {
+        StringBuffer tmp = new StringBuffer("");
+        String line = null;
+        StringTokenizer tokens = new StringTokenizer(b64e, "\n");
+
+        while (tokens.hasMoreTokens()) {
+            line = tokens.nextToken();
+            line = line.trim();
+            tmp.append(line.trim());
+            if (tokens.hasMoreTokens())
+                tmp.append("\n");
+        }
+
+        return tmp.toString();
+    }
+	
+}

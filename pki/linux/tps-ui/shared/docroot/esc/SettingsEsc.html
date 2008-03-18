@@ -1,0 +1,738 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<head>
+
+<link rel=stylesheet href="/style.css" type="text/css">
+
+<script lang="JavaScript">
+//
+// initialize netkey globals
+var netkey;
+var gNotify = null;
+var isMSHTML;
+
+//
+// Determine if we are running MSHTML or GECKO
+//
+if (navigator.userAgent.indexOf("MSIE") != -1) {
+  isMSHTML = true;
+} else {
+  isMSHTML = false;
+}
+
+
+//
+// Notify callback for GECKO
+//
+function jsNotify()  {}
+
+jsNotify.prototype = {
+
+  rhNotifyKeyStateChange: function(aKeyType,aKeyID,aKeyState,aData,strData)
+  {
+
+    OnCOOLKeyStateChange(aKeyType, aKeyID, aKeyState, aData);
+  },
+
+  QueryInterface: function(iid)
+  {
+    <!--  alert("iid: " + iid); -->
+     if(!iid.equals(Components.interfaces.rhIKeyNotify) &&
+         !iid.equals(Components.interfaces.nsISupports))
+      {
+          alert("Can't find jsNotify interface");
+          throw Components.results.NS_ERROR_NO_INTERFACE;
+      }
+      return this;
+  }
+};
+
+//
+// Attach to the object.
+//
+if (!isMSHTML) {
+  // GECKO ONLY initialization
+  try {
+    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    netkey = Components.classes["@redhat.com/rhCoolKey"].getService();
+    netkey = netkey.QueryInterface(Components.interfaces.rhICoolKey);
+
+    gNotify = new jsNotify;
+
+    netkey.rhCoolKeySetNotifyCallback(gNotify);
+
+  } catch(e) {
+     alert("Can't get UniversalXPConnect: " + e);
+  }
+} else {
+  // MSHTML only initialization
+  netkey = external;
+}
+
+//
+// unregister our notify event
+//
+function cleanup()
+{
+  if (!isMSHTML) {
+    try {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+
+
+      netkey.rhCoolKeyUnSetNotifyCallback(gNotify);
+    } catch(e) {
+     alert("Can't get UniversalXPConnect: " + e);
+    }
+  }
+}
+
+
+////////////////////////////////////////////////////////////////
+//
+// Host will be responsible for generating the gBindingsArray.
+//
+////////////////////////////////////////////////////////////////
+
+var gBindingsArray = [
+  <!-- SECURECOOL_BINDINGS_ARRAY -->
+];
+
+////////////////////////////////////////////////////////////////
+//
+// Utility functions specific to this page.
+//
+////////////////////////////////////////////////////////////////
+
+var gKeyBusyArray = [ ];
+
+function KeyToRowID(keyType, keyID)
+{
+  return keyType + "--" + keyID;
+}
+
+function RowIDToKeyInfo(rowID)
+{
+  return rowID.split("--");
+}
+
+function GetRowForKey(keyType, keyID)
+{
+  return document.getElementById(KeyToRowID(keyType, keyID));
+}
+
+function LoadBindingsIntoTable()
+{
+  var table = document.getElementById("KeyTable");
+
+  if (table)
+  {
+    var i;
+    for (i=0; i < gBindingsArray.length; i++)
+    {
+      CreateTableRow(table, gBindingsArray[i][0], gBindingsArray[i][1], false,
+                     gBindingsArray[i][2], true);
+    }
+  }
+}
+
+function InsertCOOLKeyIntoBindingTable(keyType, keyID)
+{
+  var row = GetRowForKey(keyType, keyID);
+
+  if (!row)
+  {
+    var table = document.getElementById("KeyTable");
+    if (table)
+    {
+      // The assumption here is that if the key isn't already
+      // listed in the table, then it must be a new unbound key!
+
+      row = CreateTableRow(table, keyType, keyID, true, keyID, false);
+    }
+
+    if (!row)
+      return null;
+  }
+  else if (IsKeyBound(keyType, keyID))
+    SetKeyIsVisible(row, true);
+
+  return row;
+}
+
+function ConvertVariantArrayToJScriptArray(varr)
+{
+  // C++ native methods, like netkey.GetAvailableCOOLKeys(), can only
+  // return variant SafeArrays, so to access the data inside, you must
+  // first convert it to a VBArray, and then call toArray() to convert
+  // it to a JScript array. Lame, but that's what it takes to
+  // use an array returned from an ActiveX component.
+
+  return new VBArray(varr).toArray();
+}
+
+function ReportException(msg, e)
+{
+  alert(msg + " " + e.description + "(" + e.number + ")");
+}
+
+function GetAvailableCOOLKeys()
+{
+  try {
+    var keyArr;
+
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+      var inArray = netkey.GetAvailableCoolKeys( {} );
+      keyArr = new Array(inArray.length);
+      var i;
+
+      for (i=0; i < keyArr.length; i++) {
+	keyArr[i] = new Array( "1", inArray[i]);
+      }
+    } else {
+      keyArr = ConvertVariantArrayToJScriptArray(netkey.GetAvailableCoolKeys());
+
+      var i;
+      for (i=0; i < keyArr.length; i++)
+        keyArr[i] = ConvertVariantArrayToJScriptArray(keyArr[i]);
+    }
+    return keyArr;
+  } catch(e) {
+    ReportException("netkey.GetAvailableCoolKeys() failed!", e);
+    return [];
+  }
+}
+
+function BlinkCOOLKey(keyType, keyID, rate, duration)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    netkey.BlinkCoolKey(keyType, keyID, rate, duration);
+  } catch(e) {
+    ReportException("netkey.BlinkCoolKey() failed!", e);
+    return false;
+  }
+  return true;
+}
+
+//
+// MSHTML/GECKO compatibility functions.
+//
+function RemoveRow(table, row)
+{
+  if (isMSHTML) {
+    row.removeNode(row);
+  } else {
+    table.deleteRow(row.rowIndex);
+  }
+}
+
+function InsertRow(table)
+{
+  var row;
+
+  if (isMSHTML) {
+    row = table.insertRow();
+  } else {
+    row = table.insertRow(table.rows.length);
+  }
+  return row;
+}
+
+function InsertCell(row)
+{
+  var cell;
+
+  if (isMSHTML) {
+    cell = row.insertCell();
+  } else {
+    cell = row.insertCell(row.cells.length);
+  }
+  return cell;
+}
+
+function UpdateBindingTableAvailability()
+{
+  var arr = GetAvailableCOOLKeys();
+
+  if (!arr || arr.length < 1)
+    return;
+
+  var i;
+
+  for (i=0; i < arr.length; i++)
+    InsertCOOLKeyIntoBindingTable(arr[i][0], arr[i][1]);
+}
+
+function InitializeBindingTable()
+{
+  LoadBindingsIntoTable();
+  UpdateBindingTableAvailability();
+}
+
+function IsKeyBound(keyType, keyID)
+{
+  
+  for (i=0; i < gBindingsArray.length; i++)
+  {
+    if (keyType == gBindingsArray[i][0] && keyID == gBindingsArray[i][1])
+      return true;
+  }
+
+  return false;
+}
+
+function COOLKeyIsBusy(keyType, keyID)
+{
+  for (i=0; i < gKeyBusyArray.length; i++)
+  {
+    if (keyType == gKeyBusyArray[i][0] && keyID == gKeyBusyArray[i][1])
+      return true;
+  }
+
+  return false;
+}
+
+function AddKeyToBusyArray(keyType, keyID)
+{
+  // If key is already in our array, nothing to do.
+  if (COOLKeyIsBusy(keyType, keyID))
+    return;
+
+  gKeyBusyArray.push(new Array(keyType, keyID));
+}
+
+function RemoveKeyFromBusyArray(keyType, keyID)
+{
+  for (i=0; i < gKeyBusyArray.length; i++)
+  {
+    if (keyType == gKeyBusyArray[i][0] && keyID == gKeyBusyArray[i][1])
+      gKeyBusyArray.splice(i, 1);
+  }
+}
+
+function SetKeyIsVisible(row, isVisible)
+{
+  if (!row) return;
+  var cell = row.cells(0);
+  if (!cell) return;
+
+  var v = "inherit";
+  if (!isVisible)
+    v = "hidden";
+  cell.firstChild.style.visibility = v;
+}
+
+function KeyToUIString(keyType, keyID)
+{
+  // If it's an COOLKey, format the keyID string.
+
+  if (keyType == 1 && keyID.length == 20)
+  {
+    var re = /([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})/i;
+    keyID = keyID.replace(re, "$1-$2-$3-$4-$5").toLowerCase();
+  }
+
+  return keyID;
+}
+
+function CreateTableRow(table, keyType, keyID, isAvailable, label, isSecured)
+{
+  
+  var row = InsertRow(table);
+  if (!row)
+    return null;
+
+  row.setAttribute("id", KeyToRowID(keyType, keyID));
+
+  var keyIDStr = KeyToUIString(keyType, keyID);
+
+  if (label == keyID)
+    label = keyIDStr;
+
+  // Add a tooltip to the row so that it displays more info.
+  var title = keyType + " - " + keyIDStr;
+  if (isSecured && label)
+    title += " - " + label;
+  row.setAttribute("title", title);
+
+  // Create the isAvailable cell:
+  cell = InsertCell(row);
+  cell.setAttribute("align", "center");
+  var a = document.createElement("a");
+  a.setAttribute("href", "javascript:DoBlinkCOOLKey(" + keyType + ", '" + keyID + "');");
+  if (! isAvailable)
+    a.style.visibility = "hidden";
+  var img = document.createElement("img");
+  img.setAttribute("src", "../images/NetKey-Small.gif");
+  a.appendChild(img);
+  cell.appendChild(a);
+
+  // Create the label cell. Make sure we truncate long
+  // labels so that they fit nicely into the window.
+  cell = InsertCell(row);
+  if (label.length > 24)
+    label = label.substr(0, 24) + "...";
+  cell.appendChild(document.createTextNode(label));
+
+  // Create the action cell:
+  cell = InsertCell(row);
+  a = document.createElement("a");
+  if (isSecured)
+  {
+  //  a.setAttribute("href", "javascript:UnbindCOOLKey(" + keyType + ", '" + keyID + "');");
+    a.appendChild(document.createTextNode("Release"));
+  }
+  else
+  {
+  //  a.setAttribute("href", "javascript:BindCOOLKey(" + keyType + ", '" + keyID + "');");
+    a.appendChild(document.createTextNode("Secure"));
+  }
+  cell.appendChild(a);
+
+  // Create the secured cell:
+  cell = InsertCell(row);
+  cell.setAttribute("align", "center");
+  img = document.createElement("img");
+  img.setAttribute("src", "../images/PadLock.gif");
+  if (!isSecured)
+  img.style.visibility = "hidden";
+  cell.appendChild(img);
+
+  return row;
+}
+
+////////////////////////////////////////////////////////////////
+//
+// Functions that contact the server or talk directly to
+// ASC native code.
+//
+// ASC Native Functions:
+//
+//     netkey.GetAvailableCOOLKeys()
+//
+//       - Returns an ActiveX Variant SafeArray containing the ID for each key
+//         that is currentlly plugged into the computer. Before accessing any
+//         data in this array you must convert it to a JScript Array with a
+//         call to ConvertVariantArrayToJScriptArray().
+//
+//     netkey.GetCOOLKeyIsEnrolled(keyType, keyID)
+//
+//       - Returns true if a key has been initialized, false if it hasn't.
+//         Initialized means the card has been formatted with certificates
+//         for either an COOL HouseKey or NetKey.
+//
+//     netkey.GetCOOLKeyStatus(keyType, keyID)
+//
+//       - Returns an integer describing the status of the COOLKey. Possible
+//         values are:
+//
+//           0 // Unavailable
+//           1 // AppletNotFound
+//           2 // Uninitialized
+//           3 // Unknown
+//           4 // Available
+//           5 // EnrollmentInProgress
+//           6 // UnblockInProgress
+//           7 // PINResetInProgress
+//           8 // RenewInProgress
+//           9 // FormatInProgress
+//          10 // BlinkInProgress
+//
+//     netkey.GetCOOLKeyPolicy(keyType, keyID)
+//
+//       - Retrieves the Certificate Policy Extension Object Identifier (OID)
+//         as a string. This can be useful for distinguishing between types of
+//         COOLKeys. The list of currently defined OIDS are:
+//
+//             Bronze Member - Phase 1:     OID.1.3.6.1.4.1.1066.1.1000.1.0.1.1
+//             Silver Member - Phase 2:     OID.1.3.6.1.4.1.1066.1.1000.1.0.1.2
+//             Gold Associate - Phase 2:    OID.1.3.6.1.4.1.1066.1.1000.1.0.1.3
+//             Platinum MyDoctor - Phase 2: OID.1.3.6.1.4.1.1066.1.1000.1.0.1.4
+//
+//     netkey.GetCOOLKeyRequiresAuthentication(keyType, keyID)
+//
+//       - Returns a bool value that indicates whether or not the COOLKey
+//         requires a PIN to access crypto functionality.
+//
+//     netkey.AuthenticateCOOLKey(keyType, keyID, pin)
+//
+//       - Attempts to authenticates to the COOLKey using the supplied
+//         pin string.
+//
+//     netkey.InitCOOLKey(keyType, keyID, screenName, pin)
+//
+//       - Initiates an async connection to the RA to initialize a specific
+//         key. If you want the key to be initialized as a HouseKey, you should
+//         pass null values for both screenName and pin, otherwise, the key.
+//         is formatted as a NetKey.
+//
+//     netkey.ChallengeCOOLKey(keyType, keyID, data)
+//
+//       - Signs some data with the specified key, and returns the results
+//         in an AcviteX Variant SafeArray. Before accessing any data in
+//         this array, you must convert it to a JScript Array with a
+//         call to ConvertVariantArrayToJScriptArray(). The elements in the
+//         array are as follows:
+//
+//             array[0] --> Length of the signed challenge data in binary form.
+//             array[1] --> The signed challenge data as hex.
+//             array[0] --> Length of the nonce data in binary form.
+//             array[0] --> The nonce data as hex.
+//
+//     netkey.BlinkCOOLKey(keyType, keyID, rate, duration)
+//
+//       - Make a specific key blink at a given rate for a given duration.
+//         rate and duration are specified in milliseconds.
+//
+//     netkey.RequestServiceTicket(screenName, serviceName)
+//
+//       - Makes an async ticket request for a specific service.
+//         The ticket is returned via the OnTicketRequestSuccess()
+//         callback.
+//
+//     netkey.CancelServiceTicketRequest(screenName, serviceName)
+//
+//       - Cancels a specific service ticket request that may be pending.
+//
+////////////////////////////////////////////////////////////////
+
+function BindCOOLKey(keyType, keyID)
+{
+  if (COOLKeyIsBusy(keyType, keyID))
+  {
+    alert("COOLKey '" + keyID + "' is busy!");
+    return;
+  }
+
+  document.forms[0].action.value = "setlabelpage";
+  document.forms[0].keytype.value = keyType;
+  document.forms[0].keyid.value = keyID;
+  document.forms[0].submit();
+}
+
+function UnbindCOOLKey(keyType, keyID)
+{
+  if (COOLKeyIsBusy(keyType, keyID))
+  {
+    alert("COOLKey '" + keyID + "' is busy!");
+    return;
+  }
+
+  document.forms[0].action.value = "unbindprogresspage";
+  document.forms[0].keytype.value = keyType;
+  document.forms[0].keyid.value = keyID;
+  document.forms[0].submit();
+}
+
+function PurchaseMoreKeys()
+{
+}
+
+function LoadHelp()
+{
+  alert("- Click on the key icon for a specific key to make it blink.\n");
+}
+
+function DoBlinkCOOLKey(keyType, keyID)
+{
+  if (!keyID)
+    return;
+
+  BlinkCOOLKey(keyType, keyID, 400, 5000);
+}
+
+function OnCOOLKeyInserted(keyType, keyID)
+{
+  var row = InsertCOOLKeyIntoBindingTable(keyType, keyID);
+
+  refresh();
+}
+
+function OnCOOLKeyRemoved(keyType, keyID)
+{
+  var row = GetRowForKey(keyType, keyID);
+  var table = document.getElementById("KeyTable");
+  if (row && table)
+  {
+    if (IsKeyBound(keyType, keyID))
+      SetKeyIsVisible(row, false);
+    else
+      RemoveRow(table, row)
+  }
+
+  refresh();
+}
+
+function OnCOOLKeyBusyStart(keyType, keyID)
+{
+  AddKeyToBusyArray(keyType, keyID);
+}
+
+function OnCOOLKeyBusyEnd(keyType, keyID)
+{
+  RemoveKeyFromBusyArray(keyType, keyID);
+}
+
+function refresh()
+{
+  window.resizeBy(0,1);
+  window.resizeBy(0,-1);
+
+}
+
+////////////////////////////////////////////////////////////////////////////
+//
+// Notification functions called directly from ASC native code. These
+// functions will only be called if they exist in the current running
+// JavaScript context.
+//
+//   OnCOOLKeyStateChange(keyType, keyID, keyState, data)
+//
+//     - Called when the state of the COOLKey changes. Values for key
+//
+//     keyState   Description             data
+//     -------------------------------------------------------
+//       1000     Key Inserted            <none>
+//       1001     Key Removed             <none>
+//       1002     Enrollment Start        <0=Phase1, 1=Phase2>
+//       1003     Enrollment Complete     <none>
+//       1004     Enrollment Error        Integer Error Code
+//       1005     Unblock Start           <none>
+//       1006     Unblock Complete        <none>
+//       1007     Unblock Error           Integer Error Code
+//       1008     PIN Reset Start         <none>
+//       1009     PIN Reset Complete      <none>
+//       1010     PIN Reset Error         Integer Error Code
+//       1011     Renew Start             <none>
+//       1012     Renew Complete          <none>
+//       1013     Renew Error             Integer Error Code
+//       1014     Format Start            <none>
+//       1015     Format Complete         <none>
+//       1016     Format Error            Integer Error Code
+//       1017     Blink Start             <none>
+//       1018     Blink Complete          <none>
+//       1019     Blink Error             Integer Error Code
+//       1020     Operation Cancelled     Integer Error Code
+//
+//    OnTicketRequestSuccess(serviceName, ticket, authenticator)
+//
+//      - Called when a service ticket request made with 
+//        netkey.RequestServiceTicket() completes successfully.
+//        ticket is the Base64 encoded Kerberos ticket. authenticator
+//        is the Base64 encoded authenticator.
+//
+//    OnTicketRequestException(serviceName, errCode, errSubSystem, errMsg)
+//
+//      - Called when a service ticket request made with
+//        netkey.RequestServiceTicket() fails. serviceName is the service
+//        name used when the request was made. errCode is the error code
+//        defined by CLC. errSubSystem is the sub system defined by CLC.
+//        errMsg is the string containing the error message to display. This
+//        string is provided by UAS or CLC.
+//
+////////////////////////////////////////////////////////////////////////////
+
+function OnCOOLKeyStateChange(keyType, keyID, keyState, data)
+{
+  switch(keyState)
+  {
+    case 1000: // KeyInserted
+      OnCOOLKeyInserted(keyType, keyID);
+      break;
+    case 1001: // KeyRemoved
+      OnCOOLKeyRemoved(keyType, keyID);
+      break;
+    case 1002: // EnrollmentStart
+    case 1005: // UnblockStart
+    case 1008: // PINResetStart
+    case 1011: // RenewStart
+    case 1014: // FormatStart
+      OnCOOLKeyBusyStart(keyType, keyID);
+      break;
+    case 1003: // EnrollmentComplete
+    case 1004: // EnrollmentError
+    case 1006: // UnblockComplete
+    case 1007: // UnblockError
+    case 1009: // PINResetComplete
+    case 1010: // PINResetError
+    case 1012: // RenewComplete
+    case 1013: // RenewError
+    case 1015: // FormatComplete
+    case 1016: // FormatError
+      OnCOOLKeyBusyEnd(keyType, keyID);
+      break;
+  }
+}
+
+</script>
+</head>
+<body onLoad="InitializeBindingTable();" onUnload="cleanup();">
+
+<table width="100%">
+  <tr>
+    <td>
+<img src="../images/logo.gif">     </td>
+    <td>
+      <p class="headerText"><a href="esc.cgi?screenname=">Enterprise Security Client</a></p>
+    </td>
+  <tr>
+</table>
+
+<form method="post" action="esc.cgi">
+<input type="hidden" name="action" value="settingspage">
+<input type="hidden" name="screenname" value="<!-- SECURECOOL_SCREENNAME -->">
+<input type="hidden" name="keytype" value="">
+<input type="hidden" name="keyid" value="">
+<table class="PageHeader">
+</table>
+<table class="ContentTable">
+<tbody>
+<tr><td colspan="2">
+<b>Coolkey</b> (Enterprise Security Key) helps users perform various cryptographic operations.
+<br>
+Your Coolkey(s) and any other Coolkey(s) plugged into this computer are shown here. 
+<br>
+<br>
+<div class="TableTitle">Coolkey(s)   <!-- SECURECOOL_SCREENNAME --></div>
+</td></tr>
+<tr>
+  <td width="55%" valign="top">
+  <table id="KeyTable">
+  <tbody>
+    <tr class="KeyTableHeader">
+      <th></th>
+      <th><p class="titleText">Name</p></th>
+      <th></th>
+      <th><p class="titleText">Secured</p></th>
+    </tr>
+  </tbody>
+  </table>
+  </td>
+</tr>
+</tbody>
+</table>
+</form>
+</body>
+</html>
+

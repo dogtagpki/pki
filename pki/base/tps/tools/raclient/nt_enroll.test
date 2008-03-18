@@ -1,0 +1,212 @@
+# --- BEGIN COPYRIGHT BLOCK ---
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation;
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301  USA 
+# 
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+########################################################
+# Description:
+#    This data file tests enrollment operation.
+#
+# Execution:
+#    tpsclient < enroll.test
+#
+########################################################
+op=var_set name=ra_host value=water
+op=var_set name=ra_port value=7888
+op=var_set name=ra_uri value=/nk_service
+########################################################
+# Possible return codes:
+#
+# General errors:
+#  6400 - No specific diagnosis
+#  6700 - Wrong length in Lc
+#  6982 - Security status not satisfied
+#  6985 - Conditions of use not satisified
+#  6a86 - Incorrect P1 P2
+#  6d00 - Invalid instruction
+#  6e00 - Invalid class
+#
+# Install Load errors:
+#  6581 - Memory Failure
+#  6a80 - Incorrect parameters in data field
+#  6a84 - Not enough memory space
+#  6a88 - Referenced data not found
+#
+# Delete errors:
+#  6200 - Application has been logically deleted
+#  6581 - Memory failure
+#  6985 - Referenced data cannot be deleted
+#  6a88 - Referenced data not found
+#  6a82 - Application not found
+#  6a80 - Incorrect values in command data
+#
+# Get Data errors:
+#  6a88 - Referenced data not found
+#
+# Get Status errors:
+#  6310 - More data available
+#  6a88 - Referenced data not found
+#  6a80 - Incorrect values in command data
+#
+# Load errors:
+#  6581 - Memory failure
+#  6a84 - Not enough memory space
+#  6a86 - Incorrect P1/P2
+#  6985 - Conditions of use not satisified
+########################################################
+#
+########################################################
+# Negative Test Cases Testing:
+#
+# To enable the testing, you need to uncomment
+# the following:
+#
+#op=var_set name=test_enable value=true
+#
+# Init Update APDU:
+#
+#op=var_set name=test_apdu_iu_return_enable value=true
+#op=var_set name=test_apdu_iu_return value=6a88
+#
+# External Authenticate APDU:
+#
+#op=var_set name=test_apdu_ea_return_enable value=true
+#op=var_set name=test_apdu_ea_return value=6a88
+#
+# Generate Key APDU:
+#
+#op=var_set name=test_apdu_gk_return_enable value=true
+#op=var_set name=test_apdu_gk_return value=6a88
+#
+# Create Object APDU:
+#
+#op=var_set name=test_apdu_co_return_enable value=true
+#op=var_set name=test_apdu_co_return value=6a88
+#
+# Life Cycle APDU:
+#
+#op=var_set name=test_apdu_lc_return_enable value=true
+#op=var_set name=test_apdu_lc_return value=6a88
+#
+# Delete File APDU:
+#
+#op=var_set name=test_apdu_df_return_enable value=true
+#op=var_set name=test_apdu_df_return value=6a88
+#
+# Install Applet APDU:
+#
+#op=var_set name=test_apdu_ia_return_enable value=true
+#op=var_set name=test_apdu_ia_return value=6a88
+#
+# Install Load APDU:
+#
+#op=var_set name=test_apdu_il_return_enable value=true
+#op=var_set name=test_apdu_il_return value=6a88
+#
+# Load File APDU:
+#
+#op=var_set name=test_apdu_lf_return_enable value=true
+#op=var_set name=test_apdu_lf_return value=6a88
+#
+# Select Applet APDU:
+#
+#op=var_set name=test_apdu_se_return_enable value=true
+#op=var_set name=test_apdu_se_return value=6a88
+#
+# List PINs APDU:
+#
+#op=var_set name=test_apdu_lp_return_enable value=true
+#op=var_set name=test_apdu_lp_return value=6a88
+#
+# Create PIN APDU:
+#
+#op=var_set name=test_apdu_cp_return_enable value=true
+#op=var_set name=test_apdu_cp_return value=6a88
+#
+# Get Version APDU:
+#
+#op=var_set name=test_apdu_gv_return_enable value=true
+#op=var_set name=test_apdu_gv_return value=6a88
+#
+# Get Data APDU:
+#op=var_set name=test_apdu_gd_return_enable value=true
+#op=var_set name=test_apdu_gd_return value=6a88
+#
+# Get Status APDU:
+#
+#op=var_set name=test_apdu_gs_return_enable value=true
+#op=var_set name=test_apdu_gs_return value=6a88
+#
+# Put Key APDU:
+#
+#op=var_set name=test_apdu_pk_return_enable value=true
+#op=var_set name=test_apdu_pk_return value=6a88
+#
+# Import Key Enc APDU:
+#
+#op=var_set name=test_apdu_ik_return_enable value=true
+#op=var_set name=test_apdu_ik_return value=6a88
+#
+# Read Buffer APDU:
+#
+#op=var_set name=test_apdu_rb_return_enable value=true
+#op=var_set name=test_apdu_rb_return value=6a88
+#
+# Unblock PIN APDU:
+#
+#op=var_set name=test_apdu_up_return_enable value=true
+#op=var_set name=test_apdu_up_return value=6a88
+#
+# List Objects APDU:
+#
+#op=var_set name=test_apdu_lo_return_enable value=true
+#op=var_set name=test_apdu_lo_return value=6a88
+#
+# Read Object APDU:
+#
+#op=var_set name=test_apdu_ro_return_enable value=true
+#op=var_set name=test_apdu_ro_return value=6a88
+#
+# Write Buffer APDU:
+#
+#op=var_set name=test_apdu_wb_return_enable value=true
+#op=var_set name=test_apdu_wb_return value=6a88
+#
+# Set PIN APDU:
+#
+#op=var_set name=test_apdu_sp_return_enable value=true
+#op=var_set name=test_apdu_sp_return value=6a88
+#
+# ExtendedLoginRequest Message:
+#
+#op=var_set name=test_msg_el_resp_exclude_uid value=true
+#op=var_set name=test_msg_el_resp_exclude_pwd value=true
+#op=var_set name=test_msg_el_resp_add_invalid_param value=true
+#
+########################################################
+# print original token status
+op=token_set cuid=a00192030405060708c9 msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0
+op=token_set auth_key=404142434445464748494a4b4c4d4e4f
+op=token_set mac_key=404142434445464748494a4b4c4d4e4f
+op=token_set kek_key=404142434445464748494a4b4c4d4e4f
+op=token_status
+#op=ra_enroll uid=test pwd=password new_pin=password
+op=ra_enroll uid=testuser1 num_threads=1 pwd=netscape new_pin=password 
+# print changed token status
+op=token_status
+op=exit

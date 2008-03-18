@@ -1,0 +1,474 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<style type="text/css">
+
+.floating {
+  position: absolute;
+  left: 300px;
+  top: 50px;
+  width: 400px;
+  padding: 3px;
+  border: solid;
+  border-width: 2px;
+  background: white;
+  display: none;
+  margin: 5px;
+}
+
+
+table#t td {
+  font-size: 0.8em;
+  padding: 0px;
+  margin: 0px;
+}
+
+.r {
+  visibility: visible;
+  background-color: pink;
+}
+
+
+.h {
+  background-color: #eeeeee;
+  font-color: #606060;
+  font-weight: bold;
+}
+
+</STYLE>
+</head>
+
+<body bgcolor="#FFFFFF" link="#000000" vlink="#000000" alink="#000000">
+<font face="PrimaSans BT, Verdana, sans-serif" size="+1">Search Results
+</font><br>
+<table border="0" cellspacing="0" cellpadding="0" background="/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<CMS_TEMPLATE>
+
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+	sign = "-";
+	number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+	absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+function revokeCert(serialNumber)
+{ 
+	return confirm("WARNING!! You are about to do an irreversible operation.\nDo you really want to revoke certificate # "+ 
+		renderHexNumber(serialNumber,8)+ " ?");
+}
+
+function renderOidName(oid)
+{
+	if (oid == "1.2.840.113549.1.1.1") 
+	   return "PKCS #1 RSA";
+	else if (oid == "1.2.840.113549.1.1.4")
+	   return "PKCS #1 MD5 With RSA";
+	else if (oid == "1.2.840.10040.4.1")
+	   return "DSA";
+	else 
+	   return "OID."+oid;
+}
+
+function renderHexNumber(number,width)
+{
+    var num = number;
+    while (num.length < width)
+	num = "0"+num;
+    return "0x"+num;
+}
+
+function renderDateFromSecs(secs)
+{
+    if (secs == null) return "";
+    var dateTmp = new Date();
+    dateTmp.setTime(secs * 1000);
+    var year = dateTmp.getYear();
+    if (year < 100) {
+        year += 1900;
+    } else {
+        year %= 100;
+        year += 2000;
+    }
+    return (dateTmp.getMonth()+1)+"/"+dateTmp.getDate()+"/"+year+"&nbsp;"+
+            (dateTmp.getHours()<10?"&nbsp;":"")+
+            dateTmp.getHours()+":"+(dateTmp.getMinutes()<10?"0":"")+
+            dateTmp.getMinutes()+":"+(dateTmp.getSeconds()<10?"0":"")+
+            dateTmp.getSeconds();
+}
+
+function renderDetailsButton(serialNumber)
+{
+	return "<FORM METHOD=post "+
+"ACTION="+ "/displayBySerial" +">"+
+"<INPUT TYPE=hidden NAME='op' VALUE='"+ "displayBySerial" +"'>\n"+
+"<INPUT TYPE=hidden NAME='serialNumber' VALUE='"+ "0x"+ serialNumber +"'>\n"+
+"<INPUT TYPE=submit VALUE='Details' width='72'></FORM>\n";
+}
+
+function renderRevokeButton(serialNumber)
+{
+	return "<FORM METHOD=post "+
+//"onSubmit='return revokeCert("+serialNumber+");' "+
+"ACTION='"+ "/reasonToRevoke" +"'>\n"+
+"<INPUT TYPE=hidden NAME='op' VALUE='"+ "reasonToRevoke" +"'>\n"+
+"<INPUT TYPE=hidden NAME='serialNumber' VALUE='"+ serialNumber +"'>\n"+
+"<INPUT TYPE=hidden NAME='revokeAll' VALUE='(&(certRecordId="+serialNumber+"))'>\n"+
+"<INPUT TYPE=hidden NAME='totalRecordCount' VALUE='1'>\n"+
+"<INPUT TYPE=hidden NAME='commit' VALUE='yes'>"+
+"<INPUT TYPE=hidden NAME='updateCRL' VALUE='yes'>"+
+"<INPUT TYPE=submit VALUE='Revoke' width='72'>"+
+"</FORM>\n";
+}
+
+function addSpaces(str)
+{
+    var outStr = "";
+    var i0 = 0;
+    var i1 = 0;
+
+    while (i1 < str.length) {
+        i1 = str.indexOf(',', i0);
+        if (i1 > -1) {
+            i1++;
+            outStr += str.substring(i0, i1);
+            outStr += " ";
+            i0 = i1;
+        } else {
+            outStr += str.substring(i0, str.length);
+            i1 = str.length;
+        }
+    }
+
+    return outStr;
+}
+
+function getRevocationReason(revocationReason)
+{
+    var reasons = new Array("Unspecified",
+                            "Key compromised",
+                            "CA key compromised",
+                            "Affiliation changed",
+                            "Certificate superceded",
+                            "Cessation of operation",
+                            "Certificate is on hold");
+    return reasons[revocationReason];
+}
+ 
+function isRevoked(index)
+{
+  return (recordSet[index].revokedOn != null);
+}
+
+
+
+
+function setNode(table,desc,content,style)
+{
+  var row = table.insertRow(-1);
+  if (style)  {
+    row.className = style;
+  }
+  var cell1 = row.insertCell(-1);
+  var desc_text = document.createTextNode(desc);
+  cell1.appendChild(desc_text); 
+  var cell2 = row.insertCell(-1);
+  var content_text = document.createTextNode(content);
+  cell2.appendChild(content_text);
+}
+
+
+ 
+function mouseover(element,event)
+{
+  var x = event.clientX;
+  var y = event.clientY;
+
+  var index= element.getAttribute("index");
+  if (index == null) { return false; }
+  var cert = recordSet[index];
+
+  element.parentNode.parentNode.parentNode.style.backgroundColor = "#EEEEFF";
+
+  var v;
+  var e = document.getElementById("certMetaDatadiv");
+
+  var t = document.getElementById("t");
+
+  // delete all the rows in the table
+  var i=0;
+  while (i < t.rows.length) {
+    t.deleteRow(0);
+  }
+
+  setNode(t,"Certificate details for serial #", " 0x" +cert.serialNumber+" ("+cert.serialNumberDecimal+")","h");
+  setNode(t,"Version:", cert.version+1);
+  setNode(t,"Certificate Type:",cert.type);
+  setNode(t,"Key algorithm:",renderOidName(cert.subjectPublicKeyAlgorithm)+
+              " with "+ cert.subjectPublicKeyLength+"-bit key");
+  setNode(t,"Not Valid Before:", renderDateFromSecs(cert.validNotBefore));
+  setNode(t,"Not Valid After:", renderDateFromSecs(cert.validNotAfter));
+  setNode(t,"Issued On:", renderDateFromSecs(cert.issuedOn));
+  setNode(t,"Issued By:", cert.issuedBy);
+
+  if (isRevoked(index)) {
+    setNode(t,"Revoked on:", renderDateFromSecs(cert.revokedOn),"r");
+    setNode(t,"Revoked by:", cert.revokedBy, "r");
+    setNode(t,"Revocation Reason:", getRevocationReason(cert.revocationReason), "r");
+    assumedheight = 210;
+  } else {
+    assumedheight = 180;
+  }
+
+  e.style.left = x+30; // x-offset of floating div
+
+  var offset = 20;     // extra y-offset of floating div
+  var bottom =  y + offset + assumedheight;
+  if (bottom > window.innerHeight) {
+     offset = 0 - (2*offset) - assumedheight;
+  }
+
+  e.style.top = y+ offset + window.pageYOffset+document.body.scrollTop + 'px';
+
+  // unhide the window
+  e.style.display ="block";
+
+
+}
+
+function mouseout(element)
+{
+//	window.setTimeout("hide",1);
+  var index= element.getAttribute("index");
+  if (recordSet[index].revokedOn != null) {
+     element.parentNode.parentNode.parentNode.style.backgroundColor = "#FFEEEE";
+  } else {
+//     element.parentNode.parentNode.parentNode.style.backgroundColor = "#EEFFEE";
+     element.parentNode.parentNode.parentNode.style.backgroundColor = "#FFFFFF";
+  }
+        hide();
+}
+
+function hide()
+{
+	document.getElementById("certMetaDatadiv").style.display ="none";
+}
+
+function displayCertificateRecord(i, cert)
+{
+	document.write(
+//   "<tr"+ (cert.revokedOn !=null ? " style='background-color: #FFEEEE;' " : " style='background-color: #EEEEEE;' ")+">"+
+   "<tr"+ (cert.revokedOn !=null ? " style='background-color: #FFEEEE;' " : "")+">"+
+     "<td width=18%><font face='PrimaSans BT, Verdana, sans-serif' size='-1'>\n"+
+            renderHexNumber(cert.serialNumber,0) +"</font></td>\n"+
+     "<td width=16%>"+(cert.revokedOn != null ?"revoked":"valid")+"</td>\n"+
+     "<td style='overflow: hidden; white-space: nowrap;'>"+
+     "     <font face='PrimaSans BT, Verdana, sans-serif' size='-1'>\n"+
+     "   <div style='overflow: hidden; white-space: nowrap;'>"+
+     " <a index='"+i+"' href='/ca/ee/ca/displayBySerial?op=displayBySerial&serialNumber=0x"+
+           cert.serialNumber+"' onmouseover='mouseover(this,event);' "+
+           "onmouseout='mouseout(this);'>"+
+         cert.subject+"</div></font>"+
+     "</a></td>"+
+     "</tr>\n"
+
+	);
+}
+
+function displaySearchResults()
+{
+if (result.recordSet.length == 0) {
+	document.write(
+"<font face='PrimaSans BT, Verdana, sans-serif' size='+1'>No Matching Certificates Found</font>\n"
+	);
+} else {
+
+	document.write(
+"<font face='PrimaSans BT, Verdana, sans-serif'>Issuer: " +
+(result.header.issuerName != null ? result.header.issuerName : "UNKNOWN") +
+"</font><br>\n"+
+"<font face='PrimaSans BT, Verdana, sans-serif' size='-1'>\n"+
+"Total number of records found: "+result.header.totalRecordCount+
+"</font>\n"
+	);
+
+   if (result.header.totalRecordCount == result.header.maxSize) {
+        document.write(
+"<font face='PrimaSans BT, Verdana, sans-serif' size='-1'>\n"+
+"(Maximum size reached)"+
+"</font>\n"
+        );
+    }
+
+	document.write(
+"<table border='0' width='100%' cellspacing='2' cellpadding='2'>\n"+
+"<tr><td width=18%>&nbsp;</td><td width=16%>&nbsp;</td><td>&nbsp;</td></tr>\n"+
+"<tr bgcolor='#e5e5e5'><td>\n"+
+"<font face='PrimaSans BT, Verdana, sans-serif' size='-1'>\n"+
+"Serial number</font></td>\n"+
+
+"<td><font face='PrimaSans BT, Verdana, sans-serif' size='-1'>\n"+
+"Status</td>\n"+
+
+"<td\n"+
+"<font face='PrimaSans BT, Verdana, sans-serif' size='-1'>\n"+
+"Subject name</font></td></tr>\n");
+
+	for(var i = 0; i < result.recordSet.length; ++i ) {
+		displayCertificateRecord(i, result.recordSet[i]);
+	}
+document.write("</table>\n");
+
+
+	if ((result.header.revokeAll != null && result.header.totalRecordCount > 1) ||
+        (result.header.querySentinel != null)) {
+        document.write("<br>&nbsp;\n" +
+            "<table border='0' cellspacing='0' cellpadding='0' background='/graphics/hr.gif' width='100%'>\n"+
+            "<tr><td>&nbsp;</td></tr></table>\n");
+    }
+
+	document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=6 WIDTH='100%'>\n"+
+		"<tr align=center><td>\n");
+
+	if (result.header.revokeAll != null && result.header.totalRecordCount > 1) {
+		displayRevokeAllForm(result.header.totalRecordCount);
+		document.write("</td><td>\n");
+	}
+
+	if (result.header.querySentinel != null) {
+		displayNextForm();
+	}
+
+	document.write("</td></tr></table>\n");
+}
+}
+
+function renderHidden(name,value)
+{
+	return 	"<INPUT TYPE='hidden' NAME='"+ name +"' VALUE=''>\n";
+}
+
+function doNext(form)
+{
+//	form.action = "/"+result.header.op;
+    form.action = "listCerts";
+	form.op.value = result.header.op;
+	form.querySentinel.value = result.header.querySentinel;
+	form.totalRecordCount.value = result.header.totalRecordCount;
+	if (result.header.revokeAll != null) {
+		form.revokeAll.value = result.header.revokeAll;
+	}
+    if (result.header.queryFilterHash != null) {
+        form.queryFilterHash.value = result.header.queryFilterHash;
+    }
+	// form.submit();
+}
+
+function displayNextForm()
+{
+	document.write(
+//"<div align=center> \n"+
+"<FORM NAME ='nextForm' METHOD=POST onSubmit='doNext(nextForm);' "+
+"ACTION=''>\n"+
+renderHidden("op"));
+
+if (result.header.revokeAll != null) {
+	document.write(renderHidden("revokeAll"));
+}
+
+if (result.header.queryFilterHash != null) {
+    document.write(renderHidden("queryFilterHash"));
+}
+
+document.write("<INPUT TYPE=submit VALUE='Find' width='72'>\n"+
+"<font face='PrimaSans BT, Verdana, sans-serif' size='-1'>\n"+
+"&nbsp;next</font>\n"+
+"<INPUT TYPE=hidden NAME=totalRecordCount VALUE='"+
+result.header.totalRecordCount+ "'>\n"+
+"<INPUT TYPE=hidden NAME=queryCertFilter VALUE='"+
+result.header.queryCertFilter+ "'>\n"+
+"<INPUT TYPE=hidden NAME=querySentinel VALUE='"+
+result.header.querySentinel+ "'>\n"+
+"<INPUT TYPE=hidden NAME=serialTo VALUE='"+
+result.header.serialTo+ "'>\n"+
+"<INPUT TYPE=text SIZE=4 MAXLENGTH=3 NAME=maxCount VALUE='"+
+result.header.maxCount+ "'>\n"+
+"<font face='PrimaSans BT, Verdana, sans-serif' size='-1'>\n"+
+"&nbsp;record(s)</font>\n"+
+"</FORM>\n");
+//"</FORM></DIV>\n");
+}
+
+function doRevokeAll(form)
+{
+//	form.action =  result.header.serviceURL;
+	form.totalRecordCount.value = result.header.totalRecordCount;
+	form.revokeAll.value = result.header.queryCertFilter;
+	form.submit();
+}
+
+function displayRevokeAllForm(recordCount)
+{
+//	document.write("<DIV align=center><FORM NAME ='revokeAllForm' "+
+	document.write("<FORM NAME ='revokeAllForm' "+
+		"METHOD=POST onSubmit='doRevokeAll(revokeAllForm);' "+
+		"ACTION='"+ "/reasonToRevoke" +"'>\n"+
+		"<INPUT TYPE=hidden NAME='op' VALUE='reasonToRevoke'>\n"+
+		"<INPUT TYPE=hidden NAME='revokeAll' VALUE=''>\n"+
+		"<INPUT TYPE=hidden NAME='totalRecordCount' VALUE='"+ recordCount +"'>\n"+
+		"<INPUT TYPE=submit VALUE='Revoke ALL "+ recordCount +" Certificates'>\n"+
+		"</FORM>\n");
+//		"</FORM></DIV>\n");
+}
+
+
+displaySearchResults();
+
+//-->
+</SCRIPT>
+
+<div id="certMetaDatadiv" class="floating">
+<table id="t" width="100%">
+<tr><td/></tr>
+</table>
+</div>
+
+
+</BODY>
+</HTML>

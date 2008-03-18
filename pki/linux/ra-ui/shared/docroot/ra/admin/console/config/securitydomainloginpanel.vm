@@ -1,0 +1,106 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    
+    <title>Dogtag Certificate System</title>
+
+    <link rel="shortcut icon" href="/ca/admin/console/img/favicon.ico" />
+    <link rel="stylesheet" href="/css/pki-base.css" type="text/css" />
+<META http-equiv=Content-Type content="text/html; charset=UTF-8">
+  </head>
+
+
+<div id="wrap">
+<div id="header">
+    <a href="http://pki-svn.fedora.redhat.com/" title="Visit pki-svn.fedora.redhat.com for more information about Dogtag"><img src="/ca/admin/console/img/logo_header.gif" alt="Dogtag" width="37" height="31" id="myLogo" /></a><a href="/" title="Dogtag">Dogtag Certificate System</a>
+    <div id="account">
+          <dl><dt><span></span></dt><dd></dd></dl>
+    </div>
+</div>
+
+<div id="mainNavOuter">
+<div id="mainNav">
+                                                                                
+<div id="mainNavInner">
+                                                                                
+</div><!-- end mainNavInner -->
+</div><!-- end mainNav -->
+</div><!-- end mainNavOuter -->
+
+<!-- close bar -->
+
+  <div id="content">
+    <table width="100%" cellspacing="0">
+      <tr>
+        <td width="100%">
+  <h1><img src="/ca/admin/console/img/pki-icon-software.gif" />
+  Security Domain ($name) Login </h1>
+
+    <form name=sdForm action="getCookie" method="post">
+    <p>The Enterprise $subsystem Administrator will register this $subsystem Subsystem located at $host under this Security Domain located at $sdhost. The credential information will be provided to the Security Domain for authentication.<p>
+#if ($errorString != "")
+<img src="/ca/admin/console/img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+    <table class="details">
+      <tr>
+        <th>Uid:</th>
+                                                                                
+        <td><input type="text" length="128" size="40" name="uid" value="$sd_uid" /></td>
+      </tr>
+                                                                                
+      <tr>
+        <th>Password:</th>
+                                                                                
+        <td><input type="password" length="64" size="40" name="pwd" value="$sd_pwd" autocomplete="off" /></td>
+      </tr>       
+<input type=hidden name=url value="$url">
+
+    </table>
+                                                                                
+    <div align="right">
+      <hr />
+      &nbsp;
+    </div>
+                                                                                
+
+<p>
+<table width=100%>
+<tr bgcolor="#eeeeee">
+  <td>
+<div align="right">
+<input onclick="sdForm.submit()" type="button" name="sd_next" value="Login"> 
+</div>
+  </td>
+</tr>
+</table>
+
+    </form>
+
+	</td>
+      </tr>
+    </table>
+
+  </div> <!-- close content -->
+  </div> <!-- close wrap -->
+
+  </body>
+</html>

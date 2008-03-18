@@ -1,0 +1,751 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<TITLE>Portal User Enrollment Form</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/cms-funcs.js"> </SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/helpfun.js"> </SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/dynamicVars.js"> </SCRIPT>
+<SCRIPT>
+//<!--
+
+// Notice to administrators
+//
+// A link to this HTML form conditionally appears in the
+// main enrollment menu frame. This link will only appear if
+// a plugin of type 'PortalEnroll' has been configured in the console.
+
+
+var crmfObject;
+
+function updateFullName(f)
+{
+     f.cn.value = f.givenname.value + " " + f.sn.value;
+}
+
+function validate(form)
+{
+    with (form) {
+        if (uid.value == "") {
+            alert("You must supply your uid");
+            return false;
+        }
+        if (userPassword.value == "") {
+            alert("You must supply your Password");
+            return false;
+        }
+        if (userPassword.value != passwordagain.value) {
+            alert("Check your Password");
+            return false;
+        }
+        if (givenname.value == "") {
+            alert("You must supply your First Name");
+            return false;
+        }
+        if (sn.value == "") {
+            alert("You must supply your Last Name");
+            return false;
+        }
+
+        /////////////////////////////////////////////////////////////////
+        // To enable dual key feature, this page must be customized with
+        // appropriate Javascript call. For example,
+        //
+        //      crmfObject = crypto.generateCRMFRequest(
+        //              "CN=undefined",
+        //              "regToken", "authenticator",
+        //              null,
+        //              "setCRMFRequest();",
+        //              512, null, "rsa-ex",
+        //              1024, null, "rsa-sign");
+        //
+        // To enable key archival feature, this page must be customized with
+        // KRA's transport certificate. The transport certificate can be
+        // retrieved in the following ways:
+        // (1) Access "List Certificates" menu option in end-entity page
+        // (2) Access https://<host>:<agent_port>/kra/displayTransportCert
+        // (3) Use certutil command in <instance-dir>/config directory
+        //     (i.e. certutil -L -d . -n "kraTransportCert <instance-id>" -a)
+        //
+        // Once the transport certificate is obtained, the following
+        // javascript should be modified so that the transport certificate
+        // and appropriate key type are selected. For example,
+        //
+        //      var kraTransportCert = "MIICDjCCAXegAwIBAgICAfMwDQYJKoZIhvcNAQEEBQAwdzELMAkGA1UEBhMCVVMxLDAqBgNVBAoTI05ldHNjYXBlIENvbW11bmljYXRpb25zIENvcnBvcmF0aW9uMREwDwYDVQQLEwhIYXJkY29yZTEnMCUGA1UEAxMeSGFyZGNvcmUgQ2VydGlmaWNhdGUgU2VydmVyIElJMB4XDTk4MTExOTIzNDIxOVoXDTk5MDUxODIzNDIxOVowLjELMAkGA1UEBhMCVVMxETAPBgNVBAoTCG5ldHNjYXBlMQwwCgYDVQQDEwNLUmEwXDANBgkqhkiG9w0BAQEFAANLADBIAkEArrbDiYUI5SCdlCKKa0bEBn1m83kX6bdhytRYNkd/HB95Bp85SRadmdJV+0O/yMxjYAtGCFrmcqEZ4sh2YSov6wIDAQABozYwNDARBglghkgBhvhCAQEEBAMCAEAwHwYDVR0jBBgwFoAUl7FtsrYCFlQMl9fjMm3LnN/u3oAwDQYJKoZIhvcNAQEEBQADgYEApvzcUsVIOstaoYSiWb4+aMVH6s1jiJlr5iVHnOKzfsYxPVdUw6uz04AT8N+1KIarMTKxHPzGAFSLicKLEv4HG4vh6llc86uzRzWpUqqVHg/eKN5A8Jyg56D4DkNr/XEJ7QdKesAp13dk5H5qvHelkSPLYYdMXNwNWPVZKgnWrWg=";
+        //      var keyGenAlg = "rsa-ex";
+        //      crmfObject = crypto.generateCRMFRequest(
+        //              "CN=undefined",
+        //              "regToken", "authenticator",
+        //              keyTransportCert,
+        //              "setCRMFRequest();",
+        //              512, null, keyGenAlg);
+        /////////////////////////////////////////////////////////////////
+
+        // To enable key archival, replace "null" with the transport
+        // certificate without "BEBIN..." "END..", nor line breaks.
+        // change keyGenAlg to "rsa-ex"
+        var keyTransportCert = null;
+        //var keyGenAlg = "rsa-ex";
+        var keyGenAlg = "rsa-dual-use";
+        // generate keys for nsm.
+        if (navigator.appName == "Netscape" && (navMajorVersion() > 3) && 
+			 typeof(crypto.version) != "undefined") {
+			certNickname.value = uid.value;
+        	crmfObject = crypto.generateCRMFRequest(
+				"CN=undefined", 
+               	"regToken", "authenticator", 
+				keyTransportCert,
+                "setCRMFRequest();", 
+                1024, null, keyGenAlg);
+        }
+        return true;
+    }
+}
+
+function setCRMFRequest()
+{
+	with (document.forms[0]) {
+		CRMFRequest.value = crmfObject.request;
+		submit();
+	}
+}
+
+//-->
+</SCRIPT>
+</head>
+
+<OBJECT
+	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
+	CODEBASE="/xenroll.dll"
+	id=Enroll    >
+</OBJECT>
+
+
+<SCRIPT LANGUAGE=VBS>
+<!--
+Function escapeDNComponent(comp)
+		escapeDNComponent = comp
+End Function
+
+Function doubleQuotes(comp)
+		doubleQuotes = False
+End Function
+
+Function formulateDN()
+		Dim dn
+		Dim TheForm
+		Set TheForm = Document.ReqForm
+
+		dn = Empty
+
+		If (TheForm.uid.Value <> Empty) Then
+			If doubleQuotes(TheForm.uid.Value) = True Then
+				MsgBox "Double quotes are not allowed in the uid field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "0.9.2342.19200300.100.1.1=" & escapeDNComponent(TheForm.uid.Value)
+		End If
+
+		formulateDN = dn
+End Function
+
+Sub Send_OnClick
+  Dim TheForm
+  Dim szName
+  Dim options
+  Set TheForm = Document.ReqForm
+
+
+  ' Do a few sanity checks
+  If (TheForm.uid.Value = Empty) Then 
+    ret = MsgBox("You must supply your UID for certificate enrollment", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+  If (TheForm.userPassword.Value = Empty) Then
+	ret = MsgBox("You must supply your Password for certificate enrollment", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+  If (TheForm.userPassword.Value <> TheForm.passwordagain.Value) Then
+	ret = MsgBox("You must supply consistent Password", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+  If (TheForm.givenname.Value = Empty) Then 
+    ret = MsgBox("You must supply your First Name for certificate enrollment", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+  If (TheForm.sn.Value = Empty) Then 
+    ret = MsgBox("You must supply your Last Name for certificate enrollment", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+'  If (TheForm.SSLClient.value = Empty AND
+'      TheForm.SMIME.value = Empty AND
+'      TheForm.ObjectSigning.value = Empty) Then
+'	ret = MsgBox("You must select atleast one certificate type", 0, 
+'		"MSIE Certificate Request")
+'	Exit Sub
+'  End If
+	
+
+  ' Contruct the X500 distinguished name
+  szName = formulateDN()
+
+  On Error Resume Next
+  Enroll.HashAlgorithm = "MD5"
+  Enroll.KeySpec = 1
+  Enroll.GenKeyFlags = 0
+
+   ' Pick the provider that is selected
+   set options = TheForm.all.cryptprovider.options
+   index = options.selectedIndex
+   Enroll.providerType = options(index).value
+   Enroll.providerName = options(index).text
+
+  szCertReq = Enroll.createPKCS10(szName, "1.3.6.1.5.5.7.3.2")
+  theError = Err.Number
+  On Error Goto 0
+  '
+  ' If the user has cancelled things the we simply ignore whatever
+  ' they were doing ... need to think what should be done here
+  '
+  If (szCertReq = Empty AND theError = 0) Then
+    Exit Sub
+  End If
+
+  If (szCertReq = Empty OR theError <> 0) Then
+    '
+    ' There was an error in the key pair generation. The error value
+    ' is found in the variable 'theError' which we snarfed above before
+    ' we did the 'On Error Goto 0' which cleared it again.
+    '
+    sz = "The error '" & Hex(theError) & "' occurred." & chr(13) & chr(10) & "Your credentials could not be generated."
+    result = MsgBox(sz, 0, "Credentials Enrollment")
+    Exit Sub
+  End If
+
+  TheForm.pkcs10Request.Value = szCertReq
+  TheForm.Submit
+  Exit Sub
+
+End Sub
+-->
+</SCRIPT>
+
+<body bgcolor="#FFFFFF" onload=checkClientTime()>
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Portal User Enrollment <br>
+</font>
+  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"> 
+  Use this form to submit a request for a personal certificate and user registration.
+  This form models the standard object class "inetOrgPerson" which has many useful attributes
+  which can be used in real portal deployment.
+  Supply your user ID and password to validate your identity. Also, first name
+  and last name have to be provided for user registration. Other fields are optional; the server 
+  supplies the rest of the information needed for certificate issuance. 
+  If the user ID is unique, your certificate will be issued and user registration
+  will be done automatically.
+  </font>
+
+<table border="0" cellspacing="0" cellpadding="2" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="2">
+  <tr valign="TOP"> 
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif"> <b>
+	Important:
+	</b></font></td>
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	Be sure to request your certificate on the same computer on which you 
+	plan to use your certificate.  </font></td>
+  </tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<script lang="javascript">
+//<!--
+	if (navigator.appName == "Netscape" && (navMajorVersion() <= 3)) {
+		// short cut for Nav 3.x or eariler, crypto is not defined
+        	document.write(
+			'<form name="ReqForm" method="post" action="/enrollment">');
+	} else if ((navigator.appName == "Netscape" && 
+		 typeof(crypto.version) != "undefined")) {
+        document.write(
+			'<form name="ReqForm" method="post" action="/enrollment">');
+	} else {
+        document.write(
+			'<form name="ReqForm" method="post" action="/enrollment" '+
+			'onSubmit="return validate(document.forms[0])">');
+	}
+//-->
+</script>
+
+<!-- User identity ------- -->
+
+<table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr> 
+      <td colspan="2" valign="TOP"><font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+	  <b>User's Identity</b><br>
+Enter your user ID and Password. This 
+information will be used to verify your identity and to obtain a certificate.<br>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">* User ID: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="uid" size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Password: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="PASSWORD" name="userPassword" AutoComplete=off size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Confirm Password: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="PASSWORD" name="passwordagain" AutoComplete=off size="30">
+      </td>
+    </tr>
+
+<!-- User information ------- -->
+    
+    <tr> 
+      <td colspan="2" valign="TOP"><font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+	  <b>User's Personal Information</b><br>
+Enter your personal information for registration. This 
+information will be used for user registration.<br>(* = required field)<br>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">* First Name: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="givenname" size="30" onchange="updateFullName(this.form)">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">* Last Name: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="sn" size="30" onchange="updateFullName(this.form)">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Full Name: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="cn" size="40">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Email address: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="mail" size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Organization unit: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="ou" size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Organization: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="o" size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Address: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="postaladdress" size="40">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">City: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="l" size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">State/Province: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="st" size="5">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">ZIP Code: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="postalcode" size="10">
+      </td>
+    </tr>
+<!-- Notice to Administrator -->
+<!--
+*********************************************************************************
+**** When you want to add following fields into enrollment page.               **
+**** The field name should be the same with the attribute name in objectclass  **
+*********************************************************************************     
+-->
+
+<!---------- Business Category
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Business Category: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="businesscategory" size="30">
+      </td>
+    </tr>
+----------->
+<!---------- Car License
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Car License: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="carlicense" size="30">
+      </td>
+    </tr>
+----------->
+<!---------- Department Number
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Department Number: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="departmentnumber" size="10">
+      </td>
+    </tr>
+----------->
+<!---------- Description
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Description: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="description" size="10">
+      </td>
+    </tr>
+----------->
+<!-- destinationindicator, displayname, employeenumber, employeetype, facsimiletelephonenumber,
+     homephone, homepostaladdress, initials, internationalisdnnumber, ipegphoto, labeleduri,
+     mail, manager, mobile, o, ou, pager, photo, physicaldeliveryofficename, postofficebox,
+     preferreddeliverymethod, preferredlanguage, registeredaddress, roomnumber, secretary,
+     seealso, telephonenumber, teletexterminalidentifier, telexnumber, title, userpkcs12,
+     usersmimecertificate, x121address, x500uniqueidentifier
+----------->
+
+    <tr>
+    </tr>
+    
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"> 
+          </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+		<!-- for Netscape Certificate Type Extension -->
+		<input type="HIDDEN" name="email" value="true">
+		<input type="HIDDEN" name="ssl_client" value="true">
+		<!-- for Key Usage Extension -->
+		<input type="HIDDEN" name="digital_signature" value=true>
+		<input type="HIDDEN" name="non_repudiation" value=true>
+		<input type="HIDDEN" name="key_encipherment" value=true>
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2">
+		<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<script>
+		if (navigator.appName == "Netscape" && 
+			(navMajorVersion() <= 3 || typeof(crypto.version) == 'undefined')) {
+
+        document.writeln('<b>Key Length Information</b><br>');
+		document.writeln(
+		  'When your submit this form, your browser generates a private and '+
+		  'public key. The browser retains the private key and submits the '+
+		  'public key along with your request for a certificate. '+
+		  'The public key becomes part of your certificate. '+
+		  '<P>'+
+		  'Select the length of the key to generate. The longer the key '+ 
+		  'length the greater the strength. You may want to check with your '+
+		  'system administrator about the length of key to specify.');
+
+			// short cut for Nav 3.x or eariler, crypto is not defined
+			document.writeln('Select the length of the key to generate. '+
+				'The longer the key length, the greater the strength. '+
+				'You may want to check with your system administrator about '+
+				'the length of key to specify.');
+		} 
+		//else if (navigator.appName == 'Netscape' && crypto.version == "undefined") {
+			//document.writeln('Select the length of the key to generate. '+
+			//	'The longer the key length, the greater the strength. '+
+			//	'You may want to check with your system administrator about '+
+			//	'the length of key to specify.');
+		//}
+	if (navigator.appName == "Microsoft Internet Explorer") {
+        	document.writeln('<b>Public/Private Key Information</b><br>');
+                document.writeln(
+                  'When you submit this form, your browser generates a private and '+
+                  'public key. The browser retains the private key and submits the '+
+                  'public key along with your request for a certificate. '+
+                  'The public key becomes part of your certificate. '+
+                  '<P>'+
+                  'The Microsoft Base Cryptographic provider offers 512-bit key encryption which is adequate for most applications today, but you may select the Enhanced option if your browser offers this choice and you require the higher encryption strength. You may want to check with your '+
+                  'system administrator about the provider to specify.');
+
+        	document.writeln('<p>');
+	}
+</script>
+	</font></td></tr>
+    <tr> 
+<script lang=javascript>
+
+//<!--
+        if (navigator.appName == "Netscape") {
+			if (navMajorVersion() <= 3 || 
+				typeof(crypto.version) == "undefined") {
+				document.writeln('<td>');
+				document.writeln('<font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+				document.writeln('Key Length: ');
+				document.writeln('</font>');
+				document.writeln('</td>');
+				document.write('<td>');
+                document.write('<KEYGEN name="subjectKeyGenInfo">');
+        	} 
+			//else {
+                //alert('nsm');
+                //document.writeln('<SELECT NAME=\"keyLength\">');
+                //document.writeln('<OPTION VALUE=512>512 bits');
+                //document.writeln('<OPTION VALUE=768>768 bits');
+                //document.writeln('<OPTION VALUE=1024>1024 bits');
+                //document.writeln('</SELECT>');
+			//}
+			document.write('</td>');
+        }
+	if (navigator.appName == "Microsoft Internet Explorer") {
+        	document.writeln('<td>');
+        	document.writeln('<font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        	document.writeln('Cryptographic Provider:');
+        	document.writeln('</font>');
+        	document.writeln('</td>');
+        	document.writeln('<td>');
+		document.writeln('<SELECT NAME=\"cryptprovider\"></SELECT>');
+        	document.writeln('</td>');
+        	document.writeln('<p>');
+	}
+//-->
+
+</script>
+        </tr>
+    <tr> 
+      <td valign="TOP" colspan="2"> 
+        <table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#cccccc" background="/ca/ee/graphics/gray90.gif">
+          <tr> 
+            <td> 
+              <div align="RIGHT">
+<script lang=javascript>
+//<!--
+			if (navigator.appName == "Netscape" && navMajorVersion() <= 3) {
+				// short cut for Nav 3.x or eariler, crypto is not defined
+				document.writeln(
+					'<input type="submit" value="Submit" '+
+					'name="submit" width="72">');
+			} else if (navigator.appName == "Netscape" && 
+			 		typeof(crypto.version) == "undefined") {
+				document.writeln(
+					'<input type="submit" value="Submit" '+
+					'name="submit" width="72">');
+			}
+			else if ((navigator.appName == "Microsoft Internet Explorer") ||
+					 (navigator.appName == "")) {
+				document.writeln(
+					'<input type="submit" value="Submit" '+
+					'name="Send" width="72">');
+			}
+			else {
+				// alert('nsm');
+				document.writeln(
+					'<input type="button" value="Submit" '+
+					'name="submitbutton" '+
+					'onclick="validate(form)" width="72">');
+			}
+//-->
+</script>
+				<img src="/ca/ee/graphics/spacer.gif" width="6" height="6"> 
+				<input type="reset" value="Reset" name="reset" width="72">
+				<input type="hidden" name="certType" value="client">
+				<input type="hidden" name="authenticator" value="PortalEnrollment">
+<script lang=javascript>
+//<!--
+				if (navigator.appName == 'Netscape') {
+					if ((navMajorVersion() > 3) && 
+						(typeof(crypto.version) != 'undefined')) {
+						//alert('cmmf response');
+						document.write(
+						  '<input type=hidden name=CRMFRequest value="">');
+						document.write(
+						  '<input type=hidden name=cmmfResponse value=true>');
+						document.write(
+						  '<input type=hidden name=certNickname value="">');
+					}
+					else {
+						document.write(
+						'<input type="hidden" name="importCert" value="off">');
+					}
+				}
+				else if ((navigator.appName == "Microsoft Internet Explorer")||
+						 (navigator.appName == "")) {
+					// navigator.appName == "" is for IE 3.
+					//alert('pkcs10Request');
+					document.write(
+					 '<input type="hidden" name="pkcs10Request" value="">');
+				}
+//-->
+</script>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  </form>
+<SCRIPT LANGUAGE=VBS>
+<!--
+
+FindProviders
+
+Function FindProviders
+	Dim i, j
+	Dim providers()
+	i = 0
+	j = 1
+	Dim el
+	Dim temp
+	Dim first
+	Dim TheForm
+	Set TheForm = document.ReqForm
+	On Error Resume Next
+	first = 0
+
+	Do While True
+	temp = ""
+	Enroll.providerType = j
+	temp = Enroll.enumProviders(i,0)
+	If Len(temp) = 0 Then
+	If j < 1 Then 
+	  j = j + 1
+	  i = 0 
+	Else
+	  Exit Do
+	End If
+	Else
+	set el = document.createElement("OPTION")
+	el.text = temp
+	el.value = j 
+	TheForm.cryptprovider.add(el)
+	If first = 0  Then
+	  first = 1
+	  TheForm.cryptprovider.selectedIndex = 0
+	End If
+	i = i + 1
+	End If
+	Loop
+
+End Function
+
+-->
+</SCRIPT>
+</body>
+</html>

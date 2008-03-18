@@ -1,0 +1,89 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<head>
+<title>Header</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body onResize=location.reload() bgcolor="#CCCCCC" link="#FFFFFF" vlink="#FFFFFF" alink="#CCCCFF">
+<table border="0" width="100%" cellspacing="0" cellpadding="0" bgcolor="#666699">
+  <tr>
+    <td> 
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr> 
+          <td>
+            <table border="0" cellspacing="12" cellpadding="0" width="100%">
+              <tr> 
+                <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<font color="#999999" size="-2">&reg;</font><b><br>
+                  Certificate<br>System</b></font><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b></b></font></td>
+                <td></td>
+                <td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">Agent Services</font> </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr> 
+          <td><img src="/ocsp/agent/graphics/spacer.gif" width="12" height="21"></td>
+<SCRIPT LANGUAGE="JavaScript">
+	for (var i = 0; i < result.recordSet.length; ++i) {
+		if (result.recordSet[i].id == header.selected) {
+          		document.write('<td><img src="/ocsp/agent/graphics/lgLeftTab.gif" width="13" height="21"></td>');
+          		document.write('<td bgcolor="#cccccc" nowrap>');
+		} else {
+          		document.write('<td><img src="/ocsp/agent/graphics/dgLeftTab.gif" width="13" height="21"></td>');
+          		document.write('<td bgcolor="#999999" nowrap>');
+		}
+		document.write('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+                if (result.recordSet[i].type == "CertificateAuthority") {
+			type = "Certificate Manager";
+		} else if (result.recordSet[i].type == "KeyRecoveryAuthority") {
+			type = "Data Recovery Manager";
+		} else if (result.recordSet[i].type == "OCSPAuthority") {
+			type = "Online Certificate Status Manager";
+		} else if (result.recordSet[i].type == "RegistrationAuthority") {
+			type = "Registration Manager";
+		}
+		if (result.recordSet[i].id == header.selected) {
+          		document.write('<b>' + type + '</b>');
+		} else {
+          		document.write('<a href="../' + 
+				result.recordSet[i].id + 
+				'/index.html" target="_top">' + 
+				type + '</a>');
+		}
+		document.write('</font></td>');
+		if (result.recordSet[i].id == header.selected) {
+          		document.write('<td><img src="/ocsp/agent/graphics/lgRightTab.gif" width="16" height="21"></td>');
+		} else {
+          		document.write('<td><img src="/ocsp/agent/graphics/dgRightTab.gif" width="16" height="21"></td>');
+		}
+	}
+</SCRIPT>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+

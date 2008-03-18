@@ -1,0 +1,149 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<head>
+<title>Index</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+<table border="0" width="100%" cellspacing="0" cellpadding="6">
+  <tr bgcolor="#666699"> 
+    <td width=25%> 
+      <table border="0" cellspacing="0" cellpadding="6">
+        <tr> 
+          <td nowrap><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<b>&reg;<br>
+            Certificate<br>System</b></font> </td>
+        </tr>
+      </table>
+    </td>
+    <td width=65% nowrap><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">Agent Services</font></td>
+    <td width="10%">&nbsp;</td>
+  </tr>
+  <tr valign="TOP"> 
+    <td>&nbsp;</td>
+    <td> 
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr valign="TOP"> 
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+<SCRIPT LANGUAGE="JavaScript">
+function displayError()
+{
+        document.write("<center><h2><b>" +
+                "Problem Processing Your Request" +
+                "</b></h2></center><p>" +
+                "The service encountered a problem " +
+                "when processing your request. This problem may " +
+                "indicate a flaw in the form used to submit your " +
+                "request or the values that were entered into the form." +
+                "The following message supplies more information " +
+                "about the error that occurred.<p>");
+        document.write("<blockquote><b><pre>");
+        if (result.header.errorDetails != null) {
+                document.write(result.header.errorDetails);
+        } else {
+                document.write("Unable to provide details. " +
+                 "Contact Administrator.");
+        }
+        document.write("</pre></b></blockquote>");
+        if (result.header.errorDescription != null) {
+                document.write('<p>Additional Information:<p>');
+                document.write('<blockquote><b>');
+                document.write(result.header.errorDescription);
+                document.write('</b></blockquote>');
+        }
+        document.write("<p>");
+        document.write("Please consult your local administrator for " +
+                "further assistance.");
+        document.write("The certificate server's log may provide " +
+                "further information.");
+}
+
+if (result.header.errorDetails != null) {
+        displayError();
+} else {
+	var displayServices = 'true';
+	for (var i = 0; i < result.recordSet.length; ++i) {
+        	document.write('<tr valign="TOP">');
+          	document.write('<td>');
+		document.write('<img src="/graphics/goto-tall.gif" width="10" height="15">&nbsp;</td>');
+          	document.write('<td>');
+		document.write('<font face="PrimaSans BT, Verdana, sans-serif">');
+		document.write('<a href="');
+		document.write(result.recordSet[i].id + '/index.html');
+		if (result.recordSet[i].type == "RegistrationAuthority") {
+			document.write('">Registration Manager Agent Services</a></font>');
+			document.write('<font size="-1" face="PrimaSans BT, Verdana, sans-serif"><br>');
+			document.write('The operations available through this menu are used to process certificate requests, revoke certificates, and update information in the directory server.');
+		} else if (result.recordSet[i].type == "CertificateAuthority") {
+			document.write('">Certificate Manager Agent Services</a></font>');
+			document.write('<font size="-1" face="PrimaSans BT, Verdana, sans-serif"><br>');
+			document.write('The operations available through this menu are used to process certificate requests, revoke certificates, and update information in the directory server.');
+		} else if (result.recordSet[i].type == "OCSPAuthority") {
+			displayServices = 'false';
+			document.write('">Online Certificate Status Manager Agent Services</a></font>');
+			document.write('<font size="-1" face="PrimaSans BT, Verdana, sans-serif"><br>');
+			document.write('The operations available through this menu are used to check certificate status.');
+		} else if (result.recordSet[i].type == "KeyRecoveryAuthority") {
+			displayServices = 'false';
+			document.write('">Data Recovery Manager Agent Services</a></font>');
+			document.write('<font size="-1" face="PrimaSans BT, Verdana, sans-serif"><br>');
+			document.write('The operations available through this menu are used to process key requests, and recover keys.');
+		} else {
+			document.write('">Internal Error</a></font>');
+		}
+		document.write('</font></td></tr>');
+	}
+}
+document.write('<tr valign="TOP">'); 
+document.write('<td>&nbsp;</td>');
+document.write('<td>&nbsp;</td>');
+document.write('</tr>');
+if (displayServices== 'true')
+{	
+	document.write('<tr valign="TOP">');
+	document.write('<TD><IMG src="/graphics/goto-tall.gif" width="10" height="15"></TD>');
+	document.write('<TD><FONT face="PrimaSans BT, Verdana, sans-serif">');
+	document.write('<A href="ports">Services Summary</A></FONT></TD>');
+	document.write('</tr>');
+}
+document.write('<TR valign="TOP">');
+document.write('<TD> </TD>');
+document.write('<TD> </TD>');
+document.write('</tr>');
+document.write('</table>');
+document.write('</td>');
+document.write('<td>&nbsp;</td>');
+document.write('</tr>');
+document.write('<tr valign="TOP">'); 
+document.write('<td>&nbsp;</td>');
+document.write('<td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.write('&copy; 2001 Sun Microsystems, Inc. Used by permission. &copy; 2005 Red Hat, Inc.. All rights reserved.');
+document.write('</font></td>');
+document.write('<td>&nbsp;</td>');
+document.write('</tr>');
+
+</SCRIPT>
+
+</table>
+</body>
+</html>

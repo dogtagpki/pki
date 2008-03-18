@@ -1,0 +1,38 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+# Always switch into the base directory of this
+# shell script prior to executing it so that all
+# of its output is written to this directory
+cd `dirname $0`
+
+# Retrieve the directory name housing this component
+PWD=`pwd`
+
+# Set Linux component-specific environment variables
+LINUX_BUILD_SCRIPT=`basename $0`
+export LINUX_BUILD_SCRIPT
+LINUX_COMPONENT=`basename ${PWD}`
+export LINUX_COMPONENT
+LINUX_SPECFILE="pki-console-ui.spec"
+export LINUX_SPECFILE
+
+# Invoke the shared Linux PKI build script
+config-ext/build_linux_pki $@
+

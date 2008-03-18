@@ -1,0 +1,89 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<CMS_TEMPLATE>
+
+<TITLE>
+CS Revocation Request Success
+</TITLE>
+
+<BODY bgcolor="white">
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Revocation Success
+</font>
+
+<P>
+The following certificate has been revoked: 
+
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+
+<SCRIPT LANGUAGE="JavaScript">
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + '0x' + absValue;
+}
+
+
+if (result.recordSet == null) {
+	document.writeln('<BLOCKQUOTE><B><PRE>');
+	document.writeln('No further details provided.');
+	document.writeln('Please consult your local administrator for assistance.');
+	document.writeln('</BLOCKQUOTE></B></PRE>');
+}
+else if (result.recordSet.length == 0) {
+	document.writeln('<BLOCKQUOTE><B><PRE>');
+	document.writeln('0');
+	document.writeln('No further details provided.');
+	document.writeln('Please consult your local administrator for assistance.');
+	document.writeln('</BLOCKQUOTE></B></PRE>');
+} else {
+	document.writeln('<UL>');
+	for (var i = 0; i < result.recordSet.length; i++) {
+		if (result.recordSet[i].serialNo != null) {
+			document.write('Serial number ');
+			document.write('<BLOCKQUOTE><B><PRE>');
+			document.writeln(toHex(result.recordSet[i].serialNo));
+			document.write('</BLOCKQUOTE></B></PRE>');
+			document.write('</PRE></BLOCKQUOTE>');
+		}
+	}
+	document.writeln('</UL>');
+}
+document.writeln('</PRE></B></BLOCKQUOTE>');
+
+document.writeln('<P>');
+</SCRIPT>
+
+</font>
+</BODY>
+</HTML>
+

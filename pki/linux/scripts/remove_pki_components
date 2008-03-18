@@ -1,0 +1,113 @@
+#!/bin/bash
+##  BEGIN COPYRIGHT BLOCK
+##  (C) 2008 Red Hat, Inc.
+##  All rights reserved.
+##  END COPYRIGHT BLOCK
+
+##  Always switch into this base directory
+##  prior to script execution so that all
+##  of its output is written to this directory
+
+cd `dirname $0`
+
+
+##
+##  This script MUST be run as root!
+##
+
+ROOTUID=0
+
+OS=`uname`
+if [ "${OS}" = "Linux" ] ; then
+    MY_EUID=`/usr/bin/id -u`
+    MY_UID=`/usr/bin/id -ur`
+    USERNAME=`/usr/bin/id -un`
+else
+    printf "ERROR:  Unsupported operating system '${OS}'!\n"
+    exit 255
+fi
+
+if [ "${MY_UID}"  != "${ROOTUID}" ] &&
+   [ "${MY_EUID}" != "${ROOTUID}" ] ; then
+    printf "ERROR:  The '$0' script must be run as root!\n"
+    exit 255
+fi
+
+
+
+##
+##  Ask user if any PKI instances need to be removed
+##
+
+while :
+do
+    printf "REMINDER:  Do any PKI instances need to be removed?  [yn]  "
+    read ANSWER
+    printf "\n"
+    if [ "${ANSWER}" = "Y" ] ||
+       [ "${ANSWER}" = "y" ] ; then
+        exit 255
+    elif [ "${ANSWER}" = "N" ] ||
+         [ "${ANSWER}" = "n" ] ; then
+        printf "\n"
+        break
+    else
+        continue
+    fi
+done
+
+
+
+##
+##  Check for PKI components present on this operating system
+##
+
+printf "Processing PKI components present on system . . . "
+    # (1) grab all PKI components
+    PKI_COMPONENTS=`rpm -qa --queryformat '%{NAME}\n' | grep pki`
+
+    # (2) check for osutil
+    `rpm -q --quiet osutil`
+    OSUTIL_PRESENCE=$?
+    if [ "${OSUTIL_PRESENCE}" = "0" ] ; then
+        PKI_COMPONENTS="${PKI_COMPONENTS} osutil"
+    fi
+
+    # (3) check for symkey
+    `rpm -q --quiet symkey`
+    SYMKEY_PRESENCE=$?
+    if [ "${SYMKEY_PRESENCE}" = "0" ] ; then
+        PKI_COMPONENTS="${PKI_COMPONENTS} symkey"
+    fi
+printf "done.\n\n"
+
+
+
+##
+##  Place the PKI components into a list
+##
+
+PKI_COMPONENT_LIST=""
+for COMPONENT in ${PKI_COMPONENTS} ; do
+    if [ "${PKI_COMPONENT_LIST}" = "" ] ; then
+        PKI_COMPONENT_LIST="${COMPONENT}"
+    else
+        PKI_COMPONENT_LIST="${PKI_COMPONENT_LIST} ${COMPONENT}"
+    fi
+done
+
+
+
+##
+##  Remove ALL PKI components in the list
+##
+
+if [ "${PKI_COMPONENT_LIST}" != "" ] ; then
+    rpm -ev ${PKI_COMPONENT_LIST}
+    printf "\n"
+else
+    printf "No PKI packages need to be removed.\n\n"
+fi
+
+exit 0
+

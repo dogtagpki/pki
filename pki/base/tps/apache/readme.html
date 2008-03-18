@@ -1,0 +1,1222 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation;
+     version 2.1 of the License.
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<body>
+<h1>
+<center><b>
+How to Setup and Configure "mod_tps" and "mod_tokendb" on Apache
+</b></center>
+<hr>
+<h2>Overview</h2>
+<ul>
+<p>This document describes how to install and configure the "mod_tps" and
+"mod_tokendb" modules required by CoolKey.
+</ul>
+<h2>Dependencies</h2>
+<ul>
+<p>"mod_tps" is dependent upon the following components:
+<ul>
+<li>Fedora Certificate System (FCS) 1.0.0 Certificate Authority (CA)
+<li>FCS 1.0.0 Token Key Service (TKS)
+<li>FCS 1.0.0 Data Recovery Manager (DRM) [optional]
+<li>FCS 1.0.0 Token Processing System (TPS)
+<li>Fedora Directory Server (FDS) 1.0 (TPS internaldb instance)
+<li>Apache 2.0.52
+<li>"mod_nss" module installed and available from this Apache 2.0.52 (Fortitude)
+</ul>
+<p>"mod_tokendb" is dependent upon the following components:
+<ul>
+<li>FCS 1.0.0 TPS
+<li>FDS 1.0 TPS internaldb instance
+<li>Apache 2.0.52
+<li>"mod_nss" module installed and available from this Apache 2.0.52 (Fortitude)
+<li>"mod_tps" module installed and available from this Apache 2.0.52 (Fortitude)
+</ul>
+</ul>
+<h2>Supported Platforms</h2>
+<ul>
+<li>Fedora Core 6 (32-bit),
+<li>Fedora Core 6 (64-bit), and
+<li>Solaris 9 (64-bit)
+</ul>
+<h2>Installing and Configuring "mod_tps" and "mod_tokendb"</h2>
+<ol>
+<li>Insure that a pre-installed version 1.0.0 of the FCS common subsystems area
+exists on the desired machine running on the desired platform<br>
+(e. g. - &lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;)
+<li>Insure that a pre-installed version 1.0.0 of the FCS CA exists on the
+desired machine running on the desired platform<br>
+(e. g. - &lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_ca_subsystems&gt; and &lt;pki_server_root&gt;/&lt;ca_instance&gt;)
+<li>Insure that a pre-installed version 1.0.0 of the FCS TKS exists on the
+desired machine running on the desired platform<br>
+(e. g. - &lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tks_subsystems&gt; and &lt;pki_server_root&gt;/&lt;tks_instance&gt;)
+<li>Optionally, insure that a pre-installed version 1.0.0 of the FCS DRM exists
+on the desired machine running on the desired platform<br>
+(e. g. - &lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_drm_subsystems&gt; and &lt;pki_server_root&gt;/&lt;drm_instance&gt;)
+<li>Insure that a pre-installed version 1.0 of the FDS exists on the desired
+machine running on the desired platform.<br>
+This is needed to create a TPS internaldb instance<br>
+(e. g. - &lt;rhds_server_root&gt;/&lt;tps_internaldb&gt;)
+<li>Insure that a pre-installed threaded version 2.0.52 of the Apache server
+exists on the desired machine running on the desired platform<br>
+(e. g. - &lt;apache_server_root&gt;)
+<li>Insure that this Apache server has "mod_nss" (Fortitude) installed and
+available from its &lt;apache_server_root&gt;
+<li>Download and unpack the entire contents of the TPS package into the
+&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;, the
+&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;, and the
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;
+<li>Change directory to &lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/bin
+<li>Execute &lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/bin/setup_tps:
+<ol type="a">
+<li>Creates a wrapper script called
+&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/bin/tpsclient for
+&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/bin/tpsclient
+<li>Creates an empty
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/bin directory
+(instance-specific binaries)
+<li>Creates an empty
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/cgi-bin directory
+(user customization)
+<li>Creates an empty
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/docroot directory
+(user customization)
+<li>Creates an empty
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/lib directory
+(instance-specific libraries)
+<li>Creates an empty
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/logs directory
+(instance-specific logs)
+<li>Sets up the CA connector in
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/config/CS.cfg
+<li>Optionally, sets up the DRM connector in
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/config/CS.cfg
+<li>Creates a cert8.db in
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/config/cert8.db
+<li>Creates a key3.db in
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/config/key3.db
+<li>Populates the cert8.db and key3.db security databases located in the
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/config directory with the
+ServerCert
+<li>Populates the TPS internaldb located in the
+&lt;rhds_server_root&gt;/&lt;tps_internaldb&gt; directory by executing the
+LDIF scripts located in the
+&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/setup directory
+<li>Generates the
+&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/config/httpd.conf
+Apache Configuration file:
+<pre>
+#
+# Dynamic Shared Object (DSO) Support
+#
+# To be able to use the functionality of a module which was built as a DSO you
+# have to place corresponding `LoadModule' lines at this location so the
+# directives contained in it are actually available _before_ they are used.
+# Statically compiled modules (those listed by `httpd -l') do not need
+# to be loaded here.
+#
+# Example:
+# LoadModule foo_module modules/mod_foo.so
+#
+LoadModule nss_module         &lt;apache_server_root&gt;/modules/libmodnss.so
+
+#
+# Bring in additional module-specific configurations
+#
+Include &lt;apache_server_root&gt;/conf/nss.conf
+Include &lt;pki_server_root&gt;/&lt;tps_instance&gt;/config/tps.conf
+</pre>
+<li>Generates the
+&lt;pki_server_root&gt;/&lt;tps_instance&gt;/config/tps.conf
+Apache TPS Module Configuration file:
+<pre>
+#
+# Dynamic Shared Object (DSO) Support
+#
+# To be able to use the functionality of a module which was built as a DSO you
+# have to place corresponding `LoadModule' lines at this location so the
+# directives contained in it are actually available _before_ they are used.
+# Statically compiled modules (those listed by `httpd -l') do not need
+# to be loaded here.
+#
+# Example:
+# LoadModule foo_module modules/mod_foo.so
+#
+LoadModule tps_module         &lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/lib/mod_tps.so
+LoadModule tokendb_module     &lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/lib/mod_tokendb.so
+
+&lt;Location /nk_service&gt;
+    SetHandler nk_service
+&lt;/Location&gt;
+                                                                                
+&lt;Location /tus&gt;
+    SetHandler tus
+&lt;/Location&gt;
+
+#
+# DocumentRoot: The directory out of which you will serve your
+# documents. By default, all requests are taken from this directory, but
+# symbolic links and aliases may be used to point to other locations.
+#
+DocumentRoot "&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot"
+
+#
+# ScriptAlias: This controls which directories contain server scripts.
+# ScriptAliases are essentially the same as Aliases, except that
+# documents in the realname directory are treated as applications and
+# run by the server when requested rather than as documents sent to the client.
+# The same rules about trailing "/" apply to ScriptAlias directives as to
+# Alias.
+#
+ScriptAlias /cgi-bin/ "&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/cgi-bin/"
+
+#
+# Bring in additional module-specific configurations
+#
+TPSConfigPathFile &lt;pki_server_root&gt;/&lt;tps_instance&gt;/config/CS.cfg
+</ol>
+<li>Assume "root" privilege
+<li>Execute &lt;apache_server_root&gt;/bin/apachectl -f 
+&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/config/httpd.conf
+start
+</ol>
+
+<h2>Inventory of cs-tps-{version} Package</h2>
+<ul>
+<table border=1>
+<tr>
+<th>Packaged File</th>
+<th>Unpackaged File</th>
+</tr>
+<tr>
+<td>applets/</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/applets/</td>
+</tr>
+<tr>
+<td>applets/1.3.427BDDB8.ijc</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/applets/1.3.427BDDB8.ijc</td>
+</tr>
+<tr>
+<td>bin/</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/bin/</td>
+</tr>
+<tr>
+<td>bin/setup_tps</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/bin/setup_tps</td>
+</tr>
+<tr>
+<td>bin/setup_tps</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/bin/uninstall_tps</td>
+</tr>
+<tr>
+<td>bin/</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/bin/</td>
+</tr>
+<tr>
+<td>bin/tpsclient</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/bin/tpsclient</td>
+</tr>
+<tr>
+<td>cgi-bin/</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/cgi-bin/</td>
+</tr>
+<tr>
+<td>cgi-bin/AdminEsc.html</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/cgi-bin/AdminEsc.html</td>
+</tr>
+<tr>
+<td>cgi-bin/AdvancePopup.html</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/cgi-bin/AdvancePopup.html</td>
+</tr>
+<tr>
+<td>cgi-bin/EnrollPopup.html</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/cgi-bin/EnrollPopup.html</td>
+</tr>
+<tr>
+<td>cgi-bin/SettingsEsc.html</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/cgi-bin/SettingsEsc.html</td>
+</tr>
+<tr>
+<td>cgi-bin/TokenManager.html</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/cgi-bin/TokenManager.html</td>
+</tr>
+<tr>
+<td>cgi-bin/TokenPin.html</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/cgi-bin/TokenPin.html</td>
+</tr>
+<tr>
+<td>cgi-bin/esc.cgi</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/cgi-bin/esc.cgi</td>
+</tr>
+<tr>
+<td>cgi-bin/style.css</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/cgi-bin/style.css</td>
+</tr>
+<tr>
+<td>config/</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/config/</td>
+</tr>
+<tr>
+<td>config/CS.cfg</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/config/CS.cfg</td>
+</tr>
+<tr>
+<td>config/enroll.test</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/config/enroll.test</td>
+</tr>
+<tr>
+<td>config/format.test</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/config/format.test</td>
+</tr>
+<tr>
+<td>config/reset_pin.test</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/config/reset_pin.test</td>
+</tr>
+<tr>
+<td>docroot/</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/</td>
+</tr>
+<tr>
+<td>docroot/GenericAuth.html</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/GenericAuth.html</td>
+</tr>
+<tr>
+<td>docroot/images/</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/</td>
+</tr>
+<tr>
+<td>docroot/images/BannerBackground.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/BannerBackground.gif</td>
+</tr>
+<tr>
+<td>docroot/images/BindSettingsPrototype.jpg</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/BindSettingsPrototype.jpg</td>
+</tr>
+<tr>
+<td>docroot/images/CancelButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/CancelButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/CloseButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/CloseButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/ContinueButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/ContinueButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/HelpButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/HelpButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/NetKey-Small.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/NetKey-Small.gif</td>
+</tr>
+<tr>
+<td>docroot/images/NetKeyInsert.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/NetKeyInsert.gif</td>
+</tr>
+<tr>
+<td>docroot/images/NetKeyLogo.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/NetKeyLogo.gif</td>
+</tr>
+<tr>
+<td>docroot/images/NetKeyPair.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/NetKeyPair.gif</td>
+</tr>
+<tr>
+<td>docroot/images/NetKeyProgress.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/NetKeyProgress.gif</td>
+</tr>
+<tr>
+<td>docroot/images/NetKeyQuestionMark.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/NetKeyQuestionMark.gif</td>
+</tr>
+<tr>
+<td>docroot/images/OKButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/OKButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/PadLock.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/PadLock.gif</td>
+</tr>
+<tr>
+<td>docroot/images/PurchaseButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/PurchaseButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/ReactivateButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/ReactivateButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/ReleaseButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/ReleaseButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/SecureButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/SecureButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/SuspendButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/SuspendButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/TryAgainButton.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/TryAgainButton.gif</td>
+</tr>
+<tr>
+<td>docroot/images/bg.jpg</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/bg.jpg</td>
+</tr>
+<tr>
+<td>docroot/images/logo.gif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/images/logo.gif</td>
+</tr>
+<tr>
+<td>docroot/style.css</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/style.css</td>
+</tr>
+<tr>
+<td>docroot/tus/</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/</td>
+</tr>
+<tr>
+<td>docroot/tus/addResults.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/addResults.template</td>
+</tr>
+<tr>
+<td>docroot/tus/delete.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/delete.template</td>
+</tr>
+<tr>
+<td>docroot/tus/deleteResults.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/deleteResults.template</td>
+</tr>
+<tr>
+<td>docroot/tus/doToken.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/doToken.template</td>
+</tr>
+<tr>
+<td>docroot/tus/doTokenConfirm.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/doTokenConfirm.template</td>
+</tr>
+<tr>
+<td>docroot/tus/edit.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/edit.template</td>
+</tr>
+<tr>
+<td>docroot/tus/editAdmin.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/editAdmin.template</td>
+</tr>
+<tr>
+<td>docroot/tus/editAdminResults.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/editAdminResults.template</td>
+</tr>
+<tr>
+<td>docroot/tus/editResults.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/editResults.template</td>
+</tr>
+<tr>
+<td>docroot/tus/error.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/error.template</td>
+</tr>
+<tr>
+<td>docroot/tus/index.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/index.template</td>
+</tr>
+<tr>
+<td>docroot/tus/indexAdmin.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/indexAdmin.template</td>
+</tr>
+<tr>
+<td>docroot/tus/new.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/new.template</td>
+</tr>
+<tr>
+<td>docroot/tus/revoke.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/revoke.template</td>
+</tr>
+<tr>
+<td>docroot/tus/search.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/search.template</td>
+</tr>
+<tr>
+<td>docroot/tus/searchActivity.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/searchActivity.template</td>
+</tr>
+<tr>
+<td>docroot/tus/searchActivityResults.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/searchActivityResults.template</td>
+</tr>
+<tr>
+<td>docroot/tus/searchAdmin.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/searchAdmin.template</td>
+</tr>
+<tr>
+<td>docroot/tus/searchAdminResults.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/searchAdminResults.template</td>
+</tr>
+<tr>
+<td>docroot/tus/searchCertificateResults.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/searchCertificateResults.template</td>
+</tr>
+<tr>
+<td>docroot/tus/searchResults.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/searchResults.template</td>
+</tr>
+<tr>
+<td>docroot/tus/show.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/show.template</td>
+</tr>
+<tr>
+<td>docroot/tus/showAdmin.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/showAdmin.template</td>
+</tr>
+<tr>
+<td>docroot/tus/showCert.template</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/docroot/tus/showCert.template</td>
+</tr>
+<tr>
+<td>lib/</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/lib/</td>
+</tr>
+<tr>
+<td>lib/libldapauth.so</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/lib/libldapauth.so</td>
+</tr>
+<tr>
+<td>lib/libtokendb.so</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/lib/libtokendb.so</td>
+</tr>
+<tr>
+<td>lib/libtps.so</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/lib/libtps.so</td>
+</tr>
+<tr>
+<td>lib/mod_tokendb.so</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/lib/mod_tokendb.so</td>
+</tr>
+<tr>
+<td>lib/mod_tps.so</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/lib/mod_tps.so</td>
+</tr>
+<tr>
+<td>setup/</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/setup/</td>
+</tr>
+<tr>
+<td>setup/addAgents.ldif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/setup/addAgents.ldif</td>
+</tr>
+<tr>
+<td>setup/addIndexes.ldif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/setup/addIndexes.ldif</td>
+</tr>
+<tr>
+<td>setup/addTokens.ldif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/setup/addTokens.ldif</td>
+</tr>
+<tr>
+<td>setup/addVLVIndexes.ldif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/setup/addVLVIndexes.ldif</td>
+</tr>
+<tr>
+<td>setup/schemaMods.ldif</td>
+<td>&lt;pki_server_root&gt;/&lt;common_subsystems_area&gt;/&lt;common_tps_subsystems&gt;/setup/schemaMods.ldif</td>
+</tr>
+</table>
+</ul>
+
+<h2>Inventory of cs-tps-devel-{version} Package</h2>
+<ul>
+<table border=1>
+<tr>
+<th>Packaged File</th>
+<th>Unpackaged File</th>
+</tr>
+<tr>
+<td>include/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/APDU_Response.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Create_Object_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Create_Pin_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Delete_File_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/External_Authenticate_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Format_Muscle_Applet_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Generate_Key_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Get_Data_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Get_Status_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Get_Version_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Import_Key_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Import_Key_Enc_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Initialize_Update_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Install_Applet_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Install_Load_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Lifecycle_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/List_Objects_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/List_Pins_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Load_File_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Put_Key_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Read_Buffer_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Read_Object_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Select_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Set_Pin_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Unblock_Pin_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/apdu/Write_Object_APDU.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/authentication/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/authentication/AuthParams.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/authentication/Authentication.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/authentication/LDAP_Authentication.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/channel/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/channel/Channel.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/channel/Secure_Channel.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/cms/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/cms/CertEnroll.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/cms/ConnectionInfo.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/cms/HttpConnection.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/engine/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/engine/RA.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/AccessLogger.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/Auth.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/ByteBuffer.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/CERTUtil.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/Cache.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/Connection.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/ConnectionListener.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/DebugLogger.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/Defines.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/ErrorLogger.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/Iterator.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/LogRotationTask.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/Logger.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/NSPRerrs.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSBuddy.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSBuddyCache.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSBuddyList.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSBuddyListener.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSBuddyService.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSCertExtension.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSCommonLib.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSConfig.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSConfigManager.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSConfigReader.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSCrypt.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSDataSourceListener.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSDataSourceManager.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSGroup.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSGroupCache.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSHelper.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSListener.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSPRUtil.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSPlugin.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSPluginManager.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSServer.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSServerLib.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSServerListener.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSServerManager.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSServiceListener.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSServiceManager.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSUser.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PSWaspLib.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/Pool.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PresenceManager.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PresenceServer.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/PresenceServerImpl.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/SECerrs.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/SSLServerSocket.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/SSLSocket.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/SSLerrs.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/ScheduledTask.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/Scheduler.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/SecurityHeaders.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/ServerConnection.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/ServerHeaderProcessor.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/ServerSocket.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/Socket.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/SocketINC.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/SocketLib.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/StringList.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/StringUtil.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/TaskList.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/ThreadPool.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/URLUtil.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/engine.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/http.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/request.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/httpClient/httpc/response.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/RA_pblock.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/AttributeSpec.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/AuthenticationEntry.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/Base.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/Buffer.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/ConfigStore.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/Login.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/Memory.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/MemoryMgr.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/NameValueSet.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/ObjectSpec.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/PKCS11Obj.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/PublishEntry.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/RA_Context.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/RA_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/RA_Session.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/SecureId.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/main/Util.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/modules/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/modules/tps/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/modules/tps/AP_Context.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/modules/tps/AP_Session.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_ASQ_Request_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_ASQ_Response_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_Begin_Op_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_End_Op_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_Extended_Login_Request_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_Extended_Login_Response_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_Login_Request_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_Login_Response_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_New_Pin_Request_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_New_Pin_Response_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_SecureId_Request_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_SecureId_Response_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_Status_Update_Request_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_Status_Update_Response_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_Token_PDU_Request_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/msg/RA_Token_PDU_Response_Msg.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/processor/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/processor/RA_Enroll_Processor.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/processor/RA_Format_Processor.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/processor/RA_Pin_Reset_Processor.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/processor/RA_Processor.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/processor/RA_Renew_Processor.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/processor/RA_Unblock_Processor.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/publisher/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/publisher/IConnector.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/publisher/IPublish_Data.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/publisher/IPublisher.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/publisher/NetkeyPublisher.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/tus/</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>include/tus/tus_db.h</td>
+<td>&nbsp;</td>
+</tr>
+</table>
+</ul>
+</body>
+</html>
+

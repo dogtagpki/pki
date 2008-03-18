@@ -1,0 +1,318 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+# Always switch into the base directory above this
+# shared shell script prior to executing it so that
+# all of its output is written to this directory
+cd `dirname $0`/..
+
+# Set pre-defined variables
+#
+# NOTE:  Variables prefixed with "LINUX" are defined in the invoking script.
+#        Variables prefixed with "PKI" are defined in this shared script.
+#        Variables containing no prefix are reserved for the generated script.
+#
+PKI_ABORT_SCRIPT="false"
+PKI_BASEDIR="../../.."
+PKI_BUILD_XML=build.xml
+PKI_DIR=pki
+PKI_LINUX_DIR=linux
+PKI_RELEASE_DIR=release
+PKI_RELEASE_SCRIPT=release
+PKI_SHARED_SCRIPT=`basename $0`
+PKI_SRC_DIR=base
+
+# Check the values of the passed-in environment variables
+if [ "${LINUX_BUILD_SCRIPT}" == "" ]; then
+    printf "ERROR:  The 'LINUX_BUILD_SCRIPT' environment variable is undefined!\n"
+    PKI_ABORT_SCRIPT="true"
+fi
+if [ "${LINUX_COMPONENT}" == "" ]; then
+    printf "ERROR:  The 'LINUX_COMPONENT' environment variable is undefined!\n"
+    PKI_ABORT_SCRIPT="true"
+fi
+if [ "${LINUX_SPECFILE}" == "" ]; then
+    printf "ERROR:  The 'LINUX_SPECFILE' environment variable is undefined!\n"
+    PKI_ABORT_SCRIPT="true"
+fi
+if [ "${PKI_ABORT_SCRIPT}" == "true" ]; then
+    printf "\n"
+    printf "The '${PKI_SHARED_SCRIPT}' shared build script MUST be invoked by "
+    printf "a\nPKI component-specific build script (e. g. - '${LINUX_BUILD_SCRIPT}')\n"
+    printf "which defines ALL environment variables prefixed by 'LINUX'!\n"
+    exit 255
+fi
+
+# Compute remaining variables by assigning their values from the specfile
+PKI_SOURCE_CODE_URL="https://pki-svn.fedora.redhat.com/svn/pki/trunk/${PKI_DIR}/${PKI_SRC_DIR}/${LINUX_COMPONENT}"
+PKI_PRODUCT_UI_PREFIX=`grep " base_ui_prefix" ${LINUX_SPECFILE} | awk '{ print $3; }'`
+PKI_PRODUCT_PREFIX=`grep " base_prefix" ${LINUX_SPECFILE} | awk '{ print $3; }'`
+PKI_PRODUCT=`grep " base_component" ${LINUX_SPECFILE} | awk '{ print $3; }'`
+if [ "${PKI_PRODUCT_UI_PREFIX}" != "" ]; then
+    PKI_PRODUCT_BUILD_XML="${PKI_BUILD_XML}"
+    PKI_PRODUCT_NAME="${PKI_PRODUCT_PREFIX}-${PKI_PRODUCT}"
+    PKI_PRODUCT_SOURCE_PATH="${PKI_DIR}/${PKI_LINUX_DIR}/${LINUX_COMPONENT}"
+elif [ "${PKI_PRODUCT_PREFIX}" != "" ]; then
+    PKI_PRODUCT_BUILD_XML="${PKI_BASEDIR}/${PKI_DIR}/${PKI_SRC_DIR}/${LINUX_COMPONENT}/${PKI_BUILD_XML}"
+    PKI_PRODUCT_NAME="${PKI_PRODUCT_PREFIX}-${PKI_PRODUCT}"
+    PKI_PRODUCT_SOURCE_PATH="${PKI_DIR}/${PKI_SRC_DIR}/${LINUX_COMPONENT}"
+else
+    PKI_PRODUCT_BUILD_XML="${PKI_BASEDIR}/${PKI_DIR}/${PKI_SRC_DIR}/${LINUX_COMPONENT}/${PKI_BUILD_XML}"
+    PKI_PRODUCT_NAME="${PKI_PRODUCT}"
+    PKI_PRODUCT_SOURCE_PATH="${PKI_DIR}/${PKI_SRC_DIR}/${LINUX_COMPONENT}"
+fi
+PKI_RELEASE_ROOT="${PKI_BASEDIR}/${PKI_RELEASE_DIR}/${PKI_PRODUCT_SOURCE_PATH}"
+PKI_SOURCE_CODE_LOCAL_REPOSITORY="`pwd`/${PKI_BASEDIR}/${PKI_PRODUCT_SOURCE_PATH}"
+
+# Always check that local source code for this PKI component is available
+if [ ! -d "${PKI_SOURCE_CODE_LOCAL_REPOSITORY}" ]; then
+    printf "Please checkout the '${LINUX_COMPONENT}' source code from:\n\n"
+    printf "    '${PKI_SOURCE_CODE_URL}'\n\n"
+    printf "to:\n\n"
+    printf "    '${PKI_SOURCE_CODE_LOCAL_REPOSITORY}'\n\n"
+    exit 255
+fi
+
+# Define awk scripts
+check_targets='
+BEGIN {
+    success = "false";
+}
+
+{
+    while( getline < FILENAME > 0 ) {
+        if( substr( $0, 0, 80 ) ~ "target name" ) {
+            start = substr( $0,
+                            match( $0, "\"" ) + 1 );
+            target = substr( start,
+                             start,
+                             match( start, "\"" ) - 1 );
+            if( build_target == target ) {
+                success = "true";
+            }
+        }
+    }
+}
+
+END {
+    printf( "%s", success );
+}'
+
+display_targets='{
+    while( getline < FILENAME > 0 ) {
+        if( substr( $0, 0, 80 ) ~ "target name" ) {
+            start = substr( $0,
+                            match( $0, "\"" ) + 1 );
+            target = substr( start,
+                             start,
+                             match( start, "\"" ) - 1 );
+        }
+        if( substr( $0, 0, 80 ) ~ "description" ) {
+            start = substr( $0,
+                            match( $0, "\"" ) + 1 );
+            description[target] = substr( start,
+                                          start,
+                                          match( start, "\"" ) - 1 );
+            printf( "'%20s' %s\n", target, description[target] );
+        }
+    }
+}'
+
+# Provide a usage function
+usage() {
+    if [ $# -gt 0 ] ; then
+        echo
+        echo "$1"
+    fi
+    echo
+    echo "Usage:  ${LINUX_BUILD_SCRIPT} [target]"
+    echo
+    echo "        where [target] is one of the optional values:"
+    echo
+    echo "                help --> display '${PKI_PRODUCT_NAME}' usage statement"
+    awk "$display_targets" ${PKI_PRODUCT_BUILD_XML}
+    echo
+    exit 255
+}
+
+# Verify that the appropriate number of
+# command-line parameters have been entered
+# and that a valid target has been specified
+if [ $# -eq 0 ] ; then
+    RELEASE_TARGET=main
+    BUILD_TARGET=""
+elif [ $# -eq 1 ] ; then
+    if [ "$1" == "help" ]; then
+        usage
+    else
+        SUCCESS=`awk -v build_target=$1 "$check_targets" ${PKI_PRODUCT_BUILD_XML}`
+        if [ "${SUCCESS}" == "false" ]; then
+            usage "ERROR:  Invalid target '$1' specified for '${PKI_PRODUCT_NAME}'!"
+        else
+            RELEASE_TARGET=local
+            BUILD_TARGET="$1"
+        fi
+    fi
+elif [ $# -gt 1 ] ; then
+    usage "ERROR:  Too many parameters specified for '${PKI_PRODUCT_NAME}'!"
+fi
+
+# This script may ONLY be run on Linux!
+PKI_OS=`uname`
+if [ "${PKI_OS}" != "Linux" ]; then
+    printf "The '${LINUX_BUILD_SCRIPT}' script is ONLY executable on a 'Linux' machine!\n"
+    exit 255
+fi
+
+# Always start with a new release root directory
+rm -rf ${PKI_RELEASE_ROOT}
+mkdir -p ${PKI_RELEASE_ROOT}
+
+# Copy the source code to the release root
+cd ${PKI_BASEDIR}
+find ${PKI_PRODUCT_SOURCE_PATH} -name .svn -prune -o -name *.swp -prune -o -print | cpio -pdum ${PKI_RELEASE_DIR} > /dev/null 2>&1
+cd - > /dev/null 2>&1
+
+# Remove unused files
+rm -rf ${PKI_RELEASE_ROOT}/build_*
+rm -rf ${PKI_RELEASE_ROOT}/*.spec
+if [ -d ${PKI_RELEASE_ROOT}/config-ext ]; then
+    rm -rf ${PKI_RELEASE_ROOT}/config-ext
+fi
+
+# Create the default spec file
+cp ${LINUX_SPECFILE} ${PKI_RELEASE_ROOT}/${PKI_PRODUCT_NAME}.spec
+
+# Use bash-specific syntax to create the default build script
+cat >> ${PKI_RELEASE_ROOT}/${PKI_RELEASE_SCRIPT} << END_OF_SCRIPT
+#!/bin/bash
+
+#####################################################################
+###  DO NOT EDIT!  This script has been automatically generated!  ###
+#####################################################################
+
+# Always switch into the base directory of this
+# shell script prior to executing it so that all
+# of its output is written to this directory
+cd \`dirname \$0\`
+
+# Set pre-defined variables
+BUILD_SCRIPT=\`basename \$0\`
+BUILD_XML=${PKI_BUILD_XML}
+SPECFILE=${PKI_PRODUCT_NAME}.spec
+
+# Define awk scripts
+check_targets='
+BEGIN {
+    success = "false";
+}
+
+{
+    while( getline < FILENAME > 0 ) {
+        if( substr( \$0, 0, 80 ) ~ "target name" ) {
+            start = substr( \$0,
+                            match( \$0, "\"" ) + 1 );
+            target = substr( start,
+                             start,
+                             match( start, "\"" ) - 1 );
+            if( build_target == target ) {
+                success = "true";
+            }
+        }
+    }
+}
+
+END {
+    printf( "%s", success );
+}'
+
+display_targets='{
+    while( getline < FILENAME > 0 ) {
+        if( substr( \$0, 0, 80 ) ~ "target name" ) {
+            start = substr( \$0,
+                            match( \$0, "\"" ) + 1 );
+            target = substr( start,
+                             start,
+                             match( start, "\"" ) - 1 );
+        }
+        if( substr( \$0, 0, 80 ) ~ "description" ) {
+            start = substr( \$0,
+                            match( \$0, "\"" ) + 1 );
+            description[target] = substr( start,
+                                          start,
+                                          match( start, "\"" ) - 1 );
+            printf( "'%20s' %s\n", target, description[target] );
+        }
+    }
+}'
+
+# Provide a usage function
+usage() {
+    if [ \$# -gt 0 ] ; then
+        echo
+        echo "\$1"
+    fi
+    echo
+    echo "Usage:  \${BUILD_SCRIPT} [target]"
+    echo
+    echo "        where [target] is one of the optional values:"
+    echo
+    echo "                help --> display '${PKI_PRODUCT_NAME}' usage statement"
+    awk "\$display_targets" \${BUILD_XML}
+    echo
+    exit 255
+}
+
+# Verify that the appropriate number of
+# command-line parameters have been entered
+# and that a valid target has been specified
+if [ \$# -eq 0 ] ; then
+    RELEASE_TARGET=main
+    BUILD_TARGET=main
+elif [ \$# -eq 1 ] ; then
+    if [ "\$1" == "help" ]; then
+        usage
+    else
+        SUCCESS=\`awk -v build_target=\$1 "\$check_targets" \${BUILD_XML}\`
+        if [ "\${SUCCESS}" == "false" ]; then
+            usage "ERROR:  Invalid target '\$1' specified for '${PKI_PRODUCT_NAME}'!"
+        else
+            RELEASE_TARGET=local
+            BUILD_TARGET="\$1"
+        fi
+    fi
+elif [ \$# -gt 1 ] ; then
+    usage "ERROR:  Too many parameters specified for '${PKI_PRODUCT_NAME}'!"
+fi
+
+# This script may ONLY be run on Linux!
+OS=\`uname\`
+if [ "\${OS}" != "Linux" ]; then
+    printf "The '\${BUILD_SCRIPT}' script is ONLY executable on a 'Linux' machine!\n"
+    exit 255
+fi
+
+ant -f config/release.xml -Dbasedir=. -Dspecfile=\${SPECFILE} -Dtarget=\${BUILD_TARGET} \${RELEASE_TARGET}
+
+END_OF_SCRIPT
+chmod 00755 ${PKI_RELEASE_ROOT}/${PKI_RELEASE_SCRIPT}
+
+cd ${PKI_RELEASE_ROOT}
+./${PKI_RELEASE_SCRIPT} ${BUILD_TARGET}
+

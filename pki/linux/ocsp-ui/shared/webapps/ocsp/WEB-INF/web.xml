@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- BEGIN COPYRIGHT BLOCK
+     Copyright (C) 2006 Red Hat, Inc.
+     All rights reserved.
+     END COPYRIGHT BLOCK -->
+<!DOCTYPE web-app 
+   PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "file:///usr/share/rhpki/setup/web-app_2_3.dtd">
+<web-app>
+
+    <servlet>
+        <servlet-name>csadmin-wizard</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.wizard.WizardServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+        <init-param>
+            <param-name>name</param-name>
+            <param-value>OCSP Setup Wizard</param-value>
+        </init-param>
+        <init-param>
+            <param-name>panels</param-name>
+            <param-value>welcome=com.netscape.cms.servlet.csadmin.WelcomePanel,securitydomain=com.netscape.cms.servlet.csadmin.SecurityDomainPanel,securitydomain=com.netscape.cms.servlet.csadmin.DisplayCertChainPanel,subsystem=com.netscape.cms.servlet.csadmin.CreateSubsystemPanel,restorekeys=com.netscape.cms.servlet.csadmin.RestoreKeyCertPanel,databasepanel=com.netscape.cms.servlet.csadmin.DatabasePanel,modulepanel=com.netscape.cms.servlet.csadmin.ModulePanel,config_hsmloginpanel=com.netscape.cms.servlet.csadmin.ConfigHSMLoginPanel,sizepanel=com.netscape.cms.servlet.csadmin.SizePanel,namepanel=com.netscape.cms.servlet.csadmin.NamePanel,certrequestpanel=com.netscape.cms.servlet.csadmin.CertRequestPanel,backupkeys=com.netscape.cms.servlet.csadmin.BackupKeyCertPanel,savepk12=com.netscape.cms.servlet.csadmin.SavePKCS12Panel,adminpanel=com.netscape.cms.servlet.csadmin.AdminPanel,importadmincertpanel=com.netscape.cms.servlet.csadmin.ImportAdminCertPanel,donepanel=com.netscape.cms.servlet.csadmin.DonePanel</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>csadmin-login</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.csadmin.LoginServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>config-db</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigDatabaseServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>config-hsm</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigHSMServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>config-rootca</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigRootCAServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>config-join</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigJoinServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>config-clone</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigCloneServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+    </servlet>
+
+
+   <servlet>
+      <servlet-name>  ocspregistry  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.RegistryAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspregistry </param-value> </init-param>             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  ocspacl  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.ACLAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspacl     </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>  ocspjobsScheduler  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.JobsAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspjobsScheduler </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  ocspug  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.UsrGrpAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspug      </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>  ocspserver  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.CMSAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspserver  </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  ocsplog  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.LogAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocsplog     </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>  ocspauths  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.AuthAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspauths   </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  ocspstart  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.CMSStartServlet  </servlet-class>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  cfgPath     </param-name>
+                         <param-value> [PKI_INSTANCE_PATH]/conf/CS.cfg </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspstart   </param-value> </init-param>
+      <load-on-startup>  1  </load-on-startup>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  ocspocsp  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.OCSPAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspocsp    </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspReadCheckCertPage  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /ocsp/CheckCert.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspReadCheckCertPage </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  ocspindex  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspindex   </param-value> </init-param>
+             <init-param><param-name>  template    </param-name>
+                         <param-value> /agent/index.template </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>  ocspReadAddCRLPage  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/ocsp/AddCRL.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspReadAddCRLPage </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  ocspGetOCSPInfo  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.ocsp.GetOCSPInfo  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspGetOCSPInfo </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ocsp.info </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ocsp/getOCSPInfo.template </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspListCAs  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.ocsp.ListCAServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspListCAs </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ocsp.cas </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ocsp/listCAs.template </param-value> </init-param>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  ocspAddCRL  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.ocsp.AddCRLServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspAddCRL  </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ocsp.crl </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ocsp/addCRL.template </param-value> </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>  ocspports  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.PortsServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspports   </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false        </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> ee      </param-value> </init-param>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  ocspGetConfigEntries  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetConfigEntries </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspGetConfigEntries </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.clone.configuration </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspCheckCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.ocsp.CheckCertServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspCheckCert </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ocsp.certificate </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ocsp/checkCert.template </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspAddCA  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.ocsp.AddCAServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspAddCA   </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ocsp.ca </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ocsp/addCA.template </param-value> </init-param>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  ocspReadAddCAPage  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/ocsp/AddCA.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspReadAddCAPage </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspheader  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspheader  </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  template    </param-name>
+                         <param-value> /agent/header.template </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  eeocspAddCRL  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.ocsp.AddCRLServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> eeocspAddCRL  </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.crl </param-value> </init-param>
+   </servlet>
+                                                                                
+   <servlet>
+      <servlet-name>  services </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.MainPageServlet </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ocsp          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> services </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /services.template </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspOCSP  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.ocsp.OCSPServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspOCSP    </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.request.ocsp </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspDownloadPKCS12  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.DownloadPKCS12  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspDownloadPKCS12 </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.clone.configuration </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspGetTokenInfo  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetTokenInfo  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspGetTokenInfo </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet-mapping>
+      <servlet-name>  ocspregistry  </servlet-name>
+      <url-pattern>   /registry  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspacl  </servlet-name>
+      <url-pattern>   /acl  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspjobsScheduler  </servlet-name>
+      <url-pattern>   /jobsScheduler  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspug  </servlet-name>
+      <url-pattern>   /ug  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspserver  </servlet-name>
+      <url-pattern>   /server  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocsplog  </servlet-name>
+      <url-pattern>   /log  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspauths  </servlet-name>
+      <url-pattern>   /auths  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspstart  </servlet-name>
+      <url-pattern>   /start  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspocsp  </servlet-name>
+      <url-pattern>   /ocsp  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  ocspReadCheckCertPage  </servlet-name>
+      <url-pattern>   /agent/ocsp/checkCert.html  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspindex  </servlet-name>
+      <url-pattern>   /agent/index  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspReadAddCRLPage  </servlet-name>
+      <url-pattern>   /agent/ocsp/addCRL.html  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspGetOCSPInfo  </servlet-name>
+      <url-pattern>   /agent/ocsp/getOCSPInfo  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspListCAs  </servlet-name>
+      <url-pattern>   /agent/ocsp/listCAs  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspAddCRL  </servlet-name>
+      <url-pattern>   /agent/ocsp/addCRL  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspports  </servlet-name>
+      <url-pattern>   /ee/ocsp/ports  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspCheckCert  </servlet-name>
+      <url-pattern>   /agent/ocsp/checkCert  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspAddCA  </servlet-name>
+      <url-pattern>   /agent/ocsp/addCA  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspReadAddCAPage  </servlet-name>
+      <url-pattern>   /agent/ocsp/addCA.html  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspheader  </servlet-name>
+      <url-pattern>   /agent/header  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  eeocspAddCRL  </servlet-name>
+      <url-pattern>   /ee/ocsp/addCRL  </url-pattern>
+   </servlet-mapping>
+                                                                                
+   <servlet-mapping>
+      <servlet-name>  ocspOCSP  </servlet-name>
+      <url-pattern>   /ee/ocsp  </url-pattern>
+   </servlet-mapping>
+
+
+                                                                                
+    <servlet-mapping>
+        <servlet-name>csadmin-wizard</servlet-name>
+        <url-pattern>/admin/console/config/wizard</url-pattern>
+    </servlet-mapping>
+                                                                                
+    <servlet-mapping>
+        <servlet-name>csadmin-login</servlet-name>
+        <url-pattern>/admin/console/config/login</url-pattern>
+    </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  ocspGetConfigEntries  </servlet-name>
+      <url-pattern>   /admin/ocsp/getConfigEntries  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  services </servlet-name>
+      <url-pattern>   /services  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  ocspDownloadPKCS12 </servlet-name>
+      <url-pattern>   /admin/console/config/savepkcs12 </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  ocspGetTokenInfo </servlet-name>
+      <url-pattern>   /ee/ocsp/getTokenInfo </url-pattern>
+   </servlet-mapping>
+</web-app>
+

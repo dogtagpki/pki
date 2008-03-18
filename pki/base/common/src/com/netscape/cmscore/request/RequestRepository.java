@@ -1,0 +1,148 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// (C) 2007 Red Hat, Inc.
+// All rights reserved.
+// --- END COPYRIGHT BLOCK ---
+package com.netscape.cmscore.request;
+
+import java.util.*;
+import java.io.*;
+import java.math.*;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.*;
+import com.netscape.certsrv.request.*;
+import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.apps.*;
+import com.netscape.cmscore.dbs.*;
+
+
+/**
+ * TODO: what does this class provide beyond the Repository
+ * base class??
+ * <p>
+ * @author thayes
+ * @version $Revision: 14561 $ $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ */
+class RequestRepository
+    extends Repository {
+
+     IDBSubsystem mDB = null;
+     IRequestQueue mRequestQueue = null;
+    /**
+     * Create a request repository that uses the LDAP database
+     * <p>
+     * @param name
+     *    the name of the repository.  This String is used to
+     *    construct the DN for the repository's LDAP entry.
+     * @param db
+     *    the LDAP database system.
+     */
+    public RequestRepository(String name, int increment, IDBSubsystem db)
+        throws EDBException {
+        super(db, increment, "ou=" + name + ",ou=requests," + db.getBaseDN());
+
+        CMS.debug("RequestRepository: constructor 1");
+        mBaseDN = "ou=" + name + ",ou=requests," + db.getBaseDN();
+
+        // Let RequestRecord class register its
+        // database mapping and object mapping values
+        RequestRecord.register(db);
+        mDB = db;
+    }
+
+    public RequestRepository(String name, int increment, IDBSubsystem db,IRequestQueue requestQueue)
+        throws EDBException {
+        super(db, increment, "ou=" + name + ",ou=requests," + db.getBaseDN());
+
+        CMS.debug("RequestRepository: constructor2.");
+        mRequestQueue = requestQueue;
+        mBaseDN = "ou=" + name + ",ou=requests," + db.getBaseDN();
+
+        // Let RequestRecord class register its
+        // database mapping and object mapping values
+        RequestRecord.register(db);
+        mDB = db;
+    }
+
+    /**
+     * get the LDAP base DN for this repository.  This
+     * value can be used by the request queue to create the
+     * name for the request records themselves.
+     * <p>
+     * @return
+     *    the LDAP base DN.
+     */
+    public String getBaseDN() {
+        return mBaseDN;
+    }
+
+    /**
+     * Resets serial number.
+     */
+    public void resetSerialNumber(BigInteger serial) throws EBaseException
+    {
+        setTheSerialNumber(serial);
+    }
+                                                                                
+    /**
+     * Removes all objects with this repository.
+     */
+    public void removeAllObjects() throws EBaseException
+    {
+        IDBSSession s = mDB.createSession();
+        try {
+            Enumeration e = s.search(getBaseDN(), 
+                               "(" + RequestRecord.ATTR_REQUEST_ID + "=*)");
+            while (e.hasMoreElements()) {
+              RequestRecord r = (RequestRecord)e.nextElement();
+              String name = "cn" + "=" +
+                r.getRequestId().toString() + "," + getBaseDN();
+               s.delete(name);
+            }       
+        } finally {
+            if (s != null)
+                s.close();
+        }
+    }
+
+    public BigInteger getLastSerialNumberInRange(BigInteger min, BigInteger max)
+    {
+
+        CMS.debug("RequestRepository: in getLastSerialNumberInRange: min " + min + " max " + max);
+
+        CMS.debug("RequestRepository: mRequestQueue " + mRequestQueue);
+
+        BigInteger ret = null;
+
+        if(mRequestQueue == null)  {
+
+            CMS.debug("RequestRepository:  mRequestQueue is null.");
+
+        }  else  {
+       
+            CMS.debug("RequestRepository: about to call mRequestQueue.getLastRequestIdInRange"); 
+            ret = mRequestQueue.getLastRequestIdInRange(min,max);
+
+        }
+
+        return ret;
+
+    }
+    /**
+     * the LDAP base DN for this repository
+     */
+    protected String mBaseDN;
+}

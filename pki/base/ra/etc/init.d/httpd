@@ -1,0 +1,434 @@
+#!/bin/bash
+#
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+# [INSTANCE_ID]    Startup script for the Apache HTTP Server
+#
+# chkconfig:    - 85 15
+# description:  Apache is a World Wide Web server.  It is used to serve \
+#               HTML files and CGI.
+# processname:  httpd
+# config:       [HTTPD_CONF]
+# pidfile:      [SERVER_ROOT]/logs/[INSTANCE_ID].pid
+
+# Check to insure that this script's original invocation directory
+# has not been deleted!
+CWD=`/bin/pwd > /dev/null 2>&1`
+if [ $? -ne 0 ] ; then
+	echo "Cannot invoke '$0' from non-existent directory!"
+	exit 255
+fi
+
+# Check to insure that at least one PKI subsystem
+# currently resides on this system.
+if	[ ! -x /usr/bin/pkiarch   ] ||
+	[ ! -x /usr/bin/pkiflavor ] ||
+	[ ! -x /usr/bin/pkiname   ]; then
+	echo "This machine is missing all PKI subsystems!"
+	exit 255
+fi
+
+# Check to insure that this script's associated PKI
+# subsystem currently resides on this system.
+SUBSYSTEM_TYPE=[SUBSYSTEM_TYPE]
+if [ ! -d /usr/share/`pkiflavor`/${SUBSYSTEM_TYPE} ] ; then
+	echo "This machine is missing the '${SUBSYSTEM_TYPE}' subsystem!"
+	exit 255
+fi
+
+# Obtain the operating system upon which this script is being executed
+OS=`pkiname`
+ARCHITECTURE=`pkiarch`
+
+# Time to wait in seconds, before killing process
+#
+#     NOTE:  Defined in "tomcat5.conf" for other PKI Subsystems.
+#
+STARTUP_WAIT=30
+SHUTDOWN_WAIT=30
+
+# This script must be run as root!
+RV=0
+if [ ${OS} = "Linux" ] ; then
+	if [ `id -u` -ne 0 ] ; then
+		echo "Must be 'root' to execute '$0'!"
+		exit 1
+	fi
+elif [ ${OS} = "SunOS" ] ; then
+	if [ `/usr/xpg4/bin/id -u` -ne 0 ] ; then
+		echo "Must be 'root' to execute '$0'!"
+		exit 1
+	fi
+else
+	echo "Unsupported OS '${OS}'!"
+	exit 1
+fi
+
+# Initialize environment variables
+LD_LIBRARY_PATH=[SYSTEM_USER_LIBRARIES]:[SYSTEM_LIBRARIES]:${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=[SECURITY_LIBRARIES]:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH
+
+# Source function library.
+if [ -x /etc/init.d/functions ]; then
+	. /etc/init.d/functions
+else
+	# The checkpid() function is provided for platforms that do not
+	# contain the "/etc/init.d/functions" file (e. g. - Solaris) . . .
+
+	# Check if $pid (could be plural) are running (keep count)
+	checkpid()
+	{
+		rv=0
+		for i in $* ; do
+			ps -p $i > /dev/null 2>&1 ;
+			if [ $? -ne 0 ] ; then
+				rv=`expr $rv + 1`
+			else
+				rv=`expr $rv + 0`
+			fi
+		done
+		# echo "rv=$rv"
+		return $rv
+	}
+
+	# Create the following directories on platforms
+	# where they do not exist (e. g. - Solaris) . . .
+	if [ ! -d /var/lock/subsys ] ; then
+		mkdir -p /var/lock/subsys
+	fi
+fi
+
+########################################################################
+#   This section contains modified content of "/etc/sysconfig/httpd"   #
+########################################################################
+# Configuration file for the [INSTANCE_ID] service.
+
+#
+# The default processing model (MPM) is the process-based
+# 'prefork' model.  A thread-based model, 'worker', is also
+# available, but does not work with some modules (such as PHP).
+# The service must be stopped before changing this variable.
+#
+HTTPD=[FORTITUDE_DIR]/sbin/httpd.worker
+
+#
+# To pass additional options (for instance, -D definitions) to the
+# httpd binary at startup, set OPTIONS here.
+#
+OPTIONS="-f [HTTPD_CONF]"
+
+#
+# By default, the httpd process is started in the C locale; to 
+# change the locale in which the server runs, the HTTPD_LANG
+# variable can be set.
+#
+HTTPD_LANG=C
+########################################################################
+#                                                                      #
+########################################################################
+
+# This will prevent initlog from swallowing up a pass-phrase prompt if
+# mod_ssl needs a pass-phrase from the user.
+INITLOG_ARGS=""
+
+# Set HTTPD=/usr/sbin/httpd.worker in /etc/sysconfig/httpd to use a server
+# with the thread-based "worker" MPM; BE WARNED that some modules may not
+# work correctly with a thread-based MPM; notably PHP will refuse to start.
+
+# Path to the server binary and short-form for messages.
+httpd=${HTTPD:-[FORTITUDE_DIR]/sbin/httpd}
+prog=[INSTANCE_ID]
+pidfile=${PIDFILE:-[SERVER_ROOT]/logs/[INSTANCE_ID].pid}
+lockfile=${LOCKFILE:-/var/lock/subsys/[INSTANCE_ID]}
+RETVAL=0
+
+# see if httpd is linked with the openldap libraries - we need to override them
+if [ ${OS} = "Linux" ]; then
+	hasopenldap=0
+
+	/usr/bin/ldd $httpd 2>&1 | grep libldap- > /dev/null 2>&1 && hasopenldap=1
+
+	if [ $hasopenldap -eq 1 ] ; then
+		LD_PRELOAD="[SYSTEM_USER_LIBRARIES]/libldap60.so"
+		if [ -e [SYSTEM_USER_LIBRARIES]/dirsec/libssl3.so ] ; then
+			LD_PRELOAD="[SYSTEM_USER_LIBRARIES]/dirsec/libssl3.so:${LD_PRELOAD}"
+		else
+			LD_PRELOAD="[SYSTEM_USER_LIBRARIES]/libssl3.so:${LD_PRELOAD}"
+                fi
+		export LD_PRELOAD
+	fi
+elif [ ${OS} = "SunOS" ] ; then
+	LD_PRELOAD_64="[SYSTEM_USER_LIBRARIES]/libldap60.so"
+	LD_PRELOAD_64="[SYSTEM_USER_LIBRARIES]/dirsec/libssl3.so:${LD_PRELOAD_64}"
+	export LD_PRELOAD_64
+fi
+
+get_pki_secure_port()
+{
+	# establish well-known strings
+	listen_statement="Listen"
+
+	# first check to see that an instance-specific "nss.conf" file exists
+	if [ ! -f [NSS_CONF] ] ; then
+		echo "File '[NSS_CONF]' does not exist!"
+		exit 255
+	fi
+
+	# read this instance-specific "nss.conf" file line-by-line
+	# to obtain the current value of the PKI secure port
+	exec < [NSS_CONF]
+	while read line; do
+		# look for the listen statement
+		head=`echo $line | cut -b1-6`
+		if [ "$head" == "$listen_statement" ] ; then
+			# once the listen statement has been found,
+			# extract the numeric port information
+			port=`echo $line | cut -d: -f2`
+			SECURE_PORT=$port
+			return 0
+		fi
+	done
+
+	return 255
+}
+
+# The semantics of these two functions differ from the way apachectl does
+# things -- attempting to start while running is a failure, and shutdown
+# when not running is also a failure.  So we just do it the way init scripts
+# are expected to behave here.
+start() {
+	echo -n $"Starting $prog: "
+
+	if [ -f ${lockfile} ] ; then
+		if [ -f ${pidfile} ]; then
+			read kpid < ${pidfile}
+			if checkpid $kpid 2>&1; then
+				echo
+				echo "process already running"
+				return -1
+			else
+				echo
+				echo -n "lock file found but no process "
+				echo -n "running for pid $kpid, continuing"
+				echo
+				echo
+			fi
+		fi
+	fi
+
+	if [ -x /etc/init.d/functions ]; then
+		/usr/sbin/selinuxenabled
+		RETVAL=$?
+		if [ $RETVAL = 0 ] ; then	
+			# start Apache in unconfined mode in SELinux-enabled RHEL4
+			if [ ${ARCHITECTURE} = "i386" ] ; then
+				LANG=$HTTPD_LANG daemon runcon -t unconfined_t -- $httpd $OPTIONS
+				# overwrite output from "daemon"
+				echo -n $"Starting $prog:                                        "
+			elif [ ${ARCHITECTURE} = "x86_64" ] ; then
+				# NOTE:  "daemon" is incompatible with "httpd"
+				#        on 64-bit architectures
+				LANG=$HTTPD_LANG runcon -t unconfined_t -- $httpd $OPTIONS
+			fi
+		else
+			LANG=$HTTPD_LANG daemon $httpd $OPTIONS
+			# overwrite output from "daemon"
+			echo -n $"Starting $prog:                                        "
+		fi
+	else
+		LANG=$HTTPD_LANG $httpd $OPTIONS -k start
+	fi
+
+	RETVAL=$?
+	[ $RETVAL = 0 ] && touch ${lockfile}
+
+	if [ $RETVAL = 0 ] ; then
+		count=0;
+
+		let swait=$STARTUP_WAIT
+		until	[ ! -s ${pidfile} ] ||
+				[ $count -gt $swait ]
+		do
+			sleep 1
+			let count=$count+1;
+		done
+
+		if [ -x /etc/init.d/functions ]; then
+			echo_success > /etc/rhgb/temp/rhgb-console
+			cat /etc/rhgb/temp/rhgb-console
+			echo
+		else
+			echo "                                       [  OK  ]"
+		fi
+
+		get_pki_secure_port
+		if [ $? -ne 0 ] ; then
+			SECURE_PORT="<Port Undefined>"
+		fi
+
+		echo
+		echo -n "PKI service(s) are available at "
+		echo -n "https://[SERVER_NAME]:$SECURE_PORT"
+		echo
+		echo
+	else
+		if [ -x /etc/init.d/functions ]; then
+			echo_failure > /etc/rhgb/temp/rhgb-console
+			cat /etc/rhgb/temp/rhgb-console
+			echo
+		else
+			echo "                                       [  FAILED  ]"
+		fi
+	fi
+
+	if [ ${OS} = "Linux" ] ; then
+		sleep 5
+	elif [ ${OS} = "SunOS" ] ; then
+		sleep 20
+	fi
+	return $RETVAL
+}
+
+stop() {
+	echo -n "Stopping $prog: "
+
+	if [ -f ${lockfile} ] ; then
+		$httpd $OPTIONS -k stop
+
+		RETVAL=$?
+
+		if [ $RETVAL = 0 ]; then
+			count=0;
+
+			if [ -f ${pidfile} ]; then
+				read kpid < ${pidfile}
+				let kwait=$SHUTDOWN_WAIT
+
+				until	[ `ps -p $kpid | grep -c $kpid` = '0' ] ||
+						[ $count -gt $kwait ]
+				do
+					sleep 1
+					let count=$count+1;
+				done
+
+				if [ $count -gt $kwait ]; then
+					kill -9 $kpid
+				fi
+			fi
+
+			rm -f ${lockfile}
+			rm -f ${pidfile}
+
+			if [ -x /etc/init.d/functions ]; then
+				echo_success > /etc/rhgb/temp/rhgb-console
+				cat /etc/rhgb/temp/rhgb-console
+				echo
+			else
+				echo "                                       [  OK  ]"
+			fi
+		else
+			if [ -x /etc/init.d/functions ]; then
+				echo_failure > /etc/rhgb/temp/rhgb-console
+				cat /etc/rhgb/temp/rhgb-console
+				echo
+			else
+				echo "                                       [  FAILED  ]"
+			fi
+		fi
+	else
+		echo
+		echo "process already stopped"
+	fi
+}
+
+reload() {
+	echo -n $"Reloading $prog: "
+
+	if ! LANG=$HTTPD_LANG $httpd $OPTIONS -t >&/dev/null; then
+		RETVAL=$?
+		echo $"not reloading due to configuration syntax error"
+		if [ -x /etc/init.d/functions ]; then
+			failure $"not reloading $httpd due to configuration syntax error"
+		else
+			echo $"not reloading $httpd due to configuration syntax error"
+		fi
+	else
+		if [ -x /etc/init.d/functions ]; then
+			killproc $httpd -HUP
+			# overwrite output from "killproc"
+			echo -n $"Stopping $prog:                                        "
+		else
+			if [ -f ${lockfile} ] ; then
+				if [ -f ${pidfile} ]; then
+					read kpid < ${pidfile}
+					if checkpid $kpid 2>&1; then
+						kill -HUP $kpid
+					fi
+				else
+					echo
+					echo -n "lock file found but no process "
+					echo -n "running for pid $kpid, continuing"
+					echo
+					echo
+				fi
+			fi
+		fi
+	fi
+	echo
+}
+
+# See how we were called.
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	status)
+		status $httpd
+		RETVAL=$?
+		;;
+	restart)
+		stop
+		sleep 2
+		start
+		;;
+	condrestart)
+		if [ -f ${pidfile} ] ; then
+			stop
+			sleep 2
+			start
+		else
+			echo -n "Unable to restart process since "
+			echo -n "'${pidfile}' does not exist!"
+			echo
+		fi
+		;;
+	reload)
+		reload
+		;;
+	*)
+		echo $"Usage: $prog {start|stop|restart|condrestart|reload|status|fullstatus|graceful|help|configtest}"
+		exit 1
+esac
+
+exit $RETVAL
+

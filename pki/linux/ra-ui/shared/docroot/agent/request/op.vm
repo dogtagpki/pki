@@ -1,0 +1,133 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<title>Certificate System</title>
+    <link rel="shortcut icon" href="/images/favicon.ico" />
+    <link rel="stylesheet" href="/css/pki-base.css" type="text/css" />
+    <META http-equiv=Content-Type content="text/html; charset=UTF-8">
+
+</head>
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+
+#include ( "header.vm" )
+
+<div id="mainNavOuter">
+<div id="mainNav">
+                                                                                
+<div id="mainNavInner">
+                                                                                
+                                                                                
+<ul>
+<li id="mainFirst-active">Certificate System</li>
+</ul>
+                                                                                
+</div><!-- end mainNavInner -->
+</div><!-- end mainNav -->
+</div><!-- end mainNavOuter -->
+                                                                                
+                                                                                
+<div id="bar">
+                                                                                
+<div id="systembar">
+<div id="systembarinner">
+                                                                                
+<div>
+UID: $uid
+</div>
+                                                                                
+                                                                                
+</div>
+</div>
+                                                                                
+</div>
+
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<a href="/agent/index.cgi">Agent Interface</a>
+</font><br>
+<p> 
+<a href="index.cgi">All</a> | <a href="index.cgi?status=OPEN">OPEN</a> | <a href="index.cgi?status=APPROVED">APPROVED</a> | <a href="index.cgi?status=REJECTED">REJECTED</a> | <a href="index.cgi?status=ERROR">FAILED</a>
+<p>
+<center>
+<table border="1" cellspacing="1" cellpadding="1">
+<tr valign="TOP">
+<td><b>Request Id</b></td>
+<td><a href="read.cgi?id=$id">$id</a></td>
+</tr>
+<tr valign="TOP">
+<td><b>Type</b></td>
+<td>$type</td>
+</tr>
+<tr valign="TOP">
+<td><b>Data</b></td>
+<td>$data</td>
+</tr>
+<tr valign="TOP">
+<td><b>Output</b></td>
+<td>$output</td>
+</tr>
+<tr valign="TOP">
+<td><b>Serial Number</b></td>
+<td>$serialno</td>
+</tr>
+<tr valign="TOP">
+<td><b>Status</b></td>
+<td>$status</td>
+</tr>
+<tr valign="TOP">
+<td><b>Error</b></td>
+<td>$errorString</td>
+</tr>
+<tr valign="TOP">
+<td><b>Assigned To</b></td>
+<td>$assigned_to</td>
+</tr>
+<tr valign="TOP">
+<td><b>Created By</b></td>
+<td>$created_by</td>
+</tr>
+<tr valign="TOP">
+<td><b>Updated At</b></td>
+<td>$updated_at</td>
+</tr>
+<tr valign="TOP">
+<td><b>Processed By</b></td>
+<td>$processed_by</td>
+</tr>
+<tr valign="TOP">
+<td><b>Created At</b></td>
+<td>$created_at</td>
+</tr>
+<tr valign="TOP">
+<td><b>IP</b></td>
+<td>$ip</td>
+</tr>
+<tr valign="TOP">
+<td><b>Note</b></td>
+<td>$note</td>
+</tr>
+</table>
+</center>
+
+<br/>
+#include ( "footer.vm" )
+
+</body>
+</html>

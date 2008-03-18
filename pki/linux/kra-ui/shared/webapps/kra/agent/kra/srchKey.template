@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<head>
+<title>Key Query Result</title>
+<body bgcolor="white">
+
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<script language="JavaScript" src="../funcs.js"></script>
+<script language="JavaScript" src="../helpfun.js"></script>
+<script language="JavaScript">
+//<!--
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+	sign = "-";
+	number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+	absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+function recoverKey(serialNumber)
+{ 
+	return confirm("WARNING!! You are about to do an irreversible operation.\nDo you really want to recover key # "+ 
+		renderHexNumber(serialNumber,8)+ " ?");
+}
+
+function renderOidName(oid)
+{
+	if (oid == "1.2.840.113549.1.1.1") 
+	   return "PKCS #1 RSA";
+	else if (oid == "1.2.840.113549.1.1.4")
+	   return "PKCS #1 MD5 With RSA";
+	else 
+	   return "OID."+oid;
+}
+
+function renderHexNumber(number,width)
+{
+    var num = toHex(number);
+    while (num.length < width)
+	num = "0"+num;
+    return "0x"+num;
+}
+
+function renderDateFromSecs(secs)
+{
+    if (secs == null) return "";
+    var today = new Date();
+    var dateTmp = new Date();
+    dateTmp.setTime(secs * 1000);
+    var dateStr = dateTmp.toLocaleString();
+    return dateStr;
+}
+
+function renderDetailsButton(serialNumber)
+{
+	return '<form method=post '+
+		'action="'+ 
+		'/kra/agent/kra/displayBySerial' +'">\n'+
+		'<input type=hidden name="op" value="displayBySerial">\n'+
+		'<input type=hidden name="serialNumber" value="'+
+		serialNumber +
+		'">\n'+
+		'<input type=submit value="Details"></form>\n';
+}
+
+function renderRecoverButton(serialNumber)
+{
+	return '<form method=post ' +
+		'ACTION="'+ 
+		'/kra/agent/kra/confirmRecoverSerial' + '">\n'+
+		'<input type=hidden name="op" value="confirmRecoverBySerial">\n'+
+		'<input type=hidden name="serialNumber" VALUE="' +
+		serialNumber + 
+		'">\n' +
+		'<input type=hidden name="commit" value="yes">' +
+		'<input type=hidden name="updateCRL" value="yes">' +
+		'<input type=submit value="Recover">' +
+		'</form>\n';
+}
+
+function displayKeyRecord(rec)
+{
+	document.write('<tr bgcolor=#e5e5e5>');
+	document.write('<td align=left>' +
+		'<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Key identifier</font></td>');
+	document.write('<td align=left>' +
+		'<font size=-1 face="PrimaSans BT, Verdana, sans-serif">State</font></td>');
+	document.write('<td align=left>' +
+		'<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Filed</font></td>');
+	document.write('<td align=left>' +
+		'<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Updated</font></td>');
+	document.write('<td align=left>' +
+		'<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Archiver</font></td>');
+	document.write('</tr>');
+
+	document.write('<tr>');
+	// document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><a href="' + '/kra/agent/kra/displayBySerial?' + 'op=displayBySerial&serialNumber=' + rec.serialNumber + '">' + renderHexNumber(rec.serialNumber,8) + '</a></font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderHexNumber(rec.serialNumber,8) + '</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + rec.state + '</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderDateFromSecs(rec.archivedOn) + '</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderDateFromSecs(rec.archivedOn) + '</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + rec.archivedBy + '</font></td>');
+	document.write('</tr>');
+
+	document.write('<tr bgcolor=#e5e5e5>');
+	document.write('<td>');
+	document.write('</td>');
+	document.write('<td align=left colspan=2>' +
+		'<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Algorithm</font></td>');
+	document.write('<td align=left colspan=2>' +
+		'<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Owner Name</font></td>');
+	document.write('</tr>');
+
+	document.write('<tr>');
+	document.write('<td>');
+	document.write(renderDetailsButton(rec.serialNumber));
+	document.write('</td>');
+	document.write('<td align=left colspan=2><font size="-1" face="PrimasSans BT, Verdana, sans-serif">' +
+		renderOidName(rec.keyAlgorithm) + (rec.keyLength != null ? 
+		" with "+ rec.keyLength + "-bit key" : "")+ '</font></td>');
+	document.write('<td align=left colspan=2><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' +
+		rec.ownerName + '</font></td>');
+	document.write('</tr>');
+}
+
+function renderHidden(name,value)
+{
+	return '<INPUT TYPE="hidden" NAME="' + name + '" VALUE="">\n';
+}
+
+function doNext(form)
+{
+	form.action =  '/kra/agent/kra/'+result.header.op;
+	form.op.value = result.header.op;
+	form.queryFilter.value = result.header.queryFilter;
+	form.querySentinel.value = result.header.querySentinel;
+	form.totalRecordCount.value = result.header.totalRecordCount;
+	form.submit();
+}
+
+function displayNextForm()
+{
+	document.write(
+		'<div align=center> \n'+
+		'<form name ="nextForm" method=POST ' + 
+		'onSubmit="doNext(nextForm);" '+
+		'action="">\n'+
+		renderHidden("op")+
+		renderHidden("queryFilter")+
+		renderHidden("querySentinel")+
+		renderHidden("totalRecordCount"));
+	document.write(
+		'<input type=submit value=" Next "> '+
+		'<input type=text size=2 maxlength=99 name=maxCount value="'+
+		result.fixed.maxCount+
+                '"><font size="1" face="PrimasSans BT, Verdana, sans-serif"> record(s)</font>\n'+
+		'</FORM></DIV>\n');
+}
+
+if (result.header.errorDetails != null) {
+	writeError(result.header.errorDetails);
+} else if (result.header.totalRecordCount == 0) {
+        document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=+1>Search Results</font>\n');
+        document.write('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+	document.write('<div align=left><b><font face="PrimaSans BT, Verdana, sans-serif" size="+1">No Matching Key Found</font></b></div>\n');
+} else {
+        document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=+1>Search Results</font>\n');
+        document.write('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+	document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=+1>');
+	document.write('Authority: ' +
+(result.header.archiverName != null ? result.header.archiverName : "UNKNOWN"));
+	document.write('</font><br>\n');
+	document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=-1>');
+	document.write('Total Number of Records Found : ' + 
+		result.header.totalRecordCount);
+	document.write('</font>\n');
+
+   if (result.header.totalRecordCount == result.header.maxSize) {
+        document.write(
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"(Maximum size reached)"+
+"</font>\n"
+        );
+    }
+	document.write('<p>');
+
+	document.write('<table cellpadding=6 cellspacing=4 border=0 width=100%>');
+
+	for(var i = 0; i < result.recordSet.length; ++i ) {
+		displayKeyRecord(result.recordSet[i]);
+	}
+	document.write('</table>');
+        document.write('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+
+}
+
+//-->
+</script>
+</body>
+</html>

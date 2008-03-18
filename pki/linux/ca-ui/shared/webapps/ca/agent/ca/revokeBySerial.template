@@ -1,0 +1,88 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD><TITLE> Certificate Revocation Result </TITLE></HEAD>
+<CMS_TEMPLATE>
+<BODY bgcolor="white">
+<center><h2><b> Certificate Revocation Result</b></h2></center>
+<p>
+<SCRIPT type="text/javascript">
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+	sign = "-";
+	number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+	absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+with (result.header) {
+	if (revoked == 'yes') {
+		document.write('Certificate with serial number ' + toHex(serialNumber) + ' has been marked revoked.');
+		if (updateCRL == 'yes') {
+			if (updateCRLSuccess == 'yes') {
+				document.write('<p>The Certificate Revocation List has also been updated.');
+			} else {
+				document.write('<p><b> Note: Update of Certificate Revocation List Failed!.</b>');
+			}
+		} else {
+			document.write('<p><b> Note: Certificate Revocation List was not updated.</b>');
+		}
+    } else {
+        document.write('<p><b>Certificate with serial number ' + toHex(serialNumber) + ' has not been revoked.</b>');
+		if (error != null) {
+			document.write('<p>Additional Information:<p>');
+			document.write('<blockquote><b>');
+			document.write(error);
+			document.write('</b></blockquote>');
+		}
+    }
+
+    if (dirConfigured == 'yes') {
+		document.write('<h4>Update Directory Server Result</h4>');
+		document.write('<b>'+numRevUpdated+'</b> out of ');
+		document.write('<b>'+numRevToUpdate+'</b> revoked certificates ');
+		document.write('were removed from the Directory Server.<br>');
+		if (numRevUpdated != numRevToUpdate) {
+                        document.write('<b>Note:</b> The Certificate System logs may contain more information on ones that could not be removed.<p>');
+		} 
+		if (updateCRL == 'yes') {
+			if (dirUpdateCrlStatus == 'Success') {
+			document.write('The new Certificate Revocation List has been published in the Directory Server.<p>');
+			} else {
+			document.write('<b>Note:</b> The new Certificate Revocation List could not be published in the Directory Server. <br><b>Error returned:</b> ');
+			document.write(dirUpdateCrlStatus);
+			document.write('<p>');
+			}
+		} else {
+			document.write('<b>Note:</b> No new Certificate Revocation List to update the Directory Server.');
+		}
+    }
+}
+</SCRIPT>
+</BODY>
+</HTML>

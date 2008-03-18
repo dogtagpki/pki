@@ -1,0 +1,134 @@
+dn: ou=people,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+aci: (targetattr!="userPassword")(version 3.0; acl "Enable anonymous access"; allow (read, search, compare)userdn="ldap:///anyone";)
+
+dn: ou=groups,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=Certificate Manager Agents,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Certificate Manager Agents
+description: Agents for Certificate Manager
+
+dn: cn=Registration Manager Agents,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Registration Manager Agents
+description: Agents for Registration Manager
+
+dn: cn=Subsystem Group, ou=groups, {rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Subsystem Group
+description: Subsystem Group
+
+dn: cn=Trusted Managers,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Trusted Managers
+description: Managers trusted by this PKI instance
+
+dn: cn=Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Administrators
+description: People who manage the Fedora Certificate System
+
+dn: cn=Auditors,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Auditors
+description: People who can read the signed audits
+
+dn: cn=ClonedSubsystems,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: ClonedSubsystems
+description: People who can clone the master subsystem
+
+dn: cn=Security Domain Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Security Domain Administrators
+description: People who are the Security Domain administrators
+
+dn: cn=Enterprise CA Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Enterprise CA Administrators
+description: People who are the administrators for the security domain for CA
+
+dn: cn=Enterprise KRA Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Enterprise KRA Administrators
+description: People who are the administrators for the security domain for KRA
+
+dn: cn=Enterprise OCSP Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Enterprise OCSP Administrators
+description: People who are the administrators for the security domain for OCSP
+
+dn: cn=Enterprise TKS Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Enterprise TKS Administrators 
+description: People who are the administrators for the security domain for TKS
+
+dn: cn=Enterprise RA Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Enterprise RA Administrators 
+description: People who are the administrators for the security domain for RA
+
+dn: cn=Enterprise TPS Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Enterprise TPS Administrators
+description: People who are the administrators for the security domain for TPS
+
+dn: ou=requests,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: requests
+
+dn: cn=crossCerts,{rootSuffix}
+cn: crossCerts
+sn: crossCerts
+objectClass: top
+objectClass: person
+objectClass: certificationAuthority
+cACertificate;binary:
+authorityRevocationList;binary:
+certificateRevocationList;binary:
+crossCertificatePair;binary:
+
+dn: ou=ca,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+objectClass: pkiCA
+ou: ca
+
+dn: ou=certificateRepository,ou=ca,{rootSuffix}
+objectClass: top
+objectClass: repository
+ou: certificateRepository
+serialno: 011
+
+dn: ou=crlIssuingPoints,ou=ca,{rootSuffix}
+objectClass: top
+objectClass: repository
+ou: crlIssuingPoints
+serialno: 010
+
+dn: ou=ca, ou=requests,{rootSuffix}
+objectClass: top
+objectClass: repository
+ou: ca
+serialno: 010

@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Authorize Recovery (for Recovery Agents)</TITLE>
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/helpfun.js">
+</SCRIPT>
+</HEAD>
+
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+<font size="+1" face="PrimaSans BT, Verdana, sans-serif">Authorize Recovery (for Recovery Agents)<br></font>
+<font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+Use this form to approve a key recovery.
+</font>
+<table border="0" cellspacing="0" cellpadding="0" background="/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<FORM ACTION="examineRecovery" METHOD=POST>
+<INPUT TYPE="HIDDEN" NAME="op" VALUE="examineRecovery">
+
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr> 
+    <td  valign="top" align="right">
+      <font size="-1" face="PrimaSans BT, Verdana, sans-serif">Recovery authorization reference number:<br></font>
+    </td>
+    <td><INPUT TYPE="TEXT" NAME="recoveryID" SIZE=10 MAXLENGTH=99"></td>
+  </tr>
+</table>
+
+<p>
+<br>
+<TABLE cellpadding="6" cellspacing="0" border="0" width="100%">
+  <TR>
+    <TD align="right" bgcolor="#e5e5e5">
+      <INPUT TYPE="submit" VALUE="Examine" width="72">&nbsp;
+      <INPUT TYPE="button" VALUE="Help" width="72"
+	    onClick="help('/manual/agt_gide/kraagt.htm#1022642')">
+    </TD>
+  </TR>
+</TABLE>
+</FORM>
+</BODY>
+</HTML>

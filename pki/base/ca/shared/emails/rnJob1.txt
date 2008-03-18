@@ -1,0 +1,8 @@
+The following certificate is going to expire (or has expired) on
+  $NotAfter
+Serial number = 0x$HexSerialNumber
+SubjectDN = $SubjectDN
+You can renew this certificate by clicking the "Renewal" button
+at the following URL:
+
+https://$HttpHost:$HttpPort

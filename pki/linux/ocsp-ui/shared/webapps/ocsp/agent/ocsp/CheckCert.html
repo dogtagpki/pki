@@ -1,0 +1,68 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Check Certificate Status</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript" SRC="/helpfun.js"></SCRIPT>
+</HEAD>
+
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+<font size="+1" face="PrimaSans BT, Verdana, sans-serif">Check Certificate Status<br></font>
+<font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+Use this form to confirm the status of a certificate.</font>
+<table border="0" cellspacing="0" cellpadding="0" background="/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<FORM ACTION="/ocsp/agent/ocsp/checkCert" METHOD=POST>
+
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr> 
+    <td valign="top">
+       <font size="-1" face="PrimaSans BT, Verdana, sans-serif">Base 64 encoded certificate:</font>
+    </td>
+  </tr>
+  <tr> 
+    <td valign="top">
+      <textarea cols="50" rows="20" name="cert"></textarea>
+    </td>
+  </tr>
+</table>
+
+<p>
+<br>
+<TABLE cellpadding="6" cellspacing="0" border="0" width="100%" BACKGROUND="/graphics/gray90.gif">
+  <TR>
+    <TD align="right" bgcolor="#e5e5e5">
+      <INPUT TYPE="submit" VALUE="Check" width="72">&nbsp;&nbsp;
+        <font size=-1 face="PrimaSans BT, Verdana, sans-serif"></font>&nbsp;
+        <font size=-1 face="PrimaSans BT, Verdana, sans-serif"></font>&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="button" VALUE="Help" width="72"
+	    onClick="help('/manual/agent_guide/ocspagt.htm#Checking the Revocation Status of a Certificate')">
+    </TD>
+  </TR>
+</TABLE>
+ 
+</FORM>
+</BODY>
+
+</HTML>

@@ -1,0 +1,576 @@
+<!-- ### BEGIN COPYRIGHT BLOCK ###
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; version 2 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+  Copyright (C) 2007 Red Hat, Inc.
+  All rights reserved.
+     ### END COPYRIGHT BLOCK ### -->
+<project name="java-tools" default="main" basedir=".">
+
+    <import file="config/product.xml"/>
+    <import file="config/product-ext.xml" optional="true"/>
+
+    <property name="jss.home" value="${jni-jar.home}${dirsec}"/>
+    <property name="jss.jar" value="${jss.home}/jss4.jar"/>
+    <property name="osutil.jar" value="${jni-jar.home}/osutil.jar"/>
+    <property name="ldapjdk.jar" value="${jar.home}/ldapjdk.jar"/>
+    <property name="certsrv.jar" value="${pki-jar.home}/certsrv.jar"/>
+    <property name="cms.jar" value="${pki-jar.home}/cms.jar"/>
+    <property name="cmsutil.jar" value="${pki-jar.home}/cmsutil.jar"/>
+    <property name="nsutil.jar" value="${pki-jar.home}/nsutil.jar"/>
+
+    <path id="classpath">
+        <pathelement location="${jss.jar}"/>
+        <pathelement location="${ldapjdk.jar}"/>
+        <pathelement location="${nsutil.jar}"/>
+        <pathelement location="${osutil.jar}"/>
+        <pathelement location="${cmsutil.jar}"/>
+        <pathelement location="${cms.jar}"/>
+        <pathelement location="${certsrv.jar}"/>
+    </path>
+
+
+    <target name="clean"
+            depends=""
+            description="--> remove component directories">
+        <echo message="${begin.clean.log.message}"/>
+        <delete dir="${dist.base}"/>
+        <delete dir="${build.dir}"/>
+        <echo message="${end.clean.log.message}"/>
+    </target>
+
+
+    <target name="download"
+            depends=""
+            description="--> download dependent components">
+        <echo message="${begin.download.log.message}"/>
+        <echo message="${empty.download.log.message}"/>
+        <echo message="${end.download.log.message}"/>
+    </target>
+
+
+    <target name="compile_java"
+            depends=""
+            description="--> compile java source code into classes">
+        <echo message="${begin.compile.java.log.message}"/>
+        <mkdir dir="${build.classes}"/>
+        <javac debug="on"
+               srcdir="${src.dir}/com/netscape"
+               destdir="${build.classes}">
+            <classpath refid="classpath"/>
+        </javac>
+        <echo message="${end.compile.java.log.message}"/>
+    </target>
+
+
+    <target name="build_jars"
+            depends="compile_java"
+            description="--> generate jar files">
+        <echo message="${begin.build.jars.log.message}"/>
+        <mkdir dir="${build.jars}"/>
+        <jar jarfile="${build.jars}/cstools.jar">
+            <fileset dir="${build.classes}">
+                <include name="com/netscape/**"/>
+            </fileset>
+        </jar>
+        <echo message="${end.build.jars.log.message}"/>
+    </target>
+
+
+    <target name="build_jni_headers"
+            depends="compile_java"
+            description="--> generate jni header files">
+        <echo message="${begin.build.jni.headers.log.message}"/>
+        <echo message="${empty.build.jni.headers.log.message}"/>
+        <echo message="${end.build.jni.headers.log.message}"/>
+    </target>
+
+
+    <target name="build"
+            depends="build_jars,build_jni_headers"
+            description="--> build classes, jars, and jni headers">
+        <echo message="${notify.build.log.message}"/>
+    </target>
+
+
+    <target name="compile_junit_tests"
+            depends="build"
+            description="--> compile junit test source code">
+        <echo message="${begin.compile.junit.tests.log.message}"/>
+        <echo message="${empty.compile.junit.tests.log.message}"/>
+        <echo message="${end.compile.junit.tests.log.message}"/>
+    </target>
+
+
+    <target name="run_junit_tests"
+            depends="compile_junit_tests"
+            description="--> execute junit tests">
+        <echo message="${begin.run.junit.tests.log.message}"/>
+        <echo message="${empty.run.junit.tests.log.message}"/>
+        <echo message="${end.run.junit.tests.log.message}"/>
+    </target>
+
+
+    <target name="verify"
+            depends="run_junit_tests"
+            description="--> build and execute junit tests">
+        <echo message="${notify.verify.log.message}"/>
+    </target>
+
+
+    <target name="clean_javadocs"
+            depends=""
+            description="--> remove javadocs directory">
+        <echo message="${begin.clean.javadocs.log.message}"/>
+        <delete dir="${docs.dir}"/>
+        <echo message="${end.clean.javadocs.log.message}"/>
+    </target>
+
+
+    <target name="compose_javadocs"
+            depends="build"
+            description="--> generate javadocs">
+        <echo message="${begin.compose.javadocs.log.message}"/>
+        <mkdir dir="${docs.dir}"/>
+        <javadoc destdir="${docs.dir}"
+                 author="true"
+                 breakiterator="true"
+                 version="true"
+                 use="true"
+                 windowtitle="${ant.project.name}"
+                 classpathref="classpath"
+                 verbose="false">
+            <doctitle>
+                <![CDATA[<h1>${ant.project.name}</h1>]]>
+            </doctitle>
+            <fileset dir="src"
+                     defaultexcludes="yes">
+                <include name="com/netscape/cmstools/**"/>
+            </fileset>
+        </javadoc>
+        <echo message="${end.compose.javadocs.log.message}"/>
+    </target>
+
+
+    <target name="document"
+            depends="clean_javadocs,compose_javadocs"
+            description="--> remove old javadocs and compose new javadocs">
+        <echo message="${notify.document.log.message}"/>
+    </target>
+
+
+    <target name="distribute_binaries"
+            depends="document"
+            description="--> create the zip and gzipped tar binary distributions">
+        <echo message="${begin.distribute.binaries.log.message}"/>
+        <mkdir dir="${dist.base.binaries}"/>
+        <mkdir dir="./build/cmds"/>
+
+        <echo message="${begin.binary.wrappers.log.message}"/>
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/AtoB.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/AtoB">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/AtoB/g"/>
+            <arg value="./build/cmds/AtoB.tmp"/>
+        </exec>
+        <delete file="./build/cmds/AtoB.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/AuditVerify.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/AuditVerify">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/AudityVerify/g"/>
+            <arg value="./build/cmds/AuditVerify.tmp"/>
+        </exec>
+        <delete file="./build/cmds/AuditVerify.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/BtoA.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/BtoA">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/BtoA/g"/>
+            <arg value="./build/cmds/BtoA.tmp"/>
+        </exec>
+        <delete file="./build/cmds/BtoA.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/CMCEnroll.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/CMCEnroll">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/CMCEnroll/g"/>
+            <arg value="./build/cmds/CMCEnroll.tmp"/>
+        </exec>
+        <delete file="./build/cmds/CMCEnroll.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/CMCRequest.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/CMCRequest">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/CMCRequest/g"/>
+            <arg value="./build/cmds/CMCRequest.tmp"/>
+        </exec>
+        <delete file="./build/cmds/CMCRequest.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/CMCResponse.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/CMCResponse">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/CMCResponse/g"/>
+            <arg value="./build/cmds/CMCResponse.tmp"/>
+        </exec>
+        <delete file="./build/cmds/CMCResponse.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/CMCRevoke.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/CMCRevoke">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/CMCRevoke/g"/>
+            <arg value="./build/cmds/CMCRevoke.tmp"/>
+        </exec>
+        <delete file="./build/cmds/CMCRevoke.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/CRMFPopClient.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/CRMFPopClient">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/CRMFPopClient/g"/>
+            <arg value="./build/cmds/CRMFPopClient.tmp"/>
+        </exec>
+        <delete file="./build/cmds/CRMFPopClient.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/ExtJoiner.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/ExtJoiner">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/ExtJoiner/g"/>
+            <arg value="./build/cmds/ExtJoiner.tmp"/>
+        </exec>
+        <delete file="./build/cmds/ExtJoiner.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/GenExtKeyUsage.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/GenExtKeyUsage">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/GenExtKeyUsage/g"/>
+            <arg value="./build/cmds/GenExtKeyUsage.tmp"/>
+        </exec>
+        <delete file="./build/cmds/GenExtKeyUsage.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/GenIssuerAltNameExt.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/GenIssuerAltNameExt">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/GenIssuerAltNameExt/g"/>
+            <arg value="./build/cmds/GenIssuerAltNameExt.tmp"/>
+        </exec>
+        <delete file="./build/cmds/GenIssuerAltNameExt.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/GenSubjectAltNameExt.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/GenSubjectAltNameExt">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/GenSubjectAltNameExt/g"/>
+            <arg value="./build/cmds/GenSubjectAltNameExt.tmp"/>
+        </exec>
+        <delete file="./build/cmds/GenSubjectAltNameExt.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/HttpClient.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/HttpClient">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/HttpClient/g"/>
+            <arg value="./build/cmds/HttpClient.tmp"/>
+        </exec>
+        <delete file="./build/cmds/HttpClient.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/OCSPClient.tmp"/>
+        <exec executable="sed" output="./build/cmds/OCSPClient">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/OCSPClient/g"/>
+            <arg value="./build/cmds/OCSPClient.tmp"/>
+        </exec>
+        <delete file="./build/cmds/OCSPClient.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/PKCS10Client.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/PKCS10Client">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/PKCS10Client/g"/>
+            <arg value="./build/cmds/PKCS10Client.tmp"/>
+        </exec>
+        <delete file="./build/cmds/PKCS10Client.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/PKCS12Export.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/PKCS12Export">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/PKCS12Export/g"/>
+            <arg value="./build/cmds/PKCS12Export.tmp"/>
+        </exec>
+        <delete file="./build/cmds/PKCS12Export.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/PrettyPrintCert.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/PrettyPrintCert">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/PrettyPrintCert/g"/>
+            <arg value="./build/cmds/PrettyPrintCert.tmp"/>
+        </exec>
+        <delete file="./build/cmds/PrettyPrintCert.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/PrettyPrintCrl.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/PrettyPrintCrl">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/PrettyPrintCrl/g"/>
+            <arg value="./build/cmds/PrettyPrintCrl.tmp"/>
+        </exec>
+        <delete file="./build/cmds/PrettyPrintCrl.tmp"/>
+
+        <copy file="./templates/pki_java_command_wrapper"
+              tofile="./build/cmds/TokenInfo.tmp"/>
+        <exec executable="sed"
+              output="./build/cmds/TokenInfo">
+            <arg value="-e"/>
+            <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
+            <arg value="-e"/>
+            <arg value="s/\[PKI_COMMAND\]/TokenInfo/g"/>
+            <arg value="./build/cmds/TokenInfo.tmp"/>
+        </exec>
+        <delete file="./build/cmds/TokenInfo.tmp"/>
+        <echo message="${end.binary.wrappers.log.message}"/>
+
+        <echo message="${begin.binary.zip.log.message}"/>
+        <zip destfile="${dist.base.binaries}/${dist.name}.zip">
+            <zipfileset dir="./build/jars"
+                        filemode="755"
+                        prefix="usr/share/java/${product.prefix}">
+                <include name="**"/>
+            </zipfileset>
+            <zipfileset dir="./build/cmds"
+                        filemode="755"
+                        prefix="usr/bin">
+                <include name="**"/>
+            </zipfileset>
+            <zipfileset dir="./templates"
+                        filemode="755"
+                        prefix="usr/share/${product.prefix}">
+                <include name="**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="usr/share/doc/${dist.name}">
+                <include name="LICENSE"/>
+            </zipfileset>
+            <zipfileset dir="./docs"
+                        filemode="755"
+                        prefix="usr/share/javadoc/${product.name}-${version}">
+                <include name="**"/>
+            </zipfileset>
+        </zip>
+        <echo message="${end.binary.zip.log.message}"/>
+
+        <echo message="${begin.binary.tar.log.message}"/>
+        <tar longfile="gnu"
+             destfile="${dist.base.binaries}/${dist.name}.tar">
+            <tarfileset dir="./build/jars"
+                        mode="755"
+                        prefix="${dist.name}/usr/share/java/${product.prefix}">
+                <include name="**"/>
+            </tarfileset>
+            <tarfileset dir="./build/cmds"
+                        mode="755"
+                        prefix="usr/bin">
+                <include name="**"/>
+            </tarfileset>
+            <tarfileset dir="./templates"
+                        mode="755"
+                        prefix="usr/share/${product.prefix}">
+                <include name="**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="${dist.name}/usr/share/doc/${dist.name}">
+                <include name="LICENSE"/>
+            </tarfileset>
+            <tarfileset dir="./docs"
+                        mode="755"
+                        prefix="${dist.name}/usr/share/javadoc/${product.name}-${version}">
+                <include name="**"/>
+            </tarfileset>
+        </tar>
+        <echo message="${end.binary.tar.log.message}"/>
+
+        <echo message="${begin.binary.gtar.log.message}"/>
+        <gzip destfile="${dist.base.binaries}/${dist.name}.tar.gz"
+              src="${dist.base.binaries}/${dist.name}.tar"/>
+        <delete file="${dist.base.binaries}/${dist.name}.tar"/>
+        <delete dir="${dist.name}"/>
+        <checksum fileext=".md5">
+            <fileset dir="${dist.base.binaries}/">
+                <include name="**/*"/>
+                <exclude name="**/*.asc"/>
+                <exclude name="**/*.md5"/>
+            </fileset>
+        </checksum>
+        <checksum fileext=".sha1"
+                  algorithm="SHA">
+            <fileset dir="${dist.base.binaries}/">
+                <include name="**/*"/>
+                <exclude name="**/*.asc"/>
+                <exclude name="**/*.md5"/>
+            </fileset>
+        </checksum>
+        <echo message="${end.binary.gtar.log.message}"/>
+
+        <echo message="${end.distribute.binaries.log.message}"/>
+    </target>
+
+
+    <target name="distribute_source"
+            depends=""
+            description="--> create the zip and gzipped tar source distributions">
+        <echo message="${begin.distribute.source.log.message}"/>
+        <mkdir dir="${dist.base.source}"/>
+
+        <echo message="${begin.source.zip.log.message}"/>
+        <zip destfile="${dist.base.source}/${src.dist.name}.zip">
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="${src.dist.name}">
+                <include name="${specfile}"/>
+                <include name="LICENSE"/>
+                <include name="build.xml"/>
+                <include name="config/product*.xml"/>
+                <include name="config/release*.xml"/>
+                <include name="release"/>
+                <include name="src/**"/>
+                <include name="templates/**"/>
+            </zipfileset>
+        </zip>
+        <echo message="${end.source.zip.log.message}"/>
+
+        <echo message="${begin.source.tar.log.message}"/>
+        <tar longfile="gnu"
+             destfile="${dist.base.source}/${src.dist.name}.tar">
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="${src.dist.name}">
+                <include name="${specfile}"/>
+                <include name="LICENSE"/>
+                <include name="build.xml"/>
+                <include name="config/product*.xml"/>
+                <include name="config/release*.xml"/>
+                <include name="release"/>
+                <include name="src/**"/>
+                <include name="templates/**"/>
+            </tarfileset>
+        </tar>
+        <echo message="${end.source.tar.log.message}"/>
+
+        <echo message="${begin.source.gtar.log.message}"/>
+        <gzip destfile="${dist.base.source}/${src.dist.name}.tar.gz"
+              src="${dist.base.source}/${src.dist.name}.tar"/>
+        <delete file="${dist.base.source}/${src.dist.name}.tar"/>
+        <delete dir="${dist.name}"/>
+        <checksum fileext=".md5">
+            <fileset dir="${dist.base.source}/">
+                <include name="**/*"/>
+                <exclude name="**/*.asc"/>
+                <exclude name="**/*.md5"/>
+            </fileset>
+        </checksum>
+        <checksum fileext=".sha1"
+                  algorithm="SHA">
+            <fileset dir="${dist.base.source}/">
+                <include name="**/*"/>
+                <exclude name="**/*.asc"/>
+                <exclude name="**/*.md5"/>
+            </fileset>
+        </checksum>
+        <echo message="${end.source.gtar.log.message}"/>
+
+        <echo message="${end.distribute.source.log.message}"/>
+    </target>
+
+
+    <target name="distribute"
+            depends="distribute_binaries,distribute_source"
+            description="--> create binary and source component distributions">
+        <echo message="${notify.distribute.log.message}"/>
+    </target>
+
+
+    <target name="main"
+            depends="clean,distribute"
+            description="--> clean, build, verify, document, distribute [default]">
+        <echo message="${notify.main.log.message}"/>
+    </target>
+
+</project>
+

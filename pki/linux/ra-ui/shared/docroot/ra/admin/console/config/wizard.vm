@@ -1,0 +1,144 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+  <head>
+    
+    <title>Dogtag Certificate System</title>
+
+    <link rel="shortcut icon" href="img/favicon.ico" />
+    <link rel="stylesheet" href="/css/pki-base.css" type="text/css" />
+
+    <META http-equiv=Content-Type content="text/html; charset=UTF-8">
+
+  </head>
+
+<SCRIPT LANGUAGE="JavaScript">
+function process(fop) {
+    with (document.forms[0]) {
+        op.value = fop;
+        if (fop == 'next') {
+            document.getElementById('progress').style.visibility = "visible";
+            performPanel();
+        } else if (fop == 'apply') {
+            document.getElementById('progress').style.visibility = "visible";
+            performPanel();
+        } else {
+            document.getElementById('progress').style.visibility = "visible";
+            submit();
+        }
+    }
+}
+
+</SCRIPT>
+
+  <body><div id="wrap">
+  
+#include ( "ra/admin/console/config/header.vm" )
+
+<div id="mainNavOuter">
+<div id="mainNav">
+
+<div id="mainNavInner">
+
+
+<ul>
+<li id="mainFirst-active"><a href="wizard" class="mainFirstLink">$name</a></li>
+</ul>
+
+</div><!-- end mainNavInner -->
+</div><!-- end mainNav -->
+</div><!-- end mainNavOuter -->
+
+
+<div id="bar">
+
+<div id="systembar">
+<div id="systembarinner">
+
+<div>
+</div>
+
+
+</div>
+</div>
+
+</div>
+<!-- close bar -->
+
+  <div id="content">
+    <table width="100%" cellspacing="0">
+      <tr>
+        <td class="sidebar">
+          
+<div id="sidenav">
+<ul>
+#foreach ($pn in $panels)
+#if (!$pn.isSubPanel())
+  <li><center><font color=black size="2">$pn.getName()</font></center></li>
+#end
+#end
+</ul>
+</div>
+
+	</td>
+        <td class="page-content" width="100%">
+  <h1><img src="../img/pki-icon-software.gif" />
+  $title </h1>
+
+<form name=f method=post action="wizard">
+<input type=hidden name=p value="$p">
+
+#parse ( $panel )
+
+<input type=hidden name="op" value=''>
+
+</form>
+
+<table width=100% border=0 cellspacing=0 cellpadding=0>
+<tr bgcolor="#eeeeee">
+<td><img id=progress style="visibility: hidden;" src="../img/bigrotation2.gif" /></td>
+<td align=right>
+
+#if ($showApplyButton == "true")
+<input type=button onclick="process('apply')" name=back value="Apply">
+#end
+
+#if ($lastpanel)
+&nbsp;
+#else
+<input type=button onclick="process('next')" name=back value="Next>">
+#end
+
+</td>
+</tr>
+</table>
+
+	</td>
+      </tr>
+    </table>
+
+#include ( "ra/admin/console/config/footer.vm" )
+
+  </div> <!-- close content -->
+  </div> <!-- close wrap -->
+
+  </body>
+</html>

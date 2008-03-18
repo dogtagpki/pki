@@ -1,0 +1,76 @@
+#!/bin/sh
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# 
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+ 
+
+###############################################################################
+##  (1) Specify variables used by this script.                               ##
+###############################################################################
+
+LIB_DIR=@nss_libdir@:@nspr_libdir@:@ldapsdk_libdir@:@sasl_libdir@
+BIN_DIR=@libexecdir@
+COMMAND=tkstool
+
+
+###############################################################################
+##  (2) Set the LD_LIBRARY_PATH environment variable to determine the        ##
+##      search order this command wrapper uses to find shared libraries.     ##
+###############################################################################
+
+LD_LIBRARY_PATH=${LIB_DIR}
+export LD_LIBRARY_PATH
+
+
+###############################################################################
+##  (3) Set the PATH environment variable to determine the search            ##
+##      order this command wrapper uses to find binary executables.          ##
+##                                                                           ##
+##      NOTE:  Since the wrappers themselves are ALWAYS located in           ##
+##             "/usr/bin", this directory will always be excluded            ##
+##             from the search path.  Since "/bin" is nothing more           ##
+##             than a symbolic link to "/usr/bin" on Solaris, this           ##
+##             directory will also always be excluded from the search        ##
+##             path on this platform.                                        ##
+###############################################################################
+
+PATH=${BIN_DIR}
+export PATH
+
+
+###############################################################################
+##  (4) Execute the binary executable specified by this command wrapper      ##
+##      based upon the preset LD_LIBRARY_PATH and PATH environment variables.##
+###############################################################################
+
+ORIGINAL_IFS=${IFS}
+IFS=:
+
+for dir in ${PATH}
+do
+	if [ -x ${dir}/${COMMAND} ]
+	then
+		IFS=${ORIGINAL_IFS}
+		${dir}/${COMMAND} "$@"
+		exit $?
+	fi
+done
+
+echo "Unable to find \"${COMMAND}\" in \"${PATH}\"!"
+
+exit 255
+

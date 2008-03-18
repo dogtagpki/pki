@@ -1,0 +1,540 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Certificate Profile
+</font><br>
+  <Font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+  Use this form to submit the request.
+<p>
+</font>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif"
+width="100%">
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<p>
+
+<SCRIPT LANGUAGE="JavaScript">
+
+var dual = 'false';
+
+function validate()
+{
+   if (keygen_request == 'false')
+      return false;
+    with (document.forms[0]) {
+        /////////////////////////////////////////////////////////////////
+        // To enable dual key feature, this page must be customized with
+        // appropriate Javascript call. For example,
+        //
+        //      crmfObject = crypto.generateCRMFRequest(
+        //              "CN=undefined",
+        //              "regToken", "authenticator",
+        //              null,
+        //              "setCRMFRequest();",
+        //              512, null, "rsa-ex",
+        //              1024, null, "rsa-sign");
+        //
+        // To enable key archival feature, this page must be customized with
+        // KRA's transport certificate. The transport certificate can be
+        // retrieved in the following ways:
+        // (1) Access "List Certificates" menu option in end-entity page
+        // (2) Access https://<host>:<agent_port>/kra/displayTransportCert
+        // (3) Use certutil command in <instance-dir>/config directory
+        //     (i.e. certutil -L -d . -n "kraTransportCert <instance-id>" -a)
+        //
+        // Once the transport certificate is obtained, the following
+        // javascript should be modified so that the transport certificate
+        // and appropriate key type are selected. For example,
+        //
+        //      var kraTransportCert = "MIICDjCCAXegAwIBAgICAfMwDQYJKoZIhvcNAQEEBQAwdzELMAkGA1UEBhMCVVMxLDAqBgNVBAoTI05ldHNjYXBlIENvbW11bmljYXRpb25zIENvcnBvcmF0aW9uMREwDwYDVQQLEwhIYXJkY29yZTEnMCUGA1UEAxMeSGFyZGNvcmUgQ2VydGlmaWNhdGUgU2VydmVyIElJMB4XDTk4MTExOTIzNDIxOVoXDTk5MDUxODIzNDIxOVowLjELMAkGA1UEBhMCVVMxETAPBgNVBAoTCG5ldHNjYXBlMQwwCgYDVQQDEwNLUmEwXDANBgkqhkiG9w0BAQEFAANLADBIAkEArrbDiYUI5SCdlCKKa0bEBn1m83kX6bdhytRYNkd/HB95Bp85SRadmdJV+0O/yMxjYAtGCFrmcqEZ4sh2YSov6wIDAQABozYwNDARBglghkgBhvhCAQEEBAMCAEAwHwYDVR0jBBgwFoAUl7FtsrYCFlQMl9fjMm3LnN/u3oAwDQYJKoZIhvcNAQEEBQADgYEApvzcUsVIOstaoYSiWb4+aMVH6s1jiJlr5iVHnOKzfsYxPVdUw6uz04AT8N+1KIarMTKxHPzGAFSLicKLEv4HG4vh6llc86uzRzWpUqqVHg/eKN5A8Jyg56D4DkNr/XEJ7QdKesAp13dk5H5qvHelkSPLYYdMXNwNWPVZKgnWrWg=";
+        //      var keyGenAlg = "rsa-ex";
+        //      crmfObject = crypto.generateCRMFRequest(
+        //              "CN=undefined",
+        //              "regToken", "authenticator",
+        //              keyTransportCert,
+        //              "setCRMFRequest();",
+        //              512, null, keyGenAlg);
+        /////////////////////////////////////////////////////////////////
+        var keyTransportCert = null;
+        if (transportCert != "") {
+          // from CS7.2, transport certificate will be 
+          // inserted automatically
+          keyTransportCert = transportCert;
+        }
+        // generate keys for nsm.
+        if (typeof(crypto.version) != "undefined") {
+            if (dual == 'true') {
+              crmfObject = crypto.generateCRMFRequest(
+                "CN=x",
+                "regToken", "authenticator",
+        	keyTransportCert,
+                "setCRMFRequest();",
+                1024, null, "rsa-ex",
+                1024, null, "rsa-sign");
+            } else {
+              crmfObject = crypto.generateCRMFRequest(
+                "CN=x",
+                "regToken", "authenticator",
+        	null,
+                "setCRMFRequest();",
+                1024, null, "rsa-dual-use");
+            }
+        }
+        return false;
+    }
+}
+
+function setCRMFRequest()
+{
+    with (document.forms[0]) {
+          cert_request.value = crmfObject.request;
+          submit();
+    }
+}
+
+</SCRIPT>
+
+<OBJECT
+        classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
+        CODEBASE="/xenroll.dll"
+        id="Enroll">
+</OBJECT>
+
+<OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'>
+</OBJECT>
+
+<script language=javascript>
+  var uri = 'profileSubmit';
+  if (typeof(authName) != "undefined") {
+    if (authIsSSLClientRequired == 'true') {
+      uri = 'profileSubmitSSLClient';
+    }
+  }
+  if (navigator.appName == "Microsoft Internet Explorer") {
+    document.writeln('<form name="ReqForm" method="post" action="' + uri + '">');
+  } else if (typeof(crypto.version) != "undefined") {
+    document.writeln('<form name="ReqForm" onSubmit="return validate();" method="post" action="' + uri + '">');
+  } else {
+    document.writeln('<form name="ReqForm" method="post" action="' + uri + '">');
+   }
+</script>
+
+<SCRIPT LANGUAGE=VBS>
+<!--
+'Get OS Version, works for Vista and below only
+Function GetOSVersion
+  dim agent
+  dim result
+  dim pos
+
+  agent = Navigator.appVersion
+  pos = InStr(agent,"NT 6.")
+
+  If pos > 0 Then
+    GetOSVersion = 6 ' Vista
+    Exit Function
+  End If
+
+  pos = InStr(agent,"NT 5.")
+
+  If pos > 0 Then
+    GetOSVersion = 5  ' XP etc
+    Exit Function
+  End If
+
+' Default
+  GetOSVersion = 5
+End Function
+
+Sub Send_OnClick
+  Dim TheForm
+  Dim szName
+  Dim options
+  Dim osVersion
+  Dim result
+  Set TheForm = Document.ReqForm
+
+  osVersion = GetOSVersion()
+
+  If osVersion <> 6 Then 'Not Vista
+
+  ' Contruct the X500 distinguished name
+  szName = "CN=NAME"
+
+  On Error Resume Next
+  Enroll.HashAlgorithm = "MD5"
+  Enroll.KeySpec = 1
+
+   ' Pick the provider that is selected
+   set options = TheForm.all.cryptprovider.options
+   index = options.selectedIndex
+   Enroll.providerType = options(index).value
+   Enroll.providerName = options(index).text
+
+   ' adding 2 to "GenKeyFlags" will  enable the 'High Security'
+   ' (USER_PROTECTED) mode, which means IE will pop up a dialog
+   ' asking what level of protection you would like to give
+   ' the key - this varies from 'none' to 'confirm password
+   ' every time the key is used'
+  Enroll.GenKeyFlags = 1        ' key PKCS12-exportable
+  szCertReq = Enroll.createPKCS10(szName, "1.3.6.1.5.5.7.3.2")
+  theError = Err.Number
+  On Error Goto 0
+  '
+  ' If the user has cancelled things the we simply ignore whatever
+  ' they were doing ... need to think what should be done here
+  '
+  If (szCertReq = Empty AND theError = 0) Then
+    Exit Sub
+  End If
+
+  If (szCertReq = Empty OR theError <> 0) Then
+    '
+    ' There was an error in the key pair generation. The error value
+    ' is found in the variable 'theError' which we snarfed above before
+    ' we did the 'On Error Goto 0' which cleared it again.
+    '
+    sz = "The error '" & Hex(theError) & "' occurred." & chr(13) & chr(10) & "Your credentials could not be generated."
+    result = MsgBox(sz, 0, "Credentials Enrollment")
+    Exit Sub
+  End If
+
+  TheForm.cert_request.Value = szCertReq
+
+  ' TheForm.Submit
+
+  Else 'Vista
+    Dim enrollment
+    Dim privateKey
+    Dim request
+    Dim csr
+
+    'certUsage is "1.3.6.1.5.5.7.3.2"
+
+    On Error Resume Next
+    'CreateObject("X509Enrollment.CX509EnrollmentWebClassFactory")
+
+    If IsObject(g_objClassFactory) = False Then
+      result = MsgBox("Can't create Factory Object "  & " Error: " & Err.number & " :" & Err.description,0,"")
+      Exit Sub
+    End If
+
+    Set enrollment = g_objClassFactory.CreateObject("X509Enrollment.CX509Enrollment")
+
+    If IsObject(enrollment) = False Then
+      result = MsgBox("Can't create enroll Object! "  & " Error: " & Err.number & " :" & Err.description,"")
+      Exit Sub
+    End If
+
+    Set privateKey = g_objClassFactory.CreateObject("X509Enrollment.CX509PrivateKey")
+
+    If IsObject(privateKey) = False Then
+      result = MsgBox("Can't create Key Object! " & " Error: " & Err.number & " :" & Err.description,0,"")
+      Exit Sub
+    End If
+
+    Set request = g_objClassFactory.CreateObject("X509Enrollment.CX509CertificateRequestPkcs10")
+
+    If IsObject(request) = False Then
+      result = MsgBox("Can't create Request Object. ! " & " Error: " & Err.number & " :" & Err.description,0,"")
+      Exit Sub
+    End If
+
+    privateKey.KeySpec= "1" 
+
+  ' Pick the provider that is selected
+    set options = TheForm.all.cryptprovider.options
+    index = options.selectedIndex
+    privateKey.ProviderType=  index
+    privateKey.ProviderName = options(index).text
+
+    request.InitializeFromPrivateKey 1,privateKey,""
+    request.Initialize(1)
+
+    enrollment.InitializeFromRequest(request)
+    csr=enrollment.CreateRequest(1)
+
+    If len(csr) = 0 Then
+      result = MsgBox("Error Creating Request! "& " Error: " & Err.number & " :" & Err.description,0,"")
+      Exit Sub
+    End If
+
+    TheForm.cert_request.Value = csr 
+ 
+  End If
+  Exit Sub
+End Sub
+
+-->
+</SCRIPT>
+
+<script language=javascript>
+if (errorCode == 0) {
+document.writeln('<br>');
+document.writeln('<b>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('Certificate Profile - ' + profileName);
+document.writeln('</FONT>');
+document.writeln('</b>');
+document.writeln('<p>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileDesc);
+document.writeln('</FONT>');
+document.writeln('<p>');
+if (typeof(authName) != "undefined") {
+document.writeln('<table width=100%>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>');
+document.writeln('Authentication - ' + authName);
+document.writeln('</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(authDesc);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('</table>');
+document.writeln('<p>');
+document.writeln('<table width=100%>');
+for (var i = 0; i < authListSet.length; i++) {
+    document.writeln('<tr>');
+    document.writeln('<td width=40%>');
+    document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<li>');
+    document.writeln(authListSet[i].authName);
+    document.writeln('</FONT>');
+    document.writeln('</td>');
+    document.writeln('<td>');
+    if (authListSet[i].authSyntax == 'string') {
+      document.writeln('<input type=text name=' + authListSet[i].authId + '>');
+    } else if (authListSet[i].authSyntax == 'password') {
+      document.writeln('<input type=password name=' + authListSet[i].authId + '>');
+    }
+    document.writeln('</td>');
+  document.writeln('</tr>');
+}
+document.writeln('</table>');
+}
+document.writeln('<p>');
+document.writeln('<table width=100%>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>');
+document.writeln('Inputs');
+document.writeln('</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('</table>');
+document.writeln('<p>');
+document.writeln('<table width=100%>');
+for (var j = 0; j < inputPluginListSet.length; j++) {
+  document.writeln('<tr>');
+  document.writeln('<td spancol=2>');
+  document.writeln('<b>');
+  document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln(inputPluginListSet[j].inputPluginName);
+  document.writeln('</FONT>');
+  document.writeln('</b>');
+  document.writeln('</td>');
+  document.writeln('</tr>');
+  for (var i = 0; i < inputListSet.length; i++) {
+    if (inputPluginListSet[j].inputPluginId != inputListSet[i].inputPluginId) 
+       continue;
+    document.writeln('<tr>');
+    document.writeln('<td width=40%>');
+    document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<li>');
+    document.writeln(inputListSet[i].inputName);
+    document.writeln('</FONT>');
+    document.writeln('</td>');
+    document.writeln('<td>');
+    if (inputListSet[i].inputSyntax == 'string') {
+      document.writeln('<input type=text name=' + inputListSet[i].inputId + '>');
+    } else if (inputListSet[i].inputSyntax == 'cert_request') {
+      document.writeln('<textarea cols=60 rows=10 name=' + inputListSet[i].inputId + '></textarea>');
+    } else if (inputListSet[i].inputSyntax == 'cert_request_type') {
+      document.writeln('<select name=' + inputListSet[i].inputId + '><option value="pkcs10">PKCS#10</option><option value="crmf">CRMF</option></select>');
+    } else if (inputListSet[i].inputSyntax == 'dual_keygen_request') {
+      if (navigator.appName == "Microsoft Internet Explorer") { 
+        document.writeln('<input type=hidden name=' + inputListSet[i].inputId + '>');
+      } else if (typeof(crypto.version) != "undefined") {
+        document.writeln('1024 (Encryption), 1024 (Signing)<input type=hidden name=cert_request value="">');
+        dual = 'true';
+      } else {
+        document.writeln('Not Supported<input type=hidden name=cert_request value="">');
+      }
+    } else if (inputListSet[i].inputSyntax == 'keygen_request') {
+      if (navigator.appName == "Microsoft Internet Explorer") { 
+        document.writeln('<input type=hidden name=' + inputListSet[i].inputId + '>');
+        document.writeln('<SELECT NAME=\"cryptprovider\"></SELECT>');
+      } else if (typeof(crypto.version) != "undefined") {
+        document.writeln('1024 (High Grade)<input type=hidden name=cert_request value="">');
+      } else {
+        document.writeln('<KEYGEN name=' + inputListSet[i].inputId + '>');
+      }
+    } else if (inputListSet[i].inputSyntax == 'dual_keygen_request_type') {
+      keygen_request = 'true';
+      if (navigator.appName == "Microsoft Internet Explorer") {
+        document.writeln('Not Supported<input type=hidden name=' + inputListSet[i].inputId + ' value=>');
+      } else if (typeof(crypto.version) != "undefined") {
+        document.writeln('crmf<input type=hidden name=' + inputListSet[i].inputId + ' value=crmf>');
+      } else {
+        document.writeln('Not Supported<input type=hidden name=' + inputListSet[i].inputId + ' value=>');
+      }
+    } else if (inputListSet[i].inputSyntax == 'keygen_request_type') {
+      keygen_request = 'true';
+      if (navigator.appName == "Microsoft Internet Explorer") {
+        document.writeln('pkcs10<input type=hidden name=' + inputListSet[i].inputId + ' value=pkcs10>');
+      } else if (typeof(crypto.version) != "undefined") {
+        document.writeln('crmf<input type=hidden name=' + inputListSet[i].inputId + ' value=crmf>');
+      } else {
+        document.writeln('keygen<input type=hidden name=' + inputListSet[i].inputId + ' value=keygen>');
+      }
+    }
+    document.writeln('</td>');
+    document.writeln('</tr>');
+  }
+}
+document.writeln('</table>');
+document.writeln('<p>');
+document.writeln('<input type=hidden name=profileId value="' + 
+  profileId + '">');
+} else {
+  document.write('Sorry, your request is not submitted. The error code is "' + errorReason + '".');
+}
+</script>
+<p>
+<p>
+<script language=javascript>
+if (errorCode == 0) {
+  if (navigator.appName == "Microsoft Internet Explorer") {
+    if (typeof(keygen_request) != "undefined") {
+      document.writeln('<input type=submit Name="Send" value="Submit">');
+    } else {
+      document.writeln('<input type=submit value="Submit">');
+    }
+  } else if (typeof(crypto.version) != "undefined") {
+    document.writeln('<input type=submit value="Submit">');
+  } else {
+    document.writeln('<input type=submit value="Submit">');
+  }
+} else {
+}
+  
+</script>
+<SCRIPT LANGUAGE=VBS>
+<!--
+FindProviders
+
+Function FindProviders
+	Dim i, j
+	Dim providers()
+	i = 0
+	j = 1
+	Dim el
+	Dim temp
+	Dim first
+	Dim TheForm
+	Set TheForm = document.ReqForm
+	On Error Resume Next
+	first = 0
+
+        Dim osVersion
+        Dim result
+        osVersion = GetOSVersion()
+
+        If osVersion <> 6 Then 'Not Vista
+	  Do While True
+	  temp = ""
+	  Enroll.providerType = j
+	  temp = Enroll.enumProviders(i,0)
+	  If Len(temp) = 0 Then
+	  If j < 1 Then 
+	    j = j + 1
+	    i = 0 
+	  Else
+	    Exit Do
+	  End If
+	  Else
+	  set el = document.createElement("OPTION")
+	  el.text = temp
+	  el.value = j 
+          If temp = "Microsoft Base Cryptographic Provider v1.0" Then
+            first = i
+          End If
+	  TheForm.cryptprovider.add(el)
+	  If first = 0  Then
+	    first = 1
+	    TheForm.cryptprovider.selectedIndex = 0
+          Else
+	    TheForm.cryptprovider.selectedIndex = first
+	  End If
+	  i = i + 1
+	  End If
+	  Loop
+        Else 'Vista
+            Dim csps 
+            Set csps = g_objClassFactory.CreateObject("X509Enrollment.CCspInformations")
+            If IsObject(csps) = False Then
+               result = MsgBox("Can't create CSP List Object! " & " Error: " & Err.number & " :" & Err.description,0,"")
+               Exit Function
+
+            End If
+            csps.AddAvailableCsps()
+            'result = MsgBox(csps.Count,0,"Number of CSPS")
+
+            Dim curName
+            Dim csp
+            Dim selected 
+            selected = 0
+            For i = 0 to csps.Count-1
+               
+                curName = csps.ItemByIndex(i).Name
+                If len(curName) > 0 Then
+                  Set csp = document.createElement("OPTION")
+                  csp.text = curName
+                  csp.value = 1
+                  TheForm.cryptprovider.add(csp)
+
+                  If curName = "Microsoft Base Cryptographic Provider v1.0" Then
+                    selected = i
+                  End If
+                  'result = MsgBox(curName,0,"")
+                End If 
+            Next
+            TheForm.cryptprovider.selectedIndex = selected
+        End If
+End Function
+
+-->
+</SCRIPT>
+</form>
+</html>

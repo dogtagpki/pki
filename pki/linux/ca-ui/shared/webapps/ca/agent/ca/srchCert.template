@@ -1,0 +1,422 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" link="#000000" vlink="#000000" alink="#000000">
+<font face="PrimaSans BT, Verdana, sans-serif" size="+1">Search Results
+</font><br>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/agent/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/javascript">
+//<!--
+var onHoldCounter = 0;
+var onHoldList = "";
+var canRevokeCounter = 0;
+var canRevokeList = "";
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+	sign = "-";
+	number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+	absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+function revokeCert(serialNumber)
+{ 
+	return confirm("WARNING!! You are about to do an irreversible operation.\nDo you really want to revoke certificate # "+ 
+		renderHexNumber(serialNumber,8)+ " ?");
+}
+
+function renderOidName(oid)
+{
+	if (oid == "1.2.840.113549.1.1.1") 
+	   return "PKCS #1 RSA";
+	else if (oid == "1.2.840.113549.1.1.4")
+	   return "PKCS #1 MD5 With RSA";
+	else if (oid == "1.2.840.10040.4.1")
+	   return "DSA";
+	else 
+	   return "OID."+oid;
+}
+
+function renderHexNumber(number,width)
+{
+    var num = number;
+    while (num.length < width)
+	num = "0"+num;
+    return "0x"+num;
+}
+
+function renderDateFromSecs(secs)
+{
+    if (secs == null) return "";
+    var dateTmp = new Date();
+    dateTmp.setTime(secs * 1000);
+    var year = dateTmp.getYear();
+    if (year < 100) {
+        year += 1900;
+    } else {
+        year %= 100;
+        year += 2000;
+    }
+    return (dateTmp.getMonth()+1)+"/"+dateTmp.getDate()+"/"+year+"&nbsp;"+
+            (dateTmp.getHours()<10?"&nbsp;":"")+
+            dateTmp.getHours()+":"+(dateTmp.getMinutes()<10?"0":"")+
+            dateTmp.getMinutes()+":"+(dateTmp.getSeconds()<10?"0":"")+
+            dateTmp.getSeconds();
+}
+
+function renderDetailsButton(serialNumber)
+{
+	return "<FORM METHOD=post "+
+"ACTION=\""+ "displayBySerial" +"\">\n"+
+"<INPUT TYPE=hidden NAME=\"op\" VALUE=\""+ "displayBySerial" +"\">\n"+
+"<INPUT TYPE=hidden NAME=\"serialNumber\" VALUE=\""+ "0x"+serialNumber +"\">\n"+
+"<INPUT TYPE=submit VALUE=\"Details\" width=\"72\"></FORM>\n";
+}
+
+function renderRevokeButton(serialNumberDecimal)
+{
+    canRevokeList += "(certRecordId="+serialNumberDecimal+")";
+    canRevokeCounter++;
+	return "<FORM METHOD=post "+
+//"onSubmit=\"return revokeCert("+serialNumberDecimal+");\" "+
+"ACTION=\""+ "reasonToRevoke" +"\">\n"+
+"<INPUT TYPE=hidden NAME=\"op\" VALUE=\""+ "reasonToRevoke" +"\">\n"+
+"<INPUT TYPE=hidden NAME=\"serialNumber\" VALUE=\""+ serialNumberDecimal +"\">\n"+
+"<INPUT TYPE=hidden NAME=\"revokeAll\" VALUE=\"(&(certRecordId="+serialNumberDecimal+"))\">\n"+
+"<INPUT TYPE=hidden NAME=\"totalRecordCount\" VALUE=\"1\">\n"+
+"<INPUT TYPE=hidden NAME=\"commit\" VALUE=\"yes\">"+
+"<INPUT TYPE=hidden NAME=\"updateCRL\" VALUE=\"yes\">"+
+"<INPUT TYPE=submit VALUE=\"Revoke\" width=\"72\">"+
+"</FORM>\n";
+}
+
+function renderOffHoldButton(serialNumberDecimal)
+{
+    if (onHoldCounter > 0) onHoldList += " ";
+    onHoldCounter++;
+    onHoldList += serialNumberDecimal;
+	return "<FORM METHOD=post "+
+"ACTION=\""+ "doUnrevoke" +"\">\n"+
+"<INPUT TYPE=hidden NAME=\"op\" VALUE=\""+ "doUnrevoke" +"\">\n"+
+"<INPUT TYPE=hidden NAME=\"serialNumber\" VALUE=\""+ serialNumberDecimal +"\">\n"+
+"<INPUT TYPE=hidden NAME=\"cmmfResponse\" VALUE=\"true\">\n"+
+"<INPUT TYPE=submit VALUE=\"Off Hold\" width=\"72\"></FORM>\n";
+}
+
+function addSpaces(str)
+{
+    var outStr = "";
+    var i0 = 0;
+    var i1 = 0;
+
+    while (i1 < str.length) {
+        i1 = str.indexOf(',', i0);
+        if (i1 > -1) {
+            i1++;
+            outStr += str.substring(i0, i1);
+            outStr += " ";
+            i0 = i1;
+        } else {
+            outStr += str.substring(i0, str.length);
+            i1 = str.length;
+        }
+    }
+
+    return outStr;
+}
+
+function getRevocationReason(revocationReason)
+{
+    var reasons = new Array("Unspecified",
+                            "Key compromised",
+                            "CA key compromised",
+                            "Affiliation changed",
+                            "Certificate superceded",
+                            "Cessation of operation",
+                            "Certificate is on hold");
+    return reasons[revocationReason];
+}
+
+function displayCertificateRecord(cert)
+{
+	document.write(
+"<table border=\"0\" width=\"100%\" cellspacing=\"2\" cellpadding=\"2\">\n"+
+"<tr><td width=18%>&nbsp;</td><td width=41%>&nbsp;</td><td width=41%>&nbsp;</td></tr>\n"+
+
+"<tr bgcolor=\"#e5e5e5\"><td>\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"Serial number</font></td>\n"+
+"<td colspan=\"2\">\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"Subject name</font></td></tr>\n"+
+"<tr><td><font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"<a href=\"displayBySerial?op=displayBySerial&serialNumber=0x"+ cert.serialNumber + "\">"+renderHexNumber(cert.serialNumber,8) +"</a></font></td>\n"+
+"<td colspan=\"2\"><font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+addSpaces(cert.subject) +"</font></td></tr>\n"+
+
+"<tr bgcolor=\"#e5e5e5\"><td>\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"Version</font></td>\n"+
+"<td>\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"Certificate Type</font></td>\n"+
+"<td bgcolor=\"#e5e5e5\">\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"Subject public key algorithm</font></td></tr>\n"+
+"<tr><td><font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+(cert.version+1) +"</font></td>\n"+
+"<td>\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+(cert.type) +"</font></td>\n"+
+"<td>\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+renderOidName(cert.subjectPublicKeyAlgorithm) +
+(cert.subjectPublicKeyLength != null ?
+  " with "+cert.subjectPublicKeyLength+"-bit key" : "")+
+"</font></td></tr>\n"+
+
+"<tr><td rowspan=\"2\">" +renderDetailsButton(cert.serialNumber)+ "</td>\n"+
+"<td bgcolor=\"#e5e5e5\">\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"Not valid before</font></td>\n"+
+"<td bgcolor=\"#e5e5e5\">\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"Not valid after</font></td></tr>\n"+
+
+"<tr>\n"+
+"<td>\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+renderDateFromSecs(cert.validNotBefore) + "</font></td>\n"+
+"<td>\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+renderDateFromSecs(cert.validNotAfter)+ "</font></td></tr>\n"+
+
+"<tr><td rowspan=\"2\">"+
+(cert.revokedOn == null && cert.serialNumber != result.header.caSerialNumber?
+    renderRevokeButton(cert.serialNumberDecimal):
+    (cert.revocationReason != null && cert.revocationReason == 6?
+        renderOffHoldButton(cert.serialNumberDecimal): "&nbsp;"))+
+"</td>\n"+
+"<td bgcolor=\"#e5e5e5\">\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"Issued on</font></td>\n"+
+"<td bgcolor=\"#e5e5e5\">\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"Issued by</font></td></tr>\n"+
+
+"<tr>\n"+
+"<td>\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+renderDateFromSecs(cert.issuedOn) + "</font></td>\n"+
+"<td>\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+cert.issuedBy + "</font></td></tr>\n"+
+
+(cert.revokedOn != null ?
+	"<tr><td></td>\n"+
+	"<td bgcolor=\"#e5e5e5\"><font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\" color=\"red\">"+
+	"Revoked on</font></td>\n"+ 
+	"<td bgcolor=\"#e5e5e5\"><font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\" color=\"red\">"+
+	"Revoked by</font></td></tr>\n"+
+	"<tr><td></td>\n"+
+	"<td><font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\" color=\"red\">"+
+	renderDateFromSecs(cert.revokedOn)+	"</font></td>\n"+
+	"<td><font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\" color=\"red\">"+
+	 cert.revokedBy + "</font></td></tr>\n"  : "") +
+(cert.revocationReason != null ?
+        "<tr><td></td>\n"+
+        "<td bgcolor=\"#e5e5e5\" colspan=\"2\">"+
+	"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\" color=\"red\">"+
+	"Revocation Reason</font></td></tr>\n"+
+        "<tr><td></td>\n"+
+        "<td colspan=\"2\">"+
+        "<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\" color=\"red\">"+
+        getRevocationReason(cert.revocationReason)+"</font></td></tr>\n" : "") +
+
+"</table>\n"
+	);
+}
+
+function displaySearchResults()
+{
+if (result.recordSet.length == 0) {
+	document.write(
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">No Matching Certificates Found</font>\n"
+	);
+} else {
+
+	document.write(
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">Issuer: " +
+(result.header.issuerName != null ? result.header.issuerName : "UNKNOWN") +
+"</font><br>\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"Total number of records found: "+result.header.totalRecordCount+
+"</font>\n"
+	);
+   if (result.header.totalRecordCount == result.header.maxSize) {
+        document.write(
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"(Maximum size reached)"+
+"</font>\n"
+        );
+    }
+
+
+	for(var i = 0; i < result.recordSet.length; ++i ) {
+		displayCertificateRecord(result.recordSet[i]);
+	}
+	if (((result.header.revokeAll != null || onHoldCounter > 1 || canRevokeCounter > 1) &&
+         result.header.totalRecordCount > 1) ||
+        (result.header.querySentinel != null)) {
+        document.write("<br>&nbsp;\n" +
+            "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" background=\"/ca/agent/graphics/hr.gif\" width=\"100%\">\n"+
+            "<tr><td>&nbsp;</td></tr></table>\n");
+    }
+
+	document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=6 WIDTH=\"100%\">\n"+
+		"<tr align=center><td>\n");
+
+	if (result.header.revokeAll != null && result.header.totalRecordCount > 1) {
+		displayRevokeAllForm(result.header.totalRecordCount, result.header.revokeAll);
+	} else if (result.header.totalRecordCount > 1) {
+        if (canRevokeCounter > 1) {
+            canRevokeList = "(|"+canRevokeList+")";
+    		displayRevokeAllForm(canRevokeCounter, canRevokeList);
+        }
+        if (onHoldCounter > 1) {
+		    displayReleaseAllForm();
+	    }
+	}
+
+	if (result.header.querySentinel != null) {
+		displayNextForm();
+	}
+
+	document.write("</td></tr></table>\n");
+}
+}
+
+function renderHidden(name,value)
+{
+	return 	"<INPUT TYPE=\"hidden\" NAME=\""+ name +"\" VALUE=\"\">\n";
+}
+
+function doNext(form)
+{
+	//form.action = "/ca"+result.header.op;
+	form.action = "listCerts";
+	form.op.value = result.header.op;
+	form.queryCertFilter.value = result.header.queryCertFilter;
+	if (result.header.revokeAll != null) {
+		form.revokeAll.value = result.header.revokeAll;
+	}
+    if (result.header.queryFilterHash != null) {
+        form.queryFilterHash.value = result.header.queryFilterHash;
+    }
+	// form.submit();
+}
+
+function displayNextForm()
+{
+	document.write(
+//"<div align=center> \n"+
+"<FORM NAME =\"nextForm\" METHOD=POST onSubmit=\"doNext(nextForm);\" "+
+"ACTION=\"\">\n"+
+renderHidden("op"));
+
+if (result.header.revokeAll != null) {
+	document.write(renderHidden("revokeAll"));
+}
+
+if (result.header.queryFilterHash != null) {
+    document.write(renderHidden("queryFilterHash"));
+}
+
+document.write("<INPUT TYPE=submit VALUE=\"Find\" width=\"72\">\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"&nbsp;next</font>\n"+
+"<INPUT TYPE=hidden NAME=totalRecordCount VALUE=\""+
+result.header.totalRecordCount+ "\">\n"+
+"<INPUT TYPE=hidden NAME=queryCertFilter VALUE=\""+
+result.header.queryCertFilter+ "\">\n"+
+"<INPUT TYPE=hidden NAME=querySentinel VALUE=\""+
+result.header.querySentinel+ "\">\n"+
+"<INPUT TYPE=hidden NAME=serialTo VALUE=\""+
+result.header.serialTo+ "\">\n"+
+"<INPUT TYPE=text SIZE=4 MAXLENGTH=99 NAME=maxCount VALUE=\""+
+result.header.maxCount+ "\">\n"+
+"<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+"&nbsp;record(s)</font>\n"+
+"</FORM>\n");
+//"</FORM></DIV>\n");
+}
+
+function displayRevokeAllForm(recordCount, revokeAllFilter)
+{
+//	document.write("<DIV align=center><FORM NAME =\"revokeAllForm\" "+
+	document.write("<FORM NAME =\"revokeAllForm\" "+
+		"METHOD=POST "+
+		"ACTION=\""+ "/ca/agent/ca/reasonToRevoke" +"\">\n"+
+		"<INPUT TYPE=hidden NAME=\"op\" VALUE=\"reasonToRevoke\">\n"+
+		"<INPUT TYPE=hidden NAME=\"revokeAll\" VALUE=\""+ revokeAllFilter +"\">\n"+
+		"<INPUT TYPE=hidden NAME=\"totalRecordCount\" VALUE=\""+ recordCount +"\">\n"+
+		"<INPUT TYPE=submit VALUE=\"Revoke ALL "+ recordCount +" Certificates\">\n"+
+		"</FORM>\n");
+//		"</FORM></DIV>\n");
+}
+
+function displayReleaseAllForm()
+{
+	document.write("<FORM NAME =\"releaseAllForm\" "+
+        "METHOD=post "+
+        "ACTION=\""+ "/ca/agent/ca/doUnrevoke" +"\">\n"+
+        "<INPUT TYPE=hidden NAME=\"op\" VALUE=\""+ "doUnrevoke" +"\">\n"+
+        "<INPUT TYPE=hidden NAME=\"serialNumber\" VALUE=\""+ onHoldList +"\">\n"+
+        "<INPUT TYPE=hidden NAME=\"cmmfResponse\" VALUE=\"true\">\n"+
+        "<INPUT TYPE=submit VALUE=\"Release ALL "+ onHoldCounter +
+        " Certificates From Hold\" width=\"72\"></FORM>\n");
+}
+
+displaySearchResults();
+
+//-->
+</SCRIPT>
+</BODY>
+</HTML>

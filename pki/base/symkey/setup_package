@@ -1,0 +1,234 @@
+#!/bin/bash
+
+###############################################################################
+##  (1)  Check command line arguments to see how many were passed in.        ##
+###############################################################################
+
+if [ $# -eq 5 ]
+then
+	SYMKEY_BUILD_PREFIX=$1
+	VERSION=$2
+	RELEASE=$3
+	ARCHITECTURE=$4
+	SYMKEY_STAGING_PATH=$5
+else
+	echo
+	echo "Usage:  $0 SYMKEY_build_prefix version release architecture"
+	echo "        SYMKEY_staging_path"
+	echo
+
+	exit 255
+fi
+
+
+###############################################################################
+##  (2)  Specify variables used by this script.                              ##
+###############################################################################
+
+# specify generic helper functions
+usage() {
+	if [ $# -gt 0 ] ; then
+		echo
+		echo "$1"
+	fi
+	echo
+	echo "Usage:  $0 SYMKEY_build_prefix version release architecture"
+	echo "        SYMKEY_staging_path"
+	echo
+	echo "        where architecture MUST be 'intel',"
+	echo "                                   'sparc', or"
+	echo "                                   'sparcv9'."
+	echo
+	echo "        NOTE:  For 'intel' architectures, only the 'i386' and"
+	echo "               the 'x86_64' architectures are currently supported."
+	echo
+}
+
+# specify generic helper variables
+if  [ ${ARCHITECTURE} = "intel" ] ; then
+	# Since "rpmbuild" fails to process "%ifarch" macros inside the
+	# "%install" section of a spec file, the actual hardware
+	# architecture will be determined at this point in time.
+	ARCHITECTURE=`uname -i`
+    DLL_SUFFIX="so"
+	if   [ ${ARCHITECTURE} = "i386" ] ; then
+		LIB_DIR="lib"
+	elif [ ${ARCHITECTURE} = "x86_64" ] ; then
+		LIB_DIR="lib64"
+	else
+		usage "ERROR:  Unsupported intel architecture '${ARCHITECTURE}'!"
+		exit 255
+	fi
+elif [ ${ARCHITECTURE} = "sparc" ] ; then
+	# Note that "pkgbuild" successfully processes "%ifarch" macros
+	# inside the "%install" section of a spec file.
+	LIB_DIR="lib"
+    DLL_SUFFIX="so"
+elif [ ${ARCHITECTURE} = "sparcv9" ] ; then
+	# Note that "pkgbuild" successfully processes "%ifarch" macros
+	# inside the "%install" section of a spec file.
+	LIB_DIR="lib/sparcv9"
+    DLL_SUFFIX="so"
+else
+	usage "ERROR:  Unsupported architecture '${ARCHITECTURE}'!"
+	exit 255
+fi
+
+# break the VERSION number into its various components
+MAJOR_VERSION=`echo ${VERSION} | awk -F. '{ print $1 }'`
+MINOR_VERSION=`echo ${VERSION} | awk -F. '{ print $2 }'`
+PATCH_VERSION=`echo ${VERSION} | awk -F. '{ print $3 }'`
+
+PRODUCT_VERSION=${MAJOR_VERSION}.${MINOR_VERSION}
+
+
+# comply with standard FHS 2.3 binary locations (executables)
+
+# comply with standard FHS 2.3 library locations
+SYMKEY_LIB_DIR=${SYMKEY_BUILD_PREFIX}/usr/${LIB_DIR}
+
+# comply with standard JPackage 1.6.0 jar locations
+SYMKEY_JAR_DIR=${SYMKEY_BUILD_PREFIX}/usr/lib/java
+
+# comply with standard FHS 2.3 binary locations (wrappers)
+
+# comply with standard FHS 2.3 shared data locations (templates)
+
+# comply with standard FHS 2.3 start/stop script locations
+
+# comply with standard FHS 2.3 configuration file locations
+
+# comply with standard FHS 2.3 documentation locations
+SYMKEY_DOCUMENTATION=${SYMKEY_BUILD_PREFIX}/usr/share/doc/symkey-${VERSION}
+
+# comply with standard FHS 2.3 log file locations
+
+# comply with default FHS 2.3 instance locations
+
+
+###############################################################################
+##  (3)  Create the appropriate subdirectories.                              ##
+###############################################################################
+
+##
+## System:
+##
+
+mkdir -p ${SYMKEY_DOCUMENTATION}
+mkdir -p ${SYMKEY_LIB_DIR}
+mkdir -p ${SYMKEY_JAR_DIR}
+
+
+##
+## Product
+##
+
+
+##
+## Subsystem
+##
+
+
+##
+## Initial Instance
+##
+
+
+###############################################################################
+##  (4)  Unpack the package contents to the appropriate subdirectories.      ##
+###############################################################################
+
+##
+## Executables
+##
+
+
+##
+## Libraries
+##
+
+cp -p ${SYMKEY_STAGING_PATH}/${LIB_DIR}/libsymkey.${DLL_SUFFIX} ${SYMKEY_LIB_DIR}
+
+
+##
+## Jars
+##
+
+cp -p ${SYMKEY_STAGING_PATH}/jars/symkey.jar ${SYMKEY_JAR_DIR}
+
+
+##
+## Wrappers
+##
+
+
+##
+## Shared Data
+##
+
+cp -rp ${SYMKEY_STAGING_PATH}/doc/LICENSE         ${SYMKEY_DOCUMENTATION}
+
+
+###############################################################################
+##  (5)  Unpack the package contents to the initial instance directories.    ##
+###############################################################################
+
+##
+## Start/Stop Script
+##
+
+
+##
+## Configuration
+##
+
+
+##
+## Logs
+##
+
+
+##
+## Default Instance
+##
+
+
+###############################################################################
+##  (6)  Rename the extracted contents following appropriate naming rules.   ##
+###############################################################################
+
+# comply with standard Linux/UNIX shared library naming conventions
+cd ${SYMKEY_LIB_DIR} ; mv libsymkey.${DLL_SUFFIX} libsymkey.${DLL_SUFFIX}.${VERSION}
+
+# comply with standard JPackage 1.6.0 jar naming conventions
+cd ${SYMKEY_JAR_DIR} ; mv symkey.jar symkey-${VERSION}.jar
+
+
+###############################################################################
+##  (7)  Create a command wrapper for each specified command.                ##
+###############################################################################
+
+
+
+###############################################################################
+##  (8)  Create useful symbolic links as appropriate.                        ##
+###############################################################################
+
+# create shared library sans version "linker-name" to protect this namespace
+cd ${SYMKEY_LIB_DIR}                                                ;
+ln -s libsymkey.${DLL_SUFFIX}.${VERSION} libsymkey.${DLL_SUFFIX}.${PRODUCT_VERSION}       ;
+ln -s libsymkey.${DLL_SUFFIX}.${PRODUCT_VERSION} libsymkey.${DLL_SUFFIX}.${MAJOR_VERSION} ;
+ln -s libsymkey.${DLL_SUFFIX}.${MAJOR_VERSION} libsymkey.${DLL_SUFFIX}
+
+# create jar sans version to be used by classpath
+cd ${SYMKEY_JAR_DIR} ; ln -s symkey-${VERSION}.jar symkey.jar
+
+# create assorted symbolic links to various file dependencies (Tomcat)
+
+
+###############################################################################
+##  (9)  Successfully exit from this setup script.                           ##
+###############################################################################
+
+exit 0
+

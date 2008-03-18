@@ -1,0 +1,248 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<head>
+<TITLE>
+CS Enroll Request Success
+</TITLE>
+</head>
+
+
+<CMS_TEMPLATE>
+
+
+<BODY bgcolor="white">
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--//
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+
+    return sign + '0x' + '0' + absValue;
+}
+
+function navMajorVersion()
+{
+    return parseInt(navigator.appVersion.substring(0, navigator.appVersion.indexOf(".")));
+}
+
+// page starts here
+if (typeof(result.fixed.replyTo) == 'undefined' || result.fixed.replyTo == null) {
+    document.writeln('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+    document.writeln('Enrollment Success');
+    document.writeln('</font>');
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+    document.writeln('<P>');
+    document.writeln('Congratulations, your certificate has been issued.'); 
+    document.writeln('</font>');
+    document.writeln('<br>&nbsp');
+
+    if (typeof(result.recordSet) == 'undefined' ||
+        result.recordSet == null || result.recordSet.length == 0) {
+        document.writeln('<P>');
+        document.writeln('<BLOCKQUOTE><B><PRE>');
+        document.writeln('No more information on your certificate is provided.');
+        document.writeln('Please consult your local administrator for assistance.');
+        document.writeln('</PRE></B></BLOCKQUOTE>');
+    } else {
+        for (var i = 0; i < result.recordSet.length; i++) {
+            if (result.recordSet[i].serialNo != null) {
+                document.writeln('<P>');
+                document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+                document.write('Your certificate in Base 64 encoded form:<BR>');
+                document.writeln('</font>');
+                document.write('<PRE>');
+                document.writeln(result.recordSet[i].base64Cert);
+                document.write('</PRE>');
+                document.writeln('<P>');
+                document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+                document.write('Certificate Content: <BR>');
+                document.writeln('</font>');
+                document.write('<PRE>');
+                document.writeln(result.recordSet[i].certPrettyPrint);
+                document.write('</PRE>');
+            }
+        }
+        if (result.fixed.keyrecId != null) {
+            document.write('Your key is archived successfully.');
+            document.writeln('<BLOCKQUOTE><PRE>');
+            document.writeln('Key Identifier: ' + toHex(result.fixed.keyrecId));
+            document.writeln('</PRE></BLOCKQUOTE>');
+        }
+    }
+}
+
+// NOTE: importUserCertificate should be done before this point  but 
+// it creates a javascript error that clobbers the result variable set in 
+// the template. 
+
+if (navigator.appName == 'Netscape' && (navMajorVersion() > 3) && 
+    typeof(crypto.version) != "undefined" && typeof(result.fixed.crmfReqId != "undefined")&& typeof(result.fixed.importCMC) == "undefined") {
+    if (result.fixed.crmfReqId != null) {
+        //alert('certNickname is '+result.fixed.certNickname);
+        //alert(result.fixed.cmmfResponse);
+
+        // NOTE: 
+        var errors = crypto.importUserCertificates(null, result.fixed.cmmfResponse, false);
+        // var errors = crypto.importUserCertificates(result.fixed.certNickname,
+        //                                            result.fixed.cmmfResponse, false);
+
+        // NOTE: Alpha version of cartman always returns a non-empty string 
+        // from importUserCertificates() so we can only always assume succcess. 
+        // Uncomment the following line and add appropriate javascripts/messages 
+        // for use with a later version of cartman.
+
+        if (typeof(result.fixed.replyTo) == 'undefined' || result.fixed.replyTo == null) {
+            if (errors != '') {
+                document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+                document.writeln('<b>ERROR</b>Could not import the certificate into your browser '+
+                                 'using nickname '+result.fixed.certNickname+'.<p>');
+                document.writeln('The following error message was returned by the browser '+
+                                 'when importing the certificate:');
+                document.writeln('</font>');
+                document.writeln('<BLOCKQUOTE><PRE>');
+                document.writeln(errors);
+                document.writeln('</PRE></BLOCKQUOTE>');
+            } else {
+                document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+                document.writeln('Your certificate was successfully imported to the browser '+
+                                 'with nickname '+result.fixed.certNickname);
+                document.writeln('</font>');
+            }
+        }
+    } else {
+        for (var i = 0; i < result.recordSet.length; i++) {
+            if (result.recordSet[i].serialNo != null) {
+                window.location = result.fixed.scheme + "://" + result.fixed.host + ":" + 
+                                  result.fixed.port + "/ee/getBySerial?serialNumber=" + 
+                                  record.recordSet[i].serialNo + "&importCert=true";
+            }
+        }
+        if (result.recordSet.length > 0)
+            alert("Your cert has been imported into the browser!");
+    }
+} else if (navigator.appName == 'Netscape' && (navMajorVersion() >= 3) && result.fixed.importCMC == "undefined") {
+    if (result.fixed.authorityName == 'Certificate Manager') {
+        // non Cartman
+        for (var i = 0; i < result.recordSet.length; i++) {
+            if (result.recordSet[i].serialNo != null) {
+                window.location = result.fixed.scheme + "://" + result.fixed.host + ":" +
+                                  result.fixed.port + "/ee/getBySerial?serialNumber=" + 
+                                  record.recordSet[i].serialNo + "&importCert=true";
+            }
+        }
+        if (result.recordSet.length > 0)
+            alert("Your cert has been imported into the browser!");
+    } else {
+        // this must be a RA
+        window.location = result.fixed.scheme + "://" + result.fixed.host + ":" +
+                          result.fixed.port + "/getCertFromRequest?requestId=" +
+                          result.fixed.requestId + "&importCert=true";
+        alert("Your cert has been imported into the browser!");
+    }
+}
+
+//-->
+</SCRIPT>
+
+
+<OBJECT
+	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
+	CODEBASE="/xenroll.dll"
+	id=Enroll    >
+</OBJECT>
+
+<SCRIPT LANGUAGE=VBS>
+<!--
+'========================================================
+'
+' In VBS, there are several ways in which the event handler for the
+' click event can be bound to the right control. We use one of the
+' methods here, which indicates the binding by appending the
+' event name to the control name with an intervening '_'.
+'
+'========================================================
+	Sub ImportCertificate
+
+		Dim pkcs7
+
+		On Error Resume Next
+
+		'Convert the cert to PKCS7 format
+		pkcs7 = result.header.pkcs7ChainBase64
+		If (IsEmpty(pkcs7) OR theError <> 0) Then
+			ret = MsgBox("Could not convert certificate to PKCS7 format", 0, "Import Cert")
+			Exit Sub
+		End If
+
+		'Import the PKCS7 object
+		Enroll.DeleteRequestCert = FALSE
+		Enroll.WriteCertToCSP = true
+		Enroll.acceptPKCS7(pkcs7)
+		if err.number <> 0 then
+			Enroll.WriteCertToCSP = false
+		end if
+		err.clear
+		Enroll.acceptPKCS7(pkcs7)
+		if err.number = 0 then
+			MsgBox "Certificate has been successfully imported."
+		else 
+			sz = "Error in acceptPKCS7. Error Number " & Hex(err.number) & "occurred."
+			MsgBox sz
+		end if
+
+		Exit Sub
+
+	End Sub
+
+	ImportCertificate()
+-->
+</SCRIPT>
+
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--//
+if (typeof(result.fixed.replyTo) != 'undefined' && result.fixed.replyTo != null) {
+    //alert('replyTo='+result.fixed.replyTo);
+    var loc = result.fixed.replyTo;
+    if (result.fixed.requestId != null)
+        loc += "&requestId=" + result.fixed.requestId;
+    if (result.recordSet.length > 0 && result.recordSet[0].serialNo != null)
+        loc += "&certificateSerialNumber=" + result.recordSet[0].serialNo;
+    //alert('loc='+loc);
+    window.location = loc; 
+}
+//-->
+</SCRIPT>
+
+</font>
+</BODY>
+</HTML>
+

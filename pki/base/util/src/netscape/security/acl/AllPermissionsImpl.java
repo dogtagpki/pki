@@ -1,0 +1,42 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// (C) 2007 Red Hat, Inc.
+// All rights reserved.
+// --- END COPYRIGHT BLOCK ---
+package netscape.security.acl;
+
+import java.security.Principal;
+import java.security.acl.*;
+
+/**
+ * This class implements the principal interface for the set of all permissions.
+ * @author Satish Dharmaraj
+ */
+public class AllPermissionsImpl extends PermissionImpl {
+
+    public AllPermissionsImpl(String s) {
+	super(s);
+    }
+
+    /**
+     * This function returns true if the permission passed matches the permission represented in 
+     * this interface.
+     * @param another The Permission object to compare with.
+     * @return true always
+     */
+    public boolean equals(Permission another) {
+	return true;
+    }
+}

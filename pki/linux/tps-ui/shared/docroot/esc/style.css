@@ -1,0 +1,197 @@
+/* --- BEGIN COPYRIGHT BLOCK ---
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301  USA 
+ * 
+ * Copyright (C) 2007 Red Hat, Inc.
+ * All rights reserved.
+ * --- END COPYRIGHT BLOCK ---
+ */
+
+body {
+background: #ffffff url(../images/bg.jpg) repeat-x;
+        font-family: arial;
+        font-size: 7p
+
+}
+
+form {
+  margin: 0px;
+  padding: 0px;
+};
+
+* {
+  font-family: "Arial";
+  font-size: 8pt;
+}
+
+h2 {
+  font-size: 12pt;
+}
+
+.headerText {
+  font-family: "Arial";
+  font-size: 12pt;
+  font-weight: bold; 
+}
+
+.titleText {
+  font-family: "Arial";
+  font-size: 10pt;
+}
+
+.bodyText {
+  font-family: "Arial";
+  font-size: 8pt;
+}
+
+.linkText {
+  font-family: "Arial";
+  font-size: 8pt;
+}
+
+#BindingTable {
+  background-color: #ffffff ;
+  font-size: 7pt;
+}
+
+#BindingTable th {
+  color: rgb(0, 0, 0);
+  background-color:  #fffffe;
+  font-size: 7pt;
+}
+
+#BindingTable tr {
+  background-color: #fffffe;
+  font-size: 7pt;
+}
+
+tr [COOLKeyPresent="yes"]{
+  background-color: rgb(255, 0, 0);
+}
+
+.cylon {
+  font-size: 4pt;
+  position: relative;
+  border: 1px solid rgb(60, 60, 60);
+  background-color: #ffffff;
+}
+
+.cylonEye {
+  font-size: 4pt;
+  position: relative;
+  border: 1px solid rgb(60, 60, 60);
+  background-color: rgb(0, 128, 192);
+}
+
+#statusMsg {
+  font-weight: bold;
+}
+
+.ProgressMeter {
+  position: relative;
+  padding: 0px;
+  border: 1px solid rgb(60, 60, 60);
+  background-color: #ffffff;
+  text-align: center;
+}
+
+.ProgressBar {
+  position: absolute;
+  z-index: 0;
+  top: 0px;
+  left: 0px;
+  border-right: 1px solid rgb(60, 60, 60);
+  background-color: rgb(0, 128, 192);
+  margin: 0px;
+}
+
+.ProgressBarStatus {
+  position: relative;
+  z-index: 10;
+  margin: 0px;
+  padding: 0px;
+
+}
+
+.KeyTableHeader {
+  color: rgb(0,0, 0);
+  background-color: #ffffff;
+  text-align: left;
+}
+                                                                                
+#KeyTable td {
+  background-color: #ffffff;
+  padding-left: 3px;
+  padding-right: 3px;
+};
+                                                                                
+.TableDescriptionPanel {
+  background-color: #ffffff);
+  margin-right: 5px;
+  margin-left: 5px;
+  margin-bottom: 0px;
+  margin-bottom: 5px;
+  padding: 5px;
+}
+                                                                                
+.PurchasePanel {
+  width: 100%;
+  text-align: center;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+                                                                                
+.NeedQuestionText {
+  font-size: 16pt;
+  font-weight: bold;
+}
+
+.COOLHeaderText {
+  font-family: "Arial";
+  font-size: 20pt;
+  font-weight: bold;
+}
+                                                                                
+.ContentTable {
+  background-color: #ffffff;
+  margin: 0px;
+}
+                                                                                
+form {
+  margin: 0px;
+  padding: 0px;
+};
+                                                                                
+* {
+  font-family: "Arial";
+  font-size: 8pt;
+}
+                                                                                
+                                                                                
+table {
+  font-family: "Arial";
+  font-size: 8pt;
+}
+                                                                                
+.TableTitle {
+  font-size: 12pt;
+  font-weight: bold;
+}
+
+.PageHeader {
+  width: 100%;
+  border-bottom: solid black 1px;
+  vertical-align: center;
+  background-color: #ffffff;
+}

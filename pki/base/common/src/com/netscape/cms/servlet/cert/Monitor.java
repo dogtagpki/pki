@@ -1,0 +1,386 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// (C) 2007 Red Hat, Inc.
+// All rights reserved.
+// --- END COPYRIGHT BLOCK ---
+package com.netscape.cms.servlet.cert;
+
+
+import com.netscape.cms.servlet.common.*;
+import com.netscape.cms.servlet.base.*;
+import java.io.*;
+import java.util.*;
+import java.net.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.security.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import netscape.security.x509.*;
+import com.netscape.certsrv.common.*;
+import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.ca.*;
+import com.netscape.certsrv.authority.*;
+import com.netscape.certsrv.dbs.*;
+import com.netscape.certsrv.dbs.certdb.*;
+import com.netscape.cms.servlet.*;
+import com.netscape.certsrv.request.*;
+import com.netscape.certsrv.apps.*;
+import com.netscape.certsrv.logging.*;
+import com.netscape.certsrv.authentication.*;
+import com.netscape.certsrv.authorization.*;
+
+
+/**
+ * XXX Provide statistical queries of request and certificate records.
+ *
+ * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ */
+public class Monitor extends CMSServlet {
+
+    private final static String TPL_FILE = "monitor.template";
+    private final static String INFO = "Monitor";
+
+    private ICertificateRepository mCertDB = null;
+    private IRequestQueue mQueue = null;
+    private X500Name mAuthName = null;
+    private String mFormPath = null;
+
+    private int mTotalCerts = 0;
+    private int mTotalReqs = 0;
+
+    /**
+     * Constructs query servlet.
+     */
+    public Monitor() {
+        super();
+    }
+
+    /**
+     * initialize the servlet. This servlet uses the template file
+	 * 'monitor.template' to render the response.
+     *
+     * @param sc servlet configuration, read from the web.xml file
+     */
+
+    public void init(ServletConfig sc) throws ServletException {
+        super.init(sc);
+        // override success to render own template.
+        mTemplates.remove(CMSRequest.SUCCESS);
+
+        if (mAuthority instanceof ICertificateAuthority) {
+            ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
+
+            mCertDB = ca.getCertificateRepository();
+            mAuthName = ca.getX500Name();
+        }
+        mQueue = mAuthority.getRequestQueue();
+
+        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+    }
+
+    /**
+     * Process the HTTP request.
+     * <ul>
+     * <li>http.param startTime start of time period to query
+     * <li>http.param  endTime   end of time period to query
+     * <li>http.param interval  time between queries
+     * <li>http.param numberOfIntervals number of queries to run
+     * <li>http.param maxResults =number
+     * <li>http.param timeLimit =time
+     * </ul>
+     */
+    public void process(CMSRequest cmsReq) throws EBaseException {
+        HttpServletRequest req = cmsReq.getHttpReq();
+        HttpServletResponse resp = cmsReq.getHttpResp();
+
+        IAuthToken authToken = authenticate(cmsReq);
+        AuthzToken authzToken = null;
+
+        try {
+            authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "read");
+        } catch (EAuthzAccessDenied e) {
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+        }
+
+        if (authzToken == null) {
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            return;
+        }
+
+        String startTime = null;
+        String endTime = null;
+        String interval = null;
+        String numberOfIntervals = null;
+
+        EBaseException error = null;
+
+        IArgBlock header = CMS.createArgBlock();
+        IArgBlock ctx = CMS.createArgBlock();
+        CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
+
+        CMSTemplate form = null;
+        Locale[] locale = new Locale[1];
+
+        try {
+            form = getTemplate(mFormPath, req, locale);
+        } catch (IOException e) {
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+        }
+
+        try {
+            startTime = req.getParameter("startTime");
+            endTime = req.getParameter("endTime");
+            interval = req.getParameter("interval");
+            numberOfIntervals = req.getParameter("numberOfIntervals");
+
+            process(argSet, header, startTime, endTime, interval, numberOfIntervals, locale[0]);
+        } catch (EBaseException e) {
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("CMSGW_ERR_PROCESSING_REQ", e.toString()));
+            error = e;
+        }
+
+        try {
+            ServletOutputStream out = resp.getOutputStream();
+
+            if (error == null) {
+                String xmlOutput = req.getParameter("xml");
+                if (xmlOutput != null && xmlOutput.equals("true")) {
+                  outputXML(resp, argSet);
+                } else {
+                  resp.setContentType("text/html");
+                  form.renderOutput(out, argSet);
+                  cmsReq.setStatus(CMSRequest.SUCCESS);
+                }
+            } else {
+                cmsReq.setStatus(CMSRequest.ERROR);
+                cmsReq.setError(error);
+            }
+        } catch (IOException e) {
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE",
+                    e.toString()));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+        }
+    }
+
+    private void process(CMSTemplateParams argSet, IArgBlock header, 
+        String startTime, String endTime,
+        String interval, String numberOfIntervals,
+        Locale locale)
+        throws EBaseException {
+        if (interval == null || interval.length() == 0) {
+            header.addStringValue("error", "Invalid interval: " + interval);
+            return;
+        }
+        if (numberOfIntervals == null || numberOfIntervals.length() == 0) {
+            header.addStringValue("error", "Invalid number of intervals: " + numberOfIntervals);
+            return;
+        }
+
+        Date startDate = StringToDate(startTime);
+
+        if (startDate == null) {
+            header.addStringValue("error", "Invalid start time: " + startTime);
+            return;
+        }
+
+        int iInterval = 0;
+
+        try {
+            iInterval = Integer.parseInt(interval);
+        } catch (NumberFormatException nfe) {
+            header.addStringValue("error", "Invalid interval: " + interval);
+            return;
+        }
+
+        int iNumberOfIntervals = 0;
+
+        try {
+            iNumberOfIntervals = Integer.parseInt(numberOfIntervals);
+        } catch (NumberFormatException nfe) {
+            header.addStringValue("error", "Invalid number of intervals: " + numberOfIntervals);
+            return;
+        }
+
+        header.addStringValue("startDate", startDate.toString());
+        header.addStringValue("startTime", startTime);
+        header.addIntegerValue("interval", iInterval);
+        header.addIntegerValue("numberOfIntervals", iNumberOfIntervals);
+
+        mTotalCerts = 0;
+        mTotalReqs = 0;
+
+        Date d1 = startDate;
+
+        for (int i = 0; i < iNumberOfIntervals; i++) {
+            Date d2 = nextDate(d1, iInterval - 1);
+            IArgBlock rarg = CMS.createArgBlock();
+            String e = getIntervalInfo(rarg, d1, d2);
+
+            if (e != null) {
+                header.addStringValue("error", e);
+                return;
+            }
+            argSet.addRepeatRecord(rarg);
+            d1 = nextDate(d2, 1);
+        }
+
+        header.addIntegerValue("totalNumberOfCertificates", mTotalCerts);
+        header.addIntegerValue("totalNumberOfRequests", mTotalReqs);
+
+        if (mAuthName != null)
+            header.addStringValue("issuerName", mAuthName.toString());
+
+        return;
+    }
+    
+    Date nextDate(Date d, int seconds) {
+        Date date = new Date((d.getTime()) + ((long) (seconds * 1000)));
+
+        return date;
+    }
+
+    String getIntervalInfo(IArgBlock arg, Date startDate, Date endDate) {
+        if (startDate != null && endDate != null) {
+            String startTime = DateToZString(startDate);
+            String endTime = DateToZString(endDate);
+            String filter = null;
+
+            arg.addStringValue("startTime", startTime);
+            arg.addStringValue("endTime", endTime);
+
+            try {
+                if (mCertDB != null) {
+                    filter = Filter(ICertRecord.ATTR_CREATE_TIME, startTime, endTime);
+
+                    Enumeration e = mCertDB.findCertRecs(filter);
+
+                    int count = 0;
+
+                    while (e != null && e.hasMoreElements()) {
+                        ICertRecord rec = (ICertRecord) e.nextElement();
+
+                        if (rec != null) {
+                            count++;
+                        }
+                    }
+                    arg.addIntegerValue("numberOfCertificates", count);
+                    mTotalCerts += count;
+                }
+
+                if (mQueue != null) {
+                    filter = Filter(IRequestRecord.ATTR_CREATE_TIME, startTime, endTime);
+
+                    IRequestList reqList = mQueue.listRequestsByFilter(filter);
+
+                    int count = 0;
+
+                    while (reqList != null && reqList.hasMoreElements()) {
+                        IRequestRecord rec = (IRequestRecord) reqList.nextRequest();
+
+                        if (rec != null) {
+                            if (count == 0) {
+                                arg.addStringValue("firstRequest", rec.getRequestId().toString());
+                            }
+                            count++;
+                        }
+                    }
+                    arg.addIntegerValue("numberOfRequests", count);
+                    mTotalReqs += count;
+                }
+            } catch (Exception ex) {
+                return "Exception: " + ex; 
+            }
+
+            return null;
+        } else {
+            return "Missing start or end date"; 
+        }
+    }
+
+    Date StringToDate(String z) {
+        Date d = null;
+
+        if (z != null && (z.length() == 14 ||
+                z.length() == 15 && (z.charAt(14) == 'Z' || z.charAt(14) == 'z'))) {
+            // 20020516132030Z or 20020516132030
+            try {
+                int year = Integer.parseInt(z.substring(0, 4)) - 1900;
+                int month = Integer.parseInt(z.substring(4, 6)) - 1;
+                int date = Integer.parseInt(z.substring(6, 8));
+                int hour = Integer.parseInt(z.substring(8, 10));
+                int minute = Integer.parseInt(z.substring(10, 12));
+                int second = Integer.parseInt(z.substring(12, 14));
+
+                d = new Date(year, month, date, hour, minute, second);
+            } catch (NumberFormatException nfe) {
+            }
+        } else if (z != null && z.length() > 1 && z.charAt(0) == '-') {  // -5
+            try {
+                int i = Integer.parseInt(z);
+
+                d = new Date();
+                d = nextDate(d, i);
+            } catch (NumberFormatException nfe) {
+            }
+        }
+
+        return d;
+    }
+
+    String DateToZString(Date d) {
+        String time = "" + (d.getYear() + 1900);
+        int i = d.getMonth() + 1;
+
+        if (i < 10) time += "0";
+        time += i;
+        i = d.getDate();
+        if (i < 10) time += "0";
+        time += i;
+        i = d.getHours();
+        if (i < 10) time += "0";
+        time += i;
+        i = d.getMinutes();
+        if (i < 10) time += "0";
+        time += i;
+        i = d.getSeconds();
+        if (i < 10) time += "0";
+        time += i + "Z";
+        return time;
+    }
+
+    String Filter(String name, String start, String end) {
+        String filter = "(&(" + name + ">=" + start + ")(" + name + "<=" + end + "))";
+
+        return filter;
+    }
+
+    String uriFilter(String name, String start, String end) {
+        String filter = "(%26(" + name + "%3e%3d" + start + ")(" + name + "%3c%3d" + end + "))";
+
+        return filter;
+    }
+}
+

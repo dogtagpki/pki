@@ -1,0 +1,97 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+Each certificate associated with this instance needs to have a unique name within the PKI hierarchy. The following information will be used to generate these unique names. <a href="javascript:toggle_details();">[Details]</a>
+<SCRIPT type="text/JavaScript">
+function toggle_details()
+{
+  d = document.getElementById('details');
+  if (d.style.display == "block") {
+    d.style.display="none";
+  } else {
+    d.style.display="block";
+  }
+}
+</script>
+                                                                                
+<div id=details style="display: none;">
+<br/>
+Each unique name, called the certificate's subject name, is referenced as the distinguished name (DN). A DN may be composed of multiple comma separated name=value fields.
+<br/>
+</div>
+
+    <p>
+#if ($errorString != "")
+<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<br/>
+#foreach ($item in $certs)
+<H2>$item.getUserFriendlyName()</H2>
+                                                                                
+    <table class="details">
+      <tr>
+        <th>DN:</th>
+#if ($item.isEnable())
+        <td><input type="text" size="70" name="$item.getCertTag()" value="$item.getEscapedDN()"/></td>
+#else
+        <td><input type="text" size="70" name="$item.getCertTag()" value="$item.getEscapedDN()" disabled="disabled" /></td>
+#end
+      </tr>
+    </table>
+<br/>
+#end
+<br/>
+<hr>
+<p>
+A Certificate Authority (CA) is responsible for issuing different kinds of certificates.  To obtain the certificates required internally by this subsystem, the user must select a URL to a CA that has been registered in the security domain or to an "External CA".
+<p>
+<i>Note:  An "External CA" is defined to be a CA that is not part of the 'Security Domain'.  Verisign<sup>&reg;</sup>, GeoTrust<sup>&reg;</sup>, and Netscape<sup>&reg;</sup> Certificate Management System (CMS) 6.x are examples of "External CAs".</i>
+<br/>
+    <table class="details">
+      <tr>
+        <th>URL:</th>
+#if ($isRoot == "true")
+        <td><select name="urls" disabled="disabled">
+#else
+        <td><select name="urls">
+#end
+           #if ($urls.size() > 0)
+           #set ($x=0)
+           #foreach ($p in $urls)
+               <option value="$x">$p</option>
+               #set ($x=$x+1)
+           #end
+           #end
+            </select>
+        </td>
+      </tr>
+    </table>
+
+   <div align="right">
+      <hr />
+    </div>

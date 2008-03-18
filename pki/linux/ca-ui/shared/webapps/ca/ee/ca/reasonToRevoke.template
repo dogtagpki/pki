@@ -1,0 +1,462 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<CMS_TEMPLATE>
+<TITLE>Certificate Revocation Confirmation</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<script LANGUAGE="JavaScript" SRC="/ca/ee/cms-funcs.js"></script>
+<script LANGUAGE="JavaScript" SRC="/ca/ee/helpfun.js"></script>
+
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+function validate()
+{
+    var caCert = -1;
+    var filter = "(|";
+    var n = 0;
+
+    if (!dateIsEmpty(document.forms[0])) {
+        var d = convertDate(document.forms[0], "Invalidity Date");
+        if (d == null) return false;
+        document.forms[0].invalidityDate.value = d;
+    }
+
+    for (var i = 0; i < result.recordSet.length; ++i ) {
+        if (result.recordSet[i].serialNumber != null) {
+            for (var j = 0; j < document.forms[0].length; j++) {
+                if (result.recordSet[i].serialNumber ==
+                    document.forms[0].elements[j].name) {
+                    if (document.forms[0].elements[j].checked) {
+                        n++;
+                        filter += "(certRecordId="+
+                                  result.recordSet[i].serialNumberDecimal+")";
+                        if (result.header.caSerialNumber != null &&
+                            result.recordSet[i].serialNumber ==
+                            result.header.caSerialNumber) {
+                            caCert = result.header.caSerialNumber;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    if (n > 0) {
+        filter += ")";
+        document.forms[0].revokeAll.value = filter;
+    } else {
+        alert("No certificate has been selected.");
+        return false;
+    }
+
+    if (caCert > -1) {
+        return confirm("WARNING!!!\n"+
+                       "You are about to do an irreversible operation.\n"+
+                       "Certificate #"+toHex(caCert)+
+                       " belongs to your Certificate Authority.\n"+
+                       "Do you really want to revoke this certificate?");
+    }
+    return true;
+}
+
+function toHex1(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+    sign = "-";
+    number = -number;
+    }
+
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+    absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + '0x' + '0' + absValue;
+}
+
+function toHex(number)
+{
+    return '0x' + '0' + number;
+}
+
+function renderDateFromSecs(secs)
+{
+    if (secs == null) return "";
+    var dateTmp = new Date();
+    dateTmp.setTime(secs * 1000);
+    var year = dateTmp.getYear();
+    if (year < 100) {
+        year += 1900;
+    } else {
+        year %= 100;
+        year += 2000;
+    }
+    return (dateTmp.getMonth()+1)+"/"+dateTmp.getDate()+"/"+year;
+}
+
+function renderCell(cellData)
+{
+    return ("<td><font size=\"-2\" face=\"PrimaSans BT, Verdana, sans-serif\">"+
+            cellData+ "</font></td>\n");
+}
+
+function renderRow(cell1, cell2)
+{
+    var twoCells = renderCell(cell1) + renderCell(cell2);
+    return ("<tr valign=\"TOP\">\n" + twoCells + "</tr>\n");
+}
+
+function renderRowWithCheckbox(serialNumber, cell1, cell2)
+{
+    var allCells = "<td rowspan=4><input TYPE=\"CHECKBOX\" checked NAME=" +
+                   serialNumber + "></td>\n" +
+                   renderCell(cell1) + renderCell(cell2);
+    return ("<tr valign=\"TOP\">\n" + allCells + "</tr>\n");
+}
+
+function renderRowWithoutCheckbox(cell1, cell2)
+{
+    var allCells = "<td rowspan=4>&nbsp;</td>\n" +
+                   renderCell(cell1) + renderCell(cell2);
+    return ("<tr valign=\"TOP\">\n" + allCells + "</tr>\n");
+}
+
+function addSpaces(str)
+{
+    var outStr = "";
+    var i0 = 0;
+    var i1 = 0;
+
+    while (i1 < str.length) {
+        i1 = str.indexOf(',', i0);
+        if (i1 > -1) {
+            i1++;
+            outStr += str.substring(i0, i1);
+            outStr += " ";
+            i0 = i1;
+        } else {
+            outStr += str.substring(i0, str.length);
+            i1 = str.length;
+        }
+    }
+
+    return outStr;
+}
+
+function displayCertInfo()
+{
+    document.write("<table border=\"0\" cellspacing=\"2\">");
+    for (var i = 0; i < result.recordSet.length; ++i ) {
+        if (result.recordSet[i].serialNumber != null) {
+            if (result.header.caSerialNumber != null &&
+                result.recordSet[i].serialNumber ==
+                result.header.caSerialNumber) {
+                document.write(renderRowWithoutCheckbox("Serial Number: ",
+                               toHex(result.recordSet[i].serialNumber)));
+            } else {
+                document.write(renderRowWithCheckbox(
+                               result.recordSet[i].serialNumber,
+                               "Serial Number: ",
+                               toHex(result.recordSet[i].serialNumber)));
+            }
+        }
+        if (result.recordSet[i].subject != null) {
+            document.write(renderRow("Subject Name:",
+                                     addSpaces(result.recordSet[i].subject)));
+        }
+        if ((result.recordSet[i].validNotBefore != null) &&
+            (result.recordSet[i].validNotAfter != null)) {
+            validity = 'not before: '+
+                       renderDateFromSecs(result.recordSet[i].validNotBefore) +
+                       '&nbsp;&nbsp;and not after: ' +
+                       renderDateFromSecs(result.recordSet[i].validNotAfter);
+            document.write(renderRow("Valid:", validity));
+        }
+        document.write(renderRow(" ", " "));
+    }
+    document.write("</table>");
+}
+
+function renderReason()
+{
+    var reason = new Array("Unspecified",
+                           "Key compromised",
+                           "CA key compromised",
+                           "Affiliation changed",
+                           "Certificate superseded",
+                           "Cessation of operation",
+                           "Certificate is on hold");
+    var activeChoice = new Array(1, 1, 0, 1, 1, 1, 0);
+    document.write("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">\n");
+    for (var i = 0; i < reason.length; i++) {
+        if (activeChoice[i] > 0) {
+            document.write("<tr><td width=\"1%\">\n");
+            document.write("<input type=\"RADIO\"");
+            if ((result.header.reason != null && result.header.reason == i) ||
+                (i == 0 && result.header.reason == null)) {
+                document.write(" checked");
+            }
+            document.write(" name=\"revocationReason\" value=\""+i+"\">\n");
+            document.write("</td><td width=\"99%\">\n");
+            document.write("<font size=\"-1\" face=\"PrimaSans BT, Verdana, sans-serif\">\n");
+            document.write(reason[i]+"</font></td></tr>\n");
+        }
+    }
+    document.write("</table>\n");
+}
+//-->
+</SCRIPT>
+</head>
+<body bgcolor="#FFFFFF">
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Certificate Revocation Confirmation</font><br>
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Use this form to confirm certificate revocation by selecting appropriate
+revocation reason and submitting the form.</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/ee/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr valign="TOP">
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><b>Important:</b></font></td>
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">When making this
+      request you must use the browser environment in which you have access to your authentication certificate and key. </font></td>
+  </tr>
+</table>
+<br><br>
+
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<b>Certificate Details</b><br>
+The details of the certificate being revoked are below:
+</font>
+
+<form method="post" action="/ca/ee/ca/doRevoke" onSubmit="return validate()">
+
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+if (result.recordSet.length == 0) {
+    document.write("<font size=\"-1\" face=\"PrimaSans BT, Verdana, Arial, Helvetica, sans-serif\">"+
+                   "No Matching Certificates Found</font><br><br>\n");
+} else {
+    displayCertInfo();
+}
+//-->
+</SCRIPT>
+<br>
+
+  <table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr>
+      <td valign="TOP" colspan="2">
+        <b><font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1">
+        Select Invalidity Date</font></b><br>
+        <font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1">
+        Please select the date on which it is known or suspected that the private key
+        was compromised or that the certificate otherwise became invalid.</font>
+      </td>
+    </tr>
+    <tr>
+      <td valign="TOP" colspan="2">
+        <font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1">
+        Invalidity date:&nbsp;
+        <SELECT NAME="day">
+          <OPTION VALUE=0>
+          <OPTION VALUE=1>1
+          <OPTION VALUE=2>2
+          <OPTION VALUE=3>3
+          <OPTION VALUE=4>4
+          <OPTION VALUE=5>5
+          <OPTION VALUE=6>6
+          <OPTION VALUE=7>7
+          <OPTION VALUE=8>8
+          <OPTION VALUE=9>9
+          <OPTION VALUE=10>10
+          <OPTION VALUE=11>11
+          <OPTION VALUE=12>12
+          <OPTION VALUE=13>13
+          <OPTION VALUE=14>14
+          <OPTION VALUE=15>15
+          <OPTION VALUE=16>16
+          <OPTION VALUE=17>17
+          <OPTION VALUE=18>18
+          <OPTION VALUE=19>19
+          <OPTION VALUE=20>20
+          <OPTION VALUE=21>21
+          <OPTION VALUE=22>22
+          <OPTION VALUE=23>23
+          <OPTION VALUE=24>24
+          <OPTION VALUE=25>25
+          <OPTION VALUE=26>26
+          <OPTION VALUE=27>27
+          <OPTION VALUE=28>28
+          <OPTION VALUE=29>29
+          <OPTION VALUE=30>30
+          <OPTION VALUE=31>31
+        </SELECT>
+        <SELECT NAME="month">
+          <OPTION VALUE=13>
+          <OPTION VALUE=0>January
+          <OPTION VALUE=1>February
+          <OPTION VALUE=2>March
+          <OPTION VALUE=3>April
+          <OPTION VALUE=4>May
+          <OPTION VALUE=5>June
+          <OPTION VALUE=6>July
+          <OPTION VALUE=7>August
+          <OPTION VALUE=8>September
+          <OPTION VALUE=9>October
+          <OPTION VALUE=10>November
+          <OPTION VALUE=11>December
+        </SELECT>
+        <SELECT NAME="year">
+          <OPTION VALUE=0>
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+    var today = new Date();
+    var year = today.getYear();
+    if (year < 100) {
+        year += 1900;
+    } else {
+        year %= 100;
+        year += 2000;
+    }
+    for (var i = year-7; i < year+5; i++) {
+        document.writeln("<OPTION VALUE="+i+">"+i);
+    }
+//-->
+</SCRIPT>
+        </SELECT>
+        <br>&nbsp;
+        </font>
+      </td>
+    </tr>
+    <tr>
+      <td valign="TOP" colspan="2">
+        <b><font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1">
+        Select Revocation Reason</font></b><br>
+        <font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1">
+        Please select reason for revocation.</font>
+      </td>
+    </tr>
+    <tr>
+      <td>
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+    renderReason();
+//-->
+</SCRIPT>
+<br>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        <b>Additional Comments</b><br>
+        If you want to include any additional comments in your revocation request, write them here.
+        </font>
+      </td>
+    </tr>
+    <tr>
+      <td> 
+        <textarea name="csrRequestorComments" rows="6" cols="39" wrap="virtual"></textarea>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+//var caCert = isOnTheListToBeRevoked(result.header.caSerialNumber);
+var caCert = -1;
+if (caCert > -1) {
+    document.write("<font size=\"-1\" color=\"red\" "+
+                   "face=\"PrimaSans BT, Verdana, Arial, Helvetica, sans-serif\">"+
+                   "<b>WARNING!!!</b><br>"+
+                   "You are about to do an irreversible operation.<br>"+
+                   "Certificate #"+toHex(caCert)+
+                   " belongs to your Certificate Authority.<br>"+
+                   "Do you really want to revoke this certificate?"+
+                   "</font><br>&nbsp;<br>&nbsp;\n");
+}
+
+function isOnTheListToBeRevoked(serialNumber)
+{
+    if (result.recordSet.length > 0 && serialNumber != null) {
+        for (var i = 0; i < result.recordSet.length; i++) {
+            if (result.recordSet[i].serialNumber != null) {
+                if (result.recordSet[i].serialNumber == serialNumber) {
+                   return serialNumber;
+                }
+            }
+        }
+    }
+    return (-1);
+}
+
+function revokeCert(serialNumber)
+{
+    return confirm("WARNING!!! You are about to do an irreversible operation.\n"+
+                   "Certificate # "+toHex(serialNumber)+
+                   " belongs to your Certificate Authority."+
+                   "Do you really want to revoke this certificate ?");
+}
+//-->
+</SCRIPT>
+
+  <table BORDER=0 CELLSPACING=0 CELLPADDING=6 WIDTH="100%">
+    <tr>
+      <td ALIGN=RIGHT BGCOLOR="#E5E5E5">
+        <input type="submit" value="Submit" name="submit" width="72">&nbsp;&nbsp;
+        <input type="hidden" name="op" value="doRevoke">
+        <input type="hidden" name="templateType" value="RevocationSuccess">
+        <input type="reset" value="Reset" name="reset" width="72">&nbsp;&nbsp;
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+        document.writeln("<INPUT TYPE=hidden name=serialNumber value=\"" +
+                         result.header.serialNumber +"\">");
+        document.writeln("<INPUT TYPE=hidden name=revokeAll value=\"" +
+                         result.header.revokeAll +"\">");
+        document.writeln("<INPUT TYPE=hidden name=totalRecordCount value=\"" +
+                         result.header.totalRecordCount +"\">");
+        document.writeln("<INPUT TYPE=hidden name=verifiedRecordCount value=\"" +
+                         result.header.verifiedRecordCount +"\">");
+        document.writeln("<INPUT TYPE=hidden name=invalidityDate value=\"0\">");
+        if (result.header.request != null) {
+            document.writeln("<INPUT TYPE=hidden name=requestId value=\"" +
+                             result.header.request +"\">");
+        }
+        if (result.header.b64eCertificate != null) {
+            document.writeln("<INPUT TYPE=hidden name=b64eCertificate value=\"" +
+                             result.header.b64eCertificate +"\">");
+        }
+//-->
+</SCRIPT>
+      </td>
+    </tr>
+  </table>
+  </form>
+</body>
+</html>
+

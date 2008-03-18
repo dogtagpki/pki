@@ -1,0 +1,247 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<CMS_TEMPLATE>
+
+<TITLE>
+CS Enroll Request Success
+</TITLE>
+
+<BODY bgcolor="white">
+
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Enrollment Success
+</font>
+
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<p>
+
+<SCRIPT LANGUAGE="JavaScript">
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+
+    return sign + '0x' + '0' + absValue;
+}
+
+document.writeln('Congratulations a certificate has been issued and ' +
+'the administrator now has Certificate Manager Agent privileges.' +
+'You can now go to '+
+'<a href="' + result.fixed.scheme + '://' + result.fixed.host +
+':' + result.fixed.port+ '/ca/agent/ca">' + 'the agent page</a>' +
+' to process any pending requests.');
+
+document.writeln('<P>');
+document.writeln('Issued Certificates: </font>');
+document.writeln('<P>');
+document.writeln('<table border="0" cellspacing="0" cellpadding="0" background="/ca/agent/graphics/hr.gif" width="100%">');
+document.writeln('  <tr> ');
+document.writeln('    <td>&nbsp;</td>');
+document.writeln('  </tr>');
+document.writeln('</table>');
+
+if (result.recordSet == null) {
+	document.writeln('<BLOCKQUOTE><B><PRE>');
+	document.writeln('No further details provided.');
+	document.writeln('Please consult your local administrator for assistance.');
+	document.writeln('</BLOCKQUOTE></B></PRE>');
+}
+else if (result.recordSet.length == 0) {
+	document.writeln('<BLOCKQUOTE><B><PRE>');
+	document.writeln('0');
+	document.writeln('No further details provided.');
+	document.writeln('Please consult your local administrator for assistance.');
+	document.writeln('</BLOCKQUOTE></B></PRE>');
+} else {
+	// document.writeln('<UL>');
+	for (var i = 0; i < result.recordSet.length; i++) {
+		if (result.recordSet[i].serialNo != null) {
+/*			document.write('Serial number ');
+			document.write('<B><PRE>');
+			document.writeln(toHex(result.recordSet[i].serialNo));
+			document.write('</B></PRE>');
+			document.writeln('<P>');
+			document.write('Base 64 encoded Cert<BR>');
+			document.write('<PRE>');
+			document.writeln(result.recordSet[i].base64Cert);
+			document.write('</PRE>');
+			document.writeln('<P>');
+			document.write('Cert Pretty Print<BR>');
+			document.write('<PRE>');
+			document.writeln(result.recordSet[i].certPrettyPrint);
+			document.write('</PRE>');
+*/
+
+			document.write('<font face="PrimaSans BT, Verdana, sans-serif" size="+1">Serial number ');
+			document.writeln('&nbsp; 0x' + result.recordSet[i].serialNo);
+			document.writeln('</font><br>');
+
+			document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+			document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+			document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+			document.writeln('Certificate contents</font></td></tr></table>');
+
+			document.writeln('<pre>');
+//			document.write('<font face="PrimaSans BT, Verdana, sans-serif">');
+			document.write(result.recordSet[i].certPrettyPrint);
+//			document.writeln('</font>');
+			document.writeln('</pre>');
+/*
+			document.writeln('<p>');
+			document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+			document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+			document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+			document.writeln('Certificate fingerprints</font></td></tr></table>');
+
+			document.writeln('<pre>');
+			document.write(result.recordSet[i].certFingerprint);
+			document.writeln('</pre>');
+*/
+			document.writeln('<p>');
+			document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+			document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+			document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+			document.writeln('Base 64 encoded certificate</font></td></tr></table>');
+			document.writeln('<p><pre>');
+//			document.write('<font face="PrimaSans BT, Verdana, sans-serif" >');
+			document.writeln(result.recordSet[i].base64Cert);
+//			document.writeln('</font>');
+			document.writeln('</pre>');
+		}
+	}
+	// document.writeln('</UL>');
+
+}
+document.writeln('</PRE></B></BLOCKQUOTE>');
+document.writeln('<P>');
+
+// import certs if cartman.
+if (navigator.appName == 'Netscape' && 
+	typeof(crypto.version) != "undefined" &&
+	typeof(result.fixed.crmfReqId) != "undefined") {
+	
+//		window.location = result.fixed.scheme + "://" +
+//		result.fixed.host + ":" + result.fixed.port +
+//		"/ca/getAdminCertBySerial?serialNumber=" +
+//		record.serialNo +
+//		"&importCert=true";
+
+	var errors = crypto.importUserCertificates(null, 
+			result.fixed.cmmfResponse, false);
+
+	if (errors != '') {
+		document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+		document.writeln(
+			'<b>ERROR</b>Could not import the certificate into your browser '+
+			'using nickname '+result.fixed.certNickname+'.<p>');
+		document.writeln(
+			'The following error message was returned by the browser '+
+			'when importing the certificate:');
+		document.writeln('</font>');
+		document.writeln('<BLOCKQUOTE><PRE>');
+		document.writeln(errors);
+		document.writeln('</PRE></BLOCKQUOTE>');
+	}
+	else {
+		document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+		document.writeln(
+			'Your certificate was successfully imported to the browser '+
+			'with nickname '+result.fixed.certNickname);
+		document.writeln('</font>');
+	}
+
+	// crypto.importUserCertificates(result.fixed.certNickname,
+	//	result.fixed.cmmfResponse, false);
+} else if (navigator.appName == 'Netscape' && 
+                typeof(crypto.version) == "undefined") {
+        // non Cartman
+        window.location = result.fixed.scheme + "://" + result.fixed.host + ":"
++ result.fixed.port + "/ca/getAdminCertBySerial?serialNumber=" + record.serialNo + "&importCert=true";
+}
+
+</SCRIPT>
+
+<OBJECT
+	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
+	CODEBASE="/xenroll.dll"
+	id=Enroll    >
+</OBJECT>
+
+<SCRIPT LANGUAGE=VBS>
+<!--
+'========================================================
+'
+' In VBS, there are several ways in which the event handler for the
+' click event can be bound to the right control. We use one of the
+' methods here, which indicates the binding by appending the
+' event name to the control name with an intervening '_'.
+'
+'========================================================
+	Sub ImportCertificate
+
+		Dim pkcs7
+
+		On Error Resume Next
+
+		'Convert the cert to PKCS7 format
+		pkcs7 = result.header.pkcs7ChainBase64
+		If (IsEmpty(pkcs7) OR theError <> 0) Then
+			ret = MsgBox("Could not convert certificate to PKCS7 format", 0, "Import Cert")
+			Exit Sub
+		End If
+
+		'Import the PKCS7 object
+		Enroll.DeleteRequestCert = FALSE
+		Enroll.WriteCertToCSP = true
+		Enroll.acceptPKCS7(pkcs7)
+		if err.number <> 0 then
+			Enroll.WriteCertToCSP = false
+		end if
+		err.clear
+		Enroll.acceptPKCS7(pkcs7)
+		if err.number = 0 then
+			MsgBox "Certificate has been successfully imported."
+		else 
+			sz = "Error in acceptPKCS7. Error Number " & Hex(err.number) & "occurred."
+			MsgBox sz
+		end if
+
+		Exit Sub
+
+	End Sub
+
+	ImportCertificate()
+
+</SCRIPT>
+
+</font>
+</BODY>
+</HTML>
+

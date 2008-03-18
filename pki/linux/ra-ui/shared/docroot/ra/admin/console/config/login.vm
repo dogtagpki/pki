@@ -1,0 +1,110 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    
+    <title>Certificate System</title>
+
+    <link rel="shortcut icon" href="img/favicon.ico" />
+    <link rel="stylesheet" href="/css/pki-base.css" type="text/css" />
+  </head>
+
+
+  <body><div id="wrap">
+  
+#include ( "ra/admin/console/config/header.vm" )
+
+<div id="mainNavOuter">
+<div id="mainNav">
+
+<div id="mainNavInner">
+
+</div><!-- end mainNavInner -->
+</div><!-- end mainNav -->
+</div><!-- end mainNavOuter -->
+
+
+<div id="bar">
+
+<div id="systembar">
+<div id="systembarinner">
+
+<div>
+  -
+</div>
+
+
+</div>
+</div>
+
+</div>
+<!-- close bar -->
+
+  <div id="content">
+    <table width="100%" cellspacing="0">
+      <tr>
+        <td class="sidebar">
+         
+	</td>
+        <td class="page-content" width="100%">
+  <h1><img src="../img/pki-icon-software.gif" />
+  Login</h1>
+
+A one time random pin has been generated during setup to protect unauthorized access to this configuration wizard. This pin has been stored in the "CS.cfg" configuration file as the value of the 'preop.pin' parameter. Please enter this pin to continue.
+
+    <p>
+#if ($errorString != "")
+<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+    <p>
+    <form name="f" action="login" method="post">
+                                                                                
+    <table class="details">
+      <tr>
+        <th>PIN:</th>
+        <td><input type=password name=pin></td>
+      </tr>
+    </table>
+                                                                                     <div align="right">
+      <hr />
+    </div>
+    </form>
+
+<p>
+<table width=100%>
+<tr bgcolor="#eeeeee">
+<td align=right>
+<input type=button onclick="javascript: document.f.submit();" name=login value="Login">
+</td>
+</tr>
+</table>
+
+
+	</td>
+      </tr>
+    </table>
+
+  </div> <!-- close content -->
+  </div> <!-- close wrap -->
+
+#include ( "ra/admin/console/config/footer.vm" )
+  </body>
+</html>

@@ -1,0 +1,183 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+<HEAD>
+<TITLE>TPS</Title>
+</HEAD>
+
+<table border="0" width="100%" cellspacing="0" cellpadding="6">
+  <tr bgcolor="#666699">
+    <td width=25%>
+      <table border="0" cellspacing="0" cellpadding="6">
+        <tr>
+          <td nowrap><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<b>&reg;<br>
+            Certificate<br>System</b></font> </td>
+        </tr>
+      </table>
+    </td>
+    <td align=right width=65% nowrap><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">TPS Services</font></td>
+    <td width="10%">&nbsp;</td>
+  </tr>
+</table>
+<p>
+
+<BODY>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/JavaScript">
+<!--
+function checkDate(str) {
+    var newString;
+
+    if (str.length == 15 && str.charAt(14) == 'Z') {
+        newString = str.substring(0, 4);
+        newString += '/';
+        newString += str.substring(4, 6);
+        newString += '/';
+        newString += str.substring(6, 8);
+        newString += ' ';
+        newString += str.substring(8, 10);
+        newString += ':';
+        newString += str.substring(10, 12);
+        newString += ':';
+        newString += str.substring(12, 14);
+    } else {
+        newString = str;
+    }
+
+    return newString;
+}
+
+var uri = "";
+if (typeof(uriBase) == "undefined") {
+    uri += "/tus";
+} else {
+    uri += uriBase;
+}
+
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri+"\">Main Menu</a> : Administrator Operations : Search Results</font>\n");
+document.write("<table width=\"100%\"><tr><td align=\"right\">" +
+		"<b>UID:</b>" +
+                userid + "</td></tr></table>\n");
+document.write("<HR NOSHADE SIZE=1>\n");
+
+uri += "?op=show_admin&tid=";
+
+if (typeof(results) == "undefined" || results.length == 0) {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Token Not Found</font>\n");
+} else {
+    document.write("<BR>");
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
+    document.write("<tr bgcolor=#e5e5e5>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Token</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "User ID</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Status</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Applet</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Key Info</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Policy</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Created</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Modified</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+	for (var i = 0; i < results.length; i++) {
+        document.write("<tr>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                       "<a href=\""+uri+results[i].cn+"\">"+
+                        results[i].cn+"</a></font>\n");
+        document.write("</td>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                        results[i].tokenUserID+"</font>\n");
+        document.write("</td>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                        results[i].tokenStatus+"</font>\n");
+        document.write("</td>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                        results[i].tokenAppletID+"</font>\n");
+        document.write("</td>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                        results[i].keyInfo+"</font>\n");
+        document.write("</td>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                        results[i].tokenPolicy+"</font>\n");
+        document.write("</td>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                        checkDate(results[i].dateOfCreate)+"</font>\n");
+        document.write("</td>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                        checkDate(results[i].dateOfModify)+"</font>\n");
+        document.write("</td>\n");
+        document.write("</tr>\n");
+    }
+    document.write("</table>\n");
+    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
+    if (typeof(results) != "undefined" && results.length > 0) {
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-2\">");
+        if (typeof(results) != "undefined" || results.length == 0) {
+            if (typeof(limited) != "undefined" && typeof(total) != "undefined") {
+                document.write("<br>" + limited + " of " + total + "\n");
+            } else if (typeof(total) != "undefined") {
+                document.write("<br>Total: " + total + "\n");
+            }
+        }
+        document.write("</font>");
+    }
+}
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>

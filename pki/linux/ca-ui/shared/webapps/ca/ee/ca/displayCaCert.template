@@ -1,0 +1,111 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>CA Certificate Chain</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<CMS_TEMPLATE>
+
+<body bgcolor="#FFFFFF" link="#6666CC" vlink="#6666CC" alink="#333399">
+<font face="PrimaSans BT, Verdana, sans-serif" size="+1">
+CA Certificate Chain
+</font><br>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width=
+"100%">
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<br>
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+if (result.header.displayFormat == "chain") {
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="+1">');
+    document.writeln('<center><b>' + result.header.subjectdn);
+    document.writeln('</b></center><p></font><br>');
+    document.writeln('<pre>');
+    document.writeln('-----BEGIN CERTIFICATE-----');
+    document.writeln(result.header.chainBase64);
+    document.writeln('-----END CERTIFICATE-----');
+    document.writeln('</pre>');
+} else if (result.header.displayFormat == "individual") {
+    if (result.recordSet.length == 0) {
+    	document.write(
+            "<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">No Certificates Found in CA chain</font>\n");
+    } else {
+        document.write("\n"+
+            "<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
+            "Total number of certificates: "+ result.header.length +
+            "</font><p>\n");
+        for(var i = 0; i < result.recordSet.length; ++i ) {
+            displayCertificate(result.recordSet[i],i+1);
+        }
+    }
+} else {
+    document.writeln('Unknown operation.');
+}
+
+function displayCertificate(cert,i)
+{
+    document.writeln('<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">' + '\n' +
+    '  <tr>' + '\n' +
+    '    <td>&nbsp;</td>' + '\n' +
+    '  </tr>' + '\n' +
+    '</table>' + '\n' +
+    '<br>');
+    document.writeln("Certificate " + i + ": <p>");
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+    document.writeln('Certificate Subject DN </font></td></tr></table>');
+    document.writeln('');
+    document.writeln("<b>"+cert.subjectdn+"</b><p>");
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+    document.writeln('Certificate in base64 encoded format </font></td></tr></table>');
+    document.writeln('');
+    document.writeln('<pre>');
+    document.writeln('-----BEGIN CERTIFICATE-----');
+    document.writeln(cert.base64);
+    document.writeln('-----END CERTIFICATE-----');
+    document.writeln('</pre>');
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+    document.writeln('Certificate Contents </font></td></tr></table>');
+    document.writeln("<pre>");
+    document.writeln(cert.certDetails);
+    document.writeln("</pre>");
+    document.writeln("<p>");
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+    document.writeln('Certificate Fingerprint </font></td></tr></table>');
+    document.writeln('');
+    document.writeln("<p><pre>"+cert.fingerprints+"</pre></font><p>");
+}
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>

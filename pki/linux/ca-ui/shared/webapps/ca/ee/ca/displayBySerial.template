@@ -1,0 +1,217 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Display Certificate</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<CMS_TEMPLATE>
+
+
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+
+function navMajorVersion()
+{
+    return parseInt(navigator.appVersion.substring(0, navigator.appVersion.indexOf(".")));
+}
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+
+    return sign + '0x' + '0' + absValue;
+}
+//-->
+</SCRIPT>
+
+<body bgcolor="#FFFFFF" link="#6666CC" vlink="#6666CC" alink="#333399">
+<font face="PrimaSans BT, Verdana, sans-serif" size="+1">Certificate
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+document.write('&nbsp;' + '0x0'+result.header.serialNumber);
+if (navigator.appName == 'Netscape' &&
+    navMajorVersion() > 3 &&
+	typeof(crypto.version) != "undefined") {
+	document.write(
+		'<input type=hidden name=cmmfResponse value=true>');
+}
+
+//-->
+</SCRIPT>
+</font><br>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<table border="0" cellspacing="2" cellpadding="2" width="100%">
+<tr align="left" bgcolor="#e5e5e5"><td align="left">
+<font face="PrimaSans BT, Verdana, sans-serif" size="-1">
+Certificate contents</font></td></tr></table>
+
+<pre>
+<SCRIPT LANGUAGE="JavaScript">
+document.write(result.header.certPrettyPrint);
+</SCRIPT>
+</pre>
+
+<p>
+<table border="0" cellspacing="2" cellpadding="2" width="100%">
+<tr align="left" bgcolor="#e5e5e5"><td align="left">
+<font face="PrimaSans BT, Verdana, sans-serif" size="-1">
+Installing this certificate in a server</font></td></tr></table>
+
+<p>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+The following format can be used to install this certificate into a server.
+<p>
+Base 64 encoded certificate
+</font>
+<p><pre>
+-----BEGIN CERTIFICATE-----
+<SCRIPT LANGUAUGE="JavaScript">
+document.write(result.header.certChainBase64);
+</SCRIPT>
+-----END CERTIFICATE-----
+</pre>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+<p>
+Base 64 encoded certificate with CA certificate chain in pkcs7 format
+</font>
+<p><pre>
+-----BEGIN CERTIFICATE-----
+<SCRIPT LANGUAUGE="JavaScript">
+document.write(result.header.pkcs7ChainBase64);
+</SCRIPT>
+-----END CERTIFICATE-----
+</pre>
+
+<br><p>
+<table border="0" cellspacing="2" cellpadding="2" width="100%">
+<tr align="left" bgcolor="#e5e5e5"><td align="left">
+<font face="PrimaSans BT, Verdana, sans-serif" size="-1">
+Importing this certificate</font></td></tr></table>
+<p>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+To import the certificate into your client, click the following button.
+</font>
+<p>
+
+<OBJECT
+	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
+	CODEBASE="/xenroll.dll"
+	id=Enroll    >
+</OBJECT>
+
+<SCRIPT LANGUAGE=VBS>
+<!--
+'========================================================
+'
+' In VBS, there are several ways in which the event handler for the
+' click event can be bound to the right control. We use one of the
+' methods here, which indicates the binding by appending the
+' event name to the control name with an intervening '_'.
+'
+'========================================================
+    Sub ImportCertificate_OnClick
+
+		Dim pkcs7
+
+		On Error Resume Next
+
+		'Convert the cert to PKCS7 format
+		pkcs7 = result.header.pkcs7ChainBase64
+		If (IsEmpty(pkcs7) OR theError <> 0) Then
+			ret = MsgBox("Could not convert certificate to PKCS7 format", 0, "Import Cert")
+			Exit Sub
+		End If
+
+		'Import the PKCS7 object
+		Enroll.DeleteRequestCert = FALSE
+		Enroll.WriteCertToCSP = true
+		Enroll.acceptPKCS7(pkcs7)
+		if err.number <> 0 then
+			Enroll.WriteCertToCSP = false
+		end if
+		err.clear
+		Enroll.acceptPKCS7(pkcs7)
+		if err.number = 0 then
+			MsgBox "Certificate has been successfully imported."
+		else 
+			sz = "Error in acceptPKCS7. Error Number " & Hex(err.number) & "occurred."
+			MsgBox sz
+		end if
+
+		Exit Sub
+
+	End Sub
+-->
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript">
+document.write("<center>");
+var loc = 'getBySerial?serialNumber='+ result.header.serialNumber;
+if (navigator.appName == "Netscape") {
+	loc = loc + '&importCert=true';
+	if (navMajorVersion() > 3 && typeof(crypto.version) != "undefined") {
+		loc = loc + '&cmmfResponse=true';
+	}
+}
+document.write('<form>\n'+
+			   '<INPUT TYPE=\"button\" VALUE=\"Import Your Certificate\"'+
+			   ' onClick=\"location.href=\''+ loc + '\'\">\n'+
+			   '</form>\n');
+//document.write('<INPUT TYPE=BUTTON VALUE=\"Import Certificate\" NAME=\"ImportCertificate\">');
+
+if (navigator.appName == "Netscape" &&
+    result.header.emailCert != null &&
+    result.header.emailCert == true) {
+    var loc1 = 'getBySerial?serialNumber='+ result.header.serialNumber;
+	if (navMajorVersion() > 3 && typeof(crypto.version) != "undefined") {
+		loc1 = loc1 + '&cmmfResponse=true';
+	}
+	else {
+		loc1 = loc1 + '&importCert=true&emailCert=true';
+	}
+	document.write('<form>\n'+
+					'<INPUT TYPE=\"button\" VALUE=\"Import S/MIME Certificate\"'+
+					' onClick=\"location.href=\''+ loc1 + '\'\">\n'+
+					'</form>\n');
+}
+
+document.write("</center>");
+</SCRIPT>
+
+</font>
+</BODY>
+</HTML>

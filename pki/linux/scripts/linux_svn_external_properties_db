@@ -1,0 +1,2 @@
+config https://pki-svn.fedora.redhat.com/svn/pki/trunk/pki/base/config
+config-ext https://pki-svn.fedora.redhat.com/svn/pki/trunk/pki/linux/config-ext

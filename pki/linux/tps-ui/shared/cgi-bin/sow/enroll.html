@@ -1,0 +1,193 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel=stylesheet href="/sow/style.css" type="text/css">
+
+<title>Enrollment</title>
+<script type="text/javascript" src="/sow/js/prototype.js"></script>
+<script type="text/javascript" src="/sow/js/scriptaculous.js?load=effects"></script>
+<script type="text/JavaScript" src="/sow/util.js"></script>
+<link rel="stylesheet" href="/sow/css/style.css" media="screen" type="text/css">
+<script type="text/javascript">
+<!--
+function UserOnCOOLKeyStateError()
+{
+  toggleAjaxProgress('ajax-pb', 'off');
+  toggleButton('enrollbtn', 'on');
+  toggleButton('cancel', 'on');
+}
+
+function UserSelectRowByKeyID(keyType, keyID)
+{
+  DoCoolKeySetConfigValue("Operation-" + keyID,
+           "https://$host:$secure_port/nk_service");
+  DoCoolKeySetConfigValue("TokenType-" + keyID, "userKey");
+  SelectRowByKeyID(keyType, keyID);
+}
+
+function updateKeyText(text)
+{
+  var f = document.getElementById('keytext');
+  new Effect.Shake(f);
+  var text = document.createTextNode(text);
+  var len= f.childNodes.length;  
+  for (i=0;i<len;i++){
+       f.removeChild(f.childNodes[0]);
+  }
+  f.appendChild(text);
+}
+
+function UserOnDoneInitializeBindingTable()
+{
+  document.body.onkeyup = onUserKeyUp;
+  var enrollbtn = document.getElementById('enrollbtn');
+  enrollbtn.disabled = true;
+  var pintf = document.getElementById('pintf');
+  pintf.focus();
+
+  // display existing blank smart
+  var arr = GetAvailableCOOLKeys();
+  if (!arr || arr.length < 1)
+    return;
+  var i;
+  for (i=0; i < arr.length; i++)
+  {
+    var keyType = arr[i][0];
+    var keyID = arr[i][1];
+    var keyStatus = GetStatusForKeyID(keyType, keyID);
+    if (keyStatus == "BLANK") {
+      updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
+      UserSelectRowByKeyID(keyType, keyID);
+    } else if (keyStatus == "UNINITIALIZED") {
+      updateKeyText('An ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
+      UserSelectRowByKeyID(keyType, keyID);
+    }
+  }
+}
+
+function UserOnCOOLKeyInserted(keyType, keyID)
+{
+  var keyStatus = GetStatusForKeyID(keyType, keyID);
+  if (keyStatus == "ENROLLED" || keyStatus == "UNINITIALIZED") {
+    updateKeyText('An ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
+  } else {
+    updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
+  }
+  UserSelectRowByKeyID(keyType, keyID);
+}
+
+function UserOnCOOLKeyRemoved(keyType, keyID)
+{
+  updateKeyText('Please insert a blank smartcard now!');
+}
+
+function toggleAjaxProgress(id, i)
+{
+  var e = document.getElementById(id);
+  if (i == 'off') {
+    e.style.display = 'none';
+  } else {
+    e.style.display = 'block';
+  }
+}
+
+function toggleButton(id, i)
+{
+  var e = document.getElementById(id);
+  if (i == 'off') {
+    e.disabled = true;
+  } else {
+    e.disabled = false;
+  }
+}
+
+function onUserKeyUp(e)
+{
+  var pintf = document.getElementById('pintf');
+  var reenterpintf = document.getElementById('reenterpintf');
+  var enrollbtn = document.getElementById('enrollbtn');
+  if (e.keyCode == 13) {
+    if (e.target == pintf) {
+      reenterpintf.focus();
+    } else {
+      pintf.focus();
+    }
+  }
+  if (pintf.value != '' && pintf.value == reenterpintf.value) {
+    enrollbtn.disabled = false;
+  } else {
+    enrollbtn.disabled = true;
+  }
+  return e;
+}
+
+// -->
+</script>
+</head>
+
+<body onload="InitializeBindingTable();" onunload=cleanup()>
+
+<progressmeter id="progress-id" hidden="true" align = "center"/>
+
+<div id="pb" style="display:none;">
+  <table id="BindingTable" width="200px" align="center">
+    <tr id="HeaderRow">
+    </tr>
+  </table>
+</div>
+<div id="header">
+  <div id="logo">
+      <h3><img align=bottom src="/sow/images/badget.png">Security Officer Station</h3>
+  </div>
+</div>
+
+<div id="content">
+  <div id="maintext">
+    <div id="topmenu">
+    | <a href="/cgi-bin/sow/main.cgi">Main</a> |
+    </div>
+  <blockquote><p>The security officer has identified the user as <strong>$cn</strong>. The User ID is <strong>$uid</strong>.</p>
+</blockquote>
+<h3><span id="keytext">Please insert new smartcard now!</span></h3>
+      <blockquote><p>The user must provide a password to protect the smart card.</p> </blockquote>
+        <h3>New Token Password:</h3>
+        <input type="password" id="pintf" name="pintf" value=""><br/>
+        <h3>Re-Enter Token Password:</h3>
+        <input type="password" id="reenterpintf" name="reenterpintf" value=""><br/>
+        <input type="hidden" id="snametf"  value="$uid">
+        <h3>User Password:</h3>
+        <input type="password" id="snamepwd" value=""><br/>
+    <table width="100%">
+      <tr>
+<td>
+<div id="ajax-pb" style="display:none;">
+  <img src="/sow/images/indicator.gif">
+</div>
+</td>
+        <td align="right">
+          <input type="button" id="enrollbtn" name="enrollbtn" value="Start Enrollment" onClick="toggleButton('enrollbtn','off');toggleButton('cancel', 'off');toggleAjaxProgress('ajax-pb','on');DoEnrollCOOLKey();">
+          <input type="submit" id="cancel" name="cancel" value="Cancel" onClick="javascript:location.href='/cgi-bin/sow/search.cgi';">
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+</body></html>

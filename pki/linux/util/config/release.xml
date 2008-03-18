@@ -1,0 +1,86 @@
+<!-- ### BEGIN COPYRIGHT BLOCK ###
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; version 2 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+  Copyright (C) 2007 Red Hat, Inc.
+  All rights reserved.
+     ### END COPYRIGHT BLOCK ### -->
+<project name="release.xml" default="main" basedir="${basedir}">
+
+    <echo message="Importing shared properties ..."/>
+    <import file="product.xml"/>
+    <import file="product-ext.xml" optional="true"/>
+    <import file="release-ext.xml" optional="true"/>
+    <echo message="Completed importing shared properties."/>
+
+
+    <target name="local"
+            depends=""
+            description="--> Generate this target locally">
+        <echo message="Generating the '${product.name}' target locally ..."/>
+        <exec executable="ant" dir="${release.root}">
+            <arg value="-Dspecfile=${product.name}.spec"/>
+            <arg value="-Ddirsec=${dirsec}"/>
+            <arg value="${target}"/>
+        </exec>
+        <echo message="Completed generating the '${product.name}' target locally."/>
+    </target>
+
+
+    <target name="main"
+            depends=""
+            description="--> Generate component RPMS and SRPMS">
+        <echo message="Generating '${product.name}' RPMS and SRPMS ..."/>
+
+        <exec executable="pwd"
+              failonerror="true"
+              outputproperty="top.dir"/>
+        <echo message="Established the '${top.dir}' top-level directory."/>
+
+        <echo message="Creating the '${product.name}' source distribution ..."/>
+        <exec executable="ant"
+              dir="${release.root}">
+            <arg value="-Dspecfile=${product.name}.spec"/>
+            <arg value="-Ddirsec=${dirsec}"/>
+            <arg value="distribute_source"/>
+        </exec>
+        <echo message="Completed creating the '${product.name}' source distribution."/>
+
+        <echo message="Creating '${product.name}' RPM directories ..."/>
+        <mkdir dir="${release.root}/dist/rpmpkg"/>
+        <mkdir dir="${release.root}/dist/rpmpkg/SOURCES"/>
+        <mkdir dir="${release.root}/dist/rpmpkg/RPMS"/>
+        <mkdir dir="${release.root}/dist/rpmpkg/SRPMS"/>
+        <mkdir dir="${release.root}/dist/rpmpkg/SPECS"/>
+        <mkdir dir="${release.root}/dist/rpmpkg/BUILD"/>
+        <echo message="Completed creating '${product.name}' RPM directories."/>
+
+        <echo message="Building '${product.name}' RPMS and SRPMS ..."/>
+        <exec executable="rpmbuild"
+              dir="${release.root}">
+            <arg value="--define"/>
+            <arg value="_topdir ${top.dir}/${release.root}/dist/rpmpkg"/>
+            <arg value="-ta"/>
+            <arg value="${top.dir}/${release.root}/dist/source/${product.name}-${version}.tar.gz"/>
+        </exec>
+        <echo message="Completed building '${product.name}' RPMS and SRPMS."/>
+
+        <echo message="Removing various '${product.name}' RPM directories and files ..."/>
+        <delete dir="${release.root}/dist/rpmpkg/BUILD"/>
+        <echo message="Completed removing various '${product.name}' RPM directories and files."/>
+
+        <echo message="Completed generating '${product.name}' RPMS and SRPMS."/>
+    </target>
+
+</project>
+

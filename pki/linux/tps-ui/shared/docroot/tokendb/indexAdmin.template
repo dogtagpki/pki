@@ -1,0 +1,108 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+<HEAD>
+<TITLE>TPS</Title>
+</HEAD>
+<table border="0" width="100%" cellspacing="0" cellpadding="6">
+  <tr bgcolor="#666699">
+    <td width=25%>
+      <table border="0" cellspacing="0" cellpadding="6">
+        <tr>
+          <td nowrap><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<b>&reg;<br>
+            Certificate<br>System</b></font> </td>
+        </tr>
+      </table>
+    </td>
+    <td align=right width=65% nowrap><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">TPS Services</font></td>
+    <td width="10%">&nbsp;</td>
+  </tr>
+</table>
+<p>
+
+<BODY>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/JavaScript">
+<!--
+var uri0 = "";
+if (typeof(uriBase) == "undefined") {
+    uri0 += "/tus";
+} else {
+    uri0 += uriBase;
+}
+
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri0+"\">Main Menu</a></font>\n");
+document.write("<table width=\"100%\"><tr><td align=\"right\"><b>UID:</b>" + 
+                userid + "</td></tr></table>\n");
+document.write("<HR NOSHADE SIZE=1>\n");
+
+function doFind(form) {
+    if (form.uid.value == "" && form.tid.value == "") {
+        alert("Enter token or user ID");
+    } else {
+        var uri = "";
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus"
+        } else {
+            uri += uriBase;
+        }
+        uri += "?op=view";
+        if (form.tid.value.length > 0) uri += "&tid=" + form.tid.value;
+        if (form.uid.value.length > 0) uri += "&uid=" + form.uid.value;
+        location.href = uri;
+    }
+}
+//-->
+</SCRIPT>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 width=100%>
+<tr>
+  <td width="20%"><a href="/tus">Agent Operations</td>
+  <td bgcolor="#e5e5e5" width="20%"><a href="/tus?op=index_admin">Administrator Operations</td>
+  <td width="60%"></td>
+</tr>
+</table>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 width=100%>
+<tr>
+    <td bgcolor=#e5e5e5>&nbsp;</td>
+</tr>
+</table>
+<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>
+  <tr>
+    <td></td>
+  </tr>
+  <tr>
+    <td><i>Tokens</i></td>
+  </tr>
+  <tr>
+    <td><li><a href="tus?op=view_admin?tid=&uid=">List Tokens</a></td>
+  </tr>
+  <tr>
+    <td><li><a href="tus?op=search_admin">Search Tokens</a></td>
+  </tr>
+</table>
+<HR NOSHADE SIZE=1>
+<DIV ALIGN=RIGHT>
+</BODY>
+</HTML>

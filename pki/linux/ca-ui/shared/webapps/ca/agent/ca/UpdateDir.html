@@ -1,0 +1,367 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+   <TITLE>Update Directory Server</TITLE>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<SCRIPT type="text/javascript" SRC="/ca/agent/funcs.js"></SCRIPT>
+<SCRIPT type="text/javascript" SRC="/ca/agent/helpfun.js"></SCRIPT>
+
+<script type="text/javascript">
+<!--
+function doSubmit(form)
+{
+    if ((!form.updateAll.checked) && (!form.updateCRL.checked) &&
+        (!form.updateCA.checked) && (!form.updateValid.checked) &&
+        (!form.updateExpired.checked) && (!form.updateRevoked.checked)) {
+        alert("You must choose at least one updating selection on this form.");
+        return;
+    }
+
+    if (form.updateAll.checked || form.updateValid.checked) {
+    	var canonicalFrom = "", canonicalTo = "";
+    
+    	if ( form.validFrom.value!= "") {
+    	    canonicalFrom = 
+    		trim(form.validFrom.value);
+    	}
+    
+    	if (canonicalFrom != "") {
+	    if (!isDecimalNumber(canonicalFrom)) {
+		if (isNumber(canonicalFrom, 16)) {
+		    canonicalFrom = "0x" +
+			removeColons(stripPrefix(canonicalFrom));
+		} else {
+		    alert("You must specify a decimal or hexadecimal value" + 
+			"for the low end of the serial number range of valid certificates.");
+		    return;
+		}
+	    }
+	    if (isNegative(canonicalFrom)) {
+		alert("You must specify a positive value for the low " +
+		       "end of the serial number range of valid certificates.");
+		return;
+	    }
+	    form.validFrom.value = canonicalFrom;
+    	}
+    	
+    	if ( form.validTo.value!= "") {
+	    canonicalTo = 
+		trim(form.validTo.value);
+    	}
+    	
+    	if (canonicalTo != "") {
+	    if (!isDecimalNumber(canonicalTo)) {
+		if (isNumber(canonicalTo, 16)) {
+		    canonicalTo = "0x" +
+			removeColons(stripPrefix(canonicalTo));
+		} else {
+		    alert("You must specify a decimal or hexadecimal value" + 
+			"for the high end of the serial number range of valid certificates.");
+		    return;
+		}
+	    }
+	    if (isNegative(canonicalTo)) {
+		alert("You must specify a positive value for the high " +
+		       "end of the serial number range of valid certificates.");
+		return;
+	    }
+	    form.validTo.value = canonicalTo;
+    	}
+    	
+    	/* Can't do this using parseInt*/
+    	/*
+    	if (form.validFrom.value != "" && form.validTo.value != "" ) {
+	    if (parseInt(form.validFrom.value) > parseInt(form.validTo.value)) {
+		alert("The low end of the range is larger than the high end.");
+		return;
+	    }
+        }
+        */
+    }
+
+    if (form.updateAll.checked || form.updateExpired.checked) {
+    	var canonicalFrom = "", canonicalTo = "";
+    
+    	if ( form.expiredFrom.value!= "") {
+    	    canonicalFrom = 
+    		trim(form.expiredFrom.value);
+    	}
+    
+    	if (canonicalFrom != "") {
+	    if (!isDecimalNumber(canonicalFrom)) {
+		if (isNumber(canonicalFrom, 16)) {
+		    canonicalFrom = "0x" +
+			removeColons(stripPrefix(canonicalFrom));
+		} else {
+		    alert("You must specify a decimal or hexadecimal value" + 
+			"for the low end of the serial number range of expired certificates.");
+		    return;
+		}
+	    }
+	    if (isNegative(canonicalFrom)) {
+		alert("You must specify a positive value for the low " +
+		       "end of the serial number range of expired certificates.");
+		return;
+	    }
+	    form.expiredFrom.value = canonicalFrom;
+    	}
+    	
+    	if ( form.expiredTo.value!= "") {
+	    canonicalTo = 
+		trim(form.expiredTo.value);
+    	}
+    	
+    	if (canonicalTo != "") {
+	    if (!isDecimalNumber(canonicalTo)) {
+		if (isNumber(canonicalTo, 16)) {
+		    canonicalTo = "0x" +
+			removeColons(stripPrefix(canonicalTo));
+		} else {
+		    alert("You must specify a decimal or hexadecimal value" + 
+			"for the high end of the serial number range of expired certificates.");
+		    return;
+		}
+	    }
+	    if (isNegative(canonicalTo)) {
+		alert("You must specify a positive value for the high " +
+		       "end of the serial number range of expired certificates.");
+		return;
+	    }
+	    form.expiredTo.value = canonicalTo;
+    	}
+    	
+    	/* Can't do this using parseInt*/
+    	/*
+        if (form.expiredFrom.value != "" && form.expiredTo.value != "") {
+            if (parseInt(form.expiredFrom.value) > parseInt(form.expiredTo.value)) {
+                alert("The low end of the range for expired certificates " +
+                      "is larger than the high end.");
+                return;
+            }
+        }
+        */
+    }
+
+    if (form.updateAll.checked || form.updateRevoked.checked) {
+    	var canonicalFrom = "", canonicalTo = "";
+    
+    	if ( form.revokedFrom.value!= "") {
+    	    canonicalFrom = 
+    		trim(form.revokedFrom.value);
+    	}
+    
+    	if (canonicalFrom != "") {
+	    if (!isDecimalNumber(canonicalFrom)) {
+		if (isNumber(canonicalFrom, 16)) {
+		    canonicalFrom = "0x" +
+			removeColons(stripPrefix(canonicalFrom));
+		} else {
+		    alert("You must specify a decimal or hexadecimal value" + 
+			"for the low end of the serial number range of revoked certificates.");
+		    return;
+		}
+	    }
+	    if (isNegative(canonicalFrom)) {
+		alert("You must specify a positive value for the low " +
+		       "end of the serial number range of revoked certificates.");
+		return;
+	    }
+	    form.revokedFrom.value = canonicalFrom;
+    	}
+    	
+    	if ( form.revokedTo.value!= "") {
+	    canonicalTo = 
+		trim(form.revokedTo.value);
+    	}
+    	
+    	if (canonicalTo != "") {
+	    if (!isDecimalNumber(canonicalTo)) {
+		if (isNumber(canonicalTo, 16)) {
+		    canonicalTo = "0x" +
+			removeColons(stripPrefix(canonicalTo));
+		} else {
+		    alert("You must specify a decimal or hexadecimal value" + 
+			"for the high end of the serial number range of revoked certificates.");
+		    return;
+		}
+	    }
+	    if (isNegative(canonicalTo)) {
+		alert("You must specify a positive value for the high " +
+		       "end of the serial number range of revoked certificates.");
+		return;
+	    }
+	    form.revokedTo.value = canonicalTo;
+    	}
+    	
+    	/* Can't do this using parseInt*/
+    	/*
+        if (form.revokedFrom.value != "" && form.revokedTo.value != "") {
+            if (parseInt(form.revokedFrom.value) > parseInt(form.revokedTo.value)) {
+                alert("The low end of the range for revoked certificates " +
+                      "is larger than the high end.");
+                return;
+            }
+        }
+        */
+    }
+
+    form.submit();
+}
+//-->
+</script>
+</HEAD>
+
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+<font size=+1 face="PrimaSans BT, Verdana, sans-serif">
+Update Directory Server</font><br>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+In most cases, the directory is updated automatically with
+the latest changes to certificates and certificate revocation lists.
+In a few situations, however, you may need to update the directory manually.
+Use this form to make updates manually.
+<p>
+<b>Note:</b>&nbsp; Any certificates issued or revoked during
+the update may not be reflected in the directory.
+You can use this form again to update those certificates.
+</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<FORM ACTION="updateDir" METHOD=POST>
+<table>
+<tr>
+<td valign = topline><INPUT TYPE="CHECKBOX" NAME="checkFlag" VALUE="yes"></td>
+<td colspan=2><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Skip certificates already marked as updated.</font></td>
+</tr>
+</table>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Check one or more of these boxes.</font>
+
+<table>
+<tr>
+<td VALIGN=topline><INPUT TYPE="CHECKBOX" NAME="updateAll" VALUE="yes"></td>
+<td colspan=2><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Update everything in the database to the directory.
+<br>(This will include all selections below.)</font></td>
+</tr>
+
+<tr>
+<td valign = topline><INPUT TYPE="CHECKBOX" NAME="updateCRL" VALUE="yes"></td>
+<td colspan=2><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Update the certificate revocation list to the directory.</font></td>
+</tr>
+
+<tr>
+<td valign = topline><INPUT TYPE="CHECKBOX" NAME="updateCA" VALUE="yes"></td>
+<td colspan=2><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Update Certificate Manager certificate to the directory.</font></td>
+</tr>
+
+<tr>
+<td valign = topline><INPUT TYPE="CHECKBOX" NAME="updateValid" VALUE="yes"></td>
+<td colspan=2><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Update valid certificates to the directory.</font></td>
+</tr>
+
+<tr> <td></td>
+<td align="right"><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+From serial number:</font></td>
+<td><input type=text size=10 name=validFrom>&nbsp;
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no lower limit)</font></td>
+</tr> 
+
+<tr> <td></td>
+<td align="right"><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+To serial number:</font></td>
+<td><input type=text size=10 name=validTo>&nbsp;
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no upper limit)</font></td>
+</tr>
+
+<tr>
+<td valign = topline><INPUT TYPE="CHECKBOX" NAME="updateExpired" VALUE="yes"></td>
+<td colspan=2><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Remove expired certificates from the directory.</font></td>
+</tr>
+
+<tr><td></td>
+<td align="right"><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+From serial number:</font></td>
+<td><input type=text size=10 name=expiredFrom>&nbsp;
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no lower limit)</font></td>
+</tr>
+
+<tr><td></td>
+<td align="right"><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+To serial number:</font></td>
+<td><input type=text size=10 name=expiredTo>&nbsp;
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no upper limit)</font></td>
+</tr>
+
+<tr>
+<td valign = topline><INPUT TYPE="CHECKBOX" NAME="updateRevoked" VALUE="yes"></td>
+<td colspan=2><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Remove revoked certificates from the directory.</font></td>
+</tr>
+
+<tr><td></td>
+<td align="right"><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+From serial number:</font></td>
+<td><input type=text size=10 name=revokedFrom>&nbsp;
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no lower limit)</font></td>
+</tr>
+
+<tr><td></td>
+<td align="right"><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+To serial number:</font></td>
+<td><input type=text size=10 name=revokedTo>&nbsp;
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no upper limit)</font></td>
+</tr>
+</table>
+
+<br>&nbsp;
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=6 WIDTH="100%" BACKGROUND="/ca/agent/graphics/gray90.gif">
+  <tr>
+    <td ALIGN=RIGHT BGCOLOR="#E5E5E5">
+      <INPUT TYPE="button" VALUE="Update Directory" width="72" onClick="doSubmit(this.form);">&nbsp;
+      <INPUT TYPE="button" VALUE=Help width="72"
+        onClick="help('http://www.redhat.com/docs/manuals/cert-system#Manual Directory Updates')">
+	</td>
+  </tr>
+</table>
+
+</form>
+
+</BODY>
+</HTML>

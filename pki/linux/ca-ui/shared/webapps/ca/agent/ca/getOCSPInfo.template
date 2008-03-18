@@ -1,0 +1,117 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Display CRL</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT type="text/javascript" SRC="/helpfun.js"></SCRIPT>
+<SCRIPT type="text/javascript">
+<!--
+if (navigator.appName == "Microsoft Internet Explorer") {
+    document.writeln('<META HTTP-EQUIV="Pragma" CONTENT="no-cache">');
+}
+//-->
+</SCRIPT>
+<CMS_TEMPLATE>
+</head>
+
+
+<body bgcolor="#FFFFFF" link="#6666CC" vlink="#6666CC" alink="#333399">
+<font face="PrimaSans BT, Verdana, sans-serif" size="+1">
+OCSP Service
+</font><br>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/agent/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<br>
+
+<SCRIPT type="text/javascript">
+<!--
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+    document.writeln('Detailed Information (Since Startup)</font></td></tr></table>');
+
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr><td align="right" width="40%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('OCSP Responses:</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln(result.header.numReq+'</font></td></tr>');
+    document.writeln('<tr><td align="right" width="40%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('Total Signed Response Data (in bytes):</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln(result.header.totalData+'</font></td></tr>');
+    document.writeln('<tr><td align="right" width="40%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('Processing Time (in ms):</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln((result.header.totalSec-result.header.totalSignSec)+'</font></td></tr>');
+    document.writeln('<tr><td align="right" width="40%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('Signing Time (in ms):</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln(result.header.totalSignSec+'</font></td></tr>');
+    document.writeln('<tr><td align="right" width="40%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('Total Time (in ms):</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln(result.header.totalSec+'</font></td></tr>');
+    document.writeln('<tr><td align="right" width="40%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('Signing Time Per Response (in ms):</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    if (result.header.numReq == '0') {
+      document.writeln(result.header.numReq+'</font></td></tr>');
+    } else {
+      document.writeln((result.header.totalSignSec/result.header.numReq)+'</font></td></tr>');
+    }
+    document.writeln('<tr><td align="right" width="40%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('Total Time Per Response (in ms):</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    if (result.header.numReq == '0') {
+      document.writeln(result.header.numReq+'</font></td></tr>');
+    } else {
+      document.writeln((result.header.totalSec/result.header.numReq)+'</font></td></tr>');
+    }
+    document.writeln('<tr><td align="right" width="40%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('Responses Per Second:</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln(result.header.ReqSec+'</font></td></tr>');
+    document.writeln('</table><br>');
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>
+

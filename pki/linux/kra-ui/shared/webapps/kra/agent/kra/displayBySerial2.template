@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Display Certificate</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<CMS_TEMPLATE>
+
+
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+
+function navMajorVersion()
+{
+    return parseInt(navigator.appVersion.substring(0, navigator.appVersion.indexOf(".")));
+}
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+
+    return sign + '0x' + '0' + absValue;
+}
+//-->
+</SCRIPT>
+
+<body bgcolor="#FFFFFF" link="#6666CC" vlink="#6666CC" alink="#333399">
+<font face="PrimaSans BT, Verdana, sans-serif" size="+1">Certificate
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+document.write('&nbsp;' + '0x0'+result.header.serialNumber);
+if (navigator.appName == 'Netscape' &&
+    navMajorVersion() > 3 &&
+	typeof(crypto.version) != "undefined") {
+	document.write(
+		'<input type=hidden name=cmmfResponse value=true>');
+}
+
+//-->
+</SCRIPT>
+</font><br>
+<table border="0" cellspacing="0" cellpadding="0" background="art/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<table border="0" cellspacing="2" cellpadding="2" width="100%">
+<tr align="left" bgcolor="#e5e5e5"><td align="left">
+<font face="PrimaSans BT, Verdana, sans-serif" size="-1">
+Certificate contents</font></td></tr></table>
+
+<pre>
+<SCRIPT LANGUAGE="JavaScript">
+document.write(result.header.certPrettyPrint);
+</SCRIPT>
+</pre>
+
+<p>
+<table border="0" cellspacing="2" cellpadding="2" width="100%">
+<tr align="left" bgcolor="#e5e5e5"><td align="left">
+<font face="PrimaSans BT, Verdana, sans-serif" size="-1">
+Certificate fingerprints</font></td></tr></table>
+
+<pre>
+<SCRIPT LANGUAGE="JavaScript">
+document.write(result.header.certFingerprint);
+</SCRIPT>
+</pre>
+
+<p>
+<table border="0" cellspacing="2" cellpadding="2" width="100%">
+<tr align="left" bgcolor="#e5e5e5"><td align="left">
+<font face="PrimaSans BT, Verdana, sans-serif" size="-1">
+Installing this certificate in a server</font></td></tr></table>
+
+<p>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+The following format can be used to install this certificate into a server.
+<p>
+Base 64 encoded certificate
+</font>
+<p><pre>
+-----BEGIN CERTIFICATE-----
+<SCRIPT LANGUAUGE="JavaScript">
+document.write(result.header.certChainBase64);
+</SCRIPT>
+-----END CERTIFICATE-----
+</pre>
+
+<br><p>
+<table border="0" cellspacing="2" cellpadding="2" width="100%">
+<tr align="left" bgcolor="#e5e5e5"><td align="left">
+<font face="PrimaSans BT, Verdana, sans-serif" size="-1">
+Downloading this certificate</font></td></tr></table>
+<p>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+To download the certificate into your system, click the following button.
+</font>
+<p>
+
+<SCRIPT LANGUAGE="JavaScript">
+document.write("<center>");
+var loc = '/agent/kra/getBySerial?serialNumber='+ result.header.serialNumber;
+if (navigator.appName == "Netscape") {
+	loc = loc + '&importCert=true';
+	if (navMajorVersion() > 3 && typeof(crypto.version) != "undefined") {
+		loc = loc + '&cmmfResponse=true';
+	}
+}
+document.write('<form>\n'+
+			   '<INPUT TYPE=\"button\" VALUE=\"Download This Certificate\"'+
+			   ' onClick=\"location.href=\''+ loc + '\'\">\n'+
+			   '</form>\n');
+
+document.write("</center>");
+</SCRIPT>
+
+</font>
+</BODY>
+</HTML>

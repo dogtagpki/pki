@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<META HTTP-EQUIV="Refresh" CONTENT="5">
+<title>Key Recovery Result</title>
+</head>
+<body bgcolor="white">
+<CMS_TEMPLATE>
+
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<script language="JavaScript" src="../funcs.js"></script>
+<script language="JavaScript" src="../helpfun.js"></script>
+<script language="JavaScript">
+//<!--
+function displayApprovalRecord(agentNumber, agentName)
+{
+    document.writeln("Agent" + agentNumber + " (" + agentName + 
+        ") has approved the request.");    
+}
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+    sign = "-";
+    number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+    absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+function renderHexNumber(number,width)
+{
+    var num = toHex(number);
+    while (num.length < width)
+        num = "0"+num;
+    return "0x"+num;
+}
+
+if (result.header.errorDetails != null) {
+        writeError(result.header.errorDetails);
+} else {
+    document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=+1>Key Recovery Status</font>');
+    document.write('<center><hr width="100%"></center>');
+
+
+        document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+        document.write('<td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Recovery Authorization Reference Number:</font> <font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.recoveryID + '</font></td>');
+        document.writeln('</tr>');
+
+        document.writeln('<tr>');
+        document.write('<td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key Identifier:</font> <font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderHexNumber(result.header.serialNumber,8) + '</font></td>');
+        document.writeln('</tr>');
+        document.write('</table>');
+
+    document.write("<pre>");
+    document.write('<font face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('The request has been submitted.');
+    document.writeln(result.header.noOfRequiredAgents + 
+        ' recovery agents are required for authorization.' );
+    document.writeln('<p>');
+    for(var i = 0; i < result.recordSet.length; ++i ) {
+        displayApprovalRecord(i+1, result.recordSet[i].agentName);
+    }
+    if (result.recordSet.length < result.header.noOfRequiredAgents) {
+        document.writeln('Waiting for the remaining approvals ...'); 
+    } else if (result.header.status != "complete") {
+        document.writeln('<p>');    
+        document.writeln('The key is being recovered ...');
+    }
+    document.write('</font>');
+    document.write("</pre>");
+
+    document.write('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+    if (result.header.status == "complete") {
+        document.writeln("<p>");
+        document.writeln("The request is completed.");
+        document.writeln("<p>");
+    
+        document.writeln(
+            'If the key is not saved, you will need to go through the ' +
+            'recovery process again. ' +
+            'Click ' +
+            '<a href="/kra/agent/kra/getPk12?recoveryID=' +
+            result.header.recoveryID + '"' +
+            'onMouseOver=" return helpstatus(\'Click to get key in PKCS12 ' +
+            '\')" onMouseOut="return helpstatus(\'\')">' +
+            "here" +
+            '</a>' + ' to save the recovered key in PKCS12 format.'
+);
+    }
+    document.write('</font>');
+}
+
+//-->
+</script>
+</BODY>
+</HTML>

@@ -1,0 +1,51 @@
+<project name="jkconf" default="main" basedir=".">
+
+    <target name="init-3x" if="33.detect">
+        <taskdef name="jkconf" 
+                 classname="org.apache.jk.config.WebXml2Jk" >
+            <classpath>
+                <!-- 3.3 support -->
+                <pathelement location="/ws/jtc/jk/build/classes" />
+                <pathelement location="${tomcat.home}/lib/container/tomcat-jk2.jar" />
+                <pathelement location="${tomcat.home}/lib/container/crimson.jar"/>
+                <pathelement location="${tomcat.home}/lib/common/commons-logging.jar"/>
+            </classpath>
+        </taskdef>
+    </target>
+
+    <target name="init-4x" if="4x.detect" >
+        <path id="main.classpath">
+            <!-- 3.3 support -->
+            <fileset dir="${tomcat.home}/lib" includes="*.jar" />
+            <fileset dir="${tomcat.home}/server/lib" includes="*.jar" />
+            <fileset dir="${tomcat.home}/common/lib" includes="*.jar" />
+        </path>
+        
+        <taskdef name="jkconf" classpathref="main.classpath" 
+                 classname="org.apache.jk.config.WebXml2Jk" />
+    </target>
+
+    <target name="detect" >
+        <property file="build.properties"/>
+        <property file="${user.home}/build.properties"/>
+        <property file="${user.home}/.build.properties"/>
+            
+            <!-- default locations, overrident by properties.
+            This file must be installed in conf/  -->
+        <property name="tomcat.home" location=".." />
+            
+        <available property="33.detect" file="${tomcat.home}/lib/container" />
+        <available property="4x.detect" file="${tomcat.home}/server/lib" />
+    </target>
+
+    <target name="init" depends="detect,init-3x,init-4x" />
+
+    <!-- ==================== Detection and reports ==================== -->
+
+
+    <target name="main" depends="init">
+        <jkconf docBase="${tomcat.home}/webapps/examples" 
+                context="/examples" />
+    </target>
+
+</project>

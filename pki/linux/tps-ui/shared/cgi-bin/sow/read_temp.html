@@ -1,0 +1,79 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel=stylesheet href="/sow/style.css" type="text/css">
+
+<title>Security Officer</title>
+<script type="text/javascript" src="/sow/js/prototype.js"></script>
+<script type="text/javascript" src="/sow/js/scriptaculous.js?load=effects"></script>
+<link rel="stylesheet" href="/sow/css/style.css" media="screen" type="text/css">
+</head>
+
+<body>
+
+<div id="header">
+  <div id="logo">
+      <h3><img align=bottom src="/sow/images/badget.png">Security Officer Station</h3>
+  </div>
+</div>
+
+<div id="content">
+  <div id="maintext">
+     <div id="topmenu">
+    | <a href="/cgi-bin/sow/main.cgi">Main</a> |
+     </div>
+  <blockquote><p>Please check user's identification and verify the user information. If the information is correct, please insert a new smart card and continue.</p></blockquote>
+  <table>
+  <tr>
+    <td>
+<script type="text/javascript">
+ if ('$departmentNumber' != '') {
+   document.writeln('<img alt="" border=0 src="$photoSmall">');
+  }
+</script>
+    </td>
+    <td>
+       <span class="heading">UID:</span> $uid<br/>
+       <span class="heading">Given Name:</span> $givenName<br/>
+       <span class="heading">Last Name:</span> $sn<br/>
+       <span class="heading">Email:</span>$mail<br/>
+       <span class="heading">Height:</span> $height<br/>
+       <span class="heading">Weight:</span> $weight<br/>
+       <span class="heading">Eye Color:</span> $eyecolor<br/>
+    </td>
+    </table>
+    <br/>
+
+  <form method=post action="enroll.cgi">
+    <input type=hidden name=uid value="$uid">
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <input type="submit" id="search" name="Enroll" value="Continue">
+        </td>
+      </tr>
+    </table>
+  </form>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    
+    <title>Dogtag Certificate System</title>
+
+    <link rel="shortcut icon" href="img/favicon.ico" />
+    <link rel="stylesheet" href="../css/pki-base.css" type="text/css" />
+  </head>
+
+<SCRIPT LANGUAGE="JavaScript">
+    function checkClose() {
+      if ('$status' == "update" && '$error' == '') {
+            window.close();
+      }
+    }
+</SCRIPT>
+
+
+  <body onLoad="checkClose();">
+<div id="wrap">
+  
+#include ( "admin/console/config/header.vm" )
+
+<div id="mainNavOuter">
+<div id="mainNav">
+                                                                                
+<div id="mainNavInner">
+                                                                                
+</div><!-- end mainNavInner -->
+</div><!-- end mainNav -->
+</div><!-- end mainNavOuter -->
+
+<!-- close bar -->
+
+  <div id="content">
+    <table width="100%" cellspacing="0">
+      <tr>
+        <td width="100%">
+  <h1><img src="../img/icon-software.gif" />
+  Root CA </h1>
+
+A Root CA provides a set of predefined signing capabilities. Please select the capabilities that this CA needs to provide.
+    <p>
+
+<form name="f" action="config_rootca" method="post">
+                                                                                
+<H2>CA Certificate Profile</H2>
+
+<p>
+    <table class="details">
+      <tr>
+        <th width=10%>Profile:</th>
+                                                                                
+        <td><select name="profile">
+#foreach ($p in $profiles)
+#if ($p.getID() == $selected_profile_id)
+        <option selected value="$p.getID()">$p.getName()</option>
+#else
+        <option value="$p.getID()">$p.getName()</option>
+#end
+#end
+        </select>
+        </td>
+      </tr>
+    </table>
+<p>
+                                                                                
+    <div align="right">
+      <hr />
+      &nbsp;
+    </div>
+                                                                                
+    </form>
+
+<p>
+<table width=100%>
+<tr bgcolor="#eeeeee">
+  <td>
+<input onclick="javascript: document.f.submit()" type=button name=next value="Apply">                                                                                
+  </td>
+</tr>
+</table>
+
+
+	</td>
+      </tr>
+    </table>
+
+  </div> <!-- close content -->
+  </div> <!-- close wrap -->
+
+  </body>
+</html>

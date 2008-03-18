@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# --- BEGIN COPYRIGHT BLOCK ---
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation;
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301  USA 
+# 
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+
+###############################################################################
+##  (1)  Check command line arguments to see how many were passed in.        ##
+###############################################################################
+                                                                                
+if [ $# -eq 4 ]
+then
+	PKI_PRODUCT_NAME=$1
+	PKI_SUBSYSTEM_NAME=$2
+	VERSION=$3
+	RELEASE=$4
+else
+	echo
+	echo "Usage:  $0 PKI_product_name PKI_subsystem_name version release"
+	echo
+
+	exit 255
+fi
+
+
+###############################################################################
+##  (2)  Specify variables used by this script.                              ##
+###############################################################################
+
+PKI_INSTANCE_NAME="${PKI_PRODUCT_NAME}-${PKI_SUBSYSTEM_NAME}"
+SECURE_PORT=7889
+UNSECURE_PORT=7888
+
+
+###############################################################################
+##  (3)  Create the first instance of a Token Processing System (TPS).       ##
+###############################################################################
+
+if [ ! -e "/var/lib/${PKI_INSTANCE_NAME}" ]
+then
+	/usr/bin/pkicreate -pki_instance_root=/var/lib -pki_instance_name=${PKI_INSTANCE_NAME} -subsystem_type=${PKI_SUBSYSTEM_NAME} -secure_port=${SECURE_PORT} -unsecure_port=${UNSECURE_PORT} -redirect conf=/etc/${PKI_INSTANCE_NAME} -redirect logs=/var/log/${PKI_INSTANCE_NAME}
+fi
+
+
+###############################################################################
+##  (4)  Successfully exit from this postinstallation script.                ##
+###############################################################################
+
+exit 0
+

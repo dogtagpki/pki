@@ -1,0 +1,338 @@
+#!/bin/bash
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# 
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+
+###############################################################################
+##  (1)  Check command line arguments to see how many were passed in.        ##
+###############################################################################
+
+if [ $# -eq 7 ]
+then
+	NATIVE_TOOLS_BUILD_PREFIX=$1
+	NATIVE_TOOLS_PRODUCT_NAME=$2
+	NATIVE_TOOLS_SUBSYSTEM_NAME=$3
+	VERSION=$4
+	RELEASE=$5
+	ARCHITECTURE=$6
+	NATIVE_TOOLS_STAGING_PATH=$7
+else
+	echo
+	echo "Usage:  $0 NATIVE_TOOLS_build_prefix NATIVE_TOOLS_product_name"
+	echo "        NATIVE_TOOLS_subsystem_name version release architecture"
+	echo "        NATIVE_TOOLS_staging_path"
+	echo
+
+	exit 255
+fi
+
+
+###############################################################################
+##  (2)  Specify variables used by this script.                              ##
+###############################################################################
+
+# specify generic helper functions
+usage() {
+	if [ $# -gt 0 ] ; then
+		echo
+		echo "$1"
+	fi
+	echo
+	echo "Usage:  $0 NATIVE_TOOLS_build_prefix NATIVE_TOOLS_product_name"
+	echo "        NATIVE_TOOLS_subsystem_name version release architecture"
+	echo
+	echo "        where architecture MUST be 'intel',"
+	echo "                                   'sparc', or"
+	echo "                                   'sparcv9'."
+	echo
+	echo "        NOTE:  For 'intel' architectures, only the 'i386' and"
+	echo "               the 'x86_64' architectures are currently supported."
+	echo
+}
+
+# specify generic helper variables
+if  [ ${ARCHITECTURE} = "intel" ] ; then
+	# Since "rpmbuild" fails to process "%ifarch" macros inside the
+	# "%install" section of a spec file, the actual hardware
+	# architecture will be determined at this point in time.
+	ARCHITECTURE=`uname -i`
+	if   [ ${ARCHITECTURE} = "i386" ] ; then
+		LIB_DIR="lib"
+		PERL_DIR="/usr/bin/perl"
+		SCRIPTS_DIR="bin"
+		WRAPPER_DIR="bin"
+	elif [ ${ARCHITECTURE} = "x86_64" ] ; then
+		LIB_DIR="lib64"
+		PERL_DIR="/usr/bin/perl"
+		SCRIPTS_DIR="bin"
+		WRAPPER_DIR="bin"
+	else
+		usage "ERROR:  Unsupported intel architecture '${ARCHITECTURE}'!"
+		exit 255
+	fi
+elif [ ${ARCHITECTURE} = "sparc" ] ; then
+	# Note that "pkgbuild" successfully processes "%ifarch" macros
+	# inside the "%install" section of a spec file.
+	LIB_DIR="lib"
+	PERL_DIR="/opt/perl5/bin/perl"
+	SCRIPTS_DIR="bin"
+	WRAPPER_DIR="bin"
+elif [ ${ARCHITECTURE} = "sparcv9" ] ; then
+	# Note that "pkgbuild" successfully processes "%ifarch" macros
+	# inside the "%install" section of a spec file.
+	LIB_DIR="lib/sparcv9"
+	PERL_DIR="/opt/perl5x/bin/perl"
+	SCRIPTS_DIR="bin"
+	WRAPPER_DIR="bin"
+else
+	usage "ERROR:  Unsupported architecture '${ARCHITECTURE}'!"
+	exit 255
+fi
+
+# specify the pre-packaged files
+NATIVE_TOOLS_PACKAGE_NAME=native-tools.zip
+
+# break the VERSION number into its various components
+MAJOR_VERSION=`echo ${VERSION} | awk -F. '{ print $1 }'`
+MINOR_VERSION=`echo ${VERSION} | awk -F. '{ print $2 }'`
+PATCH_VERSION=`echo ${VERSION} | awk -F. '{ print $3 }'`
+
+
+# comply with standard FHS 2.3 binary locations (executables)
+NATIVE_TOOLS_EXECUTABLES=${NATIVE_TOOLS_BUILD_PREFIX}/usr/${LIB_DIR}/${NATIVE_TOOLS_PRODUCT_NAME}/${NATIVE_TOOLS_SUBSYSTEM_NAME}
+
+# comply with standard FHS 2.3 library locations
+
+# comply with standard JPackage 1.6.0 jar locations
+
+# comply with standard FHS 2.3 binary locations (wrappers)
+NATIVE_TOOLS_SCRIPTS=${NATIVE_TOOLS_BUILD_PREFIX}/usr/${SCRIPTS_DIR}
+NATIVE_TOOLS_WRAPPERS=${NATIVE_TOOLS_BUILD_PREFIX}/usr/${WRAPPER_DIR}
+NATIVE_TOOLS_PERL=${NATIVE_TOOLS_BUILD_PREFIX}/usr/${SCRIPTS_DIR}/pkiperl
+
+# comply with standard FHS 2.3 shared data locations (templates)
+NATIVE_TOOLS_SHARED_DATA=${NATIVE_TOOLS_BUILD_PREFIX}/usr/share/${NATIVE_TOOLS_PRODUCT_NAME}
+NATIVE_TOOLS_TEMPLATES=${NATIVE_TOOLS_SHARED_DATA}/templates
+
+# comply with standard FHS 2.3 start/stop script locations
+
+# comply with standard FHS 2.3 configuration file locations
+
+# comply with standard FHS 2.3 documentation locations
+NATIVE_TOOLS_DOCUMENTATION=${NATIVE_TOOLS_BUILD_PREFIX}/usr/share/doc/${NATIVE_TOOLS_PRODUCT_NAME}-${NATIVE_TOOLS_SUBSYSTEM_NAME}-${VERSION}
+
+# comply with standard FHS 2.3 log file locations
+
+# comply with default FHS 2.3 instance locations
+
+
+###############################################################################
+##  (3)  Create the appropriate subdirectories.                              ##
+###############################################################################
+
+##
+## System:
+##
+
+
+##
+## Product
+##
+
+mkdir -p ${NATIVE_TOOLS_SCRIPTS}
+mkdir -p ${NATIVE_TOOLS_WRAPPERS}
+
+
+##
+## Subsystem
+##
+
+mkdir -p ${NATIVE_TOOLS_DOCUMENTATION}
+mkdir -p ${NATIVE_TOOLS_EXECUTABLES}
+mkdir -p ${NATIVE_TOOLS_SHARED_DATA}
+mkdir -p ${NATIVE_TOOLS_TEMPLATES}
+
+
+##
+## Initial Instance
+##
+
+
+###############################################################################
+##  (4)  Unpack the package contents to the appropriate subdirectories.      ##
+###############################################################################
+
+##
+## Executables
+##
+
+cp -p ${NATIVE_TOOLS_STAGING_PATH}/conf/*      ${NATIVE_TOOLS_EXECUTABLES}
+
+cp -p ${NATIVE_TOOLS_STAGING_PATH}/libexec/*   ${NATIVE_TOOLS_EXECUTABLES}
+
+cp -p ${NATIVE_TOOLS_STAGING_PATH}/samples/*   ${NATIVE_TOOLS_EXECUTABLES}
+
+
+##
+## Libraries
+##
+
+
+##
+## Jars
+##
+
+
+##
+## Wrappers
+##
+
+
+##
+## Shared Data
+##
+
+cp -rp ${NATIVE_TOOLS_STAGING_PATH}/doc/*      ${NATIVE_TOOLS_DOCUMENTATION}
+
+cp -p ${NATIVE_TOOLS_STAGING_PATH}/templates/* ${NATIVE_TOOLS_TEMPLATES}
+
+
+###############################################################################
+##  (5)  Unpack the package contents to the initial instance directories.    ##
+###############################################################################
+
+##
+## Start/Stop Script
+##
+
+
+##
+## Configuration
+##
+
+
+##
+## Logs
+##
+
+
+##
+## Default Instance
+##
+
+
+###############################################################################
+##  (6)  Rename the extracted contents following appropriate naming rules.   ##
+###############################################################################
+
+# comply with standard Linux/UNIX shared library naming conventions
+
+# comply with standard JPackage 1.6.0 jar naming conventions
+
+
+###############################################################################
+##  (7)  Create a command wrapper for each specified command.                ##
+###############################################################################
+
+COMMANDS="bulkissuance p7tool revoker setpin tkstool sslget"
+
+create_wrapper()
+{
+	PRODUCT=$1
+	SUBSYSTEM=$2
+	COMMAND=$3
+
+	TEMPLATE=pki_subsystem_command_wrapper
+
+	WRAPPER=${NATIVE_TOOLS_WRAPPERS}/${COMMAND}
+
+	sed	-e "s|\[PKI_PRODUCT\]|${PRODUCT}|g"     \
+		-e "s|\[PKI_SUBSYSTEM\]|${SUBSYSTEM}|g" \
+		-e "s|\[PKI_COMMAND\]|${COMMAND}|g"     \
+		${NATIVE_TOOLS_SHARED_DATA}/templates/${TEMPLATE} > ${WRAPPER}
+}
+
+
+for cmd in ${COMMANDS}
+do
+	create_wrapper ${NATIVE_TOOLS_PRODUCT_NAME} ${NATIVE_TOOLS_SUBSYSTEM_NAME} ${cmd}
+done
+
+
+# replace "uname -s" within various PKI scripts with "pkiname"
+echo "#!/bin/sh"    >  ${NATIVE_TOOLS_SCRIPTS}/pkiname
+echo                >> ${NATIVE_TOOLS_SCRIPTS}/pkiname
+echo "echo `uname`" >> ${NATIVE_TOOLS_SCRIPTS}/pkiname
+
+
+# replace "uname -i" and "uname -p" within various PKI scripts with "pkiarch"
+echo "#!/bin/sh"            >  ${NATIVE_TOOLS_SCRIPTS}/pkiarch
+echo                        >> ${NATIVE_TOOLS_SCRIPTS}/pkiarch
+echo "echo ${ARCHITECTURE}" >> ${NATIVE_TOOLS_SCRIPTS}/pkiarch
+
+
+# use "pkiflavor" to obtain the "pki" prefix within various PKI scripts
+echo "#!/bin/sh"                         >  ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
+echo                                     >> ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
+echo "echo ${NATIVE_TOOLS_PRODUCT_NAME}" >> ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
+
+# obtain the PKI operating system distribution using "pkidist"
+echo "#!/bin/sh"                             >  ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo                                         >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "OS=\`uname\`"                          >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "if [ \${OS} = \"Linux\" ]; then"       >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "    if [ -e /etc/fedora-release ]; then" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        DISTRIBUTION=\"fc\""           >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        DISTRIBUTION_VERSION=\`rpm -qf --qf='%{VERSION}' /etc/fedora-release\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        VERSION=\`echo \${DISTRIBUTION_VERSION} | tr -d [A-Za-z]\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        printf \"\${DISTRIBUTION}\${VERSION}\n\"" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "    elif [ -e /etc/redhat-release ]; then" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        DISTRIBUTION=\"el\""           >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        DISTRIBUTION_VERSION=\`rpm -qf --qf='%{VERSION}' /etc/redhat-release\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        VERSION=\`echo \${DISTRIBUTION_VERSION} | tr -d [A-Za-z]\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        printf \"\${DISTRIBUTION}\${VERSION}\n\"" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "    else"                              >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        printf \"undefined\n\""        >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "    fi"                                >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "elif [ \${OS} = \"SunOS\" ]; then"     >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "    DISTRIBUTION=\"sol\""              >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "    VERSION=\`uname -r | cut -f2 -d .\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "    printf \"\${DISTRIBUTION}\${VERSION}\n\"" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "else"                                  >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "    printf \"undefined\n\""            >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "fi"                                    >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+
+
+###############################################################################
+##  (8)  Create useful symbolic links as appropriate.                        ##
+###############################################################################
+
+# create shared library sans version "linker-name" to protect this namespace
+
+# create jar sans version to be used by classpath
+
+# create assorted symbolic links to various file dependencies (Tomcat)
+cd ${NATIVE_TOOLS_SCRIPTS} ;
+ln -s ${PERL_DIR} ${NATIVE_TOOLS_PERL}
+
+
+###############################################################################
+##  (9)  Successfully exit from this setup script.                           ##
+###############################################################################
+
+exit 0
+

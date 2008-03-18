@@ -1,0 +1,4 @@
+dn: cn=config
+changetype: modify
+replace: nsslapd-maxbersize
+nsslapd-maxbersize: 52428800

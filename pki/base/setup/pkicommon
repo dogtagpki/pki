@@ -1,0 +1,2150 @@
+#!/usr/bin/perl
+#
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+
+##############################################################
+# This file contains shared data and subroutines for
+# the "pkicreate" and "pkiremove" Perl scripts.
+##############################################################
+
+
+##############################################################
+# Perl Version
+##############################################################
+
+my $MINIMUM_PERL_VERSION = "5.006001";
+
+my $perl_version_error_message = "ERROR:  Using Perl version $] ...\n"
+                               . "        Must use Perl version "
+                               . "$MINIMUM_PERL_VERSION or later to "
+                               . "run this script!\n";
+
+die "$perl_version_error_message" if $] < $MINIMUM_PERL_VERSION;
+
+
+##############################################################
+# Execution Check
+##############################################################
+
+# Check to insure that this script's original
+# invocation directory has not been deleted!
+my $cwd = `/bin/pwd`;
+chomp $cwd;
+if( "$cwd" eq "" ) {
+    print( STDERR "Cannot invoke '$0' from non-existent directory!\n" );
+    print( STDOUT "\n" );
+    exit 255;
+}
+
+
+##############################################################
+# Environment Variables
+##############################################################
+
+# untaint called subroutines
+if( ( $^O ne 'Windows_NT' ) && ( $^O ne 'MSWin32' ) ) {
+    $> = $<;   # set effective user ID to real UID
+    $) = $(;   # set effective group ID to real GID
+    $ENV{ 'PATH' } = '/bin:/usr/bin';
+    $ENV{ 'ENV' } = '' if $ENV{ 'ENV' } ne '';
+}
+
+
+##############################################################
+# Perl Modules
+##############################################################
+
+# "File/Copy.pm", "FileHandle.pm", "Getopt/Long.pm",
+# "Socket.pm", and "Sys/Long.pm" are all part of the
+# standard Perl library and should therefore always be
+# available
+use File::Copy;
+use FileHandle;
+use Getopt::Long;
+use Socket;
+use Sys::Hostname;
+
+
+##############################################################
+# Shared Default Values
+##############################################################
+
+$default_hardware_platform     = "";
+$default_system_binaries       = "";
+$default_system_libraries      = "";
+$default_system_user_binaries  = "";
+$default_system_user_libraries = "";
+$default_system_jni_java_path  = "";
+$default_security_libraries    = "";
+$default_certutil_command      = "";
+$default_ldapmodify_command    = "";
+$default_modutil_command       = "";
+
+# Compute "hardware platform" of Operating System
+$default_hardware_platform = `pkiarch`;
+$default_hardware_platform =~ s/\s+$//g;
+chomp( $default_hardware_platform );
+if( $^O eq "linux" ) {
+    if( $default_hardware_platform eq "i386" ) {
+        # 32-bit Linux
+        $default_system_binaries      = "/bin";
+        $default_system_libraries     = "/lib";
+        $default_system_user_binaries  = "/usr/bin";
+        $default_system_user_libraries = "/usr/lib";
+        $default_system_jni_java_path  = "/usr/lib/java";
+    } elsif( $default_hardware_platform eq "x86_64" ) {
+        # 64-bit Linux
+        $default_system_binaries      = "/bin";
+        $default_system_libraries     = "/lib64";
+        $default_system_user_binaries  = "/usr/bin";
+        $default_system_user_libraries = "/usr/lib64";
+        $default_system_jni_java_path  = "/usr/lib/java";
+    } else {
+        print( STDERR
+               "ERROR:  Unsupported '$^O' hardware platform "
+             . "'$default_hardware_platform'!\n" );
+        print( "\n" );
+        exit 255;
+    }
+} elsif( $^O eq "solaris" ) {
+    if( $default_hardware_platform eq "sparc" ) {
+        # 32-bit Solaris
+        $default_system_binaries      = "/bin";
+        $default_system_libraries     = "/lib";
+        $default_system_user_binaries  = "/usr/bin";
+        $default_system_user_libraries = "/usr/lib";
+        $default_system_jni_java_path  = "/usr/lib/java";
+    } elsif( $default_hardware_platform eq "sparcv9" ) {
+        # 64-bit Solaris
+        $default_system_binaries      = "/bin";
+        $default_system_libraries     = "/lib/sparcv9";
+        $default_system_user_binaries  = "/usr/bin";
+        $default_system_user_libraries = "/usr/lib/sparcv9";
+        $default_system_jni_java_path  = "/usr/lib/java";
+    } else {
+        print( STDERR
+               "ERROR:  Unsupported '$^O' hardware platform "
+             . "'$default_hardware_platform'!\n" );
+        print( "\n" );
+        exit 255;
+    }
+} else {
+    print( STDERR
+           "ERROR:  Unsupported platform '$^O'!\n" );
+    print( "\n" );
+    exit 255;
+}
+
+
+$default_security_libraries = "$default_system_user_libraries/dirsec";
+
+$default_certutil_command   = "$default_system_user_binaries/certutil";
+$default_ldapmodify_command = "$default_system_user_libraries/"
+                            . "mozldap/ldapmodify";
+$default_modutil_command    = "$default_system_user_binaries/modutil";
+
+
+##############################################################
+# Global Constants
+##############################################################
+
+$ROOTUID = 0;
+
+$MAX_WELL_KNOWN_PORT = 511;    #      well-known ports =     0 through   511
+$MAX_RESERVED_PORT   = 1023;   #        reserved ports =   512 through  1023
+$MAX_REGISTERED_PORT = 49151;  #      registered ports =  1024 through 49151
+$MAX_DYNAMIC_PORT    = 65535;  # dynamic/private ports = 49152 through 65535
+
+$FILE_PREFIX         = "file://";
+$FTP_PREFIX          = "ftp://";
+$HTTP_PREFIX         = "http://";
+$HTTPS_PREFIX        = "https://";
+$LDAP_PREFIX         = "ldap://";
+$LDAPS_PREFIX        = "ldaps://";
+
+
+##############################################################
+# Global Variables
+##############################################################
+
+# Platform-dependent parameters
+$lib_prefix = "";
+$obj_ext    = "";
+$path_sep   = "";
+$tmp_dir    = "";
+
+# Retrieve hostname using Sys::Hostname
+$hostname = hostname;
+
+# "logging" parameters
+$logfile = "";
+
+# Whether or not to do verbose mode
+$verbose = 0;
+
+
+##############################################################
+# Local Variables
+##############################################################
+
+# "identity" parameters
+my $fqdn = "";
+
+# "time" parameters
+my $sec   = 0;
+my $min   = 0;
+my $hour  = 0;
+my $mday  = 0;
+my $mon   = 0;
+my $year  = 0;
+my $wday  = 0;
+my $yday  = 0;
+my $isdst = 0;
+
+# "logging" parameters
+my $logfd = new FileHandle;
+
+
+##############################################################
+# Generic "platform" Subroutines
+##############################################################
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_Windows()
+{
+    if( ( $^O eq "Windows_NT" ) || ( $^O eq "MSWin32" ) ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_Linux()
+{
+    if( $^O eq "linux" ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_Fedora()
+{
+    if( is_Linux() && (-e "/etc/fedora-release") ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_RHEL() {
+    if( (! is_Fedora()) && (-e "/etc/redhat-release") ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_RHEL4() {
+    if( is_RHEL() ) {
+        my $releasefd = new FileHandle;
+        if( $releasefd->open("< /etc/redhat-release")) {
+            while( defined($line = <$releasefd>) ) {
+                if($line =~ /4/) {
+                    return 1;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+
+# no args
+# no return value
+sub setup_platform_dependent_parameters()
+{
+    # Setup path separators, et. al., based upon platform
+    if( is_Windows() ) {
+        $lib_prefix = "";
+        $obj_ext    = ".dll";
+        $path_sep   = ";";
+        $tmp_dir    = "c:\\temp";
+    } elsif( $^O eq "hpux" ) {
+        $lib_prefix = "lib";
+        $obj_ext    = ".sl";
+        $path_sep   = ":";
+        $tmp_dir    = "/tmp";
+    } else {
+        $lib_prefix = "lib";
+        $obj_ext    = ".so";
+        $path_sep   = ":";
+        $tmp_dir    = "/tmp";
+    }
+
+    return;
+}
+
+
+# arg0 Library Path
+# no return value
+sub set_library_path
+{
+    my( $path ) = @_;
+
+    if( is_Windows() ) {
+        $ENV{PATH} = $path;
+    } elsif( $^O eq "hpux" ) {
+        $ENV{SHLIB_PATH} = $path;
+    } else {
+        $ENV{LD_LIBRARY_PATH} = $path;
+    }
+
+    return;
+}
+
+
+# no args
+# return Library Path Environment variable
+sub get_library_path
+{
+    if( is_Windows() ) {
+        return $ENV{PATH};
+    } elsif( $^O eq "hpux" ) {
+        return $ENV{SHLIB_PATH};
+    } else {
+        return $ENV{LD_LIBRARY_PATH};
+    }
+}
+
+
+##############################################################
+# Generic "identity" Subroutines
+##############################################################
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub check_for_root_UID()
+{
+    my $result = 0;
+
+    # On Linux/UNIX, insure that this script is being run as "root";
+    # First check the "Real" UID, and then check the "Effective" UID.
+    if( !is_Windows() ) {
+        if( ( $< != $ROOTUID ) &&
+            ( $> != $ROOTUID ) ) {
+            print( STDERR
+                   "ERROR:  This script must be run as root!\n" );
+            print( STDOUT "\n" );
+            $result = 0;
+        } else {
+            # Success -- running script as root
+            $result = 1;
+        }
+    } else {
+        print( STDERR
+               "ERROR:  Root UID makes no sense on Windows machines!\n" );
+        print( STDOUT "\n" );
+        $result = 0;
+    }
+
+    return $result;
+}
+
+
+# arg0 username
+# return 1 - exists, or
+# return 0 - DOES NOT exist
+sub user_exists
+{
+    my( $username ) = $_[0];
+
+    my $result = 0;
+
+    my $uid = getpwnam( $username );
+
+    if( $uid ne "" ) {
+        $result = 1;
+    }
+
+    return $result;
+}
+
+
+# arg0 groupname
+# return 1 - exists, or
+# return 0 - DOES NOT exist
+sub group_exists
+{
+    my( $groupname ) = $_[0];
+
+    my $result = 0;
+
+    my $gid = getgrnam( $groupname );
+
+    if( $gid ne "" ) {
+        $result = 1;
+    }
+
+    return $result;
+}
+
+
+# arg0 username
+# arg1 groupname
+# return 1 - is a member, or
+# return 0 - is NOT a member
+sub user_is_a_member_of_group
+{
+    my( $username ) = $_[0];
+    my( $groupname ) = $_[1];
+
+    my $result = 0;
+
+    if( !user_exists( $username ) ) {
+        return $result;
+    }
+
+    if( !group_exists( $groupname ) ) {
+        return $result;
+    }
+
+    my( $name, $passwd, $gid, $members ) = getgrnam( $groupname );
+
+    my $groupuser = $members =~ m/$username/;
+
+    if( $groupuser >= 1 ) {
+        $result = 1;
+    }
+
+    return $result;
+}
+
+
+# arg0 username
+# return UID, or
+# return (-1) - user is not in password file
+sub get_UID_from_username
+{
+    my( $user ) = @_;
+
+    my $my_username;
+    my $my_passwd;
+    my $my_uid;
+
+    ( $my_username, $my_passwd, $my_uid ) = getpwnam( $user );
+    
+    if( $my_username ne "" ) {
+        # return UID (0 implies root user)
+        return $my_uid;
+    } else {
+        # username '$user' is NOT in the password file
+        return ( -1 );
+    }
+}
+
+
+# arg0 hostname, or
+# arg0 IP address
+# return fully-qualified domain name (FQDN)
+sub get_FQDN
+{
+    if( $_[0] !~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/ ) {
+        # Retrieve FQDN via a "mnemonic" hostname
+        ( $fqdn ) = gethostbyname( $_[0] );
+    } else {
+        # Retrieve FQDN via a "4-tuple" IP address
+        $fqdn = gethostbyaddr( pack( 'C4', $1, $2, $3, $4 ), 2 );
+    }
+
+    return( $fqdn );
+}
+
+
+##############################################################
+# Generic "availability" Subroutines
+##############################################################
+
+# arg0 URL prefix
+# return 1 - URL prefix is known (success)
+# return 0 - URL prefix is unknown (failure)
+sub check_for_valid_url_prefix
+{
+    my( $url_prefix ) = @_;
+
+    if( ( "$url_prefix" eq $FILE_PREFIX  ) || 
+        ( "$url_prefix" eq $FTP_PREFIX   ) || 
+        ( "$url_prefix" eq $HTTP_PREFIX  ) || 
+        ( "$url_prefix" eq $HTTPS_PREFIX ) || 
+        ( "$url_prefix" eq $LDAP_PREFIX  ) || 
+        ( "$url_prefix" eq $LDAPS_PREFIX ) ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# arg0 username
+# arg1 port
+# return 1 - port is available (success)
+# return 0 - port is unavailable; report an error (failure)
+sub IsLocalPortAvailable
+{
+    # parse parameters
+    my ( $user, $port ) = @_;
+
+    # On Linux/UNIX, check well-known/reserved ports
+    if( !is_Windows() ) {
+        my $uid = -1;
+
+        # retrieve the UID given the username
+        $uid = get_UID_from_username( $user );
+        if( $uid == -1 ) {
+            print( "\n" );
+            print( STDERR
+                   "User '$user' is NOT in the password file!\n" );
+            print( "\n" );
+            return 0;
+        }
+
+        # insure that well-known ports cannot be used by a non-root user
+        if( ( $port <= $MAX_WELL_KNOWN_PORT ) && ( $uid != $ROOTUID ) ) {
+            print( "\n" );
+            print( STDERR
+                   "ERROR:  User '$user' is not allowed to bind to well-known "
+                 . "port $port!\n" );
+            print( "\n" );
+            return 0;
+        }
+
+        # insure that reserved ports cannot be used by a non-root user
+        if( ( $port <= $MAX_RESERVED_PORT ) && ( $uid != $ROOTUID ) ) {
+            print( "\n" );
+            print( STDERR
+                   "ERROR:  User '$user' is not allowed to bind to reserved "
+                 . "port $port!\n" );
+            print( "\n" );
+            return 0;
+        }
+
+        # insure that the user has not specified a port greater than
+        # the number of dynamic/private ports
+        if( $port > $MAX_DYNAMIC_PORT ) {
+            print( "\n" );
+            print( STDERR
+                   "ERROR:  User '$user' is not allowed to bind to a "
+                 . "port greater than $MAX_DYNAMIC_PORT!\n" );
+            print( "\n" );
+            return 0;
+        }
+
+        # if the user has specified a port greater than the number
+        # of registered ports, issue a warning and continue
+        if( $port > $MAX_REGISTERED_PORT ) {
+            print( "\n" );
+            print( STDERR
+                   "WARNING:  User '$user' is binding to port $port; use of "
+                 . "a dynamic/private port is discouraged!\n" );
+            print( "\n" );
+        }
+    }
+
+    # initialize local variables
+    my $rv = 0;
+    my $status = "AVAILABLE";
+
+    # make a local TCP server socket
+    my $proto = getprotobyname( 'tcp' );
+    socket( SERVER, PF_INET, SOCK_STREAM, $proto );
+
+    # create a local server socket address
+    my $server_address = sockaddr_in( $port, INADDR_ANY );
+
+    # attempt to bind this local server socket
+    # to this local server socket address
+    bind( SERVER, $server_address ) or $status = $!;
+
+    # identify the status of this attempt to bind
+    if( $status eq "AVAILABLE" ) {
+        # this port is inactive
+        $rv = 1;
+    } elsif( $status eq "Address already in use" ) {
+        print( "\n" );
+        print( STDERR
+               "ERROR:  Unable to bind to local port $port :  $status\n" );
+        print( "\n" );
+        $rv = 0;
+    } else {
+        print( "\n" );
+        print( STDERR
+               "ERROR:  Unable to bind to local port $port :  $status\n" );
+        print( "\n" );
+        $rv = 0;
+    }
+
+    # close local server socket
+    close( SERVER );
+
+    # return result
+    return $rv;
+}
+
+
+# arg0 HTTP or LDAP prefix
+# arg1 host
+# arg2 port
+# return 2 - warn that server is unreachable (continue)
+# return 1 - server is reachable (success)
+# return 0 - server is unreachable; report an error (failure)
+sub IsServerReachable
+{
+    # parse parameters
+    my( $prefix, $host, $port ) = @_;
+
+    # check the validity of the prefix
+    my $result = 0;
+
+    $result = check_for_valid_url_prefix( $prefix );
+    if( !$result ) {
+        print( "\n" );
+        print( STDERR
+               "ERROR:  Specified unknown url prefix\n"
+             . "        '$prefix'!\n" );
+        print( "\n" );
+        return $result;
+    }
+
+    # create a URL from the passed-in parameters
+    my $url = $prefix . "$host" . ":" . "$port";
+
+    # initialize the state of the Server referred to by this URL
+    my $rv = 0;
+    my $status = "ACTIVE";
+
+    # retrieve the remote host IP address
+    my $iaddr = inet_aton( $host ) or $status = $!;
+    if( $status ne "ACTIVE" ) {
+        print( "\n" );
+        print( STDERR
+               "ERROR:  Unable to contact the Server at\n"
+             . "        '$url' :\n"
+             . "        $status\n" );
+        print( "\n" );
+        return $rv;
+    }
+
+    # create a remote server socket address
+    my $server_address = sockaddr_in( $port, $iaddr );
+
+    # make a local TCP client socket
+    my $proto = getprotobyname( 'tcp' );
+    socket( CLIENT, PF_INET, SOCK_STREAM, $proto );
+
+    # attempt to connect this local client socket
+    # to the remote server socket address
+    connect( CLIENT, $server_address ) or $status = $!;
+
+    # identify the status of this connection
+    if( $status eq "ACTIVE" ) {
+        # this '$host:$port' is reachable
+        $rv = 1;
+    } else {
+        print( "\n" );
+        print( STDERR
+               "WARNING:  Unable to contact the Server at\n"
+             . "          '$url' :\n"
+             . "          $status\n" );
+        print( "\n" );
+    }
+
+    # close local client socket
+    close( CLIENT );
+
+    # return result
+    return $rv;
+}
+
+
+##############################################################
+# Generic "time" Subroutines
+##############################################################
+
+# no args
+# return time stamp
+sub get_time_stamp()
+{
+    my $stamp = sprintf "%4d-%02d-%02d %02d:%02d:%02d",
+                        $year+1900, $mon+1, $mday, $hour, $min, $sec;
+
+    return $stamp;
+}
+
+
+##############################################################
+# Generic "random" Subroutines
+##############################################################
+
+# arg0 low watermark value
+# arg1 high watermark value
+# return random number
+sub generate_random
+{
+    my $low = $_[0];
+    my $high = $_[1];
+
+    my $number = 0;
+
+    if( $low >= $high || $low < 0 || $high < 0 ) {
+        return -1;
+    }
+
+    $number = int( rand( $high -$low +1 ) ) + $low;
+
+    return $number;
+}
+
+
+# arg0 length of string
+# return random string
+sub generate_random_string()
+{
+    my $length_of_randomstring=shift;  # the length of the string
+
+    my @chars=( 'a'..'z','A'..'Z','0'..'9' );
+    my $random_string;
+
+    foreach( 1..$length_of_randomstring ) {
+        $random_string .= $chars[rand @chars];
+    }
+
+    return $random_string;
+}
+
+
+##############################################################
+# Generic "password" Subroutines
+##############################################################
+
+# arg0 password
+# return 1 - success
+# return 0 - failure; report an error
+sub password_quality_checker
+{
+    my( $password ) = @_;
+
+    # Test #1:  $password MUST be > 8 characters
+    if( length( $password ) < 8 ) {
+        print( "\n" );
+        print( "Password entered is less than 8 characters. Try again.\n" );
+        return 0;
+    }
+
+
+    # Test #2:  $password MUST contain at least one non-alphabetic character
+    my @alphabet = ( "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+                     "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+                     "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d",
+                     "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+                     "o", "p", "q", "r", "s", "t", "u", "v", "w", "x",
+                     "y", "z" );
+
+    my $non_alphabetic_characters = 0;
+    for( $i = 0; $i < length( $password ); $i++ ) {
+        # always reset character type
+        my $found_alphabetic_character = 0;
+
+        # extract the next character from the $password
+        my $character = substr( $password, $i, 1 );
+
+        # check to see if this character is "alphabetic"
+        for $letter (@alphabet) {
+            if( $character eq $letter ) {
+                $found_alphabetic_character = 1;
+                last;
+            }
+        }
+
+        # keep a count of "non-alphabetic" characters
+        if( $found_alphabetic_character == 0 ) {
+            $non_alphabetic_characters++;
+        }
+    }
+
+    # pass Test #2 if the $password contains any "non-alphabetic" characters
+    if( $non_alphabetic_characters > 0 ) {
+        return 1;
+    } else {
+        print( "\n" );
+        print( "Password entered contains 0 non-alphabetic characters. "
+             . "Try again.\n" );
+        return 0;
+    }
+}
+
+
+##############################################################
+# Generic "LDAP" Subroutines
+##############################################################
+
+# arg0 tokendb hostname - LDAP server name or IP address (default: localhost)
+# arg1 tokendb port - LDAP server TCP port number (default: 389)
+# arg2 tokendb password - bind passwd (for simple authentication)
+# arg3 tokendb file - read modifications from file (default: standard input)
+# no return value
+sub LDAP_add
+{
+    my( $tokendb_hostname, $tokendb_port, $tokendb_password, $file ) = @_;
+
+    my $command = "";
+
+    my $original_library_path = get_library_path();
+
+    set_library_path( $default_security_libraries . $path_sep
+                    . $default_system_user_libraries . $path_sep
+                    . $default_system_libraries . $path_sep
+                    . $original_library_path );
+
+    $command = "$default_ldapmodify_command "
+             . "-h '$tokendb_hostname' "
+             . "-p '$tokendb_port' "
+             . "-D 'cn=directory manager' "
+             . "-w '$tokendb_password' "
+             . "-a "
+             . "-f '$file'";
+
+    system( "$command" );
+
+    set_library_path( $original_library_path );
+
+    return;
+}
+
+
+# arg0 tokendb hostname - LDAP server name or IP address (default: localhost)
+# arg1 tokendb port - LDAP server TCP port number (default: 389)
+# arg2 tokendb password - bind passwd (for simple authentication)
+# arg3 tokendb file - read modifications from file (default: standard input)
+# no return value
+sub LDAP_modify
+{
+    my( $tokendb_hostname, $tokendb_port, $tokendb_password, $file ) = @_;
+
+    my $command = "";
+
+    my $original_library_path = get_library_path();
+
+    set_library_path( $default_security_libraries . $path_sep
+                    . $default_system_user_libraries . $path_sep
+                    . $default_system_libraries . $path_sep
+                    . $original_library_path );
+
+    $command = "$default_ldapmodify_command "
+             . "-h '$tokendb_hostname' "
+             . "-p '$tokendb_port' "
+             . "-D 'cn=directory manager' "
+             . "-w '$tokendb_password' "
+             . "-f '$file'";
+
+    system( "$command" );
+
+    set_library_path( $original_library_path );
+
+    return;
+}
+
+
+##############################################################
+# Generic "Security Databases" Subroutines
+##############################################################
+
+# arg0 instance path - Security databases directory (default is ~/.netscape)
+# arg1 password file - Specify the password file
+# no return value
+sub certutil_create_databases
+{
+    my( $instance_path, $pwdfile ) = @_;
+
+    my $command = "";
+
+    my $original_library_path = get_library_path();
+
+    set_library_path( $default_security_libraries . $path_sep
+                    . $default_system_user_libraries . $path_sep
+                    . $default_system_libraries . $path_sep
+                    . $original_library_path );
+
+    if( "$pwdfile" eq "" ) {
+        $command = "$default_certutil_command "
+                 . "-N "
+                 . "-d $instance_path";
+    } else {
+        $command = "$default_certutil_command "
+                 . "-N "
+                 . "-d $instance_path "
+                 . "-f $pwdfile";
+    }
+
+    system( "$command" );
+
+    set_library_path( $original_library_path );
+
+    return;
+}
+
+
+# arg0 instance path - Security databases directory (default is ~/.netscape)
+# arg1 token - Name of token in which to look for cert (default is internal,
+#              use "all" to look for cert on all tokens)
+# arg2 nickname - The nickname of the cert to delete
+# no return value
+sub certutil_delete_cert
+{
+    my( $instance_path, $token, $nickname ) = @_;
+
+    my $command = "";
+
+    my $original_library_path = get_library_path();
+
+    set_library_path( $default_security_libraries . $path_sep
+                    . $default_system_user_libraries . $path_sep
+                    . $default_system_libraries . $path_sep
+                    . $original_library_path );
+
+    $command = "$default_certutil_command "
+             . "-D "
+             . "-d $instance_path "
+             . "-h '$token' "
+             . "-n '$nickname'";
+
+    system( "$command" );
+
+    set_library_path( $original_library_path );
+
+    return;
+}
+
+
+# arg0 instance path - Security databases directory (default is ~/.netscape)
+# arg1 token - Name of token in which to generate key (default is internal)
+# arg2 subject - Specify the subject name (using RFC1485)
+# arg3 password file - Specify the password file
+# no return value
+sub certutil_generate_CSR
+{
+    my( $instance_path, $token, $subject, $pwdfile ) = @_;
+
+    my $command = "";
+
+    my $original_library_path = get_library_path();
+
+    set_library_path( $default_security_libraries . $path_sep
+                    . $default_system_user_libraries . $path_sep
+                    . $default_system_libraries . $path_sep
+                    . $original_library_path );
+
+    if( "$pwdfile" eq "" ) {
+        $command = "$default_certutil_command "
+                 . "-R "
+                 . "-d $instance_path "
+                 . "-h '$token' "
+                 . "-s '$subject' "
+                 . "-a";
+    } else {
+        $command = "$default_certutil_command "
+                 . "-R "
+                 . "-d $instance_path "
+                 . "-h '$token' "
+                 . "-s '$subject' "
+                 . "-a "
+                 . "-f $pwdfile";
+    }
+
+    system( "$command" );
+
+    set_library_path( $original_library_path );
+
+    return;
+}
+
+
+# arg0 instance path - Security databases directory (default is ~/.netscape)
+# arg1 token - Name of token in which to store the certificate
+#              (default is internal)
+# arg2 serial number - Cert serial number
+# arg3 validity period - Months valid (default is 3)
+# arg4 subject - Specify the subject name (using RFC1485)
+# arg5 issuer name - The nickname of the issuer cert
+# arg6 nickname - Specify the nickname of the server certificate
+# arg7 trust args - Set the certificate trust attributes:
+#                        p      valid peer
+#                        P      trusted peer (implies p)
+#                        c      valid CA
+#                        T      trusted CA to issue client certs (implies c)
+#                        C      trusted CA to issue server certs (implies c)
+#                        u      user cert
+#                        w      send warning
+#                        g      make step-up cert
+# arg8 noise file - Specify the noise file to be used
+#                   (to introduce randomness during key generation)
+# arg9 password file - Specify the password file
+# no return value
+sub certutil_generate_self_signed_cert
+{
+    my( $instance_path, $token, $serial_number, $validity_period,
+        $subject, $issuer_name, $nickname, $trustargs, $noise_file,
+        $pwdfile ) = @_;
+
+    my $command = "";
+
+    my $original_library_path = get_library_path();
+
+    set_library_path( $default_security_libraries . $path_sep
+                    . $default_system_user_libraries . $path_sep
+                    . $default_system_libraries . $path_sep
+                    . $original_library_path );
+
+    if( "$pwdfile" eq "" ) {
+        $command = "$default_certutil_command "
+                 . "-S "
+                 . "-d $instance_path "
+                 . "-h '$token' "
+                 . "-m $serial_number "
+                 . "-v $validity_period "
+                 . "-x "
+                 . "-s '$subject' "
+                 . "-c '$issuer_name' "
+                 . "-n '$nickname' "
+                 . "-t '$trustargs' "
+                 . "-z $noise_file "
+                 . "> /dev/null "
+                 . "2>&1";
+    } else {
+        $command = "$default_certutil_command "
+                 . "-S "
+                 . "-d $instance_path "
+                 . "-h '$token' "
+                 . "-f $pwdfile "
+                 . "-m $serial_number "
+                 . "-v $validity_period "
+                 . "-x "
+                 . "-s '$subject' "
+                 . "-c '$issuer_name' "
+                 . "-n '$nickname' "
+                 . "-t '$trustargs' "
+                 . "-z $noise_file "
+                 . "> /dev/null "
+                 . "2>&1";
+    }
+
+    system( "$command" );
+
+    set_library_path( $original_library_path );
+
+    return;
+}
+
+
+# arg0 instance path - Security databases directory (default is ~/.netscape)
+# arg1 token - Name of token in which to store the certificate
+#              (default is internal)
+# arg2 nickname - Specify the nickname of the server certificate
+# arg3 trust args - Set the certificate trust attributes:
+#                        p      valid peer
+#                        P      trusted peer (implies p)
+#                        c      valid CA
+#                        T      trusted CA to issue client certs (implies c)
+#                        C      trusted CA to issue server certs (implies c)
+#                        u      user cert
+#                        w      send warning
+#                        g      make step-up cert
+#                    (e. g. - Server Cert 'u,u,u', CA Cert 'CT,CT,CT')
+# arg4 cert - The certificate encoded in ASCII (RFC1113)
+# no return value
+sub certutil_import_cert
+{
+    my( $instance_path, $token, $nickname, $trustargs, $cert ) = @_;
+
+    my $original_library_path = get_library_path();
+
+    set_library_path( $default_security_libraries . $path_sep
+                    . $default_system_user_libraries . $path_sep
+                    . $default_system_libraries . $path_sep
+                    . $original_library_path );
+
+    open( F,
+          "|$default_certutil_command "
+        . "-A "
+        . "-d $instance_path "
+        . "-h '$token' "
+        . "-n '$nickname' "
+        . "-t '$trustargs' "
+        . "-a" );
+    print( F $cert );
+    close( F );
+
+    set_library_path( $original_library_path );
+
+    return;
+}
+
+
+# arg0 instance path - Security databases directory (default is ~/.netscape)
+# arg1 token - Name of token in which to look for cert (default is internal,
+#              use "all" to look for cert on all tokens)
+# arg2 nickname - Pretty print named cert (list all if unspecified)
+# no return value
+sub certutil_print_cert
+{
+    my( $instance_path, $token, $nickname ) = @_;
+
+    my $command = "";
+
+    my $original_library_path = get_library_path();
+
+    set_library_path( $default_security_libraries . $path_sep
+                    . $default_system_user_libraries . $path_sep
+                    . $default_system_libraries . $path_sep
+                    . $original_library_path );
+
+    if( $token ne "" ) {
+        # Raidzilla Bug #57616 - certutil is not being consistent, nickname 
+        #                        requires token name for no reason.
+        $command = "$default_certutil_command "
+                 . "-L "
+                 . "-d $instance_path "
+                 . "-h '$token' "
+                 . "-n '$token:$nickname'";
+    } else {
+        $command = "$default_certutil_command "
+                 . "-L "
+                 . "-d $instance_path "
+                 . "-h '$token' "
+                 . "-n '$nickname'";
+    }
+
+    system( "$command" );
+
+    set_library_path( $original_library_path );
+
+    return;
+}
+
+
+# no return value
+# arg0 instance path - Security databases directory (default is ~/.netscape)
+# arg1 token - Name of token in which to look for certs (default is internal,
+#              use "all" to list certs on all tokens)
+sub certutil_list_certs
+{
+    my( $instance_path, $token ) = @_;
+
+    my $command = "";
+
+    my $original_library_path = get_library_path();
+
+    set_library_path( $default_security_libraries . $path_sep
+                    . $default_system_user_libraries . $path_sep
+                    . $default_system_libraries . $path_sep
+                    . $original_library_path );
+
+    $command = "$default_certutil_command "
+             . "-L "
+             . "-d $instance_path "
+             . "-h '$token'";
+
+    system( "$command" );
+
+    set_library_path( $original_library_path );
+
+    return;
+}
+
+
+# arg0 instance path - Security databases directory (default is ~/.netscape)
+# arg1 token   - Add the named token to the module database
+# arg2 library - The name of the file (.so or .dll) containing the
+#                implementation of PKCS #11
+# no return value
+sub modutil_add_token
+{
+    my( $instance_path, $token, $library ) = @_;
+
+    my $command = "";
+
+    my $original_library_path = get_library_path();
+
+    set_library_path( $default_security_libraries . $path_sep
+                    . $default_system_user_libraries . $path_sep
+                    . $default_system_libraries . $path_sep
+                    . $original_library_path );
+
+    $command = "$default_modutil_command "
+             . "-force "
+             . "-dbdir $instance_path "
+             . "-add $token "
+             . "-libfile $library "
+             . "-nocertdb";
+
+    system( "$command > /dev/null 2>&1" );
+
+    set_library_path( $original_library_path );
+
+    return;
+}
+
+
+##############################################################
+# Generic "logging" Subroutines
+##############################################################
+
+# arg0 logfile name
+# no return value
+sub open_logfile
+{
+    my $logfile_name = $_[0];
+
+    $logfd->open( ">$logfile_name" ) or
+    die "Could not open $logfile_name\n";
+
+    return;
+}
+
+
+# arg0 logfile name
+# arg1 message
+# no return value
+sub print_to_logfile
+{
+    my $logfile_name = $_[0];
+    my $message = $_[1];
+
+    if( "$logfile_name" ne "" ) {
+        $logfd->print( "$message" );
+    }
+
+    return;
+}
+
+
+# arg0 logfile name
+# no return value
+sub close_logfile
+{
+    my $logfile_name = $_[0];
+
+    if( "$logfile_name" ne "" ) {
+        $logfd->close();
+    }
+
+    return;
+}
+
+
+##############################################################
+# Generic "response" Subroutines
+##############################################################
+
+# arg0 question
+# return answer
+sub prompt
+{
+    my $promptStr = $_[0];
+
+    my $answer = "";
+
+    print( STDOUT "$promptStr  " );
+
+    $| = 1;
+    $answer = <STDIN>;
+
+    chomp $answer;
+
+    print( STDOUT "\n" );
+
+    return $answer;
+}
+
+
+##############################################################
+# Generic "reply" Subroutines
+##############################################################
+
+# arg0 file handle
+# no return value
+sub printFile
+{
+    my $fileHandle = $_[0];
+
+    while( <$fileHandle> ) {
+        my $line = $_;
+        chomp( $line );
+        print( STDOUT "$line\n" );
+    }
+
+    return;
+}
+
+
+# arg0 message
+# arg1 message type
+# no return value
+sub emit
+{
+    my $string  = $_[0];
+    my $type = $_[1];
+
+    my $force_emit = 0;
+    my $log_entry = "";
+
+    if( $type eq "error" || $type eq "info" ) {
+        $force_emit = 1;
+    }
+
+    if( $type eq "" ) {
+        $type = "debug";
+    }
+
+    if( $string eq "" ) {
+        return;
+    }
+
+    ( $sec, $min, $hour, $mday,
+      $mon, $year, $wday, $yday, $isdst ) = localtime( time );
+
+    my $stamp = get_time_stamp();
+
+    if( $verbose || $force_emit ) {
+        # print to stdout
+        if( $type ne "log" ) {
+            print( STDOUT "[$stamp] [$type] $string" );
+        }
+    }
+
+    # If a log file exists, write all types
+    # ( "debug", "error", "info", or "log" )
+    # to this specified log file
+    $log_entry = "[$stamp] [$type] $string";
+    print_to_logfile( "$logfile", "$log_entry" );
+
+    return;
+}
+
+
+##############################################################
+# Generic "validity" Subroutines
+##############################################################
+
+# arg0 path
+# return 1 - valid, or
+# return 0 - invalid
+sub is_path_valid
+{
+    my $path = $_[0];
+
+    my @pathname = split( "/", $path );
+
+    shift @pathname unless $pathname[0];
+
+    my $valid = 0;
+    my $split_path;
+
+    foreach $split_path ( @pathname ) {
+        chomp( $split_path );
+
+        if( !( $split_path !~ /^[-_.a-zA-Z0-9\[\]]+$/ ) ) {
+            $valid = 1;
+        } else {
+            $valid = 0;
+            last;
+        }
+    }
+
+    return $valid;
+}
+
+
+# arg0 name
+# return 1 - valid, or
+# return 0 - invalid
+sub is_name_valid
+{
+    my $name = $_[0];
+
+    my $result = 0;
+
+    if( !( $name !~ /^[-_.a-zA-Z0-9]+$/ ) ) {
+        $result = 1;
+    }
+
+    return $result;
+}
+
+
+##############################################################
+# Generic "entity" Subroutines
+##############################################################
+
+# arg0 entity
+# return type of entity
+sub entity_type
+{
+    my( $entity ) = $_[0];
+
+    if( -b $entity ) {
+        return "block special file";
+    } elsif( -c $entity ) {
+        return "character special file";
+    } elsif( -d $entity ) {
+        return "directory";
+    } elsif( -f $entity ) {
+        if( -B $entity ) {
+            return "binary file";
+        } elsif( -T $entity ) {
+            return "text file";
+        } else {
+            return "plain file";
+        }
+    } elsif( -l $entity ) {
+        return "symbolic link";
+    } elsif( -p $entity ) {
+        return "named pipe";
+    } elsif( -S $entity ) {
+        return "socket";
+    }
+
+    return "UNKNOWN";
+}
+
+
+# arg0 entity
+# return 1 - exists, or
+# return 0 - DOES NOT exist
+sub entity_exists
+{
+    my( $entity ) = $_[0];
+
+    my $result = 0;
+
+    if( -e $entity ) {
+        my $type = entity_type( $entity );
+        $result = 1;
+    }
+
+    return $result;
+}
+
+
+##############################################################
+# Generic "file" Subroutines
+##############################################################
+
+# arg0 file candidate
+# return 1 - exists, or
+# return 0 - DOES NOT exist
+sub file_exists
+{
+    my( $file ) = $_[0];
+
+    my $result = 0;
+
+    if( -f $file ) {
+        $result = 1;
+    } elsif( -e $file ) {
+        my $type = entity_type( $file );
+        emit( "File $file DOES NOT exist because $file is a $type!\n",
+              "error" );
+        $result = 0;
+    }
+
+
+    return $result;
+}
+
+
+# arg0 file
+# return 1 - empty, or
+# return 0 - NOT empty
+sub is_file_empty
+{
+    my( $file ) = $_[0];
+
+    my $result = 0;
+
+    if( -z $file ) {
+        $result = 1;
+    }
+
+    return $result;
+}
+
+
+# arg0 file
+# no return value
+sub create_empty_file
+{
+    my( $file ) = @_;
+
+    if( is_Windows() ) {
+        open( FILE, "> $file" );
+        close( FILE );
+    } else {
+        my $rv = 0;
+
+        $rv = `touch $file`;
+        if( !$rv ) {
+            emit( "create_empty_file():  unable to create empty file called "
+                . "$file.\n",
+                  "error" );
+        }
+    }
+
+    return;
+}
+
+
+# arg0 file
+# arg1 message
+# no return value
+sub create_file
+{
+    my( $file, $message ) = @_;
+
+    $command = "";
+
+    if( is_Windows() ) {
+        if( "$message" eq "" ) {
+            open( FILE, "> $file" );
+            close( FILE );
+        } else {
+            open( FILE, "> $file" );
+            print( FILE "$message" );
+            close( FILE );
+        }
+    } else {
+        my $rv = 0;
+
+        if( "$message" eq "" ) {
+            $rv = `touch $file`;
+            if( !$rv ) {
+                emit( "create_file():  unable to create empty file called "
+                    . "$file.\n",
+                      "error" );
+            }
+        } else {
+            $command = "echo '$message' > $file";
+
+            system( "$command" );
+        }
+    }
+
+    return;
+}
+
+
+# arg0 file
+# arg1 destination path
+# return 1 - successfully moved file, or
+# return 0 - failed moving file
+sub move_file
+{
+    my( $file ) = $_[0];
+    my( $dest ) = $_[1];
+
+    my $result = 0;
+
+    if( !is_path_valid( $file ) ) {
+        emit( "move_file():  illegal source path => $file.\n",
+              "error" );
+        return 0;
+    }
+
+    if( !is_path_valid( $dest ) ) {
+        emit( "move_file():  illegal destination path => $dest.\n",
+              "error" );
+        return 0;
+    }
+
+    $result = `mv $file $dest`;
+    if( $result == 0 ) {
+        return 1;
+    }
+
+    emit( "move_file():  failed moving file $file to $dest.\n",
+          "error" );
+
+    return 0;
+}
+
+
+# arg0 source path
+# arg1 destination path
+# return 1 - successfully copied file, or
+# return 0 - failed copying file
+sub copy_file
+{
+    my $source_path = $_[0];
+    my $dest_path = $_[1];
+
+    my $result = 0;
+
+    if( !is_path_valid( $source_path ) ) {
+        emit( "copy_file():  illegal source path => $source_path.\n",
+              "error" );
+        return 0;
+    }
+
+    if( !is_path_valid( $dest_path ) ) {
+        emit( "copy_file():  illegal destination path => $dest_path.\n",
+              "error" );
+        return 0;
+    }
+
+    $result = `cp -f $source_path $dest_path`;
+    if( $result == 0 ) {
+        return 1;
+    }
+
+    emit( "copy_file():  failed copying file from $source_path to "
+        . "$dest_path.\n",
+          "error" );
+
+    return 0;
+}
+
+
+# arg0 file
+# return 1 - successfully removed file, or
+# return 0 - failed removing file
+sub remove_file
+{
+    my( $file ) = $_[0];
+
+    my $result = 0;
+
+    if( $file eq "" ) {
+        # file is NULL
+        return 1;
+    }
+
+    if( !file_exists( $file ) ) {
+        return 1;
+    }
+
+    $result = `rm -f $file`;
+    if( $result == 0 ) {
+        return 1;
+    }
+
+    emit( "remove_file():  failed to remove file $file.\n",
+          "error" );
+
+    return 0;
+}
+
+
+# arg0 file
+# arg1 user
+# arg2 group
+# return 1 - success, or
+# return 0 - failure
+sub give_file_to
+{
+    my $file = $_[0];
+    my $new_user = $_[1];
+    my $new_group = $_[2];
+
+    my $result = 0;
+
+    if( $file eq "" || !file_exists( $file ) ) {
+        emit( "give_file_to():  invalid file specified.\n",
+              "error" );
+        return 0;
+    }
+
+    if( $new_user eq "" || $new_group eq "" ) {
+        emit( "give_file_to():  file $file needs a user and group!\n",
+              "error" );
+        return 0;
+    }
+
+    $result = `chgrp $new_group $file`;
+    if( $result ) {
+        emit( "give_file_to():  can't change file $file ownership to "
+            . "group $new_group!\n",
+              "error" );
+        return 0;
+    }
+
+    $result = `chown $new_user $file`;
+    if( $result ) {
+        emit( "give_file_to():  can't change file $file ownership to "
+            . "user $new_user!\n",
+              "error" );
+        return 0;
+    }
+
+    return 1;
+}
+
+
+##############################################################
+# Generic "directory" Subroutines
+##############################################################
+
+# arg0 directory candidate
+# return 1 - exists, or
+# return 0 - DOES NOT exist
+sub directory_exists
+{
+    my( $dir ) = $_[0];
+
+    my $result = 0;
+
+    if( -d $dir ) {
+        $result = 1;
+    } elsif( -e $dir ) {
+        my $type = entity_type( $dir );
+        emit( "Directory $dir DOES NOT exist because $dir is a $type!\n",
+              "error" );
+        $result = 0;
+    }
+
+    return $result;
+}
+
+
+# arg0 directory
+# return 1 - empty, or
+# return 0 - NOT empty
+sub is_directory_empty
+{
+    my $dir = $_[0];
+
+    my $empty = 1;
+    my $entity = "";
+
+    if( !directory_exists( $dir ) ) {
+        return 1;
+    }
+
+    opendir( DIR, $dir );
+    while( defined( $entity = readdir( DIR ) ) && ( $empty == 1 ) ) {
+        if( $entity ne "." && $entity ne ".." ) {
+            # NOTE:  This is not necessarily an error!
+            #
+            # my $type = entity_type( "$dir/$entity" );
+            # emit( "    Found $type $entity in directory $dir.\n",
+            #       "debug" );
+
+            $empty = 0;
+        }
+    }
+    closedir( DIR );
+
+    return $empty;
+}
+
+
+# arg0 directory
+# return 1 - success, or
+# return 0 - failure
+sub create_directory
+{
+    my( $dir ) = $_[0];
+
+    my $result = 0;
+
+    if( $dir eq "" ) {
+        # directory is NULL
+        # Just return success
+        return 1;
+    }
+
+    $result = `mkdir -p $dir`;
+    if( $result == 0 ) {
+        return 1;
+    }
+
+    emit( "create_directory():  failed creating directory $dir.\n",
+          "error" );
+
+    return 0;
+}
+
+
+# arg0 directory
+# arg1 destination path
+# return 1 - successfully moved directory, or
+# return 0 - failed moving directory
+sub move_directory
+{
+    my( $dir ) = $_[0];
+    my( $dest ) = $_[1];
+
+    my $result = 0;
+
+    if( !is_path_valid( $dir ) ) {
+        emit( "move_directory():  illegal source path => $dir.\n",
+              "error" );
+        return 0;
+    }
+
+    if( !is_path_valid( $dest ) ) {
+        emit( "move_directory():  illegal destination path => $dest.\n",
+              "error" );
+        return 0;
+    }
+
+    if( !directory_exists( $dest ) ) {
+        $result = create_directory( $dest );
+        if( !$result ) {
+          emit( "move_directory():  failed moving dir $dir to new $dest.\n",
+                "error" );
+          return 0;
+        }
+    }
+
+    $result = `mv $dir $dest`;
+    if( $result == 0 ) {
+        return 1;
+    }
+
+    emit( "move_directory():  failed moving dir $dir to $dest.\n",
+          "error" );
+
+    return 0;
+}
+
+
+# arg0 source directory
+# arg1 destination path
+# return 1 - successfully copied directory, or
+# return 0 - failed copying directory
+sub copy_directory
+{
+    my $source_dir_path = $_[0];
+    my $dest_dir_path = $_[1];
+
+    my $result = 0;
+
+    if( !is_path_valid( $source_dir_path ) ) {
+        emit( "copy_directory():  illegal source path => $source_dir_path.\n",
+              "error" );
+        return 0;
+    }
+
+    if( !is_path_valid( $dest_dir_path ) ) {
+        emit( "copy_directory():  illegal destination path => "
+            . "$dest_dir_path.\n",
+              "error" );
+        return 0;
+    }
+
+    if( !directory_exists( $source_dir_path ) ) {
+        # Take the case where this directory does not exist
+        # Just return true
+        return 1;
+    }
+
+    if( !directory_exists( $dest_dir_path ) ) {
+        $result = create_directory( $dest_dir_path );
+        if( !$result ) {
+            return 0;
+        }
+    }
+
+    if( !is_directory_empty( $source_dir_path ) ) {
+        $result = `cp -fr $source_dir_path/* $dest_dir_path`;
+    } else {
+        $result = 0;
+    }
+
+    # System call returns 0 on success.
+    if( $result == 0 ) {
+        return 1;
+    }
+
+    emit( "copy_directory():  failed copying directory from $source_dir_path "
+        . "to $dest_dir_path.\n",
+          "error" );
+
+    return 0;
+}
+
+
+# arg0 directory
+# return 1 - successfully removed directory, or
+# return 0 - failed removing directory
+sub remove_directory
+{
+    my( $dir ) = $_[0];
+
+    my $result = 0;
+
+    if( !is_path_valid( $dir ) ) {
+        emit( "remove_directory():  specified invalid directory $dir.\n",
+              "error" );
+        return 0;
+    }
+
+    if( $dir eq "/" ) {
+       emit( "remove_directory():  don't even think about removing root!.\n",
+             "error" );
+       return 0;
+    }
+
+    if( !directory_exists( $dir ) ) {
+        return 1;
+    }
+
+    $result = `rm -rf $dir`;
+    if( $result == 0 ) {
+        return 1;
+    }
+
+    emit( "remove_directory():  failed to remove directory $dir.\n",
+          "error" );
+
+    return 0;
+}
+
+
+# arg0 directory
+# arg1 user
+# arg2 group
+# return 1 - success, or
+# return 0 - failure
+sub give_directory_to
+{
+    my $directory = $_[0];
+    my $new_user = $_[1];
+    my $new_group = $_[2];
+
+    my $result = 0;
+
+    if( $directory eq "" || !directory_exists( $directory ) ) {
+        emit( "give_directory_to():  invalid directory specified.\n",
+              "error" );
+        return 0;
+    }
+
+    if( $new_user eq "" || $new_group eq "" ) {
+        emit( "give_directory_to():  directory $directory needs a user "
+            . "and group!\n",
+              "error" );
+        return 0;
+    }
+
+    $result = `chgrp -R $new_group $directory`;
+    if( $result ) {
+        emit( "give_directory_to():  can't change directory $directory "
+            . "ownership to group $new_group!\n",
+              "error" );
+        return 0;
+    }
+
+    $result = `chown -R $new_user $directory`;
+    if( $result ) {
+        emit( "give_directory_to():  can't change directory $directory "
+            . "ownership to user $new_user!\n",
+              "error" );
+        return 0;
+    }
+
+    return 1;
+}
+
+
+##############################################################
+# Generic "symbolic link" Subroutines
+##############################################################
+
+# arg0 symbolic link candidate
+# return 1 - exists, or
+# return 0 - DOES NOT exist
+sub symbolic_link_exists
+{
+    my( $symlink ) = $_[0];
+
+    my $result = 0;
+
+    if( -l $symlink ) {
+        $result = 1;
+    } elsif( -e $symlink ) {
+        my $type = entity_type( $symlink );
+        emit( "Symbolic link $symlink DOES NOT exist because $symlink "
+            . "is a $type!\n",
+              "error" );
+        $result = 0;
+    }
+
+
+    return $result;
+}
+
+
+# arg0 symbolic link
+# arg1 destination path
+# return 1 - success, or
+# return 0 - failure
+sub create_symbolic_link
+{
+    my $symlink = $_[0];
+    my $dest_path = $_[1];
+
+    my $result = 0;
+
+
+    if( symbolic_link_exists( $symlink ) ) {
+        # delete symbolic link so that we can recreate link for upgrades
+        $result = `rm -rf $symlink`;
+        if( !$result ) {
+            emit( "create_symbolic_link():  unable to delete original "
+                . "$symlink.\n",
+                  "error" );
+            return 0;
+        }
+    }
+
+    if( !is_path_valid( $symlink ) ) {
+        emit( "create_symbolic_link():  invalid source path => $symlink.\n",
+              "error" );
+        return 0;
+    }
+
+    if( !is_path_valid( $dest_path ) || !entity_exists( $dest_path ) ) {
+        emit( "create_symbolic_link():  illegal destination path => "
+            . "$dest_path.\n",
+              "error" );
+        return 0;
+    }
+
+    $result = `ln -s $dest_path $symlink`;
+    if( $result == 0 ) {
+        return 1;
+    }
+
+    emit( "create_symbolic_link():  failed creating symbolic link "
+        . "$symlink to destination directory $dest_path.\n",
+          "error" );
+
+    return 0;
+}
+
+
+# arg0 symbolic link
+# return 1 - successfully removed symbolic link, or
+# return 0 - failed removing symbolic link
+sub remove_symbolic_link
+{
+    my( $symlink ) = $_[0];
+
+    my $result = 0;
+
+    if( $symlink eq "" ) {
+        # symlink is NULL
+        return 1;
+    }
+
+    if( !symbolic_link_exists( $symlink ) ) {
+        return 1;
+    }
+
+    $result = `rm -f $symlink`;
+    if( $result == 0 ) {
+        return 1;
+    }
+
+    emit( "remove_symbolic_link():  failed to remove symbolic_link "
+        . "$symlink.\n",
+          "error" );
+
+    return 0;
+}
+
+
+# arg0 file
+# arg1 user
+# arg2 group
+# return 1 - success, or
+# return 0 - failure
+sub give_symbolic_link_to
+{
+    my $symlink = $_[0];
+    my $new_user = $_[1];
+    my $new_group = $_[2];
+
+    my $result = 0;
+
+    if( $symlink eq "" || !symbolic_link_exists( $symlink ) ) {
+        emit( "give_symbolic_link_to():  invalid symbolic link specified.\n",
+              "error" );
+        return 1;
+    }
+
+    if( $new_user eq "" || $new_group eq "" ) {
+        emit( "give_symbolic_link_to():  symbolic link $symlink needs a "
+            . "user and group!\n",
+              "error" );
+        return 0;
+    }
+
+    $result = `chgrp -h $new_group $symlink`;
+    if( $result ) {
+        emit( "give_symbolic_link_to():  can't change symbolic link $symlink "
+            . "ownership to group $new_group!\n",
+              "error" );
+        return 0;
+    }
+
+    $result = `chown -h $new_user $symlink`;
+    if( $result ) {
+        emit( "give_symbolic_link_to():  can't change symbolic link $symlink "
+            . "ownership to user $new_user!\n",
+              "error" );
+        return 0;
+    }
+
+    return 1;
+}
+
+1;
+

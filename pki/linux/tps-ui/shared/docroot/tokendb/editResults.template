@@ -1,0 +1,76 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+<HEAD>
+<TITLE>TPS</Title>
+</HEAD>
+
+<table border="0" width="100%" cellspacing="0" cellpadding="6">
+  <tr bgcolor="#666699">
+    <td width=25%>
+      <table border="0" cellspacing="0" cellpadding="6">
+        <tr>
+          <td nowrap><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<b>&reg;<br>
+            Certificate<br>System</b></font> </td>
+        </tr>
+      </table>
+    </td>
+    <td align=right width=65% nowrap><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">TPS Services</font></td>
+    <td width="10%">&nbsp;</td>
+  </tr>
+</table>
+<p>
+
+<BODY>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/JavaScript">
+<!--
+var uri = "";
+if (typeof(uriBase) == "undefined") {
+    uri += "/tus";
+} else {
+    uri += uriBase;
+}
+
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri+"\">Main Menu</a></font>\n");
+document.write("<table width=\"100%\"><tr><td align=\"right\">" +
+                "<b>UID:</b>" +
+                userid + "</td></tr></table>\n");
+document.write("<HR NOSHADE SIZE=1>\n");
+
+if (typeof(tid) == "undefined") {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n");
+    document.write("Missing token ID</font>\n");
+    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
+} else {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n");
+    document.write("Token record <a href=\"tus?op=show&tid=" + tid + "\">"+tid+"</a> has been updated.</font>\n");
+    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
+}
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>

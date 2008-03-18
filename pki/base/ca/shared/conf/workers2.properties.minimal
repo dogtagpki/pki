@@ -1,0 +1,55 @@
+#
+# This is the minimal JK2 connector configuration file.
+# 
+
+[logger]
+info=Native logger
+level=ERROR
+
+[config:]
+file=${serverRoot}/conf/workers2.properties
+debug=0
+debugEnv=0
+
+[uriMap:]
+info=Maps the requests.
+debug=0
+
+[shm:]
+info=Scoreboard. Required for reconfiguration and status with multiprocess servers
+file=anonymous
+debug=0
+
+[workerEnv:]
+info=Global server options
+timing=0
+debug=0
+
+[lb:lb]
+info=Default load balancer.
+debug=0
+
+[channel.socket:localhost:8009]
+info=Ajp13 forwarding over socket
+debug=0
+tomcatId=localhost:8009
+
+[uri:/admin]
+info=Tomcat HTML based administration web application.
+debug=0
+
+[uri:/manager]
+info=A scriptable management web application for the Tomcat Web Server.
+debug=0
+
+[uri:/jsp-examples]
+info=JSP 2.0 Examples.
+debug=0
+
+[uri:/servlets-examples]
+info=Servlet 2.4 Examples.
+debug=0
+
+[uri:/*.jsp]
+info=JSP Extension mapping.
+debug=0

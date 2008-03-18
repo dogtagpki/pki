@@ -1,0 +1,1540 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Search for Certificates</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<script type="text/javascript" SRC="/ca/agent/funcs.js"></script>
+<script type="text/javascript" SRC="/ca/agent/helpfun.js"></script>
+</head>
+
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+<font size=+1 face="PrimaSans BT, Verdana, sans-serif">Search for Certificates
+</font><br>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Use this form to compose queries based on properties of the certificate.
+</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Each section below filters the search.  Check the box at the top of the
+section if you want to use that filter in your search, then complete the fields.
+Leave a box unchecked to ignore that filter.  You can click more than one box
+to get a combination of search criteria.
+</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<b><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Serial Number Range</font></b>
+<FORM NAME="serialNumberRangeCritForm">
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td colspan="3">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates that fall within the following range:</font>
+</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Lowest serial number:</font></td>
+<td><INPUT TYPE="TEXT" NAME="serialFrom" SIZE=10 MAXLENGTH=99></td>
+<td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no lower limit)</font></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Highest serial number:</font></td>
+<td><INPUT TYPE="TEXT" NAME="serialTo" SIZE=10 MAXLENGTH=99></td>
+<td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no upper limit)</font></td>
+</tr>
+</table>
+</FORM>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Enter a range of certificate serial numbers in hexadecimal form
+(starting with 0x, as in the certificate list), or in decimal form.
+</font>
+
+<SCRIPT type="text/javascript">
+//<!--
+function serialNumberRangeCritInUse()
+{
+    return document.serialNumberRangeCritForm.inUse.checked;
+}
+
+function serialNumberRangeCrit()
+{
+    var crit = new Array;
+    var next = 0;
+    var canonicalFrom = "", canonicalTo = "";
+
+    if (document.serialNumberRangeCritForm.serialFrom.value != "") {
+        canonicalFrom =
+            trim(document.serialNumberRangeCritForm.serialFrom.value);
+    }
+
+    if (canonicalFrom != "") {
+        if (!isDecimalNumber(canonicalFrom)) {
+            if (isNumber(canonicalFrom,16)) {
+                canonicalFrom = "0x" +
+                    removeColons(stripPrefix(canonicalFrom));
+            } else {
+                alert("You must specify a decimal or hexadecimal value" + 
+                    "for the low end of the serial number range.");
+                return null;
+            }
+        }
+        if (isNegative(canonicalFrom)) {
+            alert("You must specify a positive value for the low " +
+                   "end of the serial number range.");
+            return null;
+        }
+        crit[next++] = "(certRecordId>=" + canonicalFrom + ")";
+    }
+
+    if (document.serialNumberRangeCritForm.serialTo.value != "") {
+        canonicalTo =
+            trim(document.serialNumberRangeCritForm.serialTo.value);
+    }
+
+    if (canonicalTo != "") {
+        if (!isDecimalNumber(canonicalTo)) {
+            if (isNumber(canonicalTo,16)) {
+                canonicalTo = "0x" +
+                    removeColons(stripPrefix(canonicalTo));
+            } else {
+                alert("You must specify a decimal or hexadecimal value" + 
+                    "for the high end of the serial number range.");
+                return null;
+            }
+        }
+        if (isNegative(canonicalTo)) {
+            alert("You must specify a positive value for the high " +
+                   "end of the serial number range.");
+            return null;
+        }
+        crit[next++] = "(certRecordId<=" + canonicalTo + ")";
+    }
+
+    /* Can not do this using parseInt */
+    /*
+    if (document.serialNumberRangeCritForm.serialFrom.value != "" &&
+        document.serialNumberRangeCritForm.serialTo.value != "") {
+        if (parseInt(canonicalFrom) > parseInt(canonicalTo)) {
+            alert("The low end of the range is larger than the high end.");
+            return null;
+        }
+    }
+    */
+    return nsjoin(crit,"");
+}
+//-->
+</SCRIPT>
+
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<b><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Status</font></b>
+<FORM NAME="statusCritForm">
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td colspan="3">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates that are 
+<select NAME="status">
+<option value="VALID">VALID
+<option value="INVALID">INVALID
+<option value="REVOKED">REVOKED
+<option value="EXPIRED">EXPIRED
+<option value="REVOKED_EXPIRED">REVOKED & EXPIRED
+</select>
+</font>
+</td>
+</tr>
+</table>
+</FORM>
+<SCRIPT type="text/javascript">
+//<!--
+function statusCritInUse()
+{
+    return document.statusCritForm.inUse.checked;
+}
+function statusRangeCrit()
+{
+      return "(certStatus=" + document.statusCritForm.status.options[document.statusCritForm.status.selectedIndex].value + ")";
+}
+//-->
+</SCRIPT>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<b><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Subject Name</font></b>
+<FORM NAME="subjectCritForm">
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td colspan="2">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates with a subject name matching the following:
+</font>
+</td>
+</tr>
+
+<tr align="left">
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Email address:</font>
+</td>
+<td><INPUT TYPE="TEXT" NAME="eMail" SIZE=30></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Common name:</font>
+</td>
+<td><INPUT TYPE="TEXT" NAME="commonName" SIZE=30></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">User ID:</font>
+</td>
+<td><INPUT TYPE="TEXT" NAME="userID" SIZE=30></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Organization unit:</font>
+</td>
+<td><INPUT TYPE="TEXT" NAME="orgUnit" SIZE=30></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Organization:</font>
+</td>
+<td><INPUT TYPE="TEXT" NAME="org" SIZE=30></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Locality:</font>
+</td>
+<td><INPUT TYPE="TEXT" NAME="locality" SIZE=30></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">State:</font>
+</td>
+<td><INPUT TYPE="TEXT" NAME="state" SIZE=30></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Country:</font>
+</td>
+<td><INPUT TYPE="TEXT" NAME="country" VALUE="" SIZE=2 MAXLENGTH=2></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Match Method:</font>
+</td>
+<td>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+<INPUT TYPE="RADIO" NAME="match" VALUE="exact">Exact</font>
+</td>
+<tr>
+<td>&nbsp;</td>
+<td align="right">&nbsp;</td>
+<td>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+<INPUT TYPE="RADIO" CHECKED NAME="match" VALUE="partial">Partial</font>
+</td>
+</tr>
+</table>
+</FORM>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Enter values for the fields you want to have in your search criteria.
+Leave other fields blank. 
+<br><br>
+Exact match method finds certificates for subjects whose name consists
+<b>exactly</b> of the components that you have filled in above, and contains
+none of the components you have left blank.  Pattern matching wildcard
+values cannot be used in this search.
+<br><br>
+Partial match method finds certificates for subjects whose name consists
+<b>in part</b> of the components you have specified above, and in addition
+may contain arbitrary values for the other components you have left blank above.
+Pattern matching wildcard values can be used in this search.
+</font>
+
+<SCRIPT type="text/javascript">
+<!--
+function subjectCritInUse()
+{
+    return document.subjectCritForm.inUse.checked;
+}
+function subjectCrit()
+{
+    return computeNameFilter(document.subjectCritForm);
+}
+//-->
+</SCRIPT>
+
+<table BORDER=0 CELLSPACING=2 CELLPADDING=2 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+<b>Revocation Information</b></font>
+
+<table border="0" cellspacing="2" cellpadding="2">
+<tr align="left">
+<FORM NAME="revokedByCritForm">
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td align="left" colspan="2">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates revoked by:</font>&nbsp;
+<INPUT TYPE="text" NAME="revokedBy" SIZE=10>
+</td>
+</FORM>
+</tr>
+
+<tr>
+<FORM NAME="revokedOnCritForm">
+<td>
+<INPUT TYPE="CHECKBOX" NAME="inUse">
+</td>
+<td align="left" colspan="2">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates revoked during the period:</font>
+</td>
+</FORM>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+<td valign="top" align=right>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Start date:</font>
+</td>
+<td valign="top" nowrap>
+<FORM NAME="revokedOnFrom">
+<SELECT NAME="day">
+<OPTION VALUE=0>
+<OPTION VALUE=1>1
+<OPTION VALUE=2>2
+<OPTION VALUE=3>3
+<OPTION VALUE=4>4
+<OPTION VALUE=5>5
+<OPTION VALUE=6>6
+<OPTION VALUE=7>7
+<OPTION VALUE=8>8
+<OPTION VALUE=9>9
+<OPTION VALUE=10>10
+<OPTION VALUE=11>11
+<OPTION VALUE=12>12
+<OPTION VALUE=13>13
+<OPTION VALUE=14>14
+<OPTION VALUE=15>15
+<OPTION VALUE=16>16
+<OPTION VALUE=17>17
+<OPTION VALUE=18>18
+<OPTION VALUE=19>19
+<OPTION VALUE=20>20
+<OPTION VALUE=21>21
+<OPTION VALUE=22>22
+<OPTION VALUE=23>23
+<OPTION VALUE=24>24
+<OPTION VALUE=25>25
+<OPTION VALUE=26>26
+<OPTION VALUE=27>27
+<OPTION VALUE=28>28
+<OPTION VALUE=29>29
+<OPTION VALUE=30>30
+<OPTION VALUE=31>31
+</SELECT>
+<SELECT NAME="month">
+<OPTION VALUE=13>
+<OPTION VALUE=0>January
+<OPTION VALUE=1>February
+<OPTION VALUE=2>March
+<OPTION VALUE=3>April
+<OPTION VALUE=4>May
+<OPTION VALUE=5>June
+<OPTION VALUE=6>July
+<OPTION VALUE=7>August
+<OPTION VALUE=8>September
+<OPTION VALUE=9>October
+<OPTION VALUE=10>November
+<OPTION VALUE=11>December
+</SELECT>
+<SELECT NAME="year">
+<OPTION VALUE=0>
+<OPTION VALUE=1997>1997
+<OPTION VALUE=1998>1998
+<OPTION VALUE=1999>1999
+<OPTION VALUE=2000>2000
+<OPTION VALUE=2001>2001
+<OPTION VALUE=2002>2002
+<OPTION VALUE=2003>2003
+<OPTION VALUE=2004>2004
+<OPTION VALUE=2005>2005
+<OPTION VALUE=2006>2006
+<OPTION VALUE=2007>2007
+<OPTION VALUE=2008>2008
+<OPTION VALUE=2009>2009
+<OPTION VALUE=2010>2010
+<OPTION VALUE=2011>2011
+<OPTION VALUE=2012>2012
+</SELECT>
+</FORM>
+</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+<td valign=top align=right>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">End date:</font>
+</td>
+<td valign="top" nowrap>
+<FORM NAME="revokedOnTo">
+<SELECT NAME="day">
+<OPTION VALUE=0>
+<OPTION VALUE=1>1
+<OPTION VALUE=2>2
+<OPTION VALUE=3>3
+<OPTION VALUE=4>4
+<OPTION VALUE=5>5
+<OPTION VALUE=6>6
+<OPTION VALUE=7>7
+<OPTION VALUE=8>8
+<OPTION VALUE=9>9
+<OPTION VALUE=10>10
+<OPTION VALUE=11>11
+<OPTION VALUE=12>12
+<OPTION VALUE=13>13
+<OPTION VALUE=14>14
+<OPTION VALUE=15>15
+<OPTION VALUE=16>16
+<OPTION VALUE=17>17
+<OPTION VALUE=18>18
+<OPTION VALUE=19>19
+<OPTION VALUE=20>20
+<OPTION VALUE=21>21
+<OPTION VALUE=22>22
+<OPTION VALUE=23>23
+<OPTION VALUE=24>24
+<OPTION VALUE=25>25
+<OPTION VALUE=26>26
+<OPTION VALUE=27>27
+<OPTION VALUE=28>28
+<OPTION VALUE=29>29
+<OPTION VALUE=30>30
+<OPTION VALUE=31>31
+</SELECT>
+<SELECT NAME="month">
+<OPTION VALUE=13>
+<OPTION VALUE=0>January
+<OPTION VALUE=1>February
+<OPTION VALUE=2>March
+<OPTION VALUE=3>April
+<OPTION VALUE=4>May
+<OPTION VALUE=5>June
+<OPTION VALUE=6>July
+<OPTION VALUE=7>August
+<OPTION VALUE=8>September
+<OPTION VALUE=9>October
+<OPTION VALUE=10>November
+<OPTION VALUE=11>December
+</SELECT>
+<SELECT NAME="year">
+<OPTION VALUE=0>
+<OPTION VALUE=1997>1997
+<OPTION VALUE=1998>1998
+<OPTION VALUE=1999>1999
+<OPTION VALUE=2000>2000
+<OPTION VALUE=2001>2001
+<OPTION VALUE=2002>2002
+<OPTION VALUE=2003>2003
+<OPTION VALUE=2004>2004
+<OPTION VALUE=2005>2005
+<OPTION VALUE=2006>2006
+<OPTION VALUE=2007>2007
+<OPTION VALUE=2008>2008
+<OPTION VALUE=2009>2009
+<OPTION VALUE=2010>2010
+<OPTION VALUE=2011>2011
+<OPTION VALUE=2012>2012
+</SELECT>
+</FORM>
+</td>
+</tr>
+</table>
+
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<FORM NAME="revocationReasonCritForm">
+<td valign="top" align="left">
+<INPUT TYPE="CHECKBOX" NAME="inUse">
+</td>
+</FORM>
+<td valign="top" align="left">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates revoked from the reason:</font>&nbsp;
+</td>
+<FORM NAME="revocationReasonForm">
+<td valign="top" nowrap>
+<SELECT NAME="revocationReason" size=4 multiple>
+<OPTION VALUE=0>Unspecified
+<OPTION VALUE=1>Key compromised
+<OPTION VALUE=2>CA key compromised
+<OPTION VALUE=3>Affiliation changed
+<OPTION VALUE=4>Certificate superceded
+<OPTION VALUE=5>Cessation of operation
+<OPTION VALUE=6>Certificate is on hold
+</SELECT>
+</td>
+</FORM>
+</tr>
+</table>
+
+<SCRIPT type="text/javascript">
+<!--
+function revokedByCritInUse()
+{
+    return document.revokedByCritForm.inUse.checked;
+}
+function revokedByCrit()
+{
+    if (document.revokedByCritForm.revokedBy.value.length == 0) {
+        alert("User id in 'revoked by' filter is empty");
+    	return null;
+    }
+    return "(certRevokedBy="+ document.revokedByCritForm.revokedBy.value +")";
+}
+
+function revokedOnCritInUse()
+{
+    return document.revokedOnCritForm.inUse.checked;
+}
+function revokedOnCrit()
+{
+    var from = null, to = null;
+    var crit = new Array();
+    var next = 0;
+    if (!dateIsEmpty(document.revokedOnFrom)) {
+    	from = convertDate(document.revokedOnFrom, 
+			"Start date for revocation time range criterion");
+    	if (from == null) return null;
+    	crit[next++] = "(certRevokedOn>=" + from + ")";
+    }
+    if (!dateIsEmpty(document.revokedOnTo)) {
+    	to = convertDate(document.revokedOnTo, 
+			"End date for revocation time range criterion");
+    	if (to == null) return null;
+    	to += 86399999;
+    	crit[next++] = "(certRevokedOn<=" + to + ")";
+    }
+  
+    if (from == null && to == null) {
+        alert("You must enter a date for revocation time range.");
+        return null;
+    }
+    if (from != null && to != null && from > to) {
+    	alert("Revocation time range specified is empty");
+    	return null;
+    }
+    return nsjoin(crit,"");
+}
+
+function revocationReasonCritInUse()
+{
+    return document.revocationReasonCritForm.inUse.checked;
+}
+function revocationReasonCrit()
+{
+    var crit = new Array();
+    var sum = null;
+    var next = 0;
+
+    for (var i = 0; i < document.revocationReasonForm.revocationReason.length; i++) {
+        if (document.revocationReasonForm.revocationReason.options[i].selected == true) {
+            crit[next++] = "(x509cert.certRevoInfo="+i+")";
+        }
+    }
+    sum = nsjoin(crit,"");
+    if (next > 1) {
+        sum = "(|" + sum + ")"
+    } else if (next < 1) {
+        alert("You must select at least one revocation reason.");
+        return null;
+    }
+    return sum;
+}
+//-->
+</SCRIPT>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+<b>Issuing Information</b></font>
+
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<FORM NAME="issuedByCritForm">
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td align="left" colspan="2">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates issued by:</font>&nbsp;
+<INPUT TYPE="text" NAME="issuedBy" SIZE=10></td>
+</FORM>
+</tr>
+
+<tr>
+<FORM NAME="issuedOnCritForm">
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td colspan="2">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates issued during the period:</font></td>
+</FORM>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+<td valign=top align=right>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Start date:</font>
+</td>
+<td valign="top" nowrap>
+<FORM NAME="issuedOnFrom">
+<SELECT NAME="day">
+<OPTION VALUE=0>
+<OPTION VALUE=1>1
+<OPTION VALUE=2>2
+<OPTION VALUE=3>3
+<OPTION VALUE=4>4
+<OPTION VALUE=5>5
+<OPTION VALUE=6>6
+<OPTION VALUE=7>7
+<OPTION VALUE=8>8
+<OPTION VALUE=9>9
+<OPTION VALUE=10>10
+<OPTION VALUE=11>11
+<OPTION VALUE=12>12
+<OPTION VALUE=13>13
+<OPTION VALUE=14>14
+<OPTION VALUE=15>15
+<OPTION VALUE=16>16
+<OPTION VALUE=17>17
+<OPTION VALUE=18>18
+<OPTION VALUE=19>19
+<OPTION VALUE=20>20
+<OPTION VALUE=21>21
+<OPTION VALUE=22>22
+<OPTION VALUE=23>23
+<OPTION VALUE=24>24
+<OPTION VALUE=25>25
+<OPTION VALUE=26>26
+<OPTION VALUE=27>27
+<OPTION VALUE=28>28
+<OPTION VALUE=29>29
+<OPTION VALUE=30>30
+<OPTION VALUE=31>31
+</SELECT>
+<SELECT NAME="month">
+<OPTION VALUE=13>
+<OPTION VALUE=0>January
+<OPTION VALUE=1>February
+<OPTION VALUE=2>March
+<OPTION VALUE=3>April
+<OPTION VALUE=4>May
+<OPTION VALUE=5>June
+<OPTION VALUE=6>July
+<OPTION VALUE=7>August
+<OPTION VALUE=8>September
+<OPTION VALUE=9>October
+<OPTION VALUE=10>November
+<OPTION VALUE=11>December
+</SELECT>
+<SELECT NAME="year">
+<OPTION VALUE=0>
+<OPTION VALUE=1997>1997
+<OPTION VALUE=1998>1998
+<OPTION VALUE=1999>1999
+<OPTION VALUE=2000>2000
+<OPTION VALUE=2001>2001
+<OPTION VALUE=2002>2002
+<OPTION VALUE=2003>2003
+<OPTION VALUE=2004>2004
+<OPTION VALUE=2005>2005
+<OPTION VALUE=2006>2006
+<OPTION VALUE=2007>2007
+<OPTION VALUE=2008>2008
+<OPTION VALUE=2009>2009
+<OPTION VALUE=2010>2010
+<OPTION VALUE=2011>2011
+<OPTION VALUE=2012>2012
+</SELECT>
+</FORM>
+</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+<td valign=top align=right>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">End date:</font>
+</td>
+<td valign="top" nowrap>
+<FORM NAME="issuedOnTo">
+<SELECT NAME="day">
+<OPTION VALUE=0>
+<OPTION VALUE=1>1
+<OPTION VALUE=2>2
+<OPTION VALUE=3>3
+<OPTION VALUE=4>4
+<OPTION VALUE=5>5
+<OPTION VALUE=6>6
+<OPTION VALUE=7>7
+<OPTION VALUE=8>8
+<OPTION VALUE=9>9
+<OPTION VALUE=10>10
+<OPTION VALUE=11>11
+<OPTION VALUE=12>12
+<OPTION VALUE=13>13
+<OPTION VALUE=14>14
+<OPTION VALUE=15>15
+<OPTION VALUE=16>16
+<OPTION VALUE=17>17
+<OPTION VALUE=18>18
+<OPTION VALUE=19>19
+<OPTION VALUE=20>20
+<OPTION VALUE=21>21
+<OPTION VALUE=22>22
+<OPTION VALUE=23>23
+<OPTION VALUE=24>24
+<OPTION VALUE=25>25
+<OPTION VALUE=26>26
+<OPTION VALUE=27>27
+<OPTION VALUE=28>28
+<OPTION VALUE=29>29
+<OPTION VALUE=30>30
+<OPTION VALUE=31>31
+</SELECT>
+<SELECT NAME="month">
+<OPTION VALUE=13>
+<OPTION VALUE=0>January
+<OPTION VALUE=1>February
+<OPTION VALUE=2>March
+<OPTION VALUE=3>April
+<OPTION VALUE=4>May
+<OPTION VALUE=5>June
+<OPTION VALUE=6>July
+<OPTION VALUE=7>August
+<OPTION VALUE=8>September
+<OPTION VALUE=9>October
+<OPTION VALUE=10>November
+<OPTION VALUE=11>December
+</SELECT>
+<SELECT NAME="year">
+<OPTION VALUE=0>
+<OPTION VALUE=1997>1997
+<OPTION VALUE=1998>1998
+<OPTION VALUE=1999>1999
+<OPTION VALUE=2000>2000
+<OPTION VALUE=2001>2001
+<OPTION VALUE=2002>2002
+<OPTION VALUE=2003>2003
+<OPTION VALUE=2004>2004
+<OPTION VALUE=2005>2005
+<OPTION VALUE=2006>2006
+<OPTION VALUE=2007>2007
+<OPTION VALUE=2008>2008
+<OPTION VALUE=2009>2009
+<OPTION VALUE=2010>2010
+<OPTION VALUE=2011>2011
+<OPTION VALUE=2012>2012
+</SELECT>
+</FORM>
+</td>
+</tr>
+</table>
+
+<SCRIPT type="text/javascript">
+<!--
+function issuedByCritInUse()
+{
+    return document.issuedByCritForm.inUse.checked;
+}
+function issuedByCrit()
+{
+    if (document.issuedByCritForm.issuedBy.value.length == 0) {
+        alert("User id in 'issued by' filter is empty");
+    	return null;
+    }
+    return "(certIssuedBy="+ document.issuedByCritForm.issuedBy.value +")";
+}
+
+
+function issuedOnCritInUse()
+{
+    return document.issuedOnCritForm.inUse.checked;
+}
+function issuedOnCrit()
+{
+    var from = null, to = null;
+    var crit = new Array();
+    var next = 0;
+    if (!dateIsEmpty(document.issuedOnFrom)) {
+    	from = convertDate(document.issuedOnFrom, 
+			"Start date for issue time range criterion");
+    	if (from == null) return null;
+    	crit[next++] = "(certCreateTime>=" + from + ")";
+    }
+    if (!dateIsEmpty(document.issuedOnTo)) {
+    	to = convertDate(document.issuedOnTo, 
+			"End date for issue time range criterion");
+    	if (to == null) return null;
+    	to += 86399999;
+    	crit[next++] = "(certCreateTime<=" + to + ")";
+    }
+
+    if (from == null && to == null) {
+        alert("You must enter a date for issue time range.");
+        return null;
+    }
+    if (from != null && to != null && from > to) {
+    	alert("Issue time range specified is empty");
+    	return null;
+    }
+    return nsjoin(crit,"");
+}
+//-->
+</SCRIPT>
+
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+<b>Dates of Validity</b></font>
+
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<FORM NAME="validNotBeforeCritForm">
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td align="left" colspan="2">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates effective during the period:</font></td>
+</FORM>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+<td valign=top align=right>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Start date:</font>
+</td>
+<td valign="top" nowrap>
+<FORM NAME="validNotBeforeFrom">
+<SELECT NAME="day">
+<OPTION VALUE=0>
+<OPTION VALUE=1>1
+<OPTION VALUE=2>2
+<OPTION VALUE=3>3
+<OPTION VALUE=4>4
+<OPTION VALUE=5>5
+<OPTION VALUE=6>6
+<OPTION VALUE=7>7
+<OPTION VALUE=8>8
+<OPTION VALUE=9>9
+<OPTION VALUE=10>10
+<OPTION VALUE=11>11
+<OPTION VALUE=12>12
+<OPTION VALUE=13>13
+<OPTION VALUE=14>14
+<OPTION VALUE=15>15
+<OPTION VALUE=16>16
+<OPTION VALUE=17>17
+<OPTION VALUE=18>18
+<OPTION VALUE=19>19
+<OPTION VALUE=20>20
+<OPTION VALUE=21>21
+<OPTION VALUE=22>22
+<OPTION VALUE=23>23
+<OPTION VALUE=24>24
+<OPTION VALUE=25>25
+<OPTION VALUE=26>26
+<OPTION VALUE=27>27
+<OPTION VALUE=28>28
+<OPTION VALUE=29>29
+<OPTION VALUE=30>30
+<OPTION VALUE=31>31
+</SELECT>
+<SELECT NAME="month">
+<OPTION VALUE=13>
+<OPTION VALUE=0>January
+<OPTION VALUE=1>February
+<OPTION VALUE=2>March
+<OPTION VALUE=3>April
+<OPTION VALUE=4>May
+<OPTION VALUE=5>June
+<OPTION VALUE=6>July
+<OPTION VALUE=7>August
+<OPTION VALUE=8>September
+<OPTION VALUE=9>October
+<OPTION VALUE=10>November
+<OPTION VALUE=11>December
+</SELECT>
+<SELECT NAME="year">
+<OPTION VALUE=0>
+<OPTION VALUE=1997>1997
+<OPTION VALUE=1998>1998
+<OPTION VALUE=1999>1999
+<OPTION VALUE=2000>2000
+<OPTION VALUE=2001>2001
+<OPTION VALUE=2002>2002
+<OPTION VALUE=2003>2003
+<OPTION VALUE=2004>2004
+<OPTION VALUE=2005>2005
+<OPTION VALUE=2006>2006
+<OPTION VALUE=2007>2007
+<OPTION VALUE=2008>2008
+<OPTION VALUE=2009>2009
+<OPTION VALUE=2010>2010
+<OPTION VALUE=2011>2011
+<OPTION VALUE=2012>2012
+</SELECT>
+</FORM>
+</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+<td valign=top align=right>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">End date:</font>
+</td>
+<td valign="top" nowrap>
+<FORM NAME="validNotBeforeTo">
+<SELECT NAME="day">
+<OPTION VALUE=0>
+<OPTION VALUE=1>1
+<OPTION VALUE=2>2
+<OPTION VALUE=3>3
+<OPTION VALUE=4>4
+<OPTION VALUE=5>5
+<OPTION VALUE=6>6
+<OPTION VALUE=7>7
+<OPTION VALUE=8>8
+<OPTION VALUE=9>9
+<OPTION VALUE=10>10
+<OPTION VALUE=11>11
+<OPTION VALUE=12>12
+<OPTION VALUE=13>13
+<OPTION VALUE=14>14
+<OPTION VALUE=15>15
+<OPTION VALUE=16>16
+<OPTION VALUE=17>17
+<OPTION VALUE=18>18
+<OPTION VALUE=19>19
+<OPTION VALUE=20>20
+<OPTION VALUE=21>21
+<OPTION VALUE=22>22
+<OPTION VALUE=23>23
+<OPTION VALUE=24>24
+<OPTION VALUE=25>25
+<OPTION VALUE=26>26
+<OPTION VALUE=27>27
+<OPTION VALUE=28>28
+<OPTION VALUE=29>29
+<OPTION VALUE=30>30
+<OPTION VALUE=31>31
+</SELECT>
+<SELECT NAME="month">
+<OPTION VALUE=13>
+<OPTION VALUE=0>January
+<OPTION VALUE=1>February
+<OPTION VALUE=2>March
+<OPTION VALUE=3>April
+<OPTION VALUE=4>May
+<OPTION VALUE=5>June
+<OPTION VALUE=6>July
+<OPTION VALUE=7>August
+<OPTION VALUE=8>September
+<OPTION VALUE=9>October
+<OPTION VALUE=10>November
+<OPTION VALUE=11>December
+</SELECT>
+<SELECT NAME="year">
+<OPTION VALUE=0>
+<OPTION VALUE=1997>1997
+<OPTION VALUE=1998>1998
+<OPTION VALUE=1999>1999
+<OPTION VALUE=2000>2000
+<OPTION VALUE=2001>2001
+<OPTION VALUE=2002>2002
+<OPTION VALUE=2003>2003
+<OPTION VALUE=2004>2004
+<OPTION VALUE=2005>2005
+<OPTION VALUE=2006>2006
+<OPTION VALUE=2007>2007
+<OPTION VALUE=2008>2008
+<OPTION VALUE=2009>2009
+<OPTION VALUE=2010>2010
+<OPTION VALUE=2011>2011
+<OPTION VALUE=2012>2012
+</SELECT>
+</FORM>
+</td>
+</tr>
+</table>
+
+<SCRIPT type="text/javascript">
+<!--
+function validNotBeforeCritInUse()
+{
+    return document.validNotBeforeCritForm.inUse.checked;
+}
+
+function validNotBeforeCrit()
+{
+    var from = null, to = null;
+    var crit = new Array();
+    var next = 0;
+    if (!dateIsEmpty(document.validNotBeforeFrom)) {
+    	from = convertDate(document.validNotBeforeFrom, 
+		"Start date for the validity beginning time range criterion");
+    	if (from == null) return null;
+    	crit[next++] = "(x509Cert.notBefore>=" + from + ")";
+    }
+    if (!dateIsEmpty(document.validNotBeforeTo)) {
+    	to = convertDate(document.validNotBeforeTo, 
+		"End date for the validity beginning time range criterion");
+    	if (to == null) return null;
+    	to += 86399999;
+    	crit[next++] = "(x509Cert.notBefore<=" + to + ")";
+    }
+
+    if (from == null && to == null) {
+        alert("You must enter a date for validity beginning range.");
+        return null;
+    }
+    if (from != null && to != null && from > to) {
+    	alert("Validity beginning time range specified is empty");
+    	return null;
+    }
+    return nsjoin(crit,"");
+}
+//-->
+</SCRIPT>
+
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<FORM NAME="validNotAfterCritForm">
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td align="left" colspan="2">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates expired during the period:</font></td>
+</FORM>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+<td valign=top align=right>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Start date:</font>
+</td>
+<td valign="top" nowrap>
+<FORM NAME="validNotAfterFrom">
+<SELECT NAME="day">
+<OPTION VALUE=0>
+<OPTION VALUE=1>1
+<OPTION VALUE=2>2
+<OPTION VALUE=3>3
+<OPTION VALUE=4>4
+<OPTION VALUE=5>5
+<OPTION VALUE=6>6
+<OPTION VALUE=7>7
+<OPTION VALUE=8>8
+<OPTION VALUE=9>9
+<OPTION VALUE=10>10
+<OPTION VALUE=11>11
+<OPTION VALUE=12>12
+<OPTION VALUE=13>13
+<OPTION VALUE=14>14
+<OPTION VALUE=15>15
+<OPTION VALUE=16>16
+<OPTION VALUE=17>17
+<OPTION VALUE=18>18
+<OPTION VALUE=19>19
+<OPTION VALUE=20>20
+<OPTION VALUE=21>21
+<OPTION VALUE=22>22
+<OPTION VALUE=23>23
+<OPTION VALUE=24>24
+<OPTION VALUE=25>25
+<OPTION VALUE=26>26
+<OPTION VALUE=27>27
+<OPTION VALUE=28>28
+<OPTION VALUE=29>29
+<OPTION VALUE=30>30
+<OPTION VALUE=31>31
+</SELECT>
+<SELECT NAME="month">
+<OPTION VALUE=13>
+<OPTION VALUE=0>January
+<OPTION VALUE=1>February
+<OPTION VALUE=2>March
+<OPTION VALUE=3>April
+<OPTION VALUE=4>May
+<OPTION VALUE=5>June
+<OPTION VALUE=6>July
+<OPTION VALUE=7>August
+<OPTION VALUE=8>September
+<OPTION VALUE=9>October
+<OPTION VALUE=10>November
+<OPTION VALUE=11>December
+</SELECT>
+<SELECT NAME="year">
+<OPTION VALUE=0>
+<OPTION VALUE=1997>1997
+<OPTION VALUE=1998>1998
+<OPTION VALUE=1999>1999
+<OPTION VALUE=2000>2000
+<OPTION VALUE=2001>2001
+<OPTION VALUE=2002>2002
+<OPTION VALUE=2003>2003
+<OPTION VALUE=2004>2004
+<OPTION VALUE=2005>2005
+<OPTION VALUE=2006>2006
+<OPTION VALUE=2007>2007
+<OPTION VALUE=2008>2008
+<OPTION VALUE=2009>2009
+<OPTION VALUE=2010>2010
+<OPTION VALUE=2011>2011
+<OPTION VALUE=2012>2012
+</SELECT>
+</FORM>
+</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+<td valign=top align=right>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">End date:</font>
+</td>
+<td valign="top" nowrap>
+<FORM NAME="validNotAfterTo">
+<SELECT NAME="day">
+<OPTION VALUE=0>
+<OPTION VALUE=1>1
+<OPTION VALUE=2>2
+<OPTION VALUE=3>3
+<OPTION VALUE=4>4
+<OPTION VALUE=5>5
+<OPTION VALUE=6>6
+<OPTION VALUE=7>7
+<OPTION VALUE=8>8
+<OPTION VALUE=9>9
+<OPTION VALUE=10>10
+<OPTION VALUE=11>11
+<OPTION VALUE=12>12
+<OPTION VALUE=13>13
+<OPTION VALUE=14>14
+<OPTION VALUE=15>15
+<OPTION VALUE=16>16
+<OPTION VALUE=17>17
+<OPTION VALUE=18>18
+<OPTION VALUE=19>19
+<OPTION VALUE=20>20
+<OPTION VALUE=21>21
+<OPTION VALUE=22>22
+<OPTION VALUE=23>23
+<OPTION VALUE=24>24
+<OPTION VALUE=25>25
+<OPTION VALUE=26>26
+<OPTION VALUE=27>27
+<OPTION VALUE=28>28
+<OPTION VALUE=29>29
+<OPTION VALUE=30>30
+<OPTION VALUE=31>31
+</SELECT>
+<SELECT NAME="month">
+<OPTION VALUE=13>
+<OPTION VALUE=0>January
+<OPTION VALUE=1>February
+<OPTION VALUE=2>March
+<OPTION VALUE=3>April
+<OPTION VALUE=4>May
+<OPTION VALUE=5>June
+<OPTION VALUE=6>July
+<OPTION VALUE=7>August
+<OPTION VALUE=8>September
+<OPTION VALUE=9>October
+<OPTION VALUE=10>November
+<OPTION VALUE=11>December
+</SELECT>
+<SELECT NAME="year">
+<OPTION VALUE=0>
+<OPTION VALUE=1997>1997
+<OPTION VALUE=1998>1998
+<OPTION VALUE=1999>1999
+<OPTION VALUE=2000>2000
+<OPTION VALUE=2001>2001
+<OPTION VALUE=2002>2002
+<OPTION VALUE=2003>2003
+<OPTION VALUE=2004>2004
+<OPTION VALUE=2005>2005
+<OPTION VALUE=2006>2006
+<OPTION VALUE=2007>2007
+<OPTION VALUE=2008>2008
+<OPTION VALUE=2009>2009
+<OPTION VALUE=2010>2010
+<OPTION VALUE=2011>2011
+<OPTION VALUE=2012>2012
+</SELECT>
+</FORM>
+</td>
+</tr>
+</table>
+
+<SCRIPT type="text/javascript">
+<!--
+function validNotAfterCritInUse()
+{
+    return document.validNotAfterCritForm.inUse.checked;
+}
+
+function validNotAfterCrit()
+{
+    var from = null, to = null;
+    var crit = new Array();
+    var next = 0;
+    if (!dateIsEmpty(document.validNotAfterFrom)) {
+    	from = convertDate(document.validNotAfterFrom, 
+		"Start date for the expiration time range criterion");
+    	if (from == null) return null;
+    	crit[next++] = "(x509cert.notAfter>=" + from + ")";
+    }
+    if (!dateIsEmpty(document.validNotAfterTo)) {
+    	to = convertDate(document.validNotAfterTo, 
+		"End date for the expiration time range criterion");
+    	if (to == null) return null;
+    	to += 86399999;
+    	crit[next++] = "(x509cert.notAfter<=" + to + ")";
+    }
+    
+    if (from == null && to == null) {
+        alert("You must enter a date for expiration time range.");
+        return null;
+    }
+    if (from != null && to != null && from > to) {
+    	alert("Expiration time range specified is empty");
+    	return null;
+    }
+    return nsjoin(crit,"");
+}
+//-->
+</SCRIPT>
+
+<table border="0" cellspacing="2" cellpadding="2">
+<FORM NAME="validityLengthCritForm">
+<tr>
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td align="left" colspan="2">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates with a validity period:</font></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>
+<SELECT NAME="validityOp">
+<OPTION VALUE="&lt;="> not greater
+<OPTION VALUE="&gt;="> not less
+</SELECT>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">than</font>
+<INPUT NAME="count" TYPE="text" MAXSIZE=2 SIZE=2>
+<SELECT NAME="unit">
+<OPTION VALUE="86400000">Day(s)</OPTION>
+<OPTION VALUE="604800000">Week(s)</OPTION>
+<OPTION SELECTED VALUE="2592000000">Month(s)</OPTION> 
+<OPTION VALUE="31536000000">Year(s)</OPTION> 
+</SELECT> 
+</td></tr>
+</FORM>
+</table>
+
+<SCRIPT type="text/javascript">
+<!--
+function validityLengthCritInUse()
+{
+    return document.validityLengthCritForm.inUse.checked;
+}
+
+function validityLengthCrit()
+{
+   with(document.validityLengthCritForm) {
+	if(!isNumber(count.value,10)) {
+	       alert("Invalid number specified in validity length criterion");
+	       return null;
+	}
+ 
+    return "(x509cert.duration" + 
+    		validityOp.options[validityOp.selectedIndex].value +
+			(count.value * unit.options[unit.selectedIndex].value) +")";
+    }
+}
+//-->
+</SCRIPT>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif"><b>Type</b></font>
+
+<FORM NAME="certTypeCritForm">
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td align="left" colspan="2">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show certificates of the following types:</font>
+</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">SSL client:</font>
+</td>
+<td>
+<SELECT NAME="SSLClient">
+<OPTION SELECTED VALUE="">Do not care
+<OPTION VALUE="on">On
+<OPTION VALUE="off">Off
+</SELECT>
+</td></tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">SSL server:</font>
+</td>
+<td>
+<SELECT NAME="SSLServer">
+<OPTION SELECTED VALUE="">Do not care
+<OPTION VALUE="on">On
+<OPTION VALUE="off">Off
+</SELECT>
+</td></tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Secure email:</font>
+</td><td>
+<SELECT NAME="SecureEmail">
+<OPTION SELECTED VALUE="">Do not care
+<OPTION VALUE="on">On
+<OPTION VALUE="off">Off
+</SELECT>
+</td></tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Subordinate SSL CA:</font>
+</td><td>
+<SELECT NAME="SubordinateSSLCA">
+<OPTION SELECTED VALUE="">Do not care
+<OPTION VALUE="on">On
+<OPTION VALUE="off">Off
+</SELECT>
+</td></tr>
+<tr>
+<td>&nbsp;</td>
+<td align="right">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Subordinate email CA:</font>
+</td><td>
+<SELECT NAME="SubordinateEmailCA">
+<OPTION SELECTED VALUE="">Do not care
+<OPTION VALUE="on">On
+<OPTION VALUE="off">Off
+</SELECT>
+</td></tr>
+</table>
+</FORM>
+
+<SCRIPT type="text/javascript">
+<!--
+function certTypeCritInUse()
+{
+    return document.certTypeCritForm.inUse.checked;
+}
+
+function certTypeCrit()
+{
+    var result = '';
+    var count = 0;
+
+    for (var i = 1; i < document.certTypeCritForm.length; i++) {
+        var sel = document.certTypeCritForm[i].selectedIndex;
+        if (sel > 0) {
+            count++;
+            result += '(x509cert.nsExtension.' +
+                      document.certTypeCritForm[i].name + '='+
+                      document.certTypeCritForm[i].options[sel].value + ')';
+        }
+    }
+    if (count == 0) {
+        alert("At least one of the certificate types must be selected");
+        return null;
+    }
+
+    return result;
+}
+//-->
+</SCRIPT>
+
+<br>
+<SCRIPT type="text/javascript">
+<!--
+function doSubmit(form)
+{
+    var andFilter = new Array;
+    var critCount = 0;
+
+    andFilter[critCount++] = "(certRecordId=*)";
+
+    if (serialNumberRangeCritInUse()) {
+        if ((andFilter[critCount++] = serialNumberRangeCrit()) == null)
+            return;
+    }	
+    if (statusCritInUse()) {
+        if ((andFilter[critCount++] = statusRangeCrit()) == null)
+            return;
+    }	
+    if (subjectCritInUse()) {
+        if ((andFilter[critCount++] = subjectCrit()) == null)
+            return;
+    }
+
+    if (revokedOnCritInUse()) {
+        if ((andFilter[critCount++] = revokedOnCrit()) == null)
+            return;
+    }
+    if (revokedByCritInUse()) {
+        if ((andFilter[critCount++] = revokedByCrit()) == null)
+            return;
+    }
+    if (revocationReasonCritInUse()) {
+        if ((andFilter[critCount++] = revocationReasonCrit()) == null)
+            return;
+    }
+    if (issuedOnCritInUse()) {
+        if ((andFilter[critCount++] = issuedOnCrit()) == null)
+            return;
+    }
+    if (issuedByCritInUse()) {
+        if ((andFilter[critCount++] = issuedByCrit()) == null)
+            return;
+    }
+    if (validNotBeforeCritInUse()) {
+        if ((andFilter[critCount++] = validNotBeforeCrit()) == null)
+            return;
+    }
+    if (validNotAfterCritInUse()) {
+        if ((andFilter[critCount++] = validNotAfterCrit()) == null)
+            return;
+    }
+    if (validityLengthCritInUse()) {
+        if ((andFilter[critCount++] = validityLengthCrit()) == null)
+            return;
+    }
+    if (certTypeCritInUse()) {
+        if ((andFilter[critCount++] = certTypeCrit()) == null)
+            return;
+    }
+
+    // At least one section must be selected
+    if (critCount == 0) {
+        alert("You must choose at least one section on this form.");
+        return;
+    }
+
+    form.queryCertFilter.value = "(&"+nsjoin(andFilter,"")+")";
+
+    form.op.value = "listCerts";
+
+    form.submit();	
+}
+//-->
+</SCRIPT>
+
+
+<FORM NAME="queryForm" ACTION="listCerts" METHOD=POST>
+<INPUT TYPE="HIDDEN" NAME="op" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="queryCertFilter" VALUE="">
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=6 WIDTH="100%" BACKGROUND="/ca/agent/graphics/gray90.gif">
+  <tr>
+    <td ALIGN=RIGHT BGCOLOR="#E5E5E5">
+      <INPUT TYPE="button" VALUE="Find" width="72" onClick='doSubmit(queryForm)'>&nbsp;&nbsp;
+        <font size=-1 face="PrimaSans BT, Verdana, sans-serif">first</font>&nbsp;
+      <INPUT TYPE="TEXT" NAME="maxCount" SIZE=4 MAXLENGTH=99 VALUE="5">
+        <font size=-1 face="PrimaSans BT, Verdana, sans-serif">records</font>&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="button" VALUE=Help width="72"
+        onClick="help('http://www.redhat.com/docs/manuals/cert-system#1009897')">
+	</td>
+  </tr>
+</table>
+
+</form>
+</body>
+</html>
+

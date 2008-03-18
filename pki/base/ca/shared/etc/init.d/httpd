@@ -1,0 +1,932 @@
+#!/bin/bash
+#
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ### ---
+#
+# Startup script for Tomcat 5.0, the Apache Servlet Engine
+#
+# chkconfig: - 80 20
+# description: Tomcat 5.0 is the Apache Servlet Engine RI
+#              for Servlet 2.4/JSP 2.0
+# processname: tomcat
+# pidfile: /var/run/tomcat5.pid
+# config:  /etc/tomcat5/tomcat5.conf
+#
+# Gomez Henri <hgomez@users.sourceforge.net>
+# Keith Irwin <keith_irwin@non.hp.com>
+# Nicolas Mailhot <nicolas.mailhot@one2team.com>
+#
+# version 1.02 - Removed initlog support
+# version 1.03 - Removed config:
+# version 1.04 - tomcat will start before httpd and stop after httpd
+# version 1.05 - jdk hardcoded to link /usr/java/jdk and tomcat runs
+#                as "nobody"
+# version 1.06 - split up into script and config file
+# version 1.07 - Rework from Nicolas ideas
+# version 1.08 - Fix work dir permission at start time, switch to use tomcat4
+# version 1.09 - Fix pidfile and config tags
+# version 1.10 - Fallback to su direct use on systems without
+#                Redhat/Mandrake init.d functions
+# version 1.11 - Fix webapps dir permissions
+# version 1.12 - remove initial start/stop level for chkconfig (- 80 20)
+# version 1.13 - remove chown of logs/work/temp/webapps dir,
+#                owned by tomcat4 at install time
+# version 1.14 - correct the start/stop ugly hack by waiting
+#                all the threads stops
+# version 1.15 - ensure we're looking for TOMCAT_USER running catalina
+# version 1.16 - Add support for CATALINA_PID env var
+# version 1.17 - Remove run files only tomcat started correctl
+#                in start area, check that tomcat is not allready running
+# version 1.18 - Fix kill typo (thanks Kaj J. Niemi)
+# version 1.19 - Add jar relinking
+# version 1.20 - Check there is no stalling tomcat4.pid
+# version 1.20tc5 - Changed all instances of tomcat4 to
+#                   tomcat5 except TOMCAT_USER
+# version 1.20tc5rh - Changed TOMCAT_USER from tomcat4 to tomcat
+#
+
+# Disallow 'others' the ability to 'write' to new files
+umask 00002
+
+# Check to insure that this script's original invocation directory
+# has not been deleted!
+CWD=`/bin/pwd > /dev/null 2>&1`
+if [ $? -ne 0 ] ; then
+	echo "Cannot invoke '$0' from non-existent directory!"
+	exit 255
+fi
+
+# Check to insure that at least one PKI subsystem
+# currently resides on this system.
+if	[ ! -x /usr/bin/pkiarch   ] ||
+	[ ! -x /usr/bin/pkiflavor ] ||
+	[ ! -x /usr/bin/pkiname   ]; then
+	echo "This machine is missing all PKI subsystems!"
+	exit 255
+fi
+
+# Check to insure that this script's associated PKI
+# subsystem currently resides on this system.
+PKI_SUBSYSTEM_TYPE=[PKI_SUBSYSTEM_TYPE]
+if [ ! -d /usr/share/`pkiflavor`/${PKI_SUBSYSTEM_TYPE} ] ; then
+	echo "This machine is missing the '${PKI_SUBSYSTEM_TYPE}' subsystem!"
+	exit 255
+fi
+
+# Obtain the operating system upon which this script is being executed
+OS=`pkiname`
+
+# This script must be run as root!
+RV=0
+if [ ${OS} = "Linux" ] ; then
+	if [ `id -u` -ne 0 ] ; then
+		echo "Must be 'root' to execute '$0'!"
+		exit 1
+	fi
+elif [ ${OS} = "SunOS" ] ; then
+	if [ `/usr/xpg4/bin/id -u` -ne 0 ] ; then
+		echo "Must be 'root' to execute '$0'!"
+		exit 1
+	fi
+else
+	echo "Unsupported OS '${OS}'!"
+	exit 1
+fi
+
+# Source function library.
+if [ -x /etc/init.d/functions ]; then
+	. /etc/init.d/functions
+else
+	# The checkpid() function is provided for platforms that do not
+	# contain the "/etc/init.d/functions" file (e. g. - Solaris) . . .
+
+	# Check if $pid (could be plural) are running (keep count)
+	checkpid()
+	{
+		rv=0
+		for i in $* ; do
+			ps -p $i > /dev/null 2>&1 ;
+			if [ $? -ne 0 ] ; then
+				rv=`expr $rv + 1`
+			else
+				rv=`expr $rv + 0`
+			fi
+		done
+		# echo "rv=$rv"
+		return $rv
+	}
+
+	# Create the following directories on platforms
+	# where they do not exist (e. g. - Solaris) . . .
+	if [ ! -d /var/lock/subsys ] ; then
+		mkdir -p /var/lock/subsys
+	fi
+
+	#######################################################################
+	## NOTE:  The following code needs to eventually be moved into the   ##
+	##        template used to create the "/etc/<instance>/tomcat5.conf" ##
+	##        file!                                                      ##
+	#######################################################################
+
+	if [ ${OS} = "SunOS" ] ; then
+		DEFAULT_SOLARIS_JAVA_HOME="/usr/jdk/instances/jdk1.5.0/jre"
+		DEFAULT_LINUX_JAVA_HOME="/usr/lib/jvm/jre"
+		DEFAULT_LINUX_JAVA_HOME_PATH=`dirname ${DEFAULT_LINUX_JAVA_HOME}`
+
+		# ensure that the Sun JRE 1.5.0 exists at the default location
+		if [ -d ${DEFAULT_SOLARIS_JAVA_HOME} ] ; then
+			# create the directory in which the symlink resides (if necessary)
+			if [ ! -d ${DEFAULT_LINUX_JAVA_HOME_PATH} ] ; then
+				mkdir -p ${DEFAULT_LINUX_JAVA_HOME_PATH}
+			fi
+			# create the actual symlink (if necessary)
+			if [ ! -h ${DEFAULT_LINUX_JAVA_HOME} ] ; then
+				ln -s ${DEFAULT_SOLARIS_JAVA_HOME} ${DEFAULT_LINUX_JAVA_HOME}
+			fi
+		else
+			# for now, simply exit with an appropriate error message
+			echo -n "The Solaris 1.5.0 JRE must be installed "
+			echo -n "at \"${DEFAULT_SOLARIS_JAVA_HOME}\"!"
+			echo
+			echo
+			exit 255
+		fi
+	fi
+fi
+
+#Use CATALINA_BASE
+
+CATALINA_BASE=[PKI_INSTANCE_PATH]
+export CATALINA_BASE
+
+# Get Tomcat config
+
+TOMCAT_CFG="[PKI_INSTANCE_PATH]/conf/tomcat5.conf"
+
+[ -r "$TOMCAT_CFG" ] && . "${TOMCAT_CFG}"
+
+# Path to the tomcat launch script (direct don't use wrapper)
+TOMCAT_SCRIPT=/usr/bin/dtomcat5-[PKI_INSTANCE_ID]
+
+# Path to the script that will refresh jar symlinks on startup
+if [ ${OS} = "Linux" ] ; then
+	TOMCAT_RELINK_SCRIPT="/usr/share/tomcat5/bin/relink"
+fi
+
+# Tomcat name :)
+TOMCAT_PROG=[PKI_INSTANCE_ID]
+
+# if TOMCAT_USER is not set, use tomcat5 like Apache HTTP server
+if [ -z "$TOMCAT_USER" ]; then
+	TOMCAT_USER="[PKI_USER]"
+fi
+
+# if TOMCAT_GROUP is not set, use tomcat5 like Apache HTTP server
+if [ -z "$TOMCAT_GROUP" ]; then
+	TOMCAT_GROUP="[PKI_GROUP]"
+fi
+
+# Since the daemon function will sandbox $tomcat
+# no environment stuff should be defined here anymore.
+# Please use the /etc/tomcat.conf file instead ; it will
+# be read by the $tomcat script
+
+RETVAL=0
+
+get_pki_secure_port()
+{
+	# establish well-known strings
+	begin_ssl_comment="<!-- DO NOT REMOVE - Begin define PKI secure port -->"
+	end_ssl_comment="<!-- DO NOT REMOVE - End define PKI secure port -->"
+	connector_statement="<Connector port=\""
+
+	# initialize looping variables
+	ssl_comment_found=0
+
+	# first check to see that an instance-specific "server.xml" file exists
+	if [ ! -f [PKI_SERVER_XML_CONF] ] ; then
+		echo "File '[PKI_SERVER_XML_CONF]' does not exist!"
+		exit 255
+	fi
+
+	# read this instance-specific "server.xml" file line-by-line
+	# to obtain the current value of the PKI secure port
+	exec < [PKI_SERVER_XML_CONF]
+	while read line; do
+		# first look for the well-known end SSL comment
+		# (to turn off processing)
+		if [ "$line" == "$end_ssl_comment" ] ; then
+			ssl_comment_found=0
+		fi
+
+		# then look for the well-known begin SSL comment
+		# (to turn on processing)
+		if [ "$line" == "$begin_ssl_comment" ] ; then
+			ssl_comment_found=1
+		fi
+
+		# once the well-known begin SSL comment has been found,
+		# begin processing to obtain the numeric port information
+		if [ $ssl_comment_found -eq 1 ] ; then
+			# look for the next Connector statement
+			head=`echo $line | cut -b1-17`
+			if [ "$head" == "$connector_statement" ] ; then
+				# once the Connector statement has been found,
+				tail=`echo $line | cut -b18-`
+				# extract the numeric port information
+				port=`echo $tail | cut -d\" -f1`
+				PKI_SECURE_PORT=$port
+				return 0
+			fi
+		fi
+    done
+
+	return 255
+}
+
+# See how we were called.
+start()
+{
+	echo -n "Starting $TOMCAT_PROG: "
+
+	if [ -f /var/lock/subsys/[PKI_INSTANCE_ID] ] ; then
+		if [ -f /var/run/[PKI_INSTANCE_ID].pid ]; then
+			read kpid < /var/run/[PKI_INSTANCE_ID].pid
+			if checkpid $kpid 2>&1; then
+				echo
+				echo "process already running"
+				return -1
+			else
+				echo
+				echo -n "lock file found but no process "
+				echo -n "running for pid $kpid, continuing"
+				echo
+				echo
+			fi
+		fi
+	fi
+
+	CATALINA_PID=/var/run/[PKI_INSTANCE_ID].pid
+	export CATALINA_PID
+	touch $CATALINA_PID
+	chown $TOMCAT_USER:$TOMCAT_GROUP $CATALINA_PID
+  	[ -x /sbin/restorecon ] && /sbin/restorecon  $CATALINA_PID
+
+	# Always initialize CLASSPATH to start looking
+	# in the local PKI classes directory . . .
+	CLASSPATH=/usr/share/[PKI_FLAVOR]/classes
+
+	if [ ${OS} = "Linux" ] ; then
+		$TOMCAT_RELINK_SCRIPT
+	elif [ ${OS} = "SunOS" ] ; then
+		# The following definitions are provided for Solaris
+		# platforms since they are unable to execute the
+		# "/usr/share/tomcat5/bin/relink",
+		# "/usr/bin/rebuild-jar-repository", and
+		# "/usr/share/java-utils/java-functions" files . . .
+
+		#######################################
+		##    /var/lib/tomcat5/common/lib:
+		#######################################
+
+		# Build the tomcat jar classpath . . .
+		CLASSPATH="$CLASSPATH":/usr/share/java/ant.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-collections.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-dbcp.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-el.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-logging-api.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-pool.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-ejb-2.1.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-j2ee-1.4.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-j2ee-connector-1.5.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-j2ee-deployment-1.1.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-j2ee-jacc-1.0.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-j2ee-management-1.0.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-j2eeschema-1.0.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-jms-1.1.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-jsp-2.0.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-jta-1.0.1B.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/geronimo/spec-servlet-2.4.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/jaf.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/jakarta-commons-collections.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/jakarta-commons-modeler.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/jasper5-compiler.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/jasper5-runtime.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/javamail/imap.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/javamail/mailapi.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/javamail/nntp.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/javamail/pop3.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/javamail/providers.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/javamail/smtp.jar
+
+		# BEGIN LINUX-SPECIFIC FILE
+		# CLASSPATH="$CLASSPATH":/usr/share/java/jdtCompilerAdapter.jar
+		# CLASSPATH="$CLASSPATH":/usr/share/java/jdtcore.jar
+		# CLASSPATH="$CLASSPATH":/usr/share/java/jsp.jar
+		# END LINUX-SPECIFIC FILE
+
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-impl.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-jmx.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-remote.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-rimpl.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-rjmx.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-tools.jar
+
+		# BEGIN LINUX-SPECIFIC FILE
+		# CLASSPATH="$CLASSPATH":/usr/share/java/servlet.jar
+		# END LINUX-SPECIFIC FILE
+
+		CLASSPATH="$CLASSPATH":/usr/share/java/avalon-logkit.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/cmsutil.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-logging.jar
+		if [ `pkiarch` = "sparc" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/java/dirsec/jss4.jar
+		elif [ `pkiarch` = "sparcv9" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/`pkiarch`/java/dirsec/jss4.jar
+		fi
+		CLASSPATH="$CLASSPATH":/usr/share/java/ldapjdk.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/common/lib/naming-factory.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/common/lib/naming-resources.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/nsutil.jar
+		if [ `pkiarch` = "sparc" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/java/osutil.jar
+		elif [ `pkiarch` = "sparcv9" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/`pkiarch`/java/osutil.jar
+		fi
+		CLASSPATH="$CLASSPATH":/usr/share/java/rhino.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/servletapi5.jar
+		if [ `pkiarch` = "sparc" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/java/symkey.jar
+		elif [ `pkiarch` = "sparcv9" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/`pkiarch`/java/symkey.jar
+		fi
+		CLASSPATH="$CLASSPATH":/usr/share/java/velocity.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/xalan-j2.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/xerces-j2.jar
+
+		# Relink tomcat jar repositories . . .
+		cd /var/lib/tomcat5/common/lib
+
+		if [ ! -e /var/lib/tomcat5/common/lib/\[ant\].jar ]; then
+			ln -s /usr/share/java/ant.jar [ant].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[commons\-collections\].jar ]; then
+			ln -s /usr/share/java/commons-collections.jar [commons-collections].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[commons\-dbcp\].jar ]; then
+			ln -s /usr/share/java/commons-dbcp.jar [commons-dbcp].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[commons\-el\].jar ]; then
+			ln -s /usr/share/java/commons-el.jar [commons-el].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[commons\-logging-api\].jar ]; then
+			ln -s /usr/share/java/commons-logging-api.jar [commons-logging-api].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[commons\-pool\].jar ]; then
+			ln -s /usr/share/java/commons-pool.jar [commons-pool].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-ejb\-2.1\-rc2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-ejb-2.1-rc2.jar [geronimo]spec-ejb-2.1-rc2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-ejb\-2.1.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-ejb-2.1.jar [geronimo]spec-ejb-2.1.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2ee\-1.4\-rc2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2ee-1.4-rc2.jar [geronimo]spec-j2ee-1.4-rc2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2ee\-1.4.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2ee-1.4.jar [geronimo]spec-j2ee-1.4.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2ee\-connector\-1.5\-rc2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2ee-connector-1.5-rc2.jar [geronimo]spec-j2ee-connector-1.5-rc2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2ee\-connector\-1.5.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2ee-connector-1.5.jar [geronimo]spec-j2ee-connector-1.5.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2ee\-deployment\-1.1\-rc2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2ee-deployment-1.1-rc2.jar [geronimo]spec-j2ee-deployment-1.1-rc2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2ee\-deployment\-1.1.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2ee-deployment-1.1.jar [geronimo]spec-j2ee-deployment-1.1.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2ee\-jacc\-1.0\-rc2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2ee-jacc-1.0-rc2.jar [geronimo]spec-j2ee-jacc-1.0-rc2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2ee\-jacc\-1.0.jar ]; then
+			ln -s  /usr/share/java/geronimo/spec-j2ee-jacc-1.0.jar [geronimo]spec-j2ee-jacc-1.0.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2ee\-management\-1.0\-rc2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2ee-management-1.0-rc2.jar [geronimo]spec-j2ee-management-1.0-rc2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2ee\-management\-1.0.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2ee-management-1.0.jar [geronimo]spec-j2ee-management-1.0.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2eeschema\-1.0\-M2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2eeschema-1.0-M2.jar [geronimo]spec-j2eeschema-1.0-M2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-j2eeschema\-1.0.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-j2eeschema-1.0.jar [geronimo]spec-j2eeschema-1.0.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-jms\-1.1\-rc2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-jms-1.1-rc2.jar [geronimo]spec-jms-1.1-rc2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-jms\-1.1.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-jms-1.1.jar [geronimo]spec-jms-1.1.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-jsp\-2.0\-rc2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-jsp-2.0-rc2.jar [geronimo]spec-jsp-2.0-rc2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-jsp\-2.0.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-jsp-2.0.jar [geronimo]spec-jsp-2.0.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec-jta-1.0.1B-rc2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-jta-1.0.1B-rc2.jar [geronimo]spec-jta-1.0.1B-rc2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-jta\-1.0.1B.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-jta-1.0.1B.jar [geronimo]spec-jta-1.0.1B.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-servlet\-2.4\-rc2.jar ]; then
+			ln -s /usr/share/java/geronimo/spec-servlet-2.4-rc2.jar [geronimo]spec-servlet-2.4-rc2.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[geronimo\]spec\-servlet\-2.4.jar ]; then
+			ln -s  /usr/share/java/geronimo/spec-servlet-2.4.jar [geronimo]spec-servlet-2.4.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[jaf\].jar ]; then
+			ln -s /usr/share/java/jaf.jar [jaf].jar
+		fi
+
+		### BEGIN SOLARIS-SPECIFIC LINKS
+		### if [ ! -e /var/lib/tomcat5/common/lib/\[jakarta\-commons\-collections.jar\] ]; then
+		###     ln -s /usr/share/java/jakarta-commons-collections.jar [jakarta-commons-collections.jar]
+		### fi
+		### if [ ! -e /var/lib/tomcat5/common/lib/\[jakarta\-commons\-modeler.jar\] ]; then
+		###     ln -s /usr/share/java/jakarta-commons-modeler.jar [jakarta-commons-modeler.jar]
+		### fi
+		### END SOLARIS-SPECIFIC LINKS
+
+		### if [ ! -e /var/lib/tomcat5/common/lib/\[jasper5\-compiler\].jar ]; then
+		###     ln -s /usr/share/java/jasper5-compiler.jar [jasper5-compiler].jar
+		### fi
+		### if [ ! -e /var/lib/tomcat5/common/lib/\[jasper5\-runtime\].jar ]; then
+		###     ln -s /usr/share/java/jasper5-runtime.jar [jasper5-runtime].jar
+		### fi
+
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]imap\-1.3.1.jar ]; then
+			ln -s /usr/share/java/javamail/imap-1.3.1.jar [javamail]imap-1.3.1.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]imap.jar ]; then
+			ln -s /usr/share/java/javamail/imap.jar [javamail]imap.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]mailapi\-1.3.1.jar ]; then
+			ln -s /usr/share/java/javamail/mailapi-1.3.1.jar [javamail]mailapi-1.3.1.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]mailapi.jar ]; then
+			ln -s /usr/share/java/javamail/mailapi.jar [javamail]mailapi.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]nntp\-1.3.1.jar ]; then
+			ln -s /usr/share/java/javamail/nntp-1.3.1.jar [javamail]nntp-1.3.1.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]nntp.jar ]; then
+			ln -s /usr/share/java/javamail/nntp.jar [javamail]nntp.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]pop3\-1.3.1.jar ]; then
+			ln -s /usr/share/java/javamail/pop3-1.3.1.jar [javamail]pop3-1.3.1.jar
+		fi
+			if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]pop3.jar ]; then
+			ln -s /usr/share/java/javamail/pop3.jar [javamail]pop3.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]providers\-1.3.1.jar ]; then
+			ln -s /usr/share/java/javamail/providers-1.3.1.jar [javamail]providers-1.3.1.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]providers.jar ]; then
+			ln -s /usr/share/java/javamail/providers.jar [javamail]providers.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]smtp\-1.3.1.jar ]; then
+			ln -s /usr/share/java/javamail/smtp-1.3.1.jar [javamail]smtp-1.3.1.jar
+		fi
+		if [ ! -e /var/lib/tomcat5/common/lib/\[javamail\]smtp.jar ]; then
+			ln -s /usr/share/java/javamail/smtp.jar [javamail]smtp.jar
+		fi
+
+		### BEGIN LINUX-SPECIFIC LINKS
+		### if [ ! -e /var/lib/tomcat5/common/lib/\[jdtCompilerAdapter\].jar ]; then
+		###     ln -s /usr/share/java/jdtCompilerAdapter.jar [jdtCompilerAdapter].jar
+		### fi
+		### if [ ! -e /var/lib/tomcat5/common/lib/\[jdtcore\].jar ]; then
+		###     ln -s /usr/share/java/jdtcore.jar [jdtcore].jar
+		### fi
+		### if [ ! -e /var/lib/tomcat5/common/lib/\[jsp\].jar ]; then
+		###     ln -s /usr/share/java/jsp.jar [jsp].jar
+		### fi
+		### END LINUX-SPECIFIC LINKS
+
+		if [ ! -e /var/lib/tomcat5/common/lib/\[mx4j\]\[mx4j\].jar ]; then
+			ln -s /usr/share/java/mx4j/mx4j.jar [mx4j][mx4j].jar
+		fi
+
+		### BEGIN LINUX-SPECIFIC LINKS
+		### if [ ! -e /var/lib/tomcat5/common/lib/\[servlet\].jar ]; then
+		###     ln -s /usr/share/java/servlet.jar [servlet].jar
+		### fi
+		### END LINUX-SPECIFIC LINKS
+
+		### BEGIN LINUX-SPECIFIC FILE BUT SOLARIS-SPECIFIC LINK
+		if [ ! -e /var/lib/tomcat5/common/lib/avalon\-logkit.jar ]; then
+			ln -s /usr/share/java/avalon-logkit.jar avalon-logkit.jar
+		fi
+		### END LINUX-SPECIFIC FILE BUT SOLARIS-SPECIFIC LINK
+
+		### if [ ! -e /var/lib/tomcat5/common/lib/cmsutil.jar ]; then
+		###     ln -s /usr/share/java/rphki/cmsutil.jar cmsutil.jar
+		### fi
+
+		### BEGIN LINUX-SPECIFIC FILE BUT SOLARIS-SPECIFIC LINK
+		if [ ! -e /var/lib/tomcat5/common/lib/commons\-logging.jar ]; then
+			ln -s /usr/share/java/commons-logging.jar commons-logging.jar
+		fi
+		### END LINUX-SPECIFIC FILE BUT SOLARIS-SPECIFIC LINK
+
+		### if [ ! -e /var/lib/tomcat5/common/lib/jss4.jar ]; then
+		###     if [ `pkiarch` = "sparc" ] ; then
+		###         ln -s /usr/lib/java/dirsec/jss4.jar jss4.jar
+		###     elif [ `pkiarch` = "sparcv9" ] ; then
+		###         ln -s /usr/lib/`pkiarch`/java/dirsec/jss4.jar jss4.jar
+		###     fi
+		### fi
+		### if [ ! -e /var/lib/tomcat5/common/lib/ldapjdk.jar ]; then
+		###     ln -s /usr/share/java/ldapjdk.jar ldapjdk.jar
+		### fi
+
+		### naming-factory.jar
+		### naming-resources.jar
+
+		### if [ ! -e /var/lib/tomcat5/common/lib/nsutil.jar ]; then
+		###     ln -s /usr/share/java/`pkiflavor`/nsutil.jar nsutil.jar
+		### fi
+		### if [ ! -e /var/lib/tomcat5/common/lib/osutil.jar ]; then
+		###     if [ `pkiarch` = "sparc" ] ; then
+		###         ln -s /usr/lib/java/osutil.jar osutil.jar
+		###     elif [ `pkiarch` = "sparcv9" ] ; then
+		###         ln -s /usr/lib/`pkiarch`/java/osutil.jar osutil.jar
+		###     fi
+		### fi
+		### if [ ! -e /var/lib/tomcat5/common/lib/rhino.jar ]; then
+		###     ln -s /usr/share/java/rhino.jar rhino.jar
+		### fi
+
+		### BEGIN SOLARIS-SPECIFIC LINKS
+		### if [ ! -e /var/lib/tomcat5/common/lib/\[servletapi5.jar\] ]; then
+		###     ln -s /usr/share/java/servletapi5.jar [servletapi5.jar]
+		### fi
+		### END SOLARIS-SPECIFIC LINKS
+
+		### if [ ! -e /var/lib/tomcat5/common/lib/symkey.jar ]; then
+		###     if [ `pkiarch` = "sparc" ] ; then
+		###         ln -s /usr/lib/java/symkey.jar symkey.jar
+		###     elif [ `pkiarch` = "sparcv9" ] ; then
+		###         ln -s /usr/lib/`pkiarch`/java/symkey.jar symkey.jar
+		###     fi
+		### fi
+		### if [ ! -e /var/lib/tomcat5/common/lib/velocity.jar ]; then
+		###     ln -s /usr/share/java/velocity.jar velocity.jar
+		### fi
+		### if [ ! -e /var/lib/tomcat5/common/lib/xalan\-j2.jar ]; then
+		###     ln -s /usr/share/java/xalan-j2.jar xalan-j2.jar
+		### fi
+
+		if [ ! -e /var/lib/tomcat5/common/lib/xerces\-j2\-2.6.2.jar ]; then
+			ln -s /usr/share/java/xerces-j2-2.6.2.jar xerces-j2-2.6.2.jar
+		fi
+
+		### if [ ! -e /var/lib/tomcat5/common/lib/xerces\-j2.jar ]; then
+		###     ln -s /usr/share/java/xerces-j2.jar xerces-j2.jar
+		### fi
+
+
+		#######################################
+		##    /var/lib/tomcat5/common/endorsed:
+		#######################################
+
+		# Build the tomcat jar classpath . . .
+		CLASSPATH="$CLASSPATH":/usr/share/java/xml-commons-apis.jar
+
+		# BEGIN LINUX-SPECIFIC FILE
+		# CLASSPATH="$CLASSPATH":/usr/share/java/jaxp_parser_impl.jar
+		# END LINUX-SPECIFIC FILE
+
+
+		# Relink tomcat jar repositories . . .
+		cd /var/lib/tomcat5/common/endorsed
+
+		### BEGIN LINUX-SPECIFIC LINKS
+		### if [ ! -e /var/lib/tomcat5/common/endorsed/\[jaxp_parser_impl\].jar ]; then
+		###     ln -s /usr/share/java/jaxp_parser_impl.jar [jaxp_parser_impl].jar
+		### fi
+		### END LINUX-SPECIFIC LINKS
+
+		if [ ! -e /var/lib/tomcat5/common/endorsed/\[xml\-commons\-apis\].jar ]; then
+			ln -s /usr/share/java/xml-commons-apis.jar [xml-commons-apis].jar
+		fi
+
+
+		#######################################
+		##    /var/lib/tomcat5/server/lib:
+		#######################################
+
+		# Build the tomcat jar classpath . . .
+		CLASSPATH="$CLASSPATH":/usr/share/java/catalina-ant5.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-beanutils.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-digester.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-el.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-fileupload.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-logging.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/commons-modeler.jar
+
+		# BEGIN LINUX-SPECIFIC FILE
+		# CLASSPATH="$CLASSPATH":/usr/share/java/jdtCompilerAdapter.jar
+		# CLASSPATH="$CLASSPATH":/usr/share/java/jdtcore.jar
+		# END LINUX-SPECIFIC FILE
+
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-impl.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-jmx.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-remote.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-rimpl.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-rjmx.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-tools.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/regexp.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/catalina-cluster.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/catalina-optional.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/catalina-storeconfig.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/catalina.jar
+		if [ `pkiarch` = "sparc" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/java/dirsec/jss4.jar
+		elif [ `pkiarch` = "sparcv9" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/`pkiarch`/java/dirsec/jss4.jar
+		fi
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/servlets-cgi.renametojar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/servlets-default.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/servlets-invoker.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/servlets-ssi.renametojar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/servlets-webdav.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/tomcat-ajp.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/tomcat-coyote.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/tomcat-http.jar
+		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/tomcat-util.jar
+		CLASSPATH="$CLASSPATH":/usr/share/java/tomcatjss.jar
+
+
+		# Relink tomcat jar repositories . . .
+		cd /var/lib/tomcat5/server/lib
+
+		if [ ! -e /var/lib/tomcat5/server/lib/\[catalina\-ant5\].jar ]; then
+			ln -s /usr/share/java/catalina-ant5.jar [catalina-ant5].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/server/lib/\[commons\-beanutils\].jar ]; then
+			ln -s /usr/share/java/commons-beanutils.jar [commons-beanutils].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/server/lib/\[commons\-digester\].jar ]; then
+			ln -s /usr/share/java/commons-digester.jar [commons-digester].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/server/lib/\[commons\-el\].jar ]; then
+			ln -s /usr/share/java/commons-el.jar [commons-el].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/server/lib/\[commons\-fileupload\].jar ]; then
+			ln -s /usr/share/java/commons-fileupload.jar [commons-fileupload].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/server/lib/\[commons\-logging\].jar ]; then
+			ln -s /usr/share/java/commons-logging.jar [commons-logging].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/server/lib/\[commons\-modeler\].jar ]; then
+			ln -s /usr/share/java/commons-modeler.jar [commons-modeler].jar
+		fi
+
+		### BEGIN LINUX-SPECIFIC LINKS
+		### if [ ! -e /var/lib/tomcat5/server/lib/\[jdtCompilerAdapter\].jar ]; then
+		###     ln -s /usr/share/java/jdtCompilerAdapter.jar [jdtCompilerAdapter].jar
+		### fi
+		### if [ ! -e /var/lib/tomcat5/server/lib/\[jdtcore\].jar ]; then
+		###     ln -s /usr/share/java/jdtcore.jar [jdtcore].jar
+		### fi
+		### END LINUX-SPECIFIC LINKS
+
+		if [ ! -e /var/lib/tomcat5/server/lib/\[mx4j\]\[mx4j\].jar ]; then
+			ln -s /usr/share/java/mx4j/mx4j.jar [mx4j][mx4j].jar
+		fi
+		if [ ! -e /var/lib/tomcat5/server/lib/\[regexp\].jar ]; then
+			ln -s /usr/share/java/regexp.jar [regexp].jar
+		fi
+
+		### catalina-cluster.jar
+		### catalina-optional.jar
+		### catalina-storeconfig.jar
+		### catalina.jar
+		### if [ ! -e /var/lib/tomcat5/server/lib/jss4.jar ]; then
+		###     if [ `pkiarch` = "sparc" ] ; then
+		###         ln -s /usr/lib/java/dirsec/jss4.jar jss4.jar
+		###     elif [ `pkiarch` = "sparcv9" ] ; then
+		###         ln -s /usr/lib/`pkiarch`/java/dirsec/jss4.jar jss4.jar
+		###     fi
+		### fi
+		### servlets-cgi.renametojar
+		### servlets-default.jar
+		### servlets-invoker.jar
+		### servlets-ssi.renametojar
+		### servlets-webdav.jar
+		### tomcat-ajp.jar
+		### tomcat-coyote.jar
+		### tomcat-http.jar
+		### tomcat-util.jar
+		### if [ ! -e /var/lib/tomcat5/server/lib/tomcatjss.jar ]; then
+		###     ln -s /usr/share/java/tomcatjss.jar tomcatjss.jar
+		### fi
+
+
+		#######################################
+		##    /var/lib/tomcat5/shared/lib:
+		#######################################
+
+		# Build the tomcat jar classpath . . .
+
+		export CLASSPATH
+
+
+		# Relink tomcat jar repositories . . .
+		cd /var/lib/tomcat5/shared/lib
+	fi
+
+	# daemon --user $TOMCAT_USER $TOMCAT_SCRIPT start 
+	if [ ${OS} = "SunOS" ] ; then
+		su  $TOMCAT_USER -c "$TOMCAT_SCRIPT start" > /dev/null
+        else
+		su -s /bin/bash $TOMCAT_USER -c "$TOMCAT_SCRIPT start" > /dev/null
+	fi
+
+	RETVAL=$?
+	[ $RETVAL = 0 ] && touch /var/lock/subsys/[PKI_INSTANCE_ID]
+
+	if [ $RETVAL = 0 ] ; then
+		count=0;
+
+		let swait=$STARTUP_WAIT
+		while	[ ! -s /var/run/[PKI_INSTANCE_ID].pid ] &&
+				[ $count -lt $swait ]
+		do
+			echo -n "."
+			sleep 1
+			let count=$count+1;
+		done
+
+		if [ -x /etc/init.d/functions ]; then
+			if [ "$CONSOLETYPE" = "serial" ]; then
+				echo -n "         "
+			fi
+			echo_success > /etc/rhgb/temp/rhgb-console
+			cat /etc/rhgb/temp/rhgb-console
+			echo
+		else
+			echo "         [  OK  ]"
+		fi
+
+		get_pki_secure_port
+		if [ $? -ne 0 ] ; then
+			PKI_SECURE_PORT="<Port Undefined>"
+		fi
+
+		echo
+		echo -n "PKI service(s) are available at "
+		echo -n "https://[PKI_MACHINE_NAME]:$PKI_SECURE_PORT"
+		echo
+		echo
+	else
+		if [ -x /etc/init.d/functions ]; then
+			if [ "$CONSOLETYPE" = "serial" ]; then
+				echo -n "         "
+			fi
+			echo_failure > /etc/rhgb/temp/rhgb-console
+			cat /etc/rhgb/temp/rhgb-console
+			echo
+		else
+			echo "         [  FAILED  ]"
+		fi
+	fi
+
+	sleep 5
+	return $RETVAL
+}
+
+stop()
+{
+	echo -n "Stopping $TOMCAT_PROG: "
+
+	if [ -f /var/lock/subsys/[PKI_INSTANCE_ID] ] ; then
+		CATALINA_PID=/var/run/[PKI_INSTANCE_ID].pid
+		export CATALINA_PID
+
+		# daemon --user $TOMCAT_USER $TOMCAT_SCRIPT stop
+		if [ ${OS} = "SunOS" ] ; then
+			su  $TOMCAT_USER -c "$TOMCAT_SCRIPT stop" > /dev/null
+        	else
+			su -s /bin/bash $TOMCAT_USER -c "$TOMCAT_SCRIPT stop" > /dev/null
+		fi
+
+		RETVAL=$?
+
+		if [ $RETVAL = 0 ]; then
+			count=0;
+
+			if [ -f /var/run/[PKI_INSTANCE_ID].pid ]; then
+				read kpid < /var/run/[PKI_INSTANCE_ID].pid
+				let kwait=$SHUTDOWN_WAIT
+
+				until	[ `ps -p $kpid | grep -c $kpid` = '0' ] ||
+						[ $count -gt $kwait ]
+				do
+					echo -n "."
+					sleep 1
+					let count=$count+1;
+				done
+
+				if [ $count -gt $kwait ]; then
+					kill -9 $kpid
+				fi
+			fi
+
+			rm -f /var/lock/subsys/[PKI_INSTANCE_ID]
+			rm -f /var/run/[PKI_INSTANCE_ID].pid
+
+			if [ -x /etc/init.d/functions ]; then
+				if [ "$CONSOLETYPE" = "serial" ]; then
+					echo -n "         "
+				fi
+				echo_success > /etc/rhgb/temp/rhgb-console
+				cat /etc/rhgb/temp/rhgb-console
+				echo
+			else
+				echo "         [  OK  ]"
+			fi
+		else
+			if [ -x /etc/init.d/functions ]; then
+				if [ "$CONSOLETYPE" = "serial" ]; then
+					echo -n "         "
+				fi
+				echo_failure > /etc/rhgb/temp/rhgb-console
+				cat /etc/rhgb/temp/rhgb-console
+				echo
+			else
+				echo "         [  FAILED  ]"
+			fi
+		fi
+	else
+		echo
+		echo "process already stopped"
+	fi
+}
+
+# See how we were called.
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		stop
+		sleep 2	
+		start
+		;;
+	condrestart)
+		if [ -f /var/run/[PKI_INSTANCE_ID].pid ] ; then
+			stop
+			sleep 2	
+			start
+		else
+			echo -n "Unable to restart process since "
+			echo -n "'/var/run/[PKI_INSTANCE_ID].pid' does not exist!"
+			echo
+		fi
+		;;
+	*)
+		echo "Usage: $TOMCAT_PROG {start|stop|restart|condrestart}"
+		exit 1
+esac
+
+exit $RETVAL
+
