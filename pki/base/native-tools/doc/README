@@ -16,7 +16,7 @@
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
-                           Fedora Certificate System
+                              Certificate System
                          Native Command Line Utilities
 
 
@@ -38,7 +38,7 @@ revoker                                        A command line tool which may be
                                                used to revoke certificates.
 
 setpin                                         A command line tool utilized
-                                               to enable Fedora Certificate
+                                               to enable Certificate
                                                System to utilize PIN-based
                                                authentication.
 
@@ -49,7 +49,7 @@ setpin.conf                                    The configuration file utilized
 tkstool                                        A command line tool utilized
                                                to construct DES 2 symmetric
                                                keys utilized in conjunction
-                                               with the Fedora Certificate
+                                               with the Certificate
                                                System Token Key Service
                                                subsystem.
 
