@@ -9,7 +9,7 @@ Please comply with the LICENSE contained in each of
 the individual components, and the EXPORT CONTROL
 regulations defined at:
 
-    http://pki-svn.fedora.redhat.com/wiki/PKI_Download
+    http://pki.fedoraproject.org/wiki/PKI_Download
 
 
 These directories contain the following:
@@ -38,5 +38,5 @@ These directories contain the following:
 Detailed instructions for building, installing, and
 running this project are located at:
 
-    http://pki-svn.fedora.redhat.com/wiki/PKI_Main_Page
+    http://pki.fedoraproject.org/wiki/PKI_Main_Page
 
