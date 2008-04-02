@@ -2922,6 +2922,12 @@ ASK_AGAIN:
         . "console/config/login?pin=$random\n",
           "log" );
 
+    print( STDOUT
+          "Before proceeding with the configuration, make sure \n"
+        . "the firewall settings of this machine permit proper \n"
+        . "access to this subsystem. \n");
+
+
     # If it exists, close the log file
     close_logfile( $logfile );
 
