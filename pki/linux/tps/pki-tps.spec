@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -312,6 +312,8 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Apr 1 2008 Jack Magne <jmagne@redhat.com> 1.0.0-2
+- Fix for bug#440084 - Subsystem Installation Error Message Needs Improvement.
 * Tue Feb 19 2008 PKI Team <pki-devel@redhat.com> 1.0.0-1
 - Initial open source version based upon proprietary
   Red Hat Certificate System (RHCS) 7.3.
