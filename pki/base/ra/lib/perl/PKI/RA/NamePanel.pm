@@ -299,6 +299,10 @@ $req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$db_passwo
                 $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;
                 $content = $1;
 
+                if ($content eq "") {
+                   $::symbol{errorString} = "CA returned no response. Please check that the CA is available and also check the host's firewall settings.";
+                   return 0; 
+                }
 
                 my $parser = XML::Simple->new();
                 &PKI::RA::Wizard::debug_log("NamePanel: response content= " . $content);
@@ -307,7 +311,7 @@ $req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$db_passwo
                 if ($status ne "0") {
                     my $error = $response->{Error};
                     &PKI::RA::Wizard::debug_log("NamePanel: Error = $error");
-                    $::symbol{errorString} = "CA response: $error.  Please also check previous related panels.";
+                    $::symbol{errorString} = "CA response: $error.  Please check previous related panels." . " Please check that the CA is available and also check the host's firewall settings.";
                     return 0;
                 }
                 $cert = $response->{Requests}->{Request}->{b64};
