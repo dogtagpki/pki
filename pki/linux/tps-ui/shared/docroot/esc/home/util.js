@@ -21,7 +21,6 @@
 // initialize netkey globals
 var netkey;
 
-
 var keyUITable = new Array();
 var keyTypeTable = new Array();
 var curChildWindow = null;
@@ -1487,7 +1486,7 @@ function refresh()
 
 function loadSuccessPage()
 {
-    window.location="/home/EnrollSuccess.html";
+    window.location="/esc/home/EnrollSuccess.html";
 }
 
 function ShowProgressBar(aKeyType,aKeyID, doShow)
