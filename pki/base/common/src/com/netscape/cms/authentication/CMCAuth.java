@@ -470,6 +470,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         TaggedRequest.Type type = taggedRequest.getType();
 
                         if (type.equals(TaggedRequest.PKCS10)) {
+                            CMS.debug("CMCAuth: in PKCS10");
                             TaggedCertificationRequest tcr =
                                 taggedRequest.getTcr();
                             int p10Id = tcr.getBodyPartID().intValue();
@@ -535,6 +536,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             }
                         } else if (type.equals(TaggedRequest.CRMF)) {
 
+                            CMS.debug("CMCAuth: in CRMF");
                             try {
                                 CertReqMsg crm =
                                     taggedRequest.getCrm();
@@ -550,8 +552,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
                                 // reset value of auditCertSubject
                                 if( name != null ) {
-                                    byte[] namebyte = ASN1Util.encode(name);
-                                    String ss = new String(namebyte);
+                                    String ss = name.getRFC1485();
+
                                     auditCertSubject = ss;
                                     if( auditCertSubject.equals( "" ) ) {
                                         auditCertSubject =
