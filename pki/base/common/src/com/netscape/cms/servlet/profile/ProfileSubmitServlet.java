@@ -415,9 +415,16 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     AuthzToken authzToken = authorize(mAclMethod, authToken, acl);
                 } catch (Exception e) {
                     CMS.debug("ProfileSubmitServlet authorize: "+e.toString());
-                    if (xmlOutput)
+                    if (xmlOutput) {
                         outputError(response, CMS.getUserMessage(locale, 
                           "CMS_AUTHORIZATION_ERROR"));
+                    } else {
+                        args.set(ARG_ERROR_CODE, "1");
+                        args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                            "CMS_AUTHORIZATION_ERROR"));
+                        outputTemplate(request, response, args);
+                    }
+
                     return;
                 }
             }

@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      2
+%define base_release      3
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -294,6 +294,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Fri Apr 4 2008 Christina Fu <cfu@redhat.com> 1.0.0-3
+- Fixed bug #40989 - [SECURITY] CMC authorization check not done by default
 * Fri Apr 4 2008 Christina Fu <cfu@redhat.com> 1.0.0-2
 - Fixed bug #439052 - CMC CRMF requests cause exception in logging: Unmatched braces in the pattern
 * Tue Feb 19 2008 PKI Team <pki-devel@redhat.com> 1.0.0-1
