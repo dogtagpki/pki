@@ -63,7 +63,7 @@ public class CertImportDialog extends JDialog
         super(parent,true);
         mParentFrame = parent;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        setSize(420, 700);
+        setSize(500, 400);
         setTitle(mResource.getString(PREFIX+"_TITLE"));
         setLocationRelativeTo(parent);
         getRootPane().setDoubleBuffered(true);
@@ -177,6 +177,7 @@ public class CertImportDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
+        gbc.fill = gbc.BOTH;
 		gbc.anchor = gbc.NORTH;
 		gbc.gridwidth = gbc.REMAINDER;
 		gbc.weightx = 1.0;
