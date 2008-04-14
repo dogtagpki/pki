@@ -36,16 +36,57 @@ fi
 
 
 ##
+##  Define DEFAULT PKI Instances
+##
+
+PKI_DIR="/var/lib"
+
+PKI_CA="pki-ca"
+PKI_DRM="pki-kra"
+PKI_OCSP="pki-ocsp"
+PKI_TKS="pki-tks"
+PKI_RA="pki-ra"
+PKI_TPS="pki-tps"
+
+
+
+##
 ##  Ask user if any PKI instances need to be removed
 ##
 
+printf "REMINDER:  PKI instances contain user's PKI data, and consist of\n"
+printf "           DEFAULT PKI instances and CUSTOMIZED PKI instances.\n\n"
+printf "           DEFAULT PKI instances are automatically created whenever\n"
+printf "           one of the PKI subsystems are installed UNLESS that\n"
+printf "           particular PKI subsystem's DEFAULT PKI instance\n"
+printf "           already exists.\n\n"
+printf "           DEFAULT PKI instances consist of the following:\n\n"
+printf "               CA   - ${PKI_DIR}/${PKI_CA}\n"
+printf "               DRM  - ${PKI_DIR}/${PKI_DRM}\n"
+printf "               OCSP - ${PKI_DIR}/${PKI_OCSP}\n"
+printf "               RA   - ${PKI_DIR}/${PKI_RA}\n"
+printf "               TKS  - ${PKI_DIR}/${PKI_TKS}\n"
+printf "               TPS  - ${PKI_DIR}/${PKI_TPS}\n\n"
+printf "           Please use the 'remove_default_pki_instances' script\n"
+printf "           to remove ALL of these DEFAULT PKI instances, OR\n"
+printf "           use the 'pkiremove' utility to remove INDIVIDUAL\n"
+printf "           DEFAULT PKI instances.\n\n"
+printf "           CUSTOMIZED PKI instances may be named anything and\n"
+printf "           may be located anywhere.  Please use the 'pkiremove'\n"
+printf "           utility to remove any CUSTOMIZED PKI instances.\n\n"
 while :
 do
-    printf "REMINDER:  Do any PKI instances need to be removed?  [yn]  "
+    printf "NEITHER CUSTOMIZED PKI instances, NOR DEFAULT PKI instances will\n"
+    printf "be REMOVED by this script!  Do any DEFAULT or CUSTOMIZED\n"
+    printf "PKI instances need to be removed PRIOR to uninstalling\n"
+    printf "ALL of the PKI components?  [yn]  "
     read ANSWER
     printf "\n"
     if [ "${ANSWER}" = "Y" ] ||
        [ "${ANSWER}" = "y" ] ; then
+        printf "\n"
+        printf "Please REMOVE the desired CUSTOMIZED and/or DEFAULT\n"
+        printf "PKI instances PRIOR to re-running this script.\n\n"
         exit 255
     elif [ "${ANSWER}" = "N" ] ||
          [ "${ANSWER}" = "n" ] ; then
@@ -103,6 +144,8 @@ done
 ##
 
 if [ "${PKI_COMPONENT_LIST}" != "" ] ; then
+    printf "Removing the following PKI packages:\n"
+    printf "    ${PKI_COMPONENT_LIST}\n\n"
     rpm -ev ${PKI_COMPONENT_LIST}
     printf "\n"
 else

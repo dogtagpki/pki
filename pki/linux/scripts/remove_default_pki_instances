@@ -36,30 +36,6 @@ fi
 
 
 ##
-##  Ask user if is is okay to remove ALL DEFAULT PKI instances
-##
-
-while :
-do
-    printf "REMINDER:  ALL DEFAULT PKI instances will be REMOVED!  "
-    printf "Is this okay?  [yn]  "
-    read ANSWER
-    printf "\n"
-    if [ "${ANSWER}" = "Y" ] ||
-       [ "${ANSWER}" = "y" ] ; then
-        printf "\n"
-        break
-    elif [ "${ANSWER}" = "N" ] ||
-         [ "${ANSWER}" = "n" ] ; then
-        exit 255
-    else
-        continue
-    fi
-done
-
-
-
-##
 ##  Define DEFAULT PKI Instances
 ##
 
@@ -73,6 +49,45 @@ PKI_RA="pki-ra"
 PKI_TPS="pki-tps"
 
 PKI_INSTANCES="${PKI_CA} ${PKI_DRM} ${PKI_OCSP} ${PKI_TKS} ${PKI_RA} ${PKI_TPS}"
+
+
+
+##
+##  Ask user if is is okay to remove ALL DEFAULT PKI instances
+##
+
+printf "REMINDER:  PKI instances contain user's PKI data, and consist of\n"
+printf "           DEFAULT PKI instances and CUSTOMIZED PKI instances.\n\n"
+printf "           DEFAULT PKI instances are automatically created whenever\n"
+printf "           one of the PKI subsystems are installed UNLESS that\n"
+printf "           particular PKI subsystem's DEFAULT PKI instance\n"
+printf "           already exists.\n\n"
+printf "           DEFAULT PKI instances consist of the following:\n\n"
+printf "               CA   - ${PKI_DIR}/${PKI_CA}\n"
+printf "               DRM  - ${PKI_DIR}/${PKI_DRM}\n"
+printf "               OCSP - ${PKI_DIR}/${PKI_OCSP}\n"
+printf "               RA   - ${PKI_DIR}/${PKI_RA}\n"
+printf "               TKS  - ${PKI_DIR}/${PKI_TKS}\n"
+printf "               TPS  - ${PKI_DIR}/${PKI_TPS}\n\n"
+while :
+do
+    printf "This script REMOVES ALL DEFAULT PKI instances!  "
+    printf "Is this okay?  [yn]  "
+    read ANSWER
+    printf "\n"
+    if [ "${ANSWER}" = "Y" ] ||
+       [ "${ANSWER}" = "y" ] ; then
+        printf "\n"
+        break
+    elif [ "${ANSWER}" = "N" ] ||
+         [ "${ANSWER}" = "n" ] ; then
+        printf "\n"
+        printf "No DEFAULT PKI instances will be removed.\n\n"
+        exit 255
+    else
+        continue
+    fi
+done
 
 
 
