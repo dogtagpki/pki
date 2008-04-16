@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -255,6 +255,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Apr 16 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-2
+- Bugzilla bug #439033 - Corrected window importing certificate
 * Tue Feb 19 2008 PKI Team <pki-devel@redhat.com> 1.0.0-1
 - Initial open source version based upon proprietary
   Red Hat Certificate System (RHCS) 7.3.
