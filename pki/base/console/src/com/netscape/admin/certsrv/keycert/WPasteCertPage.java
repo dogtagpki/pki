@@ -199,6 +199,8 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
         add(desc, gbc);
 
         mBase64Text = new JTextArea(null, null, 0, 0);
+        Font f = new Font("Monospaced", Font.PLAIN, 12);
+        if (f != null) mBase64Text.setFont(f);
         JScrollPane scrollPane = new JScrollPane(mBase64Text, 
           JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
           JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);

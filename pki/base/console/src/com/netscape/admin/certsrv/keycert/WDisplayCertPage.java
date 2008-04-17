@@ -198,6 +198,8 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         mTextArea = new JTextArea("",100,90);
+        Font f = new Font("Monospaced", Font.PLAIN, 12);
+        if (f != null) mTextArea.setFont(f);
         mTextArea.setEditable(false);
         mTextArea.setBackground(getBackground());
         JScrollPane scrollPanel = new JScrollPane(mTextArea,
