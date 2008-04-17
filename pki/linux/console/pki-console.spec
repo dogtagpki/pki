@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      2
+%define base_release      3
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -255,6 +255,10 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Apr 17 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-3
+- Bugzilla bug #439027 - Corrected issue with adding CA certificates through console UI
+- Bugzilla bug #441896 - Corrected console freeze after deleting user certificate
+- Bugzilla bug #441901 - Corrected alignment of displayed certificates by console
 * Wed Apr 16 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-2
 - Bugzilla bug #439033 - Corrected window importing certificate
 * Tue Feb 19 2008 PKI Team <pki-devel@redhat.com> 1.0.0-1
