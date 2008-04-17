@@ -47,6 +47,8 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     public static final String CONFIG_GN_ENABLE = "subjAltExtGNEnable_";
     public static final String CONFIG_TYPE = "subjAltExtType_";
     public static final String CONFIG_PATTERN = "subjAltExtPattern_";
+    public static final String CONFIG_SOURCE = "subjAltExtSource_";
+    public static final String CONFIG_SOURCE_UUID4 = "UUID4";
 
     public static final String CONFIG_OLD_TYPE = "subjAltExtType";
     public static final String CONFIG_OLD_PATTERN = "subjAltExtPattern";
@@ -395,29 +397,55 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
 	        String enable = getConfig(CONFIG_GN_ENABLE +i);
             if (enable != null && enable.equals("true")) {
 		        CMS.debug("SubjectAltNameExtDefault: createExtension i=" +i);
+                
 		        String pattern = getConfig(CONFIG_PATTERN + i);
 		        if (pattern == null || pattern.equals("")) {
 			        pattern = " ";
 		        }
 
-		        if (!pattern.equals("")) {
+                if (!pattern.equals("")) {
 			        String gname = "";
 
-			        if (request != null)  {
-			            gname = mapPattern(request, pattern);
-		        	}
+                    // cfu - see if this is server-generated (e.g. UUID4)
+                    // to use this feature, use $server.source$ in pattern
+                    String source = getConfig(CONFIG_SOURCE +i); 
+                    String type = getConfig(CONFIG_TYPE + i);
+                    if ((source != null) && (type.equalsIgnoreCase("OtherName"))) {
+                        CMS.debug("SubjectAlternativeNameExtension: using "+
+                           source+ " as gn");
+                        if (source.equals(CONFIG_SOURCE_UUID4)) {
+                          UUID randUUID = UUID.randomUUID();
+                          // call the mapPattern that does server-side gen
+                          // request is not used, but needed for the substitute
+                          // function
+                          gname = mapPattern(randUUID.toString(), request, pattern);
+                        } else { //expand more server-gen types here
+                          CMS.debug("SubjectAltNameExtDefault: createExtension - unsupported server-generated type: "+source+". Supported: UUID4");
+                          continue;
+                        }
+                    } else {
+			            if (request != null)  {
+			                gname = mapPattern(request, pattern);
+		        	    }
+                    }
                     if (gname.equals("")) {
                         CMS.debug("gname is empty, not added");
                         continue;
                     }
-			        GeneralNameInterface n = parseGeneralName(getConfig(CONFIG_TYPE + i) + ":" + gname);
-			        CMS.debug("adding gname: "+gname);
-			        if (n != null) {
+                    CMS.debug("SubjectAltNameExtDefault: createExtension got gname=" +gname);
+
+                    GeneralNameInterface n = parseGeneralName(type + ":" + gname);
+
+                    CMS.debug("adding gname: "+gname);
+                    if (n != null) {
+                        CMS.debug("SubjectAlternativeNameExtension: n not null");
 			            gn.addElement(n);
                         count++;
-			        }
-		        }
-		    }
+                    } else {
+                        CMS.debug("SubjectAlternativeNameExtension: n null");
+                    }
+                }
+           }
         } //for
 
         if (count != 0) {
@@ -443,5 +471,22 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
             attrSet = request.asIAttrSet();
         }
         return p.substitute("request", attrSet);
+    }
+
+    // for server-side generated values
+    public String mapPattern(String val, IRequest request, String pattern) 
+        throws IOException {
+        Pattern p = new Pattern(pattern);
+        IAttrSet attrSet = null;
+        if (request != null) {
+            attrSet = request.asIAttrSet();
+        }
+        try {
+            attrSet.set("source", val);
+        } catch (Exception e) {
+            CMS.debug("SubjectAlternativeNameExtension: mapPattern source "+e.toString());
+        }
+
+        return p.substitute("server", attrSet);
     }
 }
