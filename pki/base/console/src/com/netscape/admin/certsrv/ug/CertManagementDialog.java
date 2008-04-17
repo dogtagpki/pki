@@ -123,12 +123,14 @@ public class CertManagementDialog extends JDialog
                 return;
             addCert(mCertDialog.getB64E());
             refresh();
+            setButtons();
         } else if (evt.getSource().equals(mDelete)) {
             int i = CMSAdminUtil.showConfirmDialog(mParentFrame, mResource, "USERCERTS",
               "DELETE", JOptionPane.INFORMATION_MESSAGE);
             if (i == JOptionPane.YES_OPTION) {
                 deleteCert();
                 refresh();
+                setButtons();
             }
         } else if (evt.getSource().equals(mView)) {
             if (mViewDialog==null)
@@ -146,13 +148,9 @@ public class CertManagementDialog extends JDialog
     }
 
     public void mousePressed(MouseEvent e) {}
-    public void mouseReleased(MouseEvent e) {
-        setButtons();
-    }
+    public void mouseReleased(MouseEvent e) {}
     public void mouseEntered(MouseEvent e) {}
-    public void mouseExited(MouseEvent e) {
-        setButtons();
-    }
+    public void mouseExited(MouseEvent e) {}
 
     /*==========================================================
 	 * private methods
