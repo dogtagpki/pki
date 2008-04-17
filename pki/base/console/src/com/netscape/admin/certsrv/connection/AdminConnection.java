@@ -671,7 +671,9 @@ public class AdminConnection {
             String name = (String)names.nextElement();
             sb.append(name);
             sb.append("=");
-            sb.append(java.net.URLEncoder.encode(request.get(name)));
+            if (request.get(name) != null) {
+                sb.append(java.net.URLEncoder.encode(request.get(name)));
+            }
             if (names.hasMoreElements())
               sb.append("&");
           }
@@ -688,7 +690,9 @@ public class AdminConnection {
             String name = (String)names.nextElement();
             sb1.append(name);
             sb1.append("=");
-            sb1.append(java.net.URLEncoder.encode(request.get(name)));
+            if (request.get(name) != null) {
+                sb1.append(java.net.URLEncoder.encode(request.get(name)));
+            }
             if (names.hasMoreElements())
               sb1.append("&");
           }
