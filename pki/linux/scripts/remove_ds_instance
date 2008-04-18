@@ -1,0 +1,156 @@
+#!/bin/sh 
+# BEGIN COPYRIGHT BLOCK
+# This Program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; version 2 of the License.
+# 
+# This Program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along with
+# this Program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA 02111-1307 USA.
+# 
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+#
+
+##  Always switch into this base directory
+##  prior to script execution so that all
+##  of its output is written to this directory
+
+cd `dirname $0`
+
+
+##
+##  This script MUST be run as root!
+##
+
+ROOTUID=0
+
+OS=`uname`
+if [ "${OS}" = "Linux" ] ; then
+    MY_EUID=`/usr/bin/id -u`
+    MY_UID=`/usr/bin/id -ur`
+    USERNAME=`/usr/bin/id -un`
+else
+    printf "ERROR:  Unsupported operating system '${OS}'!\n"
+    exit 255
+fi
+
+if [ "${MY_UID}"  != "${ROOTUID}" ] &&
+   [ "${MY_EUID}" != "${ROOTUID}" ] ; then
+    printf "ERROR:  The '$0' script must be run as root!\n"
+    exit 255
+fi
+
+
+##  First, check for the existence of a directory server on this machine.
+if [ ! -e /etc/init.d/dirsrv ]; then
+    printf "The Directory Server package does NOT exist on this machine!\n"
+    exit 255
+fi
+
+
+##  Second, check for the existence of a directory server administration server 
+##  on this machine.
+if [ -e /usr/sbin/ds_removal ]    &&
+   [ -d /usr/lib/dirsrv/cgi-bin ] ||
+   [ -d /usr/lib64/dirsrv/cgi-bin ]; then
+    printf "This machine contains a Directory Server Administration\n" 
+    printf "Server which means that Directory Server instances may\n"
+    printf "have been registered with the Administration Server.\n\n"
+    while :
+    do
+        printf "Do you wish to use the '/usr/sbin/ds_removal' tool\n"
+        printf "instead of '$0'?  [yn]  "
+        read ANSWER
+        printf "\n"
+        if [ "${ANSWER}" = "Y" ] ||
+           [ "${ANSWER}" = "y" ] ; then
+            printf "\n"
+            printf "Please RUN the '/usr/sbin/ds_removal' tool to remove\n"
+            printf "the desired DS instance instead of '$0'.\n\n"
+            exit 255
+        elif [ "${ANSWER}" = "N" ] ||
+             [ "${ANSWER}" = "n" ] ; then
+            printf "\n"
+            break
+        else
+            continue
+        fi
+    done
+fi
+
+
+Usage()
+{
+    printf "Usage:  $0 -s server_id\n"
+    printf "        server_id:  Directory server identifier; slapd-<server_id>\n"
+}
+
+error=""
+server_id=""
+ds_server=""
+ds_remove_cgi=""
+
+while [ "$1" != "" ]
+do
+    if [ "$1" = "-s" ]; then
+        shift
+        server_id=$1
+        shift
+    elif [ "$1" = "-h" -o "$1" = "-H" -o "$1" = "--help" ]; then
+        Usage
+        exit 0
+    else
+        printf "ERROR:  Option '$1' is not supported!\n"
+        Usage
+        exit 1
+    fi
+done
+
+if [ "$server_id" = "" ]; then
+    error="Directory Server identifier is missing!"
+else
+    if [ -d "/usr/lib/dirsrv/slapd-${server_id}" ]; then
+        ds_server="/usr/lib/dirsrv/slapd-${server_id}"
+        ds_remove_cgi="./ds_remove_cgi_32"
+    elif [ -d "/usr/lib64/dirsrv/slapd-${server_id}" ]; then
+        ds_server="/usr/lib64/dirsrv/slapd-${server_id}"
+        ds_remove_cgi="./ds_remove_cgi_64"
+    else
+        error="Directory server identifier 'slapd-${server_id}' does not exist!"
+    fi
+fi
+
+if [ "$error" != "" ]; then
+    printf "ERROR:  ${error}\n"
+    Usage
+    exit 1
+fi
+
+QUERY_STRING="InstanceName=slapd-${server_id}"; export QUERY_STRING
+REQUEST_METHOD=GET; export REQUEST_METHOD
+
+if [ -c /dev/null ]; then
+    NULL=/dev/null
+else
+    NULL=/tmp/ds_remove.out
+fi
+
+${ds_remove_cgi} > $NULL << EOF
+EOF
+
+if [ -d "${ds_server}" ]; then
+    printf "FAILED to remove '${ds_server}'!\n"
+else
+    printf "Successfully removed '${ds_server}'!\n"
+    printf "NOTE:  Copies of your security databases have been saved\n"
+    printf "       in '/etc/dirsrv/slapd-${server_id}.removed'!\n"
+fi
+
+exit $?
+
