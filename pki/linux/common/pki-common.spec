@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      5
+%define base_release      6
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -298,6 +298,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Tue May 6 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-6
+- Provided CRL page size as configurable parameter - bug #445400. 
 * Fri Apr 18 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-5
 - Fixed bug #441974 - Added "Conflicts: tomcat-native" statement to spec file.
 * Thu Apr 17 2008 Christina Fu <cfu@redhat.com> 1.0.0-4
