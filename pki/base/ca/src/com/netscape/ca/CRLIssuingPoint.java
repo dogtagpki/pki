@@ -71,6 +71,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     public static final long SECOND = 1000L;
     public static final long MINUTE = (SECOND * 60L);
 
+    private static final int CRL_PAGE_SIZE = 10000;
+
     /* configuration file property names */
 
     public IPublisherProcessor mPublisherProcessor = null;
@@ -82,6 +84,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private ICRLPublisher mCRLPublisher = null;
     private int mCountMod = 0;
     private int mCount = 0;
+    private int mPageSize = CRL_PAGE_SIZE;
 
     private CMSCRLExtensions mCMSCRLExtensions = null;
 
@@ -394,6 +397,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
 
         mConfigStore = config;
+
+        IConfigStore crlSubStore = mCA.getConfigStore().getSubStore(mCA.PROP_CRL_SUBSTORE);
+        mPageSize = crlSubStore.getInteger(mCA.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
+        CMS.debug("CRL Page Size: "+ mPageSize);
+
         mCountMod = config.getInteger("countMod",0);
         mCRLRepository = mCA.getCRLRepository();
         mCertRepository = mCA.getCertificateRepository();
@@ -1573,7 +1581,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             ICertRecordList list = mCertRepository.findCertRecordsInList(filter,
                     new String[] {ICertRecord.ATTR_ID, ICertRecord.ATTR_REVO_INFO, "objectclass" },
                     "serialno",
-                    10000);
+                    mPageSize);
 
             int totalSize = list.getSize();
 
