@@ -192,7 +192,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
     }
 
     /**
-     * If this policy is enabled, add the authority infomation
+     * If this policy is enabled, add the authority information
      * access extension to the certificate.
      * <P>
      *

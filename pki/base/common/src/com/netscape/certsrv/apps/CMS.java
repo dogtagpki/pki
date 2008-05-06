@@ -242,7 +242,7 @@ public final class CMS {
 
     /**
      * Returns the logger of the current server. The logger can
-     * be used to log critical infomational or critical error
+     * be used to log critical informational or critical error
      * messages.
      *
      * @return logger
@@ -253,7 +253,7 @@ public final class CMS {
 
     /**
      * Returns the signed audit logger of the current server. This logger can
-     * be used to log critical infomational or critical error
+     * be used to log critical informational or critical error
      * messages.
      *
      * @return signed audit logger

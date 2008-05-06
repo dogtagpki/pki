@@ -168,7 +168,7 @@ if (result.header.requestorComments != null) {
 if (result.header.requestType == "enrollment") {
         document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
         document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
-        document.writeln('Archival Infomation</font></td></tr>');
+        document.writeln('Archival Information</font></td></tr>');
 
 	// Archival-specific UI
 	document.writeln('<tr>');
@@ -190,7 +190,7 @@ if (result.header.requestType == "enrollment") {
 } else if (result.header.requestType == "recovery") {
         document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
         document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
-        document.writeln('Recovery Infomation</font></td></tr>');
+        document.writeln('Recovery Information</font></td></tr>');
 
 	// Recovery-specific UI
 	// key serial number
