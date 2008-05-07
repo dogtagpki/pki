@@ -282,7 +282,6 @@ fi
 ###############################################################################
 
 %changelog
-445400
 * Tue May 6 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-3
 - Provided CRL page size as configurable parameter - bug #445400. 
 * Thu Apr 17 2008 Christina Fu <cfu@redhat.com> 1.0.0-2
