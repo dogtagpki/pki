@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -221,6 +221,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri May 03 2008 jmagne <jmagne@redhat.com> 1.0.0-2
+- Fix for Bug# 440079.
 * Tue Feb 19 2008 PKI Team <pki-devel@redhat.com> 1.0.0-1
 - Initial open source version based upon proprietary
   Red Hat Certificate System (RHCS) 7.3.
