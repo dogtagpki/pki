@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      6
+%define base_release      7
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -298,6 +298,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Tue May 7 2008 Jack Magne <jmagne@redhat.com> 1.0.0-7
+- Fix for Bug#440079.
 * Tue May 6 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-6
 - Provided CRL page size as configurable parameter - bug #445400. 
 - Fixed typo - bugzilla bug #304668
