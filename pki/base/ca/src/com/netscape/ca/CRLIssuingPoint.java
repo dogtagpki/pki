@@ -1979,6 +1979,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate)) return;
         CMS.debug("Updating CRL");
+        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER, AuditFormat.LEVEL,
+                    CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATE_STARTED"),
+                    new Object[] {
+                        getId(),
+                        getNextCRLNumber(),
+                        Boolean.toString(isDeltaCRLEnabled()),
+                        Boolean.toString(isCRLCacheEnabled()),
+                        Boolean.toString(mEnableCacheRecovery)
+                    }
+                   );
         mUpdatingCRL = CRL_UPDATE_STARTED;
         if (signingAlgorithm == null || signingAlgorithm.length() == 0)
             signingAlgorithm = mSigningAlgorithm;
@@ -1986,8 +1996,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         Date thisUpdate = CMS.getCurrentDate();
         Date nextUpdate = null;
         Date nextDeltaUpdate = null;
-
-                long startTime = CMS.getCurrentDate().getTime();
 
         if (mEnableCRLUpdates && ((mEnableDailyUpdates &&
             mDailyUpdates != null && mDailyUpdates.size() > 0) ||
@@ -2114,21 +2122,28 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                     mDeltaCRLSize = deltaCRLCerts.size();
 
-                                        long endTime = CMS.getCurrentDate().getTime();
 
-                                        
-                                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                    long totalTime = 0;
+                    String splitTimes = "  (";
+                    for (int i = 1; i < mSplits.length && i < 5; i++) {
+                        totalTime += mSplits[i];
+                        if (i > 1) splitTimes += ",";
+                        splitTimes += Long.toString(mSplits[i]);
+                    }
+                    splitTimes += ")";
+                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                                 AuditFormat.LEVEL,
-                        CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
-                        new Object[] {
-                                getId(),
-                                                getNextCRLNumber(),
-                                getCRLNumber(),
-                                getLastUpdate(),
-                                getNextDeltaUpdate(),
-                                Long.toString(mDeltaCRLSize), 
-                                Long.toString(endTime - startTime)}
-                                );
+                                CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
+                                new Object[] {
+                                    getId(),
+                                    getNextCRLNumber(),
+                                    getCRLNumber(),
+                                    getLastUpdate(),
+                                    getNextDeltaUpdate(),
+                                    Long.toString(mDeltaCRLSize), 
+                                    Long.toString(totalTime)+splitTimes
+                                }
+                               );
                 } catch (EBaseException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString()));
                     mDeltaCRLSize = -1;
@@ -2238,9 +2253,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
             X509CRLImpl newX509CRL;
 
-                        startTime = CMS.getCurrentDate().getTime();
-
-
             try {
                 byte[] newCRL;
 
@@ -2289,20 +2301,27 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mNextDeltaCRLNumber = mNextCRLNumber;
 
 
-                long endTime = CMS.getCurrentDate().getTime();
-                        
                 CMS.debug("Logging CRL Update to transaction log");
-                                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
-                        new Object[] { 
+                long totalTime = 0;                   
+                String splitTimes = "  (";
+                for (int i = 0; i < mSplits.length; i++) {
+                    totalTime += mSplits[i];
+                    if (i > 0) splitTimes += ",";
+                    splitTimes += Long.toString(mSplits[i]);
+                }
+                splitTimes += ")";
+                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                            AuditFormat.LEVEL,
+                            CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
+                            new Object[] { 
                                 getId(),
                                 getCRLNumber(),
                                 getLastUpdate(),
                                 getNextUpdate(),
                                 Long.toString(mCRLSize),
-                                Long.toString(endTime - startTime)}
-                                );
+                                Long.toString(totalTime)+splitTimes
+                            }
+                           );
                 CMS.debug("Finished Logging CRL Update to transaction log");
 
             } catch (EBaseException e) {
