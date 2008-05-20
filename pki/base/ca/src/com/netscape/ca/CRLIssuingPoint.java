@@ -2303,13 +2303,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                 CMS.debug("Logging CRL Update to transaction log");
                 long totalTime = 0;                   
+                long crlTime = 0;                   
+                long deltaTime = 0;                   
                 String splitTimes = "  (";
                 for (int i = 0; i < mSplits.length; i++) {
                     totalTime += mSplits[i];
+                    if (i > 0 && i < 5) {
+                        deltaTime += mSplits[i];
+                    } else {
+                        crlTime += mSplits[i];
+                    }
                     if (i > 0) splitTimes += ",";
                     splitTimes += Long.toString(mSplits[i]);
                 }
-                splitTimes += ")";
+                splitTimes += "," + Long.toString(deltaTime) + "," + Long.toString(crlTime) + "," + Long.toString(totalTime) + ")";
                 mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                             AuditFormat.LEVEL,
                             CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
@@ -2319,7 +2326,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                 getLastUpdate(),
                                 getNextUpdate(),
                                 Long.toString(mCRLSize),
-                                Long.toString(totalTime)+splitTimes
+                                Long.toString(totalTime),
+                                Long.toString(crlTime),
+                                Long.toString(deltaTime)+splitTimes
                             }
                            );
                 CMS.debug("Finished Logging CRL Update to transaction log");
