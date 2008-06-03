@@ -1986,7 +1986,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         getNextCRLNumber(),
                         Boolean.toString(isDeltaCRLEnabled()),
                         Boolean.toString(isCRLCacheEnabled()),
-                        Boolean.toString(mEnableCacheRecovery)
+                        Boolean.toString(mEnableCacheRecovery),
+                        Boolean.toString(mCRLCacheIsCleared),
+                        ""+mCRLCerts.size()+","+mRevokedCerts.size()+","+mUnrevokedCerts.size()+","+mExpiredCerts.size()+""
                     }
                    );
         mUpdatingCRL = CRL_UPDATE_STARTED;
