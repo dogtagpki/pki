@@ -192,9 +192,10 @@ _RUNJDB="$JAVA_HOME"/bin/jdb
 # Set standard CLASSPATH
 # (always inherit any preset values from the PKI start script)
 if [ ${OS} = "Linux" ] ; then
-	# Checking for IcedTea JVM
-	ICEDTEA_JVM="`java -version 2>&1 | tail -1 | awk '{print $1};'`"
-	if	[ "${ICEDTEA_JVM}" = "IcedTea" ]; then
+	# Checking for OpenJDK JVM
+	OPENJDK_JVM="`java -version 2>&1 | tail -1 | awk '{print $1};'`"
+	if	[ "${OPENJDK_JVM}" = "OpenJDK" ] ||
+		[ "${OPENJDK_JVM}" = "IcedTea" ]; then
 		# using OpenJDK
 		CLASSPATH="$CLASSPATH":"$JAVA_HOME"/lib/rt.jar
 

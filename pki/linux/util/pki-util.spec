@@ -81,9 +81,14 @@
 %define dist_prefix       .fc
 %define dist_version      %(echo `rpm -qf --qf='%{VERSION}' /etc/fedora-release` | tr -d [A-Za-z])
 %define dist              %{dist_prefix}%{dist_version}
-%define openjdk           %(test %{dist_version} -ge 8 && echo 1 || echo 0)
+%define openjdk           %(test %{dist_version} -eq 9 && echo 1 || echo 0)
 %if %{openjdk}
-## redefine the JDK used to build on Fedora Linux
+## redefine the JDK used to build on Fedora 9 Linux
+%define pki_jdk           java-sdk >= 1.6.0
+%endif
+%define openjdk           %(test %{dist_version} -eq 8 && echo 1 || echo 0)
+%if %{openjdk}
+## redefine the JDK used to build on Fedora 8 Linux
 %define pki_jdk           java-sdk >= 1.7.0
 %endif
 %else
