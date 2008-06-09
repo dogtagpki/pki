@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -96,7 +96,7 @@
 %define dist_prefix       .fc
 %define dist_version      %(echo `rpm -qf --qf='%{VERSION}' /etc/fedora-release` | tr -d [A-Za-z])
 %define dist              %{dist_prefix}%{dist_version}
-%define openjdk           %(test %{dist_version} -eq 9 && echo 1 || echo 0)
+%define openjdk           %(test %{dist_version} -ge 9 && echo 1 || echo 0)
 %if %{openjdk}
 ## redefine the JDK used to build on Fedora 9 Linux
 %define pki_jdk           java-sdk >= 1.6.0
@@ -260,6 +260,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Mon Jun 9 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
+- Bugzilla Bug #450345:  Port Dogtag 1.0.0 to
+  Fedora 9 (32-bit i386 & 64-bit x86_64).
 * Thu Apr 17 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-3
 - Bugzilla bug #439027 - Corrected issue with adding CA certificates through console UI
 - Bugzilla bug #441896 - Corrected console freeze after deleting user certificate
