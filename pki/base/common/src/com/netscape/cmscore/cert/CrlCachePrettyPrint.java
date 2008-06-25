@@ -236,6 +236,9 @@ public class CrlCachePrettyPrint implements ICRLPrettyPrint
                         }
                         l++;
                     }
+                } else if (mIP.isCRLCacheEnabled() && mIP.isCRLCacheEmpty()) {
+                    sb.append("\n" + pp.indent(16) + resource.getString(
+                              PrettyPrintResources.TOKEN_CACHE_IS_EMPTY) + "\n\n");
                 } else {
                     sb.append("\n" + pp.indent(16) + resource.getString(
                               PrettyPrintResources.TOKEN_CACHE_NOT_AVAILABLE) + "\n\n");
