@@ -195,6 +195,17 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
             header.addStringValue("crlDisplayType", crlDisplayType);
         }
 
+        if ((op.equals("checkCRLcache") ||
+             (op.equals("displayCRL") && crlDisplayType != null && crlDisplayType.equals("cachedCRL"))) &&
+              (crlIP == null || (!crlIP.isCRLCacheEnabled()) || crlIP.isCRLCacheEmpty())) {
+            cmsReq.setError(
+                CMS.getUserMessage(
+                    ((crlIP != null && crlIP.isCRLCacheEnabled() && crlIP.isCRLCacheEmpty())?
+                        "CMS_GW_CRL_CACHE_IS_EMPTY":"CMS_GW_CRL_CACHE_IS_NOT_ENABLED"), crlId));
+            cmsReq.setStatus(CMSRequest.ERROR);
+            return;
+        }
+
         byte[] crlbytes = null;
 
         if (op.equals("importDeltaCRL") || op.equals("getDeltaCRL") ||
