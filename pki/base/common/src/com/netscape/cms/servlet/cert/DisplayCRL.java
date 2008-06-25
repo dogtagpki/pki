@@ -176,6 +176,7 @@ public class DisplayCRL extends CMSServlet {
         ICRLIssuingPoint crlIP = null;
         X509CRLImpl crl = null;
         boolean clonedCA = false;
+        boolean isCRLCacheEnabled = false;
         String masterHost = null;
         String masterPort = null;
         Vector ipNames = null;
@@ -217,6 +218,7 @@ public class DisplayCRL extends CMSServlet {
 
                     if (crlIssuingPointId.equals(ip.getId())) {
                         crlIP = ip;
+                        isCRLCacheEnabled = ip.isCRLCacheEnabled();
                         break;
                     }
                     if (!ips.hasMoreElements()) crlIssuingPointId = null;
@@ -297,7 +299,7 @@ public class DisplayCRL extends CMSServlet {
             }
         }
 
-        if (crl != null || crlDisplayType.equals("cachedCRL")) {
+        if (crl != null || (isCRLCacheEnabled && crlDisplayType.equals("cachedCRL"))) {
             if (crlDisplayType.equals("entireCRL") || crlDisplayType.equals("cachedCRL")) {
                 ICRLPrettyPrint crlDetails = null;
                 if (crlDisplayType.equals("entireCRL")) {
@@ -453,6 +455,9 @@ public class DisplayCRL extends CMSServlet {
                 }
             }
 
+        } else if (!isCRLCacheEnabled && crlDisplayType.equals("cachedCRL")) {
+            header.addStringValue("error", CMS.getUserMessage(locale, "CMS_GW_CRL_CACHE_IS_NOT_ENABLED", crlIssuingPointId));
+            header.addStringValue("crlPrettyPrint", CMS.getUserMessage(locale, "CMS_GW_CRL_CACHE_IS_NOT_ENABLED", crlIssuingPointId));
         } else {
             header.addStringValue("error", 
                 new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_DECODE_CRL_FAILED")).toString());
