@@ -1928,6 +1928,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return mEnableCRLCache;
     }
 
+    public boolean isCRLCacheEmpty() {
+        return ((mCRLCerts != null)? mCRLCerts.isEmpty(): true);
+    }
+
     public Date getRevocationDateFromCache(BigInteger serialNumber,
         boolean checkDeltaCache,
         boolean includeExpiredCerts) {
