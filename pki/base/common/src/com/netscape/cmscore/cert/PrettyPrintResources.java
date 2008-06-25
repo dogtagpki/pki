@@ -171,6 +171,7 @@ public class PrettyPrintResources extends  ListResourceBundle {
     public final static String TOKEN_NONE = "none";
 
     public final static String TOKEN_CACHE_NOT_AVAILABLE = "cacheNotAvailable";
+    public final static String TOKEN_CACHE_IS_EMPTY = "cacheIsEmpty";
 
     //Tokens should have blank_space as trailer
     static final Object[][] contents = {
@@ -287,6 +288,7 @@ public class PrettyPrintResources extends  ListResourceBundle {
             {TOKEN_NOT_SET, "not set"},
             {TOKEN_NONE, "none"},
             {TOKEN_CACHE_NOT_AVAILABLE, "CRL cache is not available. "},
+            {TOKEN_CACHE_IS_EMPTY, "CRL cache is empty. "},
         };
 
 }
