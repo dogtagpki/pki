@@ -490,6 +490,20 @@ public interface ICRLIssuingPoint {
     public boolean isDeltaCRLEnabled();
 
     /**
+     * Returns true if CRL cache is enabled.
+     *
+     * @return true if CRL cache is enabled
+     */
+    public boolean isCRLCacheEnabled();
+
+    /**
+     * Returns true if CRL cache is empty.
+     *
+     * @return true if CRL cache is empty
+     */
+    public boolean isCRLCacheEmpty();
+
+    /**
      * Returns true if supplied delta-CRL is matching current delta-CRL.
      *
      * @param deltaCRL delta-CRL to verify against current delta-CRL
