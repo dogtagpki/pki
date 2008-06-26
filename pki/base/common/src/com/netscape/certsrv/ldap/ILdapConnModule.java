@@ -56,5 +56,7 @@ public interface ILdapConnModule {
      */
 
     public ILdapConnFactory getLdapConnFactory();
+
+    public  ILdapAuthInfo  getLdapAuthInfo();
 }
 

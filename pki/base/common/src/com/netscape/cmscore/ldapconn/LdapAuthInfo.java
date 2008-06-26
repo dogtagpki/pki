@@ -29,6 +29,7 @@ import com.netscape.certsrv.apps.*;
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.ldap.*;
 import com.netscape.cmscore.base.*;
+import com.netscape.cmsutil.password.*;
 
 
 /**
@@ -82,8 +83,13 @@ public class LdapAuthInfo implements ILdapAuthInfo {
      */
     public void init(IConfigStore config, String host, int port, boolean secure)
         throws EBaseException {
-        if (mInited) 
-            return;			// XXX throw exception here ?
+
+        CMS.debug("LdapAuthInfo: init()");
+        if (mInited)  {
+            CMS.debug("LdapAuthInfo: already initialized");
+            return;            // XXX throw exception here ?
+        }
+        CMS.debug("LdapAuthInfo: init begins");
 
         String authTypeStr = config.getString(PROP_LDAPAUTHTYPE);
 
@@ -101,25 +107,48 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
             if (prompt == null) {
                 prompt = "LDAP Authentication";
-            }
+                CMS.debug("LdapAuthInfo: init: prompt is null, change to "+prompt);
+            } else
+                CMS.debug("LdapAuthInfo: init: prompt is "+prompt);
+
+/* in init(), there should not have been passwords in memory
             if (mParms[1] == null) {
                 mParms[1] = (String) passwords.get(prompt);
             }
+*/
 
             // Finally, interactively obtain the password from the user
             if (mParms[1] == null) {
+                CMS.debug("LdapAuthInfo: init: try to get it from password file");
+/* hey - should use password store interface to allow different implementations
                 IConfigStore mainConfig = CMS.getConfigStore();
                 String pwdFile = mainConfig.getString("passwordFile");
                 FileConfigStore pstore = new FileConfigStore(pwdFile);
                 mParms[1] = pstore.getString("internaldb");
+*/
+//cfu
+                IPasswordStore pwdStore = CMS.getPasswordStore();
+
+//                mParms[1] = pstore.getString(prompt);
+
+                // support publishing dirsrv with different pwd than internaldb
+                mParms[1] = pwdStore.getPassword(prompt);
+                if ( mParms[1] == null) {
+                    CMS.debug("LdapAuthInfo: password for "+prompt+
+                        " not found, trying internaldb");
+                    mParms[1] = pwdStore.getPassword("internaldb"); // last resort
+                }
 
                 // verify the password
                 if ((!mParms[1].equals("")) && (host == null ||
                   authInfoOK(host, port, secure, mParms[0], mParms[1]))) {
                     // The password is OK or uncheckable
+                    CMS.debug("LdapAuthInfo: password ok: store in memory cache");
                     passwords.put(prompt, mParms[1]);
                 } else {
+/* what do you know?  Our IPasswordStore does not have a remove function.
                     pstore.remove("internaldb");
+*/
                 }
             }
         } else if (authTypeStr.equals(LDAP_SSLCLIENTAUTH_STR)) {
@@ -131,6 +160,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
                     "Unknown Ldap authentication type " + authTypeStr);
         }
         mInited = true;
+        CMS.debug("LdapAuthInfo: init ends");
     }
 
     public void reset() {

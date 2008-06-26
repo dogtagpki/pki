@@ -44,6 +44,7 @@ import com.netscape.cmscore.util.Debug;
 public class LdapConnModule implements ILdapConnModule {
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
+    protected LdapAuthInfo mLdapAuthInfo = null;
     protected ILogger mLogger = CMS.getLogger();
     private boolean mInited = false;
 
@@ -66,15 +67,42 @@ public class LdapConnModule implements ILdapConnModule {
     public void init(ISubsystem p,
         IConfigStore config)
         throws EBaseException {
-        if (mInited)
+
+        CMS.debug("LdapConnModule: init called");
+        if (mInited) {
+            CMS.debug("LdapConnModule: already initialized. return.");
             return;
+        }
+        CMS.debug("LdapConnModule: init begins");
 
         mPubProcessor = p;
         mConfig = config;
+        /*
         mLdapConnFactory = new LdapBoundConnFactory();
         mLdapConnFactory.init(mConfig.getSubStore("ldap"));
+        */
+        // support publishing dirsrv with different pwd than internaldb
+        IConfigStore ldap = mConfig.getSubStore("ldap");
+
+        IConfigStore ldapconn = ldap.getSubStore(
+                         ILdapBoundConnFactory.PROP_LDAPCONNINFO);
+        IConfigStore authinfo = ldap.getSubStore(
+                         ILdapBoundConnFactory.PROP_LDAPAUTHINFO);
+        ILdapConnInfo connInfo =
+                CMS.getLdapConnInfo(ldapconn);
+        LdapAuthInfo authInfo =
+            new LdapAuthInfo(authinfo, ldapconn.getString("host"),
+                ldapconn.getInteger("port"), false);
+
+        int minConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MINCONNS, 3);
+        int maxConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MAXCONNS, 15);
+        // must get authInfo from the config, don't default to internaldb!!!
+        mLdapConnFactory =
+             new LdapBoundConnFactory(minConns, maxConns, (LdapConnInfo)connInfo, authInfo);
+
         mInited = true;
 
+        CMS.debug("LdapConnModule: init ends");
     }
 
     /**
@@ -92,6 +120,10 @@ public class LdapConnModule implements ILdapConnModule {
      */
     public ILdapConnFactory getLdapConnFactory() {
         return mLdapConnFactory;
+    }
+
+    public ILdapAuthInfo  getLdapAuthInfo() {
+        return mLdapAuthInfo;
     }
 
     public LDAPConnection getConn() throws ELdapException {
