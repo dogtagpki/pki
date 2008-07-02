@@ -1021,10 +1021,8 @@ public class PublisherProcessor implements
         boolean error = false;
         String errorRule = "";
 
-        CMS.debug("PublisherProcessor: publishCert() begins");
         if (!enabled())
             return;
-        CMS.debug("PublisherProcessor: publishCert() enabled.");
 
             // get mapper and publisher for cert type.
         Enumeration rules = getRules("certs", req);
@@ -1037,7 +1035,7 @@ public class PublisherProcessor implements
             LdapRule rule = (LdapRule) rules.nextElement();
 
             try {
-                CMS.debug(
+                log(ILogger.LL_INFO, 
                     "publish certificate (with request) type=" + 
                     "certs" + " rule=" + rule.getInstanceName() + 
                     " publisher=" + rule.getPublisher());
@@ -1049,7 +1047,7 @@ public class PublisherProcessor implements
                     m = getActiveMapperInstance(mapperName);
                 }
                 publishNow(m, p, req, cert);
-                CMS.debug("published certificate using rule=" + 
+                log(ILogger.LL_INFO, "published certificate using rule=" + 
                     rule.getInstanceName());
             } catch (Exception e) {
                 // continue publishing even publisher has errors
@@ -1285,13 +1283,11 @@ public class PublisherProcessor implements
 
     private void publishNow(ILdapMapper mapper, ILdapPublisher publisher,
         IRequest r, Object obj) throws ELdapException {
-        CMS.debug("PublisherProcessor: in publishNow()");
         if (!enabled())
             return;
         LDAPConnection conn = null;
 
         try {
-            CMS.debug("PublisherProcessor: publishNow(): about to call publisher.publish()");
             String dirdn = null;
 
             if (mapper != null) {
@@ -1311,13 +1307,12 @@ public class PublisherProcessor implements
             X509Certificate cert = (X509Certificate) obj;
 
             try {
-                CMS.debug("PublisherProcessor: publishNow(): about to call publisher.publish()");
                 publisher.publish(conn, dirdn, cert);
             } catch (Throwable e1) {
                 CMS.debug("Error publishing: publisher=" + publisher + " error=" + e1.toString());
                 throw e1;
             }
-            CMS.debug("published certificate serial number: 0x" + 
+            log(ILogger.LL_INFO, "published certificate serial number: 0x" + 
                 cert.getSerialNumber().toString(16));
         } catch (ELdapException e) {
             throw e;
