@@ -171,7 +171,10 @@ public class OCSPServlet extends CMSServlet {
               is = new ByteArrayInputStream(reqbuf);
             } else {
               // GET method
-              if (pathInfo == null) {
+              if ( (pathInfo == null)              ||
+                   (pathInfo.equals( "" ) )        ||
+                   (pathInfo.substring(1) == null) ||
+                   (pathInfo.substring(1).equals( "" ) ) ) {
                   throw new Exception("OCSPServlet: OCSP request not provided in GET method");
               }
               is = new ByteArrayInputStream(
@@ -186,7 +189,17 @@ public class OCSPServlet extends CMSServlet {
                 OCSPRequest.Template reqTemplate = 
                     new OCSPRequest.Template();
 
+                if ( (is == null) ||
+                     (is.toString().equals( "" ) ) ) {
+                    throw new Exception( "OCSPServlet: OCSP request is "
+                                       + "empty or malformed");
+                }
                 ocspReq = (OCSPRequest) reqTemplate.decode(is);
+                if ( (ocspReq == null) ||
+                     (ocspReq.toString().equals( "" ) ) ) {
+                    throw new Exception( "OCSPServlet: Decoded OCSP request "
+                                       + "is empty or malformed");
+                }
                 response = ((IOCSPService) mAuthority).validate(ocspReq);
             } catch (Exception e) {;
                 CMS.debug("OCSPServlet: " + e.toString());
