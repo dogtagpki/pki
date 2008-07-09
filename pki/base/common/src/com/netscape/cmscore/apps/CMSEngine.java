@@ -211,7 +211,32 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public IPasswordStore getPasswordStore() {
-        return mPasswordStore;
+        // initialize the PasswordReader and PasswordWriter
+      try {
+        String pwdPath = mConfig.getString("passwordFile");
+        if (mPasswordStore == null) {
+          CMS.debug("CMSEngine: getPasswordStore(): password store not initialized before.");
+          String pwdClass = mConfig.getString("passwordClass");
+
+          if (pwdClass != null) {
+            try {
+                mPasswordStore = (IPasswordStore)Class.forName(pwdClass).newInstance();
+            } catch (Exception e) {
+                CMS.debug("CMSEngine: getPasswordStore(): password store initialization failure:" + e.toString());
+            }
+          }
+        } else {
+          CMS.debug("CMSEngine: getPasswordStore(): password store initialized before.");
+        }
+
+        // have to initialize it because other places don't always
+        mPasswordStore.init(pwdPath); 
+        CMS.debug("CMSEngine: getPasswordStore(): password store initialized.");
+      } catch (Exception e) {
+        CMS.debug("CMSEngine: getPasswordStore(): failure:" + e.toString());
+      }
+
+      return mPasswordStore;
     }
 
     /**
@@ -246,6 +271,8 @@ public class CMSEngine implements ICMSEngine {
             try {
                 mPasswordStore = (IPasswordStore)Class.forName(pwdClass).newInstance();
                 mPasswordStore.init(pwdPath); 
+                CMS.debug("CMSEngine: init(): password store initialized for "+
+                       pwdClass);
             } catch (Exception e) {
             }
         }

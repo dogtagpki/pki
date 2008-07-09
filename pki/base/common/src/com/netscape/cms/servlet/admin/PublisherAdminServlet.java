@@ -41,6 +41,7 @@ import com.netscape.certsrv.apps.*;
 import com.netscape.certsrv.ca.*; 
 import com.netscape.certsrv.ldap.*;
 import com.netscape.certsrv.publish.*;
+import com.netscape.cmsutil.password.*;
 
 
 /**
@@ -499,13 +500,43 @@ public class PublisherAdminServlet extends AdminServlet {
 			
         commit(true);
 
-        /* Do a "PUT" of the new pw to the watchdog" */
+        /* Do a "PUT" of the new pw to the watchdog" 
+         ** do not remove - cfu
         if (pwd != null)
             CMS.putPasswordCache(PW_TAG_CA_LDAP_PUBLISHING, pwd);
+         */
+
+        // support publishing dirsrv with different pwd than internaldb
+        // update passwordFile
+        String prompt = ldap.getString(Constants.PR_BINDPWD_PROMPT);
+        IPasswordStore pwdStore = CMS.getPasswordStore();
+        CMS.debug("PublisherAdminServlet: setLDAPDest(): saving password for "+            prompt + " to password file");
+        pwdStore.putPassword(prompt, pwd);
+        pwdStore.commit();
+        CMS.debug("PublisherAdminServlet: setLDAPDest(): password saved");
+
+/* we'll shut down and restart the PublisherProcessor instead
+        // what a hack to  do this without require restart server
+//        ILdapAuthInfo authInfo = CMS.getLdapAuthInfo();
+        ILdapConnModule connModule = mProcessor.getLdapConnModule();
+        ILdapAuthInfo authInfo = null;
+        if (connModule != null) {
+            authInfo = connModule.getLdapAuthInfo();
+        }
+
+//        authInfo.addPassword(PW_TAG_CA_LDAP_PUBLISHING, pwd);
+        if (authInfo != null) {
+            CMS.debug("PublisherAdminServlet: setLDAPDest(): adding password to memory cache");
+            authInfo.addPassword(prompt, pwd);
+        } else
+            CMS.debug("PublisherAdminServlet: setLDAPDest(): authInfo null");
+*/
 
         try {
+            CMS.debug("PublisherAdminServlet: setLDAPDest(): restarting publishing processor");
             mProcessor.shutdown();
             mProcessor.startup();
+            CMS.debug("PublisherAdminServlet: setLDAPDest(): publishing processor restarted");
         } catch (Exception ex) {
             // force to save the config even there is error
             // ignore any exception
@@ -756,12 +787,37 @@ public class PublisherAdminServlet extends AdminServlet {
         if (ldapcfg.getBoolean(IPublisherProcessor.PROP_ENABLE) &&
             pwd != null) {
 
-            /* Do a "PUT" of the new pw to the watchdog" */
+            /* Do a "PUT" of the new pw to the watchdog"
+             ** do not remove - cfu
             CMS.putPasswordCache(PW_TAG_CA_LDAP_PUBLISHING, pwd);
-            // what a hack to  do this without require restart server
-            ILdapAuthInfo authInfo = CMS.getLdapAuthInfo();
+             */
 
-            authInfo.addPassword(PW_TAG_CA_LDAP_PUBLISHING, pwd);
+            // support publishing dirsrv with different pwd than internaldb
+            // update passwordFile
+            String prompt = ldap.getString(Constants.PR_BINDPWD_PROMPT);
+            IPasswordStore pwdStore = CMS.getPasswordStore();
+            CMS.debug("PublisherAdminServlet: testSetLDAPDest(): saving password for "+
+                prompt + " to password file");
+            pwdStore.putPassword(prompt, pwd);
+            pwdStore.commit();
+            CMS.debug("PublisherAdminServlet: testSetLDAPDest(): password saved");
+/* we'll shut down and restart the PublisherProcessor instead
+             // what a hack to  do this without require restart server
+//        ILdapAuthInfo authInfo = CMS.getLdapAuthInfo();
+            ILdapConnModule connModule = mProcessor.getLdapConnModule();
+            ILdapAuthInfo authInfo = null;
+            if (connModule != null) {
+                authInfo = connModule.getLdapAuthInfo();
+            } else
+                CMS.debug("PublisherAdminServlet: testSetLDAPDest(): connModule null");
+
+//        authInfo.addPassword(PW_TAG_CA_LDAP_PUBLISHING, pwd);
+            if (authInfo != null) {
+                CMS.debug("PublisherAdminServlet: testSetLDAPDest(): adding password to memory cache");
+                authInfo.addPassword(prompt, pwd);
+            } else
+                CMS.debug("PublisherAdminServlet: testSetLDAPDest(): authInfo null");
+*/
         }
         //params.add(Constants.PR_SAVE_OK, 
         //		   "\n \nConfiguration changes are now committed.");

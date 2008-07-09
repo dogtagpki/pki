@@ -29,6 +29,7 @@ import com.netscape.certsrv.apps.*;
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.ldap.*;
 import com.netscape.cmscore.base.*;
+import com.netscape.cmsutil.password.*;
 
 
 /**
@@ -65,6 +66,43 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         init(config, host, port, secure);
     }
 
+    public String getPasswordFromStore (String prompt) {
+        String pwd = null;
+        CMS.debug("LdapAuthInfo: getPasswordFromStore: try to get it from password store");
+
+// hey - should use password store interface to allow different implementations
+// but the problem is, other parts of the system just go directly to the file
+// so calling CMS.getPasswordStore() will give you an outdated one
+/*
+                IConfigStore mainConfig = CMS.getConfigStore();
+                String pwdFile = mainConfig.getString("passwordFile");
+                FileConfigStore pstore = new FileConfigStore(pwdFile);
+*/
+        IPasswordStore pwdStore = CMS.getPasswordStore();
+        CMS.debug("LdapAuthInfo: getPasswordFromStore: about to get from passwored store: "+prompt);
+
+        // support publishing dirsrv with different pwd than internaldb
+
+        // Finally, interactively obtain the password from the user
+        if (pwdStore != null) {
+            CMS.debug("LdapAuthInfo: getPasswordFromStore: password store available");
+            pwd = pwdStore.getPassword(prompt);
+//            pwd = pstore.getString(prompt);
+            if ( pwd == null) {
+              CMS.debug("LdapAuthInfo: getPasswordFromStore: password for "+prompt+
+                " not found, trying internaldb");
+
+//               pwd = pstore.getString("internaldb");
+
+                 pwd = pwdStore.getPassword("internaldb"); // last resort
+            } else
+              CMS.debug("LdapAuthInfo: getPasswordFromStore: password found for prompt in password store");
+        } else
+          CMS.debug("LdapAuthInfo: getPasswordFromStore: password store not available: pwdStore is null");
+
+        return pwd;
+    }
+
     /**
      * initialize this class from the config store.
      */
@@ -82,12 +120,19 @@ public class LdapAuthInfo implements ILdapAuthInfo {
      */
     public void init(IConfigStore config, String host, int port, boolean secure)
         throws EBaseException {
-        if (mInited) 
-            return;			// XXX throw exception here ?
+
+        CMS.debug("LdapAuthInfo: init()");
+        if (mInited)  {
+            CMS.debug("LdapAuthInfo: already initialized");
+            return;            // XXX throw exception here ?
+        }
+        CMS.debug("LdapAuthInfo: init begins");
 
         String authTypeStr = config.getString(PROP_LDAPAUTHTYPE);
 
         if (authTypeStr.equals(LDAP_BASICAUTH_STR)) {
+            // is the password found in memory?
+            boolean inMem = false;
             mType = LDAP_AUTHTYPE_BASICAUTH;
             mParms = new String[2];
             mParms[0] = config.getString(PROP_BINDDN);
@@ -101,27 +146,53 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
             if (prompt == null) {
                 prompt = "LDAP Authentication";
-            }
+                CMS.debug("LdapAuthInfo: init: prompt is null, change to "+prompt);
+            } else
+                CMS.debug("LdapAuthInfo: init: prompt is "+prompt);
+
             if (mParms[1] == null) {
+                CMS.debug("LdapAuthInfo: init: try getting from memory cache");
                 mParms[1] = (String) passwords.get(prompt);
-            }
+if (mParms[1] != null) {
+    inMem = true;
+CMS.debug("LdapAuthInfo: init: got password from memory");
+} else
+CMS.debug("LdapAuthInfo: init: password not in memory");
+            } else
+CMS.debug("LdapAuthInfo: init: found password from config");
 
-            // Finally, interactively obtain the password from the user
             if (mParms[1] == null) {
-                IConfigStore mainConfig = CMS.getConfigStore();
-                String pwdFile = mainConfig.getString("passwordFile");
-                FileConfigStore pstore = new FileConfigStore(pwdFile);
-                mParms[1] = pstore.getString("internaldb");
+                mParms[1] = getPasswordFromStore(prompt);
+           } else {
+                CMS.debug("LdapAuthInfo: init: password found for prompt.");
+           }
 
-                // verify the password
-                if ((!mParms[1].equals("")) && (host == null ||
-                  authInfoOK(host, port, secure, mParms[0], mParms[1]))) {
-                    // The password is OK or uncheckable
-                    passwords.put(prompt, mParms[1]);
-                } else {
-                    pstore.remove("internaldb");
+            // verify the password
+            if ((mParms[1]!= null) && (!mParms[1].equals("")) && (host == null ||
+              authInfoOK(host, port, secure, mParms[0], mParms[1]))) {
+                // The password is OK or uncheckable
+                CMS.debug("LdapAuthInfo: password ok: store in memory cache");
+                passwords.put(prompt, mParms[1]);
+            } else {
+                if (mParms[1] == null)
+                    CMS.debug("LdapAuthInfo: password not found");
+                else {
+                    CMS.debug("LdapAuthInfo: password does not work");
+/* what do you know?  Our IPasswordStore does not have a remove function.
+                pstore.remove("internaldb");
+*/
+                    if (inMem) {
+                        // this is for the case when admin changes pwd
+                        // from console
+                        mParms[1] = getPasswordFromStore(prompt);
+                        if(authInfoOK(host, port, secure, mParms[0], mParms[1])) {
+                          CMS.debug("LdapAuthInfo: password ok: store in memory cache");
+                          passwords.put(prompt, mParms[1]);
+                        }
+                    }
                 }
             }
+
         } else if (authTypeStr.equals(LDAP_SSLCLIENTAUTH_STR)) {
             mType = LDAP_AUTHTYPE_SSLCLIENTAUTH;
             mParms = new String[1];
@@ -131,6 +202,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
                     "Unknown Ldap authentication type " + authTypeStr);
         }
         mInited = true;
+        CMS.debug("LdapAuthInfo: init ends");
     }
 
     public void reset() {

@@ -399,8 +399,10 @@ public class PublisherProcessor implements
     }
 
     public void startup() throws EBaseException {
+        CMS.debug("PublisherProcessor: startup()");
         mLdapConfig = mConfig.getSubStore(PROP_LDAP_PUBLISH_SUBSTORE);
         if (mLdapConfig.getBoolean(PROP_ENABLE, false)) {
+            CMS.debug("PublisherProcessor: about to initLdapConn");
             initLdapConn(mLdapConfig);
         } else {
             CMS.debug("No LdapPublishing enabled");
