@@ -1577,7 +1577,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         // accessor but we don't want to touch the interface
         CertificateRepository cr = (CertificateRepository)mCertRepository;
 
+        CMS.debug("About to start processRevokedCerts");
         synchronized (cr.mCertStatusUpdateThread) {
+            CMS.debug("Starting processRevokedCerts (entered lock)");
             ICertRecordList list = mCertRepository.findCertRecordsInList(filter,
                     new String[] {ICertRecord.ATTR_ID, ICertRecord.ATTR_REVO_INFO, "objectclass" },
                     "serialno",
@@ -1586,6 +1588,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             int totalSize = list.getSize();
 
             list.processCertRecords(0, totalSize - 1, cp);
+            CMS.debug("processRevokedCerts done");
         }
     }
 
