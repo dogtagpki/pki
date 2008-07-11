@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      11
+%define base_release      12
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -298,6 +298,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Fri Jul 11 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-12
+- Fix for bug #243804.
 * Wed Jul 9 2008 Christina Fu <cfu@redhat.com> 1.0.0-11
 - Fix for Bugzilla Bug #446685: LDAP publisher doesn't store the bind password properly
 * Tue Jul 8 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-10
