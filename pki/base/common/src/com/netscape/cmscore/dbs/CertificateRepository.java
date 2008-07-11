@@ -1915,12 +1915,14 @@ class CertStatusUpdateThread extends Thread {
                 // block the update while another thread
                 // (such as the CRL Update) is running
                 CMS.debug("About to start updateCertStatus");
-                synchronized (this) {
+                synchronized (_cr.mCertStatusUpdateThread) {
                     CMS.debug("Starting updateCertStatus (entered lock)");
                     _cr.updateCertStatus();
+                    CMS.debug("updateCertStatus done");
                 }
 
             } catch (Exception e) {
+                CMS.debug("updateCertStatus done");
             }
             try {
                 sleep(_interval * 1000);
