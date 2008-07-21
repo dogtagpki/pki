@@ -1262,15 +1262,15 @@ public class DatabasePanel extends WizardPanelBase {
     private String getInstanceDir(LDAPConnection conn) {
         String instancedir="";
         try {
-            String filter = "(objectclass=nsslapdConfig)";
-            String[] attrs = {"nsslapd-instancedir"};
-            LDAPSearchResults results = conn.search("cn=config", LDAPv3.SCOPE_SUB,
+            String filter = "(objectclass=*)";
+            String[] attrs = {"nsslapd-directory"};
+            LDAPSearchResults results = conn.search("cn=config,cn=ldbm database,cn=plugins,cn=config", LDAPv3.SCOPE_SUB,
               filter, attrs, false);
 
             while (results.hasMoreElements()) {
                 LDAPEntry entry = results.next();
                 String dn = entry.getDN();
-                CMS.debug("DatabasePanel getInstanceDir: DN for storing nsslapd-instancedir: "+dn);
+                CMS.debug("DatabasePanel getInstanceDir: DN for storing nsslapd-directory: "+dn);
                 LDAPAttributeSet entryAttrs = entry.getAttributeSet();
                 Enumeration attrsInSet = entryAttrs.getAttributes();
                 while (attrsInSet.hasMoreElements()) {
@@ -1280,9 +1280,9 @@ public class DatabasePanel extends WizardPanelBase {
                     Enumeration valsInAttr = nextAttr.getStringValues();
                     while ( valsInAttr.hasMoreElements() ) {
                         String nextValue = (String)valsInAttr.nextElement();
-                        if (attrName.equalsIgnoreCase("nsslapd-instancedir")) {
+                        if (attrName.equalsIgnoreCase("nsslapd-directory")) {
                             CMS.debug("DatabasePanel getInstanceDir: instanceDir="+nextValue);
-                            return nextValue;
+                            return nextValue.substring(0,nextValue.lastIndexOf("/db"));
                         }
                     }
                 }
