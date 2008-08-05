@@ -104,8 +104,9 @@ sub makemodules {
 
 		my $moduledetail = `modutil -force -dbdir '$self->{dir}' -nocertdb -list "$m->{modulename}" 2> /dev/null`;
 		my @details= split "\n\n", $moduledetail;
-		shift @details;
-
+		while ($details[0] !~ /.*Name:.*/)  {
+			shift @details;
+		};
 		$m->{detail} = makehash(shift @details);
 		foreach $d (@details) {
 			my $sdh = makehash($d);
