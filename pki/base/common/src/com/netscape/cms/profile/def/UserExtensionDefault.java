@@ -135,11 +135,20 @@ public class UserExtensionDefault extends EnrollExtDefault {
     public void populate(IRequest request, X509CertInfo info)
         throws EProfileException {
         CertificateExtensions inExts = null;
+        String oid = getConfig(CONFIG_OID);
 
         inExts = request.getExtDataInCertExts(IEnrollProfile.REQUEST_EXTENSIONS);
+        if (inExts == null)
+          return; 
         Extension ext = getExtension(getConfig(CONFIG_OID), inExts);
-        if (ext == null)
+        if (ext == null) {
+          CMS.debug("UserExtensionDefault: no user ext supplied for "+ oid);
           return;
-        addExtension(getConfig(CONFIG_OID), ext, info);
+        }
+
+        // user supplied the ext that's allowed, replace the def set by system
+        deleteExtension(oid, info);
+        CMS.debug("UserExtensionDefault: using user supplied ext for "+ oid);
+        addExtension(oid, ext, info);
     }
 }

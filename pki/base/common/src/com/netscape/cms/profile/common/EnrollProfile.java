@@ -933,7 +933,8 @@ public abstract class EnrollProfile extends BasicProfile
                     CertificateExtensions exts = new CertificateExtensions(extIn);
                     if (exts != null) {
                         CMS.debug("Set extensions " + exts);
-                        info.set(X509CertInfo.EXTENSIONS, exts);
+                        // info.set(X509CertInfo.EXTENSIONS, exts);
+                        req.setExtData(REQUEST_EXTENSIONS, exts);
                     }
                 } else {
                     CMS.debug("PKCS10 extension Not Found");
