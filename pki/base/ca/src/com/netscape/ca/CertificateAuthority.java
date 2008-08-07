@@ -364,6 +364,13 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     }
 
     /**
+     * get notifiers registered by CA
+     */
+    public IRequestNotifier getRequestNotifier() {
+        return mNotify;
+    }
+
+    /**
      * get listener from listener list
      */
     public IRequestListener getPendingListener(String name) {
@@ -1479,7 +1486,23 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         CMS.debug("CA policy inited");
         mService = new CAService(this);
         CMS.debug("CA service inited");
-        mNotify = new ARequestNotifier();
+
+        IConfigStore pubQueueConfig = mConfig.getSubStore(PROP_PUB_QUEUE_SUBSTORE);
+        boolean enablePublishingQueue = false;
+        // Publishing Queue Priority Levels:  2 - maximum, 1 - raised, 0 - normal
+        int publishingQueuePriorityLevel = 2;
+        if (pubQueueConfig != null) {
+            try {
+                enablePublishingQueue = pubQueueConfig.getBoolean("enable", false);
+                publishingQueuePriorityLevel = pubQueueConfig.getInteger("priorityLevel", 2);
+            } catch (EBaseException e) {
+                CMS.debug("Error reading publishing queue parameters: "+e);
+                enablePublishingQueue = false;
+                publishingQueuePriorityLevel = 2;
+            }
+        }
+        CMS.debug("CA Publishing Queue Enabled: "+enablePublishingQueue+"  Priority Level: "+publishingQueuePriorityLevel);
+        mNotify = new ARequestNotifier(this, enablePublishingQueue, publishingQueuePriorityLevel);
         CMS.debug("CA notifier inited");
         mPNotify = new ARequestNotifier();
         CMS.debug("CA pending notifier inited");
