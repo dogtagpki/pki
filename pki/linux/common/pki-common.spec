@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      13
+%define base_release      14
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -298,6 +298,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Thu Aug 7 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-14
+- Fix for Bug 453834.
 * Mon Jul 21 2008 Ade Lee <alee@redhat.com> 1.0.0-13
 - Fix for Bug 455331.
 * Fri Jul 11 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-12
