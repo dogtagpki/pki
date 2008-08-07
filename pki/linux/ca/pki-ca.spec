@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      8
+%define base_release      9
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -282,6 +282,8 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Aug 7 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-9
+- Fix for Bug 453834.
 * Fri Jul 11 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-8
 - Fix for bug #243804.
 * Wed Jun 25 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-7
