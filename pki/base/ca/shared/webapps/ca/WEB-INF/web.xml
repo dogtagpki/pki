@@ -2033,10 +2033,12 @@
       <url-pattern>   /registry  </url-pattern>
    </servlet-mapping>
 
+[PKI_OPEN_SEPARATE_PORTS_COMMENT]
    <servlet-mapping>
       <servlet-name>  caauths  </servlet-name>
       <url-pattern>   /auths  </url-pattern>
    </servlet-mapping>
+[PKI_CLOSE_SEPARATE_PORTS_COMMENT]
 
    <servlet-mapping>
       <servlet-name>  castart  </servlet-name>
