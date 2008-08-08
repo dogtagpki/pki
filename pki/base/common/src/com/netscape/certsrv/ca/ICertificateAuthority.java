@@ -84,6 +84,7 @@ public interface ICertificateAuthority extends ISubsystem {
     public final static String PROP_CERT_ISSUED_SUBSTORE = "certIssued";
     public final static String PROP_CERT_REVOKED_SUBSTORE = "certRevoked";
     public final static String PROP_REQ_IN_Q_SUBSTORE = "requestInQ";
+    public final static String PROP_PUB_QUEUE_SUBSTORE = "publishingQueue";
 
     public final static String PROP_ISSUER_NAME = "name";
     public final static String PROP_CA_NAMES = "CAs";
@@ -349,6 +350,11 @@ public interface ICertificateAuthority extends ISubsystem {
      * @return the request listener
      */
     public IRequestListener getRequestListener(String name);
+
+    /**
+     * get request notifier
+     */
+    public IRequestNotifier getRequestNotifier();
    
     /**
      * Registers a request listener.
