@@ -83,6 +83,10 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         return mNumConns;
     }
 
+    public int maxConn() {
+        return mMaxConns;
+    }
+
     /**
      * init routine to be called when initialize from config store.
      */
