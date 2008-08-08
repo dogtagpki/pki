@@ -247,19 +247,21 @@ public class CAEnrollProfile extends EnrollProfile {
         else
             request.setExtData("isEncryptionCert", "false");
 
-        // request handling
-        Enumeration names = ca.getRequestListenerNames();
-
-        if (names != null) {
-            while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
-
-                CMS.debug("CAEnrollProfile: listener " + name);
-                IRequestListener listener = ca.getRequestListener(name);
-
-                CMS.debug("CAEnrollProfile: listener=" + listener);
-                if (listener != null) { 
-                    listener.accept(request); 
+        IRequestNotifier notifier = ca.getRequestNotifier();
+        if (notifier != null && notifier.isPublishingQueueEnabled()) {
+            CMS.debug("about to addToNotify");
+            notifier.addToNotify(request);
+            CMS.debug("addToNotify done");
+        } else {
+            Enumeration names = ca.getRequestListenerNames();
+            if (names != null) {
+                while (names.hasMoreElements()) {
+                    String name = (String) names.nextElement();
+                    CMS.debug("CAEnrollProfile: listener " + name);
+                    IRequestListener listener = ca.getRequestListener(name);
+                    if (listener != null) { 
+                        listener.accept(request); 
+                    }
                 }
             }
         }
