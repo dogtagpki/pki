@@ -29,7 +29,9 @@
 #            -pki_instance_root=/var/lib
 #            -pki_instance_name=pki-ca1
 #            -subsystem_type=ca
-#            -secure_port=9543
+#            -secure_port=9543 || -agent_secure_port=9543
+#	                          -ee_secure_port=9544
+#                                 -admin_secure_port=9545
 #            -unsecure_port=9180
 #            -tomcat_server_port=1801
 #            -user=pkiuser
@@ -282,6 +284,9 @@ my $perl_base_subsystem_dir         = "perl";     # RA, TPS
 my $webapps_root_base_instance_dir  = "ROOT";     # CA, KRA, OCSP, TKS
 my $webapps_root_base_subsystem_dir = "ROOT";     # CA, KRA, OCSP, TKS
 my $webinf_base_instance_dir        = "WEB-INF";  # CA, KRA, OCSP, TKS
+my $agent_base_ui_instance_dir      = "agent";    # CA, KRA, OCSP, TKS
+my $ee_base_ui_instance_dir         = "ee";       # CA, KRA, OCSP, TKS
+my $admin_base_ui_instance_dir      = "admin";    # CA, KRA, OCSP, TKS
 
 # Defaults
 my $default_apache_pids_path       = "/var/run";
@@ -338,12 +343,20 @@ my $PKI_INSTANCE_ROOT_SLOT    = "PKI_INSTANCE_ROOT";
 my $PKI_MACHINE_NAME_SLOT     = "PKI_MACHINE_NAME";
 my $PKI_RANDOM_NUMBER_SLOT    = "PKI_RANDOM_NUMBER";
 my $PKI_SECURE_PORT_SLOT      = "PKI_SECURE_PORT";
+my $PKI_EE_SECURE_PORT_SLOT   = "PKI_EE_SECURE_PORT";
+my $PKI_AGENT_SECURE_PORT_SLOT = "PKI_AGENT_SECURE_PORT";
+my $PKI_ADMIN_SECURE_PORT_SLOT = "PKI_ADMIN_SECURE_PORT";
 my $PKI_SERVER_XML_CONF       = "PKI_SERVER_XML_CONF";
 my $PKI_SUBSYSTEM_TYPE_SLOT   = "PKI_SUBSYSTEM_TYPE";
 my $PKI_UNSECURE_PORT_SLOT    = "PKI_UNSECURE_PORT";
 my $PKI_USER_SLOT             = "PKI_USER";
 my $TOMCAT_SERVER_PORT_SLOT   = "TOMCAT_SERVER_PORT";
 my $PKI_FLAVOR_SLOT           = "PKI_FLAVOR";
+my $PKI_OPEN_SEPARATE_PORTS_COMMENT_SLOT  = "PKI_OPEN_SEPARATE_PORTS_COMMENT";
+my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_SLOT = "PKI_CLOSE_SEPARATE_PORTS_COMMENT";
+my $PKI_OPEN_COMMENT          = "<!--";
+my $PKI_CLOSE_COMMENT         = "-->";
+my $PKI_WEBAPPS_NAME         = "PKI_WEBAPPS_NAME";
 
 # PKI removal constants
 my $saved_cleanup_file_name = ".cleanup.dat";
@@ -375,6 +388,9 @@ my $unsecure_port      = -1;
 my $tomcat_server_port = -1;
 
 # Command-line variables (optional)
+my $agent_secure_port    = -1;
+my $ee_secure_port       = -1;
+my $admin_secure_port    = -1;
 my $username             = "";
 my $groupname            = "";
 my $redirected_conf_path = "";
@@ -697,7 +713,15 @@ sub usage()
          . "                  -secure_port=<secure_port>               "
          . "# Secure port\n\n"
          . "                  -unsecure_port=<unsecure_port>           "
-         . "# Unsecure port\n\n"
+         . "#Unsecure port\n\n"
+         . "###################### Optional separate ports ############\n\n"
+         . "                  -agent_secure_port=<agent_secure_port>   "
+         . "#Agent secure port, Same as 'secure_port'\n\n"
+         . "                  -ee_secure_port=<ee_secure_port>         "
+         . "# EE secure port\n\n"
+         . "                  -admin_secure_port=<admin_secure_port>   " 
+         . "# Admin secureport\n\n"                   
+         . "###################### End Optional separate ports ########\n\n"
          . "                  -tomcat_server_port=<tomcat_server_port> "
          . "# Unique port\n"
          . "                                                           "
@@ -751,7 +775,14 @@ sub usage()
            "Example:  pkicreate -pki_instance_root=/var/lib\n"
          . "                    -pki_instance_name=$pki_flavor-ca1\n"
          . "                    -subsystem_type=ca\n"
+         . "[Either mandatory: \n"
          . "                    -secure_port=9543\n"
+         . "] or\n"
+         . "[ Optional separate ports:\n"
+         . "                    -agent_secure_port=9543\n"
+         . "                    -ee_secure_port=9544\n"
+         . "                    -admin_secure_port=9545\n"
+         . "]\n"
          . "                    -unsecure_port=9180\n"
          . "                    -tomcat_server_port=1801\n"
          . "                    -user=pkiuser\n"
@@ -795,6 +826,9 @@ sub parse_arguments()
     my $l_secure_port        = -1;
     my $l_unsecure_port      = -1;
     my $l_tomcat_server_port = -1;
+    my $l_agent_secure_port  = -1;
+    my $l_ee_secure_port     = -1;
+    my $l_admin_secure_port  = -1;
     my $show_help            = 0;
 
     $result = GetOptions( "help" => \$show_help,
@@ -803,6 +837,9 @@ sub parse_arguments()
                           "subsystem_type=s" => \$subsystem_type,
                           "secure_port:i" => \$l_secure_port,
                           "unsecure_port:i" => \$l_unsecure_port,
+                          "agent_secure_port:i" => \$l_agent_secure_port,
+                          "ee_secure_port:i" => \$l_ee_secure_port,
+                          "admin_secure_port:i" => \$l_admin_secure_port, 
                           "tomcat_server_port:i" => \$l_tomcat_server_port,
                           "user=s" => \$username,
                           "group=s" => \$groupname,
@@ -926,9 +963,12 @@ sub parse_arguments()
 
         emit( "    secure_port         $secure_port\n" );
     } else {
-        emit( "Must include value for secure_port!\n", "error" );
-        usage();
-        return 0;
+        if( $l_agent_secure_port == -1)
+        {
+            emit( "Must include value for secure_port!\n", "error" );
+            usage();
+            return 0;
+        }
     }
 
 
@@ -942,7 +982,6 @@ sub parse_arguments()
         usage();
         return 0;
     }
-
 
     ## Mandatory "-tomcat_server_port=<tomcat_server_port>" option/exclusion
     if( !($subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
@@ -964,6 +1003,60 @@ sub parse_arguments()
             usage();
             return 0;
         }
+    }
+
+    if( ($subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
+    ## Don't do port separation for RA or TPS
+
+        if( $l_agent_secure_port > 0 || $l_ee_secure_port > 0 
+            || $l_admin_secure_port > 0)  {
+
+            emit( "Must NOT include separate ports for RA or TPS!\n",
+                    "error");
+            usage();
+            return 0;
+        }
+    }
+ 
+    if( $l_agent_secure_port >= 0 ) {
+        $agent_secure_port = $l_agent_secure_port;
+     
+        emit( "    agent_secure_port   $agent_secure_port\n");
+
+    }
+
+    ## Mandatory ee_secure_port  if "-agent_secure_port" is given 
+
+    if( $l_ee_secure_port >= 0 ) {
+        $ee_secure_port = $l_ee_secure_port;
+     
+        emit( "    ee_secure_port      $ee_secure_port\n");
+
+    } else {
+        if(agent_secure_port >= 0) {
+            emit( "Must include value for ee_secure_port if agent_secure_port is given!\n");
+        }
+    }
+
+     ## Mandatory admin_secure_port if "-agent_secure_port" is given 
+
+    if( $l_admin_secure_port >= 0 ) {
+        $admin_secure_port = $l_admin_secure_port;
+    
+        emit( "    admin_secure_port   $admin_secure_port\n");
+
+    } else {
+        if(agent_secure_port >= 0) {
+            emit( "Must include value for admin_secure_port if agent_secure_port is given!\n");
+        }
+    }
+
+    if (!AreConnectorPortsValid($secure_port,$unsecure_port,$agent_secure_port,
+         $ee_secure_port,$admin_secure_port ) )
+    {
+        emit( "Invalid port numbers submitted!\n","error" );
+        usage();
+        return 0;
     }
 
 
@@ -1458,6 +1551,13 @@ sub initialize_pki_creation_values()
 sub process_pki_directories()
 {
     my $result = 0;
+    my $remove_dir="";
+
+    my $do_port_separation = 0;
+    if( $agent_secure_port >= 0 && ( $subsystem_type ne $RA ) && 
+        ( $subsystem_type ne $TPS ) ) {
+        $do_port_separation = 1;
+    }
 
     emit( "Processing PKI directories for '$pki_instance_path' ...\n" );
 
@@ -1728,7 +1828,7 @@ sub process_pki_directories()
         $result = copy_directory( $ui_subsystem_path,
                                   $pki_instance_path );
         if( !$result ) {
-            emit( "Failed to copy directory $webapps_subsystem_path ...\n" );
+            emit( "Failed to copy directory $ui_subsystem_path ...\n" );
             return 0;
         }
 
@@ -1806,7 +1906,103 @@ sub process_pki_directories()
             emit( "Failed to copy directory $webapps_subsystem_path ...\n" );
             return 0;
         }
+        ## Take care of port separation directory manipulation here.
+        
+        if( $do_port_separation )  {
+            # Make 2 more copies of the webapps directory
+            # One for ee and one for admin, existing webapps is for agent
 
+            $result = copy_directory( $webapps_instance_path , $webapps_instance_path . ".ee" );
+           
+            if( !$result ) {
+                emit( "Failed to copy directory $webapps_subsystem_path for port separation ...\n" );
+                return 0;
+            }
+
+            $result = copy_directory( $webapps_instance_path , $webapps_instance_path . ".admin" );
+
+            if( !$result ) {
+                emit( "Failed to copy directory $webapps_subsystem_path for port separation ...\n" );
+                return 0;
+            }
+
+            # Remove unwanted content from the agent, webapps directory
+
+            $remove_dir = $webapps_instance_path . "/" .
+                          $subsystem_type . "/" . $ee_base_ui_instance_dir;
+
+            $result = remove_directory( $remove_dir ); 
+
+            if( !$result ) {
+                emit( "Failed to delete directory $remove_dir  for port separation ...\n" );
+                return 0;
+            }
+
+            # In this case for the agent port , we still need the webapps/$subsystem_type/admin/console directory
+            # for the configuration wizard to still run.
+            # Only remove the $subsystem_type portion of this directory.
+
+            $remove_dir = $webapps_instance_path . "/" .
+                          $subsystem_type . "/" .  $admin_base_ui_instance_dir . "/" . $subsystem_type;
+
+            $result = remove_directory( $remove_dir ); 
+
+            if( !$result ) {
+                emit( "Failed to delete directory $remove_dir  for port separation ...\n" );
+                return 0;
+            }
+
+
+            # Remove unwanted content from the ee, webapps directory
+            # In this case for the ee port , we still need the webapps/$subsystem_type/admin/console directory
+            # for the security domain requests from other subsystems.
+            # Only remove the $subsystem_type portion of this directory.
+
+
+            $remove_dir = $webapps_instance_path .  
+                          ".ee" . "/" . $subsystem_type . "/" . $agent_base_ui_instance_dir;
+
+            $result = remove_directory( $remove_dir );   
+
+            if( !$result ) {
+                emit( "Failed to delete directory $remove_dir  for port separation ...\n" );
+                return 0;
+            }
+
+            $remove_dir = $webapps_instance_path . 
+                          ".ee" ."/" . $subsystem_type . "/" .  $admin_base_ui_instance_dir . "/" . $subsystem_type;
+
+            $result = remove_directory( $remove_dir ); 
+
+            if( !$result ) {
+                emit( "Failed to delete directory $remove_dir  for port separation ...\n" );
+                return 0;
+            }
+
+            # Remove unwanted content from the admin, webapps directory
+
+            $remove_dir = $webapps_instance_path .
+                          ".admin" . "/" . $subsystem_type . "/"  . $agent_base_ui_instance_dir;
+
+            $result = remove_directory( $remove_dir ); 
+
+            if( !$result ) {
+                emit( "Failed to delete directory $remove_dir  for port separation ...\n" );
+                return 0;
+            }
+
+            $remove_dir = $webapps_instance_path . 
+                          ".admin" . "/"  . $subsystem_type . "/" .  $ee_base_ui_instance_dir;
+
+            $result = remove_directory( $remove_dir ); 
+                         
+
+            if( !$result ) {
+                emit( "Failed to delete directory $remove_dir  for port separation ...\n" );
+                return 0;
+            }
+        } 
+        ##
         # Tomcat Specific
         $result = copy_directory( $shared_subsystem_path,
                                   $shared_instance_path );
@@ -1906,6 +2102,13 @@ sub process_file_template
 # return 0 - failure
 sub process_pki_templates()
 {
+    #Are we doing port separation?,If so, we have enough info to set the PKI_SECURE_PORT here.   
+    my $do_port_separation = 0;
+    if( $agent_secure_port >= 0 && ( $subsystem_type ne $RA ) &&
+        ( $subsystem_type ne $TPS ) ) {
+        $do_port_separation = 1;
+    }
+ 
     my %slot_hash = ();
 
     emit( "Processing PKI templates for '$pki_instance_path' ...\n" );
@@ -1976,10 +2179,31 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         $slot_hash{$PKI_INSTANCE_ROOT_SLOT}    = $pki_instance_root;
         $slot_hash{$PKI_MACHINE_NAME_SLOT}     = $host;
         $slot_hash{$PKI_RANDOM_NUMBER_SLOT}    = $random;
-        $slot_hash{$PKI_SECURE_PORT_SLOT}      = $secure_port;
+
+        if (! $do_port_separation)  {
+            $slot_hash{$PKI_SECURE_PORT_SLOT}      = $secure_port;
+        }  else {
+            $slot_hash{$PKI_SECURE_PORT_SLOT}      = $ee_secure_port;
+        }
+
         $slot_hash{$PKI_SERVER_XML_CONF}       = $server_xml_instance_file_path;
         $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
         $slot_hash{$PKI_UNSECURE_PORT_SLOT}    = $unsecure_port;
+
+        #Take care of the case where we want separate listening ports.
+        if( $do_port_separation) 
+        {
+            $slot_hash{$PKI_SECURE_PORT_SLOT}     = $agent_secure_port;
+            $slot_hash{$PKI_EE_SECURE_PORT_SLOT}        = $ee_secure_port; 
+            $slot_hash{$PKI_ADMIN_SECURE_PORT_SLOT}     = $admin_secure_port;
+            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SLOT}  = "";
+            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SLOT} = "";
+        } else {
+            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SLOT}  = $PKI_OPEN_COMMENT;
+            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SLOT} = $PKI_CLOSE_COMMENT;
+
+        } 
+        $slot_hash{$PKI_WEBAPPS_NAME}	       = $webapps_base_subsystem_dir; 
         $slot_hash{$PKI_USER_SLOT}             = $pki_user;
         $slot_hash{$TOMCAT_SERVER_PORT_SLOT}   = $tomcat_server_port;
         $slot_hash{$PKI_FLAVOR_SLOT}           = $pki_flavor;
@@ -2275,6 +2499,132 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
     return 1;
 }
 
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub process_pki_templates_for_port_separation()
+{
+    #re do web.xml in the case of configurable port separation
+
+    my %slot_hash = ();
+    my $do_port_separation = 0;
+
+    #for webapps.ee
+    my $ee_webinf_instance_path = $webapps_instance_path
+            . ".ee"
+            . "/" . $subsystem_type
+            . "/" . $webinf_base_instance_dir ;
+
+    my $ee_webapps_root_instance_path =  $webapps_instance_path
+           . ".ee"
+           . "/" . $webapps_root_base_instance_dir ; 
+
+
+    #for webapps.admin
+    my $admin_webinf_instance_path = $webapps_instance_path
+            . ".admin"
+            . "/" . $subsystem_type
+            . "/" . $webinf_base_instance_dir ;
+
+
+    my $admin_webapps_root_instance_path = $webapps_instance_path
+            . ".admin"
+            . "/" . $webapps_root_base_instance_dir ;
+
+
+    #for webapps, use $webinf_instance_path
+
+    if( $agent_secure_port >= 0 && ( $subsystem_type ne $RA ) &&
+        ( $subsystem_type ne $TPS ) ) {
+        $do_port_separation = 1;
+    }
+
+    if ( ! $do_port_separation ) {
+        return 1;
+    }
+
+    emit( "Processing PKI templates for '$pki_instance_path' for port separation ...\n" );
+
+    # We need to re-establish the PKI_INSTANCE_PATH
+
+    $slot_hash{$PKI_INSTANCE_PATH_SLOT}    = $pki_instance_path;
+    $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
+
+    # For webapps.ee and webapps, comment out the access to the admin port
+
+    $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SLOT}  = $PKI_OPEN_COMMENT;
+    $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SLOT} = $PKI_CLOSE_COMMENT;
+
+    $result = process_file_template( $web_xml_subsystem_file_path,
+                                     $ee_webinf_instance_path . "/" . $web_xml_base_name,
+                                     \%slot_hash );
+    if( !$result ) {
+        return 0;
+    }
+
+
+    $result = process_file_template( $web_xml_subsystem_file_path,
+                                     $webinf_instance_path . "/" . $web_xml_base_name,
+                                     \%slot_hash );
+    if( !$result ) {
+        return 0;
+    }
+
+
+    # For webapps.admin don't comment out the access to the admin port
+
+    $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SLOT}  = "";
+    $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SLOT} = "";
+
+    $result = process_file_template( $web_xml_subsystem_file_path,
+                                     $admin_webinf_instance_path . "/" . $web_xml_base_name,
+                                     \%slot_hash );
+    if( !$result ) {
+        return 0;
+    }
+
+    #Now massage the velocity.properties for webapps.ee and webapps.admin
+
+    $slot_hash{$PKI_WEBAPPS_NAME}= $webapps_base_subsystem_dir . ".ee";
+
+    $result = process_file_template( $velocity_prop_subsystem_file_path,
+                                     $ee_webinf_instance_path . "/" . $velocity_prop_base_name,                                     
+                                     \%slot_hash );
+    if( !$result ) {
+        return 0;
+    }
+
+    $slot_hash{$PKI_WEBAPPS_NAME}= $webapps_base_subsystem_dir . ".admin";
+
+    $result = process_file_template( $velocity_prop_subsystem_file_path,
+                                     $admin_webinf_instance_path . "/" . $velocity_prop_base_name,
+                                     \%slot_hash );
+    if( !$result ) {
+        return 0;
+    }
+
+    #Process the index.html file for ee and admin
+
+    $slot_hash{$PKI_MACHINE_NAME_SLOT} =  $host ;
+    $slot_hash{$PKI_SECURE_PORT_SLOT}  =  $ee_secure_port ;
+    $result = process_file_template( $index_html_subsystem_file_path,
+                                     $ee_webapps_root_instance_path . "/" . $index_html_base_name,
+                                     \%slot_hash );
+    if( !$result ) {
+        return 0;
+    }
+
+    $result = process_file_template( $index_html_subsystem_file_path,
+                                     $admin_webapps_root_instance_path . "/" . $index_html_base_name,
+                                     \%slot_hash );
+    if( !$result ) {
+        return 0;
+    }
+
+
+    return 1;
+}
+
 
 # no args
 # return 1 - success, or
@@ -2282,6 +2632,21 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
 sub process_pki_files_and_symlinks()
 {
     my $result = 0;
+    my $do_port_separation = 0;
+    my $ee_webinf_lib_instance_path = $webapps_instance_path
+            . ".ee" 
+            . "/" . $subsystem_type
+            . "/" . $webinf_base_instance_dir . "/" . $lib_base_instance_dir;
+
+    my $admin_webinf_lib_instance_path = $webapps_instance_path
+            . ".admin"
+            . "/" . $subsystem_type
+            . "/" . $webinf_base_instance_dir . "/" . $lib_base_instance_dir;
+
+    if( $agent_secure_port >= 0 && ( $subsystem_type ne $RA ) &&
+        ( $subsystem_type ne $TPS ) ) {
+        $do_port_separation = 1;
+    }
 
     emit( "Processing PKI files and symbolic links for "
         . "'$pki_instance_path' ...\n" );
@@ -2416,6 +2781,20 @@ sub process_pki_files_and_symlinks()
             return 0;
         }
 
+        if( $do_port_separation)  {
+            # create instance "webapps.ee/$subsystem_type/WEB-INF/lib" subdirectory
+            $result = create_directory( $ee_webinf_lib_instance_path );
+            if( !$result ) {
+                return 0;
+            }
+
+
+            # create instance "webapps.admin/$subsystem_type/WEB-INF/lib" subdirectory
+            $result = create_directory( $admin_webinf_lib_instance_path );
+            if( !$result ) {
+                return 0;
+            }
+        } 
 
         # create instance symlink to "$subsystem_type.jar"
         $result = create_symbolic_link( $subsystem_jar_symlink_path,
@@ -2533,22 +2912,51 @@ sub process_pki_files_and_symlinks()
         }
 
 
-        # create instance symlink to "osutil.jar"
-        $result = create_symbolic_link( $osutil_jar_symlink_path,
-                                        $osutil_jar_file_path );
-        if( !$result ) {
-            return 0;
-        }
+        if( !$do_port_separation)  {
+            # create instance symlink to "osutil.jar"
+            $result = create_symbolic_link( $osutil_jar_symlink_path,
+                                            $osutil_jar_file_path );
+            if( !$result ) {
+                return 0;
+            }
 
-        $result = give_symbolic_link_to( $osutil_jar_symlink_path,
-                                         $pki_user,
-                                         $pki_group );
-        if( !$result ) {
-            emit( "$osutil_jar_symlink_path ownership problems!",
-                  "error" );
-            return 0;
-        }
+            $result = give_symbolic_link_to( $osutil_jar_symlink_path,
+                                             $pki_user,
+                                             $pki_group );
+            if( !$result ) {
+                emit( "$osutil_jar_symlink_path ownership problems!",
+                      "error" );
+                return 0;
+            }
 
+        }  else { # put this important file in common instead for port separation
+            # create instance symlink to "osutil.jar"
+            $result = create_symbolic_link( $common_instance_symlink_path . $osutil_jar_base_name ,
+                                            $osutil_jar_file_path );
+            if( !$result ) {
+                return 0;
+            }
+
+            $result = give_symbolic_link_to( $common_instance_symlink_path . $osutil_jar_base_name,
+                                             $pki_user,
+                                             $pki_group );
+            if( !$result ) {
+                emit( "$osutil_jar_symlink_path ownership problems!",
+                      "error" );
+                return 0;
+            }
+
+            #Now go back and massage the web.xml templates to restrict access to the admin port
+
+            $result = process_pki_templates_for_port_separation();
+
+            if( !$result) {
+                emit("Can't process the web.xml template files!\n",
+                      "error");
+                return 0;
+            }
+
+        }
 
         # Tomcat Specific
 
@@ -2573,7 +2981,26 @@ sub process_pki_files_and_symlinks()
         }
     }
 
-    return 1;
+    #Now make copy of finished lib directory in webapps.ee and webapps.admin, if doing port separation
+    #Thus processing the files all at once instead of individually
+
+    if( $do_port_separation)  {
+        $result = copy_directory( $webinf_lib_instance_path,
+                                  $ee_webinf_lib_instance_path);
+        if( !$result ) {
+            emit( "Failed to copy directory $web_lib_instance_path ...\n" );
+            return 0;
+        }
+
+        $result = copy_directory( $webinf_lib_instance_path,
+                                  $admin_webinf_lib_instance_path);
+        if( !$result ) {
+            emit( "Failed to copy directory  $webinf_lib_instance_path ...\n" );
+            return 0;
+        }
+
+    }
+        return 1;
 }
 
 
@@ -2913,20 +3340,37 @@ ASK_AGAIN:
         . "start | stop | restart\n",
           "log" );
 
-    print( STDOUT
-           "Please start the configuration by accessing:\n"
-         . "http://$host:$unsecure_port/$subsystem_type/admin/"
-         . "console/config/login?pin=$random\n\n" );
-    emit( "Configuration Wizard listening on\n"
-        . "http://$host:$unsecure_port/$subsystem_type/admin/"
-        . "console/config/login?pin=$random\n",
-          "log" );
+    if( $ee_secure_port > 0 ) {
+         print( STDOUT
+               "Please start the configuration by accessing:\n"
+             . "https://$host:$ee_secure_port/$subsystem_type/admin/"
+             . "console/config/login?pin=$random\n\n" );
+        emit( "Configuration Wizard listening on\n"
+            . "https://$host:$ee_secure_port/$subsystem_type/admin/"
+            . "console/config/login?pin=$random\n",
+              "log" );
 
-    print( STDOUT
-          "Before proceeding with the configuration, make sure \n"
-        . "the firewall settings of this machine permit proper \n"
-        . "access to this subsystem. \n");
+        print( STDOUT
+              "Before proceeding with the configuration, make sure \n"
+            . "the firewall settings of this machine permit proper \n"
+            . "access to this subsystem. \n");
 
+    }  else  {
+        print( STDOUT
+               "Please start the configuration by accessing:\n"
+             . "http://$host:$unsecure_port/$subsystem_type/admin/"
+             . "console/config/login?pin=$random\n\n" );
+        emit( "Configuration Wizard listening on\n"
+            . "http://$host:$unsecure_port/$subsystem_type/admin/"
+            . "console/config/login?pin=$random\n",
+              "log" );
+
+        print( STDOUT
+              "Before proceeding with the configuration, make sure \n"
+            . "the firewall settings of this machine permit proper \n"
+            . "access to this subsystem. \n");
+
+    }
 
     # If it exists, close the log file
     close_logfile( $logfile );
