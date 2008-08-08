@@ -73,4 +73,45 @@ public interface IRequestNotifier extends INotify {
      */
     public IRequestListener getListener(String name);
 
+    /**
+     * Gets list of listeners.
+     *
+     * @return enumeration of listeners
+     */
+    public Enumeration getListeners();
+
+    /**
+     * Gets request from publishing queue.
+     *
+     * @return request
+     */
+    public IRequest getRequest();
+
+    /**
+     * Gets number of requests in publishing queue.
+     *
+     * @return number of requests in publishing queue
+     */
+    public int getNumberOfRequests();
+
+    /**
+     * Checks if publishing queue is enabled.
+     *
+     * @return true if publishing queue is enabled, false otherwise
+     */
+    public boolean isPublishingQueueEnabled();
+
+    /**
+     * Removes a notifier thread from the pool of publishing queue threads.
+     *
+     * @param notifierThread Thread
+     */
+    public void removeNotifierThread(Thread notifierThread);
+
+    /**
+     * Notifies all registered listeners about request.
+     *
+     * @param r request
+     */
+    public void addToNotify(IRequest r);
 }
