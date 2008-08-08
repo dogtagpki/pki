@@ -452,21 +452,43 @@ public class CMSEngine implements ICMSEngine {
             DOMParser parser = new DOMParser();
             parser.parse(path);
             NodeList nodes = parser.getDocument().getElementsByTagName("Connector");
+            String parentName="";
+            boolean secure=false;
+            String port="";
             for (int i=0; i<nodes.getLength(); i++) {
                 Element n = (Element)nodes.item(i);
-                boolean secure = n.hasAttribute("sslProtocol");
-                String port = n.getAttribute("port");
-                if (secure) {
-                    mServerCertNickname = n.getAttribute("serverCert");
-                    info[AGENT][PORT] = port;
-                    info[ADMIN][PORT] = port;
-                    info[EE_SSL][PORT] = port;
-                } else {
-                    info[EE_NON_SSL][PORT] = port;
+
+                parentName = "";
+                Element p = (Element) n.getParentNode();
+                if(p != null)  {
+                    parentName = p.getAttribute("name");   
                 }
-            }
-        } catch (Exception e) {
-        }
+                secure = n.hasAttribute("sslProtocol");
+                port = n.getAttribute("port");
+             
+                //Do agent port or every port, if there is only one port. 
+                if ( parentName.equals("Catalina"))  {
+
+                    if (secure) {
+                        mServerCertNickname = n.getAttribute("serverCert");
+                        info[AGENT][PORT] = port;
+                        info[ADMIN][PORT] = port;
+                        info[EE_SSL][PORT] = port;
+                    } else {
+                        info[EE_NON_SSL][PORT] = port;
+                    }
+                }   
+                if( parentName.equals("CatalinaEE"))  {
+                    info[EE_SSL][PORT] = port; 
+                }
+                if( parentName.equals("CatalinaAdmin"))  {
+                    info[ADMIN][PORT] = port;
+                }
+           }
+ 
+           } catch (Exception e) {
+               CMS.debug("CMSEngine: parseServerXML exception: " + e.toString());
+           }
     }
 
     public IConfigStore createFileConfigStore(String path) throws EBaseException {
