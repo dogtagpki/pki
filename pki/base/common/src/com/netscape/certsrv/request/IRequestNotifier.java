@@ -102,6 +102,13 @@ public interface IRequestNotifier extends INotify {
     public boolean isPublishingQueueEnabled();
 
     /**
+     * Sets maximum number of publishing threads.
+     *
+     * @param maxNumberOfThreads integer
+     */
+    public void setMaxNumberOfPublishingThreads(int maxNumberOfThreads);
+
+    /**
      * Removes a notifier thread from the pool of publishing queue threads.
      *
      * @param notifierThread Thread
