@@ -221,6 +221,27 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         return mPolicy.getPolicyProcessor();
     }
 
+    private int getMaxNumberOfPublishingThreads() {
+       int maxNumberOfPublishingThreads = 0;
+
+       if (mPublisherProcessor != null && mPublisherProcessor.enabled()) {
+            ILdapConnModule ldapConnModule = ldapConnModule = mPublisherProcessor.getLdapConnModule();
+            if (ldapConnModule != null) {
+                ILdapConnFactory ldapConnFactory = ldapConnModule.getLdapConnFactory();
+                if (ldapConnFactory != null) {
+                    int maxNumberOfPublishingConnections = ldapConnFactory.maxConn();
+                    if (mCRLIssuePoints != null && mCRLIssuePoints.size() > 1) {
+                        maxNumberOfPublishingThreads = maxNumberOfPublishingConnections - mCRLIssuePoints.size();
+                    } else {
+                        maxNumberOfPublishingThreads = maxNumberOfPublishingConnections - 1;
+                    }
+                    CMS.debug("Maximum number of publishing threads = " + maxNumberOfPublishingThreads);
+                }
+            }
+       }
+       return maxNumberOfPublishingThreads;
+    }
+
     /**
      * Initializes this CA subsystem.
      * <P>
@@ -299,6 +320,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         // note CRL framework depends on DBS, CRYPTO and PUBLISHING 
         // being functional.
         initCRL();
+
+        mNotify.setMaxNumberOfPublishingThreads(getMaxNumberOfPublishingThreads());
     } catch (EBaseException e) {
         if (CMS.isPreOpMode())
             return;
@@ -1502,7 +1525,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             }
         }
         CMS.debug("CA Publishing Queue Enabled: "+enablePublishingQueue+"  Priority Level: "+publishingQueuePriorityLevel);
-        mNotify = new ARequestNotifier(this, enablePublishingQueue, publishingQueuePriorityLevel);
+        mNotify = new ARequestNotifier(enablePublishingQueue, publishingQueuePriorityLevel);
         CMS.debug("CA notifier inited");
         mPNotify = new ARequestNotifier();
         CMS.debug("CA pending notifier inited");
