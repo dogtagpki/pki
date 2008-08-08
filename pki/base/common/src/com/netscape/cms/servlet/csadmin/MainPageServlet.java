@@ -143,7 +143,7 @@ public class MainPageServlet extends CMSServlet {
                 rarg.addStringValue("type", "agent");
                 rarg.addStringValue("prefix", "https");
                 rarg.addIntegerValue("port", 
-                  Integer.valueOf(CMS.getEESSLPort()).intValue());
+                  Integer.valueOf(CMS.getAgentPort()).intValue());
                 rarg.addStringValue("host", host);
                 rarg.addStringValue("uri", agentInterface);
                 argSet.addRepeatRecord(rarg);
