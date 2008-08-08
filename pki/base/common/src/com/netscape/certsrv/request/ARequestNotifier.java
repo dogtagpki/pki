@@ -23,9 +23,6 @@ import java.util.*;
 import com.netscape.certsrv.apps.*;
 import com.netscape.certsrv.request.*;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.IPublisherProcessor;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 
 /**
  * The ARequestNotifier class implements the IRequestNotifier interface,
@@ -37,9 +34,7 @@ public class ARequestNotifier implements IRequestNotifier {
     private Hashtable mListeners = new Hashtable();
     private Vector mNotifierThreads = new Vector();
     private Vector mRequests = new Vector();
-    private boolean checkMaxThreads = true;
-    private int maxThreads = 1;
-    private ICertificateAuthority mCA = null;
+    private int mMaxThreads = 1;
     private boolean mIsPublishingQueueEnabled = false;
     private int mPublishingQueuePriorityLevel = 2;
     private int mPublishingQueuePriority = 0;
@@ -49,8 +44,7 @@ public class ARequestNotifier implements IRequestNotifier {
         mPublishingQueuePriority = Thread.currentThread().getPriority();
     }
 
-    public ARequestNotifier(ICertificateAuthority ca, boolean isPublishingQueueEnabled, int publishingQueuePriorityLevel) {
-        mCA = ca;
+    public ARequestNotifier(boolean isPublishingQueueEnabled, int publishingQueuePriorityLevel) {
         mIsPublishingQueueEnabled = isPublishingQueueEnabled;
         mPublishingQueuePriorityLevel = publishingQueuePriorityLevel;
 
@@ -170,6 +164,18 @@ public class ARequestNotifier implements IRequestNotifier {
     }
 
     /**
+     * Sets maximum number of publishing threads.
+     *
+     * @param maxNumberOfThreads integer
+     */
+    public void setMaxNumberOfPublishingThreads(int maxNumberOfThreads) {
+        if (maxNumberOfThreads > 1) {
+            mMaxThreads = maxNumberOfThreads;
+        }
+        CMS.debug("Number of publishing threads set to " + mMaxThreads);
+    }
+
+    /**
      * Removes a notifier thread from the pool of publishing queue threads.
      *
      * @param notifierThread Thread
@@ -208,26 +214,10 @@ public class ARequestNotifier implements IRequestNotifier {
      * @param r request
      */
     public synchronized void addToNotify(IRequest r) {
-        CMS.debug("checkMaxThreads = " + checkMaxThreads);
-        if (checkMaxThreads) {
-            if (mCA != null) {
-                IPublisherProcessor publisher = mCA.getPublisherProcessor();
-                ILdapConnModule ldapConnModule = null;
-                ILdapConnFactory ldapConnFactory = null;
-                if (publisher != null) ldapConnModule = publisher.getLdapConnModule();
-                if (ldapConnModule != null) ldapConnFactory = ldapConnModule.getLdapConnFactory();
-                if (ldapConnFactory != null) {
-                    int n = ldapConnFactory.maxConn();
-                    if (n > 1) maxThreads = n - 1;
-                    CMS.debug("maxThreads = " + maxThreads);
-                }
-            }
-            checkMaxThreads = false;
-        }
         mRequests.addElement(r);
-        CMS.debug("addToNotify  PublishingQueue: " + mRequests.size() + "  Threads: " + mNotifierThreads.size() + ":" + maxThreads +
+        CMS.debug("addToNotify  PublishingQueue: " + mRequests.size() + "  Threads: " + mNotifierThreads.size() + ":" + mMaxThreads +
                   " (" + Thread.currentThread().getPriority() + ", " + mPublishingQueuePriority + ", " + Thread.MAX_PRIORITY + ")");
-        if (mNotifierThreads.size() < maxThreads) {
+        if (mNotifierThreads.size() < mMaxThreads) {
             try {
                 Thread notifierThread = new Thread(new RunListeners((IRequestNotifier)this));
                 if (notifierThread != null) {
