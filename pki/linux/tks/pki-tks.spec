@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      2
+%define base_release      3
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -291,6 +291,8 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Jul 10 2008 Jack Magne  <jmagne@redhat.com> 1.0.0-3
+- Fix for bug #458337.
 * Mon Jun 9 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-2
 - Bugzilla Bug #450345:  Port Dogtag 1.0.0 to
   Fedora 9 (32-bit i386 & 64-bit x86_64).
