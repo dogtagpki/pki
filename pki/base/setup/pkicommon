@@ -521,6 +521,51 @@ sub check_for_valid_url_prefix
     return 0;
 }
 
+# arg0 secure_port
+# arg1 unsecure_port
+# arg2 agent_secure_port
+# arg3 ee_secure_port
+# arg4 admin_secure_port 
+# return 1 - ports are valid (success)
+# return 0 - ports have a conflict (failure)
+sub AreConnectorPortsValid 
+{
+    # parse parameters
+    my( $secure_port, $unsecure_port, $agent_secure_port, 
+        $ee_secure_port, $admin_secure_port ) = @_;
+
+
+    if( $secure_port == -1 && $agent_secure_port == -1)
+    {
+        return 0;
+    }
+
+    if( $secure_port >= 0 && $agent_secure_port >= 0)
+    {
+        return 0;
+    }
+
+    if( $secure_port >= 0)
+    {
+        if ( $secure_port == $unsecure_port)
+        {
+             return 0;
+        }
+        return 1;
+    }
+
+    # Now make sure none of the separated ports are the same
+    if( ($agent_secure_port == $admin_secure_port) || 
+        ( $agent_secure_port == $ee_secure_port)   ||
+        ( $ee_secure_port == $admin_secure_port) ) 
+    {
+        return 0;
+    }
+
+    return 1;
+    
+}
+
 
 # arg0 username
 # arg1 port
@@ -1865,6 +1910,7 @@ sub copy_directory
 
     my $result = 0;
 
+    emit("copy_directory():  source=> $source_dir_path dest=> $dest_dir_path \n","debug");
     if( !is_path_valid( $source_dir_path ) ) {
         emit( "copy_directory():  illegal source path => $source_dir_path.\n",
               "error" );
@@ -1917,6 +1963,7 @@ sub remove_directory
 {
     my( $dir ) = $_[0];
 
+    emit("remove_directory(): " . $dir . "\n","debug");
     my $result = 0;
 
     if( !is_path_valid( $dir ) ) {
