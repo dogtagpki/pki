@@ -82,6 +82,10 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         return mNumConns;
     }
 
+    public int maxConn() {
+        return mMaxConns;
+    }
+
     /**
      * Constructor for LdapBoundConnFactory
      * @param minConns minimum number of connections to have available
