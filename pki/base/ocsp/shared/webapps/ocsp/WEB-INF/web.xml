@@ -131,6 +131,7 @@
              <init-param><param-name>  AuthzMgr    </param-name>
                          <param-value> BasicAclAuthz </param-value> </init-param>
    </servlet>
+
    <servlet>
       <servlet-name>  ocspauths  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.AuthAdminServlet  </servlet-class>
@@ -481,11 +482,13 @@
       <servlet-name>  ocsplog  </servlet-name>
       <url-pattern>   /log  </url-pattern>
    </servlet-mapping>
-                                                                                
+                      
+[PKI_OPEN_SEPARATE_PORTS_COMMENT]                                                          
    <servlet-mapping>
       <servlet-name>  ocspauths  </servlet-name>
       <url-pattern>   /auths  </url-pattern>
    </servlet-mapping>
+[PKI_CLOSE_SEPARATE_PORTS_COMMENT]
                                                                                 
    <servlet-mapping>
       <servlet-name>  ocspstart  </servlet-name>
