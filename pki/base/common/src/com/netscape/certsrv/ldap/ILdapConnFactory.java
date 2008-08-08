@@ -64,6 +64,12 @@ public interface ILdapConnFactory {
      */
     public int totalConn();
 
+    /**
+     * Returns the maximum number of connections available from this pool.
+     * @return Integer maximum number of connections.
+     */
+    public int maxConn();
+
     /** 
      * Request access to a Ldap connection from the pool. 
      * @exception ELdapException if any error occurs, such as a 
