@@ -41,7 +41,12 @@ import netscape.security.x509.*;
  */
 public class UniqueSubjectNameConstraint extends EnrollConstraint {
 
+    public static final String CONFIG_KEY_USAGE_EXTENSION_CHECKING =
+        "enableKeyUsageExtensionChecking";
+    private boolean mKeyUsageExtensionChecking = true;
+
     public UniqueSubjectNameConstraint() {
+        addConfigName(CONFIG_KEY_USAGE_EXTENSION_CHECKING);
     }
 
     public void init(IProfile profile, IConfigStore config)
@@ -50,6 +55,10 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+        if (name.equals(CONFIG_KEY_USAGE_EXTENSION_CHECKING)) {
+            return new Descriptor(IDescriptor.BOOLEAN, null, "true",
+                CMS.getUserMessage(locale, "CMS_PROFILE_CONFIG_KEY_USAGE_EXTENSION_CHECKING"));
+        }
         return null;
     }
 
@@ -57,16 +66,79 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
         return null;
     }
 
+     /**
+      * Checks if the key extension in the issued certificate
+      * is the same as the one in the certificate template.
+      */
+    private boolean sameKeyUsageExtension(ICertRecord rec,
+        X509CertInfo certInfo) {
+        X509CertImpl impl = rec.getCertificate();
+        boolean bits[] = impl.getKeyUsage();
+
+        CertificateExtensions extensions = null;
+
+        try {
+            extensions = (CertificateExtensions)
+            certInfo.get(X509CertInfo.EXTENSIONS);
+        } catch (IOException e) {
+        } catch (java.security.cert.CertificateException e) {
+        }
+        KeyUsageExtension ext = null;
+
+        if (extensions == null) {
+            if (bits != null)
+                return false;
+        } else {
+            try {
+                ext = (KeyUsageExtension) extensions.get(
+                    KeyUsageExtension.NAME);
+            } catch (IOException e) {
+            // extension isn't there.
+            }
+
+            if (ext == null) {
+                if (bits != null)
+                    return false;
+            } else {
+                boolean[] InfoBits = ext.getBits();
+
+                if (InfoBits == null) {
+                    if (bits != null)
+                        return false;
+                } else {
+                    if (bits == null)
+                        return false;
+                    if (InfoBits.length != bits.length) {
+                        return false;
+                    }
+                    for (int i = 0; i < InfoBits.length; i++) {
+                        if (InfoBits[i] != bits[i])
+                            return false;
+                    }
+                }
+            } 
+        }
+        return true; 
+    }
+
+
     /**
      * Validates the request. The request is not modified
      * during the validation.
+     *
+     * Rules are as follows: 
+     * If the subject name is not unique, then the request will be rejected unless:
+     * 1. the certificate is expired or expired_revoked
+     * 2. the certificate is revoked and the revocation reason is not "on hold"
+     * 3. the keyUsageExtension bits are different and enableKeyUsageExtensionChecking=true (default)
      */
     public void validate(IRequest request, X509CertInfo info)
         throws ERejectException {
         CMS.debug("UniqueSubjectNameConstraint: validate start");
         CertificateSubjectName sn = null;
         IAuthority authority = (IAuthority)CMS.getSubsystem("ca");
-        
+       
+        mKeyUsageExtensionChecking = getConfigBoolean(CONFIG_KEY_USAGE_EXTENSION_CHECKING);
         ICertificateRepository certdb = null;
         if (authority != null && authority instanceof ICertificateAuthority) {
             ICertificateAuthority ca = (ICertificateAuthority)authority;
@@ -95,18 +167,58 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
             } catch (EBaseException e) {
                 CMS.debug("UniqueSubjectNameConstraint exception: "+e.toString());
             }
-            if (sameSubjRecords != null && sameSubjRecords.hasMoreElements()) {
+            while (sameSubjRecords != null && sameSubjRecords.hasMoreElements()) {
+                ICertRecord rec = (ICertRecord) sameSubjRecords.nextElement();
+                String status = rec.getStatus();
+
+                IRevocationInfo revocationInfo = rec.getRevocationInfo();
+                RevocationReason reason = null;
+
+                if (revocationInfo != null) {
+                    CRLExtensions crlExts = revocationInfo.getCRLEntryExtensions();
+
+                    if (crlExts != null) {
+                        Enumeration enumx = crlExts.getElements();
+
+                        while (enumx.hasMoreElements()) {
+                            Extension ext = (Extension) enumx.nextElement();
+
+                            if (ext instanceof CRLReasonExtension) {
+                                reason = ((CRLReasonExtension) ext).getReason();
+                            }
+                        }
+                    }
+                }
+
+                if (status.equals(ICertRecord.STATUS_EXPIRED) || status.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+                    continue;
+                }
+
+                if (status.equals(ICertRecord.STATUS_REVOKED) && reason != null && 
+                    (! reason.equals(RevocationReason.CERTIFICATE_HOLD))) {
+                    continue;
+                }
+
+                if (mKeyUsageExtensionChecking && !sameKeyUsageExtension(rec, info)) {
+                    continue;
+                }
+
                 throw new ERejectException(
                   CMS.getUserMessage(getLocale(request),
                   "CMS_PROFILE_SUBJECT_NAME_NOT_UNIQUE",
                   certsubjectname));
             }
         }
+	CMS.debug("UniqueSubjectNameConstraint: validate end");
     }
 
     public String getText(Locale locale) {
+        String params[] = {
+            getConfig(CONFIG_KEY_USAGE_EXTENSION_CHECKING)
+        };
         return CMS.getUserMessage(locale, 
-                "CMS_PROFILE_CONSTRAINT_UNIQUE_SUBJECT_NAME_TEXT");
+                "CMS_PROFILE_CONSTRAINT_UNIQUE_SUBJECT_NAME_TEXT", 
+                params);
     }
 
     public boolean isApplicable(IPolicyDefault def) {
