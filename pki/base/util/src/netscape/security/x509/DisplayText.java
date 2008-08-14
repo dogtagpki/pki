@@ -66,4 +66,19 @@ public class DisplayText {
     public String getText() {
         return mS;
     }
+
+    public String toString() {
+        if (mTag == tag_IA5String) {
+            return "IA5String: " + mS;
+        }
+	else if (mTag == tag_BMPString) {
+            return "BMPString: " + mS;
+        }
+        else if (mTag == tag_VisibleString) {
+            return "VisibleString: " + mS;
+        }
+        else {
+            return "UTF8String: " + mS;
+        }
+    }
 }

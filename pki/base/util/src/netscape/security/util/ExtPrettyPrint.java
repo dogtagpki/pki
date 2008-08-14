@@ -1534,15 +1534,51 @@ public class ExtPrettyPrint {
             }
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(
                     PrettyPrintResources.TOKEN_CERT_POLICIES) + "\n");
-	    CertificatePoliciesExtension cp = (CertificatePoliciesExtension) mExt;
-	    Vector cpv = (Vector) cp.get("infos");
+            CertificatePoliciesExtension cp = (CertificatePoliciesExtension) mExt;
+            Vector cpv = (Vector) cp.get("infos");
             Enumeration e = cpv.elements();
 
             if (e != null) {
                 while (e.hasMoreElements()) {
                     CertificatePolicyInfo cpi = (CertificatePolicyInfo) e.nextElement();
 
-                        sb.append(pp.indent(mIndentSize + 8) + cpi.getPolicyIdentifier().getIdentifier().toString() + "\n");
+                    sb.append(pp.indent(mIndentSize + 8) + "Policy Identifier: " + cpi.getPolicyIdentifier().getIdentifier().toString() + "\n");
+                    PolicyQualifiers cpq = cpi.getPolicyQualifiers();
+                    if (cpq != null) {
+                        for (int i=0; i < cpq.size(); i++) {
+                            PolicyQualifierInfo pq = cpq.getInfoAt(i);
+                            Qualifier q = pq.getQualifier();
+                            if (q instanceof CPSuri) {
+                                sb.append(pp.indent(mIndentSize + 12) + "Policy Qualifier Identifier: CPS Pointer Qualifier - " 
+                                    + pq.getId() + "\n");
+                                sb.append(pp.indent(mIndentSize + 12) + "Policy Qualifier Data: " + ((CPSuri) q).getURI() + "\n");
+                            } 
+                            else if (q instanceof UserNotice) {
+                                sb.append(pp.indent(mIndentSize + 12) + "Policy Qualifier Identifier: CPS User Notice Qualifier - " 
+                                    + pq.getId() + "\n");
+                                NoticeReference nref = ((UserNotice) q).getNoticeReference();
+                                DisplayText dt = ((UserNotice) q).getDisplayText();
+                                sb.append(pp.indent(mIndentSize +12) + "Policy Qualifier Data: \n");
+                                if (nref != null) { 
+                                    sb.append(pp.indent(mIndentSize+16) + "Organization: " + nref.getOrganization().toString() + "\n" );
+                                    sb.append(pp.indent(mIndentSize+16) + "Notice Numbers: " ); 
+                                    int[] nums = nref.getNumbers();
+                                    for (int k=0; k<nums.length; k++) {
+                                        if (k != 0) {
+                                            sb.append(",");
+                                            sb.append(nums[k]);
+                                        } else {
+                                            sb.append(nums[k]);
+                                        }
+                                    }
+                                    sb.append("\n");
+                                }
+                                if (dt != null) {
+                                    sb.append(pp.indent(mIndentSize+16) + "Explicit Text: " + dt.toString() + "\n");
+                                }
+                            } 
+                        }
+                    }
                 }
             }
             return sb.toString();
