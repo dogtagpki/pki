@@ -107,10 +107,10 @@ public class IPAddressName implements GeneralNameInterface {
 	IPAddr ipAddr = null;
 	if (s.indexOf(':') != -1) {
 		ipAddr = IPv6;
-		address = new byte[IPv6_LEN*2];
+		address = new byte[IPv6_LEN];
 	} else {
 		ipAddr = IPv4;
-		address = new byte[IPv4_LEN*2];
+		address = new byte[IPv4_LEN];
 	}
 	ipAddr.getIPAddr(s, address, 0);
     }
@@ -136,10 +136,31 @@ public class IPAddressName implements GeneralNameInterface {
      * Return a printable string of IPaddress
      */
     public String toString() {
-        return ("IPAddress: " + (address[0] & 0xff) + "."
+        if (address.length == 4) {
+            return ("IPAddress: " + (address[0] & 0xff) + "."
                  + (address[1] & 0xff) + "."
                  + (address[2] & 0xff) + "."
                  + (address[3] & 0xff));
+        } else {
+            String r= "IPAddress: " + Integer.toHexString(address[0] & 0xff);
+            String hexString = Integer.toHexString(address[1] & 0xff);
+            if (hexString.length() ==1) {
+                r = r+ "0" + hexString;
+            } else {
+                r += hexString;
+            }
+            for (int i=2; i < address.length; ) {
+                r+= ":" + Integer.toHexString(address[i] & 0xff);
+                hexString = Integer.toHexString(address[i+1] & 0xff);
+                if (hexString.length() ==1) {
+                    r = r +"0" + hexString;
+                } else {
+                    r += hexString;
+                }
+                i+=2;
+            }
+            return r;
+        }
     }
 }
 

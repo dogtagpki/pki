@@ -432,7 +432,17 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             return new URIName(nameValue);
         }
         if (nameType.equalsIgnoreCase("IPAddress")) {
-            return new IPAddressName(nameValue);
+            CMS.debug("IP Value:" + nameValue);
+            if (nameValue.indexOf('/') != -1) {
+                // CIDR support for NameConstraintsExt
+                StringTokenizer st = new StringTokenizer(nameValue, "/");
+                String addr = st.nextToken();
+                String netmask = st.nextToken();
+                CMS.debug("addr:" + addr +" netmask: "+netmask);
+                return new IPAddressName(addr, netmask);
+             } else {
+                return new IPAddressName(nameValue);
+             }
         }
         if (nameType.equalsIgnoreCase("OIDName")) {
             try {

@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -278,6 +278,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Sep 16 2008 Christina Fu <cfu@redhat.com> 1.0.0-5
+- Fix for bug #462488: IPAddress in SubjAltNameExt incorrectly padded with extra bytes in cert
 * Wed Aug 13 2008 Ade Lee <alee@redhat.com> 1.0.0-4
 - Fix for bug #458317: certitificate policy extensions not displayed in PrettyPrintCert
 * Wed Jun 25 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-3
