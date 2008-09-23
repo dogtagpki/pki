@@ -143,12 +143,57 @@ public class NetkeyKeygenService implements IService {
 
         CryptoToken token = mKRA.getKeygenToken();
 	
-	CMS.debug("NetkeyKeygenService: key pair is to be generated on slot: "+token.getName());
+        CMS.debug("NetkeyKeygenService: key pair is to be generated on slot: "+token.getName());
+
+        /*
+	       make it temporary so can work with HSM
+           netHSM works with
+              temporary == true
+              sensitive == <do not specify>
+              extractable == <do not specify>
+           LunaSA2 works with
+              temporary == true
+              sensitive == true
+              extractable == true
+        */
         KeyPairGenerator kpGen = token.getKeyPairGenerator(kpAlg);
-	// make it temporary so can work with HSM
-	kpGen.temporaryPairs(true);
-    kpGen.sensitivePairs(true);
-    kpGen.extractablePairs(true);
+        IConfigStore config = CMS.getConfigStore();
+        IConfigStore kgConfig = config.getSubStore("kra.keygen");
+        boolean tp = false;
+        boolean sp = false;
+        boolean ep = false;
+        if (kgConfig != null) {
+          try {
+            tp = kgConfig.getBoolean("temporaryPairs", false);
+            sp = kgConfig.getBoolean("sensitivePairs", false);
+            ep = kgConfig.getBoolean("extractablePairs", false);
+            // by default, let nethsm work
+            if ((tp == false) && (sp == false) && (ep == false)) {
+                tp = true;
+            }
+          } catch (Exception e) {
+	        CMS.debug("NetkeyKeygenService: kgConfig.getBoolean failed");
+            // by default, let nethsm work
+            tp = true;
+          }
+        } else {
+            // by default, let nethsm work
+            CMS.debug("NetkeyKeygenService: cannot find config store: kra.keygen, assume temporaryPairs==true");
+            tp = true;
+        }
+        /* only specified to "true" will it be set */
+        if (tp == true) {
+	        CMS.debug("NetkeyKeygenService: setting temporaryPairs to true");
+	        kpGen.temporaryPairs(true);
+        }
+        if (sp == true) {
+	        CMS.debug("NetkeyKeygenService: setting sensitivePairs to true");
+            kpGen.sensitivePairs(true);
+        }
+        if (ep == true) {
+	        CMS.debug("NetkeyKeygenService: setting extractablePairs to true");
+            kpGen.extractablePairs(true);
+        }
  
         if (kpAlg == KeyPairAlgorithm.DSA) {
             if (pqg == null) {
@@ -161,9 +206,11 @@ public class NetkeyKeygenService implements IService {
         }
 
         if (pqg == null) {
-			KeyPair kp;
+			KeyPair kp = null;
 			synchronized (new Object()) {
+                CMS.debug("NetkeyKeygenService: key pair generation begins");
             	kp = kpGen.genKeyPair();
+                CMS.debug("NetkeyKeygenService: key pair generation done");
 				mKRA.addEntropy(true);
 			}
 			return kp;
