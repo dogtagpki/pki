@@ -84,9 +84,7 @@ Each instance needs access to a Fedora Directory Server instance to store reques
     </table>
         <input type="hidden" name="display" value=$displayStr />
  
-#if ($firsttime == 'false')
 <input type="CHECKBOX" NAME="removeData">Remove the existing data from the <b>Base DN</b> shown above.<p>
-#end
 
     <div align="right">
       <hr />
