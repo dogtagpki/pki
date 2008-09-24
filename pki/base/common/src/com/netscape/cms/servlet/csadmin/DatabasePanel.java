@@ -407,37 +407,168 @@ public class DatabasePanel extends WizardPanelBase {
       return conn;
     }
 
+    private boolean deleteDir(File dir) 
+    {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i=0; i<children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+    
+        // The directory is now empty so delete it
+        return dir.delete();
+    } 
+
+    private void cleanupDB(LDAPConnection conn, String baseDN, String database) 
+    {
+        String[] entries = {};
+        String filter = "objectclass=*";
+        LDAPSearchConstraints cons = null;
+        String[] attrs = null;
+        String dn="";
+        try {
+            CMS.debug("Deleting baseDN: " + baseDN);
+            LDAPSearchResults res = conn.search(baseDN, LDAPConnection.SCOPE_BASE, filter,
+                attrs, true, cons);
+            if (res != null) 
+            	deleteEntries(res, conn, baseDN, entries);
+        }
+        catch (LDAPException e) {}
+        
+        try {
+           dn="cn=mapping tree, cn=config";
+           filter = "nsslapd-backend=" + database;
+           LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_ONE, filter,
+              attrs, true, cons);
+          if (res != null) {
+              while (res.hasMoreElements()) {
+                  dn = res.next().getDN();
+                  filter = "objectclass=*";
+                  LDAPSearchResults res2 = conn.search(dn, LDAPConnection.SCOPE_BASE, filter,
+                      attrs, true, cons);
+                  if (res2 != null) 
+              	      deleteEntries(res2, conn, dn, entries);
+              }
+          }
+        }
+        catch (LDAPException e) {}
+
+        try {
+            dn = "cn=" + database + ",cn=ldbm database, cn=plugins, cn=config";
+            LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_BASE, filter,
+                attrs, true, cons);
+            if (res != null) {
+                deleteEntries(res, conn, dn, entries);
+                String dbdir = getInstanceDir(conn) + "/db/" + database; 
+                if (dbdir != null) { 
+            	    CMS.debug(" Deleting dbdir " + dbdir);
+                    boolean success = deleteDir(new File(dbdir));
+                    if (!success) {
+                        CMS.debug("Unable to delete database directory " + dbdir);
+                    }
+                }
+            }
+        }
+        catch (LDAPException e) {}
+    }
+
+
     private void populateDB(HttpServletRequest request, Context context, String secure) 
         throws IOException {
         IConfigStore cs = CMS.getConfigStore();
 
         String baseDN = "";
+        String database = "";
+        String dn = "";
 
         try {
             baseDN = cs.getString("internaldb.basedn");
+            database = cs.getString("internaldb.database", "");
         } catch (Exception e) {
             CMS.debug("DatabasePanel populateDB: " + e.toString());
             throw new IOException(
                     "Failed to retrieve LDAP information from CS.cfg.");
         }
 
+        String remove = HttpInput.getID(request, "removeData");
         LDAPConnection conn = getLocalLDAPConn(context, secure);
 
+        // check that the database and baseDN do not exist
+
+        boolean foundBaseDN = false;
+        boolean foundDatabase = false;
         try {
             LDAPEntry entry = conn.read(baseDN);
-            if (entry != null) {
-                CMS.debug("DatabasePanel update: This base DN has already been used.");
-                throw new IOException("This base DN ("+baseDN+") has already been used.");
-            }
+            if (entry != null) foundBaseDN = true;
         } catch (LDAPException e) {
-            CMS.debug("DatabasePanel update: Exception="+e.toString());
+            switch( e.getLDAPResultCode() ) {
+                case LDAPException.NO_SUCH_OBJECT:
+                    break;
+                default:
+                    CMS.debug("DatabasePanel update: LDAPException " + e.toString());
+                    throw new IOException("Failed to create the database");
+            }
+        }
+
+        try {
+            dn = "cn=" + database + ",cn=ldbm database, cn=plugins, cn=config";
+            LDAPEntry entry = conn.read(dn);
+            if (entry != null) foundDatabase = true;
+        } catch (LDAPException e) {
+            switch( e.getLDAPResultCode() ) {
+                case LDAPException.NO_SUCH_OBJECT:
+                    break;
+                default:
+                    CMS.debug("DatabasePanel update: LDAPException " + e.toString());
+                    throw new IOException("Failed to create the database");
+            }
+        }
+        try {
+            dn = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
+            LDAPEntry entry = conn.read(dn);
+            if (entry != null) foundDatabase = true;
+        } catch (LDAPException e) {
+            switch( e.getLDAPResultCode() ) {
+                case LDAPException.NO_SUCH_OBJECT:
+                    break;
+                default:
+                    CMS.debug("DatabasePanel update: LDAPException " + e.toString());
+                    throw new IOException("Failed to create the database");
+            }
+        }
+
+        if (foundDatabase) {
+            CMS.debug("DatabasePanel update: This database has already been used.");
+            if (remove == null) {
+                throw new IOException("This database has already been used. Select the checkbox below to remove all data and reuse this database");
+            }
+            else {
+                CMS.debug("DatabasePanel update: Deleting existing DB and reusing base DN");
+                cleanupDB(conn, baseDN, database);
+                foundBaseDN = false;
+                foundDatabase = false;
+            }
+        }
+
+        if (foundBaseDN) {
+            CMS.debug("DatabasePanel update: This base DN has already been used.");
+            if (remove == null) {
+                throw new IOException("This base DN ("+baseDN+") has already been used. Select the checkbox below to remove all data and reuse this base DN");
+            }
+            else {
+                CMS.debug("DatabasePanel update: Deleting existing DB and reusing base DN");
+                cleanupDB(conn, baseDN, database);
+                foundBaseDN = false;
+                foundDatabase = false;
+            }
         }
 
         // create database
-        String dn = "";
-        String database = "";
         try {
-            database = cs.getString("internaldb.database", "");
             LDAPAttributeSet attrs = new LDAPAttributeSet();
             String oc[] = { "top", "extensibleObject", "nsBackendInstance"};
             attrs.add(new LDAPAttribute("objectClass", oc));
@@ -446,11 +577,6 @@ public class DatabasePanel extends WizardPanelBase {
             dn = "cn=" + database + ",cn=ldbm database, cn=plugins, cn=config";
             LDAPEntry entry = new LDAPEntry(dn, attrs);
             conn.add(entry);
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == 68) {
-                CMS.debug("This database has already been used.");
-                throw new IOException("This database ("+dn+") has already been used.");
-            }
         } catch (Exception e) {
             CMS.debug("Warning: database creation error - " + e.toString());
             throw new IOException("Failed to create the database.");
@@ -466,18 +592,14 @@ public class DatabasePanel extends WizardPanelBase {
             dn = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
             LDAPEntry entry = new LDAPEntry(dn, attrs);
             conn.add(entry);
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == 68) {
-                CMS.debug("This database has already been used.");
-                throw new IOException("This database ("+dn+") has already been used.");
-            }
         } catch (Exception e) {
-            CMS.debug("Warning: database creation error - " + e.toString());
+            CMS.debug("Warning: database mapping tree creation error - " + e.toString());
             throw new IOException("Failed to create the database.");
         }
 
         try {
             // create base dn
+            CMS.debug("Creating base DN: " + baseDN);
             String dns3[] = LDAPDN.explodeDN(baseDN, false);
             StringTokenizer st = new StringTokenizer(dns3[0], "=");
             String n = st.nextToken();
@@ -493,48 +615,13 @@ public class DatabasePanel extends WizardPanelBase {
             attrs.add(new LDAPAttribute(n, v));
             LDAPEntry entry = new LDAPEntry(baseDN, attrs);
             conn.add(entry);
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == 68) {
-                CMS.debug("DatabasePanel: the baseDN has already been used.");
-                throw new IOException("This baseDN: "+baseDN+" has been used.");
-            }
         } catch (Exception e) {
             CMS.debug("Warning: suffix creation error - " + e.toString());
             throw new IOException("Failed to create the base DN: "+baseDN);
         }
 
-        // check if base DN is already being used
-        CMS.debug("DatabasePanel checking existing cn=ClonedSubsystems, ou=groups," + baseDN);
-        try {
-            LDAPEntry entry = conn.read("cn=ClonedSubsystems, ou=groups," + baseDN);
-
-            if (entry != null) {
-                String remove = HttpInput.getID(request, "removeData");
-                if (remove == null)
-                    throw new IOException(
-                        "Another instance is using this base DN " + baseDN);
-                else {
-                    CMS.debug("Will remove the existing data from the base DN");
-                    String[] entries={"cn=Directory Administrators,"+baseDN,
-                      "ou=Groups,"+baseDN, "ou=People,"+baseDN,
-                      "ou=Special Users,"+baseDN,
-                      "cn=Accounting Managers, ou=groups,"+baseDN,
-                      "cn=HR Managers, ou=groups,"+baseDN,
-                      "cn=QA Managers, ou=groups,"+baseDN,
-                      "cn=PD Managers, ou=groups,"+baseDN};
-                    String filter = "objectclass=*";
-                    LDAPSearchConstraints cons = null;
-                    String[] attrs = null;
-                    LDAPSearchResults res = conn.search(baseDN, 1, filter,
-                      attrs, true, cons);
-                    deleteEntries(res, conn, baseDN, entries);
-                }
-            }
-        } catch (LDAPException e) {}
-
         // check to see if the base dn exists
         CMS.debug("DatabasePanel checking existing " + baseDN);
-        boolean foundBaseDN = false;
 
         try {
             LDAPEntry entry = conn.read(baseDN);
