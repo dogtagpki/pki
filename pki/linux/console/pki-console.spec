@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -260,6 +260,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Oct 3 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-5
+- Bugzilla bug #442239 - Entry fields not visible in CRL Issuing Pointer Editor
 * Mon Jun 9 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
 - Bugzilla Bug #450345:  Port Dogtag 1.0.0 to
   Fedora 9 (32-bit i386 & 64-bit x86_64).
