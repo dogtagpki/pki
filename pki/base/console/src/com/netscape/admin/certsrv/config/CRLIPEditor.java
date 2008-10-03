@@ -66,7 +66,7 @@ public class CRLIPEditor extends JDialog implements ActionListener {
         mNames = names;
         mInstanceName = instanceName;
         mDest = dest;
-        setSize(650, 200);
+        setSize(600, 180);
         setTitle(mResource.getString(PREFIX+"_TITLE"));
         setLocationRelativeTo(parent);
         getRootPane().setDoubleBuffered(true);
@@ -221,7 +221,7 @@ public class CRLIPEditor extends JDialog implements ActionListener {
             mainPanel.add(nameLabel);
 
             CMSAdminUtil.resetGBC(gbc);
-            mNameText = new JTextField(40);
+            mNameText = new JTextField(30);
             gbc.anchor = gbc.WEST;
             gbc.weightx = 0.0;
             gbc.fill = gbc.NONE;
@@ -248,7 +248,7 @@ public class CRLIPEditor extends JDialog implements ActionListener {
         mainPanel.add(descLabel);
 
         CMSAdminUtil.resetGBC(gbc);
-        mDescText = new JTextField(40);
+        mDescText = new JTextField(30);
         gbc.anchor = gbc.WEST;
         gbc.weightx = 0.0;
         gbc.fill = gbc.NONE;
