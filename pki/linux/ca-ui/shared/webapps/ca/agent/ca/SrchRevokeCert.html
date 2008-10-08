@@ -94,6 +94,11 @@ Enter a range of certificate serial numbers in hexadecimal form
 //<!--
 function serialNumberRangeCritInUse()
 {
+    if (document.serialNumberRangeCritForm.inUse.checked) {
+      document.queryForm.serialNumberRangeInUse.value = 'on';
+    }
+    document.queryForm.serialFrom.value = document.serialNumberRangeCritForm.serialFrom.value;
+    document.queryForm.serialTo.value = document.serialNumberRangeCritForm.serialTo.value;
     return document.serialNumberRangeCritForm.inUse.checked;
 }
 
@@ -281,6 +286,22 @@ Pattern matching wildcard values can be used in this search.
 <!--
 function subjectCritInUse()
 {
+    if (document.subjectCritForm.inUse.checked) {
+        document.queryForm.subjectInUse.value = 'on';
+    }
+    document.queryForm.eMail.value = document.subjectCritForm.eMail.value;
+    document.queryForm.commonName.value = document.subjectCritForm.commonName.value;
+    document.queryForm.userID.value = document.subjectCritForm.userID.value;
+    document.queryForm.orgUnit.value = document.subjectCritForm.orgUnit.value;
+    document.queryForm.org.value = document.subjectCritForm.org.value;
+    document.queryForm.locality.value = document.subjectCritForm.locality.value;
+    document.queryForm.state.value = document.subjectCritForm.state.value;
+    document.queryForm.country.value = document.subjectCritForm.country.value;
+    if (document.subjectCritForm.match[1].checked) {
+        document.queryForm.match.value = 'partial';
+    } else {
+        document.queryForm.match.value = 'exact';
+    }
     return document.subjectCritForm.inUse.checked;
 }
 function subjectCrit()
@@ -484,6 +505,9 @@ Revoke certificates issued during the period:</font>
 <!--
 function issuedByCritInUse()
 {
+    if (document.issuedByCritForm.inUse.checked) {
+      document.queryForm.issuedByInUse.value = 'on';
+    }
     return document.issuedByCritForm.inUse.checked;
 }
 function issuedByCrit()
@@ -498,6 +522,17 @@ function issuedByCrit()
 
 function issuedOnCritInUse()
 {
+    if (document.issuedOnCritForm.inUse.checked) {
+        document.queryForm.issuedOnInUse.value = 'on';
+    }
+    d = convertToTime(document.issuedOnFrom);
+    if (d != null) {
+        document.queryForm.issuedOnFrom.value = d;
+    }
+    d = convertToTime(document.issuedOnTo);
+    if (d != null) {
+        document.queryForm.issuedOnTo.value = d;
+    }
     return document.issuedOnCritForm.inUse.checked;
 }
 function issuedOnCrit()
@@ -714,6 +749,17 @@ Revoke certificates effective during the period:</font>
 <!--
 function validNotBeforeCritInUse()
 {
+    if (document.validNotBeforeCritForm.inUse.checked) {
+        document.queryForm.validNotBeforeInUse.value = 'on';
+    }
+    d = convertToTime(document.validNotBeforeFrom);
+    if (d != null) {
+        document.queryForm.validNotBeforeFrom.value = d;
+    }
+    d = convertToTime(document.validNotBeforeTo);
+    if (d != null) {
+        document.queryForm.validNotBeforeTo.value = d;
+    }
     return document.validNotBeforeCritForm.inUse.checked;
 }
 
@@ -922,6 +968,17 @@ Revoke certificates expire during the period:</font>
 <!--
 function validNotAfterCritInUse()
 {
+    if (document.validNotAfterCritForm.inUse.checked) {
+        document.queryForm.validNotAfterInUse.value = 'on';
+    }
+    d = convertToTime(document.validNotAfterFrom);
+    if (d != null) {
+        document.queryForm.validNotAfterFrom.value = d;
+    }
+    d = convertToTime(document.validNotAfterTo);
+    if (d != null) {
+        document.queryForm.validNotAfterTo.value = d;
+    }
     return document.validNotAfterCritForm.inUse.checked;
 }
 
@@ -988,6 +1045,12 @@ Revoke certificates with a validity period:</font>
 <!--
 function validityLengthCritInUse()
 {
+    if (document.validityLengthCritForm.inUse.checked) {
+        document.queryForm.validityLengthInUse.value = 'on';
+    }
+    document.queryForm.validityOp.value = document.validityLengthCritForm.validityOp.value;
+    document.queryForm.count.value = document.validityLengthCritForm.count.value;
+    document.queryForm.unit.value = document.validityLengthCritForm.unit.value;
     return document.validityLengthCritForm.inUse.checked;
 }
 
@@ -1068,6 +1131,36 @@ function doSubmit(form)
 <INPUT TYPE="HIDDEN" NAME="op" VALUE="">
 <INPUT TYPE="HIDDEN" NAME="queryCertFilter" VALUE="">
 <INPUT TYPE="HIDDEN" NAME="revokeAll" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="serialNumberRangeInUse" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="serialFrom" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="serialTo" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="statusInUse" VALUE="on">
+<INPUT TYPE="HIDDEN" NAME="status" VALUE="VALID">
+<INPUT TYPE="HIDDEN" NAME="subjectInUse" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="eMail" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="commonName" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="userID" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="orgUnit" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="org" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="locality" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="state" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="country" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="match" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="issuedByInUse" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="issuedBy" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="issuedOnInUse" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="issuedOnFrom" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="issuedOnTo" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="validNotBeforeInUse" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="validNotBeforeFrom" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="validNotBeforeTo" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="validNotAfterInUse" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="validNotAfterFrom" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="validNotAfterTo" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="validityLengthInUse" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="validityOp" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="count" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="unit" VALUE="">
 
 <table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
   <tr>
