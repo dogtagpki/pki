@@ -79,6 +79,12 @@
             depends="compile_java"
             description="--> generate jar files">
         <echo message="${begin.build.jars.log.message}"/>
+        <mkdir dir="${build.classes}/com/netscape/admin/certsrv/images"/>
+        <copy todir="${build.classes}/com/netscape/admin/certsrv/images">
+            <fileset dir="${src.dir}/com/netscape/admin/certsrv/images">
+                <include name="*.gif"/>
+            </fileset>
+        </copy>
         <mkdir dir="${build.jars}"/>
         <jar jarfile="${build.jars}/console-cms-${version}.jar">
             <fileset dir="${build.classes}">
