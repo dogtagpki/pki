@@ -162,7 +162,7 @@ public class GetBySerial extends CMSServlet {
         ICertRecord certRecord = (ICertRecord) getCertRecord(serialNo);
         if (certRecord == null) {
             log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
+                CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_CERT_SERIAL_NOT_FOUND", "0x" + serialNo.toString(16))));
             cmsReq.setStatus(CMSRequest.ERROR);
@@ -195,7 +195,7 @@ public class GetBySerial extends CMSServlet {
               }
               if (groupMatched == false) {
                 log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
+                    CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
                  cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_CERT_SERIAL_NOT_FOUND", "0x" + serialNo.toString(16))));
                  cmsReq.setStatus(CMSRequest.ERROR);
