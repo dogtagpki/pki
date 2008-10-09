@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      19
+%define base_release      20
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -298,6 +298,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Thu Oct 9 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-20
+- Fix for Bug 465997: getBySerial servlet causing Java exception.
 * Wed Sep 24 2008 Ade Lee <alee@redhat.com> 1.0.0-19
 - Fix for bug 223367 and 224902.
 * Tue Sep 16 2008 Christina Fu <cfu@redhat.com> 1.0.0-18
