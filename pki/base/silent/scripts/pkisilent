@@ -22,7 +22,7 @@
 ##  (1) Specify variables used by this script.                               ##
 ###############################################################################
 
-my $PRODUCT="rhpki";
+my $PRODUCT="pki";
 my $libpath="";
 
 
@@ -137,8 +137,8 @@ else
 
 print "libpath=$libpath\n";
 
-$ENV{CLASSPATH} = "/usr/share/java/pkisilent.jar:"
-	. "${libpath}/java/dirsec/jss4.jar:"
+$ENV{CLASSPATH} = "/usr/share/java/silent.jar:"
+	. "/usr/lib/java/jss4.jar:"
 	. "/usr/share/java/ldapjdk.jar:"
 	. "/usr/share/java/${PRODUCT}/certsrv.jar:"
 	. "/usr/share/java/${PRODUCT}/cmscore.jar:"

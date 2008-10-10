@@ -156,7 +156,7 @@ public class WizardServlet extends VelocityServlet {
             while (e.hasMoreElements()) {
               sb.append(xml_value_flatten(e.nextElement()));
             }
-            ret = sb.toString();
+            ret += sb.toString();
             ret += "</Vector>";
         } else if (v instanceof Module) { // for hardware token
             Module m = (Module)v;

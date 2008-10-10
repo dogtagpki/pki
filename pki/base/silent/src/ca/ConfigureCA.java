@@ -125,6 +125,13 @@ public class ConfigureCA {
 
     public static String subsystem_name = null;
 
+    public static String external_ca= null;
+    public static String ext_ca_cert_file = null;
+    public static String ext_ca_cert_chain_file = null;
+    public static String ext_csr_file = null;
+    public static String signing_cc = null;
+
+
     public ConfigureCA() {// do nothing :)
     }
 
@@ -139,136 +146,162 @@ public class ConfigureCA {
     }
 
     public boolean LoginPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
 
-        String query_string = "pin=" + pin + "&xml=true"; 
+            String query_string = "pin=" + pin + "&xml=true"; 
 	
-        hr = hc.sslConnect(cs_hostname, cs_port, login_uri, query_string);
-        System.out.println("xml returned: " + hr.getHTML());
+            hr = hc.sslConnect(cs_hostname, cs_port, login_uri, query_string);
+            System.out.println("xml returned: " + hr.getHTML());
 
-        // parse xml here - nothing to parse
+            // parse xml here - nothing to parse
 
-        // get cookie
-        String temp = hr.getCookieValue("JSESSIONID");
+            // get cookie
+            String temp = hr.getCookieValue("JSESSIONID");
 
-        if (temp != null) {
-            int index = temp.indexOf(";");
+            if (temp != null) {
+                int index = temp.indexOf(";");
 
-            hc.j_session_id = temp.substring(0, index);
-            st = true;
-        }
+                hc.j_session_id = temp.substring(0, index);
+                st = true;
+            }
 
-        hr = null;
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
+            hr = null;
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
                 "p=0&op=next&xml=true");
 
-        // parse xml here
+            // parse xml here
 
-        bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        px.parse(bais);
-        px.prettyprintxml();
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
 
-        return st;
+            return st;
+        } catch (Exception e) {
+            System.out.println("Exception in LoginPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean DomainPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
 
-        String domain_url = "https://" + cs_hostname + ":" + cs_port;
+            String domain_url = "https://" + cs_hostname + ":" + cs_port;
 
-        String query_string = "sdomainURL=" + URLEncoder.encode(domain_url)
+            String query_string = "sdomainURL=" + URLEncoder.encode(domain_url)
                 + "&sdomainName=" + URLEncoder.encode(domain_name)
                 + "&choice=newdomain" + "&p=1" + "&op=next" + "&xml=true"; 
 
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
-        // parse xml
-        bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        px.parse(bais);
-        px.prettyprintxml();
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
 
-        String temp_sdomain = px.getvalue("sdomainName");
+            String temp_sdomain = px.getvalue("sdomainName");
 
-        System.out.println("sdomainname=" + temp_sdomain);
+            System.out.println("sdomainname=" + temp_sdomain);
 
-        return true;
-
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in DomainPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean CreateCAPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
+        try { 
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
 
-        String query_string = "p=3" + "&op=next" + "&xml=true"
+            String query_string = "p=3" + "&op=next" + "&xml=true"
                 + "&choice=newsubsystem" + "&subsystemName="
                 + URLEncoder.encode(subsystem_name);
 
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
-        // parse xml
-        bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        px.parse(bais);
-        px.prettyprintxml();
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
 
-        // hr = null;
-        // query_string = "p=4" + "&op=next" + "&xml=true"; 
-        // hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
-        // parse xml
-        // bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        // px.parse(bais);
-        // px.prettyprintxml();
+            // hr = null;
+            // query_string = "p=4" + "&op=next" + "&xml=true"; 
+            // hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+            // parse xml
+            // bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            // px.parse(bais);
+            // px.prettyprintxml();
 
 
-        return true;
-
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in CreateCAPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean HierarchyPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
+        try { 
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
 
-        String query_string = "p=6" + "&op=next" + "&xml=true" + "&choice=root"; 
+            String query_string = "p=6" + "&op=next" + "&xml=true" ;
+            if (external_ca.equalsIgnoreCase("true")) 
+                query_string += "&choice=join";
+            else
+                query_string += "&choice=root";  
 
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
-        // parse xml
-        bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        px.parse(bais);
-        px.prettyprintxml();
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
 
-        /*
-         hr = null;
-         hr = hc.sslConnect(cs_hostname,cs_port,
-         wizard_uri,"p=7&op=next&xml=true");
+            /*
+             hr = null;
+             hr = hc.sslConnect(cs_hostname,cs_port,
+             wizard_uri,"p=7&op=next&xml=true");
 
-         // parse xml to return result
-         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-         px.parse(bais);
-         px.prettyprintxml();
-         */
+             // parse xml to return result
+             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+             px.parse(bais);
+             px.prettyprintxml();
+             */
 
-
-        return true;
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in HierarchyPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
 
     }
 
     public boolean LdapConnectionPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
 
-        String query_string = "p=7" + "&op=next" + "&xml=true" + "&host="
+            String query_string = "p=7" + "&op=next" + "&xml=true" + "&host="
                 + URLEncoder.encode(ldap_host) + "&port="
                 + URLEncoder.encode(ldap_port) + "&binddn="
                 + URLEncoder.encode(bind_dn) + "&__bindpwd="
@@ -277,67 +310,77 @@ public class ConfigureCA {
                 + URLEncoder.encode(db_name) + "&display="
                 + URLEncoder.encode("displayStr") + ""; 
 
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
-        // parse xml
-        bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        px.parse(bais);
-        px.prettyprintxml();
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
 
-        return true;
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in LdapConnectionPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean TokenChoicePanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
 
-        String query_string = null;
+            String query_string = null;
 
-        // Software Token
-        if (token_name.equalsIgnoreCase("internal")) {
-            query_string = "p=8" + "&op=next" + "&xml=true" + "&choice="
+            // Software Token
+            if (token_name.equalsIgnoreCase("internal")) {
+                query_string = "p=8" + "&op=next" + "&xml=true" + "&choice="
                     + URLEncoder.encode("Internal Key Storage Token") + ""; 
-            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-            // parse xml
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
-        } // HSM
-        else {
-            // login to hsm first
-            query_string = "p=9" + "&op=next" + "&xml=true" + "&uTokName="
+                hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+                // parse xml
+                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+                px.parse(bais);
+                px.prettyprintxml();
+            } // HSM
+            else {
+                // login to hsm first
+                query_string = "p=9" + "&op=next" + "&xml=true" + "&uTokName="
                     + URLEncoder.encode(token_name) + "&__uPasswd="
                     + URLEncoder.encode(token_pwd) + ""; 
-            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-            // parse xml
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
+                hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+                // parse xml
+                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+                px.parse(bais);
+                px.prettyprintxml();
 		
-            // choice with token name now
-            query_string = "p=8" + "&op=next" + "&xml=true" + "&choice="
+                // choice with token name now
+                query_string = "p=8" + "&op=next" + "&xml=true" + "&choice="
                     + URLEncoder.encode(token_name) + ""; 
-            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-            // parse xml
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
-
+                hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+                // parse xml
+                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+                px.parse(bais);
+                px.prettyprintxml();
+            }
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in TokenChoicePanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
         }
-
-        return true;
     }
 
     public boolean KeyPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-        ArrayList al = null;
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+            ArrayList al = null;
 
-        String query_string = "p=10" + "&op=next" + "&xml=true"
+            String query_string = "p=10" + "&op=next" + "&xml=true"
                 + "&subsystem_custom_size=" + key_size
                 + "&sslserver_custom_size=" + key_size + "&signing_keytype="
                 + key_type + "&keytype=" + key_type + "&choice=custom"
@@ -349,51 +392,57 @@ public class ConfigureCA {
                 + "&subsystem_choice=custom" + "&sslserver_keytype=" + key_type
                 + "&sslserver_choice=custom" + ""; 
 
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
-        // parse xml
-        bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        px.parse(bais);
-        px.prettyprintxml();
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
 		
-        al = px.constructvaluelist("CertReqPair", "DN");
-        // get ca cert subject name
-        if (al != null) {
-            for (int i = 0; i < al.size(); i++) {
-                String temp = (String) al.get(i);
+            al = px.constructvaluelist("CertReqPair", "DN");
+            // get ca cert subject name
+            if (al != null) {
+                for (int i = 0; i < al.size(); i++) {
+                    String temp = (String) al.get(i);
 
-                if (temp.indexOf("Certificate Authority") > 0) {
-                    ca_cert_name = temp;
-                } else if (temp.indexOf("OCSP Signing Certificate") > 0) {
-                    ocsp_cert_name = temp;
-                } else if (temp.indexOf("Subsystem Certificate") > 0) {
-                    ca_subsystem_cert_name = temp;
-                } else {
-                    server_cert_name = temp;
+                    if (temp.indexOf("Certificate Authority") > 0) {
+                        ca_cert_name = temp;
+                    } else if (temp.indexOf("OCSP Signing Certificate") > 0) {
+                        ocsp_cert_name = temp;
+                    } else if (temp.indexOf("Subsystem Certificate") > 0) {
+                        ca_subsystem_cert_name = temp;
+                    } else {
+                        server_cert_name = temp;
+                    }
                 }
             }
-        }
 		
-        System.out.println("default: ca_cert_name=" + ca_cert_name);
-        System.out.println("default: ocsp_cert_name=" + ocsp_cert_name);
-        System.out.println(
+            System.out.println("default: ca_cert_name=" + ca_cert_name);
+            System.out.println("default: ocsp_cert_name=" + ocsp_cert_name);
+            System.out.println(
                 "default: ca_subsystem_cert_name=" + ca_subsystem_cert_name);
-        System.out.println("default: server_cert_name=" + server_cert_name);
-        return true;
+            System.out.println("default: server_cert_name=" + server_cert_name);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in KeyPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean CertSubjectPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-        ArrayList req_list = null;
-        ArrayList cert_list = null;
-        ArrayList dn_list = null;
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+            ArrayList req_list = null;
+            ArrayList cert_list = null;
+            ArrayList dn_list = null;
 
-        // use subject names provided as input
+            // use subject names provided as input
 
-        String query_string = "p=11" + "&op=next" + "&xml=true" + "&subsystem="
+            String query_string = "p=11" + "&op=next" + "&xml=true" + "&subsystem="
                 + URLEncoder.encode(ca_subsystem_cert_subject_name)
                 + "&ocsp_signing="
                 + URLEncoder.encode(ca_ocsp_cert_subject_name) + "&signing="
@@ -401,71 +450,128 @@ public class ConfigureCA {
                 + URLEncoder.encode(ca_server_cert_subject_name) + "&urls=0"
                 + ""; 
 
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
-        // parse xml
-        bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        px.parse(bais);
-        px.prettyprintxml();
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
 		
-        req_list = px.constructvaluelist("CertReqPair", "Request");
-        cert_list = px.constructvaluelist("CertReqPair", "Certificate");
-        dn_list = px.constructvaluelist("CertReqPair", "Nickname");
+            req_list = px.constructvaluelist("CertReqPair", "Request");
+            cert_list = px.constructvaluelist("CertReqPair", "Certificate");
+            dn_list = px.constructvaluelist("CertReqPair", "Nickname");
 
-        System.out.println("req_list_size=" + req_list.size());
-        System.out.println("cert_list_size=" + cert_list.size());
-        System.out.println("dn_list_size=" + dn_list.size());
+            System.out.println("req_list_size=" + req_list.size());
+            System.out.println("cert_list_size=" + cert_list.size());
+            System.out.println("dn_list_size=" + dn_list.size());
 
-        if (req_list != null && cert_list != null && dn_list != null) {
-            for (int i = 0; i < dn_list.size(); i++) {
-                String temp = (String) dn_list.get(i);
-					
-                if (temp.indexOf("caSigningCert") >= 0) {
-                    ca_cert_req = (String) req_list.get(i);
-                    ca_cert_cert = (String) cert_list.get(i);
-                } else if (temp.indexOf("ocspSigningCert") >= 0) {
-                    ocsp_cert_req = (String) req_list.get(i);
-                    ocsp_cert_cert = (String) cert_list.get(i);
-                } else if (temp.indexOf("subsystemCert") >= 0) {
-                    ca_subsystem_cert_req = (String) req_list.get(i);
-                    ca_subsystem_cert_cert = (String) cert_list.get(i);
-                } else {
-                    server_cert_req = (String) req_list.get(i);
-                    server_cert_cert = (String) cert_list.get(i);
+            if (external_ca.equalsIgnoreCase("true")) {
+                if ((req_list != null) && (dn_list != null)) {
+                    for (int i = 0; i < dn_list.size(); i++) {
+                        String temp = (String) dn_list.get(i);
+                        if (temp.indexOf("caSigningCert") >= 0) {
+                            ca_cert_req = (String) req_list.get(i);
+                        }
+                    }
+                }
+
+                if (ext_ca_cert_file == null) {
+                    try { 
+                        FileOutputStream fos = new FileOutputStream(ext_csr_file);
+                        PrintStream p = new PrintStream( fos );
+                        p.println(ca_cert_req);
+                        p.close();
+                        return true;
+                    } catch (Exception e) {
+                        System.out.println("CertSubjectPanel: Unable to write CSR for external CA to "+ ext_csr_file);
+                        System.out.println(e.toString());
+		        return false;
+                    } 
+                }
+                else {
+                    try { 
+                        ca_cert_cert = "";
+                        FileInputStream fis = new FileInputStream(ext_ca_cert_file);
+                        DataInputStream in = new DataInputStream(fis);
+                        while (in.available() !=0) {
+                            ca_cert_cert += in.readLine();
+                        }
+                        in.close();
+               
+                        signing_cc = "";
+                        fis = new FileInputStream(ext_ca_cert_chain_file);
+                        in = new DataInputStream(fis);
+                        while (in.available() !=0) {
+                            signing_cc += in.readLine();
+                        }
+                        in.close();
+                        return true;
+                    }
+                    catch (Exception e) {
+                        System.out.println("CertSubjectPanel: Unable to read in external approved CA cert or certificate chain.");
+                        System.out.println(e.toString());
+                        return false;
+                    }
                 }
             }
-        }
+
+            if (req_list != null && cert_list != null && dn_list != null) {
+                for (int i = 0; i < dn_list.size(); i++) {
+                    String temp = (String) dn_list.get(i);
+					
+                    if (temp.indexOf("caSigningCert") >= 0) {
+                        ca_cert_req = (String) req_list.get(i);
+                        ca_cert_cert = (String) cert_list.get(i);
+                    } else if (temp.indexOf("ocspSigningCert") >= 0) {
+                        ocsp_cert_req = (String) req_list.get(i);
+                        ocsp_cert_cert = (String) cert_list.get(i);
+                    } else if (temp.indexOf("subsystemCert") >= 0) {
+                        ca_subsystem_cert_req = (String) req_list.get(i);
+                        ca_subsystem_cert_cert = (String) cert_list.get(i);
+                    } else {
+                        server_cert_req = (String) req_list.get(i);
+                        server_cert_cert = (String) cert_list.get(i);
+                    }
+                }
+            }
 		
-        System.out.println("ca_cert_name=" + ca_sign_cert_subject_name);
-        System.out.println("ocsp_cert_name=" + ca_ocsp_cert_subject_name);
-        System.out.println(
+            System.out.println("ca_cert_name=" + ca_sign_cert_subject_name);
+            System.out.println("ocsp_cert_name=" + ca_ocsp_cert_subject_name);
+            System.out.println(
                 "ca_subsystem_cert_name=" + ca_subsystem_cert_subject_name);
-        System.out.println("server_cert_name=" + ca_server_cert_subject_name);
+            System.out.println("server_cert_name=" + ca_server_cert_subject_name);
 
-        System.out.println("ca_cert_req=" + ca_cert_req);
-        System.out.println("ocsp_cert_req=" + ocsp_cert_req);
-        System.out.println("ca_subsystem_cert_req=" + ca_subsystem_cert_req);
-        System.out.println("server_cert_req=" + server_cert_req);
+            System.out.println("ca_cert_req=" + ca_cert_req);
+            System.out.println("ocsp_cert_req=" + ocsp_cert_req);
+            System.out.println("ca_subsystem_cert_req=" + ca_subsystem_cert_req);
+            System.out.println("server_cert_req=" + server_cert_req);
 
-        System.out.println("ca_cert_cert=" + ca_cert_cert);
-        System.out.println("ocsp_cert_cert=" + ocsp_cert_cert);
-        System.out.println("ca_subsystem_cert_cert=" + ca_subsystem_cert_cert);
-        System.out.println("server_cert_cert=" + server_cert_cert);
+            System.out.println("ca_cert_cert=" + ca_cert_cert);
+            System.out.println("ocsp_cert_cert=" + ocsp_cert_cert);
+            System.out.println("ca_subsystem_cert_cert=" + ca_subsystem_cert_cert);
+            System.out.println("server_cert_cert=" + server_cert_cert);
 
-        return true;
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in CertSubjectPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+
     }
 
     public boolean CertificatePanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-        ArrayList req_list = null;
-        ArrayList cert_list = null;
-        ArrayList dn_list = null;
-        ArrayList pp_list = null;
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+            ArrayList req_list = null;
+            ArrayList cert_list = null;
+            ArrayList dn_list = null;
+            ArrayList pp_list = null;
 
-        String query_string = "p=12" + "&op=next" + "&xml=true" + "&subsystem="
+            String query_string = "p=12" + "&op=next" + "&xml=true" + "&subsystem="
                 + URLEncoder.encode(ca_subsystem_cert_cert) + "&subsystem_cc="
                 + "&ocsp_signing=" + URLEncoder.encode(ocsp_cert_cert)
                 + "&ocsp_signing_cc=" + "&signing="
@@ -473,98 +579,235 @@ public class ConfigureCA {
                 + "&sslserver=" + URLEncoder.encode(server_cert_cert)
                 + "&sslserver_cc=" + ""; 
 
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-
-        // parse xml
-        bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        px.parse(bais);
-        px.prettyprintxml();
-		
-        return true;
-    }
-
-    public boolean BackupPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-
-        if (save_p12.equalsIgnoreCase("true")) {
-            String query_string = "p=13" + "&op=next" + "&xml=true"
-                    + "&choice=backupkey" + "&__pwd=" + backup_pwd
-                    + "&__pwdagain=" + backup_pwd + ""; 
-
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
             px.prettyprintxml();
-
-            query_string = ""; 
-
-            hr = hc.sslConnect(cs_hostname, cs_port, pkcs12_uri, query_string);
-
-            // dump hr.getResponseData() to file
-
-            try {
-                FileOutputStream fos = new FileOutputStream("/tmp/tmp-ca.p12");
-
-                fos.write(hr.getResponseData());
-                fos.close();
-
-                // verify p12 file
-                // Decode the P12 file
-                FileInputStream fis = new FileInputStream("/tmp/tmp-ca.p12");
-                PFX.Template pfxt = new PFX.Template();
-                PFX pfx = (PFX) pfxt.decode(new BufferedInputStream(fis, 2048));
-
-                System.out.println("Decoded PFX");
-
-                // now peruse it for interesting info
-                System.out.println("Version: " + pfx.getVersion());
-                AuthenticatedSafes authSafes = pfx.getAuthSafes();
-                SEQUENCE asSeq = authSafes.getSequence();
-
-                System.out.println(
-                        "AuthSafes has " + asSeq.size() + " SafeContents");
-
-                fis.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public boolean AdminCertReqPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-        String admin_cert_request = null;
-
-        ComCrypto cCrypt = new ComCrypto(client_certdb_dir, client_certdb_pwd,
-                agent_cert_subject, agent_key_size, agent_key_type);
-
-        cCrypt.setDebug(true);
-        cCrypt.setGenerateRequest(true);
-        cCrypt.setTransportCert(null);
-        cCrypt.setDualKey(false);
-        cCrypt.loginDB();
-
-        String crmf_request = cCrypt.generateCRMFrequest();
-
-        if (crmf_request == null) {
-            System.out.println("ERROR: AdminCertReqPanel() cert req gen failed");
+		
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in CertificatePanel(): " + e.toString());
+            e.printStackTrace();
             return false;
         }
 
-        admin_cert_request = crmf_request;
+    }
 
-        String query_string = "p=15" + "&op=next" + "&xml=true"
+    public boolean CertificatePanelExternal() {
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+            ArrayList req_list = null;
+            ArrayList cert_list = null;
+            ArrayList dn_list = null;
+            ArrayList pp_list = null;
+            String genString = "...certificate be generated internally...";
+
+            String query_string = "p=12" + "&op=apply" + "&xml=true" + "&subsystem="
+                + URLEncoder.encode(genString) + "&subsystem_cc="
+                + "&ocsp_signing=" + URLEncoder.encode(genString)
+                + "&ocsp_signing_cc=" + "&signing="
+                + URLEncoder.encode(ca_cert_cert) + "&signing_cc=" 
+                + URLEncoder.encode(signing_cc)
+                + "&sslserver=" + URLEncoder.encode(genString)
+                + "&sslserver_cc=" + ""; 
+
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+
+
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
+
+            req_list = px.constructvaluelist("CertReqPair", "Request");
+            cert_list = px.constructvaluelist("CertReqPair", "Certificate");
+            dn_list = px.constructvaluelist("CertReqPair", "Nickname");
+
+            System.out.println("req_list_size=" + req_list.size());
+            System.out.println("cert_list_size=" + cert_list.size());
+            System.out.println("dn_list_size=" + dn_list.size());
+
+            if (req_list != null && cert_list != null && dn_list != null) {
+                for (int i = 0; i < dn_list.size(); i++) {
+                    String temp = (String) dn_list.get(i);
+
+                    if (temp.indexOf("caSigningCert") >= 0) {
+                        ca_cert_req = (String) req_list.get(i);
+                        ca_cert_cert = (String) cert_list.get(i);
+                    } else if (temp.indexOf("ocspSigningCert") >= 0) {
+                        ocsp_cert_req = (String) req_list.get(i);
+                        ocsp_cert_cert = (String) cert_list.get(i);
+                    } else if (temp.indexOf("subsystemCert") >= 0) {
+                        ca_subsystem_cert_req = (String) req_list.get(i);
+                        ca_subsystem_cert_cert = (String) cert_list.get(i);
+                    } else {
+                        server_cert_req = (String) req_list.get(i);
+                        server_cert_cert = (String) cert_list.get(i);
+                    }
+                }
+            }
+
+            System.out.println("ca_cert_name=" + ca_sign_cert_subject_name);
+            System.out.println("ocsp_cert_name=" + ca_ocsp_cert_subject_name);
+            System.out.println(
+                "ca_subsystem_cert_name=" + ca_subsystem_cert_subject_name);
+            System.out.println("server_cert_name=" + ca_server_cert_subject_name);
+
+            System.out.println("ca_cert_req=" + ca_cert_req);
+            System.out.println("ocsp_cert_req=" + ocsp_cert_req);
+            System.out.println("ca_subsystem_cert_req=" + ca_subsystem_cert_req);
+            System.out.println("server_cert_req=" + server_cert_req);
+
+            System.out.println("ca_cert_cert=" + ca_cert_cert);
+            System.out.println("ocsp_cert_cert=" + ocsp_cert_cert);
+            System.out.println("ca_subsystem_cert_cert=" + ca_subsystem_cert_cert);
+            System.out.println("server_cert_cert=" + server_cert_cert);
+
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in CertificatePanelExternal(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    public boolean BackupPanel() {
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+
+            if (save_p12.equalsIgnoreCase("true")) {
+                String query_string = "p=13" + "&op=next" + "&xml=true"
+                    + "&choice=backupkey" + "&__pwd=" + backup_pwd
+                    + "&__pwdagain=" + backup_pwd + ""; 
+
+                hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+
+                // parse xml
+                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+                px.parse(bais);
+                px.prettyprintxml();
+
+                query_string = ""; 
+
+                hr = hc.sslConnect(cs_hostname, cs_port, pkcs12_uri, query_string);
+
+                // dump hr.getResponseData() to file
+
+                try {
+                    FileOutputStream fos = new FileOutputStream("/tmp/tmp-ca.p12");
+
+                    fos.write(hr.getResponseData());
+                    fos.close();
+
+                    // verify p12 file
+                    // Decode the P12 file
+                    FileInputStream fis = new FileInputStream("/tmp/tmp-ca.p12");
+                    PFX.Template pfxt = new PFX.Template();
+                    PFX pfx = (PFX) pfxt.decode(new BufferedInputStream(fis, 2048));
+
+                    System.out.println("Decoded PFX");
+
+                    // now peruse it for interesting info
+                    System.out.println("Version: " + pfx.getVersion());
+                    AuthenticatedSafes authSafes = pfx.getAuthSafes();
+                    SEQUENCE asSeq = authSafes.getSequence();
+
+                    System.out.println(
+                        "AuthSafes has " + asSeq.size() + " SafeContents");
+
+                    fis.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in BackupPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean BackupContinuePanel() {
+        try {
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
+                "p=14&op=next&xml=true");
+
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
+
+	    return true;
+        } catch (Exception e) {
+            System.out.println("Exception in BackupContinuePanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean ImportCACertPanel() {
+        try {
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
+                "p=15&op=next&xml=true");
+
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
+
+	    return true;
+        } catch (Exception e) {
+            System.out.println("Exception in ImportCACertPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean AdminCertReqPanel() {
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+            String admin_cert_request = null;
+
+            ComCrypto cCrypt = new ComCrypto(client_certdb_dir, client_certdb_pwd,
+                agent_cert_subject, agent_key_size, agent_key_type);
+
+            cCrypt.setDebug(true);
+            cCrypt.setGenerateRequest(true);
+            cCrypt.setTransportCert(null);
+            cCrypt.setDualKey(false);
+            cCrypt.loginDB();
+
+            String crmf_request = cCrypt.generateCRMFrequest();
+
+            if (crmf_request == null) {
+                System.out.println("ERROR: AdminCertReqPanel() cert req gen failed");
+                return false;
+            }
+
+            admin_cert_request = crmf_request;
+
+            String query_string = "p=16" + "&op=next" + "&xml=true"
                 + "&cert_request_type=" + "crmf" + "&uid=" + admin_user
                 + "&name=" + admin_user + "&__pwd=" + admin_password
                 + "&__admin_password_again=" + admin_password + "&profileId="
@@ -573,110 +816,127 @@ public class ConfigureCA {
                 + "&subject=" + agent_cert_subject + "&clone=new"
                 + "&import=true" + "&securitydomain=" + domain_name + ""; 
 
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
-        // parse xml
-        bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        px.parse(bais);
-        px.prettyprintxml();
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
 		
-        admin_serial_number = px.getvalue("serialNumber");
+            admin_serial_number = px.getvalue("serialNumber");
 
-        return true;
-    }
-
-    public boolean AdminCertImportPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-        String cert_to_import = null;
-
-        String query_string = "serialNumber=" + admin_serial_number
-                + "&importCert=" + "true" + ""; 
-
-        hr = hc.sslConnect(cs_hostname, cs_port, ee_uri, query_string);
-		
-        System.out.println("Reached here...");
-
-        try {
-            // get response data
-            // cert_to_import = OSUtil.BtoA(hr.getResponseData());
-            // Convert a byte array to base64 string
-            cert_to_import = new sun.misc.BASE64Encoder().encode(
-                    hr.getResponseData());
-
-            // Convert base64 string to a byte array
-            // buf = new sun.misc.BASE64Decoder().decodeBuffer(s);
-
-            System.out.println("Cert to Import =" + cert_to_import);
+            return true;
         } catch (Exception e) {
-            System.out.println("ERROR: failed to retrieve cert");
-        }
-
-        System.out.println("Cert to Import =" + cert_to_import);
-        ComCrypto cCrypt = new ComCrypto(client_certdb_dir, client_certdb_pwd,
-                null, null, null);
-
-        cCrypt.setDebug(true);
-        cCrypt.setGenerateRequest(true);
-        cCrypt.loginDB();
-
-        String start = "-----BEGIN CERTIFICATE-----\r\n";
-        String end = "\r\n-----END CERTIFICATE-----";
-
-        st = cCrypt.importCert(start + cert_to_import + end, agent_name);
-        if (!st) {
-            System.out.println(
-                    "ERROR: AdminCertImportPanel() during cert import");
+            System.out.println("Exception in AdminCertReqPanel(): " + e.toString());
+            e.printStackTrace();
             return false;
         }
 
-        System.out.println("SUCCESS: imported admin user cert");
-        return true;
+    }
+
+    public boolean AdminCertImportPanel() {
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+            String cert_to_import = null;
+
+            String query_string = "&serialNumber=" + admin_serial_number
+                + "&importCert=true" + "";
+
+            hr = hc.sslConnect(cs_hostname, cs_port, ee_uri, query_string);
+		
+            try {
+                // get response data
+                // cert_to_import = OSUtil.BtoA(hr.getResponseData());
+                // Convert a byte array to base64 string
+                cert_to_import = new sun.misc.BASE64Encoder().encode(
+                    hr.getResponseData());
+
+                // Convert base64 string to a byte array
+                // buf = new sun.misc.BASE64Decoder().decodeBuffer(s);
+
+                System.out.println("Cert to Import =" + cert_to_import);
+            } catch (Exception e) {
+                System.out.println("ERROR: failed to retrieve cert");
+            }
+
+            System.out.println("Cert to Import =" + cert_to_import);
+            ComCrypto cCrypt = new ComCrypto(client_certdb_dir, client_certdb_pwd,
+                null, null, null);
+
+            cCrypt.setDebug(true);
+            cCrypt.setGenerateRequest(true);
+            cCrypt.loginDB();
+
+            String start = "-----BEGIN CERTIFICATE-----\r\n";
+            String end = "\r\n-----END CERTIFICATE-----";
+
+            st = cCrypt.importCert(start + cert_to_import + end, agent_name);
+            if (!st) {
+                System.out.println(
+                    "ERROR: AdminCertImportPanel() during cert import");
+                return false;
+            }
+
+            System.out.println("SUCCESS: imported admin user cert");
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in AdminCertImportPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean UpdateDomainPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
 
-        String query_string = "p=16" + "&op=next" + "&xml=true" + "&caHost="
+            String query_string = "p=17" + "&op=next" + "&xml=true" + "&caHost="
                 + URLEncoder.encode("/") + "&caPort=" + URLEncoder.encode("/")
                 + ""; 
 
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
-        // parse xml
-        bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        px.parse(bais);
-        px.prettyprintxml();
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
 		
-        String caHost = px.getvalue("host");
-        String caPort = px.getvalue("port");
-        String systemType = px.getvalue("systemType");
+            String caHost = px.getvalue("host");
+            String caPort = px.getvalue("port");
+            String systemType = px.getvalue("systemType");
 
-        System.out.println("caHost=" + caHost);
-        System.out.println("caPort=" + caPort);
-        System.out.println("systemType=" + systemType);
+            System.out.println("caHost=" + caHost);
+            System.out.println("caPort=" + caPort);
+            System.out.println("systemType=" + systemType);
 		
-        /*
-         query_string = "p=18" + "&op=next" + "&xml=true" +
-         "&caHost=" + URLEncoder.encode(caHost) +
-         "&caPort=" + URLEncoder.encode(caPort) +
-         "&systemType=" + URLEncoder.encode(systemType) +
-         ""; 
+            /*
+             query_string = "p=18" + "&op=next" + "&xml=true" +
+             "&caHost=" + URLEncoder.encode(caHost) +
+             "&caPort=" + URLEncoder.encode(caPort) +
+             "&systemType=" + URLEncoder.encode(systemType) +
+             ""; 
 
-         hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+             hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
-         // parse xml
-         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-         px.parse(bais);
-         px.prettyprintxml();
-         */
+             // parse xml
+             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+             px.parse(bais);
+             px.prettyprintxml();
+             */
 
-        return true;
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in UpdateDomainPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+
     }
 
     public boolean ConfigureCAInstance() {
@@ -799,7 +1059,27 @@ public class ConfigureCA {
 
         sleep_time();
         // 11. Certificate Panel
-        boolean disp_cp = CertificatePanel();
+        boolean disp_cp;
+
+        if (external_ca.equalsIgnoreCase("true")) {
+            if (ext_ca_cert_file != null) {
+                // second pass - cacert file defined
+                disp_cp = CertificatePanelExternal();
+
+                if (!disp_cp) {
+                    System.out.println("ERROR: ConfigureCA: CertificatePanelExternal() failure");
+                    return false;
+                }
+            }
+            else {
+               // first pass - cacert file not defined
+               System.out.println("A Certificate Request has been generated and stored in " + ext_csr_file);
+               System.out.println("Please submit this CSR to your external CA and obtain the CA Cert and CA Cert Chain");
+               return true;
+            }
+        }
+
+        disp_cp = CertificatePanel();
 
         if (!disp_cp) {
             System.out.println("ERROR: ConfigureCA: CertificatePanel() failure");
@@ -815,6 +1095,7 @@ public class ConfigureCA {
         // }
 
         sleep_time();
+        // 13. Backup Panel
         boolean disp_back = BackupPanel();
 
         if (!disp_back) {
@@ -823,7 +1104,27 @@ public class ConfigureCA {
         }
 
         sleep_time();
-        // 13. Admin Cert Req Panel
+        // 14. Backup Continue Panel
+        boolean disp_back_cont = BackupContinuePanel();
+
+        if (!disp_back_cont) {
+            System.out.println("ERROR: ConfigureCA: BackupContinuePanel() failure");
+            return false;
+        }
+
+        sleep_time();
+
+        // 15. Import CA Cert panel
+        boolean disp_import_cacert = ImportCACertPanel();
+
+        if (!disp_import_cacert) {
+            System.out.println("ERROR: ConfigureCA: ImportCACertPanel() failure");
+            return false;
+        }
+
+        sleep_time();
+
+        // 16. Admin Cert Req Panel
         boolean disp_adm = AdminCertReqPanel();
 
         if (!disp_adm) {
@@ -903,6 +1204,12 @@ public class ConfigureCA {
         // subsystemName
         StringHolder x_subsystem_name = new StringHolder();
 
+        // external CA cert
+        StringHolder x_external_ca = new StringHolder();
+        StringHolder x_ext_ca_cert_file = new StringHolder();         
+        StringHolder x_ext_ca_cert_chain_file = new StringHolder();         
+        StringHolder x_ext_csr_file = new StringHolder();         
+
         // parse the args
         ArgParser parser = new ArgParser("ConfigureCA");
 
@@ -957,6 +1264,15 @@ public class ConfigureCA {
 
         parser.addOption("-subsystem_name %s #CA subsystem name",
                 x_subsystem_name); 
+        
+        parser.addOption("-external %s #Subordinate to external CA [true,false]",
+                x_external_ca); 
+        parser.addOption("-ext_ca_cert_file %s #File with CA cert from external CA",
+                x_ext_ca_cert_file); 
+        parser.addOption("-ext_ca_cert_chain_file %s #File with CA cert from external CA",
+                x_ext_ca_cert_chain_file);
+        parser.addOption("-ext_csr_file %s #File to save the CSR for submission to an external CA",
+                x_ext_csr_file);
 
         // and then match the arguments
         String[] unmatched = null;
@@ -1004,6 +1320,14 @@ public class ConfigureCA {
         ca_server_cert_subject_name = x_ca_server_cert_subject_name.value;
 		
         subsystem_name = x_subsystem_name.value;
+        
+        external_ca = x_external_ca.value;
+        ext_ca_cert_file = x_ext_ca_cert_file.value;
+        ext_ca_cert_chain_file = x_ext_ca_cert_chain_file.value;
+        ext_csr_file = x_ext_csr_file.value;
+        if ((ext_csr_file == null) || (ext_csr_file.equals(""))) {
+            ext_csr_file = "/tmp/ext_ca.csr";
+        }
 
         boolean st = ca.ConfigureCAInstance();
 	
