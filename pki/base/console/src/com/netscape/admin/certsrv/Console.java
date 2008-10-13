@@ -1661,12 +1661,64 @@ public class Console implements CommClient {
         try {
           url = new URL(sAdminURL);
         } catch (Exception e) {
-          // return error
+            String es = e.toString();
+            String ep = "java.net.MalformedURLException:";
+            if (es != null && es.startsWith(ep)) {
+                es = es.substring(ep.length());
+            }
+            System.err.println("\nURL error: "+es+"\n");
+            waitForKeyPress(); // allow the user to read the msg on Win NT
+            System.exit(1);
+        }
+        if (url == null) {
+            System.err.println("\nIncorrect URL: "+sAdminURL+"\n");
+            waitForKeyPress(); // allow the user to read the msg on Win NT
+            System.exit(1);
         }
         cinfo.put("cmsServerInstance", instanceID);
+
+        String protocol = url.getProtocol();
+        String hostName = url.getHost();
+        String path = url.getPath();
+        /* Protocol part of URL is required only by URL class. Console assumes URL protocol. */
+        if (protocol == null || protocol.length() == 0 ||
+            ((!protocol.equalsIgnoreCase("https")) && (!protocol.equalsIgnoreCase("http"))) ) {
+            System.err.println("\nIncorrect protocol"+
+                                 ((protocol != null && protocol.length() > 0)?": "+protocol:".")+
+                               "\nDefault supported protocol is 'https'.\n");
+            waitForKeyPress(); // allow the user to read the msg on Win NT
+            System.exit(1);
+        }
+
+        if (hostName == null || hostName.length() == 0) {
+            System.err.println("\nMissing hostName: "+sAdminURL+"\n");
+            waitForKeyPress(); // allow the user to read the msg on Win NT
+            System.exit(1);
+        }
+        if (path == null || path.length() < 2 ) {
+            System.err.println("\nMissing URL path: "+sAdminURL+
+                               "\nDefault supported URL paths are 'ca', 'kra', 'ocsp', and 'tks'.\n");
+            waitForKeyPress(); // allow the user to read the msg on Win NT
+            System.exit(1);
+        }
+        path = path.substring(1);
+        if ((!path.equals("ca")) && (!path.equals("kra")) &&
+            (!path.equals("ocsp")) && (!path.equals("tks"))) {
+            System.err.println("\nWarning: Potentially incorrect URL path: "+path+
+                               "\n         Default supported URL paths are 'ca', 'kra', 'ocsp', and 'tks'.\n");
+        }
+        int portNumber = url.getPort();
+        if (portNumber < 0) {
+            System.err.println("\nWarning: Unspecified port number: "+sAdminURL+"\n");
+        /* Add warning about using non default port numbers after port separation is done.
+                               "\n         Default port number is 9443.\n");
+        } else if (portNumber != 9443) {
+            System.err.println("\nWarning: Attempt to connect to non default port number: "+sAdminURL+
+                               "\n         Default port number is 9443.\n");
+        */
+        }
         cinfo.put("cmsHost", url.getHost());
-        cinfo.put("cmsPort", Integer.toString(url.getPort()));
-        String path = url.getPath().substring(1);
+        cinfo.put("cmsPort", Integer.toString(portNumber));
         cinfo.put("cmsPath", path);
         admin.initialize(cinfo);
         admin.run(null, null);
