@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      6
+%define base_release      7
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -260,6 +260,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Mon Oct 13 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-7
+- Bugzilla bug #466781 - Starting console without subsystem type is causing StringIndexOutOfBoundsException
+- Bugzilla bug #440546 - Console CLI crashes when not prefixed with "https://"
 * Thu Oct 9 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-6
 - Bugzilla bug #465536 -  pki-console rpm is missing gif files.
 * Fri Oct 3 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-5
