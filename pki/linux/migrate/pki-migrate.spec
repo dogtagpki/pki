@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -275,7 +275,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/TxtTo73/classes/*
 %attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/TxtTo73/run.bat
 %attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/TxtTo73/run.sh
-
+%attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/80/*
 
 
 ###############################################################################
@@ -283,6 +283,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Oct 10 2008 Ade Lee <alee@redhat.com> 1.0.0-2
+- Migration scripts for 8.0 Security Domain #223361
 * Tue Feb 19 2008 PKI Team <pki-devel@redhat.com> 1.0.0-1
 - Initial open source version based upon proprietary
   Red Hat Certificate System (RHCS) 7.3.

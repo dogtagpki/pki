@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -115,7 +115,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 BuildRequires:  ant >= 1.6.2
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0
+Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0, perl-libwww-perl >= 5.8.0
 
 
 ## This package is non-relocatable!
@@ -217,6 +217,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Oct 9 2008 Ade Lee  <alee@redhat.com> 1.0.0-4
+- Fix for bug #223361 and #224864. Security Domain in ldap.
 * Thu Jul 10 2008 Jack Magne  <jmagne@redhat.com> 1.0.0-3
 - Fix for bug #458337.
 * Tue Apr  1 2008 Jack Magne <jmagne@redhat.com>  1.0.0-2

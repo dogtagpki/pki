@@ -1,0 +1,36 @@
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( Clone-oid NAME 'Clone'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( DomainManager-oid NAME 'DomainManager'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( securePort-oid NAME 'securePort'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( SubsystemName-oid NAME 'SubsystemName'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( pkiSecurityDomain-oid NAME 'pkiSecurityDomain' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ name ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( pkiSecurityGroup-oid NAME 'pkiSecurityGroup' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( pkiSubsystem-oid NAME 'pkiSubsystem' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ Host $ SecurePort $ SubsystemName $ Clone ) MAY ( DomainManager ) X-ORIGIN 'user defined' ) 
+
+

@@ -69,6 +69,120 @@ public class UpdateDomainXML extends CMSServlet {
         CMS.debug("UpdateDomainXML: done initializing...");
     }
 
+    private String remove_from_ldap(String dn) {
+        CMS.debug("UpdateDomainXML: delete_from_ldap: starting dn: " + dn);
+        String status = SUCCESS;
+        ILdapConnFactory connFactory = null;
+        LDAPConnection conn = null;
+        IConfigStore cs = CMS.getConfigStore();
+
+        try {
+            IConfigStore ldapConfig = cs.getSubStore("internaldb");
+            connFactory = CMS.getLdapBoundConnFactory();
+            connFactory.init(ldapConfig);
+            conn = connFactory.getConn();
+            conn.delete(dn);
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() != LDAPException.NO_SUCH_OBJECT) {
+                status = FAILED;
+                CMS.debug("Failed to delete entry" + e.toString());
+            }
+       } catch (Exception e) {
+            CMS.debug("Failed to delete entry" + e.toString()); 
+       } finally { 
+            try {
+                if ((conn != null) && (connFactory!= null)) {
+                    CMS.debug("Releasing ldap connection");
+                    connFactory.returnConn(conn);
+                }
+            }
+            catch (Exception e) {
+                CMS.debug("Error releasing the ldap connection" + e.toString());
+            }
+       }
+       return status;
+    }
+
+    private String modify_ldap(String dn, LDAPModification mod) {
+        CMS.debug("UpdateDomainXML: modify_ldap: starting dn: " + dn);
+        String status = SUCCESS;
+        ILdapConnFactory connFactory = null;
+        LDAPConnection conn = null;
+        IConfigStore cs = CMS.getConfigStore();
+
+        try {
+            IConfigStore ldapConfig = cs.getSubStore("internaldb");
+            connFactory = CMS.getLdapBoundConnFactory();
+            connFactory.init(ldapConfig);
+            conn = connFactory.getConn();
+            conn.modify(dn, mod);
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() != LDAPException.NO_SUCH_OBJECT) {
+                status = FAILED;
+                CMS.debug("Failed to modify entry" + e.toString());
+            }
+       } catch (Exception e) {
+            CMS.debug("Failed to modify entry" + e.toString());
+       } finally {
+            try {
+                if ((conn != null) && (connFactory!= null)) {
+                    CMS.debug("Releasing ldap connection");
+                    connFactory.returnConn(conn);
+                }
+            }
+            catch (Exception e) {
+                CMS.debug("Error releasing the ldap connection" + e.toString());
+            }
+       }
+       return status;
+    }
+
+
+    private String add_to_ldap(LDAPEntry entry, String dn) {
+        CMS.debug("UpdateDomainXML: add_to_ldap: starting");
+        String status = SUCCESS;
+        ILdapConnFactory connFactory = null;
+        LDAPConnection conn = null;
+        IConfigStore cs = CMS.getConfigStore();
+
+        try {
+            IConfigStore ldapConfig = cs.getSubStore("internaldb");
+            connFactory = CMS.getLdapBoundConnFactory();
+            connFactory.init(ldapConfig);
+            conn = connFactory.getConn();
+            conn.add(entry);
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
+                CMS.debug("UpdateDomainXML: Entry already exists");
+                try {
+                    conn.delete(dn);
+                    conn.add(entry);
+                } catch (LDAPException ee) {
+                    CMS.debug("UpdateDomainXML: Error when replacing existing entry "+ee.toString());
+                    status = FAILED;
+                }
+            } else {
+                CMS.debug("UpdateDomainXML: Failed to update ldap domain info. Exception: "+e.toString());
+                status = FAILED;
+            }
+        } catch (Exception e) {
+            CMS.debug("Failed to add entry" + e.toString());
+        } finally {
+            try {
+                if ((conn != null) && (connFactory!= null)) {
+                    CMS.debug("Releasing ldap connection");
+                    connFactory.returnConn(conn);
+                }
+            }
+            catch (Exception e) {
+                CMS.debug("Error releasing the ldap connection" + e.toString());
+            }
+       }
+       return status;
+    }
+
+
+
     /**
      * Process the HTTP request. 
      * <ul>
@@ -79,6 +193,7 @@ public class UpdateDomainXML extends CMSServlet {
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
         CMS.debug("UpdateDomainXML: processing...");
+        String status = SUCCESS;
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -114,79 +229,171 @@ public class UpdateDomainXML extends CMSServlet {
             return;
         }
 
-        String path = CMS.getConfigStore().getString("instanceRoot", "")
-                + "/conf/domain.xml";
+        String list = httpReq.getParameter("list");
+        String type = httpReq.getParameter("type");
+        String host = httpReq.getParameter("host");
+        String name = httpReq.getParameter("name");
+        String sport = httpReq.getParameter("sport");
+        String domainmgr = httpReq.getParameter("dm");
+        String clone = httpReq.getParameter("clone");
+        String operation = httpReq.getParameter("operation");
 
-        CMS.debug("UpdateDomainXML: got path=" + path);
+        String basedn = null;
+        String secstore = null;
+
+        IConfigStore cs = CMS.getConfigStore();
 
         try {
-            // set info into domain.xml
-            String list = httpReq.getParameter("list");
+            basedn = cs.getString("internaldb.basedn");
+            secstore = cs.getString("securitydomain.store");
+        }
+        catch (Exception e)  {
+            CMS.debug("Unable to determine security domain name or basedn. Please run the domaininfo migration script");
+        }
 
-            String type = httpReq.getParameter("type");
-            String host = httpReq.getParameter("host");
-            String name = httpReq.getParameter("name");
-            String sport = httpReq.getParameter("sport");
-            String domainmgr = httpReq.getParameter("dm");
-            String clone = httpReq.getParameter("clone");
+        if ((basedn != null) && (secstore != null) && (secstore.equals("ldap"))) {
+            // update in ldap
 
-            // insert info
-            CMS.debug("UpdateDomainXML: Inserting new domain info");
-            XMLObject parser = new XMLObject(new FileInputStream(path));
-            Node n = parser.getContainer(list);
-            Node parent = parser.createContainer(n, type);
-            parser.addItemToContainer(parent, "SubsystemName", name);
-            parser.addItemToContainer(parent, "Host", host);
-            parser.addItemToContainer(parent, "SecurePort", sport);
-            parser.addItemToContainer(parent, "DomainManager", domainmgr);
-            parser.addItemToContainer(parent, "Clone", clone);
+            LDAPEntry entry = null;
+            ILdapConnFactory connFactory = null;
+            LDAPConnection conn = null;
+            String listName = type + "List";
+            String cn = host + ":" + sport;
+            String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + basedn;
+            CMS.debug("UpdateDomainXML: updating LDAP entry: " + dn);
 
-            String countS = "";
-            NodeList nlist = n.getChildNodes();
-            Node countnode = null;
-            for (int i=0; i<nlist.getLength(); i++) {
-                Element nn = (Element)nlist.item(i);
-                String tagname = nn.getTagName();
-                if (tagname.equals("SubsystemCount")) {
-                    countnode = nn;
-                    NodeList nlist1 = nn.getChildNodes();
-                    Node nn1 = nlist1.item(0);
-                    countS  = nn1.getNodeValue();
-                    break;
-                }
+            LDAPAttributeSet attrs = null;
+            attrs = new LDAPAttributeSet();
+            attrs.add(new LDAPAttribute("objectclass", "top"));
+            attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
+            attrs.add(new LDAPAttribute("cn", cn));
+            attrs.add(new LDAPAttribute("Host", host));
+            attrs.add(new LDAPAttribute("SecurePort", sport));
+            attrs.add(new LDAPAttribute("DomainManager", domainmgr));
+            attrs.add(new LDAPAttribute("clone", clone));
+            attrs.add(new LDAPAttribute("SubsystemName", name));
+            entry = new LDAPEntry(dn, attrs);
+ 
+            if ((operation !=  null) && (operation.equals("remove"))) {
+                    status = remove_from_ldap(dn);
+                    String adminUserDN = "uid=" + type + "-" + host + "-" + sport + ",ou=People," + basedn;
+                    if (status.equals(SUCCESS)) {
+                        // remove the client cert for this subsystem's admin
+                        status = remove_from_ldap(adminUserDN);
+                        if (status.equals(SUCCESS)) {
+                            // remove this user from the subsystem group
+                            dn = "cn=Subsystem Group, ou=groups," + basedn;
+                            LDAPModification mod = new LDAPModification(LDAPModification.DELETE, 
+                                new LDAPAttribute("uniqueMember", adminUserDN));
+                            status = modify_ldap(dn, mod);
+                        }
+                    }
+            } else {
+                    status = add_to_ldap(entry, dn);
             }
 
-            CMS.debug("UpdateDomainXML process: SubsystemCount="+countS);
-            int count = 0;
+        }
+        else { 
+            // update the domain.xml file
+            String path = CMS.getConfigStore().getString("instanceRoot", "")
+                    + "/conf/domain.xml";
+
+            CMS.debug("UpdateDomainXML: got path=" + path);
+
             try {
-                count = Integer.parseInt(countS);
-                count++;
-            } catch (Exception ee) {
+                // using domain.xml file
+                CMS.debug("UpdateDomainXML: Inserting new domain info");
+                XMLObject parser = new XMLObject(new FileInputStream(path));
+                Node n = parser.getContainer(list);
+                int count =0;
+
+                if ((operation != null) && (operation.equals("remove"))) {
+                    // delete node
+                    Document doc = parser.getDocument();
+                    NodeList nodeList = doc.getElementsByTagName(type);
+                    int len = nodeList.getLength();
+
+                    for (int i = 0; i < len; i++) {
+                        Node nn = (Node) nodeList.item(i);
+                        Vector v_name = parser.getValuesFromContainer(nn, "SubsystemName");
+                        Vector v_host = parser.getValuesFromContainer(nn, "Host");
+                        Vector v_port = parser.getValuesFromContainer(nn, "SecurePort");
+                        if ((v_name.elementAt(0).equals(name)) && (v_host.elementAt(0).equals(host))
+                            && (v_port.elementAt(0).equals(sport))) {
+                                Node parent = nn.getParentNode();
+                                Node remNode = parent.removeChild(nn);
+                                count --;
+                                break;
+                        }
+                    }
+                } else {
+                    // add node
+                    Node parent = parser.createContainer(n, type);
+                    parser.addItemToContainer(parent, "SubsystemName", name);
+                    parser.addItemToContainer(parent, "Host", host);
+                    parser.addItemToContainer(parent, "SecurePort", sport);
+                    parser.addItemToContainer(parent, "DomainManager", domainmgr);
+                    parser.addItemToContainer(parent, "Clone", clone);
+                    count ++;
+                }
+                //update count 
+
+                String countS = "";
+                NodeList nlist = n.getChildNodes();
+                Node countnode = null;
+                for (int i=0; i<nlist.getLength(); i++) {
+                    Element nn = (Element)nlist.item(i);
+                    String tagname = nn.getTagName();
+                    if (tagname.equals("SubsystemCount")) {
+                        countnode = nn;
+                        NodeList nlist1 = nn.getChildNodes();
+                        Node nn1 = nlist1.item(0);
+                        countS  = nn1.getNodeValue();
+                        break;
+                    }
+                }
+
+                CMS.debug("UpdateDomainXML process: SubsystemCount="+countS);
+                try {
+                        count += Integer.parseInt(countS);
+                } catch (Exception ee) {
+                }
+
+                Node nn2 = n.removeChild(countnode);
+                parser.addItemToContainer(n, "SubsystemCount", ""+count);
+
+                // recreate domain.xml
+                CMS.debug("UpdateDomainXML: Recreating domain.xml");
+                byte[] b = parser.toByteArray();
+                FileOutputStream fos = new FileOutputStream(path);
+                fos.write(b);
+                fos.close();
+            } catch (Exception e) {
+                CMS.debug("Failed to update domain.xml file" + e.toString());
+                status = FAILED;
             }
-
-            Node nn2 = n.removeChild(countnode);
-            parser.addItemToContainer(n, "SubsystemCount", ""+count);
-
-            // recreate domain.xml
-            CMS.debug("UpdateDomainXML: Recreating domain.xml");
-            byte[] b = parser.toByteArray();
-            FileOutputStream fos = new FileOutputStream(path);
-            fos.write(b);
-            fos.close();
-
+        }
+  
+        try {
             // send success status back to the requestor
             CMS.debug("UpdateDomainXML: Sending response");
             XMLObject xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
 
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
+            xmlObj.addItemToContainer(root, "Status", status);
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("UpdateDomainXML: Failed to send the XML output");
+                CMS.debug("UpdateDomainXML: Failed to send the XML output" + e.toString());
         }
     }
+
+    protected String securityDomainXMLtoLDAP(String xmltag) {
+        if (xmltag.equals("Host")) return "host";
+        else return xmltag;
+    }
+
 
     protected void setDefaultTemplates(ServletConfig sc) {}
 

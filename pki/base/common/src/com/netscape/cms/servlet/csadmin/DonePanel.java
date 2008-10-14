@@ -34,6 +34,7 @@ import com.netscape.certsrv.dbs.crldb.*;
 import com.netscape.certsrv.ocsp.*;
 import com.netscape.certsrv.logging.*;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.password.*;
 import netscape.security.x509.*;
 import netscape.ldap.*;
 import java.net.*;
@@ -81,6 +82,69 @@ public class DonePanel extends WizardPanelBase {
                                                                                 
         return set;
     }
+
+    private LDAPConnection getLDAPConn(Context context)
+            throws IOException
+    {
+        IConfigStore cs = CMS.getConfigStore();
+
+        String host = "";
+        String port = "";
+        String pwd = null;
+        String binddn = "";
+        String security = "";
+
+        IPasswordStore pwdStore = CMS.getPasswordStore();
+
+        if (pwdStore != null) {
+            CMS.debug("DonePanel: getLDAPConn: password store available");
+            pwd = pwdStore.getPassword("internaldb");
+        }
+
+        if ( pwd == null) {
+           throw new IOException("DonePanel: Failed to obtain password from password store");
+        }
+
+        try {
+            host = cs.getString("internaldb.ldapconn.host");
+            port = cs.getString("internaldb.ldapconn.port");
+            binddn = cs.getString("internaldb.ldapauth.bindDN");
+            security = cs.getString("internaldb.ldapconn.secureConn");
+        } catch (Exception e) {
+            CMS.debug("DonePanel: getLDAPConn" + e.toString());
+            throw new IOException(
+                    "Failed to retrieve LDAP information from CS.cfg.");
+        }
+
+        int p = -1;
+
+        try {
+            p = Integer.parseInt(port);
+        } catch (Exception e) {
+            CMS.debug("DonePanel getLDAPConn: " + e.toString());
+            throw new IOException("Port is not valid");
+        }
+
+        LDAPConnection conn = null;
+        if (security.equals("true")) {
+          CMS.debug("DonePanel getLDAPConn: creating secure (SSL) connection for internal ldap");
+          conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
+        } else {
+          CMS.debug("DonePanel getLDAPConn: creating non-secure (non-SSL) connection for internal ldap");
+          conn = new LDAPConnection();
+        }
+
+        CMS.debug("DonePanel connecting to " + host + ":" + p);
+        try {
+            conn.connect(host, p, binddn, pwd);
+        } catch (LDAPException e) {
+            CMS.debug("DonePanel getLDAPConn: " + e.toString());
+            throw new IOException("Failed to connect to the internal database.");
+        }
+
+      return conn;
+    }
+
 
     /**
      * Display the panel.
@@ -158,46 +222,72 @@ public class DonePanel extends WizardPanelBase {
         String s = getSubsystemNodeName(type);
         if (sdtype.equals("new")) {
             try {
-                String instanceRoot = cs.getString("instanceRoot", "");
-                String domainxml = instanceRoot+"/conf/domain.xml";
-                XMLObject obj = new XMLObject(new FileInputStream(domainxml));
-                Node n = obj.getContainer(s);
-                NodeList nlist = n.getChildNodes();
-                String countS = "";
-                Node countnode = null;
-                for (int i=0; i<nlist.getLength(); i++) {
-                    Element nn = (Element)nlist.item(i);
-                    String tagname = nn.getTagName();
-                    if (tagname.equals("SubsystemCount")) {
-                        countnode = nn;
-                        NodeList nlist1 = nn.getChildNodes();
-                        Node nn1 = nlist1.item(0);
-                        countS = nn1.getNodeValue();
-                        break;
-                    }
-                }
-                Node parent = obj.createContainer(n, type);
-                obj.addItemToContainer(parent, "SubsystemName", subsystemName);
-                obj.addItemToContainer(parent, "Host", sd_host);
-                obj.addItemToContainer(parent, "SecurePort", sd_port);
-                obj.addItemToContainer(parent, "DomainManager", "true");
-                obj.addItemToContainer(parent, "Clone", "false");
-        
-                CMS.debug("DonePanel display: SubsystemCount="+countS);
-                int count = 0;
-                try {
-                    count = Integer.parseInt(countS);
-                    count++;
-                } catch (Exception ee) {
+                LDAPConnection conn = getLDAPConn(context);
+
+                String basedn = cs.getString("internaldb.basedn");
+                String secdomain = cs.getString("preop.securitydomain.name");
+
+                try {                
+                    // Create security domain ldap entry
+                    String dn = "ou=Security Domain," + basedn;
+                    CMS.debug("DonePanel: creating ldap entry : " + dn);
+                 
+                    LDAPEntry entry = null;
+                    LDAPAttributeSet attrs = null;
+                    attrs = new LDAPAttributeSet();
+                    attrs.add(new LDAPAttribute("objectclass", "top"));
+                    attrs.add(new LDAPAttribute("objectclass", "pkiSecurityDomain"));
+                    attrs.add(new LDAPAttribute("name", secdomain));
+                    attrs.add(new LDAPAttribute("ou", "Security Domain"));
+                    entry = new LDAPEntry(dn, attrs);
+                    conn.add(entry);
+                } catch (Exception e) {
+                    CMS.debug("Unable to create security domain");
+                    throw e;
                 }
 
-                Node nn2 = n.removeChild(countnode);
-                obj.addItemToContainer(n, "SubsystemCount", ""+count); 
-                CMS.debug("DonePanel display: finish updating domain.xml");
-                byte[] b = obj.toByteArray();
-                FileOutputStream fos = new FileOutputStream(domainxml);
-                fos.write(b); 
-                fos.close();
+                try { 
+                    // create list containers
+                    String clist[] = {"CAList", "OCSPList", "KRAList", "RAList", "TKSList", "TPSList"};
+                    for (int i=0; i< clist.length; i++) {
+                        LDAPEntry entry = null;
+                        LDAPAttributeSet attrs = null;
+                        String dn = "cn=" + clist[i] + ",ou=Security Domain," + basedn;
+                        attrs = new LDAPAttributeSet();
+                        attrs.add(new LDAPAttribute("objectclass", "top"));
+                        attrs.add(new LDAPAttribute("objectclass", "pkiSecurityGroup"));
+                        attrs.add(new LDAPAttribute("cn", clist[i]));
+                        entry = new LDAPEntry(dn, attrs);
+                        conn.add(entry);
+                    }
+                } catch (Exception e) {
+                    CMS.debug("Unable to create security domain list groups" );
+                    throw e;
+                }  
+
+                try {
+                    // Add this host (only CA can create new domain) 
+                    String cn = ownhost + ":" + ownsport;
+                    String dn = "cn=" + cn + ",cn=CAList,ou=Security Domain," + basedn;
+                    LDAPEntry entry = null;
+                    LDAPAttributeSet attrs = null;
+                    attrs = new LDAPAttributeSet();
+                    attrs.add(new LDAPAttribute("objectclass", "top"));
+                    attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
+                    attrs.add(new LDAPAttribute("Host", ownhost));
+                    attrs.add(new LDAPAttribute("SecurePort", ownsport));
+                    attrs.add(new LDAPAttribute("Clone", "false"));
+                    attrs.add(new LDAPAttribute("SubsystemName", subsystemName));
+                    attrs.add(new LDAPAttribute("cn", cn));
+                    attrs.add(new LDAPAttribute("DomainManager", "true"));
+                    entry = new LDAPEntry(dn, attrs);
+                    conn.add(entry);
+                } catch (Exception e) {
+                    CMS.debug("Unable to create host entry in security domain");
+                    throw e;
+                }
+                cs.putString("securitydomain.store", "ldap");
+                CMS.debug("DonePanel display: finish updating domain info");
             } catch (Exception e) {
                 CMS.debug("DonePanel display: "+e.toString());
             }

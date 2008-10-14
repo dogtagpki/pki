@@ -302,39 +302,6 @@ public class SecurityDomainPanel extends WizardPanelBase {
             } catch (Exception e) {
             }
 
-            String domainxml = instanceRoot+"/conf/domain.xml";
-
-            // generate security domain file
-            try {
-                XMLObject xmlObj = new XMLObject();
-
-                CMS.debug("Building Domain Info...");
-                Node root = xmlObj.createRoot("DomainInfo");
-
-                xmlObj.addItemToContainer(root, "Name", 
-                  HttpInput.getDomainName(request, "sdomainName"));
-
-                // put our own info to the file (maybe we should do this later)
-                Node kraList = xmlObj.createContainer(root, "KRAList");
-                Node tpsList = xmlObj.createContainer(root, "TPSList");
-                Node ocspList = xmlObj.createContainer(root, "OCSPList");
-                Node raList = xmlObj.createContainer(root, "RAList");
-                Node tksList = xmlObj.createContainer(root, "TKSList");
-                Node caList = xmlObj.createContainer(root, "CAList");
-                xmlObj.addItemToContainer(caList, "SubsystemCount", "0");
-                xmlObj.addItemToContainer(tksList, "SubsystemCount", "0");
-                xmlObj.addItemToContainer(raList, "SubsystemCount", "0");
-                xmlObj.addItemToContainer(ocspList, "SubsystemCount", "0");
-                xmlObj.addItemToContainer(tpsList, "SubsystemCount", "0");
-                xmlObj.addItemToContainer(kraList, "SubsystemCount", "0");
-
-                byte[] cb = xmlObj.toByteArray();
-                FileOutputStream fos = new FileOutputStream(domainxml);
-                fos.write(cb);
-                fos.close();
-            } catch (Exception e) {
-                CMS.debug("Failed to send the XML output");
-            }
         } else if (select.equals("existingdomain")) {
             config.putString("preop.securitydomain.select", "existing");
             config.putString("securitydomain.select", "existing");

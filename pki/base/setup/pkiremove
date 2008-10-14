@@ -30,7 +30,7 @@
 #               -pki_instance_name=<pki_instance_id>   # Unique PKI subsystem
 #                                                      # instance name
 #                                                      # (e. g. - pki-pki1)
-#
+#                       
 #               [-force]                               # Don't ask any
 #                                                      # questions
 #
@@ -195,7 +195,7 @@ sub usage()
 
     print( STDOUT
            "Example:  pkiremove -pki_instance_root=/var/lib "
-         . "-pki_instance_name=$pki_flavor-ca1\n\n" );
+         . "-pki_instance_name=$pki_flavor-ca1\n\n " );
 
     print( STDOUT
            "IMPORTANT:  Must be run as root!\n\n" );
@@ -203,6 +203,93 @@ sub usage()
     return;
 }
 
+sub update_domain()
+{
+    my $conf_file = $pki_instance_path . "/conf/CS.cfg";
+    my $sport;
+    my $secport;
+    my $secselect;
+    my $typeval;
+    my $machinename;
+    my $subsytemnick;
+    
+    open(DAT, $conf_file) or die "Could not open CS.cfg file to update security domain";
+    my @conf_data=<DAT>;
+    foreach my $line (@conf_data) {
+        chomp($line);
+        (my $varname, my $valname) = split(/=/, $line);
+        if ($varname eq "service.securePort") { $sport = $valname; }
+        if ($varname eq "securitydomain.host") { $sechost = $valname; }
+        if ($varname eq "securitydomain.httpsport") { $secport = $valname; }
+        if ($varname eq "securitydomain.select") { $secselect = $valname; }
+        if ($varname eq "cs.type") { $typeval = $valname; }
+        if ($varname eq "machineName") { $machinename = $valname; }
+        if ($varname =~ /[a-z]*.subsystem.nickname/) { $subsystemnick = $valname; }
+    }
+    close(DAT);
+
+    if ((!defined($sechost)) || (!defined($secport))) {
+        print (STDOUT "No security domain defined.  If this is an unconfigured instance, then that is OK.\n" .
+            "Otherwise, manually delete the entry from the security domain master.\n" ); 
+        return;
+    }
+
+    if ($secselect ne "new") {
+        # This is not a domain master, so we need to update the master
+        print (STDOUT "Contacting the security domain master to update the security domain\n");
+        my $listval = $typeval . "List";
+        my $urlheader = "https://" . $sechost . ":" . $secport; 
+        my $updateURL = "/ca/agent/ca/updateDomainXML";   
+        my $loginURL = "/ca/ee/ca/securityDomainLogin";
+        my $cookieURL = "/ca/ee/ca/getCookie";
+
+        # Login to security domain
+        use LWP;
+        my $browser= LWP::UserAgent->new;
+
+        #create pk12 files for client cert authentication
+        my $intpw;
+        my $pwfile = $pki_instance_path . "/conf/password.conf";
+        open(DAT, $pwfile) or die "Could not open password.conf file to generate pk12 files.";
+        my @pw_data=<DAT>;
+        foreach my $line (@pw_data) {
+            chomp($line);
+            (my $varname, my $valname) = split(/=/, $line);
+            if ($varname eq "internal") { $intpw = $valname; }
+        }
+        close($pwfile);
+
+        my $tempfile = "/tmp/" . $$ . ".p12";
+        my $dbpath = $pki_instance_path . "/alias";
+        srand(time() ^($$ + ($$ <<15))) ;
+        my $p12pw = rand();
+
+        my @args = ("pk12util", "-d", $dbpath, "-o" , 
+            $tempfile, "-n", $subsystemnick , "-K", $intpw, "-W", $p12pw ); 
+        system(@args) == 0 or die "Could not generate pk12 file for client authentication."; 
+
+        #update domainXML
+
+        $url = $urlheader . $updateURL;
+        #$ENV{HTTPS_DEBUG} = 1; 
+        $ENV{HTTPS_PKCS12_FILE}     = $tempfile;
+        $ENV{HTTPS_PKCS12_PASSWORD} = $p12pw;
+
+        my $response = $browser->post( $url, 
+            [
+                'name' => $pki_instance_name,
+                'type' => $typeval,
+                'list' => $listval,
+                'host' => $machinename,
+                'sport' => $sport,
+                'operation' => 'remove'
+            ],
+        );
+ 
+        ($response->is_success) or die ("$url error: " . $response->status_line);
+        unlink $tempfile;
+   } 
+}
 
 # no args
 # return 1 - success, or
@@ -246,6 +333,9 @@ ASK_AGAIN:
     }
 
     $cleanup->open( "<$source_file_path" ) or die "Could not open file!\n";
+
+    eval { update_domain(); };
+    warn "Error updating security domain: " . $@ if $@;
 
     my $file_mode = "file";
     my @file_split;

@@ -159,6 +159,7 @@
                 <include name="41ToTxt/**"/>
                 <include name="73ToTxt/**"/>
                 <include name="TxtTo73/**"/>
+                <include name="80/**"/>
             </zipfileset>
             <zipfileset dir="."
                         filemode="755"
@@ -194,6 +195,7 @@
                 <include name="41ToTxt/**"/>
                 <include name="73ToTxt/**"/>
                 <include name="TxtTo73/**"/>
+                <include name="80/**"/>
             </tarfileset>
             <tarfileset dir="."
                         mode="755"
@@ -266,6 +268,7 @@
                 <include name="TxtTo71/**"/>
                 <include name="TxtTo72/**"/>
                 <include name="TxtTo73/**"/>
+                <include name="80/**"/>
             </zipfileset>
         </zip>
         <echo message="${end.source.zip.log.message}"/>
@@ -302,6 +305,7 @@
                 <include name="TxtTo71/**"/>
                 <include name="TxtTo72/**"/>
                 <include name="TxtTo73/**"/>
+                <include name="80/**"/>
             </tarfileset>
         </tar>
         <echo message="${end.source.tar.log.message}"/>

@@ -276,13 +276,14 @@ public class HttpInput
         return getString(request, name);
     }
                                                                                 
-    public static String getSecurityDomainName(HttpServletRequest request, String name)        throws IOException
+    public static String getSecurityDomainName(HttpServletRequest request, String name)       
+        throws IOException
     {
         String v = getName(request, name);
-        Pattern p = Pattern.compile("[A-Za-z0-9 ]+");
+        Pattern p = Pattern.compile("[A-Za-z0-9]+[A-Za-z0-9 -]*");
         Matcher m = p.matcher(v);
         if (!m.matches()) {
-            throw new IOException("Invalid characters found in Security Domain Name " + v + ". Valid characters are A-Z, a-z, 0-9 and space");
+            throw new IOException("Invalid characters found in Security Domain Name " + v + ". Valid characters are A-Z, a-z, 0-9, dash and space");
         }
         return v;
     }
