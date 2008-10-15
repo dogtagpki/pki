@@ -207,7 +207,13 @@ public class SrchCerts extends CMSServlet {
                 c == '\n' || c == '\\' || c == '"') {
                         result.append('\\');
             }
-            result.append(c);
+            if (c == '\r') {
+                result.append("0D");
+            } else if (c == '\n') {
+                result.append("0A");
+            } else {
+                result.append((char)c);
+            }
         }
         return result;
     }
