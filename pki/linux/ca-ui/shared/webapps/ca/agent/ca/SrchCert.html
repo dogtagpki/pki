@@ -569,6 +569,7 @@ function revokedByCritInUse()
     if (document.revokedByCritForm.inUse.checked) {
       document.queryForm.revokedByInUse.value = 'on';
     }
+    document.queryForm.revokedBy.value = document.revokedByCritForm.revokedBy.value;
     return document.revokedByCritForm.inUse.checked;
 }
 function revokedByCrit()
@@ -866,6 +867,7 @@ function issuedByCritInUse()
     if (document.issuedByCritForm.inUse.checked) {
       document.queryForm.issuedByInUse.value = 'on';
     }
+    document.queryForm.issuedBy.value = document.issuedByCritForm.issuedBy.value;
     return document.issuedByCritForm.inUse.checked;
 }
 function issuedByCrit()
