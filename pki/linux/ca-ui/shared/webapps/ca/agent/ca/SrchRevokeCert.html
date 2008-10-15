@@ -508,6 +508,7 @@ function issuedByCritInUse()
     if (document.issuedByCritForm.inUse.checked) {
       document.queryForm.issuedByInUse.value = 'on';
     }
+    document.queryForm.issuedBy.value = document.issuedByCritForm.issuedBy.value;
     return document.issuedByCritForm.inUse.checked;
 }
 function issuedByCrit()
