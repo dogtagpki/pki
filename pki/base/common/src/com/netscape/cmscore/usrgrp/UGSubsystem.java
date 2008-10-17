@@ -1165,9 +1165,9 @@ public final class UGSubsystem implements IUGSubsystem {
     /**
      * builds an instance of a Group entry
      */
-    protected IGroup buildGroup(LDAPEntry entry) {	
-        IGroup grp = createGroup(this, (String)
-                entry.getAttribute("cn").getStringValues().nextElement());
+    protected IGroup buildGroup(LDAPEntry entry) {
+        String groupName = (String)entry.getAttribute("cn").getStringValues().nextElement();
+        IGroup grp = createGroup(this, groupName);
 		
         LDAPAttribute grpDesc = entry.getAttribute("description");
 
@@ -1211,8 +1211,22 @@ public final class UGSubsystem implements IUGSubsystem {
             //		grp.addMemberName(v);
             // DOES NOT SUPPORT NESTED GROUPS...
 
-            grp.addMemberName(
-                v.substring(v.indexOf('=') + 1, v.indexOf(',')));
+            /* BAD_GROUP_MEMBER message goes to system log
+             * We are testing unique member attribute for
+             * 1. presence of uid string
+             * 2. presence and sequence of equal sign and comma
+             * 3. absence of equal sign between previously found equal sign and comma
+             * 4. absence of non white space characters between uid string and equal sign
+             */ 
+            int i = -1;
+            int j = -1;
+            if (v == null || v.length() < 3 || (!(v.substring(0,3)).equalsIgnoreCase("uid")) ||
+                ((i = v.indexOf('=')) < 0) || ((j = v.indexOf(',')) < 0) || i > j || 
+                 (v.substring(i+1, j)).indexOf('=') > -1 || ((v.substring(3, i)).trim()).length() > 0) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_BAD_GROUP_MEMBER", groupName, v));
+            } else {
+                grp.addMemberName(v.substring(v.indexOf('=') + 1, v.indexOf(',')));
+            }
         }
 
         return grp;
