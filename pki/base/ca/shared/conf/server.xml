@@ -391,7 +391,7 @@
 
   </Service>
 
-[PKI_OPEN_SEPARATE_PORTS_COMMENT]
+[PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT]
 
 <Service name="CatalinaAdmin">
 
@@ -466,5 +466,5 @@
     </Engine>
 
   </Service>
-[PKI_CLOSE_SEPARATE_PORTS_COMMENT]
+[PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT]
 </Server>

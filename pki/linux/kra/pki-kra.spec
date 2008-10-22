@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -289,6 +289,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Oct 10  2008 Jack Magne   <jmagne@redhat.com> 1.0.0-5
+- Fix for port separation bug #466188.
 * Mon Sept 22 2008 Christina Fu <cfu@redhat.com> 1.0.0-4
 - Fix for #463343 - Server-side key generation failed on DRM with nethsm
 * Thu Jul 10 2008 Jack Magne  <jmagne@redhat.com> 1.0.0-3

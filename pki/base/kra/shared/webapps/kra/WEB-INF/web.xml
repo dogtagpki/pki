@@ -848,12 +848,12 @@
       <url-pattern>   /acl  </url-pattern>
    </servlet-mapping>
 
-[PKI_OPEN_SEPARATE_PORTS_COMMENT]
+[PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
    <servlet-mapping>
       <servlet-name>  kraauths  </servlet-name>
       <url-pattern>   /auths  </url-pattern>
    </servlet-mapping>
-[PKI_CLOSE_SEPARATE_PORTS_COMMENT]
+[PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
 
    <servlet-mapping>
       <servlet-name>  krajobsScheduler  </servlet-name>

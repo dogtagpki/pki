@@ -352,8 +352,10 @@ my $PKI_UNSECURE_PORT_SLOT    = "PKI_UNSECURE_PORT";
 my $PKI_USER_SLOT             = "PKI_USER";
 my $TOMCAT_SERVER_PORT_SLOT   = "TOMCAT_SERVER_PORT";
 my $PKI_FLAVOR_SLOT           = "PKI_FLAVOR";
-my $PKI_OPEN_SEPARATE_PORTS_COMMENT_SLOT  = "PKI_OPEN_SEPARATE_PORTS_COMMENT";
-my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_SLOT = "PKI_CLOSE_SEPARATE_PORTS_COMMENT";
+my $PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT  = "PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT";
+my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT = "PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT";
+my $PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT  = "PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT";
+my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT = "PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT";
 my $PKI_OPEN_COMMENT          = "<!--";
 my $PKI_CLOSE_COMMENT         = "-->";
 my $PKI_WEBAPPS_NAME         = "PKI_WEBAPPS_NAME";
@@ -2196,11 +2198,19 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             $slot_hash{$PKI_SECURE_PORT_SLOT}     = $agent_secure_port;
             $slot_hash{$PKI_EE_SECURE_PORT_SLOT}        = $ee_secure_port; 
             $slot_hash{$PKI_ADMIN_SECURE_PORT_SLOT}     = $admin_secure_port;
-            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SLOT}  = "";
-            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SLOT} = "";
+            # Do NOT comment out the other ports
+            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = "";
+            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT} = "";
+            # Comment out the Authentication Servlet for the non-Admin Ports
+            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT}  = $PKI_OPEN_COMMENT;
+            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT} = $PKI_CLOSE_COMMENT;
         } else {
-            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SLOT}  = $PKI_OPEN_COMMENT;
-            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SLOT} = $PKI_CLOSE_COMMENT;
+            # Comment out the other ports
+            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = $PKI_OPEN_COMMENT;
+            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT} = $PKI_CLOSE_COMMENT;;
+            # Do NOT comment out the Authentication Servlet for the Admin Port
+            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT}  = "";
+            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT} = "";
 
         } 
         $slot_hash{$PKI_WEBAPPS_NAME}	       = $webapps_base_subsystem_dir; 
@@ -2552,8 +2562,8 @@ sub process_pki_templates_for_port_separation()
 
     # For webapps.ee and webapps, comment out the access to the admin port
 
-    $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SLOT}  = $PKI_OPEN_COMMENT;
-    $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SLOT} = $PKI_CLOSE_COMMENT;
+    $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT}  = $PKI_OPEN_COMMENT;
+    $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT} = $PKI_CLOSE_COMMENT;
 
     $result = process_file_template( $web_xml_subsystem_file_path,
                                      $ee_webinf_instance_path . "/" . $web_xml_base_name,
@@ -2573,8 +2583,8 @@ sub process_pki_templates_for_port_separation()
 
     # For webapps.admin don't comment out the access to the admin port
 
-    $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SLOT}  = "";
-    $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SLOT} = "";
+    $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT}  = "";
+    $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT} = "";
 
     $result = process_file_template( $web_xml_subsystem_file_path,
                                      $admin_webinf_instance_path . "/" . $web_xml_base_name,
