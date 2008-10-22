@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Oct 9  2008 Jack Magne  <jmagne@redhat.com> 1.0.0-5
+- Fix for port separation bug #466188.
 * Fri Oct 9 2008 Ade Lee  <alee@redhat.com> 1.0.0-4
 - Fix for bug #223361 and #224864. Security Domain in ldap.
 * Thu Jul 10 2008 Jack Magne  <jmagne@redhat.com> 1.0.0-3
