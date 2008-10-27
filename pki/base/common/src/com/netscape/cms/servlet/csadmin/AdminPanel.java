@@ -138,14 +138,11 @@ public class AdminPanel extends WizardPanelBase {
 
         String type = "";
         String info = "";
-        String clone = "";
         context.put("import", "true");
 
         try {
             type = cs.getString("preop.ca.type", "");
             String subsystemtype = cs.getString("cs.type", "");
-            clone = cs.getString("preop.subsystem.select", "");
-            context.put("clone", clone);
         } catch (Exception e) {}
 
         if (isPanelDone()) {
@@ -196,15 +193,6 @@ public class AdminPanel extends WizardPanelBase {
             HttpServletResponse response,
             Context context) throws IOException
     {
-        IConfigStore config = CMS.getConfigStore();
-        try {
-            String s = config.getString("preop.subsystem.select", "");
-            context.put("clone", s);
-            if (s.equals("clone"))
-                return;
-        } catch (Exception e) {
-        }
-
         String pwd = HttpInput.getPassword(request, "__pwd");
         String pwd_again = HttpInput.getPassword(request, "__admin_password_again");
         String email = HttpInput.getEmail(request, "email");
@@ -249,16 +237,6 @@ public class AdminPanel extends WizardPanelBase {
             type = config.getString(PRE_CA_TYPE, "");
             String subsystemtype = config.getString("cs.type", "");
         } catch (Exception e) {}
-
-        String select = "";
-        try {
-            select = config.getString("preop.subsystem.select", "");
-            context.put("clone", select);
-            if (select.equals("clone")) {
-                return;
-            }
-        } catch (Exception e) {
-        }
 
         ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
 
@@ -619,23 +597,33 @@ public class AdminPanel extends WizardPanelBase {
         String type = "";
         String info = "";
 
-        String clone = "";
         try {
-
-            clone = cs.getString("preop.subsystem.select", "");
             type = cs.getString("preop.ca.type", "");
         } catch (Exception e) {}
         if (ca == null && type.equals("otherca")) { 
             info = "Since you do not join the Redhat CA network, the administrator's certificate will not be generated automatically.";
         }
         context.put("info", info);
-        context.put("clone", clone);
         context.put("admin_email", request.getParameter("email"));
         context.put("admin_name", request.getParameter("name"));
         context.put("admin_pwd", "");
         context.put("admin_pwd_again", "");
         context.put("admin_uid", request.getParameter("uid"));
     }
+
+    public boolean shouldSkip() {
+        try {
+            IConfigStore c = CMS.getConfigStore();
+            String s = c.getString("preop.subsystem.select",null);
+            if (s != null && s.equals("clone")) {
+                return true;
+            }
+        } catch (EBaseException e) {
+        }
+
+        return false;
+    }
+
 
     private void createPKCS7(X509CertImpl cert) {
         try {

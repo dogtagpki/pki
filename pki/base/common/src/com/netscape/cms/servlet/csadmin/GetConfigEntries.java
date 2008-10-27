@@ -156,7 +156,9 @@ public class GetConfigEntries extends CMSServlet {
                 } catch (Exception ee) {
                     if (name.equals("internaldb.ldapauth.password")) {
                         value = getLDAPPassword();
-                    } else
+                    } else if (name.equals("internaldb.replication.password")) {
+                        value = getReplicationPassword();
+                    } else 
                         continue;
                 }
              
@@ -200,4 +202,10 @@ public class GetConfigEntries extends CMSServlet {
         IPasswordStore pwdStore = CMS.getPasswordStore();
         return pwdStore.getPassword("internaldb");
     }
+
+    private String getReplicationPassword() {
+        IPasswordStore pwdStore = CMS.getPasswordStore();
+        return pwdStore.getPassword("replicationdb");
+    }
+
 }

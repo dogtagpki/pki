@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -221,6 +221,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Mon Oct 27 2008 alee <alee@redhat.com> 1.0.0-4
+- Fix for Bug# 223324.
 * Wed Sep 24 2008 alee <alee@redhat.com> 1.0.0-3
 - Fix for Bug# 223367 and 224902.
 * Fri May 03 2008 jmagne <jmagne@redhat.com> 1.0.0-2

@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      24
+%define base_release      25
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -298,6 +298,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Mon Oct 27 2008 Ade Lee <alee@redhat.com> 1.0.0-25
+- Fix for Bugs: 223324, 430745, 224765, 223309
 * Fri Oct 17 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-24
 - Fix for Bug 335111: pkiconsole exception on wrong uniqueMember syntax
 * Wed Oct 15 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-23

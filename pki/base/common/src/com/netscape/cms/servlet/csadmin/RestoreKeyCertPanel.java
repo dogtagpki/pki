@@ -386,22 +386,22 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                     if (t1.equals("sslserver"))
                         continue;
                     c1.append(",");
-                    c1.append("preop.cert.");
+                    c1.append("cloning.");
                     c1.append(t1);
                     c1.append(".nickname,");
-                    c1.append("preop.cert.");
+                    c1.append("cloning.");
                     c1.append(t1);
                     c1.append(".dn,");
-                    c1.append("preop.cert.");
+                    c1.append("cloning.");
                     c1.append(t1);
                     c1.append(".keytype,");
-                    c1.append("preop.cert.");
+                    c1.append("cloning.");
                     c1.append(t1);
                     c1.append(".privkey.id,");
-                    c1.append("preop.cert.");
+                    c1.append("cloning.");
                     c1.append(t1);
                     c1.append(".pubkey.exponent,");
-                    c1.append("preop.cert.");
+                    c1.append("cloning.");
                     c1.append(t1);
                     c1.append(".pubkey.modulus");
 
@@ -417,7 +417,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                     c1.append(",preop.ca.hostname,preop.ca.httpport,preop.ca.httpsport,preop.ca.list,preop.ca.pkcs7,preop.ca.type");
                 }
 
-                content = "op=get&names=preop.module.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN"+c1.toString()+"&substores="+s1.toString()+"&xmlOutput=true&sessionID="+session_id;
+                content = "op=get&names=cloning.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN"+c1.toString()+"&substores="+s1.toString()+"&xmlOutput=true&sessionID="+session_id;
                 boolean success = updateConfigEntries(master_hostname, master_port, true,
                   "/"+cstype+"/admin/"+cstype+"/getConfigEntries", content, config, response);
                 if (!success) {

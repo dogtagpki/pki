@@ -886,6 +886,10 @@ public class DatabasePanel extends WizardPanelBase {
         }
 
         String bindpwd = HttpInput.getPassword(request, "__bindpwd");
+
+        /* BZ 430745 create password for replication manager */
+        String replicationpwd = Integer.toString(new Random().nextInt());
+
         IConfigStore psStore = null;
         String passwordFile = null;
 
@@ -897,6 +901,8 @@ public class DatabasePanel extends WizardPanelBase {
             throw new IOException( e.toString() );
         }
         psStore.putString("internaldb", bindpwd);
+        psStore.putString("replicationdb", replicationpwd);
+        cs.putString("preop.internaldb.replicationpwd" , replicationpwd);
         cs.putString("preop.database.removeData", "false");
 
         try {
@@ -1012,12 +1018,14 @@ public class DatabasePanel extends WizardPanelBase {
         int master1_port = -1;
         String master1_binddn = "";
         String master1_bindpwd = "";
+        String master1_replicationpwd = "";
 
         try {
             master1_hostname = cs.getString("preop.internaldb.master.hostname", "");
             master1_port = cs.getInteger("preop.internaldb.master.port", -1);
             master1_binddn = cs.getString("preop.internaldb.master.binddn", "");
             master1_bindpwd = cs.getString("preop.internaldb.master.bindpwd", "");
+            master1_replicationpwd = cs.getString("preop.internaldb.master.replicationpwd", "");
         } catch (Exception e) {
         }
 
@@ -1025,12 +1033,14 @@ public class DatabasePanel extends WizardPanelBase {
         int master2_port = -1;
         String master2_binddn = "";
         String master2_bindpwd = "";
+        String master2_replicationpwd = "";
 
         try {
             master2_hostname = cs.getString("internaldb.ldapconn.host", "");
             master2_port = cs.getInteger("internaldb.ldapconn.port", -1);
             master2_binddn = cs.getString("internaldb.ldapauth.bindDN", "");
             master2_bindpwd = bindpwd;
+            master2_replicationpwd = cs.getString("preop.internaldb.replicationpwd", "");
         } catch (Exception e) {
         }
   
@@ -1062,8 +1072,8 @@ public class DatabasePanel extends WizardPanelBase {
             String replicadn = "cn=replica,cn=\""+suffix+"\",cn=mapping tree,cn=config";
             CMS.debug("DatabasePanel setupReplication: replicadn="+replicadn);
 
-            createReplicationManager(conn1, master1_bindpwd);
-            createReplicationManager(conn2, master2_bindpwd);
+            createReplicationManager(conn1, master1_replicationpwd);
+            createReplicationManager(conn2, master2_replicationpwd);
 
             String dir1 = getInstanceDir(conn1);
             createChangeLog(conn1, dir1 + "/changelogs");
@@ -1077,10 +1087,10 @@ public class DatabasePanel extends WizardPanelBase {
             CMS.debug("DatabasePanel setupReplication: Finished enabling replication");
 
             createReplicationAgreement(replicadn, conn1, masterAgreementName, 
-              master2_hostname, master2_port, master2_bindpwd, basedn);
+              master2_hostname, master2_port, master2_replicationpwd, basedn);
 
             createReplicationAgreement(replicadn, conn2, cloneAgreementName, 
-              master1_hostname, master1_port, master1_bindpwd, basedn);
+              master1_hostname, master1_port, master1_replicationpwd, basedn);
 
             // initialize consumer
             initializeConsumer(replicadn, conn1, masterAgreementName);

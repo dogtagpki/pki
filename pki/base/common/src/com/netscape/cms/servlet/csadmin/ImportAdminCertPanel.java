@@ -100,12 +100,6 @@ public class ImportAdminCertPanel extends WizardPanelBase {
 
         IConfigStore cs = CMS.getConfigStore();
 
-        String s = "";
-        try {
-            s = cs.getString("preop.subsystem.select", "");
-        } catch (Exception e) {
-        }
-
         String type = "";
         String subsystemtype = "";
 
@@ -113,11 +107,6 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             type = cs.getString("preop.ca.type", "");
             subsystemtype = cs.getString("cs.type", "");
         } catch (Exception e) {}
-
-        if (s.equals("clone")) {
-            context.put("import", "false");
-            return;
-        }
 
         try {
             String serialno = cs.getString("preop.admincert.serialno.0");
@@ -183,13 +172,6 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             Context context) throws IOException {
         IConfigStore cs = CMS.getConfigStore();
 
-        String select = "";
-        try {
-            select = cs.getString("preop.subsystem.select", "");
-            context.put("select", select);
-        } catch (Exception e) {
-        }
-
         String type = "";
         String subsystemtype = "";
 
@@ -197,9 +179,6 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             type = cs.getString("preop.ca.type", "");
             subsystemtype = cs.getString("cs.type", "");
         } catch (Exception e) {}
-
-        if (select.equals("clone"))
-            return;
 
         ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(
                 ICertificateAuthority.ID);
@@ -283,6 +262,20 @@ public class ImportAdminCertPanel extends WizardPanelBase {
         context.put("title", "Import Administrator Certificate");
         context.put("panel", "admin/console/config/importadmincertpanel.vm");
     }
+
+    public boolean shouldSkip() {
+        try {
+            IConfigStore c = CMS.getConfigStore();
+            String s = c.getString("preop.subsystem.select",null);
+            if (s != null && s.equals("clone")) {
+                return true;
+            }
+        } catch (EBaseException e) {
+        }
+
+        return false;
+    }
+
 
     /**
      * If validiate() returns false, this method will be called.

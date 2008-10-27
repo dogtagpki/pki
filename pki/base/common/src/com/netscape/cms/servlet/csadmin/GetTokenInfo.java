@@ -81,7 +81,7 @@ public class GetTokenInfo extends CMSServlet {
 
         String certlist = "";
         try {
-            certlist = config.getString("preop.cert.list");
+            certlist = config.getString("cloning.list");
         } catch (Exception e) {
         }
 
@@ -90,7 +90,7 @@ public class GetTokenInfo extends CMSServlet {
             String name = t1.nextToken();
             if (name.equals("sslserver"))
                 continue;
-            name = "preop.cert."+name+".nickname";
+            name = "cloning."+name+".nickname";
             String value = "";
 
             try {
@@ -105,7 +105,7 @@ public class GetTokenInfo extends CMSServlet {
         }
 
         String value = "";
-        String name = "preop.module.token";
+        String name = "cloning.module.token";
         try {
             value = config.getString(name);
         } catch (Exception e) {

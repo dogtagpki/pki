@@ -503,6 +503,9 @@ public class CertRequestPanel extends WizardPanelBase {
                 if (!enable)
                     continue;
 
+                if (hasErr) 
+                    continue;
+
                 String nickname = cert.getNickname();
 
                 CMS.debug(
@@ -559,6 +562,7 @@ public class CertRequestPanel extends WizardPanelBase {
                                     "CertRequestPanel configCert: Failed to import certificate "
                                             + certTag + " Exception: "
                                             + ee.toString());
+                            hasErr = true;
                         }
                     }
                 } else if (cert.getType().equals("remote")) {
@@ -616,7 +620,7 @@ public class CertRequestPanel extends WizardPanelBase {
                                     CryptoUtil.importCertificateChain(
 				      CryptoUtil.normalizeCertAndReq(b64chain));
                                   } catch (Exception e) {
-                CMS.debug("CertRequestPanel: importCertChain: Exception: "+e.toString());
+                                      CMS.debug("CertRequestPanel: importCertChain: Exception: "+e.toString());
                                   }
                                 }
 
@@ -634,11 +638,17 @@ public class CertRequestPanel extends WizardPanelBase {
                                         "CertRequestPanel configCert: Failed to import certificate "
                                                 + certTag + " Exception: "
                                                 + ee.toString());
+                                hasErr=true;
                             }
                         } else {
                             CMS.debug("CertRequestPanel: in update() input null");
+                            hasErr = true;
                         }
+                    } else {
+                       CMS.debug("CertRequestPanel: in update() b64 not set");
+                       hasErr=true;
                     }
+                    
                 } else {
                     b64 = CryptoUtil.stripCertBrackets(b64.trim());
                     String certs = CryptoUtil.normalizeCertStr(b64);
@@ -661,6 +671,7 @@ public class CertRequestPanel extends WizardPanelBase {
                             CryptoUtil.importUserCertificate(impl, nickname, false);
                     } catch (Exception ee) {
                         CMS.debug("CertRequestPanel: Failed to import user certificate."+ee.toString());
+                        hasErr=true;
                     }
                 }
 

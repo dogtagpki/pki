@@ -42,6 +42,7 @@ import java.io.*;
 import java.math.*;
 import java.security.cert.*;
 import org.w3c.dom.*;
+import java.util.*;
 
 import com.netscape.cms.servlet.wizard.*;
 
@@ -307,8 +308,8 @@ public class DonePanel extends WizardPanelBase {
                 updateDomainXML(sd_host, p, true, "/ca/agent/ca/updateDomainXML", 
                   "list="+s+"&type="+type+"&host="+ownhost+"&name="+subsystemName+"&sport="+ownsport+"&dm=false"+cloneStr);
             } catch (Exception e) {
-                context.put("errorString", "Failed to update the domain.xml.");
-                return;
+                context.put("errorString", "Failed to update the security domain on the domain master.");
+                //return;
             }
         }
 
@@ -406,9 +407,28 @@ public class DonePanel extends WizardPanelBase {
         }
 
         cs.putInteger("cs.state", 1);
-        cs.removeSubStore("preop");
         try {
+            // save variables needed for cloning and remove preop
+            String list = cs.getString("preop.cert.list", "");
+            StringTokenizer st = new StringTokenizer(list, ",");
+
+            while (st.hasMoreTokens()) {
+                String ss = st.nextToken();
+                if (s.equals("sslserver"))
+                    continue;
+                cs.putString("cloning." + ss + ".nickname", cs.getString("preop.cert." + ss + ".nickname", ""));
+                cs.putString("cloning." + ss + ".dn", cs.getString("preop.cert." + ss + ".dn", ""));
+                cs.putString("cloning." + ss + ".keytype", cs.getString("preop.cert." + ss + ".keytype", ""));
+                cs.putString("cloning." + ss + ".privkey.id", cs.getString("preop.cert." + ss + ".privkey.id", ""));
+                cs.putString("cloning." + ss + ".pubkey.exponent", cs.getString("preop.cert." + ss + ".pubkey.exponent", ""));
+                cs.putString("cloning." + ss + ".pubkey.modulus", cs.getString("preop.cert." + ss + ".pubkey.modulus", ""));
+            }
+            cs.putString("cloning.module.token", cs.getString("preop.module.token", ""));
+            cs.putString("cloning.list", list);
+
+            cs.removeSubStore("preop");
             cs.commit(false);
+
         } catch (Exception e) {
         }
 
