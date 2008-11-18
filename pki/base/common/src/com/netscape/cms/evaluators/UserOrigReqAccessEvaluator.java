@@ -12,7 +12,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2007 Red Hat, Inc.
+// (C) 2008 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
@@ -30,14 +30,18 @@ import com.netscape.cmsutil.util.*;
 
 
 /**
- * A class represents a user acls evaluator.
+ * A class represents a user-origreq uid mapping acls evaluator.
+ * This is primarily used for renewal.  During renewal, the orig_req
+ * uid is placed in the SessionContext of the renewal session context
+ * to be evaluated by this evaluator
  * <P>
  * 
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @author Christina Fu
+ * @version $Revision: $, $Date: 
  */
-public class UserAccessEvaluator implements IAccessEvaluator {
-    private String mType = "user";
-    private String mDescription = "user equivalence evaluator";
+public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
+    private String mType = "user_origreq";
+    private String mDescription = "user origreq matching evaluator";
     private ILogger mLogger = CMS.getLogger();
 
     private final static String ANYBODY = "anybody";
@@ -46,19 +50,19 @@ public class UserAccessEvaluator implements IAccessEvaluator {
     /**
      * Class constructor.
      */
-    public UserAccessEvaluator() {
+    public UserOrigReqAccessEvaluator() {
     }
 
     /**
      * initialization.  nothing for now.
      */
     public void init() {
-        CMS.debug("UserAccessEvaluator: init");
+        CMS.debug("UserOrigReqAccessEvaluator: init");
     }
 
     /**
      * gets the type name for this acl evaluator
-     * @return type for this acl evaluator: "user" or "at_user"
+     * @return type for this acl evaluator: "user_origreq" or "at_user_origreq"
      */
     public String getType() {
         return mType;
@@ -83,13 +87,13 @@ public class UserAccessEvaluator implements IAccessEvaluator {
     /**
      * Evaluates the user in AuthToken to see if it's equal to value
      * @param authToken AuthToken from authentication
-     * @param type must be "at_user"
+     * @param type must be "at_userreq"
      * @param op must be "="
-     * @param value the user id
+     * @param value the request param name
      * @return true if AuthToken uid is same as value, false otherwise
      */
     public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
-
+        CMS.debug("UserOrigReqAccessEvaluator: evaluate() begins");
         if (type.equals(mType)) {
             String s = Utils.stripQuotes(value);
 
@@ -102,14 +106,26 @@ public class UserAccessEvaluator implements IAccessEvaluator {
             uid = authToken.getInString("uid");
 
             if (uid == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_IS_NULL"));
+                CMS.debug("UserOrigReqAccessEvaluator: evaluate() uid in authtoken null");
+                return false;
+            } else
+                CMS.debug("UserOrigReqAccessEvaluator: evaluate() uid in authtoken ="+ uid);
+
+            // find value of param in request
+            SessionContext mSC = SessionContext.getContext();
+            CMS.debug("UserOrigReqAccessEvaluator: evaluate() getting "+"orig_req."+s+ " in SessionContext");
+            // "orig_req.auth_token.uid"
+            String orig_id = (String) mSC.get("orig_req."+s);
+
+            if (orig_id == null) {
+                CMS.debug("UserOrigReqAccessEvaluator: evaluate() orig_id null");
                 return false;
             }
-
+                CMS.debug("UserOrigReqAccessEvaluator: evaluate() orig_id ="+ orig_id);
             if (op.equals("="))
-                return s.equalsIgnoreCase(uid);
+                return uid.equalsIgnoreCase(orig_id);
             else if (op.equals("!="))
-                return !(s.equalsIgnoreCase(uid));
+                return !(uid.equalsIgnoreCase(orig_id));
         }        
 
         return false;
@@ -117,7 +133,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
 
     /**
      * Evaluates the user in session context to see if it's equal to value
-     * @param type must be "user"
+     * @param type must be "user_origreq"
      * @param op must be "="
      * @param value the user id
      * @return true if SessionContext uid is same as value, false otherwise
@@ -127,27 +143,29 @@ public class UserAccessEvaluator implements IAccessEvaluator {
         SessionContext mSC = SessionContext.getContext();
 
         if (type.equals(mType)) {
+// what do I do with s here?
             String s = Utils.stripQuotes(value);
 
             if (s.equals(ANYBODY) && op.equals("="))
                 return true;
 
             IUser id = (IUser) mSC.get(SessionContext.USER);
+            // "orig_req.auth_token.uid"
+            String orig_id = (String) mSC.get("orig_req"+s);
 
             if (op.equals("="))
-                return s.equalsIgnoreCase(id.getName());
+                return id.getName().equalsIgnoreCase(orig_id);
             else if (op.equals("!="))
-                return !(s.equalsIgnoreCase(id.getName()));
+                return !(id.getName().equalsIgnoreCase(orig_id));
         }
 
         return false;
     }
-
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_ACLS,
-            level, "UserAccessEvaluator: " + msg);
+            level, "UserOrigReqAccessEvaluator: " + msg);
     }
 
 }

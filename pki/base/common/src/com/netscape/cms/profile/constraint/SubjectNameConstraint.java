@@ -77,6 +77,8 @@ public class SubjectNameConstraint extends EnrollConstraint {
 
         try {
             sn = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
+            CMS.debug("SubjectNameConstraint: validate cert subject ="+
+                         sn.toString());
         } catch (Exception e) {
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request), 
@@ -92,11 +94,17 @@ public class SubjectNameConstraint extends EnrollConstraint {
                         "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         }
         if (sn500 == null) {
+            CMS.debug("SubjectNameConstraint: validate() - sn500 is null");
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request), 
                         "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
+        } else {
+            CMS.debug("SubjectNameConstraint: validate() - sn500 "+
+                  CertificateSubjectName.DN_NAME + " = "+
+                  sn500.toString()); 
         }
         if (!sn500.toString().matches(getConfig(CONFIG_PATTERN))) {
+            CMS.debug("SubjectNameConstraint: validate() - sn500 not matching pattern "+ getConfig(CONFIG_PATTERN));
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request), 
                         "CMS_PROFILE_SUBJECT_NAME_NOT_MATCHED", 

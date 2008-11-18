@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      13
+%define base_release      14
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -282,6 +282,8 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Nov 18 2008 Christina Fu <cfu@redhat.com> 1.0.0-14
+- Bugzilla Bug #471622 - Need Renewal feature via enrollment profile Framework (phase 1)
 * Fri Oct 10 2008 Jack Magne <jmagne@redhat.com> 1.0.0-13
 - Fix for port separation bug #466188.
 * Fri Oct 9 2008 Ade Lee <alee@redhat.com> 1.0.0-12

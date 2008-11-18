@@ -333,6 +333,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         }
         args.set(ARG_INPUT_LIST, inputlist);
         args.set(ARG_INPUT_PLUGIN_LIST, inputPluginlist);
+        args.set(ARG_IS_RENEWAL, profile.isRenewal());
 
         // (5) return info as template
         outputTemplate(request, response, args);

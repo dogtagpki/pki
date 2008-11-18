@@ -86,11 +86,14 @@ public class SubjectNameDefault extends EnrollDefault {
 
             try {
                 x500name = new X500Name(value);
+                if (x500name != null) {
+                    CMS.debug("SubjectNameDefault: setValue x500name=" + x500name.toString());
+                }
             } catch (IOException e) {
                 CMS.debug("SubjectNameDefault: setValue " + e.toString());
                 // failed to build x500 name
             }
-            CMS.debug("SubjectNameDefault: setValue name=" + x500name);
+            CMS.debug("SubjectNameDefault: setValue name=" + x500name.toString());
             try {
                 info.set(X509CertInfo.SUBJECT, 
                     new CertificateSubjectName(x500name));

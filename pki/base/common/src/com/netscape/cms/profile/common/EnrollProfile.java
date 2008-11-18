@@ -268,6 +268,7 @@ public abstract class EnrollProfile extends BasicProfile
             }
 
         if (token == null) {
+            CMS.debug("EnrollProfile: auth token is null");
             CMS.debug("EnrollProfile: validating request");
             validate(request);
             try {
@@ -280,6 +281,7 @@ public abstract class EnrollProfile extends BasicProfile
         } else {
             // this profile executes request that is authenticated
             // by non NoAuth
+            CMS.debug("EnrollProfile: auth token is not null");
             validate(request);
             execute(request);
         }

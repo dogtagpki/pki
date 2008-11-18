@@ -40,6 +40,7 @@ public abstract class BasicProfile implements IProfile {
 
     public static final String PROP_ENABLE = "enable";
     public static final String PROP_ENABLE_BY = "enableBy";
+    public static final String PROP_IS_RENEWAL = "renewal";
     public static final String PROP_VISIBLE = "visible";
     public static final String PROP_INPUT_LIST = "list";
     public static final String PROP_OUTPUT_LIST = "list";
@@ -83,6 +84,14 @@ public abstract class BasicProfile implements IProfile {
             return mConfig.getBoolean(PROP_ENABLE, false);
         } catch (EBaseException e) {
             return false;
+        }
+    }
+
+    public String isRenewal() {
+        try {
+            return mConfig.getString(PROP_IS_RENEWAL, "false");
+        } catch (EBaseException e) {
+            return "false";
         }
     }
 
@@ -953,6 +962,7 @@ public abstract class BasicProfile implements IProfile {
         throws EProfileException {
         String setId = getPolicySetId(request);
         Vector policies = getPolicies(setId);
+        CMS.debug("BasicProfile: populate() policy setid ="+ setId);
 
         for (int i = 0; i < policies.size(); i++) {
             ProfilePolicy policy = (ProfilePolicy)
@@ -968,8 +978,8 @@ public abstract class BasicProfile implements IProfile {
      */ 
     public void validate(IRequest request)
         throws ERejectException {
-        CMS.debug("BasicProfile: validate start");
         String setId = getPolicySetId(request);
+        CMS.debug("BasicProfile: validate start on setId="+ setId);
         Vector policies = getPolicies(setId);
 
         for (int i = 0; i < policies.size(); i++) {

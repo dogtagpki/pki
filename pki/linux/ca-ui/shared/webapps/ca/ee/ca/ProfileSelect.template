@@ -439,6 +439,8 @@ document.writeln('</table>');
 document.writeln('<p>');
 document.writeln('<input type=hidden name=profileId value="' + 
   profileId + '">');
+document.writeln('<input type=hidden name=renewal value="' +
+  renewal + '">');
 } else {
   document.write('Sorry, your request is not submitted. The error code is "' + errorReason + '".');
 }

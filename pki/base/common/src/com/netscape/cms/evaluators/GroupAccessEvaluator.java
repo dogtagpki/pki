@@ -58,6 +58,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
      * initialization.  nothing for now.
      */
     public void init() {
+        CMS.debug("GroupAccessEvaluator: init");
     }
 
     /**

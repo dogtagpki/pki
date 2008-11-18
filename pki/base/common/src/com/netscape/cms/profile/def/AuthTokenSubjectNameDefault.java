@@ -63,6 +63,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
     public void setValue(String name, Locale locale,
         X509CertInfo info, String value)
         throws EPropertyException {
+        CMS.debug("AuthTokenSubjectNameDefault: begins");
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(locale,
                         "CMS_INVALID_PROPERTY", name));
@@ -72,11 +73,17 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
 
             try {
                 x500name = new X500Name(value);
+                if (x500name != null) {
+                    CMS.debug("AuthTokenSubjectNameDefault: setValue x500name=" + x500name.toString());
+                } else {
+                    CMS.debug("AuthTokenSubjectNameDefault: setValue x500name=null");
+                }
             } catch (IOException e) {
                 CMS.debug("AuthTokenSubjectNameDefault: setValue " + 
                     e.toString());
                 // failed to build x500 name
             }
+            CMS.debug("AuthTokenSubjectNameDefault: setValue name=" + x500name.toString());
             try {
                 info.set(X509CertInfo.SUBJECT, 
                     new CertificateSubjectName(x500name));
@@ -133,6 +140,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
             X500Name name = new X500Name(
                     request.getExtDataInString(IProfileAuthenticator.AUTHENTICATED_NAME));
 
+            CMS.debug("AuthTokenSubjectNameDefault: X500Name=" + name.toString());
             info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(name));
         } catch (Exception e) {
             // failed to insert subject name

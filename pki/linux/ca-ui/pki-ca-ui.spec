@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -221,6 +221,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Nov 18 2008 Christina Fu <cfu@redhat.com> 1.0.0-5
+- Bugzilla Bug #471622 - Need Renewal feature via enrollment profile Framework (phase 1)
 * Wed Oct 15 2008 Andrew Wnuk <awnuk@redhat.com> 1.0.0-4
 - Fix for Bug 466064: Search filters built by CA servlets are not always correct
 * Wed Oct 8 2008 Jack Magne  <jmagne@redhat.com> 1.0.0-3

@@ -75,6 +75,7 @@ public class ProfileServlet extends CMSServlet {
     public final static String ARG_PROFILE = "profile";
     public final static String ARG_REQUEST_NOTES = "requestNotes";
     public final static String ARG_PROFILE_ID = "profileId";
+    public final static String ARG_RENEWAL_PROFILE_ID = "rprofileId";
     public final static String ARG_PROFILE_IS_ENABLED = "profileIsEnable";
     public final static String ARG_PROFILE_IS_VISIBLE = "profileIsVisible";
     public final static String ARG_PROFILE_ENABLED_BY = "profileEnableBy";
@@ -106,6 +107,7 @@ public class ProfileServlet extends CMSServlet {
     public final static String ARG_INPUT_CONSTRAINT = "inputConstraint";
     public final static String ARG_INPUT_NAME = "inputName";
     public final static String ARG_INPUT_VAL = "inputVal";
+    public final static String ARG_IS_RENEWAL = "renewal";
     public final static String ARG_OUTPUT_LIST = "outputList";
     public final static String ARG_OUTPUT_ID = "outputId";
     public final static String ARG_OUTPUT_SYNTAX = "outputSyntax";

@@ -184,6 +184,11 @@ public interface IProfile {
      */
     public String getApprovedBy();
 
+    /*
+     * Is this a renewal profile
+     */
+    public String isRenewal();
+
     /**
      * Returns the profile name.
      *
