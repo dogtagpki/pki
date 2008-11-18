@@ -291,7 +291,7 @@ fi
 %changelog
 * Fri Oct 10  2008 Jack Magne   <jmagne@redhat.com> 1.0.0-5
 - Fix for port separation bug #466188.
-* Mon Sept 22 2008 Christina Fu <cfu@redhat.com> 1.0.0-4
+* Mon Sep 22 2008 Christina Fu <cfu@redhat.com> 1.0.0-4
 - Fix for #463343 - Server-side key generation failed on DRM with nethsm
 * Thu Jul 10 2008 Jack Magne  <jmagne@redhat.com> 1.0.0-3
 - Fix for bug #458337.
