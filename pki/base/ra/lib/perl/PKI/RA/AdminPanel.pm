@@ -220,7 +220,7 @@ sub update
 
 #    system("sed -e 's/\$TOKENDB_ROOT/$basedn/' " .
 #              "-e 's/\$TOKENDB_AGENT_CERT/$admincert/' " .
-#              "/usr/share/$flavor/tps/scripts/addAgents.ldif > $tmp");
+#              "/usr/share/$flavor/ra/scripts/addAgents.ldif > $tmp");
 #    system("$mozldap_path/ldapmodify -h '$host' -p '$port' -D '$binddn' " .
 #              "-w '$bindpwd' -a " .
 #              "-f '$tmp'");

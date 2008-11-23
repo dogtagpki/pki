@@ -100,7 +100,7 @@ sub get_request
     my ($self) = @_;
     &PKI::RA::Wizard::debug_log("ReqCertInfo: get_request");
     # first, try to see if request has been made before
-#    my $req = readFile( "/var/lib/fpki-tps/conf/$self->{tag}_cert_request.txt");
+#    my $req = readFile( "/var/lib/pki-ra/conf/$self->{tag}_cert_request.txt");
 
     my $req = $::config->get("preop.cert.$self->{tag}.certreq");
     
@@ -121,7 +121,7 @@ sub get_cert
     my ($self) = @_;
     &PKI::RA::Wizard::debug_log("ReqCertInfo: get_cert");
 #   see if there is an existing cert
-#    my $cert =  readFile("/var/lib/fpki-tps/conf/".$self->{tag}."_cert.txt");
+#    my $cert =  readFile("/var/lib/pki-ra/conf/".$self->{tag}."_cert.txt");
     my $cert = $::config->get("preop.cert.$self->{tag}.cert");
 
     $cert = wrap_lines($cert);
@@ -168,7 +168,7 @@ sub get_cert_pp
         &PKI::RA::Wizard::debug_log("ReqCertInfo: get_cert_pp nickname not found for $self->{tag}  -- try $nickname");
     }
     my $certpp="";
-#    my $found = -e "/var/lib/fpki-tps/conf/$self->{tag}_cert.txt";
+#    my $found = -e "/var/lib/pki-ra/conf/$self->{tag}_cert.txt";
     my $cert = $::config->get("preop.cert.$self->{tag}.cert");
 
     if ($cert ne "") {

@@ -48,7 +48,7 @@ UNSECURE_PORT=12888
 
 
 ###############################################################################
-##  (3)  Create the first instance of a Token Processing System (TPS).       ##
+##  (3)  Create the first instance of a Registration Authority (RA).         ##
 ###############################################################################
 
 if [ ! -e "/var/lib/${PKI_INSTANCE_NAME}" ]

@@ -2049,7 +2049,7 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
 /*
 op.enroll.certificates.num=1
 op.enroll.certificates.value.0=caCert
-op.enroll.certificates.caCert.nickName=caCert0 fpki-tps
+op.enroll.certificates.caCert.nickName=caCert0 pki-tps
 op.enroll.certificates.caCert.certId=C5
 op.enroll.certificates.caCert.certAttrId=c5
 op.enroll.certificates.caCert.label=caCert Label

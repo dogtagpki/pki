@@ -96,7 +96,7 @@ sub get_nickname
     if ($nickname ne "") {
         return $nickname;
     } else {
-        return  $self->{tag}."cert cert-$flavor-tps";
+        return  $self->{tag}."cert cert-$flavor-ra";
     }
 }
 

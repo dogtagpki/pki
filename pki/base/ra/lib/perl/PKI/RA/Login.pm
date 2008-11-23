@@ -256,7 +256,7 @@ sub render_panel
 
 #    $symbol{urls}        = [ "cert1", "cert2" ];  #createsubsystem
 #    $symbol{urls_size}   = 2;
-#    $symbol{instanceId}  = "tps";
+#    $symbol{instanceId}  = "ra";
 #    $symbol{errorString}  = "";
 
     #modulepanel
