@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      26
+%define base_release      27
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -84,7 +84,7 @@
 ## A distribution model is required on certain Linux operating systems!
 ##
 ## check for a pre-defined distribution model
-%define undefined_distro  %(test "%{dist}"="" && echo 1 || echo 0)
+%define undefined_distro  %(test "%{dist}" = "" && echo 1 || echo 0)
 %if %{undefined_distro}
 %define is_fedora         %(test -e /etc/fedora-release && echo 1 || echo 0)
 %if %{is_fedora}
@@ -135,10 +135,10 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{base_prefix}-util >= 1.0.0, %{base_ui} >= 1.0.0, java-devel >= 1.4.2, jpackage-utils >= 1.6.0, jss >= 4.2.4, ldapjdk >= 4.17, osutil >= 1.0.0, symkey >= 1.0.0, velocity >= 1.4
+BuildRequires:  ant >= 1.6.2, %{base_prefix}-util >= 1.0.0, %{base_ui} >= 1.0.0, java-devel >= 1.6.0, jpackage-utils >= 1.6.0, jss >= 4.2.4, ldapjdk >= 4.17, osutil >= 1.0.0, symkey >= 1.0.0, velocity >= 1.4
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_name}-ui, %{base_prefix}-java-tools >= 1.0.0, %{base_prefix}-setup >= 1.0.0, java >= 1.4.2, osutil >= 1.0.0, rhgb >= 0.14.1, symkey >= 1.0.0, tomcatjss >= 1.1.0, velocity >= 1.4
+Requires:       %{base_name}-ui, %{base_prefix}-java-tools >= 1.0.0, %{base_prefix}-setup >= 1.0.0, java >= 1.6.0, osutil >= 1.0.0, rhgb >= 0.14.1, symkey >= 1.0.0, tomcatjss >= 1.1.0, velocity >= 1.4
 
 
 ## This package conflicts with the following packages!
@@ -298,6 +298,10 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Sat Nov 22 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-27
+- Bugzilla Bug #472305 - "equality" tests in all spec files need to be fixed
+- Bumped "java" and "java-devel" 1.4.2 and 1.5.0 dependencies to 1.6.0
+- Changed "java-sdk" to "java-devel" for consistency
 * Tue Nov 18 2008 Christina Fu <cfu@redhat.com> 1.0.0-26
 - Bugzilla Bug #471622 - Need Renewal feature via enrollment profile Framework (Phase 1)
 * Mon Oct 27 2008 Ade Lee <alee@redhat.com> 1.0.0-25

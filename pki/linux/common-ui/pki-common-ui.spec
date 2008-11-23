@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -62,7 +62,7 @@
 ## A distribution model is required on certain Linux operating systems!
 ##
 ## check for a pre-defined distribution model
-%define undefined_distro  %(test "%{dist}"="" && echo 1 || echo 0)
+%define undefined_distro  %(test "%{dist}" = "" && echo 1 || echo 0)
 %if %{undefined_distro}
 %define is_fedora         %(test -e /etc/fedora-release && echo 1 || echo 0)
 %if %{is_fedora}
@@ -221,6 +221,10 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Sat Nov 22 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-5
+- Bugzilla Bug #472305 - "equality" tests in all spec files need to be fixed
+- Bumped "java" and "java-devel" 1.4.2 and 1.5.0 dependencies to 1.6.0
+- Changed "java-sdk" to "java-devel" for consistency
 * Mon Oct 27 2008 alee <alee@redhat.com> 1.0.0-4
 - Fix for Bug# 223324.
 * Wed Sep 24 2008 alee <alee@redhat.com> 1.0.0-3

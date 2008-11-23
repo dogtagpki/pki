@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      6
+%define base_release      7
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -46,7 +46,7 @@
 %define javadoc_group     Development/Documentation
 
 ## Helper Definitions
-%define pki_jdk           java-1.5.0-ibm-devel >= 1.5.0.3
+%define pki_jdk           java-devel >= 1.6.0
 %define pki_ca            %{base_entity} Certificate Authority
 %define pki_drm           %{base_entity} Data Recovery Manager
 %define pki_ds            Fedora Directory Server
@@ -66,14 +66,14 @@
 ## Bugzilla Bug #246173:  The following section is necessary due to
 ## Bugzilla Bug #232224 and is related to using the IBM JDK with a
 ## specific version of glibc on specific platforms on specific architectures
-%ifarch x86_64
+#%ifarch x86_64
 #export LD_PRELOAD=/usr/lib/jvm/java-1.5.0-ibm-1.5.0.3.x86_64/jre/bin/libj9vm23.so:/usr/lib/jvm/java-1.5.0-ibm-1.5.0.3.x86_64/jre/bin/libj9thr23.so:/usr/lib/jvm/java-1.5.0-ibm-1.5.0.3.x86_64/jre/bin/libjsig.so
-%endif
+#%endif
 
 ## A distribution model is required on certain Linux operating systems!
 ##
 ## check for a pre-defined distribution model
-%define undefined_distro  %(test "%{dist}"="" && echo 1 || echo 0)
+%define undefined_distro  %(test "%{dist}" = "" && echo 1 || echo 0)
 %if %{undefined_distro}
 %define is_fedora         %(test -e /etc/fedora-release && echo 1 || echo 0)
 %if %{is_fedora}
@@ -84,12 +84,12 @@
 %define openjdk           %(test %{dist_version} -ge 9 && echo 1 || echo 0)
 %if %{openjdk}
 ## redefine the JDK used to build on Fedora 9 Linux
-%define pki_jdk           java-sdk >= 1.6.0
+%define pki_jdk           java-devel >= 1.6.0
 %endif
 %define openjdk           %(test %{dist_version} -eq 8 && echo 1 || echo 0)
 %if %{openjdk}
 ## redefine the JDK used to build on Fedora 8 Linux
-%define pki_jdk           java-sdk >= 1.7.0
+%define pki_jdk           java-devel >= 1.7.0
 %endif
 %else
 %define is_redhat         %(test -e /etc/redhat-release && echo 1 || echo 0)
@@ -278,6 +278,10 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Sat Nov 22 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-7
+- Bugzilla Bug #472305 - "equality" tests in all spec files need to be fixed
+- Bumped "java" and "java-devel" 1.4.2 and 1.5.0 dependencies to 1.6.0
+- Changed "java-sdk" to "java-devel" for consistency
 * Fri Oct 9 2008 Ade Lee <alee@redhat.com> 1.0.0-6
 - Fix for bug #223361: Security Domain in LDAP
 * Tue Sep 16 2008 Christina Fu <cfu@redhat.com> 1.0.0-5
