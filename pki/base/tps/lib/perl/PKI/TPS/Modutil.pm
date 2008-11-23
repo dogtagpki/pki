@@ -183,7 +183,7 @@ sub gettoken {
 
 
 
-package;
+package main;
 
 sub ::test {
 

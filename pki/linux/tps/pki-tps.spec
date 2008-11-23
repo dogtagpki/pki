@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -312,6 +312,10 @@ fi
 ###############################################################################
 
 %changelog
+* Sat Nov 22 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-5
+- Bugzilla Bug #450345 - Port Dogtag 1.0.0 to Fedora 9
+  (32-bit i386 & 64-bit x86_64)
+- Bugzilla Bug #453504 - RA perl scripts won't compile on Fedora 9
 * Sat Nov 22 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
 - Bugzilla Bug #472305 - "equality" tests in all spec files need to be fixed
 - Bumped "java" and "java-devel" 1.4.2 and 1.5.0 dependencies to 1.6.0
