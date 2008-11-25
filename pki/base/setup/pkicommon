@@ -285,7 +285,7 @@ sub is_RHEL4() {
         my $releasefd = new FileHandle;
         if( $releasefd->open("< /etc/redhat-release")) {
             while( defined($line = <$releasefd>) ) {
-                if($line =~ /4/) {
+                if($line =~ /Nahant/i) {
                     return 1;
                 }
             }

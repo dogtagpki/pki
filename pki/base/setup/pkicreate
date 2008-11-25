@@ -32,8 +32,8 @@
 #            -secure_port=9543 || -agent_secure_port=9543
 #	                          -ee_secure_port=9544
 #                                 -admin_secure_port=9545
-#            -unsecure_port=9180
-#            -tomcat_server_port=1801
+#            -unsecure_port=9280
+#            -tomcat_server_port=9801
 #            -user=pkiuser
 #            -group=pkiuser
 #            -redirect conf=/export/pki/pki-ca1/conf
@@ -365,6 +365,12 @@ my $saved_cleanup_file_name = ".cleanup.dat";
 my $saved_file_marker       = "[files]";
 my $saved_directory_marker  = "[directories]";
 
+#selinux constants
+my $semanage = "/usr/sbin/semanage";
+my $restorecon = "/sbin/restorecon";
+my $SELINUX_PORT_UNDEFINED = 0;
+my $SELINUX_PORT_DEFINED = 1;
+my $SELINUX_PORT_WRONGLY_DEFINED = 2;
 
 ##############################################################
 # Local Data Structures
@@ -375,6 +381,8 @@ my $saved_directory_marker  = "[directories]";
 @installed_stray_directories = ();
 
 %redirects = ();
+
+my %selinux_ports = ();
 
 
 ##############################################################
@@ -785,8 +793,8 @@ sub usage()
          . "                    -ee_secure_port=9544\n"
          . "                    -admin_secure_port=9545\n"
          . "]\n"
-         . "                    -unsecure_port=9180\n"
-         . "                    -tomcat_server_port=1801\n"
+         . "                    -unsecure_port=9280\n"
+         . "                    -tomcat_server_port=9801\n"
          . "                    -user=pkiuser\n"
          . "                    -group=pkiuser\n"
          . "                    -redirect conf=/export/pki/$pki_flavor-ca1/"
@@ -3110,6 +3118,204 @@ sub process_pki_security_modules()
     return 1;
 }
 
+sub parse_selinux_ports()
+{
+    open SM, '/usr/sbin/semanage port -l |grep tcp |sed \'s/tcp/___/g\'|sed \'s/\s//g\'|';
+    while (<SM>) {
+         chomp($_);
+         my ($type, $portstr) = split /___/, $_;
+         my @ports = split /,/, $portstr;
+         foreach my $port (@ports) {
+            if ($port =~ /(.*)-(.*)/) {
+                for (my $count = $1; $count <= $2; $count++) {
+                   $selinux_ports{$count} =  $type;
+                }
+            } else {
+                $selinux_ports{$port} = $type;
+            }
+         }
+    }
+    close(SM);
+}
+
+sub check_selinux_port()
+{
+    my ($setype, $seport) = @_;
+    if (defined $selinux_ports{$seport}) {
+        if ($selinux_ports{$seport} eq $setype) {
+            return $SELINUX_PORT_DEFINED;
+        } else {
+            return $SELINUX_PORT_WONGLY_DEFINED;
+        }
+    } else {
+        return $SELINUX_PORT_UNDEFINED;
+    }
+}
+
+sub add_selinux_port()
+{
+    my($setype, $seport) = @_;
+    my $status = &check_selinux_port($setype, $seport);
+    if ($status == $SELINUX_PORT_UNDEFINED) {
+        emit("Setting selinux context $setype for $seport\n");
+        system("$semanage port -a -t $setype -p tcp $seport\n");
+        if ($? != 0) {
+            print STDERR "Error in setting selinux context $setype for $seport\n";
+            print STDOUT "\n";
+        }
+    }
+    elsif ($status == $SELINUX_PORT_WRONGLY_DEFINED) {
+        print STDERR "Error in setting selinux context $setype for $seport\n";
+        print STDOUT "\n";
+    }
+}
+
+sub add_selinux_file_context()
+{
+   my($fcontext, $fname, $ftype) = @_;
+   emit("Setting selinux file context for $fname\n");
+   if ($ftype eq "f") {
+       system("$semanage fcontext -a -t $fcontext -f -- $fname");
+   } else {
+       system("$semanage fcontext -a -t $fcontext $fname");
+   }
+   if ($? != 0) {
+       print STDERR "Error in setting selinux file context $fcontext for $fname\n";
+       print STDOUT ("\n");
+   }
+}
+
+
+sub process_pki_selinux_setup()
+{
+    my $result = 0;
+    my $setype = "pki_" . $subsystem_type;
+    my $setype_p = $setype . "_port_t";
+    my $default_inst_name = "pki-" . $subsystem_type;
+    my $default_inst_root = "/var/lib";
+    my $default_log_path = "/var/log/" . $default_instance_name;
+    my $default_conf_path = "/etc/" . $default_instance_name;
+    my $status = 0;
+
+    my $conf_path;
+    my $log_path;
+    my $ftype;
+    my $java_component = 0;
+
+    if ($redirected_logs_path eq "") {
+        $log_path = $logs_instance_path;
+    }
+    else {
+        $log_path =$redirected_logs_path;
+    }
+
+    if ($redirected_conf_path eq "") {
+        $conf_path = $conf_instance_path;
+    }
+    else {
+        $conf_path =$redirected_conf_path;
+    }
+
+    if (($subsystem_type eq $CA) || ($subsystem_type eq $KRA) || ($subsystem_type eq $OCSP) 
+        || ($subsystem_type eq $TKS)) {
+        $java_component =1;
+    }
+
+    # set file contexts
+    if ($java_component) {
+        emit("Restorecon file context for /usr/share/java/pki\n");
+        system("$restorecon -F -R /usr/share/java/pki");
+    }
+    emit("Restorecon file context for /usr/share/pki\n");
+    system("$restorecon -F -R /usr/share/pki");
+
+    # set file context for /usr/bin/dtomcat5-$pki_instance_name
+    if ($java_component) {
+        if ($pki_instance_name ne $default_inst_name ) {
+            &add_selinux_file_context($setype . "_exec_t",  
+                "/usr/bin/dtomcat5-$pki_instance_name", "f");
+        } 
+        emit("restorecon file context for /usr/bin/dtomcat5-$pki_instance_name\n");
+        system("$restorecon -F -R /usr/bin/dtomcat5-$pki_instance_name");
+    }
+ 
+    # set file context for /etc/rc.d/init.d/$pki_instance_name"
+    if ($pki_instance_name ne $default_inst_name) {
+        &add_selinux_file_context($setype . "_script_exec_t", 
+            "/etc/rc\\.d/init\\.d/$pki_instance_name", "f");
+    } 
+    emit("Restorecon file context for /etc/rc.d/init.d/$pki_instance_name\n");
+    system("$restorecon -F -R /etc/rc.d/init.d/$pki_instance_name");
+
+    # set file context for $pki_instance_root/$pki_instance_name
+    if (($pki_instance_name ne $default_inst_name) || ($pki_instance_root ne $default_inst_root)) {
+        &add_selinux_file_context( $setype . "_var_lib_t", 
+            "\"$pki_instance_root/$pki_instance_name(/.*)?\"", "a");
+    }
+    emit("Restorecon file context for $pki_instance_root/$pki_instance_name\n");
+    system("$restorecon -F -R $pki_instance_root/$pki_instance_name");
+
+
+    # set file context for /var/run/$pki_instance_name.pid
+    if ($pki_instance_name ne $default_inst_name ) {
+         &add_selinux_file_context( $setype . "_var_run_t", 
+             "/var/run/$pki_instance_name\\.pid", "f");
+    }
+    emit("Restorecon file context for /var/run\n");
+    system("$restorecon -F -R /var/run");
+
+    # set file context for $log_path
+    if ($log_path ne $default_log_path) {
+        &add_selinux_file_context( $setype . "_log_t", 
+            "\"$log_path(/.*)?\"", "a");
+    }
+    emit("Restorecon file context for $log_path\n");
+    system("$restorecon -F -R $log_path");
+
+    # set file context for $conf_path
+    if ($conf_path ne $default_conf_path) {
+        &add_selinux_file_context( $setype . "_etc_rw_t", 
+            "\"$conf_path(/.*)?\"", "a");
+    } 
+    emit("Restorecon $conf_path\n");
+    system("$restorecon -F -R $conf_path");
+    
+    # set file context for $conf_path/tomcat5.conf
+    if ($java_component) {
+        if ($conf_path ne $default_conf_path) {
+            &add_selinux_file_context( $setype . "_tomcat_exec_t", 
+                "$conf_path/tomcat5\\.conf", "f");
+        } 
+        emit("Restorecon file context for $conf_path/tomcat5.conf\n");
+        system("$restorecon -F -R $conf_path/tomcat5.conf");
+    }
+
+    if (! $java_component) {
+        emit("Restorecon file context for /usr/sbin/httpd.worker \n");
+        system("$restorecon -F -R /usr/sbin/httpd.worker");
+    }    
+
+    # add ports
+    parse_selinux_ports();
+    if ($secure_port != -1) {
+        &add_selinux_port($setype_p, $secure_port);
+    }
+    if ($unsecure_port != -1) {
+        &add_selinux_port($setype_p, $unsecure_port);
+    }
+    if ($tomcat_server_port != -1) {
+        &add_selinux_port($setype_p, $tomcat_server_port);
+    }
+    if ($agent_secure_port != -1) {
+        &add_selinux_port($setype_p, $agent_secure_port);
+    }
+    if ($ee_secure_port != -1) {
+        &add_selinux_port($setype_p, $ee_secure_port);
+    }
+    if ($admin_secure_port != -1) {
+        &add_selinux_port($setype_p, $admin_secure_port);
+    }
+}
 
 # no args
 # return 1 - success, or
@@ -3153,6 +3359,13 @@ sub install_pki_instance()
     $result = process_pki_security_modules();
     if( !$result ) {
         return 0;
+    }
+
+    if (($^O eq "linux") && ( is_Fedora() || (is_RHEL() && (! is_RHEL4())))){
+        $result = process_pki_selinux_setup();
+        if (!result ) {
+            return 0;
+        }
     }
 
     return 1;

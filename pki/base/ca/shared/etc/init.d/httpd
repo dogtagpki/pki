@@ -775,7 +775,7 @@ start()
 	if [ ${OS} = "SunOS" ] ; then
 		su  $TOMCAT_USER -c "$TOMCAT_SCRIPT start" > /dev/null
         else
-		su -s /bin/bash $TOMCAT_USER -c "$TOMCAT_SCRIPT start" > /dev/null
+		runuser -s /bin/bash $TOMCAT_USER -c "$TOMCAT_SCRIPT start" > /dev/null
 	fi
 
 	RETVAL=$?
@@ -843,7 +843,7 @@ stop()
 		if [ ${OS} = "SunOS" ] ; then
 			su  $TOMCAT_USER -c "$TOMCAT_SCRIPT stop" > /dev/null
         	else
-			su -s /bin/bash $TOMCAT_USER -c "$TOMCAT_SCRIPT stop" > /dev/null
+			runuser -s /bin/bash $TOMCAT_USER -c "$TOMCAT_SCRIPT stop" > /dev/null
 		fi
 
 		RETVAL=$?

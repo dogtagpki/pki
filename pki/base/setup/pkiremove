@@ -137,7 +137,7 @@ require( 'pkicommon' );
 my $saved_cleanup_file_name = ".cleanup.dat";
 my $saved_file_marker       = "[files]";
 my $saved_directory_marker  = "[directories]";
-
+my $semanage = "/usr/sbin/semanage";
 
 ##############################################################
 # Local Data Structures
@@ -153,6 +153,7 @@ my $pki_instance_name = "";
 my $force             = 0;
 
 my $pki_instance_path = "";
+my $subsystem_type = "";
 
 
 ##############################################################
@@ -291,6 +292,152 @@ sub update_domain()
    } 
 }
 
+sub remove_fcontext()
+{
+    my ($fcontext, $fname, $ftype) = @_;
+    if ($ftype eq "f") {
+        system("$semanage fcontext -d -t $fcontext -f -- $fname");
+    } else {
+        system("$semanage fcontext -d -t $fcontext $fname");
+    }
+    if ($? != 0) {
+        print STDERR "ERROR: Error in setting selinux file context $fcontext for $fname\n";
+        print STDOUT "\n";
+    }
+}
+
+sub remove_selinux_fcontexts()
+{
+    my $setype = "pki_" . $subsystem_type;
+    my $default_inst_name = "pki-" . $subsystem_type;
+    my $default_inst_root = "/var/lib";
+    my $default_log_path = "/var/log/" . $default_instance_name;
+    my $default_conf_path = "/etc/" . $default_instance_name;
+
+    my $log_path = "$pki_instance_path/logs";
+    my $conf_path = "$pki_instance_path/conf";
+    my $ftype;
+    my $java_component=0;
+
+    if (($subsystem_type eq "ca") || ($subsystem_type eq "kra") || ($subsystem_type eq "ocsp")
+        || ($subsystem_type eq "tks")) {
+        $java_component=1;
+    }
+
+    if ( -l $log_path) {
+        $log_path = readlink $log_path;
+    };
+ 
+    if ( -l $conf_path) {
+        $conf_path = readlink $conf_path;
+    };
+
+    print STDOUT "Removing selinux file contexts. \n";
+
+    # remove context for /usr/bin/dtomcat5-$pki_instance_name
+    if (($java_component) && ($pki_instance_name ne $default_inst_name )) {
+        &remove_fcontext($setype . "_exec_t", 
+            "/usr/bin/dtomcat5-$pki_instance_name", "f");
+    }
+
+     # remove context for /etc/rc.d/init.d/$pki_instance_name
+    if ($pki_instance_name ne $default_inst_name) {
+        &remove_fcontext($setype . "_script_exec_t", 
+            "/etc/rc\\.d/init\\.d/$pki_instance_name", "f");
+    }
+
+    # remove context for $pki_instance_root/$pki_instance_name
+    if (($pki_instance_name ne $default_inst_name) || ($pki_instance_root ne $default_inst_root)) {
+        &remove_fcontext($setype . "_var_lib_t", 
+            "\"$pki_instance_root/$pki_instance_name(/.*)?\"", "a");
+    }
+
+    # remove context for /var/run/$pki_instance_name.pid
+    if ($pki_instance_name ne $default_inst_name ) {
+        &remove_fcontext($setype . "_var_run_t", 
+            "/var/run/$pki_instance_name\\.pid", "f");
+    }
+
+    # remove context for $log_path
+    if ($log_path ne $default_log_path) {
+        &remove_fcontext($setype . "_log_t",
+            "\"$log_path(/.*)?\"", "a"); 
+    }
+
+    # remove context for  $conf_path/tomcat5.conf
+    if (($java_component) && ($conf_path ne $default_conf_path)) {
+        $ftype = $setype . "_tomcat_exec_t";
+        &remove_fcontext($setype . "_tomcat_exec_t", 
+            "$conf_path/tomcat5\\.conf", "f");    
+    }
+
+    # remove context for $conf_path
+    if ($conf_path ne $default_conf_path) {
+         &remove_fcontext($setype . "_etc_rw_t",
+             "\"$conf_path(/.*)?\"", "a");
+    }
+
+}
+
+
+sub remove_selinux_ports()
+{
+    my $status;
+    my $semanage = "/usr/sbin/semanage";
+    my $conf_file = $pki_instance_path . "/conf/CS.cfg";
+    my $typeval;
+    my $secure_port;
+    my $unsecure_port;
+    my @ports = ();
+
+    # get cs type
+    open(DAT, $conf_file) or die "Could not open CS.cfg file.";
+    my @conf_data=<DAT>;
+    foreach my $line (@conf_data) {
+        chomp($line);
+        (my $varname, my $valname) = split(/=/, $line);
+        if ($varname eq "cs.type") { $typeval = $valname; }
+        if ($varname eq "service.securePort") { $secure_port = $valname; }
+        if ($varname eq "service.unsecurePort") { $unsecure_port = $valname; }
+    }
+    close(DAT);
+
+    # for use in other routines
+    $subsystem_type =  lc($typeval);
+
+    if (($typeval eq "CA") || ($typeval eq "KRA") || ($typeval eq "OCSP") || ($typeval eq "TKS")) {
+        use XML::Simple;
+        my $config = XMLin($pki_instance_path . "/conf/server.xml") 
+            or die "Could not read XML from server.xml to determine ports.";
+
+        my $i = 0;
+        while (defined ( $config->{"Service"}->{"Connector"}[$i]->{'port'} )) {
+            $ports[$i] = $config->{"Service"}->{"Connector"}[$i]->{'port'};
+            $i++;
+        }
+        $ports[$i] = $config->{"port"};
+    } else {  # TPS, RA
+        my $i =0;
+        if (defined $secure_port) {
+            $ports[$i] = $secure_port;
+            $i++;
+        }
+        if (defined $unsecure_port) {
+            $ports[$i] = $unsecure_port;
+        }
+    }  
+
+    foreach my $port (@ports) {
+        my $setype = "pki_" . lc($typeval) . "_port_t";
+        print STDOUT "Removing port $port from selinux policy.\n";
+        $status = system("$semanage port -d -t $setype -ptcp $port");
+        if ($status != 0) {
+            warn "Port $port not removed from selinux policy correctly.\n";
+        }
+    }
+}
+
+
 # no args
 # return 1 - success, or
 # return 0 - failure
@@ -336,6 +483,14 @@ ASK_AGAIN:
 
     eval { update_domain(); };
     warn "Error updating security domain: " . $@ if $@;
+
+    if (( $^O eq "linux") && ( is_Fedora() || (is_RHEL() && (! is_RHEL4())) )) {
+        eval { remove_selinux_ports(); };
+        warn "Error removing selinux ports: " . $@ if $@; 
+
+        eval { remove_selinux_fcontexts(); };
+        warn "Error removing selinux file contexts: " . $@ if $@;
+    }
 
     my $file_mode = "file";
     my @file_split;
