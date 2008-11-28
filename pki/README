@@ -23,9 +23,9 @@ These directories contain the following:
               components required to build a working
               Certificate System.
 
-    linux/  - Contains the scripts and user-interface
+    dogtag/ - Contains the scripts and user-interface
               components necessary to build a sample
-              "generic" working Certificate System.
+              working "Dogtag Certificate System".
               The scripts in this directory leverage
               the base source code located in the
               "base/" directory, and are known to
