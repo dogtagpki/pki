@@ -14,7 +14,7 @@ PKI_PWD=`pwd`
 
 # Name and location of the SVN external properties DB.
 SVN_EXTERNAL_PROPERTIES_DB_LOCATION="${PKI_PWD}"
-SVN_EXTERNAL_PROPERTIES_DB_NAME="linux_svn_external_properties_db"
+SVN_EXTERNAL_PROPERTIES_DB_NAME="dogtag_svn_external_properties_db"
 SVN_EXTERNAL_PROPERTIES_DB="${SVN_EXTERNAL_PROPERTIES_DB_LOCATION}/${SVN_EXTERNAL_PROPERTIES_DB_NAME}"
 
 # Always make sure that the SVN external properties DB exists.

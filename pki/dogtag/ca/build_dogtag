@@ -25,14 +25,14 @@ cd `dirname $0`
 # Retrieve the directory name housing this component
 PWD=`pwd`
 
-# Set Linux component-specific environment variables
-LINUX_BUILD_SCRIPT=`basename $0`
-export LINUX_BUILD_SCRIPT
-LINUX_COMPONENT=`basename ${PWD}`
-export LINUX_COMPONENT
-LINUX_SPECFILE="pki-ca.spec"
-export LINUX_SPECFILE
+# Set Dogtag component-specific environment variables
+DOGTAG_BUILD_SCRIPT=`basename $0`
+export DOGTAG_BUILD_SCRIPT
+DOGTAG_COMPONENT=`basename ${PWD}`
+export DOGTAG_COMPONENT
+DOGTAG_SPECFILE="pki-ca.spec"
+export DOGTAG_SPECFILE
 
-# Invoke the shared Linux PKI build script
-config-ext/build_linux_pki $@
+# Invoke the shared Dogtag PKI build script
+config-ext/build_dogtag_pki $@
 

@@ -31,11 +31,11 @@ if [ "${PKI_OS}" != "Linux" ]; then
     exit 255
 fi
 
-# Set Linux variables
-PKI_FLAVOR="linux"
+# Set Dogtag variables
+PKI_FLAVOR="dogtag"
 PKI_UI_DIR="${PKI_DIR}/${PKI_FLAVOR}"
 PKI_BUILD_SCRIPT_DIR="${PKI_PWD}/${PKI_UI_DIR}"
-PKI_BUILD_SCRIPT="build_linux"
+PKI_BUILD_SCRIPT="build_dogtag"
 
 # Set packaging variables
 RPM_EXE="/bin/rpm"
