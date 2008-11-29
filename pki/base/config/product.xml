@@ -67,7 +67,7 @@
         <arg value="${specfile}"/>
     </exec>
 
-    <!-- if "spec.product.ui.prefix" is "" or "dogtag",      -->
+    <!-- if "spec.product.ui.prefix" is "",                  -->
     <!-- set "product.ui.prefix" to ""; otherwise            -->
     <!-- set "product.ui.prefix" to "spec.product.ui.prefix" -->
     <condition property="product.ui.prefix"
@@ -76,8 +76,6 @@
         <or>
         <equals arg1="${spec.product.ui.prefix}"
                 arg2=""/>
-        <equals arg1="${spec.product.ui.prefix}"
-                arg2="dogtag"/>
         </or>
     </condition>
 
