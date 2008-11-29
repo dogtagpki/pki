@@ -99,16 +99,16 @@ PKI_UTIL_JAVADOC=pki-util-javadoc${RPM_EXT}
 PKI_SETUP=pki-setup${RPM_EXT}
 PKI_JAVA_TOOLS=pki-java-tools${RPM_EXT}
 PKI_JAVA_TOOLS_JAVADOC=pki-java-tools-javadoc${RPM_EXT}
-PKI_COMMON_UI=pki-common-ui${RPM_EXT}
+PKI_COMMON_UI=${PKI_FLAVOR}-pki-common-ui${RPM_EXT}
 PKI_COMMON=pki-common${RPM_EXT}
 PKI_COMMON_JAVADOC=pki-common-javadoc${RPM_EXT}
 
 # Establish PKI subsystem package names
-PKI_CA_UI=pki-ca-ui${RPM_EXT}
+PKI_CA_UI=${PKI_FLAVOR}-pki-ca-ui${RPM_EXT}
 PKI_CA=pki-ca${RPM_EXT}
 
 # Establish optional PKI package names
-PKI_CONSOLE_UI=pki-console-ui${RPM_EXT}
+PKI_CONSOLE_UI=${PKI_FLAVOR}-pki-console-ui${RPM_EXT}
 PKI_CONSOLE=pki-console${RPM_EXT}
 PKI_SILENT=pki-silent${RPM_EXT}
 
