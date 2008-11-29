@@ -33,13 +33,13 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      7
+%define base_release      8
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
 %define base_packager     %{base_vendor} <http://bugzilla.redhat.com/bugzilla>
 %define base_summary      %{base_pki} - %{base_product}
-%define base_url          http://pki-svn.fedora.redhat.com/wiki/PKI_Documentation
+%define base_url          http://pki.fedoraproject.org/wiki/PKI_Documentation
 
 ## Helper Definitions
 %define pki_ca            %{base_entity} Certificate Authority
@@ -217,6 +217,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-8
+- Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
+                         "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"
 * Mon Nov 24 2008 Ade Lee  <alee@redhat.com> 1.0.0-7
 - Add selinux changes bugzilla #237727.
 * Sat Nov 22 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-6

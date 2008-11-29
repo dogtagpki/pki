@@ -22,6 +22,7 @@
 
 ## Entity Definitions
 %define base_entity       Dogtag
+%define base_flavor       dogtag
 %define base_prefix       pki
 
 ## Product Definitions
@@ -33,13 +34,13 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      6
+%define base_release      7
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
 %define base_packager     %{base_vendor} <http://bugzilla.redhat.com/bugzilla>
 %define base_summary      %{base_pki} - %{base_product}
-%define base_url          http://pki-svn.fedora.redhat.com/wiki/PKI_Documentation
+%define base_url          http://pki.fedoraproject.org/wiki/PKI_Documentation
 
 ## Pre & Post Install/Uninstall Scripts Definitions
 %define base_user         pkiuser
@@ -61,25 +62,6 @@
 ## Linux Definitions ##
 ##===================##
 %ifos Linux
-## check for presence of UI packages
-%define linux_ui          %(echo `rpm -q --quiet %{base_name}-ui; echo $?`)
-%define fedora_ui         %(echo `rpm -q --quiet %{base_flavor}-%{base_name}-ui; echo $?`)
-
-%if !%{linux_ui}
-## if the Linux UI package is present, default to using it first
-%define base_ui           %{base_name}-ui
-%else
-%if !%{fedora_ui}
-## otherwise, if the Fedora UI package is present, use it instead
-%define base_ui           %{base_flavor}-%{base_name}-ui
-%else
-## finally, if neither the Linux nor the Fedora UI packages are present,
-## set base_ui to be equal to the Linux UI package to ALWAYS produce a
-## "BuildRequires" dependency failure of "%{base_name}-ui"
-%define base_ui           %{base_name}-ui
-%endif
-%endif
-
 ## A distribution model is required on certain Linux operating systems!
 ##
 ## check for a pre-defined distribution model
@@ -134,7 +116,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{base_ui} >= 1.0.0
+BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       %{base_name}-ui, %{base_prefix}-setup >= 1.0.0, mod_nss >= 1.0.3, mod_perl >= 1.99_16, mozldap >= 6.0.2, perl-DBD-SQLite >= 1.11, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, perl-XML-SAX >= 0.12, perl-XML-Simple >= 2.14, perl-libwww-perl >= 5.79, sendmail >= 8.13.1, sqlite >= 3.3.3
@@ -264,6 +246,9 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-7
+- Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
+                         "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"
 * Sun Nov 23 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-6
 - Bugzilla Bug #446662 - /usr/share/fpki/ra/conf path referred
                          to in CS.cfg doesn't exist

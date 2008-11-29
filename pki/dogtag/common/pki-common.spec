@@ -22,6 +22,7 @@
 
 ## Entity Definitions
 %define base_entity       Dogtag
+%define base_flavor       dogtag
 %define base_prefix       pki
 
 ## Product Definitions
@@ -33,13 +34,13 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      27
+%define base_release      28
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
 %define base_packager     %{base_vendor} <http://bugzilla.redhat.com/bugzilla>
 %define base_summary      %{base_pki} - %{base_product}
-%define base_url          http://pki-svn.fedora.redhat.com/wiki/PKI_Documentation
+%define base_url          http://pki.fedoraproject.org/wiki/PKI_Documentation
 
 ## Subpackage Header Definitions
 %define javadoc_summary   %{base_summary} Javadocs
@@ -62,25 +63,6 @@
 ## Linux Definitions ##
 ##===================##
 %ifos Linux
-## check for presence of UI packages
-%define linux_ui          %(echo `rpm -q --quiet %{base_name}-ui; echo $?`)
-%define fedora_ui         %(echo `rpm -q --quiet %{base_flavor}-%{base_name}-ui; echo $?`)
-
-%if !%{linux_ui}
-## if the Linux UI package is present, default to using it first
-%define base_ui           %{base_name}-ui
-%else
-%if !%{fedora_ui}
-## otherwise, if the Fedora UI package is present, use it instead
-%define base_ui           %{base_flavor}-%{base_name}-ui
-%else
-## finally, if neither the Linux nor the Fedora UI packages are present,
-## set base_ui to be equal to the Linux UI package to ALWAYS produce a
-## "BuildRequires" dependency failure of "%{base_name}-ui"
-%define base_ui           %{base_name}-ui
-%endif
-%endif
-
 ## A distribution model is required on certain Linux operating systems!
 ##
 ## check for a pre-defined distribution model
@@ -135,7 +117,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{base_prefix}-util >= 1.0.0, %{base_ui} >= 1.0.0, java-devel >= 1.6.0, jpackage-utils >= 1.6.0, jss >= 4.2.4, ldapjdk >= 4.17, osutil >= 1.0.0, symkey >= 1.0.0, velocity >= 1.4
+BuildRequires:  ant >= 1.6.2, %{base_prefix}-util >= 1.0.0, %{base_flavor}-%{base_name}-ui >= 1.0.0, java-devel >= 1.6.0, jpackage-utils >= 1.6.0, jss >= 4.2.4, ldapjdk >= 4.17, osutil >= 1.0.0, symkey >= 1.0.0, velocity >= 1.4
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       %{base_name}-ui, %{base_prefix}-java-tools >= 1.0.0, %{base_prefix}-setup >= 1.0.0, java >= 1.6.0, osutil >= 1.0.0, rhgb >= 0.14.1, symkey >= 1.0.0, tomcatjss >= 1.1.0, velocity >= 1.4
@@ -298,6 +280,9 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-28
+- Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
+                         "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"
 * Sat Nov 22 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-27
 - Bugzilla Bug #472305 - "equality" tests in all spec files need to be fixed
 - Bumped "java" and "java-devel" 1.4.2 and 1.5.0 dependencies to 1.6.0

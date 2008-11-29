@@ -23,7 +23,7 @@
 ## Entity Definitions
 %define base_entity       Dogtag
 %define base_prefix       pki
-%define base_ui_prefix    linux
+%define base_ui_prefix    dogtag
 
 ## Product Definitions
 %define base_system       Certificate System
@@ -32,15 +32,15 @@
 %define base_pki          %{base_entity} %{base_system}
 
 ## Package Header Definitions
-%define base_name         %{base_prefix}-%{base_component}
+%define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      2
+%define base_release      3
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
 %define base_packager     %{base_vendor} <http://bugzilla.redhat.com/bugzilla>
 %define base_summary      %{base_pki} - %{base_product}
-%define base_url          http://pki-svn.fedora.redhat.com/wiki/PKI_Documentation
+%define base_url          http://pki.fedoraproject.org/wiki/PKI_Documentation
 
 ## Helper Definitions
 %define pki_ca            %{base_entity} Certificate Authority
@@ -118,6 +118,7 @@ BuildRequires:  ant >= 1.6.2, java-devel >= 1.6.0, jpackage-utils >= 1.6.0, jss 
 ## Without Requires something, rpmbuild will abort!
 Requires:       jss >= 4.2.4, ldapjdk >= 4.17
 Provides:       %{base_prefix}-%{base_component}
+Obsoletes:      %{base_prefix}-%{base_component}
 
 
 ## This package is non-relocatable!
@@ -223,6 +224,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-3
+- Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
+                         "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"
 * Sat Nov 22 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-2
 - Bugzilla Bug #472305 - "equality" tests in all spec files need to be fixed
 - Bumped "java" and "java-devel" 1.4.2 and 1.5.0 dependencies to 1.6.0
