@@ -30,7 +30,7 @@ DOGTAG_BUILD_SCRIPT=`basename $0`
 export DOGTAG_BUILD_SCRIPT
 DOGTAG_COMPONENT=`basename ${PWD}`
 export DOGTAG_COMPONENT
-DOGTAG_SPECFILE="pki-common-ui.spec"
+DOGTAG_SPECFILE="dogtag-pki-common-ui.spec"
 export DOGTAG_SPECFILE
 
 # Invoke the shared Dogtag PKI build script
