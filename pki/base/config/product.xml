@@ -67,16 +67,15 @@
         <arg value="${specfile}"/>
     </exec>
 
-    <!-- if "spec.product.ui.prefix" is "",                  -->
-    <!-- set "product.ui.prefix" to ""; otherwise            -->
-    <!-- set "product.ui.prefix" to "spec.product.ui.prefix" -->
+    <!-- if "spec.product.ui.prefix" is "",                      -->
+    <!--     set "product.ui.prefix" to "";                      -->
+    <!-- otherwise,                                              -->
+    <!--     set "product.ui.prefix" to "spec.product.ui.prefix" -->
     <condition property="product.ui.prefix"
                value=""
                else="${spec.product.ui.prefix}">
-        <or>
         <equals arg1="${spec.product.ui.prefix}"
                 arg2=""/>
-        </or>
     </condition>
 
     <!-- "product.name" is of the form "x-y-z" -->
