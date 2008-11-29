@@ -16,7 +16,7 @@
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
 <div id="header">
-    <a href="http://pki-svn.fedora.redhat.com" title="Visit pki-svn.fedora.redhat.com for more information about Dogtag products and services"><img src="../img/logo_header.gif" alt="Dogtag" width="37" height="31" id="Logo" /></a><a href="/" title="Dogtag Network homepage">Dogtag Certificate System</a>
+    <a href="http://pki.fedoraproject.org" title="Visit pki.fedoraproject.org for more information about Dogtag products and services"><img src="../img/logo_header.gif" alt="Dogtag" width="37" height="31" id="Logo" /></a><a href="/" title="Dogtag Network homepage">Dogtag Certificate System</a>
     <div id="account">
     </div>
 </div>

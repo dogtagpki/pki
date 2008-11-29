@@ -60,13 +60,13 @@ if [ "${PKI_ABORT_SCRIPT}" == "true" ]; then
 fi
 
 # Compute remaining variables by assigning their values from the specfile
-PKI_SOURCE_CODE_URL="https://pki-svn.fedora.redhat.com/svn/pki/trunk/${PKI_DIR}/${PKI_SRC_DIR}/${DOGTAG_COMPONENT}"
+PKI_SOURCE_CODE_URL="https://pki.fedoraproject.org/svn/pki/trunk/${PKI_DIR}/${PKI_SRC_DIR}/${DOGTAG_COMPONENT}"
 PKI_PRODUCT_UI_PREFIX=`grep " base_ui_prefix" ${DOGTAG_SPECFILE} | awk '{ print $3; }'`
 PKI_PRODUCT_PREFIX=`grep " base_prefix" ${DOGTAG_SPECFILE} | awk '{ print $3; }'`
 PKI_PRODUCT=`grep " base_component" ${DOGTAG_SPECFILE} | awk '{ print $3; }'`
 if [ "${PKI_PRODUCT_UI_PREFIX}" != "" ]; then
     PKI_PRODUCT_BUILD_XML="${PKI_BUILD_XML}"
-    PKI_PRODUCT_NAME="${PKI_PRODUCT_PREFIX}-${PKI_PRODUCT}"
+    PKI_PRODUCT_NAME="${PKI_PRODUCT_UI_PREFIX}-${PKI_PRODUCT_PREFIX}-${PKI_PRODUCT}"
     PKI_PRODUCT_SOURCE_PATH="${PKI_DIR}/${PKI_DOGTAG_DIR}/${DOGTAG_COMPONENT}"
 elif [ "${PKI_PRODUCT_PREFIX}" != "" ]; then
     PKI_PRODUCT_BUILD_XML="${PKI_BASEDIR}/${PKI_DIR}/${PKI_SRC_DIR}/${DOGTAG_COMPONENT}/${PKI_BUILD_XML}"
