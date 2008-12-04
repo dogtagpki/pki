@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -131,10 +131,10 @@ BuildRoot:      %{_builddir}/%{name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  bash >= 3.0, cyrus-sasl-devel >= 2.1.19, mozldap-devel >= 6.0.2, nspr-devel >= 4.6.5, nss-devel >= 3.11.5, nss-pkcs11-devel >= 3.11.5, svrcore-devel >= 4.0.3.01
+BuildRequires:  bash >= 3.0, cyrus-sasl-devel >= 2.1.19, mozldap-devel >= 6.0.2, nspr-devel >= 4.6.99, nss-devel >= 3.12.0, svrcore-devel >= 4.0.3.01
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       mozldap-tools >= 6.0.2, nss >= 3.11.5, nss-tools >= 3.11.5
+Requires:       mozldap-tools >= 6.0.2, nss >= 3.12.0, nss-tools >= 3.12.0
 
 
 ## This package is non-relocatable!
@@ -250,6 +250,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Dec 4 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
+- Bugzilla Bug #474369 - Remove NSS dependency on "pkcs11-devel" and
+                         upgrade NSS/NSPR version dependencies  
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-3
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
                          "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"
