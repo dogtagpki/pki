@@ -1598,7 +1598,7 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
 #define WRAPPED_CHALLENGE_SIZE 16
     Buffer *plaintext_challenge = 
         new Buffer(PLAINTEXT_CHALLENGE_SIZE, (BYTE)0);
-    Buffer *wrapped_challenge = new Buffer(PLAINTEXT_CHALLENGE_SIZE, (BYTE)0);
+    Buffer *wrapped_challenge = new Buffer(WRAPPED_CHALLENGE_SIZE, (BYTE)0);
     Buffer *key_check = new Buffer(0, (BYTE)0);
     const char *tokenType = NULL;
 
@@ -1872,6 +1872,8 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
       /* generate challenge for enrollment */
       RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process",
 	      "Generate Challenge");
+/*
+ random number generation moved to TKS
       rc = Util::GetRandomChallenge(*plaintext_challenge);
       if (rc == -1) {
 	RA::Error("RA_Enroll_Processor::Process",
@@ -1880,8 +1882,9 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
         RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "general challenge error", "");
         goto loser;
       }
-    }
+*/
 
+    }
     kdd =  channel->GetKeyDiversificationData();
     khex = kdd.toHex();
     RA::Debug("RA_Enroll_Processor::Process", "cuid=%s", khex);
@@ -1898,7 +1901,6 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
         RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "challenge encryption error", "");
         goto loser;
     }
-    
     // read objects back
     PR_snprintf((char *)configname, 256, "%s.%s.pkcs11obj.enable", 
 		    OP_PREFIX, tokenType);
@@ -2049,7 +2051,7 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
 /*
 op.enroll.certificates.num=1
 op.enroll.certificates.value.0=caCert
-op.enroll.certificates.caCert.nickName=caCert0 pki-tps
+op.enroll.certificates.caCert.nickName=caCert0 fpki-tps
 op.enroll.certificates.caCert.certId=C5
 op.enroll.certificates.caCert.certAttrId=c5
 op.enroll.certificates.caCert.label=caCert Label

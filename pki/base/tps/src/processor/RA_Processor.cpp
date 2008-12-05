@@ -2072,6 +2072,7 @@ int RA_Processor::EncryptData(Buffer &CUID, Buffer &version, Buffer &in, Buffer 
 {
     char body[5000];
     char configname[256];
+#define PLAINTEXT_CHALLENGE_SIZE 16
 	// khai, here we wrap the input with the KEK key
 	// in TKS
         HttpConnection *tksConn = NULL;
@@ -2091,7 +2092,12 @@ int RA_Processor::EncryptData(Buffer &CUID, Buffer &version, Buffer &in, Buffer 
     } else {
         int tks_curr = RA::GetCurrentIndex(tksConn);
         int currRetries = 0;
-        char *data = Util::SpecialURLEncode(in);
+        char *data = NULL;
+        Buffer *zerob = new Buffer(PLAINTEXT_CHALLENGE_SIZE, (BYTE)0);
+        if (!(in == *zerob))
+          data = Util::SpecialURLEncode(in);
+        else
+          RA::Debug(LL_PER_PDU, "RA_Processor::EncryptData","Challenge to be generated on TKS");
         char *cuid = Util::SpecialURLEncode(CUID);
         char *versionID = Util::SpecialURLEncode(version);
 
@@ -2099,14 +2105,10 @@ int RA_Processor::EncryptData(Buffer &CUID, Buffer &version, Buffer &in, Buffer 
         const char *keySet = RA::GetConfigStore()->GetConfigAsString(configname);
 
         PR_snprintf((char *)body, 5000, "data=%s&CUID=%s&KeyInfo=%s&keySet=%s",
-          data, cuid, versionID,keySet);
+          ((data != NULL)? data:""), cuid, versionID,keySet);
         PR_snprintf((char *)configname, 256, "conn.%s.servlet.encryptData", connid);
         const char *servletID = RA::GetConfigStore()->GetConfigAsString(configname);
 
-        if( data != NULL ) {
-            PR_Free( data );
-            data = NULL;
-        }
         if( cuid != NULL ) {
             PR_Free( cuid );
             cuid = NULL;
@@ -2144,6 +2146,9 @@ int RA_Processor::EncryptData(Buffer &CUID, Buffer &version, Buffer &in, Buffer 
         }
 
         Buffer *encryptedData = NULL;
+        // preEncData is only useful when data is null, and data is to be randomly
+        // generated on TKS
+        Buffer *preEncData = NULL;
         status = 0;
         if (response != NULL) {
             RA::Debug(LL_PER_PDU, "EncryptData Response is not ","NULL");
@@ -2162,6 +2167,17 @@ int RA_Processor::EncryptData(Buffer &CUID, Buffer &version, Buffer &in, Buffer 
                 } else {
                     status = 0;
                     char *p = &content[9];
+                    // get pre-encryption data
+                    char *preStr = strstr((char *)p, "data=");
+                    if (preStr != NULL) {
+                      p = &preStr[5];
+                      char pstr[PLAINTEXT_CHALLENGE_SIZE];
+                      strncpy(pstr, p, PLAINTEXT_CHALLENGE_SIZE*3); 
+                      preEncData = Util::URLDecode(pstr);
+                    }
+
+                    // get encrypted data
+                    p = &content[9];
                     char *rcStr = strstr((char *)p, "encryptedData=");
                     if (rcStr != NULL) {
                         rcStr = &rcStr[14];
@@ -2176,16 +2192,31 @@ int RA_Processor::EncryptData(Buffer &CUID, Buffer &version, Buffer &in, Buffer 
 
         RA::Debug(LL_PER_PDU, "EncryptedData ", "status=%d", status);
         RA::Debug(LL_PER_PDU, "finish EncryptedData", "");
-        if (status > 0 || encryptedData == NULL) {
+        if ((status > 0) || (preEncData == NULL) || (encryptedData == NULL)) {
             if (tksConn != NULL) {
                 RA::ReturnTKSConn(tksConn);
 	        }
+            if( data != NULL ) {
+                PR_Free( data );
+                data = NULL;
+            }
             return -1;   
 	    } else {
             out = *encryptedData;
             if( encryptedData != NULL ) {
                 delete encryptedData;
                 encryptedData = NULL;
+            }
+            if (data != NULL) {
+                RA::Debug(LL_PER_PDU, "EncryptedData ", "challenge overwritten by TKS");
+                PR_Free( data );
+                data = NULL;
+            }
+            in = *preEncData;
+
+            if( preEncData != NULL ) {
+                delete preEncData;
+                preEncData = NULL;
             }
         }
         if( response != NULL ) {

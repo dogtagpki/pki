@@ -760,8 +760,10 @@ public class TokenServlet extends CMSServlet {
 
     private void processEncryptData(HttpServletRequest req,
       HttpServletResponse resp) throws EBaseException {
-        byte[] data,keyInfo, CUID, xCUID, encryptedData, xkeyInfo;
+        byte[] keyInfo, CUID, xCUID, encryptedData, xkeyInfo;
         boolean missingParam = false;
+        byte[] data = null;
+        boolean isRandom = true; // randomly generate the data to be encrypted
 
         IConfigStore sconfig = CMS.getConfigStore();
         encryptedData = null;
@@ -774,8 +776,31 @@ public class TokenServlet extends CMSServlet {
         }
         CMS.debug("keySet selected: " + keySet);
 
-        if ((rdata == null) || (rdata.equals(""))) {
-            CMS.debug("TokenServlet: processEncryptData(): missing request parameter: data");
+        String s_isRandom = sconfig.getString("tks.EncryptData.isRandom", "true");
+        if (s_isRandom.equalsIgnoreCase("false")) {
+            CMS.debug("TokenServlet: processEncryptData(): Random number not to be generated");
+            isRandom = false;
+        } else {
+            CMS.debug("TokenServlet: processEncryptData(): Random number generation required");
+            isRandom = true;
+        }
+
+        if (isRandom) {
+            if ((rdata == null) || (rdata.equals(""))) {
+              CMS.debug("TokenServlet: processEncryptData(): no data in request.  Generating random number as data");
+            } else {
+              CMS.debug("TokenServlet: processEncryptData(): contain data in request, however, random generation on TKS is required. Generating...");
+            }
+            try {
+              SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+              data = new byte[16];
+              random.nextBytes(data);
+            } catch (Exception e) {
+              CMS.debug("TokenServlet: processEncryptData():"+ e.toString());
+              throw new EBaseException("processEncryptData:"+ e.toString());
+            }
+        } else if ((!isRandom) && (((rdata == null) || (rdata.equals(""))))){
+            CMS.debug("TokenServlet: processEncryptData(): missing request parameter: data.");
             missingParam = true;
         }
 
@@ -807,7 +832,8 @@ public class TokenServlet extends CMSServlet {
 	    useSoftToken_s = "false";
 
         if (!missingParam) {
-          data = com.netscape.cmsutil.util.Utils.SpecialDecode(rdata);
+          if (!isRandom)
+            data = com.netscape.cmsutil.util.Utils.SpecialDecode(rdata);
           keyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
           CUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
 
@@ -838,7 +864,10 @@ public class TokenServlet extends CMSServlet {
         String value = "";
         if (encryptedData != null && encryptedData.length > 0) { 
             String outputString  = new String(encryptedData);
-            value = "status=0&"+"encryptedData=" + 
+            // sending both the pre-encrypted and encrypted data back
+            value = "status=0&"+"data="+
+                         com.netscape.cmsutil.util.Utils.SpecialEncode(data)+
+                         "&encryptedData=" + 
                          com.netscape.cmsutil.util.Utils.SpecialEncode(encryptedData);
         } else if (missingParam) {
             value = "status=3";

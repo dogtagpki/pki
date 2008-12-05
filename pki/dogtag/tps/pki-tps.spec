@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      8
+%define base_release      9
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -293,6 +293,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Dec 5 2008 Christina Fu <cfu@redhat.com> 1.0.0-9
+- Buzilla Bug 474659 - moved public key challenge generation from TPS to TKS
 * Thu Dec 4 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-8
 - Bugzilla Bug #474369 - Remove NSS dependency on "pkcs11-devel" and
                          upgrade NSS/NSPR version dependencies  
