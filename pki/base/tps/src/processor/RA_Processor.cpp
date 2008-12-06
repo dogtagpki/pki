@@ -2171,9 +2171,11 @@ int RA_Processor::EncryptData(Buffer &CUID, Buffer &version, Buffer &in, Buffer 
                     char *preStr = strstr((char *)p, "data=");
                     if (preStr != NULL) {
                       p = &preStr[5];
-                      char pstr[PLAINTEXT_CHALLENGE_SIZE];
+                      char pstr[PLAINTEXT_CHALLENGE_SIZE*3+1];
                       strncpy(pstr, p, PLAINTEXT_CHALLENGE_SIZE*3); 
+                      pstr[PLAINTEXT_CHALLENGE_SIZE*3] = '\0';
                       preEncData = Util::URLDecode(pstr);
+//RA::DebugBuffer("RA_Processor::EncryptData", "preEncData=", preEncData);
                     }
 
                     // get encrypted data
@@ -2182,6 +2184,7 @@ int RA_Processor::EncryptData(Buffer &CUID, Buffer &version, Buffer &in, Buffer 
                     if (rcStr != NULL) {
                         rcStr = &rcStr[14];
                         encryptedData = Util::URLDecode(rcStr);
+//RA::DebugBuffer("RA_Processor::EncryptData", "encryptedData=", encryptedData);
                     }
                 }
             }
