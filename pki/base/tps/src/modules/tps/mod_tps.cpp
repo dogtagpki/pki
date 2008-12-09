@@ -38,6 +38,7 @@ extern "C"
 */
 
 #include <stdio.h>
+#include <unistd.h>
 #include "nspr.h"
 
 #include "httpd/httpd.h"
@@ -61,7 +62,9 @@ extern "C"
 #include "processor/RA_Pin_Reset_Processor.h"
 #include "processor/RA_Renew_Processor.h"
 #include "processor/RA_Unblock_Processor.h"
+#include "ssl.h"
 
+#define MOD_TPS_KEY_NAME "mod_tps"
 
 /*  _________________________________________________________________
 **
@@ -91,6 +94,10 @@ static const char MOD_TPS_CONFIGURATION_FILE_USAGE[] =
 "TPS Configuration Filename prefixed by a complete path, or\n"
 "a path that is relative to the Apache server root.";
 
+/* per-process config structure */
+typedef struct {
+    int nInitCount;
+} mod_tps_global_config;
 
 
 /*  _________________________________________________________________
@@ -102,6 +109,7 @@ static const char MOD_TPS_CONFIGURATION_FILE_USAGE[] =
 typedef struct {
     char *TPS_Configuration_File;
     AP_Context *context;
+    mod_tps_global_config *gconfig; /* pointer to per-process config */
 } mod_tps_server_configuration;
 
 
@@ -125,6 +133,34 @@ extern module TPS_PUBLIC MOD_TPS_CONFIG_KEY;
 **  TPS Module Helper Functions
 **  _________________________________________________________________
 */
+
+mod_tps_global_config *mod_tps_config_global_create(server_rec *s)
+{
+    apr_pool_t *pool = s->process->pool;
+    mod_tps_global_config *globalc = NULL;
+    void *vglobalc = NULL;
+
+    apr_pool_userdata_get(&vglobalc, MOD_TPS_KEY_NAME, pool);
+    if (vglobalc) {
+        return (mod_tps_global_config *) vglobalc; /* reused for lifetime of the server */
+    }
+
+    /*
+     * allocate an own subpool which survives server restarts
+     */
+    globalc = (mod_tps_global_config *)apr_palloc(pool, sizeof(*globalc));
+
+    /*
+     * initialize per-module configuration
+     */
+    globalc->nInitCount = 0;
+
+    apr_pool_userdata_set(globalc, MOD_TPS_KEY_NAME,
+                          apr_pool_cleanup_null,
+                          pool);
+
+    return globalc;
+}
 
 /**
  * Terminate Apache
@@ -197,6 +233,7 @@ mod_tps_terminate( void *data )
     MEM_shutdown();
 #endif
 
+    SSL_ClearSessionCache();
     /* Shutdown all APR library routines.                   */
     /* NOTE:  This automatically destroys all memory pools. */
     /*        Allow the NSS Module to perform this task.    */
@@ -210,10 +247,6 @@ mod_tps_terminate( void *data )
     return OK;
 }
 
-
-/**
- * Initialize the TPS module (Context)
- */
 static int
 mod_tps_initialize( apr_pool_t *p,
                     apr_pool_t *plog,
@@ -233,6 +266,12 @@ mod_tps_initialize( apr_pool_t *p,
     if( sc->context != NULL ) {
         return OK;
     }
+
+    sc->gconfig->nInitCount++;
+
+    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, sv,
+                 "Entering mod_tps_initialize - init count is [%d]",
+                 sc->gconfig->nInitCount);
 
     /* Load the TPS module. */
 
@@ -300,6 +339,25 @@ mod_tps_initialize( apr_pool_t *p,
 
         goto loser;
     }
+  
+    if (sc->gconfig->nInitCount < 2 ) {
+        status = RA::InitializeInChild( sc->context); 
+    } else {
+        ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, sv,
+            "mod_tps_initialize - pid is [%d] - post config already done once -"
+            " additional config will be done in init_child",
+            getpid());
+        status = RA_INITIALIZATION_SUCCESS;
+    }
+
+    if (status !=  RA_INITIALIZATION_SUCCESS ) {
+        ap_log_error( "mod_tps_initialize",
+                      __LINE__, APLOG_ERR, 0, sv,
+                      "The tps module failed to do the initializeInChild tasks. ");
+        printf( "\nUnable to start Apache:\n"
+                "    The tps module failed to do the initializeInChild tasks. ");
+        goto loser;
+    }
 
     /* Register a server termination routine. */
     apr_pool_cleanup_register( p,
@@ -340,7 +398,6 @@ loser:
 
     return DECLINED;
 }
-
 
 /**
  * mod_tps_handler handles the protocol between the token client
@@ -535,8 +592,36 @@ mod_tps_config_server_create( apr_pool_t *p, server_rec *sv )
     /* Initialize all members of mod_tps_server_configuration. */
     sc->TPS_Configuration_File = NULL;
     sc->context = NULL;
+    sc->gconfig = mod_tps_config_global_create(sv);
 
     return sc;
+}
+
+static void mod_tps_init_child(apr_pool_t *p, server_rec *sv)
+{
+     int status = -1;
+    mod_tps_server_configuration *srv_cfg = NULL;
+    srv_cfg = ( ( mod_tps_server_configuration * )
+           ap_get_module_config(sv->module_config, &MOD_TPS_CONFIG_KEY));
+
+    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0 /* status */, NULL,
+                 "Entering mod_tps_init_child pid [%d] init count is [%d]",
+                 getpid(), srv_cfg->gconfig->nInitCount);
+
+    srv_cfg = ( ( mod_tps_server_configuration * )
+           ap_get_module_config(sv->module_config, &MOD_TPS_CONFIG_KEY));
+
+    if (srv_cfg->gconfig->nInitCount > 1) {
+        status = RA::InitializeInChild(srv_cfg->context);
+    } else {
+        ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, sv,
+                     "mod_tps_init_child - pid is [%d] - config should be done in regular post config",
+                     getpid());
+    }
+
+    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0 /* status */, NULL,
+                 "Leaving mod_tps_init_child");
+    return;
 }
 
 
@@ -558,6 +643,8 @@ mod_tps_register_hooks( apr_pool_t *p )
                          mod_tps_preloaded_modules,
                          mod_tps_postloaded_modules,
                          APR_HOOK_MIDDLE );
+  
+    ap_hook_child_init(mod_tps_init_child, NULL,NULL, APR_HOOK_MIDDLE);
 
     ap_hook_handler( mod_tps_handler,
                      mod_tps_preloaded_modules,

@@ -126,9 +126,18 @@ PRBool __EXPORT InitSecurity(char* certDir, char* certname, char* certpassword, 
         certName = PL_strdup(certname);
     }
 
+    SECStatus stat;
 	PR_Init( PR_USER_THREAD, PR_PRIORITY_NORMAL, 0 );
-    SECStatus stat = NSS_Initialize( certDir, prefix, prefix,"secmod.db",
+     if (!NSS_IsInitialized()) { 
+        stat = NSS_Initialize( certDir, prefix, prefix,"secmod.db",
 									 NSS_INIT_READONLY);
+     } else {
+        stat = SECSuccess;
+        RA::Debug( LL_PER_PDU,
+                        "initSecurity: ",
+                        "NSS Already initialized" );
+
+    }
 
     if (SECSuccess != stat) {
 		// int err = PR_GetError();

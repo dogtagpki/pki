@@ -37,7 +37,7 @@ extern "C"
 #include "cert.h"
 #include "tus/tus_db.h"
 #include "secder.h"
-
+#include "nss.h"
 
 #ifdef __cplusplus
 }
@@ -170,10 +170,6 @@ PRLock *RA::GetVerifyLock()
  */
 TPS_PUBLIC int RA::Initialize(char *cfg_path, RA_Context *ctx)
 {
-    int ca_status = 0;
-    int tks_status = 0;
-    int drm_status = 0;
-
 	int rc = -1;
         int i = 0;
 
@@ -287,39 +283,6 @@ TPS_PUBLIC int RA::Initialize(char *cfg_path, RA_Context *ctx)
     // even rc != 0, we still go ahead starting up the server.
     rc = InitializeAuthentication();
 
-    // initialize CA connections
-    ca_status = InitializeHttpConnections("ca", &m_caConns_len,
-                                          m_caConnection, ctx);
-
-    if( ca_status != 0 ) {
-#if 0
-        RA::Shutdown();
-        goto loser;
-#endif
-    }
-
-    // initialize TKS connections
-    tks_status = InitializeHttpConnections("tks", &m_tksConns_len,
-                                           m_tksConnection, ctx);
-
-    if( tks_status != 0 ) {
-#if 0
-        RA::Shutdown();
-        goto loser;
-#endif
-    }
-
-    // initialize DRM connections
-    drm_status = InitializeHttpConnections("drm", &m_drmConns_len,
-                                           m_drmConnection, ctx);
-
-    if( drm_status != 0 ) {
-#if 0
-        RA::Shutdown();
-        goto loser;
-#endif
-    }
-
     //Initialize Publisher Library
       InitializePublishers();
 
@@ -343,6 +306,58 @@ loser:
 	return rc;
 }
 
+int RA::InitializeInChild(RA_Context *ctx) {
+
+    int rc = -1;
+    SECStatus rv;
+    int status = 0;
+    char configname[256];
+
+    if (!NSS_IsInitialized()) {
+
+        RA::Debug( LL_PER_SERVER, "RA::InitializeInChild", "Initializing NSS");
+
+        PR_snprintf((char *)configname, 256, "%s/alias", 
+            m_cfg->GetConfigAsString("service.instanceDir", NULL));
+        rv = NSS_Initialize (configname, "", "", SECMOD_DB, NSS_INIT_READONLY);
+        if (rv != SECSuccess) {
+            RA::Error( LL_PER_SERVER, "RA::InitializeInChild",
+                "NSS not initialized successfully");
+            ctx->InitializationError( "RA::InitializeHttpConnections",
+                                       __LINE__ );
+            goto loser;
+        }
+    }
+
+    //initialize CA Connections
+    status = InitializeHttpConnections("ca", &m_caConns_len,
+         m_caConnection, ctx);
+    if (status != 0) {
+        RA::Debug( LL_PER_SERVER, "RA::InitializeInChild", 
+            "Failed to initialize CA Connection, rc=%i", 
+            (int)status);
+    } 
+    // initialize TKS connections
+    status = InitializeHttpConnections("tks", &m_tksConns_len,
+        m_tksConnection, ctx);
+    if (status != 0) {
+        RA::Debug( LL_PER_SERVER, "RA::InitializeInChild", 
+            "Failed to initialize TKS Connection, rc=%i", 
+            (int)status);
+    } 
+    // initialize DRM connections
+    status = InitializeHttpConnections("drm", &m_drmConns_len,
+        m_drmConnection, ctx);
+    if (status != 0) {
+        RA::Debug( LL_PER_SERVER, "RA::InitializeInChild", 
+            "Failed to initialize DRM Connection, rc=%i", 
+            (int)status);
+    } 
+
+    rc =1;
+loser: 
+    return rc;
+}
 
 int RA::testTokendb() {
 	// try to see if we can talk to the database
@@ -1764,13 +1779,6 @@ int RA::InitializeHttpConnections(const char *id, int *len, HttpConnection **con
         PR_snprintf((char *)configname, 256, "conn.%s%d.clientNickname", id, i);
         const char *clientnickname = m_cfg->GetConfigAsString(configname);
 
-        // Bugscape Bug #56583:  insure that specified certificate is present
-        //
-        // (1) To prevent a coredump, we need to determine if NSS has been
-        //     initialized prior to loading this TPS plugin.  However,
-        //     since NSS does not provide a callable initialization check
-        //     to inform the caller whether or not NSS has been initialized,
-        //     we need to supply the following workaround solution:
         handle = CERT_GetDefaultCertDB();
         if( handle == 0 ) {
             ctx->InitializationError( "RA::InitializeHttpConnections",

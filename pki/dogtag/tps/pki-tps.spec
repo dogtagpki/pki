@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      10
+%define base_release      11
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -293,6 +293,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Dec 8 2008 Ade Lee <alee@edhat.com> 1.0.0-11
+- Bugzilla Bug #453508 - Changes to acvcomodate new NSS, apache changes
 * Fri Dec 5 2008 Christina Fu <cfu@redhat.com> 1.0.0-10
 - Buzilla Bug 474659 - moved public key challenge generation from TPS to TKS
     - fix for missed bytes in preEncryptedData

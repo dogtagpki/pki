@@ -98,6 +98,7 @@ class RA
   public:
 	  static int IsTokendbInitialized();
 	  TPS_PUBLIC static int Initialize(char *cfg_path, RA_Context *ctx);
+	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx);
 	  TPS_PUBLIC static int Shutdown();
   public:
 
