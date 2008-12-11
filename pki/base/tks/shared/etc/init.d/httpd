@@ -60,6 +60,9 @@
 # version 1.20tc5rh - Changed TOMCAT_USER from tomcat4 to tomcat
 #
 
+# Disallow 'others' the ability to 'write' to new files
+umask 00002
+
 # Check to insure that this script's original invocation directory
 # has not been deleted!
 CWD=`/bin/pwd > /dev/null 2>&1`
