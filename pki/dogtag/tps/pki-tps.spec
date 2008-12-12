@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      11
+%define base_release      12
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -55,6 +55,7 @@
 
 ## Pre & Post Install/Uninstall Scripts Definitions
 %define base_user         pkiuser
+%define base_instance     /var/lib/%{base_name}
 
 ## Helper Definitions
 %define pki_ca            %{base_entity} Certificate Authority
@@ -84,6 +85,10 @@
 %define architecture      intel
 %define configure_cmd     ../configure --enable-64bit --libdir=%{base_install_dir}/lib64
 %endif
+
+## Disallow an initial login shell
+## NOTE:  SELinux policy requires a shell of /sbin/nologin
+%define base_login_shell  /sbin/nologin
 
 ## A distribution model is required on certain Linux operating systems!
 ##
@@ -238,11 +243,12 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %pre
 if [ `grep -c %{base_user} /etc/group` -eq 0 ] ; then
+	echo "Adding default PKI group \"%{base_user}\" to /etc/group."
 	groupadd %{base_user}
 fi
 if [ `grep -c %{base_user} /etc/passwd` -eq 0 ] ; then
-	# SELinux policy requires a shell of /sbin/nologin
-	useradd -g %{base_user} -d %{_datadir}/%{base_prefix} -s /sbin/nologin -c "%{base_pki}" -m %{base_user}
+	echo "Adding default PKI user \"%{base_user}\" to /etc/passwd."
+	useradd -g %{base_user} -d %{_datadir}/%{base_prefix} -s %{base_login_shell} -c "%{base_pki}" -m %{base_user}
 fi
 
 
@@ -254,7 +260,16 @@ echo "Install finished."
 
 
 %preun
-if [ -x /etc/init.d/%{base_name} ] ; then
+if [ -d %{base_instance} ] ; then
+	echo "WARNING:  The default instance \"%{base_instance}\" was NOT removed!"
+	echo ""
+	echo "NOTE:  This means that the data in the default instance called"
+	echo "       \"%{base_instance}\" will NOT be overwritten once the"
+	echo "       \"%{name}\" package is re-installed."
+	echo ""
+	echo "Shutting down the default instance \"%{base_instance}\""
+	echo "PRIOR to uninstalling the \"%{name}\" package:"
+	echo ""
 	/etc/init.d/%{base_name} stop
 fi
 
@@ -293,6 +308,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Dec 10 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-12
+- Bugzilla Bug #475895 - Parameterize the initial login shell
 * Mon Dec 8 2008 Ade Lee <alee@edhat.com> 1.0.0-11
 - Bugzilla Bug #453508 - Changes to acvcomodate new NSS, apache changes
 * Fri Dec 5 2008 Christina Fu <cfu@redhat.com> 1.0.0-10
