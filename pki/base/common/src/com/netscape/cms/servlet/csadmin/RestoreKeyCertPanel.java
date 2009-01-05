@@ -352,24 +352,15 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
                 String content = "";
                 if (cstype.equals("ca") || cstype.equals("kra")) {
-                    String increment = config.getString("dbs.requestNumber.increment", "");
-                    String previncrement = config.getString("dbs.requestNumber.previncrement", "");
-                    if (!increment.equals(previncrement)) {
-                        content = "type=request&xmlOutput=true&sessionID="+session_id+"&increment="+increment;
-                        CMS.debug("http content=" + content);
-                        updateNumberRange(master_hostname, master_port, true, content, "request", response);
-                        config.putString("dbs.requestNumber.previncrement", increment);
-                        config.commit(false);
-                    }
+                    content = "type=request&xmlOutput=true&sessionID="+session_id;
+                    CMS.debug("http content=" + content);
+                    updateNumberRange(master_hostname, master_port, true, content, "request", response);
 
-                    previncrement = config.getString("dbs.serialNumber.previncrement", "");
-                    increment = config.getString("dbs.serialNumber.increment", "");
-                    if (!increment.equals(previncrement)) {
-                        content = "type=serialNo&xmlOutput=true&sessionID="+session_id+"&increment="+increment;
-                        updateNumberRange(master_hostname, master_port, true, content, "serialNo", response);
-                        config.putString("dbs.serialNumber.previncrement", increment);
-                        config.commit(false);
-                    }
+                    content = "type=serialNo&xmlOutput=true&sessionID="+session_id;
+                    updateNumberRange(master_hostname, master_port, true, content, "serialNo", response);
+
+                    content = "type=replicaId&xmlOutput=true&sessionID="+session_id;
+                    updateNumberRange(master_hostname, master_port, true, content, "replicaId", response);
                 }
 
                 String list = "";

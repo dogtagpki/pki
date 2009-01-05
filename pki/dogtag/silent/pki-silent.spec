@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -231,6 +231,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Dec 16 2008 Ade Lee <alee@redhat.com> 1.0.0-5
+- Add support for installing cloned CA - bz 472006
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
                          "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"

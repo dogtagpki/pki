@@ -28,6 +28,7 @@ import com.netscape.certsrv.logging.*;
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.dbs.*;
 import com.netscape.certsrv.dbs.keydb.*;
+import com.netscape.certsrv.dbs.replicadb.*;
 import com.netscape.certsrv.request.*;
 import com.netscape.certsrv.policy.*;
 import com.netscape.certsrv.security.*;
@@ -85,6 +86,13 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * <P>
      */
     public IKeyRepository getKeyRepository();
+
+    /**
+     * Retrieves the Replica ID repository.
+     *
+     * @return KRA's Replica ID repository
+     */
+    public IReplicaIDRepository getReplicaRepository();
 
     /**
      * Enables the auto recovery state. Once KRA is in the auto 

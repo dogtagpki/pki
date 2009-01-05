@@ -44,6 +44,7 @@ import com.netscape.certsrv.dbs.*;
 import com.netscape.certsrv.dbs.repository.*;
 import com.netscape.cmscore.dbs.*;
 import com.netscape.certsrv.dbs.certdb.*;
+import com.netscape.certsrv.dbs.replicadb.*;
 import com.netscape.certsrv.dbs.crldb.*;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.apps.*;
@@ -104,6 +105,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
     protected CertificateRepository mCertRepot = null;
     protected CRLRepository mCRLRepot = null;
+    protected ReplicaIDRepository mReplicaRepot = null;
 
     protected CertificateChain mCACertChain = null;
     protected CertificateChain mOCSPCertChain = null;
@@ -144,6 +146,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
     protected static final String PROP_CERT_REPOS_DN = "CertificateRepositoryDN";
     protected static final String PROP_REPOS_DN = "RepositoryDN";
+    protected static final String PROP_REPLICAID_DN = "dbs.replicadn";
 
     // for the notification listeners
 
@@ -267,21 +270,23 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         // init default CA attributes like cert version, validity.
         initDefCaAttrs();
 
-        // set certificate status to 10 minutes
-        mCertRepot.setCertStatusUpdateInterval(
-            mConfig.getInteger("certStatusUpdateInterval", 10 * 60),
-            mConfig.getBoolean("listenToCloneModifications", false));
-        mCertRepot.setConsistencyCheck(
-            mConfig.getBoolean("ConsistencyCheck", false));
-        mCertRepot.setSkipIfInConsistent(
-            mConfig.getBoolean("SkipIfInConsistent", false));
-
         // init web gateway.
         initWebGateway();
 
         // init request queue and related modules.
         CMS.debug("CertificateAuthority init: initRequestQueue");
         initRequestQueue();
+
+        // set certificate status to 10 minutes
+        mCertRepot.setCertStatusUpdateInterval(
+            mRequestQueue.getRequestRepository(),
+            mConfig.getInteger("certStatusUpdateInterval", 10 * 60),
+            mConfig.getBoolean("listenToCloneModifications", false));
+        mCertRepot.setConsistencyCheck(
+            mConfig.getBoolean("ConsistencyCheck", false));
+        mCertRepot.setSkipIfInConsistent(
+            mConfig.getBoolean("SkipIfInConsistent", false));
+ 
         mService.init(config.getSubStore("connector"));
 
         initMiscellaneousListeners();
@@ -569,6 +574,17 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     public ICertificateRepository getCertificateRepository() {
         return mCertRepot;
     }
+ 
+    /**
+     * Retrieves replica repository.
+     * <P>
+     *
+     * @return replica repository
+     */
+    public IReplicaIDRepository getReplicaRepository() {
+        return mReplicaRepot;
+    }
+
 
     /**
      * Retrieves CRL repository.
@@ -1317,6 +1333,15 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                     "ou=crlIssuingPoints, ou=" + getId() + ", " +
                     getDBSubsystem().getBaseDN());
         CMS.debug("CRL Repot inited");
+
+        String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
+        if (replicaReposDN == null) {
+           replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
+        }
+        mReplicaRepot = new ReplicaIDRepository(
+            DBSubsystem.getInstance(), 1, replicaReposDN);
+        CMS.debug("Replica Repot inited");
+
     }
 
     /**

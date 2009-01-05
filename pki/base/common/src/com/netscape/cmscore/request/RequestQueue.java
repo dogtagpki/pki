@@ -44,6 +44,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.certsrv.dbs.repository.IRepository;
 
 import com.netscape.cmscore.util.Debug;
 
@@ -592,6 +593,13 @@ public class RequestQueue
 
             System.err.println("Attr: " + name + " Value: " + h.get(name));
         }
+    }
+
+    /*
+     * return request repository 
+     */ 
+    public IRepository getRequestRepository() {
+        return (IRepository) mRepository;
     }
 
     protected String mBaseDN;

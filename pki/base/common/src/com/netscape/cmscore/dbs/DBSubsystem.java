@@ -59,12 +59,12 @@ public class DBSubsystem implements IDBSubsystem {
     private DBRegistry mRegistry = null;
     private String mBaseDN = null;
     private ISubsystem mOwner = null;
-    private BigInteger mNextSerialConfig = null;
-    private String mMaxSerialConfig = null;
-    private String mMinSerialConfig = null;
 
-    private String mMinRequestConfig=null;
-    private String mMaxRequestConfig=null;
+    private Hashtable[] mRepos = null;
+
+    private BigInteger mNextSerialConfig = null;
+    private boolean mEnableSerialMgmt = false;
+
     private static final String PEOPLE_DN = "ou=people";
     private static final String GROUPS_DN = "ou=groups";
     private static final String REQUESTS_DN = "ou=requests";
@@ -81,6 +81,7 @@ public class DBSubsystem implements IDBSubsystem {
     private static final String KRA_DN = "ou=kra";
     private static final String KR_DN = "ou=keyRepository, ou=kra";
     private static final String KRA_REQUESTS_DN = "ou=kra, ou=requests";
+    private static final String REPLICA_DN = "ou=replica";
     private static final String PROP_ENABLE_SERIAL_NUMBER_RECOVERY = 
         "enableSerialNumberRecovery";
     // This value is only equal to the next Serial number that the CA's
@@ -90,17 +91,58 @@ public class DBSubsystem implements IDBSubsystem {
     private static final String PROP_NEXT_SERIAL_NUMBER = 
         "nextSerialNumber";
     private static final String PROP_MIN_SERIAL_NUMBER="beginSerialNumber";
-
-    private static final String PROP_MAX_SERIAL_NUMBER = 
-        "endSerialNumber";
+    private static final String PROP_MAX_SERIAL_NUMBER = "endSerialNumber";
+    private static final String PROP_NEXT_MIN_SERIAL_NUMBER="nextBeginSerialNumber";
+    private static final String PROP_NEXT_MAX_SERIAL_NUMBER ="nextEndSerialNumber";
+    private static final String PROP_SERIAL_LOW_WATER_MARK="serialLowWaterMark";
+    private static final String PROP_SERIAL_INCREMENT="serialIncrement";
+    private static final String PROP_SERIAL_BASEDN="serialDN";
+    private static final String PROP_SERIAL_RANGE_DN="serialRangeDN";
 
     private static final String PROP_MIN_REQUEST_NUMBER="beginRequestNumber";
     private static final String PROP_MAX_REQUEST_NUMBER="endRequestNumber";
+    private static final String PROP_NEXT_MIN_REQUEST_NUMBER="nextBeginRequestNumber";
+    private static final String PROP_NEXT_MAX_REQUEST_NUMBER="nextEndRequestNumber";
+    private static final String PROP_REQUEST_LOW_WATER_MARK="requestLowWaterMark";
+    private static final String PROP_REQUEST_INCREMENT="requestIncrement";
+    private static final String PROP_REQUEST_BASEDN="requestDN";
+    private static final String PROP_REQUEST_RANGE_DN="requestRangeDN";
+
+    private static final String PROP_MIN_REPLICA_NUMBER="beginReplicaNumber";
+    private static final String PROP_MAX_REPLICA_NUMBER = "endReplicaNumber";
+    private static final String PROP_NEXT_MIN_REPLICA_NUMBER="nextBeginReplicaNumber";
+    private static final String PROP_NEXT_MAX_REPLICA_NUMBER ="nextEndReplicaNumber";
+    private static final String PROP_REPLICA_LOW_WATER_MARK="replicaLowWaterMark";
+    private static final String PROP_REPLICA_INCREMENT="replicaIncrement";
+    private static final String PROP_REPLICA_BASEDN="replicaDN";
+    private static final String PROP_REPLICA_RANGE_DN="replicaRangeDN";
 
     private static final String PROP_INFINITE_SERIAL_NUMBER = "1000000000";
     private static final String PROP_INFINITE_REQUEST_NUMBER = "1000000000";
+    private static final String PROP_INFINITE_REPLICA_NUMBER = "1000";
     private static final String PROP_BASEDN = "basedn";
     private static final String PROP_LDAP = "ldap";
+    private static final String PROP_NEXT_RANGE = "nextRange";
+    private static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
+    
+    // hash keys
+    private static final String NAME="name";
+    private static final String PROP_MIN="min";
+    private static final String PROP_MIN_NAME="min_name";
+    private static final String PROP_MAX = "max";
+    private static final String PROP_MAX_NAME = "max_name";
+    private static final String PROP_NEXT_MIN="next_min";
+    private static final String PROP_NEXT_MIN_NAME="next_min_name";
+    private static final String PROP_NEXT_MAX = "next_max";
+    private static final String PROP_NEXT_MAX_NAME = "next_max_name";
+    private static final String PROP_LOW_WATER_MARK="lowWaterMark";
+    private static final String PROP_LOW_WATER_MARK_NAME="lowWaterMark_name";
+    private static final String PROP_INCREMENT = "increment";
+    private static final String PROP_INCREMENT_NAME = "increment_name";
+    private static final String PROP_RANGE_DN="rangeDN";
+
+    private static final BigInteger BI_ONE = new BigInteger("1");
+
     private ILogger mLogger = null;
  
     // singleton enforcement
@@ -152,6 +194,24 @@ public class DBSubsystem implements IDBSubsystem {
         }
     }
 
+    public boolean getEnableSerialMgmt() {
+        return mEnableSerialMgmt;
+    }
+
+    public void setEnableSerialMgmt(boolean v) 
+        throws EBaseException {
+        if (v) {
+            CMS.debug("DBSubsystem: Enabling Serial Number Management");
+        } else {
+            CMS.debug("DBSubsystem: Disabling Serial Number Management");
+        }
+       
+        mDBConfig.putBoolean(PROP_ENABLE_SERIAL_MGMT, v);
+        IConfigStore rootStore = getOwner().getConfigStore();
+        rootStore.commit(false);
+        mEnableSerialMgmt = v;
+    }
+
     public BigInteger getNextSerialConfig() {
         return mNextSerialConfig;
     }
@@ -165,31 +225,297 @@ public class DBSubsystem implements IDBSubsystem {
             serial.toString(16));
     }
 
-    public String getMinSerialConfig()
+    /**
+     * Gets minimum serial number limit in config file
+     *
+     * @param repo   repo identifier 
+     * @return min serial number
+     */
+    public String getMinSerialConfig(int repo)
     {
-        return mMinSerialConfig;
-    }
-    public String getMaxSerialConfig() {
-        return mMaxSerialConfig;
+        return (String) (mRepos[repo]).get(PROP_MIN);
     }
 
-    public String getMinRequestConfig()
-    {
-        return mMinRequestConfig;
+    /**
+     * Gets maximum serial number limit in config file
+     *
+     * @param repo   repo identifier 
+     * @return max serial number
+     */
+    public String getMaxSerialConfig(int repo) {
+        return (String) (mRepos[repo]).get(PROP_MAX);
     }
 
-    public String getMaxRequestConfig()
+    /**
+     * Gets minimum serial number limit in next range in config file
+     *
+     * @param repo   repo identifier 
+     * @return min serial number in next range
+     */
+    public String getNextMinSerialConfig(int repo)
     {
-        return mMaxRequestConfig;
+        String ret = (String) (mRepos[repo]).get(PROP_NEXT_MIN);
+        if (ret.equals("-1")) {
+            return null;
+        }
+        else {
+            return ret;
+        }
     }
 
-    public void setMaxSerialConfig(String serial) 
+    /**
+     * Gets maximum serial number limit in next range in config file
+     *
+     * @param repo   repo identifier 
+     * @return max serial number in next range
+     */
+    public String getNextMaxSerialConfig(int repo) {
+        String ret = (String) (mRepos[repo]).get(PROP_NEXT_MAX);
+        if (ret.equals("-1")) {
+            return null;
+        }
+        else {
+            return ret;
+        }
+    }
+
+    /**
+     * Gets low water mark limit in config file
+     *
+     * @param repo   repo identifier 
+     * @return low water mark
+     */
+    public String getLowWaterMarkConfig(int repo) {
+        return (String) (mRepos[repo]).get(PROP_LOW_WATER_MARK);
+    }
+
+    /**
+     * Gets range increment for next range in config file
+     *
+     * @param repo   repo identifier 
+     * @return range increment
+     */
+    public String getIncrementConfig(int repo)
+    {
+        return (String) (mRepos[repo]).get(PROP_INCREMENT);
+    }
+
+    /**
+     * Sets maximum serial number limit in config file
+     *
+     * @param repo   repo identifier 
+     * @param serial max serial number
+     * @exception  EBaseException failed to set
+     */
+    public void setMaxSerialConfig(int repo, String serial) 
         throws EBaseException {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-            ILogger.LL_INFO, "DBSubsystem: " +
-            "Setting max serial number: 0x" + serial);
-        mDBConfig.putString(PROP_MAX_SERIAL_NUMBER,
-            serial);
+        Hashtable h = mRepos[repo];
+        CMS.debug("DBSubsystem: Setting max serial number for " + h.get(NAME) + ": " + serial);
+
+        //persist to file
+        mDBConfig.putString((String) h.get(PROP_MAX_NAME), serial);
+        IConfigStore rootStore = getOwner().getConfigStore();
+        rootStore.commit(false);
+
+        h.put(PROP_MAX, serial);
+        mRepos[repo] = h;
+    }
+
+    /**
+     * Sets minimum serial number limit in config file
+     *
+     * @param repo   repo identifier 
+     * @param serial min serial number
+     * @exception  EBaseException failed to set
+     */
+    public void setMinSerialConfig(int repo, String serial) 
+        throws EBaseException {
+        Hashtable h = mRepos[repo];
+        CMS.debug("DBSubsystem: Setting min serial number for " + h.get(NAME) + ": " + serial);
+
+        //persist to file
+        mDBConfig.putString((String) h.get(PROP_MIN_NAME), serial);
+        IConfigStore rootStore = getOwner().getConfigStore();
+        rootStore.commit(false);
+
+        h.put(PROP_MIN, serial);
+        mRepos[repo] = h;
+    }
+
+    /**
+     * Sets maximum serial number limit for next range in config file
+     *
+     * @param repo   repo identifier 
+     * @param serial max serial number for next range
+     * @exception  EBaseException failed to set
+     */
+    public void setNextMaxSerialConfig(int repo, String serial) 
+        throws EBaseException {
+        Hashtable h = mRepos[repo];
+        if (serial == null) {
+            CMS.debug("DBSubsystem: Removing next max " + h.get(NAME) + " number");
+            mDBConfig.remove((String) h.get(PROP_NEXT_MAX_NAME));
+        } else {
+            CMS.debug("DBSubsystem: Setting next max " + h.get(NAME) + " number: " + serial);
+            mDBConfig.putString((String) h.get(PROP_NEXT_MAX_NAME), serial);
+        }
+        IConfigStore rootStore = getOwner().getConfigStore();
+        rootStore.commit(false);
+        if (serial == null) {
+            Object o2 = h.remove(PROP_NEXT_MAX);
+        } else {
+            h.put(PROP_NEXT_MAX, serial);
+        }
+        mRepos[repo] = h;
+    }
+
+    /**
+     * Sets minimum serial number limit for next range in config file
+     *
+     * @param repo   repo identifier 
+     * @param serial min serial number for next range
+     * @exception  EBaseException failed to set
+     */
+    public void setNextMinSerialConfig(int repo, String serial)
+        throws EBaseException {
+        Hashtable h = mRepos[repo];
+        if (serial == null) {
+            CMS.debug("DBSubsystem: Removing next min " + h.get(NAME) + " number");
+            mDBConfig.remove((String) h.get(PROP_NEXT_MIN_NAME));
+        } else {
+            CMS.debug("DBSubsystem: Setting next min " + h.get(NAME) + " number: " + serial);
+            mDBConfig.putString((String) h.get(PROP_NEXT_MIN_NAME), serial);
+        }
+        IConfigStore rootStore = getOwner().getConfigStore();
+        rootStore.commit(false);
+        if (serial == null) {
+           Object o2 = h.remove(PROP_NEXT_MIN);
+        } else {
+           h.put(PROP_NEXT_MIN, serial);
+        }
+        mRepos[repo] = h;
+    }
+
+    /**
+     * Gets start of next range from database.
+     * Increments the nextRange attribute and allocates
+     * this range to the current instance by creating a pkiRange object.
+     *
+     * @param repo   repo identifier 
+     * @return start of next range
+     */
+    public String getNextRange(int repo) {
+        LDAPConnection conn = null;
+        String nextRange = null;
+        try {
+            Hashtable h = mRepos[repo];
+            conn = mLdapConnFactory.getConn();
+            String dn = (String) h.get(PROP_BASEDN) + "," + mBaseDN;
+            String rangeDN = (String) h.get(PROP_RANGE_DN) + "," + mBaseDN;
+
+            LDAPEntry entry = conn.read(dn);
+            LDAPAttribute attr =  entry.getAttribute(PROP_NEXT_RANGE);
+            nextRange = (String) attr.getStringValues().nextElement();
+
+            BigInteger nextRangeNo = new BigInteger(nextRange);
+            if (nextRangeNo == null) {
+               throw new EBaseException("nextRangeNo is null!");
+            }
+
+            BigInteger incrementNo = new BigInteger((String) h.get(PROP_INCREMENT));
+            if (incrementNo == null) {
+               throw new EBaseException("incrementNo is null!");
+            }
+
+            // To make sure attrNextRange always increments, first delete the current value and then 
+            // increment.  Two operations in the same transaction 
+
+            LDAPAttribute attrNextRange = new LDAPAttribute(PROP_NEXT_RANGE,  nextRangeNo.add(incrementNo).toString());
+            LDAPModification [] mods = {
+                new LDAPModification( LDAPModification.DELETE, attr), 
+                new LDAPModification( LDAPModification.ADD, attrNextRange ) };
+            conn.modify( dn, mods );
+
+            // Add new range object
+            String endRange = nextRangeNo.add(incrementNo).subtract(BI_ONE).toString();
+            LDAPAttributeSet attrs = new LDAPAttributeSet();
+            attrs.add(new LDAPAttribute("objectClass", "top"));
+            attrs.add(new LDAPAttribute("objectClass", "pkiRange"));
+            attrs.add(new LDAPAttribute("beginRange" , nextRange));
+            attrs.add(new LDAPAttribute("endRange" , endRange));
+            attrs.add(new LDAPAttribute("cn", nextRange));
+            attrs.add(new LDAPAttribute("host",  CMS.getEESSLHost()));
+            attrs.add(new LDAPAttribute("securePort", CMS.getEESSLPort()));
+            String dn2 = "cn=" + nextRange + "," + rangeDN;
+            LDAPEntry rangeEntry = new LDAPEntry(dn2, attrs);
+            conn.add(rangeEntry);
+        } catch (Exception e) {
+            CMS.debug("DBSubsystem: getNextRange. Unable to provide next range :" + e);
+            e.printStackTrace();
+            nextRange = null;
+        } finally {
+            try {
+                if ((conn != null) && (mLdapConnFactory!= null)) {
+                    CMS.debug("Releasing ldap connection");
+                    mLdapConnFactory.returnConn(conn);
+                }
+            }
+            catch (Exception e) {
+                CMS.debug("Error releasing the ldap connection" + e.toString());
+            }
+        }
+        return nextRange;
+    }
+
+    /**
+     * Determines if a range conflict has been observed in database.
+     * If so, delete the conflict entry and remove the next range.
+     * When the next number is requested, if the number of certs is still 
+     * below the low water mark, then a new range will be requested.
+     * 
+     * @param repo   repo identifier 
+     * @return true if range conflict, false otherwise
+     */
+    public boolean hasRangeConflict(int repo) 
+    {
+        LDAPConnection conn = null;
+        boolean conflict = false;
+        try {
+            String nextRangeStart = getNextMinSerialConfig(repo);
+            if (nextRangeStart == null) { 
+                return false;
+            }
+            Hashtable h = mRepos[repo];
+            conn = mLdapConnFactory.getConn();
+            String rangedn = (String) h.get(PROP_RANGE_DN) + "," + mBaseDN;
+            String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
+                CMS.getEESSLHost() + ")(SecurePort=" + CMS.getEESSLPort() +
+                ")(beginRange=" + nextRangeStart + "))";
+            LDAPSearchResults results = conn.search(rangedn, LDAPv3.SCOPE_SUB,
+                filter, null, false);
+
+            while (results.hasMoreElements()) {
+                conflict = true;
+                LDAPEntry entry = results.next();
+                String dn = entry.getDN();
+                CMS.debug("Deleting conflict entry:" + dn);
+                conn.delete(dn);
+            }
+        } catch (Exception e) {
+            CMS.debug("DBSubsystem: hasRangeConflict. Error while checking next range." + e);
+            e.printStackTrace();
+        } finally {
+            try {
+                if ((conn != null) && (mLdapConnFactory!= null)) {
+                    CMS.debug("Releasing ldap connection");
+                    mLdapConnFactory.returnConn(conn);
+                }
+            }
+            catch (Exception e) {
+                CMS.debug("Error releasing the ldap connection" + e.toString());
+            }
+        }
+        return conflict;
     }
 
     public ISubsystem getOwner() {
@@ -205,8 +531,10 @@ public class DBSubsystem implements IDBSubsystem {
     public void init(ISubsystem owner, IConfigStore config) 
         throws EBaseException {
 
+
         mLogger = CMS.getLogger();
         mDBConfig = config;
+        mRepos = new Hashtable[IDBSubsystem.NUM_REPOS];
 
         mConfig = config.getSubStore(PROP_LDAP);
         IConfigStore tmpConfig = null;
@@ -214,46 +542,109 @@ public class DBSubsystem implements IDBSubsystem {
             mBaseDN = mConfig.getString(PROP_BASEDN, "o=NetscapeCertificateServer");
 
             mOwner = owner; 
+
             mNextSerialConfig = new BigInteger(mDBConfig.getString(
-                        PROP_NEXT_SERIAL_NUMBER, "0"), 16);
+                PROP_NEXT_SERIAL_NUMBER, "0"), 16);
 
-            mMinSerialConfig = mDBConfig.getString(
-                   PROP_MIN_SERIAL_NUMBER,null);
+            mEnableSerialMgmt = mDBConfig.getBoolean(PROP_ENABLE_SERIAL_MGMT, false);
 
-            if(mMinSerialConfig == null)
-            {
-                mMinSerialConfig = "0";
-            }
+            // populate the certs hash entry
+            Hashtable certs = new Hashtable();
+            certs.put(NAME, "certs");
+            certs.put(PROP_BASEDN, mDBConfig.getString(PROP_SERIAL_BASEDN,"")); 
+            certs.put(PROP_RANGE_DN, mDBConfig.getString(PROP_SERIAL_RANGE_DN, ""));
+
+            certs.put(PROP_MIN_NAME, PROP_MIN_SERIAL_NUMBER);
+            certs.put(PROP_MIN, mDBConfig.getString(
+                PROP_MIN_SERIAL_NUMBER, "0"));
+
+            certs.put(PROP_MAX_NAME, PROP_MAX_SERIAL_NUMBER);
+            certs.put(PROP_MAX, mDBConfig.getString(
+                PROP_MAX_SERIAL_NUMBER, PROP_INFINITE_SERIAL_NUMBER));
+
+            certs.put(PROP_NEXT_MIN_NAME, PROP_NEXT_MIN_SERIAL_NUMBER);
+            certs.put(PROP_NEXT_MIN, mDBConfig.getString(
+                PROP_NEXT_MIN_SERIAL_NUMBER, "-1"));
+
+            certs.put(PROP_NEXT_MAX_NAME, PROP_NEXT_MAX_SERIAL_NUMBER);
+            certs.put(PROP_NEXT_MAX, mDBConfig.getString(
+                PROP_NEXT_MAX_SERIAL_NUMBER, "-1"));
+
+            certs.put(PROP_LOW_WATER_MARK_NAME, PROP_SERIAL_LOW_WATER_MARK);
+            certs.put(PROP_LOW_WATER_MARK, mDBConfig.getString(
+                PROP_SERIAL_LOW_WATER_MARK, "5000"));
+
+            certs.put(PROP_INCREMENT_NAME, PROP_SERIAL_INCREMENT);
+            certs.put(PROP_INCREMENT, mDBConfig.getString(
+                PROP_SERIAL_INCREMENT, PROP_INFINITE_SERIAL_NUMBER));
+
+            mRepos[CERTS]=certs;
+
+            // populate the requests hash entry
+            Hashtable requests = new Hashtable();
+            requests.put(NAME, "requests");
+            requests.put(PROP_BASEDN, mDBConfig.getString(PROP_REQUEST_BASEDN,""));
+            requests.put(PROP_RANGE_DN, mDBConfig.getString(PROP_REQUEST_RANGE_DN, ""));
+
+            requests.put(PROP_MIN_NAME, PROP_MIN_REQUEST_NUMBER);
+            requests.put(PROP_MIN, mDBConfig.getString(
+                PROP_MIN_REQUEST_NUMBER, "0"));
+
+            requests.put(PROP_MAX_NAME, PROP_MAX_REQUEST_NUMBER);
+            requests.put(PROP_MAX, mDBConfig.getString(
+                PROP_MAX_REQUEST_NUMBER, PROP_INFINITE_REQUEST_NUMBER));
+
+            requests.put(PROP_NEXT_MIN_NAME, PROP_NEXT_MIN_REQUEST_NUMBER);
+            requests.put(PROP_NEXT_MIN, mDBConfig.getString(
+                PROP_NEXT_MIN_REQUEST_NUMBER, "-1"));
+
+            requests.put(PROP_NEXT_MAX_NAME, PROP_NEXT_MAX_REQUEST_NUMBER);
+            requests.put(PROP_NEXT_MAX, mDBConfig.getString(
+                PROP_NEXT_MAX_REQUEST_NUMBER, "-1"));
+
+            requests.put(PROP_LOW_WATER_MARK_NAME, PROP_REQUEST_LOW_WATER_MARK);
+            requests.put(PROP_LOW_WATER_MARK, mDBConfig.getString(
+                PROP_REQUEST_LOW_WATER_MARK, "5000"));
+
+            requests.put(PROP_INCREMENT_NAME, PROP_REQUEST_INCREMENT);
+            requests.put(PROP_INCREMENT, mDBConfig.getString(
+                PROP_REQUEST_INCREMENT, PROP_INFINITE_REQUEST_NUMBER));
+
+            mRepos[REQUESTS] = requests;
+
+            // populate replica ID hash entry
+            Hashtable replicaID = new Hashtable();
+            replicaID.put(NAME, "requests");
+            replicaID.put(PROP_BASEDN, mDBConfig.getString(PROP_REPLICA_BASEDN,""));
+            replicaID.put(PROP_RANGE_DN, mDBConfig.getString(PROP_REPLICA_RANGE_DN, ""));
+
+            replicaID.put(PROP_MIN_NAME, PROP_MIN_REPLICA_NUMBER);
+            replicaID.put(PROP_MIN, mDBConfig.getString(
+                PROP_MIN_REPLICA_NUMBER, "1"));
+
+            replicaID.put(PROP_MAX_NAME, PROP_MAX_REPLICA_NUMBER);
+            replicaID.put(PROP_MAX, mDBConfig.getString(
+                PROP_MAX_REPLICA_NUMBER, PROP_INFINITE_REPLICA_NUMBER));
+
+            replicaID.put(PROP_NEXT_MIN_NAME, PROP_NEXT_MIN_REPLICA_NUMBER);
+            replicaID.put(PROP_NEXT_MIN, mDBConfig.getString(
+                PROP_NEXT_MIN_REPLICA_NUMBER, "-1"));
+
+            replicaID.put(PROP_NEXT_MAX_NAME, PROP_NEXT_MAX_REPLICA_NUMBER);
+            replicaID.put(PROP_NEXT_MAX, mDBConfig.getString(
+                PROP_NEXT_MAX_REPLICA_NUMBER, "-1"));
+
+            replicaID.put(PROP_LOW_WATER_MARK_NAME, PROP_REPLICA_LOW_WATER_MARK);
+            replicaID.put(PROP_LOW_WATER_MARK, mDBConfig.getString(
+                PROP_REPLICA_LOW_WATER_MARK, "10"));
+
+            replicaID.put(PROP_INCREMENT_NAME, PROP_REPLICA_INCREMENT);
+            replicaID.put(PROP_INCREMENT, mDBConfig.getString(
+                PROP_REPLICA_INCREMENT, PROP_INFINITE_REPLICA_NUMBER));
+
+            mRepos[REPLICA_ID] = replicaID;
 
 
-            mMaxSerialConfig = mDBConfig.getString(
-                    PROP_MAX_SERIAL_NUMBER,null );
-
-            if(mMaxSerialConfig == null)
-            {
-                mMaxSerialConfig = PROP_INFINITE_SERIAL_NUMBER;
-            }
-
-            CMS.debug("DBSubsystem:  mMinSerialConfig: " + mMinSerialConfig + " mMaxSerialConfig: " + mMaxSerialConfig);
-
-            mMinRequestConfig = mDBConfig.getString(PROP_MIN_REQUEST_NUMBER,null);
-
-            if(mMinRequestConfig == null)
-            {
-                CMS.debug("DBSubsystem: missing mMinSerialConfig value!");
-                mMinRequestConfig = "0";
-            }
-
-            mMaxRequestConfig = mDBConfig.getString(PROP_MAX_REQUEST_NUMBER,null);
-
-            if(mMaxRequestConfig == null)
-            {
-                CMS.debug("DBSubsystem: missing mMaxSerialConfig value!");
-                mMaxRequestConfig = PROP_INFINITE_REQUEST_NUMBER;
-
-            }
-
-            CMS.debug("DBSubsystem:  mMinRequestConfig: " + mMinRequestConfig + " mMaxRequestConfig: " + mMaxRequestConfig);
             // initialize registry
             mRegistry = new DBRegistry();
             mRegistry.init(this, null);

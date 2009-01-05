@@ -213,7 +213,7 @@ public class CertificateRepository extends Repository
     public CertStatusUpdateThread mCertStatusUpdateThread = null;
     public RetrieveModificationsThread mRetrieveModificationsThread = null;
 
-    public void setCertStatusUpdateInterval(int interval, boolean listenToCloneModifications) {
+    public void setCertStatusUpdateInterval(IRepository requestRepo, int interval, boolean listenToCloneModifications) {
         CMS.debug("In setCertStatusUpdateInterval " + interval);
         if (interval == 0) {
             CMS.debug("In setCertStatusUpdateInterval interval = 0" + interval);
@@ -246,7 +246,7 @@ public class CertificateRepository extends Repository
         CMS.debug("In setCertStatusUpdateInterval  mCertStatusUpdateThread " + mCertStatusUpdateThread);
         if (mCertStatusUpdateThread == null) {
             CMS.debug("In setCertStatusUpdateInterval about to create CertStatusUpdateThread ");
-            mCertStatusUpdateThread = new CertStatusUpdateThread(this, "CertStatusUpdateThread");
+            mCertStatusUpdateThread = new CertStatusUpdateThread(this, requestRepo, "CertStatusUpdateThread");
             mCertStatusUpdateThread.setInterval(interval);
             mCertStatusUpdateThread.start();
         } else {
@@ -1893,14 +1893,16 @@ public class CertificateRepository extends Repository
 
 class CertStatusUpdateThread extends Thread {
     CertificateRepository _cr = null;
+    IRepository _rr = null;
     int _interval;
 
-    CertStatusUpdateThread(CertificateRepository cr, String name) {
+    CertStatusUpdateThread(CertificateRepository cr, IRepository rr, String name) {
         super(name);
         CMS.debug("new CertStatusUpdateThread");
         //setName(name);
 
         _cr = cr;
+        _rr = rr;
     }
 
     public void setInterval(int interval) {
@@ -1919,10 +1921,18 @@ class CertStatusUpdateThread extends Thread {
                     CMS.debug("Starting updateCertStatus (entered lock)");
                     _cr.updateCertStatus();
                     CMS.debug("updateCertStatus done");
+
+                    CMS.debug("Starting cert checkRanges");
+                    _cr.checkRanges();
+                    CMS.debug("cert checkRanges done");
+
+                    CMS.debug("Starting request checkRanges");
+                    _rr.checkRanges();
+                    CMS.debug("request checkRanges done");
                 }
 
             } catch (Exception e) {
-                CMS.debug("updateCertStatus done");
+                CMS.debug("updateCertStatus done: " + e.toString());
             }
             try {
                 sleep(_interval * 1000);

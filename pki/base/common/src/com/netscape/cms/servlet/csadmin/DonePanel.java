@@ -289,6 +289,7 @@ public class DonePanel extends WizardPanelBase {
                 }
                 cs.putString("securitydomain.store", "ldap");
                 CMS.debug("DonePanel display: finish updating domain info");
+                conn.disconnect();
             } catch (Exception e) {
                 CMS.debug("DonePanel display: "+e.toString());
             }
@@ -397,12 +398,30 @@ public class DonePanel extends WizardPanelBase {
                     BigInteger endRequestNum = new BigInteger(endRequestNumStr);
                     BigInteger endSerialNum = new BigInteger(endSerialNumStr);
                     BigInteger oneNum = new BigInteger("1");
-                    cs.putString("dbs.nextBeginRequestNumber", 
-                      endRequestNum.add(oneNum).toString());
-                    cs.putString("dbs.nextBeginSerialNumber", 
-                      endSerialNum.add(oneNum).toString());
+
+                    // update global next range entries
+                    LDAPConnection conn = getLDAPConn(context);
+                    String basedn = cs.getString("internaldb.basedn");
+
+                    String serialdn = "";
+                    if (type.equals("CA")) {
+                        serialdn = "ou=certificateRepository,ou=" + type.toLowerCase() + "," + basedn;
+                    } else {
+                        serialdn = "ou=keyRepository,ou=" + type.toLowerCase() + "," + basedn;
+                    } 
+                    LDAPAttribute attrSerialNextRange = new LDAPAttribute( "nextRange", endSerialNum.add(oneNum).toString());
+                    LDAPModification serialmod = new LDAPModification( LDAPModification.REPLACE, attrSerialNextRange );
+                    conn.modify( serialdn, serialmod );
+
+                    String requestdn = "ou=" + type.toLowerCase() + ",ou=requests," + basedn;
+                    LDAPAttribute attrRequestNextRange = new LDAPAttribute( "nextRange", endRequestNum.add(oneNum).toString());
+                    LDAPModification requestmod = new LDAPModification( LDAPModification.REPLACE, attrRequestNextRange );
+                    conn.modify( requestdn, requestmod );      
+
+                    conn.disconnect();            
                 } catch (Exception e) {
-                }
+                    CMS.debug("Unable to update global next range numbers: " + e);
+                } 
             }
         }
 

@@ -928,19 +928,6 @@ public class DatabasePanel extends WizardPanelBase {
         } catch (Exception e) {
         }
 
-        if (select.equals("clone")) {
-            CMS.debug("Start setting up replication.");
-            setupReplication(request, context, (secure.equals("on")?"true":"false"));
-            CMS.debug("Finish setting up replication.");
- 
-            try {
-                CMS.reinit(IDBSubsystem.SUB_ID);
-                CMS.reinit(IAuthSubsystem.ID);
-                CMS.reinit(IAuthzSubsystem.ID);
-            } catch (Exception e) {
-            }
-        }
-
         // always populate the index the last
         try {
           CMS.debug("Populating local indexes");
@@ -973,6 +960,21 @@ public class DatabasePanel extends WizardPanelBase {
         } catch (Exception e) {
           CMS.debug("Populating index failure - " + e);
         }
+
+        // setup replication after indexes have been created
+        if (select.equals("clone")) {
+            CMS.debug("Start setting up replication.");
+            setupReplication(request, context, (secure.equals("on")?"true":"false"));
+            CMS.debug("Finish setting up replication.");
+
+            try {
+                CMS.reinit(IDBSubsystem.SUB_ID);
+                CMS.reinit(IAuthSubsystem.ID);
+                CMS.reinit(IAuthzSubsystem.ID);
+            } catch (Exception e) {
+            }
+        }
+
 
         if (hasErr == false) {
           cs.putBoolean("preop.Database.done", true);
@@ -1072,8 +1074,11 @@ public class DatabasePanel extends WizardPanelBase {
             String replicadn = "cn=replica,cn=\""+suffix+"\",cn=mapping tree,cn=config";
             CMS.debug("DatabasePanel setupReplication: replicadn="+replicadn);
 
-            createReplicationManager(conn1, master1_replicationpwd);
-            createReplicationManager(conn2, master2_replicationpwd);
+            String masterBindUser = "Replication Manager " + masterAgreementName;
+            String cloneBindUser = "Replication Manager " + cloneAgreementName;
+
+            createReplicationManager(conn1, masterBindUser, master1_replicationpwd);
+            createReplicationManager(conn2, cloneBindUser, master2_replicationpwd);
 
             String dir1 = getInstanceDir(conn1);
             createChangeLog(conn1, dir1 + "/changelogs");
@@ -1081,16 +1086,19 @@ public class DatabasePanel extends WizardPanelBase {
             String dir2 = getInstanceDir(conn2);
             createChangeLog(conn2, dir2 + "/changelogs");
 
-            enableReplication(replicadn, conn1, basedn, "1");
-            enableReplication(replicadn, conn2, basedn, "2");
+            int replicaId = cs.getInteger("dbs.beginReplicaNumber", 1);
+
+            replicaId = enableReplication(replicadn, conn1, masterBindUser, basedn, replicaId);
+            replicaId = enableReplication(replicadn, conn2, cloneBindUser, basedn, replicaId);
+            cs.putString("dbs.beginReplicaNumber", Integer.toString(replicaId));
 
             CMS.debug("DatabasePanel setupReplication: Finished enabling replication");
 
             createReplicationAgreement(replicadn, conn1, masterAgreementName, 
-              master2_hostname, master2_port, master2_replicationpwd, basedn);
+              master2_hostname, master2_port, master2_replicationpwd, basedn, cloneBindUser);
 
             createReplicationAgreement(replicadn, conn2, cloneAgreementName, 
-              master1_hostname, master1_port, master1_replicationpwd, basedn);
+              master1_hostname, master1_port, master1_replicationpwd, basedn, masterBindUser);
 
             // initialize consumer
             initializeConsumer(replicadn, conn1, masterAgreementName);
@@ -1170,20 +1178,19 @@ public class DatabasePanel extends WizardPanelBase {
         return false;
     }
 
-    private void createReplicationManager(LDAPConnection conn, String pwd)
+    private void createReplicationManager(LDAPConnection conn, String bindUser, String pwd)
       throws LDAPException {
         LDAPAttributeSet attrs = null;
         LDAPEntry entry = null;
-        String dn = "cn=Replication Manager,cn=config";
+        String dn = "cn=" + bindUser + ",cn=config";
         try {
             attrs = new LDAPAttributeSet();
             attrs.add(new LDAPAttribute("objectclass", "top"));
             attrs.add(new LDAPAttribute("objectclass", "person"));
             attrs.add(new LDAPAttribute("userpassword", pwd));
-            attrs.add(new LDAPAttribute("cn", "Replication Manager"));
+            attrs.add(new LDAPAttribute("cn", bindUser));
             attrs.add(new LDAPAttribute("sn", "manager"));
-            entry = new LDAPEntry("cn=Replication Manager,cn=config",
-              attrs);
+            entry = new LDAPEntry(dn, attrs);
             conn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
@@ -1201,7 +1208,7 @@ public class DatabasePanel extends WizardPanelBase {
             }
         }
 
-        CMS.debug("DatabasePanel createReplicationManager: Successfully create Replication Manager");
+        CMS.debug("DatabasePanel createReplicationManager: Successfully created Replication Manager");
     }
 
     private void createChangeLog(LDAPConnection conn, String dir)
@@ -1238,7 +1245,7 @@ public class DatabasePanel extends WizardPanelBase {
         CMS.debug("DatabasePanel createChangeLog: Successfully create change log entry");
     }
 
-    private void enableReplication(String replicadn, LDAPConnection conn, String basedn, String id)
+    private int enableReplication(String replicadn, LDAPConnection conn, String bindUser, String basedn, int id)
       throws LDAPException {
         CMS.debug("DatabasePanel enableReplication: replicadn: "+replicadn);
         LDAPAttributeSet attrs = null;
@@ -1251,33 +1258,42 @@ public class DatabasePanel extends WizardPanelBase {
             attrs.add(new LDAPAttribute("nsDS5ReplicaRoot", basedn));
             attrs.add(new LDAPAttribute("nsDS5ReplicaType", "3"));
             attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN",
-              "cn=replication manager,cn=config"));
+              "cn=" + bindUser + ",cn=config"));
             attrs.add(new LDAPAttribute("cn", "replica"));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaId", id));
+            attrs.add(new LDAPAttribute("nsDS5ReplicaId", Integer.toString(id)));
             attrs.add(new LDAPAttribute("nsds5flags", "1"));
             entry = new LDAPEntry(replicadn, attrs);
             conn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                CMS.debug("DatabasePanel enableReplication: "+replicadn+" has already used");
+                /* BZ 470918 -we cant just add the new dn.  We need to do a replace instead 
+                 * until the DS code is fixed */
+                CMS.debug("DatabasePanel enableReplication: "+replicadn+" has already been used");
+                
                 try {
-                    conn.delete(replicadn);
-                    conn.add(entry);
+                    entry = conn.read(replicadn);
+                    LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
+                    attr.addValue( "cn=" + bindUser + ",cn=config");
+                    LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
+                    conn.modify(replicadn, mod);
                 } catch (LDAPException ee) {
+                    CMS.debug("DatabasePanel enableReplication: Failed to modify " 
+                        +replicadn+" entry. Exception: "+e.toString());
                 }
-                return;
+                return id;
             } else {
                 CMS.debug("DatabasePanel enableReplication: Failed to create "+replicadn+" entry. Exception: "+e.toString());
-                return;
+                return id;
             }
         }
 
         CMS.debug("DatabasePanel enableReplication: Successfully create "+replicadn+" entry.");
+        return id + 1;
     }
 
     private void createReplicationAgreement(String replicadn, 
       LDAPConnection conn, String name, String replicahost, int replicaport, 
-      String replicapwd, String basedn) throws LDAPException {
+      String replicapwd, String basedn, String bindUser) throws LDAPException {
         String dn = "cn="+name+","+replicadn;
         CMS.debug("DatabasePanel createReplicationAgreement: dn: "+dn);
         LDAPEntry entry = null;
@@ -1292,7 +1308,7 @@ public class DatabasePanel extends WizardPanelBase {
             attrs.add(new LDAPAttribute("nsDS5ReplicaHost", replicahost));
             attrs.add(new LDAPAttribute("nsDS5ReplicaPort", ""+replicaport));
             attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN",
-              "cn=replication manager,cn=config"));
+              "cn=" + bindUser + ",cn=config"));
             attrs.add(new LDAPAttribute("nsDS5ReplicaBindMethod", "Simple"));
             attrs.add(new LDAPAttribute("nsds5replicacredentials", replicapwd));
             CMS.debug("About to set description attr to " + name);

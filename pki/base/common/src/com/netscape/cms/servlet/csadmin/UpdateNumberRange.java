@@ -34,11 +34,14 @@ import com.netscape.certsrv.policy.*;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.dbs.*;
 import com.netscape.certsrv.dbs.certdb.*;
+import com.netscape.certsrv.dbs.repository.*;
 import com.netscape.certsrv.ldap.*;
 import com.netscape.certsrv.logging.*;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.*;
 import com.netscape.certsrv.authorization.*;
+import com.netscape.certsrv.ca.*;
+import com.netscape.certsrv.kra.*;
 import com.netscape.cms.servlet.*;
 import com.netscape.cmsutil.xml.*;
 import org.w3c.dom.*;
@@ -115,47 +118,97 @@ public class UpdateNumberRange extends CMSServlet {
 
         try {
             String type = httpReq.getParameter("type");
-            String incrementStr = httpReq.getParameter("increment");
-            BigInteger increment = new BigInteger(incrementStr);
             IConfigStore cs = CMS.getConfigStore();
+            String cstype = cs.getString("cs.type", "");
 
             BigInteger beginNum = null;
             BigInteger endNum = null;
             BigInteger oneNum = new BigInteger("1");
-            BigInteger nextNum = null;
-            if (type.equals("request")) {
-                String beginNumStr = cs.getString("dbs.nextBeginRequestNumber");
-                beginNum = new BigInteger(beginNumStr);
-                if( beginNum == null ) {
-                    CMS.debug( "UpdateNumberRange::process() - " +
-                               "request beginNum is null!" );
-                    return;
+            String endNumConfig = null;
+            String cloneNumConfig = null;
+            String nextEndConfig = null; 
+            int radix = 10;
+
+            IRepository repo = null;
+            if (cstype.equals("KRA")) {
+                IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) CMS.getSubsystem(
+                     IKeyRecoveryAuthority.ID);
+                if (type.equals("request")) {
+                    repo = kra.getRequestQueue().getRequestRepository();
+                } else if (type.equals("serialNo")) {
+                    repo = kra.getKeyRepository();
+                } else if (type.equals("replicaId")) {
+                    repo = kra.getReplicaRepository();
                 }
-                endNum = beginNum.add(increment);
-                if( endNum == null ) {
-                    CMS.debug( "UpdateNumberRange::process() - " +
-                               "request endNum is null!" );
-                    return;
+            } else { // CA
+                ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(
+                     ICertificateAuthority.ID);
+                if (type.equals("request")) {
+                    repo = ca.getRequestQueue().getRequestRepository();
+                } else if (type.equals("serialNo")) {
+                    repo = ca.getCertificateRepository();
+                } else if (type.equals("replicaId")) {
+                    repo = ca.getReplicaRepository();
                 }
-                nextNum = endNum.add(oneNum);
-                cs.putString("dbs.nextBeginRequestNumber", nextNum.toString());
-            } else if (type.equals("serialNo")) {
-                String beginNumStr = cs.getString("dbs.nextBeginSerialNumber");
-                beginNum = new BigInteger(beginNumStr);
-                if( beginNum == null ) {
-                    CMS.debug( "UpdateNumberRange::process() - " +
-                               "serialNo beginNum is null!" );
-                    return;
-                }
-                endNum = beginNum.add(increment);
-                if( endNum == null ) {
-                    CMS.debug( "UpdateNumberRange::process() - " +
-                               "serialNo endNum is null!" );
-                    return;
-                }
-                nextNum = endNum.add(oneNum);
-                cs.putString("dbs.nextBeginSerialNumber", nextNum.toString());
             }
+               
+            if (type.equals("request")) {
+                radix = 10;
+                endNumConfig = "dbs.endRequestNumber";
+                cloneNumConfig = "dbs.requestCloneTransferNumber";
+                nextEndConfig = "dbs.nextEndRequestNumber";
+            } else if (type.equals("serialNo")) {
+                radix=16;
+                endNumConfig = "dbs.endSerialNumber";
+                cloneNumConfig = "dbs.serialCloneTransferNumber";
+                nextEndConfig = "dbs.nextEndSerialNumber";
+            } else if (type.equals("replicaId")) {
+                radix=10;
+                endNumConfig = "dbs.endReplicaNumber";
+                cloneNumConfig = "dbs.replicaCloneTransferNumber";
+                nextEndConfig = "dbs.nextEndReplicaNumber";
+            }
+
+            String endNumStr = cs.getString(endNumConfig, "");
+            endNum = new BigInteger(endNumStr, radix);
+            if ( endNum == null ) {
+                CMS.debug( "UpdateNumberRange::process() - " +
+                           "request endNum is null!" );
+                return;
+            }
+
+            String decrementStr = cs.getString(cloneNumConfig, "");
+            BigInteger decrement = new BigInteger(decrementStr, radix);
+            if (decrement == null) {
+                CMS.debug("UpdateNumberRange::process() - " +
+                           "request decrement string is null!" );
+                return;
+            }
+  
+            beginNum = endNum.subtract(decrement).add(oneNum);
+
+            if (beginNum.compareTo(repo.getTheSerialNumber()) < 0) {
+                String nextEndNumStr = cs.getString(nextEndConfig, "");
+                BigInteger endNum2 = new BigInteger(nextEndNumStr, radix);
+                if (endNum2 == null) {
+                    CMS.debug("UpdateNumberRange::process() - " +
+                        "Unused requests less than cloneTransferNumber!" );
+                    return;
+                } else {
+                    CMS.debug("Transferring from the end of on-deck range");
+                    String newValStr = endNum2.subtract(decrement).toString(radix);
+                    repo.setNextMaxSerial(newValStr);
+                    cs.putString(nextEndConfig, newValStr);
+                    beginNum = endNum2.subtract(decrement).add(oneNum);
+                    endNum = endNum2;
+                }
+            } else {
+                CMS.debug("Transferring from the end of the current range");
+                String newValStr = beginNum.subtract(oneNum).toString(radix);
+                repo.setMaxSerial(newValStr);
+                cs.putString(endNumConfig, newValStr);
+            }
+
 
             if( beginNum == null ) {
                 CMS.debug( "UpdateNumberRange::process() - " +
@@ -169,6 +222,13 @@ public class UpdateNumberRange extends CMSServlet {
                 return;
             }
 
+            // checkRanges for replicaID - we do this each time a replica is created.
+            // Also enable serial number management in master for certs and requests
+            if (type.equals("replicaId")) {
+               repo.checkRanges();
+               repo.setEnableSerialMgmt(true);
+            }
+
             // insert info
             CMS.debug("UpdateNumberRange: Sending response");
 
@@ -177,8 +237,8 @@ public class UpdateNumberRange extends CMSServlet {
             Node root = xmlObj.createRoot("XMLResponse");
 
             xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            xmlObj.addItemToContainer(root, "beginNumber", beginNum.toString());
-            xmlObj.addItemToContainer(root, "endNumber", endNum.toString());
+            xmlObj.addItemToContainer(root, "beginNumber", beginNum.toString(radix));
+            xmlObj.addItemToContainer(root, "endNumber", endNum.toString(radix));
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);

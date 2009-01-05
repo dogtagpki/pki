@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      18
+%define base_release      19
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -278,6 +278,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Jan 5 2009 Ade Lee <alee@redhat.com> 1.0.0-19
+- Bugzilla Bug #472006, 472007 - Serial number management
 * Wed Dec 10 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-18
 - Bugzilla Bug #475895 - Parameterize the initial login shell
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-17

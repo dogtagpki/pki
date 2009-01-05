@@ -199,10 +199,19 @@ public class UpdateDomainXML extends CMSServlet {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         CMS.debug("UpdateDomainXML process: authentication starts");
-        IAuthToken authToken = authenticate(cmsReq);
+        IAuthToken authToken = null;
+        try {
+            authToken = authenticate(cmsReq);
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated");
+            return;
+        }
         if (authToken == null) {
             CMS.debug("UpdateDomainXML process: authToken is null");
-            outputError(httpResp, "Error: not authenticated");
+            outputError(httpResp, AUTH_FAILURE, "Error: not authenticated");
+            return;
         }
         CMS.debug("UpdateDomainXML process: authentication done");
 
@@ -214,18 +223,19 @@ public class UpdateDomainXML extends CMSServlet {
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
                 CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-            outputError(httpResp, "Error: Not authorized");
+            outputError(httpResp, AUTH_FAILURE, "Error: Not authorized");
             return;
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
                 CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp,
+                AUTH_FAILURE, 
                 "Error: Encountered problem during authorization.");
             return;
         }
         if (authzToken == null) {
             CMS.debug("UpdateDomainXML process: authorization error");
-            outputError(httpResp, "Error: Not authorized");
+            outputError(httpResp, AUTH_FAILURE, "Error: Not authorized");
             return;
         }
 

@@ -61,11 +61,18 @@ public class ConfigureCA {
     public static String domain_uri = "/ca/ee/ca/domain";
     public static String ee_uri = "/ca/ee/ca/getBySerial";
     public static String pkcs12_uri = "/ca/admin/console/config/savepkcs12";
+    public static String sd_login_uri = "/ca/ee/ca/securityDomainLogin";
+    public static String sd_get_cookie_uri = "/ca/ee/ca/getCookie";
 
     public static String cs_hostname = null;
     public static String cs_port = null;
     public static String client_certdb_dir = null;
     public static String client_certdb_pwd = null;
+
+    public static String sd_hostname = null;
+    public static String sd_ssl_port = null;
+    public static String sd_admin_name = null;
+    public static String sd_admin_password = null;
 
     // Login Panel 
     public static String pin = null;
@@ -131,6 +138,11 @@ public class ConfigureCA {
     public static String ext_csr_file = null;
     public static String signing_cc = null;
 
+    public static boolean clone = false;
+    public static String clone_uri = null;
+    public static String clone_p12_passwd = null;
+    public static String clone_p12_file = null;
+
 
     public ConfigureCA() {// do nothing :)
     }
@@ -189,16 +201,23 @@ public class ConfigureCA {
 
     public boolean DomainPanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
 
             String domain_url = "https://" + cs_hostname + ":" + cs_port;
+            String query_string = null;
 
-            String query_string = "sdomainURL=" + URLEncoder.encode(domain_url)
-                + "&sdomainName=" + URLEncoder.encode(domain_name)
-                + "&choice=newdomain" + "&p=1" + "&op=next" + "&xml=true"; 
+            if (! clone) {
+                query_string = "sdomainURL=" + URLEncoder.encode(domain_url)
+                    + "&sdomainName=" + URLEncoder.encode(domain_name)
+                    + "&choice=newdomain" + "&p=1" + "&op=next" + "&xml=true";
+            } else {
+                domain_url = "https://" + sd_hostname + ":" + sd_ssl_port ;
+                query_string = "sdomainURL=" + URLEncoder.encode(domain_url)
+                    + "&sdomainName="
+                    + "&choice=existingdomain" + "&p=1" + "&op=next" + "&xml=true";
+            }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -219,16 +238,78 @@ public class ConfigureCA {
         }
     }
 
+    public boolean DisplayCertChainPanel() {
+        try {
+            HTTPResponse hr = null;
+            String query_string = "p=2" + "&op=next" + "&xml=true";
+            hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in DisplayCertChainPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean SecurityDomainLoginPanel() {
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+            String subca_url = "https://" + cs_hostname + ":" + cs_port +
+                "/ca/admin/console/config/wizard" + "?p=3&subsystem=CA" ;
+
+            String query_string = "url=" + URLEncoder.encode(subca_url);
+
+            hr = hc.sslConnect(sd_hostname,sd_ssl_port,sd_login_uri,query_string);
+
+            String query_string_1 = "uid=" + sd_admin_name + "&pwd=" + sd_admin_password +
+                                    "&url=" + URLEncoder.encode(subca_url) ;
+
+            hr = hc.sslConnect(sd_hostname,sd_ssl_port,sd_get_cookie_uri,
+                                                query_string_1);
+
+            // get session id from security domain
+                
+            String subca_session_id = hr.getContentValue("header.session_id");
+            String subca_url_1 = hr.getContentValue("header.url");
+                
+            System.out.println("SUBCA_SESSION_ID=" + subca_session_id );
+            System.out.println("SUBCA_URL=" + subca_url_1 );
+
+            // use session id to connect back to subCA
+
+            String query_string_2 = "p=3" + "&subsystem=CA" +
+                "&session_id=" + subca_session_id + "&xml=true" ;
+        
+            hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri, query_string_2);
+                                                                                                                                                                                                                 return true;
+        } catch (Exception e) {
+            System.out.println("Exception in SecurityDomainLoginPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean CreateCAPanel() {
         try { 
             boolean st = false;
             HTTPResponse hr = null;
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
+            String query_string = null;
 
-            String query_string = "p=3" + "&op=next" + "&xml=true"
-                + "&choice=newsubsystem" + "&subsystemName="
-                + URLEncoder.encode(subsystem_name);
+            if (!clone) {
+                query_string = "p=3" + "&op=next" + "&xml=true"
+                    + "&choice=newsubsystem" + "&subsystemName="
+                    + URLEncoder.encode(subsystem_name);
+            } else {
+                query_string = "p=3" + "&op=next" + "&xml=true"
+                    + "&choice=clonesubsystem" + "&subsystemName="
+                    + URLEncoder.encode(subsystem_name)
+                    + "&urls=0" + "";
+            }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -237,14 +318,17 @@ public class ConfigureCA {
             px.parse(bais);
             px.prettyprintxml();
 
-            // hr = null;
-            // query_string = "p=4" + "&op=next" + "&xml=true"; 
-            // hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
-            // parse xml
-            // bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            // px.parse(bais);
-            // px.prettyprintxml();
+            if (clone) {
 
+                hr = null;
+                query_string = "p=4" + "&op=next" + "&xml=true"; 
+                hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+
+                // parse xml
+                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+                px.parse(bais);
+                px.prettyprintxml();
+            }
 
             return true;
         } catch (Exception e) {
@@ -253,6 +337,31 @@ public class ConfigureCA {
             return false;
         }
     }
+
+    public boolean RestoreKeyCertPanel() {
+        try {
+            ByteArrayInputStream bais = null;
+            HTTPResponse hr = null;
+            ParseXML px = new ParseXML();
+
+            String query_string = "p=5" + "&op=next" + "&xml=true" 
+                + "&password=" + URLEncoder.encode(clone_p12_passwd)
+                + "&path=" + URLEncoder.encode(clone_p12_file) + "";
+
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+ 
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in RestoreKeyCertPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+    }
+            
 
     public boolean HierarchyPanel() {
         try { 
@@ -379,18 +488,27 @@ public class ConfigureCA {
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
             ArrayList al = null;
-
-            String query_string = "p=10" + "&op=next" + "&xml=true"
-                + "&subsystem_custom_size=" + key_size
-                + "&sslserver_custom_size=" + key_size + "&signing_keytype="
-                + key_type + "&keytype=" + key_type + "&choice=custom"
-                + "&op=next" + "&custom_size=" + key_size
-                + "&ocsp_signing_keytype=" + key_type + "&subsystem_keytype="
-                + key_type + "&ocsp_signing_custom_size=" + key_size
-                + "&signing_custom_size=" + key_size
-                + "&ocsp_signing_choice=custom" + "&signing_choice=custom"
-                + "&subsystem_choice=custom" + "&sslserver_keytype=" + key_type
-                + "&sslserver_choice=custom" + ""; 
+            String query_string = null;
+            if (clone) {
+                query_string = "p=10" + "&op=next" + "&xml=true" 
+                    + "&sslserver_custom_size=" + key_size
+                    + "&sslserver_choice=custom"
+                    + "&sslserver_keytype=" + key_type 
+                    + "&choice=default" + "&keytype=" + key_type 
+                    + "&custom_size=" + key_size + "";
+            } else {
+                query_string = "p=10" + "&op=next" + "&xml=true"
+                    + "&subsystem_custom_size=" + key_size
+                    + "&sslserver_custom_size=" + key_size + "&signing_keytype="
+                    + key_type + "&keytype=" + key_type + "&choice=custom"
+                    + "&op=next" + "&custom_size=" + key_size
+                    + "&ocsp_signing_keytype=" + key_type + "&subsystem_keytype="
+                    + key_type + "&ocsp_signing_custom_size=" + key_size
+                    + "&signing_custom_size=" + key_size
+                    + "&ocsp_signing_choice=custom" + "&signing_choice=custom"
+                    + "&subsystem_choice=custom" + "&sslserver_keytype=" + key_type
+                    + "&sslserver_choice=custom" + ""; 
+            }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -439,16 +557,23 @@ public class ConfigureCA {
             ArrayList req_list = null;
             ArrayList cert_list = null;
             ArrayList dn_list = null;
+            String query_string = null;
 
             // use subject names provided as input
 
-            String query_string = "p=11" + "&op=next" + "&xml=true" + "&subsystem="
-                + URLEncoder.encode(ca_subsystem_cert_subject_name)
-                + "&ocsp_signing="
-                + URLEncoder.encode(ca_ocsp_cert_subject_name) + "&signing="
-                + URLEncoder.encode(ca_sign_cert_subject_name) + "&sslserver="
-                + URLEncoder.encode(ca_server_cert_subject_name) + "&urls=0"
-                + ""; 
+            if (!clone) {
+                query_string = "p=11" + "&op=next" + "&xml=true" + "&subsystem="
+                    + URLEncoder.encode(ca_subsystem_cert_subject_name)
+                    + "&ocsp_signing="
+                    + URLEncoder.encode(ca_ocsp_cert_subject_name) + "&signing="
+                    + URLEncoder.encode(ca_sign_cert_subject_name) + "&sslserver="
+                    + URLEncoder.encode(ca_server_cert_subject_name) + "&urls=0"
+                    + "";
+            } else {
+                query_string = "p=11" + "&op=next" + "&xml=true" + "&sslserver="
+                    + URLEncoder.encode(ca_server_cert_subject_name) + "&urls=0"
+                    + "";
+            } 
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -976,23 +1101,41 @@ public class ConfigureCA {
             return false;
         }
 
-        /*
-         // 3. display cert chain panel
-         boolean disp_st = DisplayChainPanel();
-         if(!disp_st)
-         {
-         System.out.println("ERROR: ConfigureCA: DisplayChainPanel() failure");
-         return false;
-         }
-         */
+        sleep_time();
+        // 3. display cert chain panel and security domain login
+        if (clone) {
+            boolean disp_st = DisplayCertChainPanel();
+            if(!disp_st) {
+                System.out.println("ERROR: ConfigureCA: DisplayCertChainPanel() failure");
+                return false;
+            }
+
+            boolean sd_st = SecurityDomainLoginPanel();
+            if(! sd_st)
+            {
+                System.out.println("ERROR: ConfigureSubCA: SecurityDomainLoginPanel() failure");
+                return false;
+            }
+
+        }
 
         sleep_time();
-        // 4. display cert chain panel
+        // 4. display create CA panel
         boolean disp_cert = CreateCAPanel();
 
         if (!disp_cert) {
             System.out.println("ERROR: ConfigureCA: CreateCAPanel() failure");
             return false;
+        }
+
+        sleep_time();
+        // 5. display restore key cert panel
+        if (clone) {
+            boolean restore_st = RestoreKeyCertPanel();
+            if (!restore_st) {
+                System.out.println("ERROR: ConfigureCA: RestoreKeyCertPanel() failure");
+                return false;
+            }
         }
 
         // 6. Admin user panel
@@ -1005,11 +1148,13 @@ public class ConfigureCA {
 
         sleep_time();
         // 5. hierarchy panel
-        boolean disp_h = HierarchyPanel();
+        if (! clone) {
+            boolean disp_h = HierarchyPanel();
 
-        if (!disp_h) {
-            System.out.println("ERROR: ConfigureCA: HierarchyPanel() failure");
-            return false;
+            if (!disp_h) {
+                System.out.println("ERROR: ConfigureCA: HierarchyPanel() failure");
+                return false;
+            }
         }
 
         // Agent Auth panel
@@ -1121,6 +1266,11 @@ public class ConfigureCA {
             System.out.println("ERROR: ConfigureCA: ImportCACertPanel() failure");
             return false;
         }
+     
+        if (clone) { 
+            // no other panels required for clone
+            return true;
+        }
 
         sleep_time();
 
@@ -1210,6 +1360,19 @@ public class ConfigureCA {
         StringHolder x_ext_ca_cert_chain_file = new StringHolder();         
         StringHolder x_ext_csr_file = new StringHolder();         
 
+        //clone parameters
+        StringHolder x_clone = new StringHolder();
+        StringHolder x_clone_uri = new StringHolder();
+        StringHolder x_clone_p12_file = new StringHolder();
+        StringHolder x_clone_p12_passwd = new StringHolder();
+
+        //security domain
+        StringHolder x_sd_hostname = new StringHolder();
+        StringHolder x_sd_ssl_port = new StringHolder();
+        StringHolder x_sd_admin_name = new StringHolder();
+        StringHolder x_sd_admin_password = new StringHolder();
+
+
         // parse the args
         ArgParser parser = new ArgParser("ConfigureCA");
 
@@ -1274,6 +1437,19 @@ public class ConfigureCA {
         parser.addOption("-ext_csr_file %s #File to save the CSR for submission to an external CA",
                 x_ext_csr_file);
 
+        parser.addOption("-clone %s #Clone of another CA [true, false]", x_clone);
+        parser.addOption("-clone_uri %s #URL of Master CA to clone", x_clone_uri);
+        parser.addOption("-clone_p12_file %s #File containing pk12 keys of Master CA", x_clone_p12_file);
+        parser.addOption("-clone_p12_password %s #Password for pk12 file", x_clone_p12_passwd);
+
+        parser.addOption ("-sd_hostname %s #Security Domain Hostname", x_sd_hostname);
+        parser.addOption ("-sd_ssl_port %s #Security Domain SSL port", x_sd_ssl_port);
+        parser.addOption ("-sd_admin_name %s #Security Domain admin name",
+            x_sd_admin_name);
+        parser.addOption ("-sd_admin_password %s #Security Domain admin password",
+            x_sd_admin_password);
+
+
         // and then match the arguments
         String[] unmatched = null;
 
@@ -1322,12 +1498,29 @@ public class ConfigureCA {
         subsystem_name = x_subsystem_name.value;
         
         external_ca = x_external_ca.value;
+        if (external_ca == null) { 
+            external_ca = "false";
+        }
         ext_ca_cert_file = x_ext_ca_cert_file.value;
         ext_ca_cert_chain_file = x_ext_ca_cert_chain_file.value;
         ext_csr_file = x_ext_csr_file.value;
         if ((ext_csr_file == null) || (ext_csr_file.equals(""))) {
             ext_csr_file = "/tmp/ext_ca.csr";
         }
+
+        if ((x_clone.value != null) && (x_clone.value.equalsIgnoreCase("true"))) {
+            clone = true;
+        } else {
+            clone = false;
+        }
+        clone_uri = x_clone_uri.value;
+        clone_p12_file = x_clone_p12_file.value;
+        clone_p12_passwd = x_clone_p12_passwd.value;
+
+        sd_hostname = x_sd_hostname.value;
+        sd_ssl_port = x_sd_ssl_port.value;
+        sd_admin_name = x_sd_admin_name.value;
+        sd_admin_password = x_sd_admin_password.value;
 
         boolean st = ca.ConfigureCAInstance();
 	

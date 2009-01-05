@@ -76,10 +76,12 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Sets certificate status update internal
      *
+     * @param requestRepo request repository
      * @param interval update interval
      * @param listenToCloneModifications enable listening to clone modifications
      */
-    public void setCertStatusUpdateInterval(int interval,
+    public void setCertStatusUpdateInterval(IRepository requestRepo, 
+        int interval,
         boolean listenToCloneModifications);
 
     /**

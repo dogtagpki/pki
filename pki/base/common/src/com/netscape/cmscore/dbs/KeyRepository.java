@@ -44,6 +44,7 @@ import com.netscape.cmscore.dbs.*;
  */
 public class KeyRepository extends Repository implements IKeyRepository {
 
+    public KeyStatusUpdateThread mKeyStatusUpdateThread = null;
     protected IDBSubsystem mDBService = null;
 
     /**
@@ -123,6 +124,30 @@ public class KeyRepository extends Repository implements IKeyRepository {
         if (!reg.isAttributeRegistered(KeyRecord.ATTR_ARCHIVED_BY)) {
             reg.registerAttribute(KeyRecord.ATTR_ARCHIVED_BY, new
                 StringMapper(KeyDBSchema.LDAP_ATTR_ARCHIVED_BY));
+        }
+    }
+
+    public void setKeyStatusUpdateInterval(IRepository requestRepo, int interval) {
+        CMS.debug("In setKeyStatusUpdateInterval " + interval);
+        // don't run the thread if serial management is disabled.
+        if ((interval == 0) || (!mDBService.getEnableSerialMgmt())) {
+            CMS.debug("In setKeyStatusUpdateInterval interval = 0" + interval);
+            if (mKeyStatusUpdateThread != null) {
+                mKeyStatusUpdateThread.stop();
+            }
+            return;
+        }
+
+        CMS.debug("In setKeyStatusUpdateInterval  mKeyStatusUpdateThread " + mKeyStatusUpdateThread);
+        if (mKeyStatusUpdateThread == null) {
+            CMS.debug("In setKeyStatusUpdateInterval about to create KeyStatusUpdateThread ");
+            mKeyStatusUpdateThread = new KeyStatusUpdateThread(this, requestRepo,  "KeyStatusUpdateThread");
+            mKeyStatusUpdateThread.setInterval(interval);
+            mKeyStatusUpdateThread.start();
+        } else {
+            CMS.debug("In setKeyStatusUpdateInterval it thinks the thread is up already ");
+            mKeyStatusUpdateThread.setInterval(interval);
+            // dont do anything if we have a thread running already
         }
     }
 
@@ -471,6 +496,57 @@ CMS.debug("filter= " + filter);
           CMS.debug("KeyRepository: getLastSerialNumberInRange returning: " +  ret );
           return ret ;
 
+    }
+
+    public void shutdown() {
+        if (mKeyStatusUpdateThread != null)
+            mKeyStatusUpdateThread.destroy();
+    }
+
+}
+
+class KeyStatusUpdateThread extends Thread {
+    KeyRepository _kr = null;
+    IRepository _rr = null;
+    int _interval;
+
+    KeyStatusUpdateThread(KeyRepository kr, IRepository rr, String name) {
+        super(name);
+        CMS.debug("new KeyStatusUpdateThread");
+
+        _kr = kr;
+        _rr = rr;
+    }
+
+    public void setInterval(int interval) {
+        _interval = interval;
+    }
+
+    public void run() {
+        CMS.debug("Inside run method of KeyStatusUpdateThread");
+
+        while (true) {
+            try {
+                // block the update while another thread
+                // (such as the CRL Update) is running
+                CMS.debug("About to start checkRanges");
+                synchronized (_kr.mKeyStatusUpdateThread) {
+                    CMS.debug("Starting key checkRanges");
+                    _kr.checkRanges();
+                    CMS.debug("key checkRanges done");
+ 
+                    CMS.debug("Starting request checkRanges");
+                    _rr.checkRanges();
+                    CMS.debug("request checkRanges done");
+                }
+            } catch (Exception e) {
+                CMS.debug("key checkRanges done");
+            }
+            try {
+                sleep(_interval * 1000);
+            } catch (InterruptedException e) {
+            }
+        }
     }
 }
 

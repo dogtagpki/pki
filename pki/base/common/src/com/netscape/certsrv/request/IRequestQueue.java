@@ -19,6 +19,7 @@ package com.netscape.certsrv.request;
 
 import java.math.*;
 import java.util.Enumeration;
+import com.netscape.certsrv.dbs.repository.IRepository;
 
 import com.netscape.certsrv.base.EBaseException;
 
@@ -399,4 +400,11 @@ public interface IRequestQueue {
      * Removes all objects with this repository.
      */
     public void removeAllObjects() throws EBaseException;
+
+    /**
+     * Gets request repository.
+     *
+     * @return request repository
+     */
+    public IRepository getRequestRepository();
 }

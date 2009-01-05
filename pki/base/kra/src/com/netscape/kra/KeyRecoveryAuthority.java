@@ -35,6 +35,7 @@ import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.dbs.*;
 import com.netscape.certsrv.usrgrp.*;
 import com.netscape.certsrv.dbs.keydb.*;
+import com.netscape.certsrv.dbs.replicadb.*;
 import com.netscape.cmscore.dbs.*;
 import com.netscape.certsrv.policy.*;
 import com.netscape.certsrv.kra.*;
@@ -73,6 +74,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     private static final String PARAM_AGENT = "agent";
 
     private final static String KEY_RESP_NAME = "keyRepository";
+    private static final String PROP_REPLICAID_DN = "dbs.replicadn";
 
     private Hashtable mRequestProcessor = new Hashtable();
 
@@ -89,6 +91,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     protected Hashtable mAutoRecovery = new Hashtable();
     protected boolean mAutoRecoveryOn = false;
     protected KeyRepository mKeyDB = null;
+    protected ReplicaIDRepository mReplicaRepot = null;
     protected IRequestNotifier mNotify = null;
     protected IRequestNotifier mPNotify = null;
     protected ISubsystem mOwner = null;
@@ -348,6 +351,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         mRequestQueue = reqSub.getRequestQueue(getId(), reqdb_inc,
                     mPolicy, service, mNotify, mPNotify);
 
+        // set KeyStatusUpdateInterval to be 10 minutes if serial management is enabled.
+        mKeyDB.setKeyStatusUpdateInterval(
+            mRequestQueue.getRequestRepository(), 
+            mConfig.getInteger("keyStatusUpdateInterval", 10 * 60));
+
         // init request scheduler if configured
         String schedulerClass =
             mConfig.getString("requestSchedulerClass", null);
@@ -363,6 +371,16 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             }
         }
         initNotificationListeners();
+
+        String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
+        if (replicaReposDN == null) {
+           replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
+        }
+
+        mReplicaRepot = new ReplicaIDRepository(
+            DBSubsystem.getInstance(), 1, replicaReposDN);
+        CMS.debug("Replica Repot inited");
+
     }
 
     public CryptoToken getKeygenToken() {
@@ -418,6 +436,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         mTransportKeyUnit.shutdown();
         mStorageKeyUnit.shutdown();
+        if (mKeyDB != null) {
+            mKeyDB.shutdown();
+            mKeyDB = null;
+        }
         getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA, 
             ILogger.LL_INFO, mName.toString() + " is stopped");
         mInitialized = false;
@@ -1054,6 +1076,17 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     public IKeyRepository getKeyRepository() {
         return mKeyDB;
     }
+
+    /**
+     * Retrieves replica repository.
+     * <P>
+     *
+     * @return replica repository
+     */
+    public IReplicaIDRepository getReplicaRepository() {
+        return mReplicaRepot;
+    }
+
 
     /**
      * Retrieves the DN of this escrow authority.

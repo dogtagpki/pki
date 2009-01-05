@@ -726,7 +726,12 @@ public class WizardPanelBase implements IWizardPanel {
                     } else if (type.equals("serialNo")) {
                         cs.putString("dbs.beginSerialNumber", beginNum);
                         cs.putString("dbs.endSerialNumber", endNum);
+                    } else if (type.equals("replicaId")) {
+                        cs.putString("dbs.beginReplicaNumber", beginNum);
+                        cs.putString("dbs.endReplicaNumber", endNum);
                     }
+                    // enable serial number management in clone
+                    cs.putString("dbs.enableSerialManagement", "true");
                     cs.commit(false);
                 } else if (status.equals(AUTH_FAILURE)) {
                     reloginSecurityDomain(response);

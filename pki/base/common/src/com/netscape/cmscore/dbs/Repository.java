@@ -29,6 +29,8 @@ import com.netscape.certsrv.dbs.repository.*;
 import com.netscape.certsrv.dbs.certdb.*;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.dbs.keydb.*;
+import com.netscape.certsrv.dbs.replicadb.*;
+
 /**
  * A class represents a generic repository. It maintains unique 
  * serial number within repository.
@@ -48,6 +50,7 @@ public abstract class Repository implements IRepository {
 
     private static final BigInteger BI_ONE = new BigInteger("1");
     private BigInteger BI_INCREMENT = null;
+    private static final BigInteger BI_ZERO = new BigInteger("0");
     // (the next serialNo to be issued) - 1
     private BigInteger mSerialNo = null; 
     // the serialNo attribute stored in db
@@ -55,13 +58,22 @@ public abstract class Repository implements IRepository {
 
     private String mMaxSerial = null;
     private String mMinSerial = null;
+    private String mNextMaxSerial = null;
+    private String mNextMinSerial = null;
 
     private BigInteger mMinSerialNo = null;
     private BigInteger mMaxSerialNo = null;
+    private BigInteger mNextMinSerialNo = null;
+    private BigInteger mNextMaxSerialNo = null;
+
+    private BigInteger mIncrementNo = null;
+    private BigInteger mLowWaterMarkNo = null;
 
     private IDBSubsystem mDB = null;
     private String mBaseDN = null;
     private boolean mInit = false;
+    private int mRadix = 10;
+    private int mRepo = -1;
 
 
     private BigInteger mLastSerialNo = null;
@@ -121,7 +133,7 @@ public abstract class Repository implements IRepository {
      *
      * @return next serial number
      */
-    private BigInteger getSerialNumber() throws EBaseException {
+    protected BigInteger getSerialNumber() throws EBaseException {
         IDBSSession s = mDB.createSession();
 
         CMS.debug("Repository: getSerialNumber.");
@@ -166,7 +178,7 @@ public abstract class Repository implements IRepository {
      *
      * @param num serial number
      */
-    private void setSerialNumber(BigInteger num) throws EBaseException {
+    protected void setSerialNumber(BigInteger num) throws EBaseException {
         IDBSSession s = mDB.createSession();
 
         CMS.debug("Repository:setSerialNumber " +  num.toString());
@@ -175,17 +187,69 @@ public abstract class Repository implements IRepository {
 
     }
 
+    /**
+     * Get the maximum serial number.
+     * 
+     * @return maximum serial number
+     */
     public String getMaxSerial() {
         return mMaxSerial;
     }
 
+    /**
+     * Set the maximum serial number.
+     * 
+     * @param serial maximum number
+     * @exception EBaseException failed to set maximum serial number
+     */
     public void setMaxSerial(String serial) throws EBaseException {
         BigInteger maxSerial = null;
-
         CMS.debug("Repository:setMaxSerial " + serial);
+
+        maxSerial = new BigInteger(serial, mRadix);
+        if (maxSerial != null) {
+           mMaxSerial = serial;
+           mMaxSerialNo = maxSerial;
+        }
+    }
+
+    /**
+     * Get the maximum serial number in next range.
+     * 
+     * @return maximum serial number in next range
+     */
+    public String getNextMaxSerial() {
+        return mNextMaxSerial;
+    }
+
+    /**
+     * Set the maximum serial number in next range
+     * 
+     * @param serial maximum number in next range
+     * @exception EBaseException failed to set maximum serial number in next range
+     */
+    public void setNextMaxSerial(String serial) throws EBaseException {
+        BigInteger maxSerial = null;
+        CMS.debug("Repository:setNextMaxSerial " + serial);
+
+        maxSerial = new BigInteger(serial, mRadix);
+        if (maxSerial != null) {
+           mNextMaxSerial = serial;
+           mNextMaxSerialNo = maxSerial;
+        }
 
         return;
     }
+  
+    /**
+     * Get the minimum serial number.
+     * 
+     * @return minimum serial number
+     */
+    public String getMinSerial() {
+       return mMinSerial;
+    }
+
 
     /**
      * init serial number cache
@@ -193,47 +257,55 @@ public abstract class Repository implements IRepository {
     private void initCache() throws EBaseException {
         mNext = getSerialNumber();
         BigInteger serialConfig = new BigInteger("0");
-
-        int radix = 10;
-        
+        mRadix = 10;
+   
         CMS.debug("Repository: in InitCache");
-        String minSerial = mDB.getMinSerialConfig();
-        String maxSerial = mDB.getMaxSerialConfig();
-        String minRequest = mDB.getMinRequestConfig();
-        String maxRequest = mDB.getMaxRequestConfig();
-
-        CMS.debug("Repository: minSerial " + minSerial + " maxSerial: " + maxSerial + " minRequest " + minRequest + " maxRequest " + maxRequest);
 
         if (this instanceof ICertificateRepository) {
-
-            mMaxSerial = maxSerial;
-            mMinSerial = minSerial;
-            radix = 16;
             CMS.debug("Repository: Instance of Certificate Repository.");
-        }  else  {
-
-            if(this instanceof IKeyRepository)  {
-
-                mMaxSerial = maxSerial;
-                mMinSerial = minSerial;
-                radix = 16;
-                CMS.debug("Repository: Instance of Key Repository.");
-
-            }  else {     // request repository
-
-                mMaxSerial = maxRequest;
-                mMinSerial = minRequest;
-                radix = 10;
-                CMS.debug("Repository: Instance of Request Repository.");
-
-            }
+            mRadix = 16;
+            mRepo = IDBSubsystem.CERTS;
+        } else if (this instanceof IKeyRepository)  {
+            // Key Repository uses the same configuration parameters as Certificate
+            // Repository.  This is ok because they are on separate subsystems.
+            CMS.debug("Repository: Instance of Key Repository");
+            mRadix = 16;
+            mRepo = IDBSubsystem.CERTS;
+        } else if (this instanceof IReplicaIDRepository) {
+            CMS.debug("Repository: Instance of Replica ID repository");
+            mRepo = IDBSubsystem.REPLICA_ID;
+        } else {
+            // CRLRepository subclasses this too, but does not use serial number stuff
+            CMS.debug("Repository: Instance of Request Repository or CRLRepository.");
+            mRepo = IDBSubsystem.REQUESTS;
         }
 
+        mMinSerial = mDB.getMinSerialConfig(mRepo);
+        mMaxSerial = mDB.getMaxSerialConfig(mRepo);
+        mNextMinSerial = mDB.getNextMinSerialConfig(mRepo);
+        mNextMaxSerial = mDB.getNextMaxSerialConfig(mRepo);
+        String increment = mDB.getIncrementConfig(mRepo);
+        String lowWaterMark = mDB.getLowWaterMarkConfig(mRepo);
+
+        CMS.debug("Repository: minSerial " + mMinSerial + " maxSerial: " + mMaxSerial);
+
         if(mMinSerial != null) 
-            mMinSerialNo = new BigInteger(mMinSerial,radix);
+            mMinSerialNo = new BigInteger(mMinSerial,mRadix);
 
         if(mMaxSerial != null)
-            mMaxSerialNo = new BigInteger(mMaxSerial,radix); 
+            mMaxSerialNo = new BigInteger(mMaxSerial,mRadix); 
+
+        if(mNextMinSerial != null) 
+            mNextMinSerialNo = new BigInteger(mNextMinSerial,mRadix);
+
+        if(mNextMaxSerial != null)
+            mNextMaxSerialNo = new BigInteger(mNextMaxSerial,mRadix); 
+
+        if(lowWaterMark  != null) 
+            mLowWaterMarkNo = new BigInteger(lowWaterMark,mRadix);
+
+        if(increment != null) 
+            mIncrementNo = new BigInteger(increment,mRadix);
 
         BigInteger theSerialNo = null;
         theSerialNo = getLastSerialNumberInRange(mMinSerialNo,mMaxSerialNo);
@@ -278,7 +350,6 @@ public abstract class Repository implements IRepository {
         // mSerialNo is already set. But just in case
 
         CMS.debug("Repository:In setTheSerialNumber " + num.toString());
-
         if (mLastSerialNo == null)
             initCache();
 
@@ -306,6 +377,7 @@ public abstract class Repository implements IRepository {
             EBaseException {
 
         CMS.debug("Repository: in getNextSerialNumber. ");
+ 
         if (mLastSerialNo == null) {
             initCache();
 
@@ -320,10 +392,32 @@ public abstract class Repository implements IRepository {
             CMS.debug( "Repository::getNextSerialNumber() " +
                        "- mLastSerialNo is null!" );
             throw new EBaseException( "mLastSerialNo is null" );
-        } else if( mLastSerialNo.compareTo( mMaxSerialNo ) > 0 ) {
-            mLastSerialNo = mLastSerialNo.subtract(BI_ONE);
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED", 
-                    mLastSerialNo.toString()));
+        }
+
+        // check if we have reached the end of the range
+        // if so, move to next range
+        if (mLastSerialNo.compareTo( mMaxSerialNo ) > 0 ) {
+            if (mDB.getEnableSerialMgmt()) {
+                CMS.debug("Reached the end of the range.  Attempting to move to next range");
+                mMinSerialNo = mNextMinSerialNo;
+                mMaxSerialNo = mNextMaxSerialNo;
+                mLastSerialNo = mMinSerialNo;
+                mNextMinSerialNo  = null;
+                mNextMaxSerialNo  = null;
+                if ((mMaxSerialNo == null) || (mMinSerialNo == null)) {
+                    throw new EDBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
+                        mLastSerialNo.toString()));
+                }
+
+                // persist the changes
+                mDB.setMinSerialConfig(mRepo, mMinSerialNo.toString());
+                mDB.setMaxSerialConfig(mRepo, mMaxSerialNo.toString());
+                mDB.setNextMinSerialConfig(mRepo, null);
+                mDB.setNextMaxSerialConfig(mRepo, null);
+            } else {
+                throw new EDBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
+                        mLastSerialNo.toString()));
+            }
         }
 
         BigInteger retSerial = new BigInteger(mLastSerialNo.toString());
@@ -331,6 +425,80 @@ public abstract class Repository implements IRepository {
         CMS.debug("Repository: getNextSerialNumber: returning retSerial " + retSerial);
         return retSerial; 
     }
+
+    /**
+     * Checks to see if a new range is needed, or if we have reached the end of the 
+     * current range, or if a range conflict has occurred.
+     *      
+     * @exception EBaseException failed to check next range for conflicts
+     */
+    public void checkRanges() throws EBaseException 
+    {
+        if (!mDB.getEnableSerialMgmt()) {
+            CMS.debug("Serial Management not enabled. Returning .. ");
+            return;
+        }
+        if (CMS.getEESSLPort() == null) {
+            CMS.debug("Server not completely started.  Returning ..");
+            return;
+        }
+
+        if (mLastSerialNo == null)
+            initCache();
+
+        BigInteger numsInRange = mMaxSerialNo.subtract(mLastSerialNo);
+        BigInteger numsInNextRange = null;
+        BigInteger numsAvail = null;
+        CMS.debug("Serial numbers left in range: " + numsInRange.toString());
+        CMS.debug("Last Serial Number: " + mLastSerialNo.toString());
+        if ((mNextMaxSerialNo != null) && (mNextMinSerialNo != null)) {
+            numsInNextRange = mNextMaxSerialNo.subtract(mNextMinSerialNo);
+            numsAvail = numsInRange.add(numsInNextRange);
+            CMS.debug("Serial Numbers in next range: " + numsInNextRange.toString());
+            CMS.debug("Serial Numbers available: " + numsAvail.toString());
+        } else {
+            numsAvail = numsInRange;
+            CMS.debug("Serial Numbers available: " + numsAvail.toString());
+        }
+
+        if ((numsAvail.compareTo(mLowWaterMarkNo) < 0) && (!CMS.isPreOpMode()) ) {
+            CMS.debug("Low water mark reached. Requesting next range");
+            mNextMinSerialNo = new BigInteger(mDB.getNextRange(mRepo), mRadix);
+            if (mNextMinSerialNo == null) {
+                CMS.debug("Next Range not available");
+            } else {
+                CMS.debug("nNextMinSerialNo has been set to " + mNextMinSerialNo.toString(mRadix));
+                mNextMaxSerialNo = mNextMinSerialNo.add(mIncrementNo);
+                numsAvail = numsAvail.add(mIncrementNo);
+                mDB.setNextMinSerialConfig(mRepo, mNextMinSerialNo.toString(mRadix));
+                mDB.setNextMaxSerialConfig(mRepo, mNextMaxSerialNo.toString(mRadix));
+            }
+        }
+
+        if (numsInRange.compareTo (mLowWaterMarkNo) < 0 )  {
+            // check for a replication error
+            CMS.debug("Checking for a range conflict");
+            if (mDB.hasRangeConflict(mRepo)) {
+                 CMS.debug("Range Conflict found! Removing next range.");
+                 mNextMaxSerialNo = null;
+                 mNextMinSerialNo= null;
+                 mDB.setNextMinSerialConfig(mRepo, null);
+                 mDB.setNextMaxSerialConfig(mRepo, null);
+            }
+        }   
+    }
+
+    /**
+     * Sets whether serial number management is enabled for certs
+     * and requests. 
+     *
+     * @param value   true/false 
+     * @exception EBaseException failed to set 
+     */
+    public void setEnableSerialMgmt(boolean value) throws EBaseException
+    {
+        mDB.setEnableSerialMgmt(value);
+    } 
 
     public abstract BigInteger getLastSerialNumberInRange(BigInteger  serial_low_bound, BigInteger serial_upper_bound) throws
        EBaseException;

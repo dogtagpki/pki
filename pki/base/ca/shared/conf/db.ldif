@@ -132,3 +132,32 @@ objectClass: top
 objectClass: repository
 ou: ca
 serialno: 010
+
+dn: ou=replica,{rootSuffix}
+objectClass: top
+objectClass: repository
+ou: replica
+serialno: 010
+nextRange: 1000
+
+dn: ou=ranges,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: ranges
+
+dn: ou=replica, ou=ranges,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: replica
+
+dn: ou=requests, ou=ranges,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: requests
+
+dn: ou=certificateRepository, ou=ranges,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: certificateRepository
+
+

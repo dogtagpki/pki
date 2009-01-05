@@ -34,6 +34,7 @@ import com.netscape.certsrv.security.*;
 import com.netscape.certsrv.publish.*;
 import com.netscape.certsrv.dbs.certdb.*;
 import com.netscape.certsrv.dbs.crldb.*;
+import com.netscape.certsrv.dbs.replicadb.*;
 
 
 /**
@@ -241,6 +242,13 @@ public interface ICertificateAuthority extends ISubsystem {
      * @return CA's CRL repository
      */
     public ICRLRepository getCRLRepository();
+
+    /**
+     * Retrieves the Replica ID repository.
+     *
+     * @return CA's Replica ID repository
+     */
+    public IReplicaIDRepository getReplicaRepository();
 
     /**
      * Retrieves the request in queue listener.
