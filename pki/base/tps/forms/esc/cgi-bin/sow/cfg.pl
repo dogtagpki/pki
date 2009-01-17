@@ -36,9 +36,9 @@ if( $^O eq "linux" ) {
 	}
 } elsif( $^O eq "solaris" ) {
 	if( $default_hardware_platform eq "sparc" ) {
-		$ldapsearch = "/usr/lib/mozldap/ldapsearch";
+		$ldapsearch = "/usr/lib/mozldap6/ldapsearch";
 	} elsif( $default_hardware_platform eq "sparcv9" ) {
-		$ldapsearch = "/usr/lib/sparcv9/mozldap/ldapsearch";
+		$ldapsearch = "/usr/lib/sparcv9/mozldap6/ldapsearch";
 	}
 }
 
