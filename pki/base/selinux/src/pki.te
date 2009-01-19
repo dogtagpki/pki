@@ -1,0 +1,91 @@
+policy_module(pki,1.0.0)
+
+attribute pki_ca_config;
+attribute pki_ca_executable;
+attribute pki_ca_var_lib;
+attribute pki_ca_var_log;
+attribute pki_ca_var_run;
+attribute pki_ca_pidfiles;
+attribute pki_ca_script;
+attribute pki_ca_process;
+
+type pki_ca_tomcat_exec_t;
+files_type(pki_ca_tomcat_exec_t)
+
+pki_ca_template(pki_ca)
+
+attribute pki_kra_config;
+attribute pki_kra_executable;
+attribute pki_kra_var_lib;
+attribute pki_kra_var_log;
+attribute pki_kra_var_run;
+attribute pki_kra_pidfiles;
+attribute pki_kra_script;
+attribute pki_kra_process;
+
+type pki_kra_tomcat_exec_t;
+files_type(pki_kra_tomcat_exec_t)
+
+pki_ca_template(pki_kra)
+
+
+attribute pki_ocsp_config;
+attribute pki_ocsp_executable;
+attribute pki_ocsp_var_lib;
+attribute pki_ocsp_var_log;
+attribute pki_ocsp_var_run;
+attribute pki_ocsp_pidfiles;
+attribute pki_ocsp_script;
+attribute pki_ocsp_process;
+
+type pki_ocsp_tomcat_exec_t;
+files_type(pki_ocsp_tomcat_exec_t)
+
+pki_ca_template(pki_ocsp)
+
+
+attribute pki_ra_config;
+attribute pki_ra_executable;
+attribute pki_ra_var_lib;
+attribute pki_ra_var_log;
+attribute pki_ra_var_run;
+attribute pki_ra_pidfiles;
+attribute pki_ra_script;
+attribute pki_ra_process;
+
+type pki_ra_tomcat_exec_t;
+files_type(pki_ra_tomcat_exec_t)
+
+pki_ra_template(pki_ra)
+
+
+attribute pki_tks_config;
+attribute pki_tks_executable;
+attribute pki_tks_var_lib;
+attribute pki_tks_var_log;
+attribute pki_tks_var_run;
+attribute pki_tks_pidfiles;
+attribute pki_tks_script;
+attribute pki_tks_process;
+
+type pki_tks_tomcat_exec_t;
+files_type(pki_tks_tomcat_exec_t)
+
+pki_ca_template(pki_tks)
+
+
+attribute pki_tps_config;
+attribute pki_tps_executable;
+attribute pki_tps_var_lib;
+attribute pki_tps_var_log;
+attribute pki_tps_var_run;
+attribute pki_tps_pidfiles;
+attribute pki_tps_script;
+attribute pki_tps_process;
+
+type pki_tps_tomcat_exec_t;
+files_type(pki_tps_tomcat_exec_t)
+
+pki_ra_template(pki_tps)
+
+
