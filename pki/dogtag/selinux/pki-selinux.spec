@@ -112,10 +112,10 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2
+BuildRequires:  ant >= 1.6.2, selinux-policy-devel, m4, make, policycoreutils
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0, perl-libwww-perl >= 5.8.0, policycoreutils
+Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0, perl-libwww-perl >= 5.8.0, policycoreutils, libsemanage
 
 
 ## This package is non-relocatable!
@@ -128,8 +128,7 @@ Source0:        %{base_name}-%{base_version}.tar.gz
 
 
 %description
-Public Key Infrastructure (PKI) setup scripts used to create and remove
-instances from %{base_entity} PKI deployments.
+Selinux policies for the Pubic Key Infrastructure (PKI) components.
 
 
 
@@ -184,31 +183,48 @@ rm -rf ${RPM_BUILD_ROOT}
 ###  P R E  &  P O S T   I N S T A L L / U N I N S T A L L   S C R I P T S  ###
 ###############################################################################
 
-## This package currently contains no pre-installation process!
-#%pre
+%define saveFileContext() \
+if [ -s /etc/selinux/config ]; then \
+        . %{_sysconfdir}/selinux/config; \
+        FILE_CONTEXT=%{_sysconfdir}/selinux/%1/contexts/files/file_contexts; \
+        if [ "${SELINUXTYPE}" == %1 -a -f ${FILE_CONTEXT} ]; then \
+                cp -f ${FILE_CONTEXT} ${FILE_CONTEXT}.%{name}; \
+        fi \
+fi;
 
+%define relabel() \
+. %{_sysconfdir}/selinux/config; \
+FILE_CONTEXT=%{_sysconfdir}/selinux/%1/contexts/files/file_contexts; \
+selinuxenabled; \
+if [ $? == 0  -a "${SELINUXTYPE}" == %1 -a -f ${FILE_CONTEXT}.%{name} ]; then \
+        fixfiles -C ${FILE_CONTEXT}.%{name} restore; \
+        rm -f ${FILE_CONTEXT}.%name; \
+fi;
 
-## This package currently contains no post-installation process!
-#%post
+%pre
+%saveFileContext targeted
 
+%post
+semodule -s targeted -i /usr/share/selinux/targeted/pki.pp 
+%relabel targeted
 
-## This package currently contains no pre-uninstallation process!
-#%preun
+%preun
+if [ $1 = 0 ]; then
+%saveFileContext targeted
+fi
 
-
-## This package currently contains no post-uninstallation process!
-#%postun
-
-
+%postun
+if [ $1 = 0 ]; then
+semodule -s targeted -r pki
+%relabel targeted
+fi
 
 ###############################################################################
 ###   I N V E N T O R Y   O F   F I L E S   A N D   D I R E C T O R I E S   ### 
 ###############################################################################
 
 %files
-%attr(00755,root,root) %{_bindir}/*
-%attr(-,root,root)     %{_datadir}/doc/%{base_name}-%{base_version}/*
-%attr(-,root,root)     %{_datadir}/%{base_prefix}/scripts/*
+%{_usr}/share/selinux/targeted/pki.pp
 
 
 
