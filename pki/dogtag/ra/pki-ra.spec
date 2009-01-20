@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      8
+%define base_release      9
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -124,7 +124,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_name}-ui, %{base_prefix}-setup >= 1.0.0, mod_nss >= 1.0.3, mod_perl >= 1.99_16, mozldap >= 6.0.2, perl-DBD-SQLite >= 1.11, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, perl-XML-SAX >= 0.12, perl-XML-Simple >= 2.14, perl-libwww-perl >= 5.79, sendmail >= 8.13.1, sqlite >= 3.3.3
+Requires:       %{base_name}-ui, %{base_prefix}-setup >= 1.0.0, mod_nss >= 1.0.3, mod_perl >= 1.99_16, mozldap >= 6.0.2, perl-DBD-SQLite >= 1.11, perl-DBI >= 1.58, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, perl-XML-SAX >= 0.12, perl-XML-Simple >= 2.14, perl-libwww-perl >= 5.79, sendmail >= 8.13.1, sqlite >= 3.3.3
 
 
 ## This package is non-relocatable!
@@ -261,6 +261,8 @@ fi
 ###############################################################################
 
 %changelog
+* Sat Jan 17 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-9
+- Bugzilla Bug #480515 -  RA configuraiton wizard url fails to start
 * Wed Dec 10 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-8
 - Bugzilla Bug #475895 - Parameterize the initial login shell
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-7
