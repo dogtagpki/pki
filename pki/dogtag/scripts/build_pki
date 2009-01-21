@@ -102,6 +102,7 @@ PKI_JAVA_TOOLS_JAVADOC=pki-java-tools-javadoc${RPM_EXT}
 PKI_COMMON_UI=${PKI_FLAVOR}-pki-common-ui${RPM_EXT}
 PKI_COMMON=pki-common${RPM_EXT}
 PKI_COMMON_JAVADOC=pki-common-javadoc${RPM_EXT}
+PKI_SELINUX=pki-selinux${RPM_EXT}
 
 # Establish PKI subsystem package names
 PKI_CA_UI=${PKI_FLAVOR}-pki-ca-ui${RPM_EXT}
@@ -162,6 +163,10 @@ ${PKI_SUDO} ${RPM_EXE} ${RPM_EXE_OPTIONS} ${PKI_RELEASE_UI_DIR}/common-ui/${RPM_
 ${PKI_BUILD_SCRIPT_DIR}/common/${PKI_BUILD_SCRIPT}
 ${PKI_SUDO} ${RPM_EXE} ${RPM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/common/${RPM_DIR}/${PKI_COMMON}
 ${PKI_SUDO} ${RPM_EXE} ${RPM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/common/${RPM_DIR}/${PKI_COMMON_JAVADOC}
+
+# Build and install 'pki-selinux' packages
+${PKI_BUILD_SCRIPT_DIR}/selinux/${PKI_BUILD_SCRIPT}
+${PKI_SUDO} ${RPM_EXE} ${RPM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/selinux/${RPM_DIR}/${PKI_SELINUX}
 
 # Build and install 'pki-ca-ui' packages
 ${PKI_BUILD_SCRIPT_DIR}/ca-ui/${PKI_BUILD_SCRIPT}
