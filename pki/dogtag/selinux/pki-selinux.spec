@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -142,7 +142,7 @@ Selinux policies for the Pubic Key Infrastructure (PKI) components.
 %prep
 
 
-%setup -q
+%setup -q -n %{base_name}-%{base_version}
 
 
 ## This package currently contains no patches!
@@ -156,7 +156,8 @@ Selinux policies for the Pubic Key Infrastructure (PKI) components.
 ###############################################################################
 
 %build
-ant -Dspecfile=%{base_name}.spec
+cd src
+make
 
 
 
@@ -165,8 +166,11 @@ ant -Dspecfile=%{base_name}.spec
 ###############################################################################
 
 %install
-cd dist/binary
-unzip %{name}-%{version}.zip -d ${RPM_BUILD_ROOT}
+rm -rf ${RPM_BUILD_ROOT}
+mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/doc/%{base_name}-%{base_version}
+cp -p LICENSE ${RPM_BUILD_ROOT}%{_datadir}/doc/%{base_name}-%{base_version}
+mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/selinux/targeted
+cp -p src/pki.pp ${RPM_BUILD_ROOT}%{_datadir}/selinux/targeted
 
 
 
@@ -224,7 +228,8 @@ fi
 ###############################################################################
 
 %files
-%{_usr}/share/selinux/targeted/pki.pp
+%attr(-,root,root)     %{_datadir}/doc/%{base_name}-%{base_version}/*
+%attr(-,root,root)     %{_datadir}/selinux/targeted/pki.pp
 
 
 
@@ -233,7 +238,10 @@ fi
 ###############################################################################
 
 %changelog
-* Mon Jan 16 2009 Ade Lee <alee@redhat.com> 1.0.0-1
-- Initial release
+* Tue Jan 20 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-2
+- Bugzilla Bug #480679 - integrate latest selinux code with the rest
+  of the build infrastructure 
 
+* Mon Jan 19 2009 Ade Lee <alee@redhat.com> 1.0.0-1
+- Initial release
 
