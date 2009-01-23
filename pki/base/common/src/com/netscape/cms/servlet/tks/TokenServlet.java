@@ -73,6 +73,15 @@ public class TokenServlet extends CMSServlet {
         "LOGGING_SIGNED_AUDIT_CONFIG_DRM_3";
     IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
 
+    private final static String
+        LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST =
+        "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_5";
+
+    private final static String
+        LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED =
+        "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_5";
+
+
     /**
      * Constructs tks servlet.
      */
@@ -199,6 +208,7 @@ public class TokenServlet extends CMSServlet {
         byte[] card_crypto, host_cryptogram, input_card_crypto;
         byte[] xcard_challenge, xhost_challenge;
         byte[] enc_session_key, xkeyInfo;
+        String auditMessage = null;
     
         String keySet = req.getParameter("keySet");
         if (keySet == null || keySet.equals("")) {
@@ -252,6 +262,14 @@ public class TokenServlet extends CMSServlet {
             missingParam = true;
         }
 
+        SessionContext sContext = SessionContext.getContext();
+
+        String agentId="";
+        if (sContext != null) {
+            agentId =
+                (String) sContext.get(SessionContext.USER_ID);
+        }
+
         if ((rcard_challenge == null) || (rcard_challenge.equals(""))) {
             CMS.debug("TokenServlet: ComputeSessionKey(): missing request parameter: card challenge");
             missingParam = true;
@@ -273,6 +291,16 @@ public class TokenServlet extends CMSServlet {
         boolean sameCardCrypto = true;
 
         if (!missingParam) {
+            auditMessage = CMS.getLogMessage(
+                         LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST,
+                        rCUID,
+                        ILogger.SUCCESS,
+                        agentId,
+                        isCryptoValidate? "true":"false",
+                        serversideKeygen? "true":"false");
+
+            audit(auditMessage);
+
             xCUID =com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
             if (xCUID == null || xCUID.length != 10) {
                         CMS.debug("TokenServlet: Invalid CUID length");
@@ -297,6 +325,7 @@ public class TokenServlet extends CMSServlet {
             }
         }
 
+        CUID = null;
         if (!missingParam) {
             card_challenge = 
                 com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_challenge);
@@ -392,7 +421,9 @@ public class TokenServlet extends CMSServlet {
 			/*generate it on whichever token the master key is at*/
 			if (useSoftToken_s.equals("true")) {
 			   CMS.debug("TokenServlet: key encryption key generated on internal");
+//cfu audit here? sym key gen
 			  desKey = SessionKey.GenerateSymkey("internal");
+//cfu audit here? sym key gen done
             } else {
 			   CMS.debug("TokenServlet: key encryption key generated on " + selectedToken);
 			  desKey = SessionKey.GenerateSymkey(selectedToken);
@@ -611,6 +642,15 @@ public class TokenServlet extends CMSServlet {
         } catch (IOException e) {
             CMS.debug("TokenServlet: " + e.toString());
         }
+        auditMessage = CMS.getLogMessage(
+                         LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED,
+                        rCUID,
+                        status,
+                        agentId,
+                        isCryptoValidate? "true":"false",
+                        serversideKeygen? "true":"false");
+
+        audit(auditMessage);
     }
 
     private void processDiversifyKey(HttpServletRequest req,

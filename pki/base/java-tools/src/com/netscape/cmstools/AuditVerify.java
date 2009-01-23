@@ -26,6 +26,7 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.util.Base64InputStream;
 import java.security.*;
 import java.security.interfaces.*;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for verifying signed audit logs
@@ -90,6 +91,17 @@ public class AuditVerify {
 
         // prefix may be valid if at least one file matched the pattern
         return (matchingFiles.length > 0);
+    }
+
+    public static boolean isSigningCert(X509CertImpl cert) {
+        boolean[] keyUsage = null;
+
+        try {
+            keyUsage = cert.getKeyUsage();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (keyUsage == null) ? false : keyUsage[0];
     }
 
 
@@ -165,12 +177,21 @@ public class AuditVerify {
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate signerCert = cm.findCertByNickname(signerNick);
         
+        X509CertImpl cert_i = null;
+        if (signerCert != null) {
+            byte[] signerCert_b = signerCert.getEncoded();
+            cert_i = new X509CertImpl(signerCert_b);
+        } else {
+           System.out.println("ERROR: signing certificate not found");
+           System.exit(1);
+        }
+
         // verify signer's certificate
-        if( ! cm.isCertValid(signerNick, true,
-                        CryptoManager.CertUsage.EmailSigner) )
-        {
-            System.out.println("Error: signing certificate is not valid");
-            System.exit(1);
+        //  not checking validity because we want to allow verifying old logs
+        // 
+        if (!isSigningCert(cert_i)) {
+           System.out.println("info: signing certificate is not a signing certificate");
+           System.exit(1);
         }
 
         PublicKey pubk = signerCert.getPublicKey();

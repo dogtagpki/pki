@@ -196,7 +196,7 @@
             <arg value="-e"/>
             <arg value="s/\[PKI_PRODUCT\]/${product.prefix}/g"/>
             <arg value="-e"/>
-            <arg value="s/\[PKI_COMMAND\]/AudityVerify/g"/>
+            <arg value="s/\[PKI_COMMAND\]/AuditVerify/g"/>
             <arg value="./build/cmds/AuditVerify.tmp"/>
         </exec>
         <delete file="./build/cmds/AuditVerify.tmp"/>
