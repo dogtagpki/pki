@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      8
+%define base_release      9
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -115,7 +115,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 BuildRequires:  ant >= 1.6.2
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0, perl-libwww-perl >= 5.8.0, policycoreutils
+Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0, perl-XML-Simple >= 2.14, perl-libwww-perl >= 5.8.0, policycoreutils
 
 
 ## This package is non-relocatable!
@@ -217,6 +217,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Jan 22 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-9
+- Bugzilla Bug #480952 - added "perl-XML-Simple" and "perl-libwww-perl"
+  runtime dependencies
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-8
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
                          "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"

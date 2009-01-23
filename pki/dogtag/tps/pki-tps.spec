@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      12
+%define base_release      13
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -146,7 +146,7 @@ BuildRoot:      %{_builddir}/%{name}-root
 BuildRequires:  apr-devel >= 0.9.4, apr-util-devel >= 0.9.4, %{base_flavor}-%{base_name}-ui >= 1.0.0, bash >= 3.0, cyrus-sasl-devel >= 2.1.19, httpd-devel >= 2.0.52, mozldap-devel >= 6.0.2, nspr-devel >= 4.6.99, nss-devel >= 3.12.0, pcre-devel >= 6.6, svrcore-devel >= 4.0.3.01, zlib >= 1.2.3
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_prefix}-setup >= 1.0.0, %{base_name}-ui, mod_nss >= 1.0.3, mod_perl >= 1.99_16, mozldap >= 6.0.2, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, perl-XML-SAX >= 0.12, perl-XML-Simple >= 2.14, perl-libwww-perl >= 5.79
+Requires:       %{base_prefix}-setup >= 1.0.0, %{base_name}-ui, mod_nss >= 1.0.3, mod_perl >= 1.99_16, mozldap >= 6.0.2, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, perl-XML-SAX >= 0.12
 
 
 ## This package is non-relocatable!
@@ -308,6 +308,9 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Jan 22 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-13
+- Bugzilla Bug #480952 - moved "perl-XML-Simple" and "perl-libwww-perl"
+  runtime dependencies to pki-setup
 * Wed Dec 10 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-12
 - Bugzilla Bug #475895 - Parameterize the initial login shell
 * Mon Dec 8 2008 Ade Lee <alee@edhat.com> 1.0.0-11
