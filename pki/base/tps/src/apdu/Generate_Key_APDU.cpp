@@ -40,16 +40,22 @@ BYTE type, Buffer &wrapped_challenge, Buffer &key_check)
     SetP1(p1);
     SetP2(p2);
     Buffer data;
-    data = Buffer(1,alg) +
+    data =
+    Buffer(1,alg) + 
         Buffer(1,(BYTE)(keysize/256)) +
         Buffer(1,(BYTE)(keysize%256)) +
-        Buffer(1,option) +
+        Buffer(1,option) + 
         Buffer(1,type) +
         Buffer(1,(BYTE)wrapped_challenge.size()) +
         Buffer(wrapped_challenge) +
-        Buffer(1,(BYTE)key_check.size()) +
-        Buffer(key_check);
+
+        Buffer(1,(BYTE)key_check.size());
+    
+        if(key_check.size() > 0) 
+            data = data + Buffer(key_check); 
+    
     SetData(data);
+
 }
 
 TPS_PUBLIC Generate_Key_APDU::~Generate_Key_APDU ()
