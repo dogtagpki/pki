@@ -218,7 +218,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
         mLogger = CMS.getLogger();
 		
         if (mInited)
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
+        {
+            // This used to throw an exeception (e.g. - on Solaris).
+            // If JSS is already initialized simply return.
+            CMS.debug("JssSubsystem already inited.. returning.");
+            return;
+        }
 
         mConfig = config;
 
