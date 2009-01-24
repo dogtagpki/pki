@@ -27,7 +27,7 @@
 ## Package Header Definitions
 %define base_name         %{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Libraries
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -234,6 +234,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Jan 22 2009 Jack Magne <jmagne@redhat.com> 1.0.0-5
+- Bugzilla Bug #459538 - TKS support for Safenet 330J.
 * Thu Dec 4 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
 - Bugzilla Bug #474369 - Remove NSS dependency on "pkcs11-devel" and
                          upgrade NSS/NSPR version dependencies  
