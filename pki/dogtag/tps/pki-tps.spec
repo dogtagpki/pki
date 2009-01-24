@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      13
+%define base_release      14
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -308,6 +308,8 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Jan 23 2009 Jack Magne <jmagne@redhat.com> 1.0.0-14
+- Bugzilla Bug #459539 - Support safenet 330J token.
 * Thu Jan 22 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-13
 - Bugzilla Bug #480952 - moved "perl-XML-Simple" and "perl-libwww-perl"
   runtime dependencies to pki-setup
