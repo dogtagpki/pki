@@ -625,7 +625,11 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     }else
     GetKeyName(keyVersion,keyname);
 
-    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&strcmp( keyname, "#01#01") == 0)
+
+
+    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 && strcmp( keyname, "#01#01") == 0 ||
+        (keyVersion[0] == -1 && strstr(keyname, "#FF")))
+     
     {
 
         /* default manufacturers key */
@@ -780,8 +784,8 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
         GetKeyName(keyVersion,keyname);
     }
 
-    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&
-        strcmp( keyname, "#01#01") == 0)
+    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&strcmp( keyname, "#01#01") == 0 ||
+        (keyVersion[0] == -1 && strstr(keyname, "#FF")))
     {
         /* default manufacturers key */
         symkey = DeriveKey(                       //Util::DeriveKey(
@@ -926,7 +930,8 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
         GetKeyName(keyVersion,keyname);
     }
 
-    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&strcmp( keyname, "#01#01") == 0)
+    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&strcmp( keyname, "#01#01") == 0 ||
+        (keyVersion[0] == -1 && strstr(keyname, "#FF")))
     {
         /* default manufacturers key */
         symkey = DeriveKey(                       //Util::DeriveKey(
@@ -1059,8 +1064,8 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
     }else
     GetKeyName(keyVersion,keyname);
 
-    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&
-        strcmp( keyname, "#01#01") == 0)
+    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&strcmp( keyname, "#01#01") == 0 ||
+        (keyVersion[0] == -1 && strcmp(keyname, "#FF")))
     {
         /* default manufacturers key */
         if (debug_fd)
@@ -1353,8 +1358,8 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     }else
     GetKeyName(keyVersion,keyname);
 
-    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&
-        strcmp( keyname, "#01#01") == 0)
+    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&strcmp( keyname, "#01#01") == 0 ||
+        (keyVersion[0] == -1 && strstr(keyname, "#FF")))
     {
         /* default manufacturers key */
         symkey = DeriveKey(                       //Util::DeriveKey(

@@ -180,7 +180,9 @@ Java_com_netscape_symkey_SessionKey_EncryptData(JNIEnv * env, jclass this2, jstr
     }
 
     PK11SymKey *masterKey = NULL;
-    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&strcmp( keyname, "#01#01") == 0)
+
+    if (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 &&strcmp( keyname, "#01#01") == 0 ||
+        (keyVersion[0] == -1  && strstr(keyname, "#FF") ))
     {
         /* default development keyset */
         status = EncryptData(kek_buffer, cc, cc_len, out);
