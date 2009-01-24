@@ -1343,7 +1343,7 @@ int Secure_Channel::StartEnrollment(BYTE p1, BYTE p2, Buffer *wrapped_challenge,
     RA::Debug("Secure_Channel::GenerateKey",
         "Secure_Channel::GenerateKey");
     generate_key_apdu = new Generate_Key_APDU(p1, p2, alg, keysize, option,
-        0x85, *wrapped_challenge, *key_check);
+        alg, *wrapped_challenge, *key_check);
     rc = ComputeAPDU(generate_key_apdu);
     if (rc == -1)
       goto loser;
