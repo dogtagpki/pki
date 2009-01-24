@@ -376,13 +376,18 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
     } else { //generate keys on token
 
       RA::Debug(LL_PER_CONNECTION,FN,
-		"Private key is to be generated on token");
+                "Private key is to be generated on token");
+
+      BYTE alg = 0x80;
+
+      if(key_check && key_check->size())
+         alg = 0x81;
 
       len = channel->StartEnrollment(
-        se_p1, se_p2,		     
+        se_p1, se_p2,
         wrapped_challenge,
         key_check,
-        0x01 /* alg */, keysize,
+        alg /* alg */, keysize,
         0x00 /* option */);
 
       RA::Debug(LL_PER_CONNECTION,FN,
@@ -629,9 +634,14 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
 	  PL_strfree(ivParam);
 	}
 
+        BYTE alg = 0x80;
+        if(decodeKey && decodeKey->size()) {
+            alg = 0x81;
+        }
+
 	data =
 	  Buffer((BYTE*)objid, 4)+ // object id
-	  Buffer(1, 0x08) + // key type is DES3: 8
+	  Buffer(1,alg) +
 	  Buffer(1, (BYTE) decodeKey->size()) + // 1 byte length
 	  Buffer((BYTE *) *decodeKey, decodeKey->size())+ // key -encrypted to 3des block
 	  // check size
