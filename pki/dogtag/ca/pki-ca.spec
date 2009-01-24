@@ -278,7 +278,7 @@ fi
 ###############################################################################
 
 %changelog
-* Thu Jan 22 Christina Fu <cfu@redhat.com> 1.0.0-20
+* Thu Jan 22 2009 Christina Fu <cfu@redhat.com> 1.0.0-20
 - Bugzilla Bug 481237 - Audit Log signing framework
 * Mon Jan 5 2009 Ade Lee <alee@redhat.com> 1.0.0-19
 - Bugzilla Bug #472006, 472007 - Serial number management
