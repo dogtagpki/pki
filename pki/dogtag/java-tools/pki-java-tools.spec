@@ -255,7 +255,7 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
-* Thu Jan 22 Christina Fu <cfu@redhat.com> 1.0.0-4
+* Thu Jan 22 2009 Christina Fu <cfu@redhat.com> 1.0.0-4
 - Bugzilla Bug 481237 - Audit Log signing framework
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-3
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
