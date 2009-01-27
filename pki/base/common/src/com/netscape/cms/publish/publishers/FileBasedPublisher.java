@@ -28,7 +28,7 @@ import com.netscape.certsrv.logging.*;
 import com.netscape.certsrv.apps.*;
 import com.netscape.certsrv.ldap.*;
 import com.netscape.certsrv.publish.*;
-
+import org.mozilla.jss.util.Base64OutputStream;
 
 /** 
  * This publisher writes certificate and CRL into
@@ -40,12 +40,16 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private static final String PROP_DIR = "directory";
     private static final String PROP_DER = "Filename.der";
     private static final String PROP_B64 = "Filename.b64";
+    private static final String PROP_LNK = "LatestCrlLink";
+    private static final String PROP_EXT = "CrlLinkExt";
     private IConfigStore mConfig = null;
     private String mDir = null;
     private ILogger mLogger = CMS.getLogger();
     private String mcrlIssuingPointId;
     protected boolean mDerAttr = true;
     protected boolean mB64Attr = false;
+    protected boolean mLatestCRL = false;
+    protected String mLinkExt = null;
 
     public void setIssuingPointId(String crlIssuingPointId)
     {
@@ -61,6 +65,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the description of the ldap publisher.
      */
+
     public String getDescription() {
         return "This publisher writes the Certificates and CRLs into files.";
     }
@@ -68,8 +73,10 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_DIR + ";string;Directory in which to put the files (absolute path or relative path to cert-* instance directory)",
-                PROP_DER + ";boolean;Store CRLs into *.der files",
-                PROP_B64 + ";boolean;Store CRLs into *.b64 files",
+                PROP_DER + ";boolean;Store certificates or CRLs into *.der files",
+                PROP_B64 + ";boolean;Store certificates or CRLs into *.b64 files",
+                PROP_LNK + ";boolean;Generate link to the latest CRL",
+                PROP_EXT + ";string;Name extension used by link to the latest CRL. Default name extension is 'der'",
                 IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-ldappublish-publisher-filepublisher",
                 IExtendedPluginInfo.HELP_TEXT +
@@ -85,16 +92,24 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public Vector getInstanceParams() {
         Vector v = new Vector();
         String dir = "";
+        String ext = "";
 
         try {
             dir = mConfig.getString(PROP_DIR);
         } catch (EBaseException e) {
         }
         try {
-            v.addElement("directory=" + dir);
+            ext = mConfig.getString(PROP_EXT);
+        } catch (EBaseException e) {
+        }
+        try {
+            v.addElement(PROP_DIR+"=" + dir);
             
             v.addElement(PROP_DER+"=" + mConfig.getBoolean(PROP_DER,true));
             v.addElement(PROP_B64+"=" +  mConfig.getBoolean(PROP_B64,false));
+            v.addElement(PROP_LNK+"=" +  mConfig.getBoolean(PROP_LNK,false));
+
+            v.addElement(PROP_EXT+"=" + ext);
         } catch (Exception e) {
         }
         return v;
@@ -106,9 +121,11 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public Vector getDefaultParams() {
         Vector v = new Vector();
 
-        v.addElement("directory=");
+        v.addElement(PROP_DIR+"=");
         v.addElement(PROP_DER+"=true");
         v.addElement(PROP_B64+"=false");
+        v.addElement(PROP_LNK+"=false");
+        v.addElement(PROP_EXT+"=");
         return v;
     }
 
@@ -118,11 +135,14 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public void init(IConfigStore config) {
         mConfig = config;
         String dir = null;
+        String ext = null;
 
         try {
             dir = mConfig.getString(PROP_DIR, null);
             mDerAttr = mConfig.getBoolean(PROP_DER, true);
             mB64Attr = mConfig.getBoolean(PROP_B64, false);
+            mLatestCRL = mConfig.getBoolean(PROP_LNK, false);
+            mLinkExt = mConfig.getString(PROP_EXT, null);
         } catch (EBaseException e) {
         }
         if (dir == null) {
@@ -173,18 +193,33 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      */
     public void publish(LDAPConnection conn, String dn, Object object)
         throws ELdapException {
+        CMS.debug("FileBasedPublisher: publish");
         try {
             if (object instanceof X509Certificate) {
                 X509Certificate cert = (X509Certificate) object;
                 BigInteger sno = cert.getSerialNumber();
-                String fileName = mDir +
+                String name = mDir +
                     File.separator + "cert-" + 
-                    sno.toString() + ".der";
-                FileOutputStream fos = new FileOutputStream(
-                        fileName);
-
-                fos.write(cert.getEncoded());
-                fos.close();
+                    sno.toString();
+                if (mDerAttr)
+                {
+                    String fileName = name + ".der";
+                    FileOutputStream fos = new FileOutputStream(fileName);
+                    fos.write(cert.getEncoded());
+                    fos.close();
+                }
+                if (mB64Attr)
+                {
+                    String fileName = name + ".b64";
+                    FileOutputStream fos = new FileOutputStream(fileName);
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    Base64OutputStream b64 =
+                        new Base64OutputStream(new PrintStream(new FilterOutputStream(output)));
+                    b64.write(cert.getEncoded());
+                    b64.flush();
+                    (new PrintStream(fos)).print(output.toString("8859_1"));
+                    fos.close();
+                }
             } else if (object instanceof X509CRL) {
                 X509CRL crl = (X509CRL) object;
                 java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("yyMMddHHmmss");
@@ -202,14 +237,11 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     if(currentIssuingPoint.isDeltaCRLEnabled()){
                         deltaNumber = currentIssuingPoint.getCRLNumber().toString();
                     }
-                    prefix = mcrlIssuingPointId+ "-";
+                    prefix = mcrlIssuingPointId;
                 }else
-                    prefix = "crl-";
-                
+                    prefix = "crl";
         
-        
-        
-                String baseName = mDir + File.separator + prefix + GMTTime;
+                String baseName = mDir + File.separator + prefix + "-" + GMTTime;
                 if(deltaNumber!=null && deltaNumber.length()!=0)
                     baseName = baseName + "." + deltaNumber;
                 String tempFile = baseName + ".temp";
@@ -232,6 +264,38 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     destFile.delete();
                 renameFile = new File(tempFile);
                 renameFile.renameTo(destFile);
+
+                if (mLatestCRL) {
+                    String linkExt = ".";
+                    if (mLinkExt != null && mLinkExt.length() > 0) {
+                        linkExt += mLinkExt;
+                    } else {
+                        linkExt += "der";
+                    }
+                    String linkName = mDir + File.separator + prefix + linkExt;
+                    String cmd = "ln -s " + destName + " " + linkName + ".new";
+                    CMS.debug("FileBasedPublisher: cmd: " + cmd);
+                    if (com.netscape.cmsutil.util.Utils.exec(cmd)) {
+                        File oldLink = new File(linkName + ".old");
+                        if (oldLink.exists()) {
+                            oldLink.delete();
+                        }
+                        File link = new File(linkName);
+                        if (link.exists()) {
+                            link.renameTo(new File(linkName + ".old"));
+                        }
+                        File newLink = new File(linkName + ".new");
+                        if (newLink.exists()) {
+                            newLink.renameTo(new File(linkName));
+                        }
+                        oldLink = new File(linkName + ".old");
+                        if (oldLink.exists()) {
+                            oldLink.delete();
+                        }
+                    } else {
+                        CMS.debug("FileBasedPublisher: cmd: " + cmd + " --- failed");
+                    }
+                }
                 }
                 
                 // output base64 file
@@ -278,24 +342,22 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      */
     public void unpublish(LDAPConnection conn, String dn, Object object)
         throws ELdapException {
+        CMS.debug("FileBasedPublisher: unpublish");
+        String name = mDir + File.separator;
         if (object instanceof X509Certificate) {
             X509Certificate cert = (X509Certificate) object;
             BigInteger sno = cert.getSerialNumber();
-            String fileName = mDir +
-                File.separator + "cert-" + 
-                sno.toString() + ".der";
-            File f = new File(fileName);
-
-            f.delete();
+            name += "cert-" + sno.toString();
         } else if (object instanceof X509CRL) {
             X509CRL crl = (X509CRL) object;
-            String fileName = mDir +
-                File.separator + "crl-" +
-                crl.getThisUpdate().getTime() + ".der";
-            File f = new File(fileName);
-
-            f.delete();
+            name += "crl-" + crl.getThisUpdate().getTime();
         }
+        String fileName = name + ".der";
+        File f = new File(fileName);
+        f.delete();
+        fileName = name + ".b64";
+        f = new File(fileName);
+        f.delete();
     }
    /**
      * returns the Der attribute where it'll be published.
