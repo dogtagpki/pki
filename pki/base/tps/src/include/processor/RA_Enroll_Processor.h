@@ -235,7 +235,8 @@ class RA_Enroll_Processor : public RA_Processor
 				char *a_cuid,
 				AuthenticationEntry *a_auth,
 				AuthParams *& o_login,
-				RA_Status &o_status);
+				RA_Status &o_status,
+                                const char *token_type);
 
 		bool CheckAndUpgradeApplet(
 				RA_Session *a_session,

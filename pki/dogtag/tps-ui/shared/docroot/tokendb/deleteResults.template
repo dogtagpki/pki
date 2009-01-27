@@ -61,11 +61,11 @@ document.write("<HR NOSHADE SIZE=1>\n");
 
 if (typeof(tid) == "undefined") {
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n");
-    document.write("Missing token ID</font>\n");
+    document.write("Missing " + deleteType + " ID</font>\n");
     document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
 } else {
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n");
-    document.write("Token record "+tid+" has been deleted.</font>\n");
+    document.write(deleteType + " record "+tid+" has been deleted.</font>\n");
     document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
 }
 //-->

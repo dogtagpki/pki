@@ -53,65 +53,21 @@ if (typeof(uriBase) == "undefined") {
 }
 
 document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
-               "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : Edit Token</font>\n");
+               "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : Delete User</font>\n");
 document.write("<table width=\"100%\"><tr><td align=\"right\">" +
                 "<b>UID:</b>" +
                 userid + "</td></tr></table>\n");
 document.write("<HR NOSHADE SIZE=1>\n");
 
-function trim(str) {
-    var i, k, newString;
-
-    for (i = 0; i < str.length; i++) {
-        if (str.charAt(i) != ' ' )
-            break;
-    }
-    for (k = str.length - 1; k >= i; k--) {
-        if (str.charAt(k) != ' ' ) {
-            k++;
-            break;
-        }
-    }
-
-    if (k > i)
-        newString = str.substring(i, k);
-    else
-        newString = null;
-
-    return  newString;
-}
-
-function doSave(form) {
-    if (form.uid.value.length > 0) {
-        var trimmedList = "";
-        var uids = form.uid.value.split(',');
-
-        for (var i=0; i < uids.length; i++) {
-            if (i > 0) trimmedList += ",";
-            trimmedList += trim(uids[i]);
-        }
-        form.uid.value = trimmedList;
-    }
-
+function doDeleteUser(form) {
         var uri = "";
         if (typeof(uriBase) == "undefined") {
             uri += "/tus";
         } else {
             uri += uriBase;
         }
-        uri += "?op=save_admin&tid="+results[0].cn;
-
-        if (results[0].tokenUserID != form.uid.value) {
-            uri += "&uid=" + form.uid.value;
-        }
-        if (results[0].tokenPolicy != form.tokenPolicy.value) {
-            uri += "&tokenPolicy=" + form.tokenPolicy.value;
-        }
-        if (results[0].tokenReason != form.tokenReason.value) {
-            uri += "&tokenReason=" + form.tokenReason.value;
-        }
-        uri += "&m=" + results[0].modified;
-        location.href = uri;
+        this.action = uri;
+        return true;
 }
 
 function doCancel() {
@@ -128,75 +84,67 @@ function doCancel() {
 
 if (typeof(results) == "undefined" || results.length == 0) {
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Token Not Found</font>\n");
+                   "User Not Found</font>\n");
 } else if (results.length > 1) {
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Found too many tokens to edit</font>\n");
+                   "Found too many users to edit</font>\n");
 } else {
     document.write("<BR>");
-    document.write("<FORM NAME =\"editForm\" ACTION=\"\" METHOD=GET>");
+    document.write("<form NAME =\"deleteUserForm\" METHOD=POST onSubmit=\"return doDeleteUser(this);\">");
+    document.write("<input TYPE=HIDDEN NAME=query VALUE=\"op=do_delete_user\">");
 
     document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
     document.write("<tr>\n");
     document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Token:&nbsp;</font>\n");
+                   "UserID:&nbsp;</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   results[0].cn+"</font>\n");
+                   results[0].uid+"</font>\n");
+    document.write("<input TYPE=HIDDEN NAME=uid VALUE=\"" + results[0].uid + "\">");
     document.write("</td>\n");
     document.write("</tr>\n");
 
     document.write("<tr>\n");
     document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "User ID:&nbsp;</font>\n");
+                   "First Name:&nbsp;</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
-    document.write("<input TYPE=TEXT NAME=uid SIZE=20 VALUE="+results[0].tokenUserID+">\n");
+    document.write(results[0].cn.substring(0, results[0].cn.indexOf(" ")));
     document.write("</td>\n");
     document.write("</tr>\n");
 
     document.write("<tr>\n");
     document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Status:&nbsp;</font>\n");
+                   "Last Name:&nbsp;</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   results[0].tokenStatus+"</font>\n");
+    document.write(results[0].sn);
     document.write("</td>\n");
     document.write("</tr>\n");
 
     document.write("<tr>\n");
     document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Reason:&nbsp;</font>\n");
+                   "Role:&nbsp;</font>\n");
     document.write("</td>\n");
-    document.write("<td>\n");
-    document.write("<input TYPE=TEXT NAME=tokenReason SIZE=20 VALUE="+results[0].tokenReason+">\n");
-    document.write("</td>\n");
+    document.write("<td ><input type=checkbox name=opOperator value=Officers disabled=true " + operator + ">Operator</td>\n");
+    document.write("<td ><input type=checkbox name=opAgent value=Agents disabled=true " + agent + ">Agent</td>\n");
+    document.write("<td ><input type=checkbox name=opAdmin value=Administrators disabled=true " + admin + ">Administrator</td>\n");
     document.write("</tr>\n");
-
+    
     document.write("<tr>\n");
     document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Policy:&nbsp;</font>\n");
+                   "User Certificate:&nbsp;</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
-    document.write("<input TYPE=TEXT NAME=tokenPolicy SIZE=20 VALUE="+results[0].tokenPolicy+">\n");
-    document.write("</td>\n");
-    document.write("</tr>\n");
-
-    document.write("<tr>\n");
-    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Token Type:&nbsp;</font>\n");
-    document.write("</td>\n");
-    document.write("<td>\n");
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   results[0].tokenType+"</font>\n");
+    document.write("<textarea name=userCert disabled=true cols=40 rows=10>\n");
+    document.write(results[0].userCertificate);
+    document.write("</textarea>\n");
     document.write("</td>\n");
     document.write("</tr>\n");
 
@@ -207,15 +155,17 @@ if (typeof(results) == "undefined" || results.length == 0) {
     document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
     document.write("<tr>\n");
     document.write("<td>\n");
-    document.write("<input TYPE=button VALUE=Save onClick=\"doSave(editForm);\">");
+    document.write("Are you sure?");
     document.write("</td>\n");
     document.write("<td>\n");
     document.write("<input TYPE=button VALUE=Cancel onClick=\"doCancel();\">");
     document.write("</td>\n");
-    document.write("</form>\n");
+    document.write("<td>\n");
+    document.write("<input TYPE=submit VALUE=Delete>");
+    document.write("</td>\n");
     document.write("</tr>\n");
     document.write("</table>\n");
-
+    document.write("</form>");
 }
 
 //-->

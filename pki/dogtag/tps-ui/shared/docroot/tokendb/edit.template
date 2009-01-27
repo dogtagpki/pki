@@ -161,6 +161,16 @@ if (typeof(results) == "undefined" || results.length == 0) {
     document.write("</td>\n");
     document.write("</tr>\n");
 
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Token Type:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write(results[0].tokenType+"\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
     document.write("</table>\n");
     document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
 

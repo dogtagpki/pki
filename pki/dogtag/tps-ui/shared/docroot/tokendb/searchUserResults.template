@@ -13,7 +13,7 @@
      Foundation, Inc., 51 Franklin Street, Fifth Floor,
      Boston, MA  02110-1301  USA 
      
-     Copyright (C) 2007 Red Hat, Inc.
+     Copyright (C) 2008 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -74,95 +74,58 @@ if (typeof(uriBase) == "undefined") {
     uri += uriBase;
 }
 
-if ((typeof(topLevel) != "undefined") && (topLevel == "operator")) {
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
-               "<a href=\""+uri+"\">Main Menu</a> : Operator Operations : Search Results</font>\n");
-    uri += "?op=show&top=operator&tid=";
-} else {
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
-               "<a href=\""+uri+"\">Main Menu</a> : Agent Operations : Search Results</font>\n");
-    uri += "?op=show&tid=";
-}
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri+"\">Main Menu</a> : Administrator Operations : Search Results</font>\n");
 document.write("<table width=\"100%\"><tr><td align=\"right\">" +
 		"<b>UID:</b>" +
                 userid + "</td></tr></table>\n");
 document.write("<HR NOSHADE SIZE=1>\n");
 
+uri += "?op=edit_user&uid=";
+
 if (typeof(results) == "undefined" || results.length == 0) {
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Token Not Found</font>\n");
+                   "User Not Found</font>\n");
 } else {
     document.write("<BR>");
     document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
     document.write("<tr bgcolor=#e5e5e5>\n");
     document.write("<td>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Token</font>\n");
-    document.write("</td>\n");
-    document.write("<td>\n");
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
                    "User ID</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Status</font>\n");
+                   "Name</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Reason</font>\n");
+                   "Date Created</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Applet</font>\n");
-    document.write("</td>\n");
-    document.write("<td>\n");
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Key Info</font>\n");
-    document.write("</td>\n");
-    document.write("<td>\n");
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Created</font>\n");
-    document.write("</td>\n");
-    document.write("<td>\n");
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                   "Modified</font>\n");
+                   "Date Modified</font>\n");
     document.write("</td>\n");
     document.write("</tr>\n");
 
-	for (var i = 0; i < results.length; i++) {
+    for (var i = 0; i < results.length; i++) {
         document.write("<tr>\n");
         document.write("<td>\n");
         document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                       "<a href=\""+uri+results[i].cn+"\">"+
-                        results[i].cn+"</a></font>\n");
+                       "<a href=\""+uri+results[i].uid+"\">"+
+                        results[i].uid+"</a></font>\n");
         document.write("</td>\n");
         document.write("<td>\n");
         document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                        results[i].tokenUserID+"</font>\n");
+                        results[i].cn+"</font>\n");
         document.write("</td>\n");
         document.write("<td>\n");
         document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                        results[i].tokenStatus+"</font>\n");
+                        checkDate(results[i].createTimeStamp)+"</font>\n");
         document.write("</td>\n");
         document.write("<td>\n");
         document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                        results[i].tokenReason+"</font>\n");
-        document.write("</td>\n");
-        document.write("<td>\n");
-        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                        results[i].tokenAppletID+"</font>\n");
-        document.write("</td>\n");
-        document.write("<td>\n");
-        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                        results[i].keyInfo+"</font>\n");
-        document.write("</td>\n");
-        document.write("<td>\n");
-        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                        checkDate(results[i].dateOfCreate)+"</font>\n");
-        document.write("</td>\n");
-        document.write("<td>\n");
-        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
-                        checkDate(results[i].dateOfModify)+"</font>\n");
+                        checkDate(results[i].modifyTimeStamp)+"</font>\n");
         document.write("</td>\n");
         document.write("</tr>\n");
     }

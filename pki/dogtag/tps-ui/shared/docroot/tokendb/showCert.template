@@ -52,8 +52,13 @@ if (typeof(uriBase) == "undefined") {
     uri0 += uriBase;
 }
 
-document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+if ((typeof(topLevel) != "undefined") && (topLevel == "operator")) {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri0+"\">Main Menu</a> : Operator Operations : Certificate Details</font>\n");
+} else {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
                "<a href=\""+uri0+"\">Main Menu</a> : Agent Operations : Certificate Details</font>\n");
+}
 document.write("<table width=\"100%\"><tr><td align=\"right\">" +
                 "<b>UID:</b>" +
                 userid + "</td></tr></table>\n");
@@ -203,8 +208,13 @@ if (typeof(results) == "undefined" || results.length == 0) {
                    "Token ID:&nbsp;</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\"><a href=\"tus?op=show&tid=" + results[0].tokenID + "\">"+
+    if ((typeof(topLevel) != "undefined") && (topLevel == "operator")) {
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\"><a href=\"tus?op=show&top=operator&tid=" + results[0].tokenID + "\">"+
                    results[0].tokenID+"</a></font>\n");
+    } else {
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\"><a href=\"tus?op=show&tid=" + results[0].tokenID + "\">"+
+                   results[0].tokenID+"</a></font>\n");
+    }
     document.write("</td>\n");
     document.write("</tr>\n");
 

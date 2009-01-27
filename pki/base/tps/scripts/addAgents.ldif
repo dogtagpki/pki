@@ -39,11 +39,11 @@ description: Agents for TUS
 dn: cn=TUS Officers,ou=Groups,$TOKENDB_ROOT
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: TUS Administrators
+cn: TUS Officers
 uniqueMember: uid=admin,ou=People,$TOKENDB_ROOT
-description: Administrators for TUS
+description: Operators for TUS
 
-dn: cn=TUS Adminstrators,ou=Groups,$TOKENDB_ROOT
+dn: cn=TUS Administrators,ou=Groups,$TOKENDB_ROOT
 objectClass: top
 objectClass: groupOfUniqueNames
 cn: TUS Administrators

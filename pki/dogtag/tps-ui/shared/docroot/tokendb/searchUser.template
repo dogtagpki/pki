@@ -13,7 +13,7 @@
      Foundation, Inc., 51 Franklin Street, Fifth Floor,
      Boston, MA  02110-1301  USA 
      
-     Copyright (C) 2007 Red Hat, Inc.
+     Copyright (C) 2008 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -22,6 +22,7 @@
 <HEAD>
 <TITLE>TPS</Title>
 </HEAD>
+
 <table border="0" width="100%" cellspacing="0" cellpadding="6">
   <tr bgcolor="#666699">
     <td width=25%>
@@ -44,31 +45,83 @@
 
 <SCRIPT type="text/JavaScript">
 <!--
-var uri = "";
+var uri0 = "";
 if (typeof(uriBase) == "undefined") {
-    uri += "/tus";
+    uri0 += "/tus";
 } else {
-    uri += uriBase;
+    uri0 += uriBase;
 }
 
 document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
-               "<a href=\""+uri+"\">Main Menu</a></font>\n");
+               "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : Search Users</font>\n");
 document.write("<table width=\"100%\"><tr><td align=\"right\">" +
                 "<b>UID:</b>" +
                 userid + "</td></tr></table>\n");
 document.write("<HR NOSHADE SIZE=1>\n");
 
-if (typeof(tid) == "undefined") {
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n");
-    document.write("Missing "+addType+" ID</font>\n");
-    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
-} else {
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n");
-    document.write("New "+addType+" record "+tid+" has been added.</font>\n");
-    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
+function doFind(form) {
+        var uri = "";
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus"
+        } else {
+            uri += uriBase;
+        }
+        uri += "?op=view_users";
+        uri += "&uid=" + form.uid.value;
+        uri += "&firstName=" + form.firstName.value;
+        uri += "&lastName=" + form.lastName.value;
+        uri += "&maxCount=" + form.maxCount.value;
+        location.href = uri;
 }
 //-->
 </SCRIPT>
 
+<FORM NAME ="findForm" ACTION="" METHOD=GET>
+<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        User ID:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT NAME=uid SIZE=20>
+    </td>
+  </tr>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        First Name:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT NAME=firstName SIZE=20>
+    </td>
+  </tr>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        Last Name:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT NAME=lastName SIZE=20>
+    </td>
+  </tr>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        Max Count:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT NAME=maxCount SIZE=4 value="20">
+    </td>
+  </tr>
+</table>
+<HR NOSHADE SIZE=1>
+<DIV ALIGN=RIGHT>
+<input TYPE=button VALUE=Find onClick="doFind(findForm);">
+</form>
 </BODY>
 </HTML>

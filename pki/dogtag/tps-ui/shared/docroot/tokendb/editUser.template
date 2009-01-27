@@ -1,0 +1,313 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+<HEAD>
+<TITLE>TPS</Title>
+</HEAD>
+
+<table border="0" width="100%" cellspacing="0" cellpadding="6">
+  <tr bgcolor="#666699">
+    <td width=25%>
+      <table border="0" cellspacing="0" cellpadding="6">
+        <tr>
+          <td nowrap><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<b>&reg;<br>
+            Certificate<br>System</b></font> </td>
+        </tr>
+      </table>
+    </td>
+    <td align=right width=65% nowrap><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">TPS Services</font></td>
+    <td width="10%">&nbsp;</td>
+  </tr>
+</table>
+<p>
+
+<BODY>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/JavaScript">
+<!--
+var uri0 = "";
+if (typeof(uriBase) == "undefined") {
+    uri0 += "/tus";
+} else {
+    uri0 += uriBase;
+}
+
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : Edit User</font>\n");
+
+if ((typeof(flash) != "undefined") && (flash != "")) {
+    document.write("<table width=\"100%\"><tr><td align=\"left\">" +
+        "<font color=\"#ff0000\"><b>" + flash.replace(/\+/g, " ") + "</b><font>" +
+        "</td></tr></table>\n");
+}
+
+document.write("<table width=\"100%\"><tr><td align=\"right\">" +
+                "<b>UID:</b>" + userid
+                + "</td></tr></table>\n");
+document.write("<HR NOSHADE SIZE=1>\n");
+
+function validate_required(field,alerttxt) {
+    with (field) {
+        if (value==null||value=="") {
+            alert(alerttxt);
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+}
+
+function validate_form(thisform) {
+    with (thisform) {
+        if (validate_required(firstName,"First Name is required")==false) {
+            firstName.focus();
+            return false;
+        }
+        if (validate_required(lastName,"Last Name is required")==false) {
+            lastName.focus();
+            return false;
+        }
+        if (validate_required(userCert,"User Certificate is required")==false) {
+            userCert.focus();
+            return false;
+        }
+
+    }
+}
+
+function doUpdateUser(form) {
+        var uri = "";
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus";
+        } else {
+            uri += uriBase;
+        }
+        if (validate_form(this)) {
+            this.action = uri;
+            return true;
+        } else {
+            return false;
+        }
+}
+
+function doUpdateUserProfile(form) {
+        var uri = "";
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus";
+        } else {
+            uri += uriBase;
+        }
+        this.action = uri;
+        return true;
+}
+
+function doCancel() {
+    var uri = "";
+    if (typeof(uriBase) == "undefined") {
+        uri += "/tus";
+    } else {
+        uri += uriBase;
+    }
+    location.href = uri;
+}
+
+function doCheckBox(val) {
+    document.addUserProfileForm.other_profile.disabled = false;
+}
+
+
+
+if (typeof(results) == "undefined" || results.length == 0) {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "User Not Found</font>\n");
+} else if (results.length > 1) {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Found too many users to edit</font>\n");
+} else {
+    document.write("<BR>");
+    document.write("<form NAME =\"editUserForm\" METHOD=POST onSubmit=\"return doUpdateUser(this);\">");
+    document.write("<input TYPE=HIDDEN NAME=query VALUE=\"op=save_user\">");
+
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "UserID:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].uid+"</font>\n");
+    document.write("<input TYPE=HIDDEN NAME=uid VALUE=\"" + results[0].uid + "\">");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "First Name:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<input TYPE=TEXT NAME=firstName SIZE=20 VALUE="+results[0].cn.substring(0, results[0].cn.indexOf(" "))+">\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Last Name:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<input TYPE=TEXT NAME=lastName SIZE=20 VALUE="+results[0].sn+">\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Role:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td ><input type=checkbox name=opOperator value=Officers " + operator + ">Operator</td>\n");
+    document.write("<td ><input type=checkbox name=opAgent value=Agents " + agent + ">Agent</td>\n");
+    document.write("<td ><input type=checkbox name=opAdmin value=Administrators " + admin + ">Administrator</td>\n");
+    document.write("</tr>\n");
+    
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "User Certificate:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    if ((typeof(results[0].userCertificate) == "undefined") || (results[0].userCertificate.length == 0) ) {
+        document.write("<textarea name=userCert cols=40 rows=10>\n");
+        document.write("Paste the base 64 user certificate here (without the header and footer)");
+        document.write("</textarea>\n");
+    } else {
+        document.write("<textarea name=userCert cols=40 rows=10>\n");
+        document.write(results[0].userCertificate.replace(/\.\./g, "\r\n"));
+        document.write("</textarea>\n");
+    }
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("</table>\n");
+
+    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
+
+    if ((typeof(results[0].profileID) != "undefined") && (results[0].profileID.length != 0)) {
+
+        var profile_array = results[0].profileID.split("#");
+        document.write("<input TYPE=HIDDEN NAME=nProfiles VALUE=\"" + profile_array.length + "\">");
+        document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
+        document.write("<tr bgcolor=#e5e5e5>\n");
+
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                       "Profile ID</font>\n");
+        document.write("</td>\n");
+
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                       "Remove Profile Access</font>\n");
+        document.write("</td>\n");
+        document.write("</tr>\n");
+
+        for (var i=0; i < profile_array.length; i++) {
+            document.write("<tr>\n");
+            document.write("<td>\n");
+            document.write(profile_array[i]);
+            document.write("<input type=hidden name=\"profile_" + i + "\" value=\""+ profile_array[i] + "\">");
+            document.write("</td>\n");
+            document.write("<td><input type=checkbox name=\"delete_" + i + "\" value=\"delete\"></td>\n");
+            document.write("</tr>\n");
+        }
+        document.write("</table>\n");
+    } else {
+        document.write("<p>Profile Memberships</p>");
+    }
+
+    document.write("<DIV ALIGN=RIGHT>\n");
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
+    document.write("<tr>\n");
+    document.write("<td>\n");
+    document.write("<input TYPE=submit VALUE=Update>");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<input TYPE=button VALUE=Cancel onClick=\"doCancel();\">");
+    document.write("</td>\n");
+    document.write("</form>\n");
+    document.write("<td>\n");
+    document.write("<form name=deleteUser method=GET action='tus'>\n");
+    document.write("<input type=hidden name=op value=user_delete_confirm>");
+    document.write("<input type=hidden name=uid value=" + results[0].uid + ">");
+    document.write("<input TYPE=submit VALUE=\"Delete User\">");
+    document.write("</form>");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+    document.write("</table>\n");
+
+    document.write("<DIV ALIGN=LEFT>\n");
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
+    document.write("<tr>\n");
+
+    if ((typeof(start_val) != "undefined") && (start_val > 0)) {
+        var new_start = start_val - 5;
+        if (new_start < 0) new_start =0;
+        document.write("<td> <form name=prev_edit method=get action=\"doCancel()\">");
+        document.write("<input TYPE=hidden name=op VALUE=edit_user>");
+        document.write("<input TYPE=hidden name=uid VALUE=" + results[0].uid + ">");
+        document.write("<input TYPE=hidden name=start_val VALUE=" + new_start + ">");
+        document.write("<input TYPE=submit VALUE=\"\<\"></form><td>\n");
+    }
+
+    if ((typeof(has_more_profile_vals) != "undefined") && (has_more_profile_vals == "true")) {
+        var new_start = end_val;
+        document.write("<td> <form method=get name=prev_edit action=\"doCancel()\">");
+        document.write("<input TYPE=hidden name=op VALUE=edit_user>");
+        document.write("<input TYPE=hidden name=uid VALUE=" + results[0].uid + ">");
+        document.write("<input TYPE=hidden name=start_val VALUE=" + new_start + ">");
+        document.write("<input TYPE=submit VALUE=\"\>\"></form><td>\n");
+    }
+    document.write("</tr>");
+
+    document.write("<form NAME =\"addUserProfileForm\" METHOD=POST onSubmit=\"return doUpdateUserProfile(this);\">");
+    document.write("<tr>");
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 >\n");
+    document.write("<input TYPE=HIDDEN NAME=query VALUE=\"op=add_profile_user\">");
+    document.write("<input TYPE=HIDDEN NAME=uid VALUE=\"" + results[0].uid + "\">");
+    document.write("<td>Add new profile: <select name=\"profile_0\" onChange=\"doCheckbox(this.options[selectedIndex].value)\">");
+    for (var i=0; i < profile_list.length; i++) {
+        document.write("<option value=\""+ profile_list[i] + "\">" + profile_list[i] + "</option>\n");
+    }
+    document.write("</select></td>");
+    document.write("<td><input type=text name=other_profile></td>");
+    document.write("<td><input TYPE=submit VALUE=\"Add Profile\"></td></tr>");
+    document.write("</table>");
+    document.write("</form>\n");
+}
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>

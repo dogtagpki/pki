@@ -60,6 +60,7 @@ static char *tokenActivityAttributes[] = { TOKEN_ID,
                                            TOKEN_IP,
                                            TOKEN_C_DATE,
                                            TOKEN_M_DATE,
+                                           TOKEN_TYPE,
                                            NULL };
 static char *tokenAttributes[] = { TOKEN_ID,
                                    TOKEN_USER,
@@ -75,6 +76,7 @@ static char *tokenAttributes[] = { TOKEN_ID,
                                    TOKEN_RECOVERIES,
                                    TOKEN_POLICY,
                                    TOKEN_REASON,
+                                   TOKEN_TYPE,
                                    NULL };
 static char *tokenCertificateAttributes[] = { TOKEN_ID,
                                               TOKEN_CUID,
@@ -93,7 +95,22 @@ static char *tokenCertificateAttributes[] = { TOKEN_ID,
                                               TOKEN_STATUS,
                                               NULL };
 
+static char *userAttributes[] = {USER_ID,
+                                 USER_SN, 
+                                 USER_CN, 
+                                 USER_CERT, 
+                                 C_TIME, 
+                                 M_TIME, 
+                                 PROFILE_ID,
+                                 NULL};                                    
 
+static char *viewUserAttributes[] = {USER_ID,
+                                     USER_SN, 
+                                     USER_CN, 
+                                     C_TIME, 
+                                     M_TIME, 
+                                     NULL}; 
+                                   
 static char *tokenStates[] = { STATE_UNINITIALIZED,
                                STATE_ACTIVE,
                                STATE_DISABLED,
@@ -566,7 +583,7 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
     LDAPMessage *entry =  NULL;
     int i,j;
     char *certX = NULL;
-	int tries;
+    int tries;
 
     tus_check_conn();
     if (cert == NULL)
@@ -586,8 +603,10 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
     len = base64_decode(certX, ( unsigned char * ) dst);
     free(certX);
 
-    if (len <= 0)
+    if (len <= 0) {
+      if (dst != NULL) free(dst);
       return NULL;
+    }
 
     PR_snprintf(filter, MAX_FILTER_LEN, "(userCertificate=");
 
@@ -596,6 +615,7 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
       PR_snprintf(filter, MAX_FILTER_LEN, "%s\\%02x", filter, (c & 0xff) );
     }
     PR_snprintf(filter, MAX_FILTER_LEN, "%s)", filter);
+    if (dst != NULL) free(dst);
 
     for (tries = 0; tries < MAX_RETRIES; tries++) {
         if ((rc = ldap_search_ext_s(ld, userBaseDN, LDAP_SCOPE_SUBTREE, 
@@ -612,19 +632,34 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
 	}
 		
     if (rc != LDAP_SUCCESS) {
-      return NULL;
+        if (result != NULL) {
+            free_results(result);
+            result = NULL;
+        }
+        return NULL;
     }
 
     if (result == NULL)
       return NULL;
 
     entry = get_first_entry (result);
-    if (entry == NULL)
-      return NULL;
+    if (entry == NULL) {
+        if (result != NULL) {
+            free_results(result);
+            result = NULL;
+        }
+        return NULL;
+    }
 
     v = ldap_get_values(ld, entry, "uid");
-    if (v == NULL) 
-       return NULL;
+    if (v == NULL) {
+        if (result != NULL) {
+            free_results(result);
+            result = NULL;
+        }
+        return NULL;
+    }
+
     if (v[0] != NULL && PL_strlen(v[0]) > 0) {
         userid = PL_strdup(v[0]);
     }
@@ -633,8 +668,22 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
         v = NULL;
     }
 
+    if (result != NULL) {
+        free_results(result);
+        result = NULL;
+    }
+
     return userid;
 }
+
+/*********
+ * tus_authorize
+ * parameters passed in: 
+ *   char * group ("TUS Agents", "TUS Officers", "TUS Administrators") 
+ *   const char* userid
+ * returns : 1 if userid is member of that group
+ *           0 otherwise
+ **/                    
 
 TPS_PUBLIC int tus_authorize(const char *group, const char *userid)
 {
@@ -660,12 +709,130 @@ TPS_PUBLIC int tus_authorize(const char *group, const char *userid)
 	}
 
     if (rc != LDAP_SUCCESS) {
+      if (result != NULL) {
+        free_results(result);
+        result = NULL;
+      }
       return 0;
     }
     if (ldap_count_entries (ld, result) <= 0) {
+      if (result != NULL) {
+        free_results(result);
+        result = NULL;
+      }
       return 0;
     }
+    if (result != NULL) {
+        free_results(result);
+        result = NULL;
+    }
     return 1;
+}
+
+/******
+ * get_authorized_profiles()
+ * params: userid 
+ *       : is_admin (1 if user is in admin group, 0 otherwise
+ * returns: ldap filter with the tokenTypes the user has access to - to be appended 
+ *    to any other user search filer.
+ *    examples: (|(tokenType=foo)(tokenType=bar)
+ *    example: (!(tokenType=foo)(tokenType=no_token_type)) -- if user is an admin, always
+ *        add no_token_type to catch admin events
+ *    example: NO_PROFILES -- not an admin, and no profiles
+ *    exmaple: (tokenType=no_token_type) : admin with no other tokens
+ *
+ *    Caller must free the result (char*)
+ **/
+TPS_PUBLIC char *get_authorized_profiles(const char *userid, int is_admin)
+{
+    int rc;
+    int status;
+    char filter[512];
+    char ret[4096] = "";
+    char *profile_filter = NULL;
+    char **vals;
+    int nVals;
+    int i;
+
+    LDAPMessage *result = NULL;
+    LDAPMessage *e = NULL;
+
+    PR_snprintf(filter, 512, "(uid=%s)", userid);
+    status = find_tus_user_entries_no_vlv(filter, &result, 0);
+
+    if (status == LDAP_SUCCESS) {
+
+        e = get_first_entry(result);
+
+        if ((vals = get_attribute_values(e,"profileID")) != NULL ) {
+            nVals = ldap_count_values(vals);
+            if (nVals == 1) {
+                if (PL_strstr(vals[0], ALL_PROFILES)) {
+                    PR_snprintf(ret, 4096, ALL_PROFILES);
+                } else {
+                    if (is_admin) {
+                        PL_strcat(ret, "(|(tokenType=");
+                        PL_strcat(ret, NO_TOKEN_TYPE);
+                        PL_strcat(ret, ")(tokenType=");
+                        PL_strcat(ret, vals[0]);
+                        PL_strcat(ret, "))");
+                    } else {
+                        PL_strcat(ret, "(tokenType=");
+                        PL_strcat(ret, vals[0]);
+                        PL_strcat(ret, ")");
+                    }
+                }
+            } else if (nVals > 1) {
+                for( i = 0; vals[i] != NULL; i++ ) {
+                    if (i==0) { 
+                        PL_strcat(ret, "(|");
+                        if (is_admin) {
+                            PL_strcat(ret, "(tokenType=");
+                            PL_strcat(ret, NO_TOKEN_TYPE);
+                            PL_strcat(ret, ")");
+                        }
+                    }
+                    PL_strcat(ret, "(tokenType=");
+                    PL_strcat(ret, vals[i]);
+                    PL_strcat(ret, ")");
+                }
+                PL_strcat(ret, ")"); 
+            } else if (nVals == 0) {
+                if (is_admin) {
+                    PR_snprintf(ret, 4096, "(tokenType=%s)", NO_TOKEN_TYPE);
+                } else {
+                    PR_snprintf(ret, 4096, NO_PROFILES);
+                }
+            } else { //error
+                return -1;
+            }
+        } else {
+            if (is_admin) {
+                PR_snprintf(ret, 4096, "(tokenType=%s)", NO_TOKEN_TYPE);
+            } else {
+                PR_snprintf(ret, 4096, NO_PROFILES);
+            }
+        }
+    } else {
+        // log error message here
+        PR_snprintf(ret, 4096, NO_PROFILES);
+    }
+
+    profile_filter = PL_strdup(ret);
+
+    if (vals != NULL) {
+        free_values(vals, 1);
+        vals =  NULL;
+    }
+
+    if (result != NULL) {
+       free_results(result);
+       result = NULL;
+    }
+
+    e = NULL;
+
+    return profile_filter;
 }
 
 static int tus_check_conn()
@@ -895,6 +1062,112 @@ TPS_PUBLIC int update_tus_db_entry_with_mods (const char *agentid, const char *c
             free_modifications( mods, 0 );
             mods = NULL;
     }
+
+    return rc;
+}
+
+/****
+ * update_tus_general_db_entry
+ * summary: internal function to modify a general db entry using ldap_modify_ext_s
+ * params: agentid - who is doing this modification (for audit logging)
+ *         dn - dn to modify
+ *         mods - NULL terminated list of modifications to apply
+ **/
+int update_tus_general_db_entry(const char *agentid, const char *dn, LDAPMod **mods)
+{
+    int  tries;
+    int  rc = -1;
+
+    tus_check_conn();
+
+    for (tries = 0; tries < MAX_RETRIES; tries++) {
+            if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
+                break;
+            } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
+                rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+                if (rc != LDAP_SUCCESS) {
+                    bindStatus = rc;
+                    break;
+                }
+            }
+    }
+
+    return rc;
+}
+
+/***
+ * update_user_db_entry
+ * summary: modifies an existing user entry
+ * params : agentid - agent that is performing this action (for audit log purposes)
+ *          uid, lastName, userCN, userCert - for entry to be added
+ * returns: ldap return code 
+ * */         
+TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastName, char *userCN, char *userCert)
+{
+    char dn[256];
+    LDAPMod a01;
+    LDAPMod a02;
+    LDAPMod a03;
+    LDAPMod *mods[4];
+    int rc = -1;
+    int certlen=0;
+    int i,j;
+    char *certX = NULL;
+    char *dst = NULL;
+
+    char *sn_values[] = {lastName, NULL};
+    char *cn_values[] = {userCN, NULL};
+    struct berval berval;
+    struct berval *cert_values[2];
+
+    a01.mod_op = LDAP_MOD_REPLACE;
+    a01.mod_type = USER_SN;
+    a01.mod_values = sn_values;
+
+    a02.mod_op = LDAP_MOD_REPLACE;
+    a02.mod_type = USER_CN;
+    a02.mod_values = cn_values;
+
+    mods[0] = &a01;
+    mods[1] = &a02;
+
+    certlen = strlen(userCert);
+
+    certX = malloc(certlen);
+    j = 0;
+    for (i = 0; i < certlen; i++) {
+       if (userCert[i] != '\n' && userCert[i] != '\r') {
+         certX[j++] = userCert[i];
+       }
+    }
+    certX[j++] = '\0';
+    dst = malloc(3 * strlen(certX) / 4);
+    certlen = base64_decode(certX, ( unsigned char * ) dst);
+    free(certX);
+
+    if (certlen > 0) {
+        berval.bv_len = certlen;
+        berval.bv_val = ( char * ) dst;
+        cert_values[0] = &berval;
+        cert_values[1] = NULL;
+
+        a03.mod_op =LDAP_MOD_REPLACE |LDAP_MOD_BVALUES;
+        a03.mod_type = "userCertificate";
+        a03.mod_values = cert_values;
+
+        mods[2] = &a03;
+    } else {
+        mods[2] = NULL;
+    }
+    mods[3] = NULL;
+
+    if (PR_snprintf(dn, 255, "uid=%s, ou=People, %s", uid, userBaseDN) < 0 ) 
+       return -1;
+
+    rc = update_tus_general_db_entry(agentid, dn, mods);
+    if (dst != NULL) free(dst);
+    if (rc == LDAP_SUCCESS) 
+      audit_log("modify_user", agentid, uid);
 
     return rc;
 }
@@ -1349,7 +1622,7 @@ int add_certificate (char *tokenid, char *origin, char *tokenType, char *userid,
 
     return rc;
 }
-int add_activity (char *ip, char *id, const char *op, const char *result, const char *msg, const char *userid)
+int add_activity (char *ip, char *id, const char *op, const char *result, const char *msg, const char *userid, const char *token_type)
 {
     PRExplodedTime time;
     PRTime   now;
@@ -1363,7 +1636,8 @@ int add_activity (char *ip, char *id, const char *op, const char *result, const 
     LDAPMod  a08;
     LDAPMod  a09;
     LDAPMod  a10;
-    LDAPMod  *mods[11];
+    LDAPMod  a11;
+    LDAPMod  *mods[12];
     int  rc = 0, tries = 0;
     char dn[256];
     char cdate[256];
@@ -1377,6 +1651,7 @@ int add_activity (char *ip, char *id, const char *op, const char *result, const 
     char *msg_values[2];
     char *ip_values[2];
     char *userid_values[2];
+    char *token_type_values[2];
     PRThread *ct;
 
     tus_check_conn();
@@ -1392,6 +1667,8 @@ int add_activity (char *ip, char *id, const char *op, const char *result, const 
     ip_values[1] = NULL;
     userid_values[0] = userid;
     userid_values[1] = NULL;
+    token_type_values[0] = token_type;
+    token_type_values[1] = NULL;
 
     ct = PR_GetCurrentThread();
     now = PR_Now();
@@ -1450,6 +1727,9 @@ int add_activity (char *ip, char *id, const char *op, const char *result, const 
     a10.mod_type = TOKEN_USER;
     a10.mod_values = userid_values;
 
+    a11.mod_op = 0;
+    a11.mod_type = TOKEN_TYPE;
+    a11.mod_values = token_type_values;
     mods[0]  = &a01;
     mods[1]  = &a02;
     mods[2]  = &a03;
@@ -1460,7 +1740,8 @@ int add_activity (char *ip, char *id, const char *op, const char *result, const 
     mods[7]  = &a08;
     mods[8]  = &a09;
     mods[9]  = &a10;
-    mods[10]  = NULL;
+    mods[10]  = &a11;
+    mods[11]  = NULL;
 
     if (PR_snprintf(dn, 255, "cn=%s,%s", zcdate, activityBaseDN) < 0)
         return -1;
@@ -1480,6 +1761,33 @@ int add_activity (char *ip, char *id, const char *op, const char *result, const 
     return rc;
 }
 
+/**
+ * add_tus_general_db_entry
+ * summary: internal function to add a general ldap entry 
+ * params: dn = dn to add
+ *         mods = NULL terminated list of modifications (contains attribute values)
+ * returns: LDAP return code
+ **/
+int add_tus_general_db_entry (char *dn, LDAPMod **mods)
+{
+    int  rc = 0, tries = 0;
+
+    tus_check_conn();
+
+    for (tries = 0; tries < MAX_RETRIES; tries++) {
+        if ((rc = ldap_add_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
+            break;
+        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
+            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            if (rc != LDAP_SUCCESS) {
+                bindStatus = rc;
+                break;
+            }
+        }
+
+    }
+    return rc;
+}
 
 int add_tus_db_entry (char *cn, LDAPMod **mods)
 {
@@ -1505,7 +1813,7 @@ int add_tus_db_entry (char *cn, LDAPMod **mods)
     return rc;
 }
 
-int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int flag, const char *status, char *applet_version, char *key_info)
+int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int flag, const char *status, char *applet_version, char *key_info, const char* token_type)
 {
     PRExplodedTime time;
     PRTime   now;
@@ -1524,7 +1832,8 @@ int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int fla
     LDAPMod  a13;
     LDAPMod  a14;
     LDAPMod  a15;
-    LDAPMod  *mods[16];
+    LDAPMod  a16;
+    LDAPMod  *mods[17];
     int  rc = 0, tries = 0;
     char dn[256];
     char cdate[256];
@@ -1542,6 +1851,7 @@ int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int fla
     char *key_info_values[] = { "", NULL };
     char *reason_values[] = { "", NULL };
     char *policy_values[2];
+    char *token_type_values[]= {"", NULL };
 
     tus_check_conn();
     cn_values[0] = cn;
@@ -1553,6 +1863,7 @@ int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int fla
     if (uid != NULL) uid_values[0] = ( char * ) uid;
     if (key_info != NULL) key_info_values[0] = key_info;
     status_values[0] = ( char * ) status;
+    token_type_values[0] = ( char *) token_type;
 
     a01.mod_op = 0;
     a01.mod_type = TOKEN_ID;
@@ -1619,6 +1930,10 @@ int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int fla
     a15.mod_type = TOKEN_REASON;
     a15.mod_values = reason_values;
 
+    a16.mod_op = 0;
+    a16.mod_type = TOKEN_TYPE;
+    a16.mod_values = token_type_values;
+
     mods[0]  = &a01;
     mods[1]  = &a02;
     mods[2]  = &a03;
@@ -1634,7 +1949,8 @@ int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int fla
     mods[12] = &a13;
     mods[13] = &a14;
     mods[14] = &a15;
-    mods[15] = NULL;
+    mods[15] = &a16;
+    mods[16] = NULL;
 
     now = PR_Now();
     PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
@@ -1666,9 +1982,300 @@ int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int fla
     return rc;
 }
 
-TPS_PUBLIC int add_default_tus_db_entry (const char *uid, const char *agentid, char *cn, const char *status, char *applet_version, char *key_info)
+TPS_PUBLIC int add_default_tus_db_entry (const char *uid, const char *agentid, char *cn, const char *status, char *applet_version, char *key_info, const char *token_type)
 {
-    return add_new_tus_db_entry (agentid, cn, uid, 0, status, applet_version, key_info);
+    return add_new_tus_db_entry (agentid, cn, uid, 0, status, applet_version, key_info, token_type);
+}
+
+/****
+ * add_user_db_entry
+ * summary: adds a new user entry
+ * params: agentid - user who is performing this change (for audit log)
+ *       :userid, userPassword, sn, cn, userCert - details for user to be added
+ * returns: ldap return code
+ */
+TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPassword, char *sn, char *cn, char *userCert)
+{
+    LDAPMod  a01;
+    LDAPMod  a02;
+    LDAPMod  a03;
+    LDAPMod  a04;
+    LDAPMod  a05;
+    LDAPMod  a06;
+    LDAPMod  *mods[7];
+    int  rc = 0;
+    char dn[256];
+    int i,j, certlen;
+    char *dst = NULL;
+    char *certX = NULL;
+    char *userid_values[] = {userid, NULL};
+    char *objectClass_values[] = { "top", "person", "organizationalPerson", "inetOrgPerson", "tpsProfileId", NULL };
+    char *userPassword_values[] = { userPassword, NULL };
+    char *sn_values[] = {sn, NULL};
+    char *cn_values[] = {cn, NULL};
+    struct berval berval;
+    struct berval *userCert_values[2];
+
+    a01.mod_op = 0;
+    a01.mod_type = USER_ID;
+    a01.mod_values = userid_values;
+
+    a02.mod_op = 0;
+    a02.mod_type = "objectClass";
+    a02.mod_values = objectClass_values;
+
+    a03.mod_op =0;
+    a03.mod_type = USER_PASSWORD;
+    a03.mod_values = userPassword_values;
+
+    a04.mod_op = 0;
+    a04.mod_type = USER_SN;
+    a04.mod_values = sn_values;
+
+    a05.mod_op =0;
+    a05.mod_type = USER_CN;
+    a05.mod_values = cn_values;
+
+    mods[0]  = &a01;
+    mods[1]  = &a02;
+    mods[2]  = &a03;
+    mods[3]  = &a04;
+    mods[4]  = &a05;
+
+    // now handle certificate
+    certlen = strlen(userCert);
+
+    certX = malloc(certlen);
+    j = 0;
+    for (i = 0; i < certlen; i++) {
+       if (userCert[i] != '\n' && userCert[i] != '\r') {
+         certX[j++] = userCert[i];
+       }
+    }
+    certX[j++] = '\0';
+    dst = malloc(3 * strlen(certX) / 4);
+    certlen = base64_decode(certX, ( unsigned char * ) dst);
+    free(certX);
+
+    if (certlen > 0) {
+        berval.bv_len = certlen;
+        berval.bv_val = ( char * ) dst;
+        userCert_values[0] = &berval;
+        userCert_values[1] = NULL;
+
+        a06.mod_op =0;
+        a06.mod_type = USER_CERT;
+        a06.mod_values = userCert_values;
+        
+        mods[5]  = &a06;
+    } else {
+        mods[5] = NULL;
+    }
+
+    mods[6]  = NULL;
+
+    if (PR_snprintf(dn, 255, "uid=%s,ou=People, %s", userid, userBaseDN) < 0)
+        return -1;
+
+    rc = add_tus_general_db_entry(dn, mods);
+    if (dst != NULL) free(dst);
+
+    if (rc != LDAP_SUCCESS) {
+        return rc;
+    }
+
+    audit_log("add_user", agentid, userid);
+    return rc;
+}
+
+/**
+ * add_user_to_role_db_entry
+ * summary: adds user to be member of group (administrators, agents, operators)
+ * params: agentid -user who is performing this change
+ *       : userid - userid of user to be added to role
+ *       : role - Officers, Agents or Administrators
+ * returns: LDAP return code
+ */
+TPS_PUBLIC int add_user_to_role_db_entry(const char *agentid, char *userid, const char *role) {
+    LDAPMod  a01;
+    LDAPMod  *mods[2];
+    int  rc = 0;
+    int  i=0;
+    char dn[256];
+    char userdn[256];
+    char msg[256];
+    char *userid_values[2]; 
+
+    if (PR_snprintf(userdn, 255, "uid=%s, ou=People, %s", userid, userBaseDN) < 0)
+         return -1;
+
+    userid_values[0] = userdn;
+    userid_values[1] = NULL;
+
+    a01.mod_op = LDAP_MOD_ADD;
+    a01.mod_type = GROUP_UNIQUEMEMBER;
+    a01.mod_values = userid_values;
+    mods[0]  = &a01;
+    mods[1]  = NULL;
+
+    if (PR_snprintf(dn, 255, "cn=TUS %s,ou=groups, %s", role, userBaseDN) < 0)
+            return -1;
+
+    rc = update_tus_general_db_entry(agentid, dn, mods);
+
+    if (rc == LDAP_SUCCESS) {
+        PR_snprintf("Added role %s to user %s", role, userid); 
+        audit_log("add_user_to_role", agentid, msg);
+    }
+    return rc;
+}
+
+/**
+ * delete_user_to_role_db_entry
+ * summary: removes user from role group (administrators, agents, operators)
+ * params: agentid -user who is performing this change
+ *       : userid - userid of user to be removed from role
+ *       : role - Officers, Agents or Administrators
+ *  returns: LDAP return code
+ */
+TPS_PUBLIC int delete_user_from_role_db_entry(const char *agentid, char *userid, const char *role) {
+    LDAPMod  a01;
+    LDAPMod  *mods[2];
+    int  rc = 0;
+    int  i=0;
+    char dn[256];
+    char userdn[256];
+    char *userid_values[2];
+    char msg[256];
+
+    if (PR_snprintf(userdn, 255, "uid=%s, ou=People, %s", userid, userBaseDN) < 0)
+         return -1;
+
+    userid_values[0] = userdn;
+    userid_values[1] = NULL;
+
+    a01.mod_op = LDAP_MOD_DELETE;
+    a01.mod_type = GROUP_UNIQUEMEMBER;
+    a01.mod_values = userid_values;
+    mods[0]  = &a01;
+    mods[1]  = NULL;
+
+    if (PR_snprintf(dn, 255, "cn=TUS %s,ou=groups, %s", role, userBaseDN) < 0)
+            return -1;
+
+    rc = update_tus_general_db_entry(agentid, dn, mods);
+    if (rc == LDAP_SUCCESS) {
+        PR_snprintf("Deleted role %s from user %s", role, userid); 
+        audit_log("delete_user_from_role", agentid, msg);
+    }
+
+    return rc;
+}
+
+/**
+ * delete_profile_from_user
+ * summary: removes attribute profileID=profile from user entry
+ * params: agentid -user who is performing this change
+ *       : userid - userid of user to be modified
+ *       : profile - profile to be deleted
+ * returns: LDAP return code
+ */
+TPS_PUBLIC int delete_profile_from_user(const char *agentid, char *userid, const char *profile) {
+    LDAPMod  a01;
+    LDAPMod  *mods[2];
+    int  rc = 0;
+    int  i=0;
+    char dn[256];
+    char msg[256];
+    char *profileid_values[2] = {profile, NULL};
+
+    if (PR_snprintf(dn, 255, "uid=%s, ou=People, %s", userid, userBaseDN) < 0)
+         return -1;
+
+    a01.mod_op = LDAP_MOD_DELETE;
+    a01.mod_type = PROFILE_ID;
+    a01.mod_values = profileid_values;
+    mods[0]  = &a01;
+    mods[1]  = NULL;
+
+    rc = update_tus_general_db_entry(agentid, dn, mods);
+    if (rc == LDAP_SUCCESS) {
+        PR_snprintf("Deleted profile %s from user %s", profile, userid); 
+        audit_log("delete_profile_from_user", agentid, msg);
+    }
+
+    return rc;
+}
+
+/**
+ * delete_all_profiles_from_user
+ * summary: removes all attributes profileID from user entry 
+ *          same as above, but passing NULL for mod_values
+ * params: agentid -user who is performing this change
+ *       : userid - userid of user to be modified
+ *       : profile - profile to be deleted
+ * returns: LDAP return code
+ */
+TPS_PUBLIC int delete_all_profiles_from_user(const char *agentid, char *userid) {
+    LDAPMod  a01;
+    LDAPMod  *mods[2];
+    int  rc = 0;
+    int  i=0;
+    char dn[256];
+    char msg[256];
+
+    if (PR_snprintf(dn, 255, "uid=%s, ou=People, %s", userid, userBaseDN) < 0)
+         return -1;
+
+    a01.mod_op = LDAP_MOD_DELETE;
+    a01.mod_type = PROFILE_ID;
+    a01.mod_values = NULL;  /* NULL will remove all values */
+    mods[0]  = &a01;
+    mods[1]  = NULL;
+
+    rc = update_tus_general_db_entry(agentid, dn, mods);
+    if (rc == LDAP_SUCCESS) {
+        PR_snprintf(msg, 256, "Deleted all profiles from user %s", userid); 
+        audit_log("delete_all_profiles_from_user", agentid, msg);
+    }
+
+    return rc;
+}
+
+
+/**
+ * add_profile_to_user
+ * summary: adds attribute profileID=profile to user entry
+ * params: agentid -user who is performing this change
+ *       : userid - userid of user to be modified
+ *       : profile - profile (tokenType) to be added
+ * returns: LDAP return code
+ */
+TPS_PUBLIC int add_profile_to_user(const char *agentid, char *userid, const char *profile) {
+    LDAPMod  a01;
+    LDAPMod  *mods[2];
+    int  rc = 0;
+    int  i=0;
+    char dn[256];
+    char msg[256];
+    char *profileid_values[2] = {profile, NULL};
+
+    if (PR_snprintf(dn, 255, "uid=%s, ou=People, %s", userid, userBaseDN) < 0)
+         return -1;
+
+    a01.mod_op = LDAP_MOD_ADD;
+    a01.mod_type = PROFILE_ID;
+    a01.mod_values = profileid_values;
+    mods[0]  = &a01;
+    mods[1]  = NULL;
+
+    rc = update_tus_general_db_entry(agentid, dn, mods);
+    if (rc == LDAP_SUCCESS) {
+        PR_snprintf(msg, 256, "Added profile %s to user %s", profile, userid); 
+        audit_log("add_profile_to_user", agentid, msg);
+    }
+
+    return rc;
 }
 
 int delete_tus_db_entry (char *userid, char *cn)
@@ -1699,6 +2306,50 @@ int delete_tus_db_entry (char *userid, char *cn)
 
     return rc;
 }
+
+int delete_tus_general_db_entry (char *dn)
+{
+    int  rc = 0, tries = 0;
+
+    tus_check_conn();
+
+    for (tries = 0; tries < MAX_RETRIES; tries++) {
+        if ((rc = ldap_delete_ext_s(ld, dn, NULL, NULL)) == LDAP_SUCCESS) {
+            break;
+        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
+            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            if (rc != LDAP_SUCCESS) {
+                bindStatus = rc;
+                break;
+            }
+        }
+    }
+
+    return rc;
+}
+
+/**
+ * delete_user_db_entry
+ * Deletes user entry
+ * params: agentid - user performing this change
+ *         uid - user to be deleted
+ * returns: LDAP return code
+ */
+TPS_PUBLIC int delete_user_db_entry(const char *agentid, char *uid)
+{
+    char dn[256];
+    int rc =0;
+    if (PR_snprintf(dn, 255, "uid=%s,ou=People,%s", uid, userBaseDN) < 0)
+        return -1;
+    rc = delete_tus_general_db_entry(dn);
+    
+    if (rc == LDAP_SUCCESS) {
+        audit_log("delete user", agentid, uid);
+    }
+
+    return rc;
+}
+
 
 TPS_PUBLIC int find_tus_db_entry (char *cn, int max, LDAPMessage **result)
 {
@@ -1822,6 +2473,76 @@ TPS_PUBLIC int find_tus_token_entries_no_vlv(char *filter, LDAPMessage **result,
         }
     }
     
+    return rc;
+}
+
+/**
+ * find_tus_user_entries_no_vlv
+ * params: filter - ldap search filter
+ *         result - hash of LDAP Search results.
+ *         order  - 0 (order results increasing by uid), (!=0) order by decreasing uid
+ */ 
+TPS_PUBLIC int find_tus_user_entries_no_vlv(char *filter, LDAPMessage **result, int order)
+{
+    int rc = LDAP_OTHER, tries = 0;
+    char peopleBaseDN[256];
+
+    PR_snprintf(peopleBaseDN, 256, "ou=People,%s", userBaseDN);
+    
+    tus_check_conn();
+    for (tries = 0; tries < MAX_RETRIES; tries++) {
+        if ((rc = ldap_search_s (ld, peopleBaseDN, LDAP_SCOPE_ONELEVEL, filter,
+                       userAttributes, 0, result)) == LDAP_SUCCESS) {
+            /* we do client-side sorting here */
+            if (order == 0) {
+                rc = ldap_sort_entries(ld, result, USER_ID, sort_cmp);
+            } else {
+                rc = ldap_sort_entries(ld, result, USER_ID, reverse_sort_cmp);
+            }
+            break;
+        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
+            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            if (rc != LDAP_SUCCESS) {
+                bindStatus = rc;
+                break;
+            }
+        }
+    }
+
+    return rc;
+}
+
+/**
+ * find_tus_user_role_entries
+ * summary: return the dns for the groups to which the user belongs
+ *        (TUS Administrators, Agents, Operator)
+ * params: uid - userid
+ *         result - hash of LDAPResults
+ */
+TPS_PUBLIC int find_tus_user_role_entries( const char*uid, LDAPMessage **result) 
+{
+    int rc = LDAP_OTHER, tries = 0;
+    char groupBaseDN[256];
+    char filter[256];
+    char *subgroup_attrs[] = {SUBGROUP_ID, NULL};
+ 
+    PR_snprintf(groupBaseDN, 256, "ou=Groups,%s", userBaseDN);
+    PR_snprintf(filter, 256, "uniqueMember=uid=%s,ou=People,%s", uid, userBaseDN);
+
+    tus_check_conn();
+    for (tries = 0; tries < MAX_RETRIES; tries++) {
+        if ((rc = ldap_search_s (ld, groupBaseDN, LDAP_SCOPE_SUBTREE, filter,
+            subgroup_attrs, 0, result)) == LDAP_SUCCESS) {
+            break;
+        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
+            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            if (rc != LDAP_SUCCESS) {
+                bindStatus = rc;
+                break;
+            }
+        }
+    }
+
     return rc;
 }
 
@@ -2351,6 +3072,16 @@ TPS_PUBLIC char **get_token_attributes()
     return tokenAttributes;
 }
 
+TPS_PUBLIC char **get_user_attributes()
+{
+    return userAttributes;
+}
+
+TPS_PUBLIC char **get_view_user_attributes()
+{
+    return viewUserAttributes;
+}
+
 CERTCertificate **get_certificates(LDAPMessage *entry) {
     int i;    
     struct berval **bvals;
@@ -2416,6 +3147,9 @@ char **get_attribute_values(LDAPMessage *entry, const char *attribute)
 	 ret[c] = strdup(buffer);
 	 c++;
        }  
+       if (bvals != NULL) {
+           free_values(bvals, 1);
+       }
        ret[c] = NULL;
        return ret;
     } else {
@@ -2760,6 +3494,17 @@ int get_number_of_modifications(LDAPMessage *entry)
     }
 
     return n;
+}
+
+TPS_PUBLIC char *get_dn(LDAPMessage *entry)
+{
+    char *ret = NULL;
+    char *dn = NULL;
+    if ((dn = ldap_get_dn( ld, entry )) != NULL) {
+        ret = PL_strdup(dn);
+        ldap_memfree(dn);
+    }
+    return ret;
 }
 
 char *get_number_of_resets_name()

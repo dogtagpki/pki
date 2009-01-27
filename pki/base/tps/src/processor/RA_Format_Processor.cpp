@@ -189,6 +189,12 @@ TPS_PUBLIC RA_Status RA_Format_Processor::Process(RA_Session *session, NameValue
     RA::Debug(LL_PER_PDU, "RA_Format_Processor::Process",
 	      "Applet Major=%d Applet Minor=%d", app_major_version, app_minor_version);
 
+    if (!GetTokenType(OP_PREFIX, major_version,
+                    minor_version, cuid, msn,
+                    extensions, status, tokenType)) {
+        goto loser;
+    }
+
 
     if (RA::ra_is_token_present(cuid)) {
        RA::Debug("RA_Format_Processor::Process",
@@ -198,7 +204,7 @@ TPS_PUBLIC RA_Status RA_Format_Processor::Process(RA_Session *session, NameValue
         RA::Error("RA_Format_Processor::Process",
                         "CUID %s Disabled", cuid);
         status = STATUS_ERROR_DISABLED_TOKEN;
-        RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "token disabled", "");
+        RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "token disabled", "", tokenType);
         goto loser;
       }
     } else {
@@ -211,16 +217,10 @@ TPS_PUBLIC RA_Status RA_Format_Processor::Process(RA_Session *session, NameValue
       if (!RA::GetConfigStore()->GetConfigAsBool(configname, 1)) {
         RA::Error("Process", "CUID %s Format Unknown Token", cuid);
         status = STATUS_ERROR_DISABLED_TOKEN;
-        RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "unknown token disallowed", "");
+        RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "unknown token disallowed", "", tokenType);
         goto loser;
       }
 
-    }
-
-    if (!GetTokenType(OP_PREFIX, major_version,
-                    minor_version, cuid, msn,
-                    extensions, status, tokenType)) {
-        goto loser;
     }
 
     PR_snprintf((char *)configname, 256, "%s.%s.tks.conn",
@@ -242,7 +242,7 @@ TPS_PUBLIC RA_Status RA_Format_Processor::Process(RA_Session *session, NameValue
             RA::Error("RA_Format_Processor::Process", 
               "no applet found and applet upgrade not enabled");
             status = STATUS_ERROR_SECURE_CHANNEL;		 
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "secure channel not established", "");
+            RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "secure channel not established", "", tokenType);
             goto loser;
         }
     } else {
@@ -338,7 +338,7 @@ locale),
             RA::Error("RA_Format_Processor::Process",
               "login not provided");
             status = STATUS_ERROR_LOGIN;
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "login not found", "");
+            RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "login not found", "", tokenType);
             goto loser;
         }
         if( userid != NULL ) {
@@ -364,7 +364,7 @@ locale),
         if (login == NULL) {
             RA::Error("RA_Format_Processor::Process", "Login Request Disabled. Authentication failed.");
             status = STATUS_ERROR_LOGIN;
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "login not found", "");
+            RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "login not found", "", tokenType);
             goto loser;
         }
 
@@ -372,7 +372,7 @@ locale),
         authid = RA::GetConfigStore()->GetConfigAsString(configname);
         if (authid == NULL) {
             status = STATUS_ERROR_LOGIN;		 
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "login not found", "");
+            RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "login not found", "", tokenType);
             goto loser;
 	}
         AuthenticationEntry *auth = RA::GetAuth(authid);
@@ -387,7 +387,7 @@ locale),
         char *type = auth->GetType();
         if (type == NULL) {
             status = STATUS_ERROR_LOGIN;
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "authentication is missing param type", "");
+            RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "authentication is missing param type", "", tokenType);
             goto loser;
         }
         if (strcmp(type, "LDAP_Authentication") == 0) {
@@ -409,7 +409,7 @@ locale),
                 if (login == NULL || login->GetUID() == NULL) {
                   RA::Error("RA_Format_Processor::Process", "Authentication failed.");
                   status = STATUS_ERROR_LOGIN;
-                  RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "authentication error", "");
+                  RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "authentication error", "", tokenType);
                   goto loser;
                 }
                 authParams->SetUID(login->GetUID());
@@ -421,7 +421,7 @@ locale),
                 RA::Error("RA_Format_Processor::Process", "Authentication failed.");
                 status = STATUS_ERROR_LDAP_CONN;
                 RA::Debug(LL_PER_PDU, "RA_Format_Processor::Process", "Authentication status = %d", status);
-                RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "authentication error", "");
+                RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "authentication error", "", tokenType);
                 goto loser;
             }
 
@@ -429,7 +429,7 @@ locale),
                 RA::Error("RA_Format_Processor::Process", "Authentication failed.");
                 status = STATUS_ERROR_LOGIN;
                 RA::Debug(LL_PER_PDU, "RA_Format_Processor::Process", "Authentication status = %d", status);
-                RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "authentication error", "");
+                RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "authentication error", "", tokenType);
                 goto loser;
             }
 
@@ -437,7 +437,7 @@ locale),
         } else {
             RA::Error("RA_Format_Processor::Process", "No Authentication type was found.");
             status = STATUS_ERROR_LOGIN;
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "authentication error", "");
+            RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "authentication error", "", tokenType);
             goto loser;
         }
     } else {
@@ -481,7 +481,7 @@ locale),
          * Bugscape #55709: Re-select Net Key Applet ONLY on failure.
          */
         SelectApplet(session, 0x04, 0x00, NetKeyAID);
-        RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "applet upgrade error", "");
+        RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "applet upgrade error", "", tokenType);
         goto loser;
     } 
     RA::Audit("Upgrade", 
@@ -588,7 +588,7 @@ locale),
                 RA::Error("RA_Format_Processor::Process", 
                   "failed to create new key set");
                 status = STATUS_ERROR_CREATE_CARDMGR;
-                RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "create key set error", "");
+                RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "create key set error", "", tokenType);
                 goto loser;
             }
 
@@ -639,7 +639,7 @@ locale),
                 RA::Error("RA_Format_Processor::Process", 
 			      "failed to establish secure channel after reselect");
                 status = STATUS_ERROR_CREATE_CARDMGR;
-                RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "secure channel not established", "");
+                RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "secure channel not established", "", tokenType);
                 goto loser;
             }
         }     
@@ -757,7 +757,7 @@ locale),
             goto loser;
         }
 
-        rc = RA::tdb_update("", cuid, (char *)final_applet_version, keyVersion, "uninitialized", "");
+        rc = RA::tdb_update("", cuid, (char *)final_applet_version, keyVersion, "uninitialized", "", tokenType);
 
         if (rc != 0) {
             RA::Debug(LL_PER_PDU, "RA_Format_Processor::Process",
@@ -766,7 +766,7 @@ locale),
             goto loser;
         }
     } else {        
-        rc = RA::tdb_update("", cuid, (char *)final_applet_version, keyVersion, "uninitialized", "");
+        rc = RA::tdb_update("", cuid, (char *)final_applet_version, keyVersion, "uninitialized", "", tokenType);
         if (rc != 0) {
             RA::Debug(LL_PER_PDU, "RA_Format_Processor::Process",
               "Failed to update the token database");
@@ -789,7 +789,7 @@ locale),
 
     sprintf(activity_msg, "applet_version=%s tokenType=%s", 
            final_applet_version, tokenType);
-    RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "success", activity_msg, userid);
+    RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "success", activity_msg, userid, tokenType);
 
     /* audit log for successful enrollment */
     if (authid == NULL)

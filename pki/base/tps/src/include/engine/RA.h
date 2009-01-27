@@ -179,10 +179,10 @@ class RA
         char *filter, LDAPMessage **msg, int order);
       TPS_PUBLIC static int ra_update_token_status_reason_userid(char *userid,
         char *cuid, const char *status, const char *reason, int modifyDateOfCreate);
-          static int tdb_add_token_entry(char *userid, char* cuid, const char *status);
-	  static int tdb_update(const char *userid, char *cuid, char *applet_version, char *key_info, const char *state, const char *reason);
+          static int tdb_add_token_entry(char *userid, char* cuid, const char *status, const char *token_type);
+	  static int tdb_update(const char *userid, char *cuid, char *applet_version, char *key_info, const char *state, const char *reason, const char * token_type);
 	  static int tdb_update_certificates(char *cuid, char **tokentypes, char *userid, CERTCertificate **certificates, char **ktypes, char **origins, int numOfCerts);
-	  static int tdb_activity(char *ip, char *cuid, const char *op, const char *result, const char *msg, const char *userid);
+	  static int tdb_activity(char *ip, char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
 	  static int testTokendb();
           static int InitializeAuthentication();
           static AuthenticationEntry *GetAuth(const char *id);

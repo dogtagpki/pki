@@ -225,6 +225,17 @@ if (typeof(results) == "undefined" || results.length == 0) {
     document.write("</td>\n");
     document.write("</tr>\n");
 
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Token Type:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].tokenType+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
     document.write("</table>\n");
     document.write("<p>\n");
     document.write("<b>System Information:</b>");

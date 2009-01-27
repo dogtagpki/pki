@@ -58,12 +58,14 @@ extern "C"
 #include "httpd/http_log.h"
 #include "httpd/http_protocol.h"
 #include "httpd/http_main.h"
+#include "httpd/http_request.h"
 
 #include "apr_strings.h"
 
 #include "cms/CertEnroll.h"
 #include "engine/RA.h"
 #include "tus/tus_db.h"
+#include "processor/RA_Processor.h"
 
 extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
                                             conn_rec *c, request_rec *r,
@@ -86,8 +88,42 @@ extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
 #define BASE64_HEADER "-----BEGIN CERTIFICATE-----\n"
 #define BASE64_FOOTER "-----END CERTIFICATE-----\n"
 
+#define TOKENDB_OPERATORS_IDENTIFIER       "TUS Officers"
 #define TOKENDB_AGENTS_IDENTIFIER         "TUS Agents"
 #define TOKENDB_ADMINISTRATORS_IDENTIFIER "TUS Administrators"
+
+#define OP_PREFIX "op.format"
+
+#define NUM_PROFILES_TO_DISPLAY 15
+#define MAX_LEN_PROFILES_TO_DISPLAY 1000
+
+#define error_out(msg1,msg2) \
+    PR_snprintf(injection, MAX_INJECTION_SIZE, \
+        "%s%s%s%s%s", JS_START, "var error = \"Error: ", \
+        msg1,"\";\n", JS_STOP ); \
+    buf = getData( errorTemplate, injection ); \
+    ap_log_error( ( const char * ) "tus", __LINE__, \
+        APLOG_ERR, 0, rq->server, \
+        ( const char * ) msg2 ); \
+    ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
+
+#define ldap_error_out(msg1,msg2) \
+    PR_snprintf( injection, MAX_INJECTION_SIZE, \
+        "%s%s%s%s%s%s", JS_START, \
+        "var error = \"", msg1, \
+        ldap_err2string( status ), \
+        "\";\n", JS_STOP ); \
+    buf = getData( errorTemplate, injection ); \
+    ap_log_error( ( const char * ) "tus", __LINE__, \
+        APLOG_ERR, 0, rq->server, \
+        ( const char * ) msg2, \
+        ldap_err2string( status ) ); \
+    ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
+
+#define post_ldap_error(msg) \
+    ap_log_error( ( const char * ) "tus", __LINE__, \
+        APLOG_ERR, 0, rq->server, \
+        (const char *) msg,  ldap_err2string( status ) );
 
 /**
  * Provide reasonable defaults for some defines.
@@ -110,6 +146,7 @@ static char *templateDir                     = NULL;
 static char *errorTemplate                   = NULL;
 static char *indexTemplate                   = NULL;
 static char *indexAdminTemplate              = NULL;
+static char *indexOperatorTemplate           = NULL;
 static char *newTemplate                     = NULL;
 static char *searchTemplate                  = NULL;
 static char *searchResultTemplate            = NULL;
@@ -132,8 +169,15 @@ static char *doTokenConfirmTemplate          = NULL;
 static char *revokeTemplate                  = NULL;
 static char *addResultTemplate               = NULL;
 static char *deleteResultTemplate            = NULL;
+static char *editUserTemplate                = NULL;
+static char *searchUserResultTemplate        = NULL;
+static char *searchUserTemplate              = NULL;
+static char *newUserTemplate                 = NULL;
+static char *userDeleteTemplate              = NULL;
+static char *profileList                     = NULL;
 
 static int sendInPieces = 0;
+static RA_Processor m_processor;
 
 
 
@@ -210,7 +254,123 @@ void tokendbDebug( const char* msg )
 #endif
 }
 
+inline void do_free(char * buf)
+{
+    if (buf != NULL) {
+        PR_Free(buf);
+        buf = NULL;
+    }
+}
 
+/**
+ * unencode
+ * summary: takes a URL encoded string and returns an unencoded string 
+ *        : must be freed by caller
+ */
+char *unencode(const char *src)
+{
+    char *dest = NULL;
+    char *dp = NULL;
+    dest = (char *) PR_Malloc(PL_strlen(src)* sizeof(char) + 1);
+    dp = dest;
+    for(; PL_strlen(src) > 0 ; src++, dp++)
+        if(*src == '+')
+            *dp = ' ';
+        else if(*src == '%') {
+            int code;
+            if (sscanf(src+1, "%2x", &code) != 1) code = '?';
+            *dp = code;
+            src +=2; 
+        }     
+        else
+         *dp = *src;
+    *dp = '\0';
+    return dest;
+}
+
+/**
+ * get_field
+ * summary: used to parse query strings in get and post requests
+ *        : returns the value of the parameter following fname, in query string s.
+ *         must be freed by caller.
+ * example: get_field("op=hello&name=foo&title=bar", "name=") returns foo
+ */
+char *get_field( char *s, char* fname)
+{
+    char *end = NULL;
+    int  n;
+
+    if( ( s = PL_strstr( s, fname ) ) == NULL ) {
+        return NULL;
+    }
+
+    s += strlen(fname);
+    end = PL_strchr( s, '&' );
+
+    if( end != NULL ) {
+        n = end - s;
+    } else {
+        n = PL_strlen( s );
+    }
+    
+    if (n == 0) {
+        return NULL;
+    } else {
+        return PL_strndup( s, n );
+    }
+}
+
+/**
+ * get_post_field
+ * summary: get value from apr_table containing HTTP-Post values
+ * params: post - apr_table with post data
+ *       : fname = name of post-field
+ */
+char *get_post_field( apr_table_t *post, const char *fname) 
+{
+   if (post) {
+      return unencode(apr_table_get(post, fname));
+   } else {
+      return NULL;
+  }
+}
+
+/**
+ * similar to get_post_field - but returns the original post data
+ * without unencoding - used for userCert 
+ */
+char *get_encoded_post_field(apr_table_t *post, const char *fname)              
+{
+   if (post) {
+      return PL_strdup(apr_table_get(post, fname));
+   } else {
+      return NULL;
+  }
+}
+
+/**
+ * match_profile
+ * summary: returns true if the profile passed in matches an existing profile
+ *          in the profileList read from CS.cfg. Called when confirming that 
+ *          a user entered "other profile" is a real profile
+ */
+bool match_profile(const char *profile)
+{
+   char *pList = PL_strdup(profileList);
+   char *sresult = NULL;
+
+   sresult = strtok(pList, ",");
+   while (sresult != NULL) {
+       if (PL_strcmp(sresult, profile) == 0) {
+           do_free(pList);
+           return true;
+       }
+       sresult = strtok(NULL, ",");
+   }
+   do_free(pList);
+   return false;
+}
+   
 char *getTemplateFile( char *fileName, int *injectionTagOffset )
 {
     char *buf = NULL;
@@ -520,6 +680,85 @@ void getActivityFilter( char *filter, char *query )
     }
 }
 
+/**
+ * get_user_filter
+ * summary: returns an ldap search filter used for displaying 
+ *          user data when searching users based on uid, firstName and lastName
+ * params: filter - ldap search filter.  Resu;t returned here.
+ *         query  - query string passed in
+ */
+void getUserFilter (char *filter, char *query) {
+    char *uid        = NULL;
+    char *firstName  = NULL;
+    char *lastName   = NULL;
+
+    uid  = get_field(query, "uid=");
+    firstName = get_field(query, "firstName=");
+    lastName = get_field(query, "lastName=");
+  
+    filter[0] = '\0';
+
+    if ((uid == NULL) && (firstName == NULL) && (lastName ==NULL)) {
+        PL_strcat(filter, "(objectClass=Person");
+    } else {
+        PL_strcat(filter, "(&(objectClass=Person)");
+    }
+
+    if (uid != NULL) {
+        PL_strcat(filter, "(uid=");
+        PL_strcat(filter, uid);
+        PL_strcat(filter,")");
+    }
+
+    if (lastName != NULL) {
+        PL_strcat(filter, "(sn=");
+        PL_strcat(filter, lastName);
+        PL_strcat(filter,")");
+    }
+
+    if (firstName != NULL) {
+        PL_strcat(filter, "(cn=");
+        PL_strcat(filter, firstName);
+        PL_strcat(filter,"*)");
+    }
+
+    PL_strcat(filter, ")");
+
+    do_free(uid);
+    do_free(firstName);
+    do_free(lastName);
+}
+
+/**
+ * add_profile_filter
+ * summary: returns an ldap search filter which is a concatenation 
+ *          of the authorized profile search filter and the regular search
+ *          filter.  To be freed by caller.
+ * params: filter - search filter
+ *         auth_filter: authorized profiles filter
+ */
+char *add_profile_filter( char *filter, char *auth_filter)
+{
+    char *ret;
+    int size;
+    char no_auth_filter[] = "(tokenType=\"\")";
+    if (filter == NULL) return NULL;
+    if ((auth_filter == NULL) || (PL_strstr( auth_filter, ALL_PROFILES))) {
+        ret = PL_strdup(filter);
+    } else if (PL_strstr( auth_filter, NO_PROFILES)) {
+        size = (PL_strlen(filter) + PL_strlen(no_auth_filter) + 4) * sizeof(char);
+        ret = (char *) PR_Malloc(size);
+        PR_snprintf(ret, size, "%s%s%s%s",
+            "(&", filter,no_auth_filter, ")");
+    } else {
+        size = (PL_strlen(filter) + PL_strlen(auth_filter) + 4) * sizeof(char);
+        ret = (char *) PR_Malloc(size);
+        PR_snprintf(ret, size, "%s%s%s%s", 
+            "(&", filter, auth_filter, ")");
+    }
+    return ret;
+}
+           
 
 void getFilter( char *filter, char *query )
 {
@@ -1124,6 +1363,33 @@ int get_tus_config( char *name )
         }
     }
 
+    if( ( s = PL_strstr( buf, "tokendb.indexOperatorTemplate=" ) ) != NULL ) {
+        s += PL_strlen( "tokendb.indexOperatorTemplate=" );
+        v = s;
+
+        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' && 
+               ( PRUint32 ) ( s - buf ) < size ) {
+            s++;
+        }
+
+        n = s - v;
+
+        s = PL_strndup( v, n );
+        if( s != NULL ) {
+            if( indexOperatorTemplate != NULL ) {
+                PL_strfree( indexOperatorTemplate );
+                indexOperatorTemplate = NULL;
+            }
+            indexOperatorTemplate = s;
+        } else {
+            if( buf != NULL ) {
+                PR_Free( buf );
+                buf = NULL;
+            }
+            return 0;
+        }
+    }
+
     if( ( s = PL_strstr( buf, "tokendb.newTemplate=" ) ) != NULL ) {
         s += PL_strlen( "tokendb.newTemplate=" );
         v = s;
@@ -1147,6 +1413,48 @@ int get_tus_config( char *name )
                 PR_Free( buf );
                 buf = NULL;
             }
+            return 0;
+        }
+    }
+    
+     if( ( s = PL_strstr( buf, "tokendb.searchUserResultTemplate=" ) ) != NULL ) {
+        s += PL_strlen( "tokendb.searchUserResultTemplate=" );
+        v = s;
+
+        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' &&
+               ( PRUint32 )( s - buf ) < size ) {
+            s++;
+        }
+
+        n = s - v;
+
+        s = PL_strndup( v, n );
+        if( s != NULL ) {
+            do_free(searchUserResultTemplate);
+            searchUserResultTemplate = s;
+        } else {
+            do_free(buf);
+            return 0;
+        }
+    }
+
+    if( ( s = PL_strstr( buf, "tokendb.newUserTemplate=" ) ) != NULL ) {
+        s += PL_strlen( "tokendb.newUserTemplate=" );
+        v = s;
+
+        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' &&
+               ( PRUint32 )( s - buf ) < size ) {
+            s++;
+        }
+
+        n = s - v;
+
+        s = PL_strndup( v, n );
+        if( s != NULL ) {
+            do_free(newUserTemplate);
+            newUserTemplate = s;
+        } else {
+            do_free(buf);
             return 0;
         }
     }
@@ -1223,6 +1531,33 @@ int get_tus_config( char *name )
                 searchAdminTemplate = NULL;
             }
             searchAdminTemplate = s;
+        } else {
+            if( buf != NULL ) {
+                PR_Free( buf );
+                buf = NULL;
+            }
+            return 0;
+        }
+    }
+  
+     if( ( s = PL_strstr( buf, "tokendb.searchUserTemplate=" ) ) != NULL ) {
+        s += PL_strlen( "tokendb.searchUserTemplate=" );
+        v = s;
+
+        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' &&
+               ( PRUint32 ) ( s - buf ) < size ) {
+            s++;
+        }
+
+        n = s - v;
+
+        s = PL_strndup( v, n );
+        if( s != NULL ) {
+            if( searchUserTemplate != NULL ) {
+                PL_strfree( searchUserTemplate );
+                searchUserTemplate = NULL;
+            }
+            searchUserTemplate = s;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -1387,6 +1722,33 @@ int get_tus_config( char *name )
                 deleteTemplate = NULL;
             }
             deleteTemplate = s;
+        } else {
+            if( buf != NULL ) {
+                PR_Free( buf );
+                buf = NULL;
+            }
+            return 0;
+        }
+    }
+
+    if( ( s = PL_strstr( buf, "tokendb.userDeleteTemplate=" ) ) != NULL ) {
+        s += PL_strlen( "tokendb.userDeleteTemplate=" );
+        v = s;
+
+        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' &&
+               ( PRUint32 ) ( s - buf ) < size ) {
+            s++;
+        }
+
+        n = s - v;
+
+        s = PL_strndup( v, n );
+        if( s != NULL ) {
+            if( userDeleteTemplate != NULL ) {
+                PL_strfree( userDeleteTemplate );
+                userDeleteTemplate = NULL;
+            }
+            userDeleteTemplate = s;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -1585,6 +1947,33 @@ int get_tus_config( char *name )
         }
     }
 
+    if( ( s = PL_strstr( buf, "tokendb.editUserTemplate=" ) ) != NULL ) {
+        s += PL_strlen( "tokendb.editUserTemplate=" );
+        v = s;
+
+        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' && 
+               ( PRUint32 ) ( s - buf ) < size ) {
+            s++;
+        }
+
+        n = s - v;
+
+        s = PL_strndup( v, n );
+        if( s != NULL ) {
+            if( editUserTemplate != NULL ) {
+                PL_strfree( editUserTemplate );
+                editUserTemplate = NULL;
+            }
+            editUserTemplate = s;
+        } else {
+            if( buf != NULL ) {
+                PR_Free( buf );
+                buf = NULL;
+            }
+            return 0;
+        }
+    }
+
     if( ( s = PL_strstr( buf, "tokendb.editTemplate=" ) ) != NULL ) {
         s += PL_strlen( "tokendb.editTemplate=" );
         v = s;
@@ -1745,6 +2134,31 @@ int get_tus_config( char *name )
             return 0;
         }
     }
+
+    if( ( s = PL_strstr( buf, "target.tokenType.list=" ) ) != NULL ) {
+        s += PL_strlen( "target.tokenType.list=" );
+        v = s;
+
+        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' &&
+               ( PRUint32 ) ( s - buf ) < size ) {
+            s++;
+        }
+
+        n = s - v;
+
+        s = PL_strndup( v, n );
+        if( s != NULL ) {
+            if( profileList != NULL ) {
+                PL_strfree( profileList );
+                profileList = NULL;
+            }
+            profileList = s;
+        } else {
+            do_free(buf);
+            return 0;
+        }
+    }
+
 
     if( buf != NULL ) {
         PR_Free( buf );
@@ -1953,6 +2367,93 @@ char *stripBase64HeaderAndFooter( char *cert )
     return base64_data;
 }
 
+/**
+ * util_read
+ * summary: called from read_post. reads posted data
+ */
+static int util_read(request_rec *r, const char **rbuf)
+{
+    int rc = OK;
+
+    if ((rc = ap_setup_client_block(r, REQUEST_CHUNKED_ERROR))) {
+        return rc;
+    }
+
+    if (ap_should_client_block(r)) {
+        char argsbuffer[HUGE_STRING_LEN];
+        int rsize, len_read, rpos=0;
+        long length = r->remaining;
+        *rbuf = (const char*) apr_pcalloc(r->pool, length + 1);
+
+
+        while ((len_read =
+                ap_get_client_block(r, argsbuffer, sizeof(argsbuffer))) > 0) {
+            if ((rpos + len_read) > length) {
+                rsize = length - rpos;
+            }
+            else {
+                rsize = len_read;
+            }
+            memcpy((char*)*rbuf + rpos, argsbuffer, rsize);
+            rpos += rsize;
+        }
+
+    }
+
+    return rc;
+}
+
+/**
+ * read_post
+ * read data in a post request and store it in an apr_table
+ */
+static int read_post(request_rec *r, apr_table_t **tab)
+{
+    const char *data;
+    const char *key, *val, *type;
+    int rc = OK;
+
+    if((rc = util_read(r, &data)) != OK) {
+        return rc;
+    }
+
+    if(*tab) {
+        apr_table_clear(*tab);
+    }
+    else {
+        *tab = apr_table_make(r->pool, 8);
+    }
+
+    while(*data && (val = ap_getword(r->pool, &data, '&'))) {
+        key = ap_getword(r->pool, &val, '=');
+
+        ap_unescape_url((char*)key);
+        ap_unescape_url((char*)val);
+
+        apr_table_merge(*tab, key, val);
+    }
+
+    return OK;
+}
+
+/**
+ * add_authorization_data
+ * writes variable that describe whether the user is an admin, agent or operator to the 
+ * injection data.  Used by templates to determine which tabs to display
+ */
+void add_authorization_data(const char *userid, int is_admin, int is_operator, int is_agent, char *injection)
+{
+    if (is_agent) {
+        PL_strcat(injection, "var agentAuth = \"true\";\n");
+    }
+    if (is_operator) {
+        PL_strcat(injection, "var operatorAuth = \"true\";\n");
+    }
+    if (is_admin) {
+        PL_strcat(injection, "var adminAuth = \"true\";\n");
+    }
+}
+    
 
 /**
  * mod_tokendb_handler handles the protocol between the tokendb and the RA
@@ -1976,7 +2477,22 @@ mod_tokendb_handler( request_rec *rq )
     char *error         = NULL;
     char *tid           = NULL;
     char *question      = NULL;
-    char **a            = NULL;
+    const char *tokentype = NULL;
+
+
+    /* user fields */
+    char *uid           = NULL;
+    char *firstName     = NULL;
+    char *lastName      = NULL;
+    char *opOperator    = NULL;
+    char *opAdmin       = NULL;
+    char *opAgent       = NULL;
+    char *userCert      = NULL;
+
+    /* keep track of which menu we are in - operator or agent */
+    char *topLevel      = NULL; 
+
+    char **attrs        = NULL;
     char **vals         = NULL;
     int maxReturns;
     int q;
@@ -1992,10 +2508,23 @@ mod_tokendb_handler( request_rec *rq )
     char cuid[256];
     char cuidUserId[100];
     char serial[100];
+    char userCN[256];
+    char tokenType[512];
+    apr_table_t *post = NULL; /* used for POST data */
+  
     char *statusString;
     char *s1, *s2;
     char *end;
     char **attr_values;
+    char *auth_filter = NULL;
+
+    /* authorization */
+    int is_admin = 0;
+    int is_agent = 0;
+    int is_operator = 0;
+
+    int end_val =0;
+    int start_val = 0;
 
     RA::Debug( "mod_tokendb_handler::mod_tokendb_handler",
                "mod_tokendb_handler::mod_tokendb_handler" );
@@ -2066,25 +2595,8 @@ mod_tokendb_handler( request_rec *rq )
                            rq,
                            ( char * ) "SSL_CLIENT_CERT" );
     if( cert == NULL ) {
-          PR_snprintf( injection, MAX_INJECTION_SIZE,
-                       "%s%s%s%s%s", JS_START,
-                       "var error = \"Error: ",
-                       "Authentication Failure",
-                       "\";\n", JS_STOP );
-
-          buf = getData( errorTemplate, injection );
-
-          ap_log_error( ( const char * ) "tus", __LINE__,
-                        APLOG_ERR, 0, rq->server,
-                        ( const char * ) "Failed to authenticate request" );
-
-          ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-          if( buf != NULL ) {
-              PR_Free( buf );
-              buf = NULL;
-          }
-
+          error_out("Authentication Failure", "Failed to authenticate request");
+          do_free(buf);
           return DECLINED;
     }
 
@@ -2097,35 +2609,37 @@ mod_tokendb_handler( request_rec *rq )
     tokendbDebug( "\n" );
 
     userid = tus_authenticate( base64_cert );
+    do_free(base64_cert);
     if( userid == NULL ) {
-          PR_snprintf( injection, MAX_INJECTION_SIZE,
-                       "%s%s%s%s%s", JS_START,
-                       "var error = \"Error: ",
-                       "Authentication Failure",
-                       "\";\n", JS_STOP );
-
-          buf = getData( errorTemplate, injection );
-
-          ap_log_error( ( const char * ) "tus", __LINE__,
-                        APLOG_ERR, 0, rq->server,
-                        ( const char * ) "Failed to authenticate request" );
-
-          ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-          if( buf != NULL ) {
-              PR_Free( buf );
-              buf = NULL;
-          }
+          error_out("Authentication Failure", "Failed to authenticate request");
+          do_free(buf);
 
           return DECLINED;
     }
 
+    /* authorization */
+    is_admin = tus_authorize(TOKENDB_ADMINISTRATORS_IDENTIFIER, userid);
+    is_agent = tus_authorize(TOKENDB_AGENTS_IDENTIFIER, userid);
+    is_operator = tus_authorize(TOKENDB_OPERATORS_IDENTIFIER, userid);
+    auth_filter = get_authorized_profiles(userid, is_admin);
+
+    tokendbDebug("auth_filter");
+    tokendbDebug(auth_filter);
+
     if( rq->uri != NULL ) {
         uri = PL_strdup( rq->uri );
     }
-
-    if( rq->args != NULL ) {
-        query = PL_strdup( rq->args );
+ 
+    if (rq->method_number == M_POST) {
+        status = read_post(rq, &post);
+        if(post && !apr_is_empty_table(post)) {
+            query = PL_strdup( apr_table_get(post, "query"));
+        }
+    } else {
+    /* GET request */
+        if( rq->args != NULL ) {
+            query = PL_strdup( rq->args );
+        }
     }
 
     RA::Debug( "mod_tokendb_handler::mod_tokendb_handler",
@@ -2133,122 +2647,79 @@ mod_tokendb_handler( request_rec *rq )
                uri, ( query==NULL?"":query ) );
 
     if( query == NULL ) {
-        tokendbDebug( "authorization\n" );
-        if( !tus_authorize( TOKENDB_AGENTS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure",
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
+        char *itemplate = NULL;
+        tokendbDebug( "authorization for index case\n" );
+        if (is_agent) {
+            itemplate = indexTemplate;
+        } else if (is_operator) {
+            itemplate = indexOperatorTemplate;
+        } else if (is_admin) {
+            itemplate = indexAdminTemplate;
+        } else {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
 
             return DECLINED;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n", 
                      "var userid = \"", userid,
-                     "\";\n", JS_STOP );
+                     "\";\n" );
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
-        buf = getData( indexTemplate, injection );
+        buf = getData( itemplate, injection );
+        itemplate = NULL;
+    } else if( ( PL_strstr( query, "op=index_operator" ) ) ) {
+        tokendbDebug( "authorization for op=index_operator\n" );
+        if (!is_operator) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+            return DECLINED;
+        }
+
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n", 
+                     "var userid = \"", userid,
+                     "\";\n" );
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
+
+        buf = getData( indexOperatorTemplate, injection );
     } else if( ( PL_strstr( query, "op=index_admin" ) ) ) {
         tokendbDebug( "authorization\n" );
-        if( !tus_authorize( TOKENDB_AGENTS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                        "var error = \"Error: ",
-                        "Authorization Failure",
-                        "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+        if (!is_admin) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n", 
                      "var userid = \"", userid,
-                     "\";\n", JS_STOP );
+                     "\";\n" );
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
         buf = getData( indexAdminTemplate, injection );
     } else if( ( PL_strstr( query, "op=do_token" ) ) ) {
-        tokendbDebug( "authorization\n" );
+        tokendbDebug( "authorization for do_token\n" );
 
-        if( !tus_authorize( TOKENDB_AGENTS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure",
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+        if( !is_agent ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
         }
 
@@ -2291,6 +2762,19 @@ mod_tokendb_handler( request_rec *rq )
                 attr_values = get_attribute_values( e, "tokenUserID" );
                 PL_strcpy( cuidUserId, attr_values[0] );
                 tokendbDebug( cuidUserId );
+                if (attr_values != NULL) {
+                    free_values(attr_values, 1);
+                    attr_values = NULL;
+                }
+                 
+                attr_values = get_attribute_values( e, "tokenType" );
+                PL_strcpy( tokenType, attr_values[0] );
+                tokendbDebug( tokenType );
+                if (attr_values != NULL) {
+                    free_values(attr_values, 1);
+                    attr_values = NULL;
+                }
+
             }
         }
 
@@ -2300,7 +2784,7 @@ mod_tokendb_handler( request_rec *rq )
             PR_snprintf((char *)msg, 256,
               "'%s' marked token physically damaged", userid);
             RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated",
-                     msg, cuidUserId);
+                     msg, cuidUserId, tokenType);
 
             /* get the certificates on this lost token */
             PR_snprintf( ( char * ) filter, 256,
@@ -2365,11 +2849,11 @@ mod_tokendb_handler( request_rec *rq )
                         // update certificate status
                         if( strcmp( revokeReason, "6" ) == 0 ) {
                             PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked_on_hold", attr_cn);
-                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId);
+                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
                             update_cert_status( attr_cn, "revoked_on_hold" );
                         } else {
                             PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked", attr_cn);
-                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId);
+                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
                             update_cert_status( attr_cn, "revoked" );
                         }
 
@@ -2425,20 +2909,9 @@ mod_tokendb_handler( request_rec *rq )
                 ( void ) ap_rwrite( ( const void * ) buf,
                                     PL_strlen( buf ), rq );
 
-                if( buf != NULL ) {
-                    PR_Free( buf );
-                    buf = NULL;
-                }
-
-                if( uri != NULL ) {
-                    PR_Free( uri );
-                    uri = NULL;
-                }
-
-                if( query != NULL ) {
-                    PR_Free( query );
-                    query = NULL;
-                }
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
 
                 return DECLINED;
             } else if( rc > 0 ) {
@@ -2460,20 +2933,9 @@ mod_tokendb_handler( request_rec *rq )
                 ( void ) ap_rwrite( ( const void * ) buf,
                                     PL_strlen( buf ), rq );
 
-                if( buf != NULL ) {
-                    PR_Free( buf );
-                    buf = NULL;
-                }
-
-                if( uri != NULL ) {
-                    PR_Free( uri );
-                    uri = NULL;
-                }
-
-                if( query != NULL ) {
-                    PR_Free( query );
-                    query = NULL;
-                }
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
 
                 return DECLINED;
             }
@@ -2488,7 +2950,7 @@ mod_tokendb_handler( request_rec *rq )
                 "'%s' marked token terminated", userid);             
             }
             RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated",
-                     msg, cuidUserId);
+                     msg, cuidUserId, tokenType);
 
             /* get the certificates on this lost token */
             PR_snprintf( ( char * ) filter, 256,
@@ -2557,11 +3019,11 @@ mod_tokendb_handler( request_rec *rq )
                         // update certificate status
                         if( strcmp(revokeReason, "6" ) == 0 ) {
                             PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked_on_hold", attr_cn);
-                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId);
+                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
                             update_cert_status( attr_cn, "revoked_on_hold" );
                         } else {
                             PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked", attr_cn);
-                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId);
+                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
                             update_cert_status( attr_cn, "revoked" );
                         }
 
@@ -2625,20 +3087,9 @@ mod_tokendb_handler( request_rec *rq )
                 ( void ) ap_rwrite( ( const void * ) buf,
                                     PL_strlen( buf ), rq );
 
-                if( buf != NULL ) {
-                    PR_Free( buf );
-                    buf = NULL;
-                }
-
-                if( uri != NULL ) {
-                    PR_Free( uri );
-                    uri = NULL;
-                }
-
-                if( query != NULL ) {
-                    PR_Free( query );
-                    query = NULL;
-                }
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
 
                 return DECLINED;
             } else if( rc > 0 ) {
@@ -2658,20 +3109,9 @@ mod_tokendb_handler( request_rec *rq )
                 ( void ) ap_rwrite( ( const void * ) buf,
                                     PL_strlen( buf ), rq );
 
-                if( buf != NULL ) {
-                    PR_Free( buf );
-                    buf = NULL;
-                }
-
-                if( uri != NULL ) {
-                    PR_Free( uri );
-                    uri = NULL;
-                }
-
-                if( query != NULL ) {
-                    PR_Free( query );
-                    query = NULL;
-                }
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
 
                 return DECLINED;
             }
@@ -2682,7 +3122,7 @@ mod_tokendb_handler( request_rec *rq )
             PR_snprintf((char *)msg, 256,
               "'%s' marked token temporarily lost", userid);
             RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated",
-                     msg, cuidUserId);
+                     msg, cuidUserId, tokenType);
 
             /* all certs on the token are revoked (onHold) */
             tokendbDebug( "Revoke all the certs on this token "
@@ -2754,11 +3194,11 @@ mod_tokendb_handler( request_rec *rq )
 
                         if( strcmp( revokeReason, "6" ) == 0 ) {
                             PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked_on_hold", attr_cn);
-                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId);
+                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
                             update_cert_status( attr_cn, "revoked_on_hold" );
                         } else {
                             PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked", attr_cn);
-                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId);
+                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
                             update_cert_status( attr_cn, "revoked" );
                         }
                     }
@@ -2805,20 +3245,9 @@ mod_tokendb_handler( request_rec *rq )
 
                 ( void ) ap_rwrite( ( const void * ) buf,
                                     PL_strlen( buf ), rq );
-                if( buf != NULL ) {
-                    PR_Free( buf );
-                    buf = NULL;
-                }
-
-                if( uri != NULL ) {
-                    PR_Free( uri );
-                    uri = NULL;
-                }
-
-                if( query != NULL ) {
-                    PR_Free( query );
-                    query = NULL;
-                }
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
 
                 return DECLINED;
             } else if( rc > 0 ) {
@@ -2838,20 +3267,9 @@ mod_tokendb_handler( request_rec *rq )
                 ( void ) ap_rwrite( ( const void * ) buf,
                                     PL_strlen( buf ), rq );
 
-                if( buf != NULL ) {
-                    PR_Free( buf );
-                    buf = NULL;
-                }
-
-                if( uri != NULL ) {
-                    PR_Free( uri );
-                    uri = NULL;
-                }
-
-                if( query != NULL ) {
-                    PR_Free( query );
-                    query = NULL;
-                }
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
 
                 return DECLINED;
             }
@@ -2862,7 +3280,7 @@ mod_tokendb_handler( request_rec *rq )
             PR_snprintf((char *)msg, 256,
               "'%s' marked lost token found", userid);
             RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated",
-                     msg, cuidUserId);
+                     msg, cuidUserId, tokenType);
 
             tokendbDebug( "The temporarily lost token is found.\n" );
             
@@ -2926,7 +3344,7 @@ mod_tokendb_handler( request_rec *rq )
                          
 
                           PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as active", attr_cn);
-                          RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId);
+                          RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
                         update_cert_status( attr_cn, "active" );
                         
                         if( attr_cn != NULL ) {
@@ -2964,67 +3382,19 @@ mod_tokendb_handler( request_rec *rq )
             update_token_status_reason( cuidUserId, cuid, "active", NULL );
 
             if( rc == -1 ) {
-                PR_snprintf( injection, MAX_INJECTION_SIZE,
-                             "%s%s%s%s", JS_START,
-                             "var error = \"Failed to create LDAPMod: ",
-                             "\";\n", JS_STOP );
+                error_out("Failed to create LDAPMod: ", "Failed to create LDAPMod");
 
-                buf = getData( errorTemplate, injection );
-
-                ap_log_error( ( const char * ) "tus", __LINE__,
-                              APLOG_ERR, 0, rq->server,
-                              ( const char * ) "Failed to create LDAPMod" );
-
-                ( void ) ap_rwrite( ( const void * ) buf,
-                                    PL_strlen( buf ), rq );
-
-                if( buf != NULL ) {
-                    PR_Free( buf );
-                    buf = NULL;
-                }
-
-                if( uri != NULL ) {
-                    PR_Free( uri );
-                    uri = NULL;
-                }
-
-                if( query != NULL ) {
-                    PR_Free( query );
-                    query = NULL;
-                }
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
 
                 return DECLINED;
             } else if( rc > 0 ) {
-                PR_snprintf( injection, MAX_INJECTION_SIZE,
-                             "%s%s%s%s%s", JS_START,
-                             "var error = \"LDAP mod error: ",
-                             ldap_err2string( rc ),
-                             "\";\n", JS_STOP );
+                ldap_error_out("LDAP mod error: ", "LDAP error: %s");
 
-                buf = getData( errorTemplate, injection );
-
-                ap_log_error( ( const char * ) "tus", __LINE__,
-                              APLOG_ERR, 0, rq->server,
-                              ( const char * ) "LDAP error: %s",
-                              ldap_err2string( rc ) );
-
-                ( void ) ap_rwrite( ( const void * ) buf,
-                                    PL_strlen( buf ), rq );
-
-                if( buf != NULL ) {
-                    PR_Free( buf );
-                    buf = NULL;
-                }
-
-                if( uri != NULL ) {
-                    PR_Free( uri );
-                    uri = NULL;
-                }
-
-                if( query != NULL ) {
-                    PR_Free( query );
-                    query = NULL;
-                }
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
 
                 return DECLINED;
             }
@@ -3035,7 +3405,7 @@ mod_tokendb_handler( request_rec *rq )
             PR_snprintf((char *)msg, 256,
               "'%s' marked lost token permanently lost", userid);
             RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated",
-                     msg, cuidUserId);
+                     msg, cuidUserId, tokenType);
 
             tokendbDebug( "Change the revocation reason from onHold "
                           "to keyCompromise\n" );
@@ -3123,11 +3493,11 @@ mod_tokendb_handler( request_rec *rq )
 
                         if( strcmp( revokeReason, "6" ) == 0 ) {
                           PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked_on_hold", attr_cn);
-                          RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId);
+                          RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
                             update_cert_status( attr_cn, "revoked_on_hold" );
                         } else {
                           PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked", attr_cn);
-                          RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId);
+                          RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
                             update_cert_status( attr_cn, "revoked" );
                         }
 
@@ -3170,45 +3540,24 @@ mod_tokendb_handler( request_rec *rq )
         tokendbDebug( "do_token: rc = 0\n" );
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%d%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%d%s%s%s%s%s%s%s", JS_START,
                      "var rc = \"", rc, "\";\n",
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid,
-                     "\";\n", JS_STOP );
+                     "\";\n" );
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
         buf = getData( doTokenTemplate, injection );
     } else if( ( PL_strstr( query, "op=revoke" ) ) ) {
         tokendbDebug("authorization\n");
 
-        if( !tus_authorize( TOKENDB_AGENTS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                        "var error = \"Error: ",
-                        "Authorization Failure",
-                        "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+        if( ! is_agent ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
         }
 
@@ -3217,307 +3566,219 @@ mod_tokendb_handler( request_rec *rq )
         /* tid=cuid */
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s", JS_START,
                     "var uriBase = \"", uri, "\";\n",
                     "var userid = \"", userid,
-                    "\";\n", JS_STOP );
+                    "\";\n" );
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
         buf = getData( revokeTemplate, injection );
     } else if( ( PL_strstr( query, "op=search_activity" ) ) ) {
         tokendbDebug( "authorization\n" );
 
-        if( !tus_authorize( TOKENDB_AGENTS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure",
-                         "\";\n", JS_STOP );
+        /* check removed - all roles permit this
 
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+        if ((! is_agent) && (! is_operator) && (! is_admin)) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
-        }
+        } */
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid,
-                     "\";\n", JS_STOP );
+                     "\";\n" );
+
+        topLevel = get_field(query, "top=");
+        if ((topLevel != NULL) && (PL_strstr(topLevel, "operator"))) {
+            PL_strcat(injection, "var topLevel = \"operator\";\n");
+        }
+        do_free(topLevel);
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
         buf = getData( searchActivityTemplate, injection );
-    } else if( ( PL_strstr( query, "op=search_admin" ) ) ) {
+    } else if( ( PL_strstr( query, "op=search_admin" ) ) || 
+               ( PL_strstr( query, "op=search_users"  ) )) { 
         tokendbDebug( "authorization\n" );
 
-        if( !tus_authorize( TOKENDB_ADMINISTRATORS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure",
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
+        if( ! is_admin ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
 
             return DECLINED;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid,
-                     "\";\n", JS_STOP );
+                     "\";\n" );
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
-        buf = getData( searchAdminTemplate, injection );
-    } else if( ( PL_strstr( query, "op=search_certificate" ) ) ) {
+        if ( PL_strstr( query, "op=search_admin" ) ) {
+            buf = getData( searchAdminTemplate, injection );
+        } else if ( PL_strstr( query, "op=search_users" ) ) {
+            buf = getData( searchUserTemplate, injection );
+        }
+    } else if ( PL_strstr( query, "op=search_certificate" ) )  {
         tokendbDebug( "authorization\n" );
-        if( !tus_authorize( TOKENDB_AGENTS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure",
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+        if ((! is_agent) && (! is_operator)) { 
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid,
-                     "\";\n", JS_STOP );
+                     "\";\n");
+
+        topLevel = get_field(query, "top=");
+        if ((topLevel != NULL) && (PL_strstr(topLevel, "operator"))) {
+            PL_strcat(injection, "var topLevel = \"operator\";\n");
+        }
+        do_free(topLevel);
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
         buf = getData( searchCertificateTemplate, injection );
     } else if( ( PL_strstr( query, "op=search" ) ) ) {
-        tokendbDebug( "authorization\n" );
-        if( !tus_authorize( TOKENDB_AGENTS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure",
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+        tokendbDebug( "authorization for op=search\n" );
+        if ((! is_agent) && (! is_operator)) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid,
-                     "\";\n", JS_STOP );
+                     "\";\n");
+        
+        topLevel = get_field(query, "top=");
+        if ((topLevel != NULL) && (PL_strstr(topLevel, "operator"))) {
+            PL_strcat(injection, "var topLevel = \"operator\";\n");
+        }
+        do_free(topLevel);
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
         buf = getData( searchTemplate, injection );
     } else if( ( PL_strstr( query, "op=new" ) ) ) {
         tokendbDebug( "authorization\n" );
-        if( !tus_authorize( TOKENDB_ADMINISTRATORS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure",
-                         "\";\n", JS_STOP );
+        if( ! is_agent ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+            return DECLINED;
+        }
 
-            buf = getData( errorTemplate, injection );
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n", 
+                     "var userid = \"", userid,
+                     "\";\n" );
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
+        buf = getData( newTemplate,injection );
+    } else if ( ( PL_strstr( query, "op=add_user" ) ) ) {
+        tokendbDebug( "authorization for add_user\n" );
+        if( ! is_admin ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
 
             return DECLINED;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s", JS_START,
-                     "var uriBase = \"", uri, "\";\n", 
+                     "%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid,
-                     "\";\n", JS_STOP );
+                     "\";\n");
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
-        buf = getData( newTemplate,injection );
+        buf = getData( newUserTemplate,injection );
     } else if( ( PL_strstr( query, "op=view_admin" ) )       ||
                ( PL_strstr( query, "op=view_certificate" ) ) ||
                ( PL_strstr( query, "op=view_activity" ) )    ||
+               ( PL_strstr( query, "op=view_users" ) )       ||
                ( PL_strstr( query, "op=view" ) )             ||
                ( PL_strstr( query, "op=edit_admin" ) )       ||
+               ( PL_strstr( query, "op=edit_user" ) )        ||
                ( PL_strstr( query, "op=edit" ) )             ||
                ( PL_strstr( query, "op=show_certificate" ) ) ||
                ( PL_strstr( query, "op=show" ) )             ||
                ( PL_strstr( query, "op=do_confirm_token" ) ) ||
+               ( PL_strstr( query, "op=user_delete_confirm"))||
                ( PL_strstr( query, "op=confirm" ) ) ) {
         if( ( PL_strstr( query, "op=confirm" ) )    ||
             ( PL_strstr( query, "op=view_admin" ) ) ||
             ( PL_strstr( query, "op=show_admin" ) ) ||
+            ( PL_strstr( query, "op=view_users") )  ||
+            ( PL_strstr( query, "op=edit_user") )   ||
+            ( PL_strstr( query, "op=user_delete_confirm") ) ||
             ( PL_strstr( query, "op=edit_admin" ) ) ) {
-            tokendbDebug( "authorization\n" );
+            tokendbDebug( "authorization for admin ops\n" );
 
-            if( !tus_authorize( TOKENDB_ADMINISTRATORS_IDENTIFIER, userid ) ) {
-                PR_snprintf( injection, MAX_INJECTION_SIZE,
-                             "%s%s%s%s%s", JS_START,
-                             "var error = \"Error: ",
-                             "Authorization Failure",
-                             "\";\n", JS_STOP );
-
-                buf = getData( errorTemplate, injection );
-
-                ap_log_error( ( const char * ) "tus", __LINE__,
-                              APLOG_ERR, 0, rq->server,
-                              ( const char * ) "Failed to authorize request" );
-
-                ( void ) ap_rwrite( ( const void * ) buf,
-                                    PL_strlen( buf ), rq );
-
-                if( buf != NULL ) {
-                  PR_Free( buf );
-                  buf = NULL;
-                }
-
-                if( uri != NULL ) {
-                    PR_Free( uri );
-                    uri = NULL;
-                }
-
-                if( query != NULL ) {
-                    PR_Free( query );
-                    query = NULL;
-                }
+            if( ! is_admin ) {
+                error_out("Authorization Failure", "Failed to authorize request");
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
 
                 return DECLINED;
             }
+        } else if ((PL_strstr(query, "op=edit")) || 
+                   (PL_strstr(query, "do_confirm_token"))) {
+            tokendbDebug( "authorization for op=edit and op=do_confirm_token\n" );
+
+            if (! is_agent ) {
+                error_out("Authorization Failure", "Failed to authorize request");
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
+
+                return DECLINED;
+            }
+        } else if (PL_strstr(query, "op=view_activity")) {
+            tokendbDebug( "authorization for view_activity\n" );
+
+            /* check removed -- all roles permitted 
+            if ( (! is_agent) && (! is_operator) && (! is_admin)) {
+                error_out("Authorization Failure", "Failed to authorize request");
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
+
+                return DECLINED;
+            } */
         } else {
             tokendbDebug( "authorization\n" );
 
-            if( !tus_authorize( TOKENDB_AGENTS_IDENTIFIER, userid ) ) 
-            {
-                PR_snprintf( injection, MAX_INJECTION_SIZE,
-                             "%s%s%s%s%s", JS_START,
-                            "var error = \"Error: ",
-                            "Authorization Failure",
-                            "\";\n", JS_STOP );
-
-                buf = getData( errorTemplate, injection );
-
-                ap_log_error( ( const char * ) "tus", __LINE__,
-                              APLOG_ERR, 0, rq->server,
-                              ( const char * ) "Failed to authorize request" );
-
-                ( void ) ap_rwrite( ( const void * ) buf,
-                                    PL_strlen( buf ), rq );
-
-                if( buf != NULL ) {
-                    PR_Free( buf );
-                    buf = NULL;
-                }
-
-                if( uri != NULL ) {
-                    PR_Free( uri );
-                    uri = NULL;
-                }
-
-                if( query != NULL ) {
-                    PR_Free( query );
-                    query = NULL;
-                }
+            if ((! is_agent) && (!is_operator)) { 
+                error_out("Authorization Failure", "Failed to authorize request");
+                do_free(buf);
+                do_free(uri);
+                do_free(query);
 
                 return DECLINED;
             }
@@ -3529,11 +3790,18 @@ mod_tokendb_handler( request_rec *rq )
             getCertificateFilter( filter, query );
         } else if( PL_strstr( query, "op=show_certificate" ) ) {
             getCertificateFilter( filter, query );
+        } else if ((PL_strstr( query, "op=view_users" ) ) ||
+                   (PL_strstr( query, "op=user_delete_confirm")) ||
+                   (PL_strstr( query, "op=edit_user" ) )) {
+            getUserFilter( filter, query );
         } else {
             getFilter( filter, query );
         }
+        char *complete_filter = add_profile_filter(filter, auth_filter);
+        do_free(auth_filter);
 
         tokendbDebug( "looking for filter:" );
+        tokendbDebug( complete_filter );
         tokendbDebug( filter );
         tokendbDebug( "\n" );
 
@@ -3553,14 +3821,14 @@ mod_tokendb_handler( request_rec *rq )
         }
 
         if( PL_strstr( query, "op=view_activity" ) ) {
-            status = find_tus_activity_entries_no_vlv( filter, &result, 0 );
+            status = find_tus_activity_entries_no_vlv( complete_filter, &result, 0 );
         } else if( PL_strstr( query, "op=view_certificate" ) ) {
 
             ap_log_error( ( const char * ) "tus", __LINE__,
                           APLOG_ERR, 0, rq->server,
-                          ( const char * ) "LDAP filter: %s", filter);
+                          ( const char * ) "LDAP filter: %s", complete_filter);
 
-            status = find_tus_certificate_entries_by_order_no_vlv( filter,
+            status = find_tus_certificate_entries_by_order_no_vlv( complete_filter,
                                                                    &result,
                                                                    0 );
         } else if( PL_strstr( query, "op=show_certificate" ) ||
@@ -3571,9 +3839,9 @@ mod_tokendb_handler( request_rec *rq )
 
             ap_log_error( ( const char * ) "tus", __LINE__,
                           APLOG_ERR, 0, rq->server,
-                          ( const char * ) "LDAP filter: %s", filter);
+                          ( const char * ) "LDAP filter: %s", complete_filter);
 
-            status = find_tus_certificate_entries_by_order_no_vlv( filter,
+            status = find_tus_certificate_entries_by_order_no_vlv( complete_filter,
                                                                    &result,
                                                                    0 );
         } else if( PL_strstr( query, "op=show_admin" ) ||
@@ -3581,45 +3849,26 @@ mod_tokendb_handler( request_rec *rq )
                    PL_strstr( query, "op=edit_admin" ) ||
                    PL_strstr( query, "op=confirm" )    ||
                    PL_strstr( query, "op=do_confirm_token" ) ) {
-            status = find_tus_token_entries_no_vlv( filter, &result, 0 );
+            status = find_tus_token_entries_no_vlv( complete_filter, &result, 0 );
+        } else if ((PL_strstr (query, "op=view_users" ))  ||
+                   (PL_strstr (query, "op=user_delete_confirm")) ||
+                   (PL_strstr (query, "op=edit_user" )))  {
+            status = find_tus_user_entries_no_vlv( filter, &result, 0); 
         } else {
-            status = find_tus_db_entries( filter, maxReturns, &result );
+            status = find_tus_db_entries( complete_filter, maxReturns, &result );
         }
 
         if( status != LDAP_SUCCESS ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"LDAP search error: ",
-                         ldap_err2string( status ),
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "LDAP search error: %s",
-                          ldap_err2string( status ) );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
+            ldap_error_out("LDAP search error: ", "LDAP search error: %s");
+            do_free(complete_filter);
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
 
             return DECLINED;
         }
 
+        do_free(complete_filter);
         nEntries = get_number_of_entries( result );
         entryNum = 0;
         maxEntries = 0;
@@ -3645,6 +3894,12 @@ mod_tokendb_handler( request_rec *rq )
                        PL_strstr( query, "op=view_certificate" ) ) {
                 buf = getTemplateFile( searchCertificateResultTemplate,
                                        &tagOffset );
+                if( buf != NULL && tagOffset >= 0 ) {
+                    ( void ) ap_rwrite( ( const void * ) buf, tagOffset, rq );
+                    sendPieces = 1;
+                }
+            } else if (sendInPieces && PL_strstr( query, "op=view_users" )) {
+                buf = getTemplateFile( searchUserResultTemplate, &tagOffset );
                 if( buf != NULL && tagOffset >= 0 ) {
                     ( void ) ap_rwrite( ( const void * ) buf, tagOffset, rq );
                     sendPieces = 1;
@@ -3699,14 +3954,43 @@ mod_tokendb_handler( request_rec *rq )
                 PL_strcat( injection, "\";\n" );
         }
 
+        /* get attributes to be displayed to the user */
         if( PL_strstr( query, "op=view_activity" ) ) {
-            a = get_activity_attributes();
+            attrs = get_activity_attributes();
         } else if( PL_strstr( query, "op=view_certificate" ) ) {
-            a = get_certificate_attributes();
+            attrs = get_certificate_attributes();
         } else if( PL_strstr( query, "op=show_certificate" ) ) {
-            a = get_certificate_attributes();
+            attrs = get_certificate_attributes();
+        } else if ((PL_strstr( query, "op=user_delete_confirm")) ||
+                   (PL_strstr( query, "op=edit_user") ) )   {
+            attrs = get_user_attributes();
+        } else if (PL_strstr( query, "op=view_users") ) {
+            attrs = get_view_user_attributes();
         } else {
-            a = get_token_attributes();
+            attrs = get_token_attributes();
+        }
+
+        /* start_val used in paging of profiles on the edit_user page */
+        if (PL_strstr( query, "op=edit_user") ) {
+            char *start_val_str = get_field(query, "start_val=");
+            if (start_val_str != NULL) { 
+                start_val = atoi(start_val_str);
+                do_free(start_val_str);
+            } else {
+                start_val = 0;
+            }
+            end_val = start_val + NUM_PROFILES_TO_DISPLAY;
+        }
+
+        /* flash used to display edit result upon redirection back to the edit_user page */
+        if (PL_strstr(query, "op=edit_user") ) {
+           char *flash = get_field(query, "flash=");
+           if (flash != NULL) {
+              PL_strcat(injection, "var flash = \"");
+              PL_strcat(injection, flash);
+              PL_strcat(injection, "\";\n");
+              do_free(flash);
+           }
         }
 
         for( e = get_first_entry( result );
@@ -3716,15 +4000,22 @@ mod_tokendb_handler( request_rec *rq )
 
             PL_strcat( injection, "var o = new Object();\n" );
 
-            for( n = 0; a[n] != NULL; n++ ) {
+            for( n = 0; attrs[n] != NULL; n++ ) {
                 /* Get the values of the attribute. */
-                if( ( vals = get_attribute_values( e, a[n] ) ) != NULL ) {
+                if( ( vals = get_attribute_values( e, attrs[n] ) ) != NULL ) {
+                    int v_start =0;
+                    int v_end = MAX_INJECTION_SIZE;
                     PL_strcat( injection, "o." );
-                    PL_strcat( injection, a[n] );
+                    PL_strcat( injection, attrs[n] );
                     PL_strcat( injection, " = " );
 
-                    for( i = 0; vals[i] != NULL; i++ ) {
-                        if( i > 0 ) {
+                    if (PL_strstr(attrs[n], PROFILE_ID)) {
+                        v_start = start_val;
+                        v_end = end_val;
+                    } 
+
+                    for( i = v_start; (vals[i] != NULL) && (i < v_end); i++ ) {
+                        if( i > start_val ) {
                             PL_strcat( injection, "#" );
                         } else {
                             PL_strcat( injection, "\"" );
@@ -3733,10 +4024,21 @@ mod_tokendb_handler( request_rec *rq )
                         PL_strcat( injection, vals[i] );
                     }
 
-                    if( i > 0 ) {
+                    if( i > v_start ) {
                         PL_strcat( injection, "\";\n" );
                     } else {
                         PL_strcat( injection, "null;\n" );
+                    }
+
+                    if (PL_strstr(attrs[n], PROFILE_ID))  {
+                        if (vals[i] != NULL) { 
+                            PL_strcat( injection, "var has_more_profile_vals = \"true\";\n");
+                        } else {
+                            PL_strcat( injection, "var has_more_profile_vals = \"false\";\n");
+                        }
+                        PR_snprintf(msg, 256, "var start_val = %d ;\n var end_val = %d ;\n", 
+                            start_val, i);
+                        PL_strcat( injection, msg);
                     }
 
                     /* Free the attribute values from memory when done. */
@@ -3803,6 +4105,99 @@ mod_tokendb_handler( request_rec *rq )
             PL_strcat( injection, "\";\n" );
         }
 
+        /* populate the user roles */
+        if ((PL_strstr( query, "op=edit_user")) ||
+            (PL_strstr( query, "op=user_delete_confirm"))) {
+
+            uid  = get_field(query, "uid=");
+            bool officer = false;
+            bool agent = false;
+            bool admin = false;
+            status = find_tus_user_role_entries( uid, &result );
+            for (e = get_first_entry( result );
+                 e != NULL;
+                 e = get_next_entry( e ) ) {
+                char *dn = NULL;
+                dn = get_dn(e);
+                if (PL_strstr(dn, "Officers"))
+                    officer=true; 
+                if (PL_strstr(dn, "Agents"))
+                    agent = true; 
+                if (PL_strstr(dn, "Administrators")) 
+                    admin = true;
+                if (dn != NULL) {
+                    PL_strfree(dn);
+                    dn=NULL;
+                } 
+            }
+            if (officer) {
+                 PL_strcat( injection, "var operator = \"CHECKED\"\n");
+            } else {
+                 PL_strcat( injection, "var operator = \"\"\n");
+            }
+            if (agent) {
+                 PL_strcat( injection, "var agent = \"CHECKED\"\n");
+            } else {
+                 PL_strcat( injection, "var agent = \"\"\n");
+            }
+            if (admin) {
+                 PL_strcat( injection, "var admin = \"CHECKED\"\n");
+            } else {
+                 PL_strcat( injection, "var admin = \"\"\n");
+            }
+
+            if( result != NULL ) {
+                free_results( result );
+                result = NULL;
+            }
+            do_free(uid);
+        }
+
+        /* populate the profile checkbox */
+        /* for sanity, we limit the number of entries displayed as well as the max number of characters transferred */
+        if (PL_strstr( query, "op=edit_user")) {
+            if (profileList != NULL) {
+                int n_profiles = 0;
+                int l_profiles = 0;
+                bool more_profiles = false;
+
+                char *pList = PL_strdup(profileList);
+                char *sresult = NULL;
+                
+                PL_strcat( injection, "var profile_list = new Array(");
+                sresult = strtok(pList, ",");
+                n_profiles++;
+                while (sresult != NULL) {
+                    n_profiles++;
+                    l_profiles  += PL_strlen(sresult);
+                    if ((n_profiles > NUM_PROFILES_TO_DISPLAY) || (l_profiles > MAX_LEN_PROFILES_TO_DISPLAY)) {
+                        PL_strcat(injection, "\"Other Profiles\",");
+                        more_profiles = true;
+                        break;
+                    }
+
+                    PL_strcat(injection, "\"");
+                    PL_strcat(injection, sresult);
+                    PL_strcat(injection, "\",");
+                    sresult = strtok(NULL, ",");
+                }
+                do_free(pList);
+                PL_strcat(injection, "\"All Profiles\")\n");
+                if (more_profiles) {
+                    PL_strcat(injection, "var more_profiles=\"true\";\n");
+                } else {
+                    PL_strcat(injection, "var more_profiles=\"false\";\n");
+                }
+            }
+        }
+        topLevel = get_field(query, "top=");
+        if ((topLevel != NULL) && (PL_strstr(topLevel, "operator"))) {
+            PL_strcat(injection, "var topLevel = \"operator\";\n");
+        }
+        do_free(topLevel);
+
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
         PL_strcat( injection, JS_STOP );
 
         if( sendPieces ) {
@@ -3831,8 +4226,12 @@ mod_tokendb_handler( request_rec *rq )
                 buf = getData( showAdminTemplate, injection );
             } else if( PL_strstr( query, "op=view_admin" ) ) {
                 buf = getData( searchAdminResultTemplate, injection );
+            } else if (PL_strstr( query, "op=view_users") ) {
+                buf = getData( searchUserResultTemplate, injection);
             } else if( PL_strstr( query, "op=view" ) ) {
                 buf = getData( searchResultTemplate, injection );
+            } else if (PL_strstr( query, "op=edit_user") ) {
+                buf = getData( editUserTemplate, injection);
             } else if( PL_strstr( query, "op=edit" ) ) {
                 buf = getData( editTemplate, injection );
             } else if( PL_strstr( query, "op=show_certificate" ) ) {
@@ -3843,7 +4242,10 @@ mod_tokendb_handler( request_rec *rq )
                 buf = getData( showTemplate, injection );
             } else if( PL_strstr( query, "op=confirm" ) ) {
                 buf = getData( deleteTemplate, injection );
+            } else if ( PL_strstr( query, "op=user_delete_confirm" ) ) {
+                buf = getData( userDeleteTemplate, injection );
             }
+
         }
 
         if( injection != fixed_injection ) {
@@ -3854,38 +4256,204 @@ mod_tokendb_handler( request_rec *rq )
 
             injection = fixed_injection;
         }
-    } else if( PL_strstr( query, "op=save_admin" ) ) {
+    } else if ( PL_strstr( query, "op=add_profile_user" )) {
+        tokendbDebug("authorization for op=add_profile_user");
+        if( ! is_admin ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+
+            return DECLINED;
+        }
+        uid = get_post_field(post, "uid");
+        char *profile = get_post_field(post, "profile_0");
+        char *other_profile = get_post_field(post, "other_profile");
+        if ((profile != NULL) && (uid != NULL)) {
+            if (PL_strstr(profile, "Other Profiles")) {
+                if ((other_profile != NULL) && (match_profile(other_profile))) {
+                    do_free(profile);
+                    profile = PL_strdup(other_profile);
+                } else {
+                    error_out("Invalid Profile to be added", "Invalid Profile to be added");
+                    do_free(profile);
+                    do_free(other_profile);
+                    do_free(uid);
+                    do_free(buf);
+                    do_free(uri);
+                    do_free(query);
+
+                    return OK;
+               }
+            }
+            if (PL_strstr(profile, ALL_PROFILES)) {
+                status = delete_all_profiles_from_user(userid, uid);
+            }
+
+            status = add_profile_to_user(userid, uid, profile);
+            if ((status != LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
+                    PR_snprintf(msg, 512, "LDAP Error in adding profile %s to user %s",
+                        profile, uid);
+                    post_ldap_error(msg);
+            }
+        }
+        do_free(other_profile);
+        do_free(buf);
+        do_free(uri);
+        do_free(query);
+
+        PR_snprintf((char *)msg, 512,
+            "'%s' has added profile %s to user %s", userid, profile, uid);
+        RA::tdb_activity(rq->connection->remote_ip, "", "add_profile", "success", msg, uid, NO_TOKEN_TYPE);
+
+
+        PR_snprintf(injection, MAX_INJECTION_SIZE,
+                    "/tus/tus?op=edit_user&uid=%s&flash=Profile+%s+has+been+added+to+the+user+record",
+                    uid, profile);
+        do_free(profile);
+        do_free(uid);
+        rq->method = apr_pstrdup(rq->pool, "GET");
+        rq->method_number = M_GET;
+
+        ap_internal_redirect_handler(injection, rq);
+        return OK;
+    } else if ( PL_strstr( query, "op=save_user" )) {
+        tokendbDebug( "authorization for op=save_user\n" );
+
+        if( ! is_admin ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+
+            return DECLINED;
+        }
+        // first save user details
+        uid = get_post_field(post, "uid");
+        firstName = get_post_field(post, "firstName");
+        lastName = get_post_field(post, "lastName");
+        userCert = get_encoded_post_field(post, "userCert");
+        opOperator = get_post_field(post, "opOperator");
+        opAgent = get_post_field(post, "opAgent");
+        opAdmin = get_post_field(post, "opAdmin");
+
+        PR_snprintf((char *)userCN, 256,
+            "%s %s", firstName, lastName);
+
+        status = update_user_db_entry(userid, uid, lastName, userCN, userCert);
+
+        do_free(firstName);
+        do_free(lastName);
+        do_free(userCert);
+
+        if( status != LDAP_SUCCESS ) {
+            ldap_error_out("LDAP modify error: ", "LDAP error: %s");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+            do_free(uid);
+            do_free(opOperator);
+            do_free(opAgent);
+            do_free(opAdmin);
+
+            return DECLINED;
+        }
+ 
+        if ((opOperator != NULL) && (PL_strstr(opOperator, OPERATOR))) {
+            status = add_user_to_role_db_entry(userid, uid, OPERATOR);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
+                PR_snprintf(msg, 512, "Error adding user %s to role %s", uid, OPERATOR);
+                post_ldap_error(msg);
+            }
+        } else {
+            status = delete_user_from_role_db_entry(userid, uid, OPERATOR);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, OPERATOR);
+                post_ldap_error(msg);
+            }
+        }
+
+        if ((opAgent != NULL) && (PL_strstr(opAgent, AGENT))) {
+            status = add_user_to_role_db_entry(userid, uid, AGENT);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
+                PR_snprintf(msg, 512, "Error adding user %s to role %s", uid, AGENT);
+                post_ldap_error(msg);
+            }
+        } else {
+            status = delete_user_from_role_db_entry(userid, uid, AGENT);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, AGENT);
+                post_ldap_error(msg);
+            }
+
+        }
+
+        if ((opAdmin != NULL) && (PL_strstr(opAdmin, ADMINISTRATOR))) {
+            status = add_user_to_role_db_entry(userid, uid, ADMINISTRATOR);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
+                PR_snprintf(msg, 512, "Error adding user %s to role %s", uid, ADMINISTRATOR);
+                post_ldap_error(msg);
+            }
+        } else {
+            status = delete_user_from_role_db_entry(userid, uid, ADMINISTRATOR);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, ADMINISTRATOR);
+                post_ldap_error(msg);
+            }
+        }
+  
+        do_free(opOperator);
+        do_free(opAgent);
+        do_free(opAdmin);
+
+        // save profile details
+        int nProfiles = atoi (get_post_field(post, "nProfiles"));
+
+        for (int i=0; i< nProfiles; i++) {
+            char p_name[256];
+            char p_delete[256];
+            PR_snprintf(p_name, 256, "profile_%d", i);
+            PR_snprintf(p_delete, 256, "delete_%d", i);
+            char *profile = get_post_field(post, p_name);
+            char *p_del = get_post_field(post, p_delete);
+
+            if ((profile != NULL) && (p_del != NULL) && (PL_strstr(p_del, "delete"))) {
+                status = delete_profile_from_user(userid, uid, profile);
+                if ((status != LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                    PR_snprintf(msg, 512, "LDAP Error in deleting profile %s from user %s",
+                        profile, uid);
+                    post_ldap_error(msg);
+                }
+            }
+            do_free(profile);
+            do_free(p_del);
+        }
+
+        do_free(buf);
+        do_free(uri);
+        do_free(query);
+
+        PR_snprintf((char *)msg, 512,
+            "'%s' has modified user %s", userid, uid);
+        RA::tdb_activity(rq->connection->remote_ip, "", "modify_user", "success", msg, uid, NO_TOKEN_TYPE);
+
+        PR_snprintf(injection, MAX_INJECTION_SIZE,
+                    "/tus/tus?op=edit_user&uid=%s&flash=User+record+%s+has+been+updated", 
+                    uid, uid);
+        do_free(uid);
+        rq->method = apr_pstrdup(rq->pool, "GET");
+        rq->method_number = M_GET;
+
+        ap_internal_redirect_handler(injection, rq);
+        return OK;
+   } else if( PL_strstr( query, "op=save_admin" ) ) {
         tokendbDebug( "authorization\n" );
 
-        if( !tus_authorize( TOKENDB_ADMINISTRATORS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure",
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
+        if( ! is_admin ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
 
             return DECLINED;
         }
@@ -3914,36 +4482,10 @@ mod_tokendb_handler( request_rec *rq )
         }
 
         if( status != LDAP_SUCCESS ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"LDAP modify error: ",
-                         ldap_err2string( status ),
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "LDAP error: %s",
-                          ldap_err2string( status ) );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+            ldap_error_out("LDAP modify error: ", "LDAP error: %s");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
         }
 
@@ -3951,42 +4493,20 @@ mod_tokendb_handler( request_rec *rq )
                      "%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n",
-                     "var tid = \"", filter, "\";\n", JS_STOP );
+                     "var editType = \"Token\";\n",
+                     "var tid = \"", filter, "\";\n");
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
         buf = getData( editAdminResultTemplate, injection );
     } else if( PL_strstr( query, "op=save" ) ) {
         tokendbDebug( "authorization\n" );
 
-        if( !tus_authorize( TOKENDB_AGENTS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure",
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+        if( ! is_agent ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
         }
 
@@ -4011,157 +4531,272 @@ mod_tokendb_handler( request_rec *rq )
         }
 
         if( status != LDAP_SUCCESS ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"LDAP modify error: ",
-                         ldap_err2string( status ),
-                         "\";\n", JS_STOP );
+             ldap_error_out("LDAP modify error: ", "LDAP error: %s");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+            return DECLINED;
+        }
 
-            buf = getData( errorTemplate, injection );
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n",
+                     "var tid = \"", filter, "\";\n");
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "LDAP error: %s",
-                          ldap_err2string( status ) );
+        buf = getData( editResultTemplate, injection );
 
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
+    } else if ( PL_strstr( query, "op=do_delete_user" ) ) {
+        tokendbDebug( "authorization for do_delete_user\n" );
 
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
+        if( ! is_admin ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
 
             return DECLINED;
         }
+
+        uid = get_post_field(post, "uid");
+        opOperator = get_post_field(post, "opOperator");
+        opAdmin = get_post_field(post, "opAdmin");
+        opAgent = get_post_field(post, "opAgent");
+
+        if (uid == NULL) {
+            error_out("Error in delete user. userid is null", "Error in delete user. userid is null");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+            do_free(opOperator);
+            do_free(opAdmin);
+            do_free(opAgent);
+            
+            return DECLINED;
+        }
+
+        if (opOperator != NULL) {
+            status = delete_user_from_role_db_entry(userid, uid, OPERATOR);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, OPERATOR);
+                post_ldap_error(msg);
+            }
+        }
+
+        if (opAgent != NULL) {
+            status = delete_user_from_role_db_entry(userid, uid, AGENT);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, AGENT);
+                post_ldap_error(msg);
+            }
+        }
+
+        if (opAdmin != NULL) {
+            status = delete_user_from_role_db_entry(userid, uid, ADMINISTRATOR);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, ADMINISTRATOR);
+                post_ldap_error(msg);
+            }
+        }
+
+        do_free(opOperator);
+        do_free(opAdmin);
+        do_free(opAgent);
+            
+        status = delete_user_db_entry(userid, uid);
+
+        if ((status != LDAP_SUCCESS) && (status != LDAP_NO_SUCH_OBJECT)) {
+            PR_snprintf(msg, 512, "Error deleting user %s", uid);
+            ldap_error_out(msg, msg);
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+            do_free(uid);
+           
+            return DECLINED;
+        }
+
+        PR_snprintf((char *)msg, 256,
+            "'%s' has deleted user %s", userid, uid);
+        RA::tdb_activity(rq->connection->remote_ip, "", "delete_user", "success", msg, uid, NO_TOKEN_TYPE);
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
                      "%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n",
-                     "var tid = \"", filter, "\";\n", JS_STOP );
+                     "var tid = \"",     uid, "\";\n",
+                     "var deleteType = \"user\";\n");
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
-        buf = getData( editResultTemplate, injection );
+        do_free(uid);
+        
+        buf = getData( deleteResultTemplate, injection );
+    } else if ( PL_strstr( query, "op=addUser" ) ) {
+        tokendbDebug( "authorization for addUser\n" );
+
+        if( ! is_admin ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+
+            return DECLINED;
+        }
+
+        uid = get_post_field(post, "userid");
+        firstName = get_post_field(post, "firstName");
+        lastName = get_post_field(post, "lastName");
+        opOperator = get_post_field(post, "opOperator");
+        opAdmin = get_post_field(post, "opAdmin");
+        opAgent = get_post_field(post, "opAgent");
+        userCert = get_encoded_post_field(post, "cert"); 
+
+        if ((PL_strlen(uid) == 0) || (PL_strlen(firstName) == 0) || (PL_strlen(lastName) == 0)) {
+            error_out("Bad input to op=addUser", "Bad input to op=addUser");
+            do_free(uid);
+            do_free(firstName);
+            do_free(lastName);
+            do_free(opOperator);
+            do_free(opAdmin);
+            do_free(opAgent);
+            do_free(userCert);
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+
+            return OK;
+        }
+        PR_snprintf((char *)userCN, 256, 
+            "%s %s", firstName, lastName);
+
+        status = add_user_db_entry(userid, uid, "", lastName, userCN, userCert);
+        if (status != LDAP_SUCCESS) {
+            PR_snprintf((char *)msg, 512, "LDAP Error in adding new user %s", uid);   
+            ldap_error_out(msg, msg);
+            do_free(uid);
+            do_free(firstName);
+            do_free(lastName);
+            do_free(opOperator);
+            do_free(opAdmin);
+            do_free(opAgent);
+            do_free(userCert);
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+
+            return OK;
+        }
+
+        PR_snprintf((char *)msg, 512,
+            "'%s' has created new user %s", userid, uid);
+        RA::tdb_activity(rq->connection->remote_ip, "", "add_user", "success", msg, uid, NO_TOKEN_TYPE);
+
+        if ((opOperator != NULL) && (PL_strstr(opOperator, OPERATOR))) {
+            status = add_user_to_role_db_entry(userid, uid, OPERATOR);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
+                PR_snprintf(msg, 512, "Error adding user %s to role %s", uid, OPERATOR);
+                post_ldap_error(msg);
+            }
+        } else {
+            status = delete_user_from_role_db_entry(userid, uid, OPERATOR);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, OPERATOR);
+                post_ldap_error(msg);
+            }
+        }
+
+        if ((opAgent != NULL) && (PL_strstr(opOperator, AGENT))) {
+            status = add_user_to_role_db_entry(userid, uid, AGENT);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
+                PR_snprintf(msg, 512, "Error adding user %s to role %s", uid, AGENT);
+                post_ldap_error(msg);
+            }
+        } else {
+            status = delete_user_from_role_db_entry(userid, uid, AGENT);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, AGENT);
+                post_ldap_error(msg);
+            }
+        }
+        if ((opAdmin != NULL) && (PL_strstr(opAdmin, ADMINISTRATOR))) {
+            status = add_user_to_role_db_entry(userid, uid, ADMINISTRATOR);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
+                PR_snprintf(msg, 512, "Error adding user %s to role %s", uid, ADMINISTRATOR);
+                post_ldap_error(msg);
+            }
+        } else {
+            status = delete_user_from_role_db_entry(userid, uid, ADMINISTRATOR);
+            if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, ADMINISTRATOR);
+                post_ldap_error(msg);
+            }
+
+        }
+
+        do_free(firstName);
+        do_free(lastName);
+        do_free(opOperator);
+        do_free(opAdmin);
+        do_free(opAgent);
+        do_free(userCert);
+       
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n",
+                     "var tid = \"",     uid, "\";\n", 
+                     "var addType = \"user\";\n");
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
+
+        do_free(uid);
+        
+        buf = getData( addResultTemplate, injection );
 
     } else if( PL_strstr( query, "op=add" ) ) {
-        tokendbDebug( "authorization\n" );
-
-        if( !tus_authorize( TOKENDB_ADMINISTRATORS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure",
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+        tokendbDebug( "authorization for op=add\n" );
+        RA_Status token_type_status;
+        if( ! is_agent ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
         }
 
         getCN( filter, query );
 
+        if (m_processor.GetTokenType(OP_PREFIX, 0, 0, filter, (const char*) NULL, (NameValueSet*) NULL,
+                token_type_status, tokentype)) {
+            PL_strcpy(tokenType, tokentype); 
+        } else {
+            PL_strcpy(tokenType, NO_TOKEN_TYPE);
+        }
+            
         PR_snprintf((char *)msg, 256,
             "'%s' has created new token", userid);
-        RA::tdb_activity(rq->connection->remote_ip, filter, "add", "token", msg, "");
+        RA::tdb_activity(rq->connection->remote_ip, filter, "add", "token", msg, "", tokenType);
 
         if( strcmp( filter, "" ) == 0 ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                          "var error = \"Error: ",
-                          "No Token ID Found",
-                          "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+            error_out("No Token ID Found", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
         }
 
         status = add_default_tus_db_entry( NULL, userid,
                                            filter, "uninitialized",
-                                           NULL, NULL );
+                                           NULL, NULL, tokenType );
 
         if( status != LDAP_SUCCESS ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                        "var error = \"LDAP add error: ",
-                        ldap_err2string( status ),
-                        "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "LDAP error: %s",
-                          ldap_err2string( status ) );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
-
+            ldap_error_out("LDAP add error: ", "LDAP error: %s");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
             return DECLINED;
         }
 
@@ -4169,82 +4804,47 @@ mod_tokendb_handler( request_rec *rq )
                      "%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n",
-                     "var tid = \"", filter, "\";\n", JS_STOP );
+                     "var tid = \"",    filter, "\";\n", 
+                     "var addType = \"token\";\n");
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
+
 
         buf = getData( addResultTemplate, injection );
     } else if( PL_strstr( query, "op=delete" ) ) {
-        tokendbDebug( "authorization\n" );
+        RA_Status token_type_status;
+        tokendbDebug( "authorization for op=delete\n" );
 
-        if( !tus_authorize( TOKENDB_ADMINISTRATORS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure", "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
+        if( ! is_admin ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
 
             return DECLINED;
         }
 
         getCN( filter, query );
 
+        if (m_processor.GetTokenType(OP_PREFIX, 0, 0, filter, (const char*) NULL, (NameValueSet*) NULL,
+                token_type_status, tokentype)) {
+            PL_strcpy(tokenType, tokentype);
+        } else {
+            PL_strcpy(tokenType, NO_TOKEN_TYPE);
+        }
+
+
         PR_snprintf((char *)msg, 256,
             "'%s' has deleted token", userid);
-        RA::tdb_activity(rq->connection->remote_ip, filter, "delete", "token", msg, "");
+        RA::tdb_activity(rq->connection->remote_ip, filter, "delete", "token", msg, "", tokenType);
 
         status = delete_tus_db_entry( userid, filter );
 
         if( status != LDAP_SUCCESS ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"LDAP delete error: ",
-                         ldap_err2string( status ),
-                         "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "LDAP error: %s",
-                          ldap_err2string( status ) );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
+            ldap_error_out("LDAP delete error: ", "LDAP error: %s");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
 
             return DECLINED;
         }
@@ -4253,40 +4853,20 @@ mod_tokendb_handler( request_rec *rq )
                      "%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n",
-                     "var tid = \"", filter, "\";\n", JS_STOP );
+                     "var tid = \"", filter, "\";\n", 
+                     "var deleteType = \"token\";\n");
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
 
         buf = getData( deleteResultTemplate, injection );
     } else if( PL_strstr( query, "op=load" ) ) {
-        tokendbDebug( "authorization\n" );
+        tokendbDebug( "authorization for op=load\n" );
 
-        if( !tus_authorize( TOKENDB_AGENTS_IDENTIFIER, userid ) ) {
-            PR_snprintf( injection, MAX_INJECTION_SIZE,
-                         "%s%s%s%s%s", JS_START,
-                         "var error = \"Error: ",
-                         "Authorization Failure", "\";\n", JS_STOP );
-
-            buf = getData( errorTemplate, injection );
-
-            ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
-                          ( const char * ) "Failed to authorize request" );
-
-            ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
-
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-
-            if( uri != NULL ) {
-                PR_Free( uri );
-                uri = NULL;
-            }
-
-            if( query != NULL ) {
-                PR_Free( query );
-                query = NULL;
-            }
+        if( (! is_agent ) && (! is_operator) ) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
 
             return DECLINED;
         }
@@ -4301,21 +4881,11 @@ mod_tokendb_handler( request_rec *rq )
 
         ( void ) ap_rwrite( ( const void * ) buf, len, rq );
 
-        if( buf != NULL ) {
-            PR_Free( buf );
-            buf = NULL;
-        }
+        do_free(buf);
     }
 
-    if( uri != NULL ) {
-        PR_Free( uri );
-        uri = NULL;
-    }
-
-    if( query != NULL ) {
-        PR_Free( query );
-        query = NULL;
-    }
+    do_free(uri);
+    do_free(query);
 
     return OK;
 }

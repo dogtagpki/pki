@@ -70,6 +70,9 @@ function doFind(form) {
         uri += "&tid=" + form.tid.value;
         uri += "&uid=" + form.uid.value;
         uri += "&maxCount=" + form.maxCount.value;
+        if ((typeof(topLevel) != "undefined") && (topLevel == "operator")) {
+            uri += "top=operator";
+        }
         location.href = uri;
 }
 //-->

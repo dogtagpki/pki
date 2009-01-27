@@ -52,8 +52,13 @@ if (typeof(uriBase) == "undefined") {
     uri0 += uriBase;
 }
 
-document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+if ((typeof(topLevel) != "undefined") && (topLevel == "operator")) {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri0+"\">Main Menu</a> : Operator Operations : Token Details</font>\n");
+} else {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
                "<a href=\""+uri0+"\">Main Menu</a> : Agent Operations : Token Details</font>\n");
+}
 document.write("<table width=\"100%\"><tr><td align=\"right\">" +
                 "<b>UID:</b>" +
                 userid + "</td></tr></table>\n");
@@ -225,6 +230,17 @@ if (typeof(results) == "undefined" || results.length == 0) {
     document.write("</td>\n");
     document.write("</tr>\n");
 
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Token Type:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].tokenType+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
     document.write("</table>\n");
     document.write("<p>\n");
     document.write("<b>System Information:</b>");
@@ -281,19 +297,36 @@ if (typeof(results) == "undefined" || results.length == 0) {
     document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
     document.write("<tr>\n");
     document.write("<td width=60%>\n");
-    document.write("<form method='get' action='tus'><select name=\"question\"><option value=\"1\">This token has been physically damaged.</option><option value=\"2\">This token has been permanently lost.</option><option value=\"3\">This token has been temporarily lost.</option><option value=\"4\">This temporarily lost token has been found.</option><option value=\"5\">This temporarily lost token cannot be found (becomes permanently lost).</option><option value=\"6\">This token has been terminated.</option></select><input type=hidden name=op value=do_confirm_token><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Go\"></form>");
+   
+    if ((typeof(topLevel) == "undefined") || (topLevel != "operator")) { 
+        document.write("<form method='get' action='tus'><select name=\"question\"><option value=\"1\">This token has been physically damaged.</option><option value=\"2\">This token has been permanently lost.</option><option value=\"3\">This token has been temporarily lost.</option><option value=\"4\">This temporarily lost token has been found.</option><option value=\"5\">This temporarily lost token cannot be found (becomes permanently lost).</option><option value=\"6\">This token has been terminated.</option></select><input type=hidden name=op value=do_confirm_token><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Go\"></form>");
+    }
     document.write("</td>\n");
     document.write("<td align=right width=10%>\n");
     document.write("</td>\n");
+
     document.write("<td align=right width=10%>\n");
-    document.write("<form method='get' action='tus'><input type=hidden name=op value=edit><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Edit\"></form>");
+    if ((typeof(topLevel) == "undefined") || (topLevel != "operator")) { 
+        document.write("<form method='get' action='tus'><input type=hidden name=op value=edit><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Edit\"></form>");
+    }
     document.write("</td>\n");
+
     document.write("<td align=right width=10%>\n");
-    document.write("<form method='get' action='tus'><input type=hidden name=op value=view_certificate><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Certificates\"></form>");
+    if ((typeof(topLevel) == "undefined") || (topLevel != "operator")) {
+        document.write("<form method='get' action='tus'><input type=hidden name=op value=view_certificate><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Certificates\"></form>");
+    } else {
+        document.write("<form method='get' action='tus'><input type=hidden name=op value=view_certificate><input type=hidden name=top value=operator><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Certificates\"></form>");
+    }
     document.write("</td>\n");
+
     document.write("<td align=right width=10%>\n");
-    document.write("<form method='get' action='tus'><input type=hidden name=op value=view_activity><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Activities\"></form>");
+    if ((typeof(topLevel) == "undefined") || (topLevel != "operator")) {
+        document.write("<form method='get' action='tus'><input type=hidden name=op value=view_activity><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Activities\"></form>"); 
+    } else {
+        document.write("<form method='get' action='tus'><input type=hidden name=op value=view_activity><input type=hidden name=top value=operator><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Activities\"></form>");
+    }
     document.write("</td>\n");
+
     document.write("</tr>\n");
     document.write("</table>\n");
 

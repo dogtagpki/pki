@@ -13,7 +13,7 @@
      Foundation, Inc., 51 Franklin Street, Fifth Floor,
      Boston, MA  02110-1301  USA 
      
-     Copyright (C) 2007 Red Hat, Inc.
+     Copyright (C) 2008 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -52,49 +52,69 @@ if (typeof(uriBase) == "undefined") {
     uri0 += uriBase;
 }
 
-if ((typeof(topLevel) != "undefined") && (topLevel == "operator")) {
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
-               "<a href=\""+uri0+"\">Main Menu</a> : Operator Operations : Search Activity</font>\n");
-} else {
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
-               "<a href=\""+uri0+"\">Main Menu</a> : Agent Operations : Search Activity</font>\n");
-}
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri0+"\">Main Menu</a> : Admin Operations : Add New User</font>\n");
 document.write("<table width=\"100%\"><tr><td align=\"right\">" +
                 "<b>UID:</b>" +
                 userid + "</td></tr></table>\n");
 document.write("<HR NOSHADE SIZE=1>\n");
 
-function doFind(form) {
+function validate_required(field,alerttxt) {
+    with (field) {
+        if (value==null||value=="") {
+            alert(alerttxt);
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+}
+
+function validate_form(thisform) {
+    with (thisform) {
+        if (validate_required(userid,"Userid is required")==false) {
+            userid.focus();
+            return false;
+        } 
+        if (validate_required(firstName,"First Name is required")==false) {
+            firstName.focus();
+            return false;
+        }
+        if (validate_required(lastName,"Last Name is required")==false) {
+            lastName.focus();
+            return false;
+        }
+        if (validate_required(groupid,"Group ID is required")==false) {
+            groupid.focus();
+            return false;
+        }
+
+    }
+}
+
+function doAdd(form) {
         var uri = "";
         if (typeof(uriBase) == "undefined") {
             uri += "/tus"
         } else {
             uri += uriBase;
         }
-        uri += "?op=view_activity";
-        uri += "&tid=" + form.tid.value;
-        uri += "&uid=" + form.uid.value;
-        uri += "&maxCount=" + form.maxCount.value;
-        if ((typeof(topLevel) != "undefined") && (topLevel == "operator")) {
-            uri += "top=operator";
+        if (validate_form(this)) {
+            document.addUserForm.action = uri;
+            return true;
+        } else {
+            return false;
         }
-        location.href = uri;
 }
+
+    
 //-->
 </SCRIPT>
 
-<FORM NAME ="findForm" ACTION="" METHOD=GET>
+<FORM NAME ="addUserForm" METHOD="POST" onSubmit="return doAdd(this)" >
+<input TYPE="hidden" NAME="query" VALUE="op=addUser">
 <table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>
-  <tr>
-    <td ALIGN=LEFT width=30%>
-      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
-        Token ID:
-      </font>
-    </td>
-    <td>
-      <input TYPE=TEXT NAME=tid SIZE=20>
-    </td>
-  </tr>
   <tr>
     <td ALIGN=LEFT width=30%>
       <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
@@ -102,23 +122,59 @@ function doFind(form) {
       </font>
     </td>
     <td>
-      <input TYPE=TEXT NAME=uid SIZE=20>
+      <input TYPE=TEXT NAME=userid SIZE=20>
     </td>
   </tr>
   <tr>
     <td ALIGN=LEFT width=30%>
       <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
-        Max Count:
+        User First Name:
       </font>
     </td>
     <td>
-      <input TYPE=TEXT NAME=maxCount SIZE=4 value="20">
+      <input TYPE=TEXT NAME=firstName SIZE=20>
+    </td>
+  </tr>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        User Last Name:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT NAME=lastName SIZE=20>
+    </td>
+  </tr>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        Role:
+      </font>
+    </td>
+    <td> Operator
+      <input TYPE=CHECKBOX NAME=opOperator value="Officers" CHECKED>
+      &nbsp;&nbsp;&nbsp;&nbsp;Agent
+      <input TYPE=CHECKBOX NAME=opAgent value="Agents" >
+      &nbsp;&nbsp;&nbsp;&nbsp;Admin
+      <input TYPE=CHECKBOX NAME=opAdmin value="Administrators" >
+    </td>
+  </tr>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        Certificate:
+      </font>
+    </td>
+    <td>
+      <textarea name="cert" cols="40" rows="10" >
+Paste the base 64 user certificate here (without the header and footer) 
+      </textarea>
     </td>
   </tr>
 </table>
 <HR NOSHADE SIZE=1>
 <DIV ALIGN=RIGHT>
-<input TYPE=button VALUE=Find onClick="doFind(findForm);">
+<input TYPE=submit VALUE="Add User" >
 </form>
 </BODY>
 </HTML>

@@ -53,7 +53,7 @@ if (typeof(uriBase) == "undefined") {
 }
 
 document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
-               "<a href=\""+uri0+"\">Main Menu</a> : Search Tokens</font>\n");
+               "<a href=\""+uri0+"\">Main Menu</a> : Search Certificates</font>\n");
 document.write("<table width=\"100%\"><tr><td align=\"right\">" +
                 "<b>UID:</b>" +
                 userid + "</td></tr></table>\n");
@@ -70,6 +70,9 @@ function doFind(form) {
         uri += "&tid=" + form.tid.value;
         uri += "&uid=" + form.uid.value;
         uri += "&maxCount=" + form.maxCount.value;
+        if ((typeof(topLevel) != "undefined") && (topLevel == "operator")) {
+           uri += "&top=operator";
+        }
         location.href = uri;
 }
 //-->

@@ -73,15 +73,21 @@ if (typeof(uriBase) == "undefined") {
 } else {
     uri += uriBase;
 }
-
-document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+if ((typeof(topLevel) != "undefined") && (topLevel == "operator")) {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri+"\">Main Menu</a> : Operator Operations : Search Certificate Results</font>\n");
+    cert_uri = uri + "?op=show_certificate&top=operator&cn=";
+    uri += "?op=show&top=operator&tid=";
+} else {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
                "<a href=\""+uri+"\">Main Menu</a> : Agent Operations : Search Certificate Results</font>\n");
+    cert_uri = uri + "?op=show_certificate&cn=";
+    uri += "?op=show&tid=";
+}
 document.write("<table width=\"100%\"><tr><td align=\"right\">" +
 		"<b>UID:</b>" +
                 userid + "</td></tr></table>\n");
 document.write("<HR NOSHADE SIZE=1>\n");
-
-uri += "?op=show&tid=";
 
 if (typeof(results) == "undefined" || results.length == 0) {
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
@@ -127,7 +133,7 @@ if (typeof(results) == "undefined" || results.length == 0) {
 	for (var i = 0; i < results.length; i++) {
         document.write("<tr>\n");
         document.write("<td>\n");
-        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\"><a href=\"/tus?op=show_certificate&cn="+
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\"><a href=\""+ cert_uri +
                         results[i].cn+"\">" + results[i].cn + "</a></font>\n");
         document.write("</td>\n");
         document.write("<td>\n");
@@ -139,7 +145,7 @@ if (typeof(results) == "undefined" || results.length == 0) {
                         results[i].tokenSubject+"</font>\n");
         document.write("</td>\n");
         document.write("<td>\n");
-        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\"><a href=\"/tus?op=show&tid="+
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\"><a href=\"" + uri +
                         results[i].tokenID+"\">" + results[i].tokenID + "</a></font>\n");
         document.write("</td>\n");
         document.write("<td>\n");

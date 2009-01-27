@@ -53,6 +53,7 @@ static int  start = 1;
 static int  len = 0;
 static char *who = NULL;
 static char *password = NULL;
+static char *token_type = NULL;
 
 
 #define SCOPE LDAP_SCOPE_SUBTREE
@@ -64,8 +65,8 @@ int main (int argc, char **argv)
     char cn[256];
     char *errorMsg = NULL;
 
-    if (argc < 8 || argc > 10) {
-        printf ("Usage:\n  %s baseDN prefix suffix start len who password host port", argv[0]);
+    if (argc < 9 || argc > 11) {
+        printf ("Usage:\n  %s baseDN prefix suffix start len who password token_type host port", argv[0]);
         return 1;
     }
 
@@ -76,13 +77,14 @@ int main (int argc, char **argv)
     len = atoi(argv[5]);
     who = argv[6];
     password = argv[7];
-
-    if (argc > 8) {
-        host = argv[8];
-    }
+    token_type = argv[8];
 
     if (argc > 9) {
-        port = atoi(argv[9]);
+        host = argv[9];
+    }
+
+    if (argc > 10) {
+        port = atoi(argv[10]);
     }
 
     set_tus_db_baseDN(baseDN);
@@ -101,7 +103,7 @@ int main (int argc, char **argv)
         sprintf(cn, "%s%08X%s", prefix, h, suffix);
         printf ("Adding %s\n", cn);
 
-        rc = add_default_tus_db_entry (NULL, "", cn, "active", "", "");
+        rc = add_default_tus_db_entry (NULL, "", cn, "active", "", "", token_type);
         if (rc != LDAP_SUCCESS) {
             fprintf( stderr, "ldap_add_ext_s: %s\n", ldap_err2string( rc ) );
             return 1;

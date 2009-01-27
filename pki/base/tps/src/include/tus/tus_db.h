@@ -117,7 +117,26 @@
 #define I_STATE_DISABLED    2
 #define STATE_DISABLED      "disabled"
 
+#define C_TIME              "createTimeStamp"
+#define M_TIME              "modifyTimeStamp"
+#define USER_ID             "uid"
+#define USER_PASSWORD       "userPassword"
+#define USER_SN             "sn"
+#define USER_CN             "cn"
+#define USER_CERT           "userCertificate"
+#define PROFILE_ID          "profileID"
+#define GROUP_UNIQUEMEMBER  "uniqueMember"
+#define SUBGROUP_ID         "cn"
+
+/* roles */
+#define OPERATOR            "Officers"
+#define AGENT               "Agents"
+#define ADMINISTRATOR       "Administrators"
 #define MAX_RETRIES         2
+
+#define ALL_PROFILES        "All Profiles"
+#define NO_PROFILES         "NO_PROFILES"
+#define NO_TOKEN_TYPE       "no_token_type"
 
 TPS_PUBLIC void set_tus_db_port(int number);
 TPS_PUBLIC void set_tus_db_host(char *name);
@@ -137,7 +156,7 @@ TPS_PUBLIC char *get_token_policy (char *cn);
 TPS_PUBLIC char *get_token_userid(char *cn);
 TPS_PUBLIC void tus_db_end();
 TPS_PUBLIC int is_tus_db_entry_disabled(char *cn);
-TPS_PUBLIC int add_default_tus_db_entry (const char *uid, const char *agentid, char *cn, const char *status, char *applet_version, char *key_info );
+TPS_PUBLIC int add_default_tus_db_entry (const char *uid, const char *agentid, char *cn, const char *status, char *applet_version, char *key_info, const char *token_type );
 TPS_PUBLIC int delete_tus_db_entry (char *userid, char *cn);
 TPS_PUBLIC int find_tus_db_entry (char *cn, int max, LDAPMessage **result);
 TPS_PUBLIC int find_tus_db_entries (const char *filter, int max, LDAPMessage **result);
@@ -153,14 +172,14 @@ TPS_PUBLIC int update_tus_db_entry (const char *agentid,
 TPS_PUBLIC int update_tus_db_entry_with_mods (const char *agentid, const char *cn, LDAPMod **mods);
 TPS_PUBLIC int check_and_modify_tus_db_entry (char *userid, char *cn, char *check, LDAPMod **mods);
 TPS_PUBLIC int modify_tus_db_entry (char *userid, char *cn, LDAPMod **mods);
-TPS_PUBLIC int add_activity (char *ip, char *id, const char *op, const char *result, const char *msg, const char *userid);
+TPS_PUBLIC int add_activity (char *ip, char *id, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
 TPS_PUBLIC int find_tus_certificate_entries_by_order_no_vlv (char *filter,
   LDAPMessage **result, int order);
 TPS_PUBLIC int find_tus_certificate_entries_by_order (char *filter, int max,
   LDAPMessage **result, int order);
 TPS_PUBLIC int add_certificate (char *tokenid, char *origin, char *tokenType, char *userid, CERTCertificate *certificate, char *ktype, const char *status);
 TPS_PUBLIC int add_tus_db_entry (char *cn, LDAPMod **mods);
-TPS_PUBLIC int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int flag, const char *status, char *applet_version, char *key_info);
+TPS_PUBLIC int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int flag, const char *status, char *applet_version, char *key_info, const char *token_type);
 TPS_PUBLIC int find_tus_activity_entries (char *filter, int max, LDAPMessage **result);
 TPS_PUBLIC int find_tus_activity_entries_no_vlv (char *filter, LDAPMessage **result, int order);
 TPS_PUBLIC int get_number_of_entries (LDAPMessage *result);
@@ -173,6 +192,8 @@ TPS_PUBLIC CERTCertificate **get_certificates(LDAPMessage *entry);
 TPS_PUBLIC char **get_token_states();
 TPS_PUBLIC char **get_token_attributes();
 TPS_PUBLIC char **get_activity_attributes();
+TPS_PUBLIC char **get_user_attributes();
+TPS_PUBLIC char **get_view_user_attributes();
 TPS_PUBLIC char **get_attribute_values(LDAPMessage *entry, const char *attribute);
 TPS_PUBLIC void free_values(char **values, int ldapValues);
 TPS_PUBLIC char **get_token_users(LDAPMessage *entry);
@@ -212,6 +233,7 @@ TPS_PUBLIC char *get_number_of_resets_name();
 TPS_PUBLIC char *get_number_of_enrollments_name();
 TPS_PUBLIC char *get_number_of_renewals_name();
 TPS_PUBLIC char *get_number_of_recoveries_name();
+TPS_PUBLIC char *get_dn(LDAPMessage *entry);
 
 TPS_PUBLIC LDAPMod **allocate_modifications(int size);
 TPS_PUBLIC void free_modifications(LDAPMod **mods, int ldapValues);
@@ -226,4 +248,15 @@ TPS_PUBLIC int update_token_status_reason(char *userid, char *cuid,
 TPS_PUBLIC int update_token_status_reason_userid(const char *userid, char *cuid,
   const char *tokenStatus, const char *reason, int modifyDateOfCreate);
 
+TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPassword, char *sn, char *cn, char * userCert);
+TPS_PUBLIC int find_tus_user_entries_no_vlv(char *filter, LDAPMessage **result, int order);
+TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastName, char *userCN, char *userCert);
+TPS_PUBLIC int add_profile_to_user(const char *agentid, char *userid, const char *profile);
+TPS_PUBLIC int delete_profile_from_user(const char *agentid, char *userid, const char *profile);
+TPS_PUBLIC int add_user_to_role_db_entry(const char *agentid, char *userid, const char *role);
+TPS_PUBLIC int delete_user_from_role_db_entry(const char *agentid, char *userid, const char *role);
+TPS_PUBLIC int find_tus_user_role_entries( const char*uid, LDAPMessage **result);
+TPS_PUBLIC char *get_authorized_profiles(const char *userid, int is_admin);
+TPS_PUBLIC int delete_user_db_entry(const char *agentid, char *uid);
+TPS_PUBLIC int delete_all_profiles_from_user(const char *agentid, char *userid);
 #endif /* TUS_DB_H */

@@ -73,16 +73,26 @@ function doFind(form) {
         location.href = uri;
     }
 }
+
+var lastCol = 100;
+document.write("<table BORDER=0 CELLSPACING=0 CELLPADDING=0 width=100%><tr>");
+if ((typeof(operatorAuth) != "undefined") && (operatorAuth == "true")) {
+    document.write("<td width=\"20%\"><a href=\"/tus?op=index_operator\">Operator Operations</td>");
+    lastCol -= 20;
+}
+if ((typeof(agentAuth) != "undefined") && (agentAuth == "true")) {
+    document.write("<td bgcolor=\"#e5e5e5\" width=\"20%\"><a href=\"/tus\">Agent Operations</td>");
+    lastCol -= 20;
+}
+if ((typeof(adminAuth) != "undefined") && (adminAuth == "true")) {
+    document.write("<td width=\"20%\"><a href=\"/tus?op=index_admin\">Administrator Operations</td>");
+    lastCol -= 20;
+}
+document.write("<td width=\"" + lastCol + "%\"></td>");
+document.write("</tr></table>");
 //-->
 </SCRIPT>
 
-<table BORDER=0 CELLSPACING=0 CELLPADDING=0 width=100%>
-<tr>
-  <td bgcolor="#e5e5e5" width="20%"><a href="/tus">Agent Operations</td>
-  <td width="20%"><a href="/tus?op=index_admin">Administrator Operations</td>
-  <td width="60%"></td>
-</tr>
-</table>
 <table BORDER=0 CELLSPACING=0 CELLPADDING=0 width=100%>
 <tr>
     <td bgcolor=#e5e5e5>&nbsp;</td>

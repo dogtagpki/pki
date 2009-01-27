@@ -49,8 +49,10 @@ attributeTypes: ( tokenKeyType-oid NAME 'tokenKeyType' DESC 'CMS defined attribu
 attributeTypes: ( tokenReason-oid NAME 'tokenReason' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
 attributeTypes: ( tokenNotBefore-oid NAME 'tokenNotBefore' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
 attributeTypes: ( tokenNotAfter-oid NAME 'tokenNotAfter' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+attributeTypes: ( profileID-oid NAME 'profileID' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
 -
 add: objectClasses
-objectClasses: ( tokenRecord-oid NAME 'tokenRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ modified $ tokenReason $ tokenUserID $ tokenStatus $ tokenAppletID $ keyInfo $ tokenPolicy $ extensions $ numberOfResets $ numberOfEnrollments $ numberOfRenewals $ numberOfRecoveries $ userCertificate ) X-ORIGIN 'user defined' )
-objectClasses: ( tokenActivity-oid NAME 'tokenActivity' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ tokenOp $ tokenIP $ tokenResult $ tokenID $ tokenUserID $ tokenMsg $ extensions ) X-ORIGIN 'user defined' )
+objectClasses: ( tokenRecord-oid NAME 'tokenRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ modified $ tokenReason $ tokenUserID $ tokenStatus $ tokenAppletID $ keyInfo $ tokenPolicy $ extensions $ numberOfResets $ numberOfEnrollments $ numberOfRenewals $ numberOfRecoveries $ userCertificate $ tokenType ) X-ORIGIN 'user defined' )
+objectClasses: ( tokenActivity-oid NAME 'tokenActivity' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ tokenOp $ tokenIP $ tokenResult $ tokenID $ tokenUserID $ tokenMsg $ extensions $ tokenType ) X-ORIGIN 'user defined' )
 objectClasses: ( tokenCert-oid NAME 'tokenCert' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ userCertificate $ tokenUserID $ tokenID $ tokenIssuer $ tokenOrigin $ tokenSubject $ tokenSerial $ tokenStatus $ tokenType $ tokenKeyType $ tokenNotBefore $ tokenNotAfter $ extensions ) X-ORIGIN 'user defined' )
+objectClasses: ( tpsProfileID-oid NAME 'tpsProfileID' DESC 'CMS defined class' SUP top AUXILIARY MAY ( profileID ) X-ORIGIN 'user-defined' )

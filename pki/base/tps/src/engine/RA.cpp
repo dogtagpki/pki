@@ -2012,9 +2012,9 @@ TPS_PUBLIC int RA::ra_allow_token_reenroll(char *cuid)
     return allow_token_reenroll(cuid);
 }
 
-int RA::tdb_activity(char *ip, char *cuid, const char *op, const char *result, const char *msg, const char *userid)
+int RA::tdb_activity(char *ip, char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type)
 {
-  return add_activity(ip, cuid, op, result, msg, userid);
+  return add_activity(ip, cuid, op, result, msg, userid, token_type);
 }
 
 int RA::tdb_update_certificates(char* cuid, char **tokentypes, char *userid, CERTCertificate ** certificates, char **ktypes, char **origins, int numOfCerts)
@@ -2077,7 +2077,7 @@ int RA::tdb_update_certificates(char* cuid, char **tokentypes, char *userid, CER
 /*
  * This adds a brand new token entry to tus.
  */
-int RA::tdb_add_token_entry(char *userid, char* cuid, const char *status) {
+int RA::tdb_add_token_entry(char *userid, char* cuid, const char *status, const char *token_type) {
     int rc = -1;
     int r = -1;
     LDAPMessage  *ldapResult = NULL;
@@ -2092,7 +2092,7 @@ int RA::tdb_add_token_entry(char *userid, char* cuid, const char *status) {
 
     if ((rc = find_tus_db_entry(cuid, 0, &ldapResult)) != LDAP_SUCCESS) {
       /* create a new entry */
-      rc = add_default_tus_db_entry(userid, "~tps", cuid, status, NULL, NULL);
+      rc = add_default_tus_db_entry(userid, "~tps", cuid, status, NULL, NULL, token_type);
       if (rc != LDAP_SUCCESS) {
 	RA::Error(LL_PER_PDU, "RA:tdb_add_token_entry",
 		  "failed to add tokendb entry");
@@ -2145,7 +2145,7 @@ loser:
  * This adds entry to tokendb if entry not found
  * It is then supposed to modify entry (not yet implemented)
  */
-int RA::tdb_update(const char *userid, char* cuid, char* applet_version, char *key_info, const char *state, const char *reason)
+int RA::tdb_update(const char *userid, char* cuid, char* applet_version, char *key_info, const char *state, const char *reason, const char *token_type)
 {
     int rc = -1;
     LDAPMessage  *ldapResult = NULL;
@@ -2164,7 +2164,7 @@ int RA::tdb_update(const char *userid, char* cuid, char* applet_version, char *k
     if ((rc = find_tus_db_entry(cuid, 0, &ldapResult)) != LDAP_SUCCESS) {
       /* create a new entry */
       rc = add_default_tus_db_entry(userid, "~tps", cuid, state, applet_version, 
-              key_info);
+              key_info, token_type);
       if (rc != LDAP_SUCCESS) {
 	RA::Error(LL_PER_PDU, "RA:tdb_update",
 		  "failed to add tokendb entry");
