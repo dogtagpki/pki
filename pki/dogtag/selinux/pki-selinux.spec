@@ -115,7 +115,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 BuildRequires:  ant >= 1.6.2, selinux-policy-devel, m4, make, policycoreutils
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0, perl-libwww-perl >= 5.8.0, policycoreutils, libsemanage
+Requires:       policycoreutils, libsemanage
 
 
 ## This package is non-relocatable!
