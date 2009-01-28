@@ -207,14 +207,17 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         String pwd = HttpInput.getPassword(request, "password");
         
         String tokenn = "";
+        String instanceRoot = "";
+
         try {
             tokenn = config.getString("preop.module.token");
+            instanceRoot = config.getString("instanceRoot");
         } catch (Exception e) {
         }
 
         if (tokenn.equals("Internal Key Storage Token")) {
             byte b[] = new byte[1000000];
-            FileInputStream fis = new FileInputStream(path);
+            FileInputStream fis = new FileInputStream(instanceRoot + "/alias/" + path);
             while (fis.available() > 0) 
                 fis.read(b);
             fis.close();

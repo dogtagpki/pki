@@ -87,9 +87,11 @@ template(`pki_ca_template',`
 	corenet_tcp_bind_all_nodes($1_t)
 	corenet_tcp_bind_ocsp_port($1_t)
 	corenet_tcp_connect_ocsp_port($1_t)
+        corenet_tcp_connect_generic_port($1_t)
 
 	# This is for /etc/$1/tomcat.conf:
 	can_exec($1_t, pki_ca_tomcat_exec_t)
+        allow $1_t $1_tomcat_exec_t:file getattr;
 
 	# Init script handling
 	domain_use_interactive_fds($1_t)
@@ -116,6 +118,7 @@ template(`pki_ca_template',`
 	corecmd_exec_bin($1_t)
 	corecmd_read_bin_symlinks($1_t)
 	corecmd_exec_shell($1_t)
+        corecmd_search_bin($1_t)
 
 	dev_list_sysfs($1_t)
 	dev_read_rand($1_t)

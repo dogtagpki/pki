@@ -58,7 +58,6 @@
 
 /var/log/pki-tks(/.*)?			gen_context(system_u:object_r:pki_tks_log_t,s0)
 
-/usr/sbin/httpd.worker  --      gen_context(system_u:object_r:pki_ra_exec_t,s0)
 /etc/init.d/pki-tps     --      gen_context(system_u:object_r:pki_tps_script_exec_t,s0)
 /etc/pki-tps(/.*)?              gen_context(system_u:object_r:pki_tps_etc_rw_t,s0)
 /var/lib/pki-tps(/.*)?          gen_context(system_u:object_r:pki_tps_var_lib_t,s0)
