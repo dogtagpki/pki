@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -169,8 +169,8 @@ make
 rm -rf ${RPM_BUILD_ROOT}
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/doc/%{base_name}-%{base_version}
 cp -p LICENSE ${RPM_BUILD_ROOT}%{_datadir}/doc/%{base_name}-%{base_version}
-mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/selinux/targeted
-cp -p src/pki.pp ${RPM_BUILD_ROOT}%{_datadir}/selinux/targeted
+mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/selinux/modules
+cp -p src/pki.pp ${RPM_BUILD_ROOT}%{_datadir}/selinux/modules
 
 
 
@@ -209,7 +209,7 @@ fi;
 %saveFileContext targeted
 
 %post
-semodule -s targeted -i /usr/share/selinux/targeted/pki.pp 
+semodule -s targeted -i /usr/share/selinux/modules/pki.pp 
 %relabel targeted
 
 %preun
@@ -229,7 +229,7 @@ fi
 
 %files
 %attr(-,root,root)     %{_datadir}/doc/%{base_name}-%{base_version}/*
-%attr(-,root,root)     %{_datadir}/selinux/targeted/pki.pp
+%attr(-,root,root)     %{_datadir}/selinux/modules/pki.pp
 
 
 
@@ -238,6 +238,8 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Jan 29 2009 Ade Lee <alee@redhat.com> 1.0.0.4
+- Bugzilla Bug #483134 Moved selinux to /usr/share/selinux/modules
 * Tue Jan 27 2009 Ade Lee <alee@redhat.com> 1.0.0-3
 - Bugzilla Bug #482738 - selinux changes required for cloning
 * Tue Jan 20 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-2
