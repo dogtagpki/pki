@@ -222,7 +222,7 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
-* Tue Jan 27 2008 Ade Lee <alee@redhat.com> 1.0.0-5
+* Tue Jan 27 2009 Ade Lee <alee@redhat.com> 1.0.0-5
 - Bugzilla Bug #479092 TPS roles enhancements
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
