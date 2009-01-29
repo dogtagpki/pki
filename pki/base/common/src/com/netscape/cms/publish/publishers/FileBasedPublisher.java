@@ -40,8 +40,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private static final String PROP_DIR = "directory";
     private static final String PROP_DER = "Filename.der";
     private static final String PROP_B64 = "Filename.b64";
-    private static final String PROP_LNK = "LatestCrlLink";
-    private static final String PROP_EXT = "CrlLinkExt";
+    private static final String PROP_LNK = "latestCrlLink";
+    private static final String PROP_EXT = "crlLinkExt";
     private IConfigStore mConfig = null;
     private String mDir = null;
     private ILogger mLogger = CMS.getLogger();
@@ -72,15 +72,15 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_DIR + ";string;Directory in which to put the files (absolute path or relative path to cert-* instance directory)",
-                PROP_DER + ";boolean;Store certificates or CRLs into *.der files",
-                PROP_B64 + ";boolean;Store certificates or CRLs into *.b64 files",
-                PROP_LNK + ";boolean;Generate link to the latest CRL",
-                PROP_EXT + ";string;Name extension used by link to the latest CRL. Default name extension is 'der'",
+                PROP_DIR + ";string;Directory in which to put the files (absolute path or relative path to cert-* instance directory).",
+                PROP_DER + ";boolean;Store certificates or CRLs into *.der files.",
+                PROP_B64 + ";boolean;Store certificates or CRLs into *.b64 files.",
+                PROP_LNK + ";boolean;Generate link to the latest CRL.",
+                PROP_EXT + ";string;Name extension used by link to the latest CRL. Default name extension is 'der'.",
                 IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-ldappublish-publisher-filepublisher",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";Stores the certificates or CRLs into files. Certificate is named as <IssuingPoint>-<serialno>.der, and CRL is named as *.der or *.b64."
+                ";Stores the certificates or CRLs into files. Certificate is named as cert-<serialno>.der or *.b64, and CRL is named as <IssuingPoint>-<thisUpdate-time>.der or *.b64."
             };
 
         return params;
