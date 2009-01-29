@@ -41,6 +41,7 @@ public abstract class BasicProfile implements IProfile {
     public static final String PROP_ENABLE = "enable";
     public static final String PROP_ENABLE_BY = "enableBy";
     public static final String PROP_IS_RENEWAL = "renewal";
+    public static final String PROP_XML_OUTPUT = "xmlOutput";
     public static final String PROP_VISIBLE = "visible";
     public static final String PROP_INPUT_LIST = "list";
     public static final String PROP_OUTPUT_LIST = "list";
@@ -90,6 +91,14 @@ public abstract class BasicProfile implements IProfile {
     public String isRenewal() {
         try {
             return mConfig.getString(PROP_IS_RENEWAL, "false");
+        } catch (EBaseException e) {
+            return "false";
+        }
+    }
+
+    public String isXmlOutput() {
+        try {
+            return mConfig.getString(PROP_XML_OUTPUT, "false");
         } catch (EBaseException e) {
             return "false";
         }

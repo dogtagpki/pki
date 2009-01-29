@@ -189,6 +189,11 @@ public interface IProfile {
      */
     public String isRenewal();
 
+    /*
+     * is output going to be in xml?
+     */
+    public String isXmlOutput();
+
     /**
      * Returns the profile name.
      *

@@ -2073,16 +2073,23 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     protected void outputError(HttpServletResponse httpResp, String errorString) {
-        outputError(httpResp, FAILURE, errorString);
+        outputError(httpResp, FAILURE, errorString, null);
     }
 
-    protected void outputError(HttpServletResponse httpResp, String status, String errorString) {
+    protected void outputError(HttpServletResponse httpResp, String errorString, String requestId) {
+        outputError(httpResp, FAILURE, errorString, null);
+    }
+
+    protected void outputError(HttpServletResponse httpResp, String status, String errorString, String requestId) {
         XMLObject xmlObj = null;
         try {
             xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
             xmlObj.addItemToContainer(root, "Status", status);
             xmlObj.addItemToContainer(root, "Error", errorString);
+            if (requestId != null) {
+                xmlObj.addItemToContainer(root, "RequestId", requestId);
+            }
             byte[] cb = xmlObj.toByteArray();
 
             OutputStream os = httpResp.getOutputStream();

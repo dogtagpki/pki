@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      7
+%define base_release      8
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Jan 28 2009 Christina Fu <cfu@redhat.com> 1.0.0-8
+- Bugzilla Bug #482733 - make outputXML available via profiles; add request id in response for deferred
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-7
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
                          "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"

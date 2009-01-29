@@ -417,8 +417,12 @@ public class ProfileSubmitServlet extends ProfileServlet {
         boolean xmlOutput = false;
 
         String v = request.getParameter("xmlOutput");
-        if (v != null && v.equals("true"))
+        if ((v != null) && (v.equalsIgnoreCase("true"))) {
+            CMS.debug("xmlOutput true");
             xmlOutput = true;
+        } else {
+            CMS.debug("xmlOutput false");
+        }
 
         IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
         if (statsSub != null) {
@@ -898,7 +902,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     e.toString());
                 // authentication error
                 if (xmlOutput) {
-                    outputError(response, AUTH_FAILURE, CMS.getUserMessage(locale, "CMS_AUTHENTICATION_ERROR"));
+                    outputError(response, CMS.getUserMessage(locale, "CMS_AUTHENTICATION_ERROR"));
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
@@ -960,7 +964,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             reqs = profile.createRequests(ctx, locale);
         } catch (EProfileException e) {
             CMS.debug(e);
-            CMS.debug("ProfileSubmitServlet: 1 createRequests " + e.toString());
+            CMS.debug("ProfileSubmitServlet: createRequests " + e.toString());
             if (xmlOutput) {
                 outputError(response, e.toString());
             } else {
@@ -1059,7 +1063,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 // no profile set found
                 CMS.debug("ProfileSubmitServlet: no profile policy set found");
                 if (xmlOutput) {
-                    outputError(response, CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"));
+                    outputError(response, FAILED, CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"), reqs[k].getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON, 
@@ -1092,7 +1096,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             } catch (EProfileException e) {
                 CMS.debug("ProfileSubmitServlet: populate " + e.toString());
                 if (xmlOutput) {
-                    outputError(response, e.toString());
+                    outputError(response, FAILED, e.toString(), reqs[k].getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON, e.toString());
@@ -1108,7 +1112,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 //  throw new IOException("Profile " + profileId + 
                 //          " cannot populate");
                 if (xmlOutput) {
-                    outputError(response, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
+                    outputError(response, FAILED, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"), reqs[k].getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
@@ -1135,14 +1139,15 @@ public class ProfileSubmitServlet extends ProfileServlet {
             ///////////////////////////////////////////////
             // submit request
             ///////////////////////////////////////////////
+            String requestIds = ""; // deliminated with double space
             for (int k = 0; k < reqs.length; k++) {
                 try {
                     // reset the "auditRequesterID"
                     auditRequesterID = auditRequesterID(reqs[k]);
 
-
                     // print request debug
                     if (reqs[k] != null) {
+                      requestIds += "  "+reqs[k].getRequestId().toString();
                       Enumeration reqKeys = reqs[k].getExtDataKeys();
                       while (reqKeys.hasMoreElements()) {
                         String reqKey = (String)reqKeys.nextElement();
@@ -1244,7 +1249,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
             if (errorCode != null) {
                 if (xmlOutput) {
-                    outputError(response, errorReason);
+                    // when errorCode is not null, requestIds should have >=1
+                    outputError(response, errorCode, errorReason, requestIds);
                 } else {
                     ArgList requestlist = new ArgList();
 

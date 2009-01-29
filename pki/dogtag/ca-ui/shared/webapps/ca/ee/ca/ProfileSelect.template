@@ -441,6 +441,8 @@ document.writeln('<input type=hidden name=profileId value="' +
   profileId + '">');
 document.writeln('<input type=hidden name=renewal value="' +
   renewal + '">');
+document.writeln('<input type=hidden name=xmlOutput value="' +
+  xmlOutput + '">');
 } else {
   document.write('Sorry, your request is not submitted. The error code is "' + errorReason + '".');
 }
