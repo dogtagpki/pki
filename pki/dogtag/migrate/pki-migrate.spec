@@ -289,8 +289,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %changelog
 * Fri Jan 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-5
 - Bugzilla Bug #253615 - RFE: migration tool needs to be written for the
-- Allowed 63ToTxt binaries to be published
   serialization changes
+- Allowed 63ToTxt binaries to be published
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
                          "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"
