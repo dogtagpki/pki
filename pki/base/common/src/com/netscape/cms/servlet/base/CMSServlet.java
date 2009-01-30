@@ -433,6 +433,8 @@ public abstract class CMSServlet extends HttpServlet {
         } catch (Exception e) {
         }
 
+        httpReq.setCharacterEncoding("UTF-8");
+
         if (CMS.debugOn()) {
           outputHttpParameters(httpReq);
         }

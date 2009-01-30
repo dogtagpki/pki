@@ -254,7 +254,7 @@ public class ProfileServlet extends CMSServlet {
             reader = new BufferedReader(
                     new FileReader(mTemplate));		
 
-            response.setContentType("text/html");
+            response.setContentType("text/html; charset=UTF-8");
 
             PrintWriter writer = response.getWriter();
 

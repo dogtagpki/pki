@@ -2,6 +2,8 @@
 <html>
 <CMS_TEMPLATE>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
 <title>Key Query Result</title>
 <body bgcolor="white">
 <SCRIPT LANGUAGE="JavaScript"></SCRIPT>
