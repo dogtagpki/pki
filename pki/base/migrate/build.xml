@@ -159,6 +159,7 @@
                 <include name="41ToTxt/**"/>
                 <include name="73ToTxt/**"/>
                 <include name="TxtTo73/**"/>
+                <include name="TxtTo80/**"/>
                 <include name="80/**"/>
             </zipfileset>
             <zipfileset dir="."
@@ -195,6 +196,7 @@
                 <include name="41ToTxt/**"/>
                 <include name="73ToTxt/**"/>
                 <include name="TxtTo73/**"/>
+                <include name="TxtTo80/**"/>
                 <include name="80/**"/>
             </tarfileset>
             <tarfileset dir="."
@@ -268,6 +270,7 @@
                 <include name="TxtTo71/**"/>
                 <include name="TxtTo72/**"/>
                 <include name="TxtTo73/**"/>
+                <include name="TxtTo80/**"/>
                 <include name="80/**"/>
             </zipfileset>
         </zip>
@@ -305,6 +308,7 @@
                 <include name="TxtTo71/**"/>
                 <include name="TxtTo72/**"/>
                 <include name="TxtTo73/**"/>
+                <include name="TxtTo80/**"/>
                 <include name="80/**"/>
             </tarfileset>
         </tar>

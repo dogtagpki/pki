@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -177,7 +177,6 @@ ant -Dspecfile=%{base_name}.spec
 %install
 cd dist/binary
 unzip %{name}-%{version}.zip -d ${RPM_BUILD_ROOT}
-rm -rf ${RPM_BUILD_ROOT}/usr/share/%{base_prefix}/%{base_component}/63ToTxt
 rm -rf ${RPM_BUILD_ROOT}/usr/share/%{base_prefix}/%{base_component}/*/src
 
 
@@ -242,6 +241,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/62ToTxt/classes/*
 %attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/62ToTxt/run.bat
 %attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/62ToTxt/run.sh
+%attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/63ToTxt/classes/*
+%attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/63ToTxt/run.bat
+%attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/63ToTxt/run.sh
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/70ToTxt/classes/*
 %attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/70ToTxt/run.bat
 %attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/70ToTxt/run.sh
@@ -275,6 +277,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/TxtTo73/classes/*
 %attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/TxtTo73/run.bat
 %attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/TxtTo73/run.sh
+%attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/TxtTo80/classes/*
+%attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/TxtTo80/run.sh
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/80/*
 
 
@@ -283,6 +287,10 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Jan 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-5
+- Bugzilla Bug #253615 - RFE: migration tool needs to be written for the
+- Allowed 63ToTxt binaries to be published
+  serialization changes
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
                          "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"
