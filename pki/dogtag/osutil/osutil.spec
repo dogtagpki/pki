@@ -27,7 +27,7 @@
 ## Package Header Definitions
 %define base_name         %{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Libraries
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -118,7 +118,7 @@ BuildRoot:      %{_builddir}/%{name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, bash >= 3.0, java-devel >= 1.6.0, jpackage-utils >= 1.6.0, nspr-devel >= 4.6.99, nss-devel >= 3.12.0
+BuildRequires:  ant >= 1.6.2, bash >= 3.0, java-devel >= 1.6.0, jpackage-utils >= 1.6.0, nspr-devel >= 4.6.99, nss-devel >= 3.12.0, pkgconfig
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       jpackage-utils >= 1.6.0, nss >= 3.12.0
@@ -234,6 +234,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Mon Feb 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-5
+- Bugzilla Bug #483698 -  unable to build osutil without pkgconfig
 * Thu Dec 4 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
 - Bugzilla Bug #474369 - Remove NSS dependency on "pkcs11-devel" and
                          upgrade NSS/NSPR version dependencies  
