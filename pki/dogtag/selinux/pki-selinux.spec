@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -238,6 +238,8 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Feb 5 2009 Ade Lee <alee@redhat.com> 1.0.0.5
+- Bugzilla Bug #483716: changes for TKS installation
 * Thu Jan 29 2009 Ade Lee <alee@redhat.com> 1.0.0.4
 - Bugzilla Bug #483134 Moved selinux to /usr/share/selinux/modules
 * Tue Jan 27 2009 Ade Lee <alee@redhat.com> 1.0.0-3

@@ -90,8 +90,8 @@ template(`pki_ca_template',`
         corenet_tcp_connect_generic_port($1_t)
 
 	# This is for /etc/$1/tomcat.conf:
-	can_exec($1_t, pki_ca_tomcat_exec_t)
-        allow $1_t $1_tomcat_exec_t:file getattr;
+	can_exec($1_t, $1_tomcat_exec_t)
+        allow $1_t $1_tomcat_exec_t:file {getattr read};
 
 	# Init script handling
 	domain_use_interactive_fds($1_t)

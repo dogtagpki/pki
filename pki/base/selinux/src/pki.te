@@ -1,4 +1,4 @@
-policy_module(pki,1.0.2)
+policy_module(pki,1.0.3)
 
 attribute pki_ca_config;
 attribute pki_ca_executable;
@@ -28,6 +28,7 @@ files_type(pki_kra_tomcat_exec_t)
 
 pki_ca_template(pki_kra)
 allow pki_kra_t pki_ca_t:process signull;
+corenet_tcp_connect_pki_ca_port(pki_kra_t)
 
 attribute pki_ocsp_config;
 attribute pki_ocsp_executable;
@@ -43,6 +44,7 @@ files_type(pki_ocsp_tomcat_exec_t)
 
 pki_ca_template(pki_ocsp)
 allow pki_ocsp_t pki_ca_t:process signull;
+corenet_tcp_connect_pki_ca_port(pki_ocsp_t)
 
 attribute pki_ra_config;
 attribute pki_ra_executable;
@@ -73,6 +75,7 @@ files_type(pki_tks_tomcat_exec_t)
 
 pki_ca_template(pki_tks)
 allow pki_tks_t pki_ca_t:process signull;
+corenet_tcp_connect_pki_ca_port(pki_tks_t)
 
 attribute pki_tps_config;
 attribute pki_tps_executable;
