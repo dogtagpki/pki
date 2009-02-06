@@ -467,22 +467,25 @@ ReturnStatus CertEnroll::verifyProof(SECKEYPublicKey* pk, SECItem* siProof,
     if (vs == SECSuccess) {
       vs = VFY_Update(vc, (unsigned char *)proof , pkeyb_len + challenge->size());
       if (vs == SECSuccess) {
-	vs = VFY_End(vc);
-	if (vs == SECFailure) {
-	  RA::Error("CertEnroll::verifyProof",
-		    "VFY_End() failed pkeyb_len=%d challenge_size=%d", pkeyb_len, challenge->size());
-	  rs.statusNum = ::VFY_UPDATE_FAILURE;
-	}
+          vs = VFY_End(vc);
+          if (vs == SECFailure) {
+            RA::Error("CertEnroll::verifyProof",
+                "VFY_End() failed pkeyb_len=%d challenge_size=%d", pkeyb_len, challenge->size());
+            rs.statusNum = ::VFY_UPDATE_FAILURE;
+            rs.status = PR_FAILURE;
+          }
       } else {
-        RA::Error("CertEnroll::verifyProof",
-          "VFY_Update() failed");
-        rs.statusNum = ::VFY_UPDATE_FAILURE;
+          RA::Error("CertEnroll::verifyProof",
+              "VFY_Update() failed");
+          rs.statusNum = ::VFY_UPDATE_FAILURE;
+          rs.status = PR_FAILURE;
       }
     } else {
       RA::Error("CertEnroll::verifyProof",
-		"VFY_Begin() failed");
+          "VFY_Begin() failed");
 
       rs.statusNum = ::VFY_BEGIN_FAILURE;
+      rs.status = PR_FAILURE;
     }
 
     if( vc != NULL ) {
