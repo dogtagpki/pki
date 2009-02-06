@@ -23,29 +23,31 @@ objectClass: top
 objectClass: person
 objectClass: organizationalPerson
 objectClass: inetOrgPerson
+objectClass: tpsProfileId
 uid: admin
 userPassword: $TOKENDB_AGENT_PWD
 sn: TUS Administrator
 cn: TUS Administrator
 userCertificate:: $TOKENDB_AGENT_CERT
+profileID: All Profiles
 
 dn: cn=TUS Agents,ou=Groups,$TOKENDB_ROOT
 objectClass: top
-objectClass: groupOfUniqueNames
+objectClass: groupOfNames
 cn: TUS Agents
-uniqueMember: uid=admin,ou=People,$TOKENDB_ROOT
+member: uid=admin,ou=People,$TOKENDB_ROOT
 description: Agents for TUS
 
 dn: cn=TUS Officers,ou=Groups,$TOKENDB_ROOT
 objectClass: top
-objectClass: groupOfUniqueNames
+objectClass: groupOfNames
 cn: TUS Officers
-uniqueMember: uid=admin,ou=People,$TOKENDB_ROOT
+member: uid=admin,ou=People,$TOKENDB_ROOT
 description: Operators for TUS
 
 dn: cn=TUS Administrators,ou=Groups,$TOKENDB_ROOT
 objectClass: top
-objectClass: groupOfUniqueNames
+objectClass: groupOfNames
 cn: TUS Administrators
-uniqueMember: uid=admin,ou=People,$TOKENDB_ROOT
+member: uid=admin,ou=People,$TOKENDB_ROOT
 description: Administrators for TUS

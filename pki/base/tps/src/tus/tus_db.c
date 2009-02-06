@@ -384,6 +384,8 @@ TPS_PUBLIC int get_tus_db_config(char *cfg_name)
               audit_fd = PR_Open(s, PR_RDWR | PR_CREATE_FILE | PR_APPEND,
                    400 | 200);
             }
+            PL_strfree( s );
+            s = NULL;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -404,6 +406,8 @@ TPS_PUBLIC int get_tus_db_config(char *cfg_name)
         s = PL_strndup(v, n);
         if (s != NULL) {
             set_tus_db_host(s);
+            PL_strfree( s );
+            s = NULL;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -425,6 +429,8 @@ TPS_PUBLIC int get_tus_db_config(char *cfg_name)
         s = PL_strndup(v, n);
         if (s != NULL) {
             defaultPolicy = PL_strdup( s );
+            PL_strfree( s );
+            s = NULL;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -445,6 +451,8 @@ TPS_PUBLIC int get_tus_db_config(char *cfg_name)
         s = PL_strndup(v, n);
         if (s != NULL) {
             set_tus_db_userBaseDN(s);
+            PL_strfree( s );
+            s = NULL;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -465,6 +473,8 @@ TPS_PUBLIC int get_tus_db_config(char *cfg_name)
         s = PL_strndup(v, n);
         if (s != NULL) {
             set_tus_db_baseDN(s);
+            PL_strfree( s );
+            s = NULL;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -484,6 +494,8 @@ TPS_PUBLIC int get_tus_db_config(char *cfg_name)
         s = PL_strndup(v, n);
         if (s != NULL) {
             set_tus_db_activityBaseDN(s);
+            PL_strfree( s );
+            s = NULL;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -503,6 +515,8 @@ TPS_PUBLIC int get_tus_db_config(char *cfg_name)
         s = PL_strndup(v, n);
         if (s != NULL) {
             set_tus_db_certBaseDN(s);
+            PL_strfree( s );
+            s = NULL;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -522,6 +536,8 @@ TPS_PUBLIC int get_tus_db_config(char *cfg_name)
         s = PL_strndup(v, n);
         if (s != NULL) {
             set_tus_db_bindDN(s);
+            PL_strfree( s );
+            s = NULL;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -549,6 +565,8 @@ TPS_PUBLIC int get_tus_db_config(char *cfg_name)
 	              PR_fprintf(debug_fd, "freeing p - %s\n", p);
                 PR_Free( p );
             }
+            PL_strfree( s );
+            s = NULL;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -693,7 +711,7 @@ TPS_PUBLIC int tus_authorize(const char *group, const char *userid)
     LDAPMessage *result = NULL;
 
     PR_snprintf(filter, 4096, 
-          "(&(cn=%s)(uniqueMember=uid=%s,*))", group ,userid);
+          "(&(cn=%s)(member=uid=%s,*))", group ,userid);
     for (tries = 0; tries < MAX_RETRIES; tries++) {
         if ((rc = ldap_search_ext_s(ld, userBaseDN, LDAP_SCOPE_SUBTREE, 
                filter, NULL, 0, NULL, NULL, NULL, 0, &result))  == LDAP_SUCCESS )  
@@ -887,6 +905,132 @@ TPS_PUBLIC void tus_db_end()
             bindStatus = -1;
         }
     }
+}
+
+TPS_PUBLIC void tus_db_cleanup()
+{
+    if (ssl != NULL) {
+        PL_strfree(ssl);
+        ssl = NULL;
+    }
+    if (host != NULL) { 
+        PL_strfree(host);
+        host = NULL;
+    }
+    if (userBaseDN != NULL) {
+        PL_strfree(userBaseDN);
+        userBaseDN = NULL;
+    }
+    if (baseDN != NULL) {
+        PL_strfree(baseDN);
+        baseDN = NULL;
+    }
+    if (activityBaseDN != NULL) {
+        PL_strfree(activityBaseDN);
+        activityBaseDN = NULL;
+    }
+    if(certBaseDN != NULL) { 
+        PL_strfree(certBaseDN);
+        certBaseDN = NULL;
+    }
+    if(bindDN != NULL) {
+        PL_strfree(bindDN);
+        bindDN = NULL;
+    }
+    if(bindPass != NULL) { 
+        PL_strfree(bindPass);
+        bindPass = NULL;
+    }
+    if(defaultPolicy != NULL) { 
+        PL_strfree(defaultPolicy);
+        defaultPolicy = NULL;
+    }
+    if (debug_fd != NULL) { 
+        PR_Close(debug_fd);
+        debug_fd = NULL;
+    }
+    if (audit_fd != NULL) {
+        PR_Close(audit_fd);
+        audit_fd = NULL;
+    }
+}
+
+/*****
+ * tus_print_integer
+ * summary: prints serial number as hex string
+ *          modeled on SECU_PrintInteger.  The length
+ *          4 below is arbitrary - but works!
+ *  params: out - output hexidecimal string
+ *          data - serial number as SECItem 
+ */
+TPS_PUBLIC void tus_print_integer(char *out, SECItem *i)
+{
+    int iv;
+
+    if (!i || !i->len || !i->data) {
+        sprintf(out, "(null)");
+    } else if (i->len > 4) {
+        tus_print_as_hex(out, i);
+    } else {
+        if (i->type == siUnsignedInteger && *i->data & 0x80) {
+            /* Make sure i->data has zero in the highest byte
+             * if i->data is an unsigned integer */
+            SECItem tmpI;
+            char data[] = {0, 0, 0, 0, 0};
+
+            PORT_Memcpy(data + 1, i->data, i->len);
+            tmpI.len = i->len + 1;
+            tmpI.data = (void*)data;
+
+            iv = DER_GetInteger(&tmpI);
+        } else {
+            iv = DER_GetInteger(i);
+        }
+        sprintf(out, "%x", iv);
+    }
+}
+
+/***
+ * tus_print_as_hex
+ * summary: prints serial number as a hex string, needed
+ *          because DER_GetInteger only works for small numbers
+ *          modeled on SECU_PrintAsHex
+ * params:  out - output hexidecimal string
+ *          data - serial number as SECItem
+ */
+TPS_PUBLIC void tus_print_as_hex(char *out, SECItem *data)
+{
+    unsigned i;
+    int isString = 1;
+    char tmp[32];
+
+    PR_snprintf(out, 2, "");
+
+    /* take a pass to see if it's all printable. */
+    for (i = 0; i < data->len; i++) {
+        unsigned char val = data->data[i];
+        if (!val || !isprint(val)) {
+            isString = 0;
+            break;
+        }
+    }
+
+    if (!isString) {
+        for (i = 0; i < data->len; i++) {
+            PR_snprintf(tmp, 32, "%02x", data->data[i]);
+            PL_strcat(out, tmp);
+        }
+    } else {
+        for (i = 0; i < data->len; i++) {
+            unsigned char val = data->data[i];
+
+            if (val != NULL) {
+                PR_snprintf(tmp, 32, "%c", val);
+                PL_strcat(out, tmp);
+            }
+        }
+    }
+    PL_strcat(out, '\0');
 }
 
 char **parse_number_change(int n)
@@ -1468,7 +1612,8 @@ int add_certificate (char *tokenid, char *origin, char *tokenType, char *userid,
                 time.tm_hour, time.tm_min, time.tm_sec);
 
     /* unique id per activity */
-    PR_snprintf(serialnumber, 2048, "%x", DER_GetInteger(&certificate->serialNumber));
+    tus_print_integer(serialnumber, &certificate->serialNumber);
+
     PR_snprintf(name, 16, "%04d%02d%02d%02d%02d%02dZ",
                 time.tm_year, (time.tm_month + 1), time.tm_mday,
                 time.tm_hour, time.tm_min, time.tm_sec);
@@ -2113,7 +2258,7 @@ TPS_PUBLIC int add_user_to_role_db_entry(const char *agentid, char *userid, cons
     userid_values[1] = NULL;
 
     a01.mod_op = LDAP_MOD_ADD;
-    a01.mod_type = GROUP_UNIQUEMEMBER;
+    a01.mod_type = GROUP_MEMBER;
     a01.mod_values = userid_values;
     mods[0]  = &a01;
     mods[1]  = NULL;
@@ -2124,7 +2269,7 @@ TPS_PUBLIC int add_user_to_role_db_entry(const char *agentid, char *userid, cons
     rc = update_tus_general_db_entry(agentid, dn, mods);
 
     if (rc == LDAP_SUCCESS) {
-        PR_snprintf("Added role %s to user %s", role, userid); 
+        PR_snprintf(msg, 256, "Added role %s to user %s", role, userid); 
         audit_log("add_user_to_role", agentid, msg);
     }
     return rc;
@@ -2155,7 +2300,7 @@ TPS_PUBLIC int delete_user_from_role_db_entry(const char *agentid, char *userid,
     userid_values[1] = NULL;
 
     a01.mod_op = LDAP_MOD_DELETE;
-    a01.mod_type = GROUP_UNIQUEMEMBER;
+    a01.mod_type = GROUP_MEMBER;
     a01.mod_values = userid_values;
     mods[0]  = &a01;
     mods[1]  = NULL;
@@ -2165,7 +2310,7 @@ TPS_PUBLIC int delete_user_from_role_db_entry(const char *agentid, char *userid,
 
     rc = update_tus_general_db_entry(agentid, dn, mods);
     if (rc == LDAP_SUCCESS) {
-        PR_snprintf("Deleted role %s from user %s", role, userid); 
+        PR_snprintf(msg, 256, "Deleted role %s from user %s", role, userid); 
         audit_log("delete_user_from_role", agentid, msg);
     }
 
@@ -2200,7 +2345,7 @@ TPS_PUBLIC int delete_profile_from_user(const char *agentid, char *userid, const
 
     rc = update_tus_general_db_entry(agentid, dn, mods);
     if (rc == LDAP_SUCCESS) {
-        PR_snprintf("Deleted profile %s from user %s", profile, userid); 
+        PR_snprintf(msg, 256, "Deleted profile %s from user %s", profile, userid); 
         audit_log("delete_profile_from_user", agentid, msg);
     }
 
@@ -2527,7 +2672,7 @@ TPS_PUBLIC int find_tus_user_role_entries( const char*uid, LDAPMessage **result)
     char *subgroup_attrs[] = {SUBGROUP_ID, NULL};
  
     PR_snprintf(groupBaseDN, 256, "ou=Groups,%s", userBaseDN);
-    PR_snprintf(filter, 256, "uniqueMember=uid=%s,ou=People,%s", uid, userBaseDN);
+    PR_snprintf(filter, 256, "member=uid=%s,ou=People,%s", uid, userBaseDN);
 
     tus_check_conn();
     for (tries = 0; tries < MAX_RETRIES; tries++) {

@@ -130,7 +130,7 @@ sub is_agent()
             "-b \"" . "cn=TUS Officers,ou=Groups,".$x_basedn . "\" " .
             "-h \"" . $x_host . "\" " .
             "-p \"" . $x_port ."\" " .
-            "-1 \"(uniqueMember=uid=" . $uid . "*)\" | wc -l";
+            "-1 \"(member=uid=" . $uid . "*)\" | wc -l";
   my $matched = `$cmd`;
   chomp($matched);
 

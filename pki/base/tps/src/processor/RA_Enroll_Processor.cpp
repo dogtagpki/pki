@@ -547,8 +547,10 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
     certificates[index] = CERT_DecodeCertFromPackage((char *) cert_string, 
       (int) cert->size());
     if (certificates[index] != NULL) {
-      RA::Debug("DoEnrollment", "Received Certificate 0x%x",
-              DER_GetInteger(&certificates[index]->serialNumber));
+        char msg[2048];
+        RA::ra_tus_print_integer(msg, &certificates[index]->serialNumber);
+        RA::Debug("DoEnrollment", "Received Certificate");
+        RA::Debug("DoEnrollment", msg);
     }
     free(cert_string);
     ktypes[index] = strdup(keyType);

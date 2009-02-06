@@ -155,6 +155,7 @@ ConfigStore::~ConfigStore ()
 		PR_Free(m_substore_name);
 	}
 	m_root->release();
+        delete m_root;
 }
 
 

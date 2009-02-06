@@ -84,6 +84,7 @@ extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
 
 #define MAX_INJECTION_SIZE 5120
 #define MAX_OVERLOAD       20
+#define SHORT_LEN          256
 
 #define BASE64_HEADER "-----BEGIN CERTIFICATE-----\n"
 #define BASE64_FOOTER "-----END CERTIFICATE-----\n"
@@ -295,7 +296,7 @@ char *unencode(const char *src)
  *         must be freed by caller.
  * example: get_field("op=hello&name=foo&title=bar", "name=") returns foo
  */
-char *get_field( char *s, char* fname)
+char *get_field( char *s, char* fname, int len)
 {
     char *end = NULL;
     int  n;
@@ -315,6 +316,9 @@ char *get_field( char *s, char* fname)
     
     if (n == 0) {
         return NULL;
+    } else if (n > len) {
+        /* string too long */
+        return NULL; 
     } else {
         return PL_strndup( s, n );
     }
@@ -326,10 +330,17 @@ char *get_field( char *s, char* fname)
  * params: post - apr_table with post data
  *       : fname = name of post-field
  */
-char *get_post_field( apr_table_t *post, const char *fname) 
+char *get_post_field( apr_table_t *post, const char *fname, int len) 
 {
+   char *ret = NULL;
    if (post) {
-      return unencode(apr_table_get(post, fname));
+      ret = unencode(apr_table_get(post, fname));
+      if ((ret != NULL) && (PL_strlen(ret) > len)) {
+        PR_Free(ret);
+        return NULL;
+      } else {
+        return ret;
+      }
    } else {
       return NULL;
   }
@@ -339,10 +350,17 @@ char *get_post_field( apr_table_t *post, const char *fname)
  * similar to get_post_field - but returns the original post data
  * without unencoding - used for userCert 
  */
-char *get_encoded_post_field(apr_table_t *post, const char *fname)              
+char *get_encoded_post_field(apr_table_t *post, const char *fname, int len)              
 {
+   char *ret = NULL;
    if (post) {
-      return PL_strdup(apr_table_get(post, fname));
+      ret = PL_strdup(apr_table_get(post, fname));
+      if ((ret != NULL) && (PL_strlen(ret) > len)) {
+        PL_strfree(ret);
+        return NULL;
+      } else {
+        return ret;
+      }
    } else {
       return NULL;
   }
@@ -692,9 +710,9 @@ void getUserFilter (char *filter, char *query) {
     char *firstName  = NULL;
     char *lastName   = NULL;
 
-    uid  = get_field(query, "uid=");
-    firstName = get_field(query, "firstName=");
-    lastName = get_field(query, "lastName=");
+    uid  = get_field(query, "uid=", SHORT_LEN);
+    firstName = get_field(query, "firstName=", SHORT_LEN);
+    lastName = get_field(query, "lastName=", SHORT_LEN);
   
     filter[0] = '\0';
 
@@ -2191,6 +2209,7 @@ mod_tokendb_terminate( void *data )
                "The Tokendb module has been terminated!" );
 
     tus_db_end();
+    tus_db_cleanup();
 
     /* Since all members of mod_tokendb_server_configuration are allocated */
     /* from a pool, there is no need to unset any of these members.        */
@@ -3593,7 +3612,7 @@ mod_tokendb_handler( request_rec *rq )
                      "var userid = \"", userid,
                      "\";\n" );
 
-        topLevel = get_field(query, "top=");
+        topLevel = get_field(query, "top=", SHORT_LEN);
         if ((topLevel != NULL) && (PL_strstr(topLevel, "operator"))) {
             PL_strcat(injection, "var topLevel = \"operator\";\n");
         }
@@ -3644,7 +3663,7 @@ mod_tokendb_handler( request_rec *rq )
                      "var userid = \"", userid,
                      "\";\n");
 
-        topLevel = get_field(query, "top=");
+        topLevel = get_field(query, "top=", SHORT_LEN);
         if ((topLevel != NULL) && (PL_strstr(topLevel, "operator"))) {
             PL_strcat(injection, "var topLevel = \"operator\";\n");
         }
@@ -3669,7 +3688,7 @@ mod_tokendb_handler( request_rec *rq )
                      "var userid = \"", userid,
                      "\";\n");
         
-        topLevel = get_field(query, "top=");
+        topLevel = get_field(query, "top=", SHORT_LEN);
         if ((topLevel != NULL) && (PL_strstr(topLevel, "operator"))) {
             PL_strcat(injection, "var topLevel = \"operator\";\n");
         }
@@ -3972,7 +3991,7 @@ mod_tokendb_handler( request_rec *rq )
 
         /* start_val used in paging of profiles on the edit_user page */
         if (PL_strstr( query, "op=edit_user") ) {
-            char *start_val_str = get_field(query, "start_val=");
+            char *start_val_str = get_field(query, "start_val=", SHORT_LEN);
             if (start_val_str != NULL) { 
                 start_val = atoi(start_val_str);
                 do_free(start_val_str);
@@ -3984,7 +4003,7 @@ mod_tokendb_handler( request_rec *rq )
 
         /* flash used to display edit result upon redirection back to the edit_user page */
         if (PL_strstr(query, "op=edit_user") ) {
-           char *flash = get_field(query, "flash=");
+           char *flash = get_field(query, "flash=", SHORT_LEN);
            if (flash != NULL) {
               PL_strcat(injection, "var flash = \"");
               PL_strcat(injection, flash);
@@ -4109,7 +4128,7 @@ mod_tokendb_handler( request_rec *rq )
         if ((PL_strstr( query, "op=edit_user")) ||
             (PL_strstr( query, "op=user_delete_confirm"))) {
 
-            uid  = get_field(query, "uid=");
+            uid  = get_field(query, "uid=", SHORT_LEN);
             bool officer = false;
             bool agent = false;
             bool admin = false;
@@ -4190,7 +4209,7 @@ mod_tokendb_handler( request_rec *rq )
                 }
             }
         }
-        topLevel = get_field(query, "top=");
+        topLevel = get_field(query, "top=", SHORT_LEN);
         if ((topLevel != NULL) && (PL_strstr(topLevel, "operator"))) {
             PL_strcat(injection, "var topLevel = \"operator\";\n");
         }
@@ -4266,9 +4285,9 @@ mod_tokendb_handler( request_rec *rq )
 
             return DECLINED;
         }
-        uid = get_post_field(post, "uid");
-        char *profile = get_post_field(post, "profile_0");
-        char *other_profile = get_post_field(post, "other_profile");
+        uid = get_post_field(post, "uid", SHORT_LEN);
+        char *profile = get_post_field(post, "profile_0", SHORT_LEN);
+        char *other_profile = get_post_field(post, "other_profile", SHORT_LEN);
         if ((profile != NULL) && (uid != NULL)) {
             if (PL_strstr(profile, "Other Profiles")) {
                 if ((other_profile != NULL) && (match_profile(other_profile))) {
@@ -4329,13 +4348,13 @@ mod_tokendb_handler( request_rec *rq )
             return DECLINED;
         }
         // first save user details
-        uid = get_post_field(post, "uid");
-        firstName = get_post_field(post, "firstName");
-        lastName = get_post_field(post, "lastName");
-        userCert = get_encoded_post_field(post, "userCert");
-        opOperator = get_post_field(post, "opOperator");
-        opAgent = get_post_field(post, "opAgent");
-        opAdmin = get_post_field(post, "opAdmin");
+        uid = get_post_field(post, "uid", SHORT_LEN);
+        firstName = get_post_field(post, "firstName", SHORT_LEN);
+        lastName = get_post_field(post, "lastName", SHORT_LEN);
+        userCert = get_encoded_post_field(post, "userCert", HUGE_STRING_LEN);
+        opOperator = get_post_field(post, "opOperator", SHORT_LEN);
+        opAgent = get_post_field(post, "opAgent", SHORT_LEN);
+        opAdmin = get_post_field(post, "opAdmin", SHORT_LEN);
 
         PR_snprintf((char *)userCN, 256,
             "%s %s", firstName, lastName);
@@ -4407,15 +4426,15 @@ mod_tokendb_handler( request_rec *rq )
         do_free(opAdmin);
 
         // save profile details
-        int nProfiles = atoi (get_post_field(post, "nProfiles"));
+        int nProfiles = atoi (get_post_field(post, "nProfiles", SHORT_LEN));
 
         for (int i=0; i< nProfiles; i++) {
             char p_name[256];
             char p_delete[256];
             PR_snprintf(p_name, 256, "profile_%d", i);
             PR_snprintf(p_delete, 256, "delete_%d", i);
-            char *profile = get_post_field(post, p_name);
-            char *p_del = get_post_field(post, p_delete);
+            char *profile = get_post_field(post, p_name, SHORT_LEN);
+            char *p_del = get_post_field(post, p_delete, SHORT_LEN);
 
             if ((profile != NULL) && (p_del != NULL) && (PL_strstr(p_del, "delete"))) {
                 status = delete_profile_from_user(userid, uid, profile);
@@ -4560,10 +4579,10 @@ mod_tokendb_handler( request_rec *rq )
             return DECLINED;
         }
 
-        uid = get_post_field(post, "uid");
-        opOperator = get_post_field(post, "opOperator");
-        opAdmin = get_post_field(post, "opAdmin");
-        opAgent = get_post_field(post, "opAgent");
+        uid = get_post_field(post, "uid", SHORT_LEN);
+        opOperator = get_post_field(post, "opOperator", SHORT_LEN);
+        opAdmin = get_post_field(post, "opAdmin", SHORT_LEN);
+        opAgent = get_post_field(post, "opAgent", SHORT_LEN);
 
         if (uid == NULL) {
             error_out("Error in delete user. userid is null", "Error in delete user. userid is null");
@@ -4646,13 +4665,13 @@ mod_tokendb_handler( request_rec *rq )
             return DECLINED;
         }
 
-        uid = get_post_field(post, "userid");
-        firstName = get_post_field(post, "firstName");
-        lastName = get_post_field(post, "lastName");
-        opOperator = get_post_field(post, "opOperator");
-        opAdmin = get_post_field(post, "opAdmin");
-        opAgent = get_post_field(post, "opAgent");
-        userCert = get_encoded_post_field(post, "cert"); 
+        uid = get_post_field(post, "userid", SHORT_LEN);
+        firstName = get_post_field(post, "firstName", SHORT_LEN);
+        lastName = get_post_field(post, "lastName", SHORT_LEN);
+        opOperator = get_post_field(post, "opOperator", SHORT_LEN);
+        opAdmin = get_post_field(post, "opAdmin", SHORT_LEN);
+        opAgent = get_post_field(post, "opAgent", SHORT_LEN);
+        userCert = get_encoded_post_field(post, "cert", HUGE_STRING_LEN); 
 
         if ((PL_strlen(uid) == 0) || (PL_strlen(firstName) == 0) || (PL_strlen(lastName) == 0)) {
             error_out("Bad input to op=addUser", "Bad input to op=addUser");

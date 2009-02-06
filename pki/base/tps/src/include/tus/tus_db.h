@@ -125,7 +125,7 @@
 #define USER_CN             "cn"
 #define USER_CERT           "userCertificate"
 #define PROFILE_ID          "profileID"
-#define GROUP_UNIQUEMEMBER  "uniqueMember"
+#define GROUP_MEMBER        "member"
 #define SUBGROUP_ID         "cn"
 
 /* roles */
@@ -155,6 +155,9 @@ TPS_PUBLIC int update_token_policy (char *cn, char *policy);
 TPS_PUBLIC char *get_token_policy (char *cn);
 TPS_PUBLIC char *get_token_userid(char *cn);
 TPS_PUBLIC void tus_db_end();
+TPS_PUBLIC void tus_db_cleanup();
+TPS_PUBLIC void tus_print_as_hex(char *out, SECItem *data);
+TPS_PUBLIC void tus_print_integer(char *out, SECItem *data);
 TPS_PUBLIC int is_tus_db_entry_disabled(char *cn);
 TPS_PUBLIC int add_default_tus_db_entry (const char *uid, const char *agentid, char *cn, const char *status, char *applet_version, char *key_info, const char *token_type );
 TPS_PUBLIC int delete_tus_db_entry (char *userid, char *cn);

@@ -387,6 +387,7 @@ TPS_PUBLIC int RA::Shutdown()
 {
 
     tus_db_end();
+    tus_db_cleanup();
 
     if( m_pod_lock != NULL ) {
         PR_DestroyLock( m_pod_lock );
@@ -1784,6 +1785,10 @@ int RA::InitializeHttpConnections(const char *id, int *len, HttpConnection **con
             ctx->InitializationError( "RA::InitializeHttpConnections",
                                       __LINE__ );
             rc = -1;
+            if (cinfo != NULL) { 
+                delete cinfo;
+                cinfo = NULL;
+            }
             goto loser;
         }
 
@@ -1803,6 +1808,10 @@ int RA::InitializeHttpConnections(const char *id, int *len, HttpConnection **con
                            clientnickname,
                            i );
                 rc = -2;
+                if (cinfo != NULL) { 
+                    delete cinfo;
+                    cinfo = NULL;
+                }
                 goto loser;
             } else {
                 RA::Debug( LL_PER_CONNECTION,
@@ -1824,6 +1833,10 @@ int RA::InitializeHttpConnections(const char *id, int *len, HttpConnection **con
                            id,
                            i );
                 rc = -3;
+                if (cinfo != NULL) { 
+                    delete cinfo;
+                    cinfo = NULL;
+                }
                 goto loser;
         }
 
@@ -2012,6 +2025,11 @@ TPS_PUBLIC int RA::ra_allow_token_reenroll(char *cuid)
     return allow_token_reenroll(cuid);
 }
 
+TPS_PUBLIC void RA::ra_tus_print_integer(char *out, SECItem *data)
+{
+    tus_print_integer(out, data);
+}
+
 int RA::tdb_activity(char *ip, char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type)
 {
   return add_activity(ip, cuid, op, result, msg, userid, token_type);
@@ -2049,7 +2067,9 @@ int RA::tdb_update_certificates(char* cuid, char **tokentypes, char *userid, CER
             RA::Debug(LL_PER_PDU, "RA::tdb_update_certificates",
 	        "adding cert=%x", certificates[i]);
 
-            PR_snprintf(filter, 512, "tokenSerial=%x", DER_GetInteger(&(certificates[i])->serialNumber));
+            PR_snprintf(filter, 512, "tokenSerial=%x");
+            tus_print_integer(filter, &(certificates[i])->serialNumber);
+
             int r = find_tus_certificate_entries_by_order_no_vlv(filter, &result, 1);
             bool found = false;
             if (r == LDAP_SUCCESS) {

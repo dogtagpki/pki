@@ -106,6 +106,8 @@ sub update
       $::config->put("conn.tks1.serverKeygen", "false");
       $::config->put("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "false");
       $::config->put("op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable", "false");
+      $::config->put("op.enroll.userKey.keyGen.encryption.recovery.destroyed.scheme", "GenerateNewKey");
+      $::config->put("op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
       $::config->put("conn.drm1.clientNickname", "");
       $::config->put("conn.drm1.hostport", "");
     }
