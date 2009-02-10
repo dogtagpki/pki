@@ -32,7 +32,7 @@
 #            -secure_port=9543 || -agent_secure_port=9543
 #	                          -ee_secure_port=9544
 #                                 -admin_secure_port=9545
-#            -unsecure_port=9280
+#            -unsecure_port=9580
 #            -tomcat_server_port=9801
 #            -user=pkiuser
 #            -group=pkiuser
@@ -793,7 +793,7 @@ sub usage()
          . "                    -ee_secure_port=9544\n"
          . "                    -admin_secure_port=9545\n"
          . "]\n"
-         . "                    -unsecure_port=9280\n"
+         . "                    -unsecure_port=9580\n"
          . "                    -tomcat_server_port=9801\n"
          . "                    -user=pkiuser\n"
          . "                    -group=pkiuser\n"
@@ -3173,6 +3173,12 @@ sub add_selinux_port()
 sub add_selinux_file_context()
 {
    my($fcontext, $fname, $ftype) = @_;
+   
+   #check if fcontext has already been set
+   if (`$semanage fcontext -l -n |grep $fname |grep ":$fcontext:" | wc -l` == 1) {
+      #selinux context already defined
+      return;
+   }
    emit("Setting selinux file context for $fname\n");
    if ($ftype eq "f") {
        system("$semanage fcontext -a -t $fcontext -f -- $fname");
@@ -3256,13 +3262,15 @@ sub process_pki_selinux_setup()
     system("$restorecon -F -R $pki_instance_root/$pki_instance_name");
 
 
-    # set file context for /var/run/$pki_instance_name.pid
-    if ($pki_instance_name ne $default_inst_name ) {
-         &add_selinux_file_context( $setype . "_var_run_t", 
-             "/var/run/$pki_instance_name\\.pid", "f");
+    if ($java_component) {
+        # set file context for /var/run/$pki_instance_name.pid
+        if ($pki_instance_name ne $default_inst_name ) {
+            &add_selinux_file_context( $setype . "_var_run_t", 
+                "/var/run/$pki_instance_name\\.pid", "f");
+        }
+        emit("Restorecon file context for /var/run\n");
+        system("$restorecon -F -R /var/run");
     }
-    emit("Restorecon file context for /var/run\n");
-    system("$restorecon -F -R /var/run");
 
     # set file context for $log_path
     if ($log_path ne $default_log_path) {

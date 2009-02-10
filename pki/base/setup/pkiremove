@@ -295,13 +295,15 @@ sub update_domain()
 sub remove_fcontext()
 {
     my ($fcontext, $fname, $ftype) = @_;
+    my $errs;
     if ($ftype eq "f") {
-        system("$semanage fcontext -d -t $fcontext -f -- $fname");
+        $errs = `$semanage fcontext -d -t $fcontext -f -- $fname 2>&1`
     } else {
-        system("$semanage fcontext -d -t $fcontext $fname");
+        $errs = `$semanage fcontext -d -t $fcontext $fname 2>&1`
     }
-    if ($? != 0) {
+    if (($? != 0)  && ($errs !~ /defined in policy, cannot be deleted/)) {
         print STDERR "ERROR: Error in setting selinux file context $fcontext for $fname\n";
+        print $errs;
         print STDOUT "\n";
     }
 }
@@ -353,7 +355,7 @@ sub remove_selinux_fcontexts()
     }
 
     # remove context for /var/run/$pki_instance_name.pid
-    if ($pki_instance_name ne $default_inst_name ) {
+    if (($java_component) && ($pki_instance_name ne $default_inst_name )) {
         &remove_fcontext($setype . "_var_run_t", 
             "/var/run/$pki_instance_name\\.pid", "f");
     }
@@ -429,10 +431,16 @@ sub remove_selinux_ports()
 
     foreach my $port (@ports) {
         my $setype = "pki_" . lc($typeval) . "_port_t";
+        my $errs;
         print STDOUT "Removing port $port from selinux policy.\n";
-        $status = system("$semanage port -d -t $setype -ptcp $port");
-        if ($status != 0) {
-            warn "Port $port not removed from selinux policy correctly.\n";
+        $errs = `$semanage port -d -t $setype -ptcp $port 2>&1`;
+        if ($? != 0)  {
+            if ($errs !~ /defined in policy, cannot be deleted/) {
+                warn "Port $port not removed from selinux policy correctly.\n";
+                print $errs;
+            } else {
+                print "Port $port not removed from selinux policy because it is defined in policy.  This is OK.\n";
+            }
         }
     }
 }
