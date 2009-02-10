@@ -143,6 +143,7 @@
         <echo message="${begin.compose.javadocs.log.message}"/>
         <mkdir dir="${docs.dir}"/>
         <javadoc destdir="${docs.dir}"
+                 maxmemory="512m"
                  author="true"
                  breakiterator="true"
                  version="true"
