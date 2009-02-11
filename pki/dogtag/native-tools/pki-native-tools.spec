@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -250,6 +250,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Feb 11 2009 Ade Lee <alee@redhat.com> 1.0.0-5
+- Bugzilla # 484826 -selinux policy required for TPS and RA subsystems
 * Thu Dec 4 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
 - Bugzilla Bug #474369 - Remove NSS dependency on "pkcs11-devel" and
                          upgrade NSS/NSPR version dependencies  

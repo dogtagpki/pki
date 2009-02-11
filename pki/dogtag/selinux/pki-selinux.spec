@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      6
+%define base_release      7
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -249,6 +249,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Feb 11 2009 Ade Lee <alee@redhat.com> 1.0.0-7
+- Bugzilla # 484826 -selinux policy required for TPS and RA subsystems
 * Mon Feb 9 2009 Ade Lee <alee@redhat.com> 1.0.0.6
 - Bugzilla Bug #483742 - add version check to spec file for fedora
 * Thu Feb 5 2009 Ade Lee <alee@redhat.com> 1.0.0.5

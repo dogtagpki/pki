@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      18
+%define base_release      19
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -308,6 +308,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Feb 11 2009 Ade Lee <alee@redhat.com> 1.0.0-19
+- Bugzilla # 484826 -selinux policy required for TPS and RA subsystems  
 * Fri Feb 6 2009 Christina Fu <cfu@redhat.com> 1.0.0-18
 - Bugzilla# 484420 - TPS public key challenge proof verification error
 * Thu Feb 5 2009 Ade Lee <alee@redhat.com> 1.0.0-17
