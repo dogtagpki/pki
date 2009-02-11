@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      5
+%define base_release      6
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -112,10 +112,21 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, selinux-policy-devel, m4, make, policycoreutils
+BuildRequires: ant >= 1.6.2,  m4, make, policycoreutils, selinux-policy-devel
+# While 'selinux-policy-devel' is always required on Fedora 12 or later,
+# certain earlier Fedora distributions require at least a minimum version
+%{?fc8:BuildRequires: selinux-policy-devel >= 3.0.8-127}
+%{?fc9:BuildRequires: selinux-policy-devel >= 3.3.1-118}
+%{?fc10:BuildRequires: selinux-policy-devel >= 3.5.13-41}
+%{?fc11:BuildRequires: selinux-policy-devel >= 3.6.3-10}
 
-## Without Requires something, rpmbuild will abort!
-Requires:       policycoreutils, libsemanage
+Requires: policycoreutils, libsemanage, selinux-policy-targeted
+# While 'selinux-policy-targeted' is always required on Fedora 12 or later,
+# certain earlier Fedora distributions require at least a minimum version
+%{?fc8:Requires: selinux-policy-targeted >= 3.0.8-127}
+%{?fc9:Requires: selinux-policy-targeted >= 3.3.1-118}
+%{?fc10:Requires: selinux-policy-targeted >= 3.5.13-41}
+%{?fc11:Requires: selinux-policy-targeted >= 3.6.3-10}
 
 
 ## This package is non-relocatable!
@@ -238,6 +249,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Feb 9 2009 Ade Lee <alee@redhat.com> 1.0.0.6
+- Bugzilla Bug #483742 - add version check to spec file for fedora
 * Thu Feb 5 2009 Ade Lee <alee@redhat.com> 1.0.0.5
 - Bugzilla Bug #483716: changes for TKS installation
 * Thu Jan 29 2009 Ade Lee <alee@redhat.com> 1.0.0.4
