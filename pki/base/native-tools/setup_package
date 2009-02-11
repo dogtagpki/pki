@@ -297,13 +297,11 @@ echo "OS=\`uname\`"                          >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 echo "if [ \${OS} = \"Linux\" ]; then"       >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 echo "    if [ -e /etc/fedora-release ]; then" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 echo "        DISTRIBUTION=\"fc\""           >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "        DISTRIBUTION_VERSION=\`rpm -qf --qf='%{VERSION}' /etc/fedora-release\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "        VERSION=\`echo \${DISTRIBUTION_VERSION} | tr -d [A-Za-z]\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        VERSION=\`cat /etc/fedora-release |sed 's/Fedora release \\(.*\\) .*/\1/'\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist 
 echo "        printf \"\${DISTRIBUTION}\${VERSION}\n\"" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 echo "    elif [ -e /etc/redhat-release ]; then" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 echo "        DISTRIBUTION=\"el\""           >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "        DISTRIBUTION_VERSION=\`rpm -qf --qf='%{VERSION}' /etc/redhat-release\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "        VERSION=\`echo \${DISTRIBUTION_VERSION} | tr -d [A-Za-z]\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+echo "        VERSION=\`cat /etc/redhat-release |sed 's/Red Hat Enterprise Linux Server release \\(.*\\)\\..*/\1/'\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 echo "        printf \"\${DISTRIBUTION}\${VERSION}\n\"" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 echo "    else"                              >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 echo "        printf \"undefined\n\""        >> ${NATIVE_TOOLS_SCRIPTS}/pkidist

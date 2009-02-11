@@ -119,6 +119,7 @@ template(`pki_ca_template',`
 	corecmd_read_bin_symlinks($1_t)
 	corecmd_exec_shell($1_t)
         corecmd_search_bin($1_t)
+        corecmd_search_sbin($1_t)
 
 	dev_list_sysfs($1_t)
 	dev_read_rand($1_t)
@@ -383,6 +384,159 @@ interface(`pki_ra_script_domtrans',`
 ##	</summary>
 ## </param>
 #
+template(`pki_tps_template',`
+	gen_require(`
+		attribute pki_tps_process;
+		attribute pki_tps_config, pki_tps_var_lib;
+		attribute pki_tps_executable, pki_tps_script, pki_tps_var_log;
+	')
+	########################################
+	#
+	# Declarations
+	#
+
+	type $1_t, pki_tps_process;
+	type $1_exec_t, pki_tps_executable;
+	domain_type($1_t)
+	init_daemon_domain($1_t, $1_exec_t)
+
+	type $1_script_exec_t, pki_tps_script;
+	init_script_file($1_script_exec_t)
+
+	type $1_etc_rw_t, pki_tps_config;
+	files_type($1_etc_rw_t)
+
+	type $1_var_lib_t, pki_tps_var_lib;
+	files_type($1_var_lib_t)
+
+	type $1_log_t, pki_tps_var_log;
+	logging_log_file($1_log_t)
+
+	########################################
+	#
+	# $1 local policy
+	#
+
+	## internal communication is often done using fifo and unix sockets.
+	allow $1_t self:fifo_file rw_file_perms;
+	allow $1_t self:unix_stream_socket create_stream_socket_perms;
+
+	# Init script handling
+	domain_use_interactive_fds($1_t)
+
+	files_read_etc_files($1_t)
+
+	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
+	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
+	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
+
+	manage_dirs_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
+	manage_files_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
+	read_lnk_files_pattern($1_t, $1_var_lib_t, $1_var_lib_t)
+	files_var_lib_filetrans($1_t, $1_var_lib_t, { file dir } )
+
+	manage_dirs_pattern($1_t, $1_log_t,  $1_log_t)
+	manage_files_pattern($1_t, $1_log_t,  $1_log_t)
+	logging_log_filetrans($1_t, $1_log_t, { file dir } )
+
+	init_dontaudit_write_utmp($1_t)
+
+	libs_use_ld_so($1_t)
+	libs_use_shared_libs($1_t)
+
+	miscfiles_read_localization($1_t)
+
+	ifdef(`targeted_policy',`
+		term_dontaudit_use_unallocated_ttys($1_t)
+		term_dontaudit_use_generic_ptys($1_t)
+	')
+
+	gen_require(`
+		type httpd_t;
+                type httpd_exec_t;
+                type httpd_suexec_exec_t;
+	')
+
+        # start up httpd in pki_tps_t mode
+        allow pki_tps_t httpd_config_t:file { read getattr execute };
+        allow pki_tps_t httpd_exec_t:file entrypoint;
+        allow pki_tps_t httpd_modules_t:lnk_file read;
+        allow pki_tps_t httpd_suexec_exec_t:file getattr;
+
+        # apache permissions
+        apache_exec_modules(pki_tps_t)
+        apache_list_modules(pki_tps_t)
+        apache_read_config(pki_tps_t)
+
+        allow pki_tps_t lib_t:file execute_no_trans;
+
+        allow pki_tps_t self:capability { setuid sys_nice setgid dac_override };
+        allow pki_tps_t self:process { setsched signal getsched  signull};
+        allow pki_tps_t self:sem all_sem_perms;
+        allow pki_tps_t self:tcp_socket create_stream_socket_perms;
+
+        # used to serve cgi web pages under /var/lib/pki-tps, formatting, enrollment
+        allow pki_tps_t pki_tps_var_lib_t:file {execute execute_no_trans};
+
+         #netlink needed?
+        allow pki_tps_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
+
+        corecmd_exec_bin(pki_tps_t)
+        corecmd_exec_sbin(pki_tps_t)
+        corecmd_exec_shell(pki_tps_t)
+        corecmd_read_bin_symlinks(pki_tps_t)
+        corecmd_search_bin(pki_tps_t)
+        corecmd_search_sbin(pki_tps_t)
+
+        corenet_sendrecv_unlabeled_packets(pki_tps_t)
+        corenet_tcp_bind_inaddr_any_node(pki_tps_t)
+        corenet_tcp_bind_pki_tps_port(pki_tps_t)
+        corenet_tcp_connect_generic_port(pki_tps_t)
+
+        # customer may run an ldap server on 389 
+        corenet_tcp_connect_ldap_port(pki_tps_t)
+
+        # connect to other subsystems
+        corenet_tcp_connect_pki_ca_port(pki_tps_t)
+        corenet_tcp_connect_pki_kra_port(pki_tps_t)
+        corenet_tcp_connect_pki_tks_port(pki_tps_t)
+        
+        corenet_tcp_sendrecv_all_if(pki_tps_t)
+        corenet_tcp_sendrecv_all_nodes(pki_tps_t)
+        corenet_tcp_sendrecv_all_ports(pki_tps_t)
+        corenet_non_ipsec_sendrecv(pki_tps_t)
+
+
+        dev_read_urand(pki_tps_t)
+        files_exec_usr_files(pki_tps_t)
+        files_read_usr_symlinks(pki_tps_t)
+
+        #installation and debug uses /tmp
+        files_manage_generic_tmp_dirs(pki_tps_t)
+        files_manage_generic_tmp_files(pki_tps_t)
+
+        kernel_read_kernel_sysctls(pki_tps_t)
+        kernel_read_system_state(pki_tps_t)
+
+        # need to resolve addresses?
+        auth_use_nsswitch(pki_tps_t)
+
+        sysnet_read_config(pki_tps_t)
+
+        allow httpd_t pki_tps_etc_rw_t:dir search;
+        allow httpd_t pki_tps_etc_rw_t:file { read getattr };
+        allow httpd_t pki_tps_log_t:dir search;
+        allow httpd_t pki_tps_log_t:file read;
+        allow httpd_t pki_tps_t:process { signal signull };
+        allow httpd_t pki_tps_var_lib_t:dir { getattr search };
+        allow httpd_t pki_tps_var_lib_t:lnk_file read;
+
+        # why do I need to add this?
+        allow httpd_t httpd_config_t:file execute;
+        files_exec_usr_files(httpd_t)
+
+')
+
 template(`pki_ra_template',`
 	gen_require(`
 		attribute pki_ra_process;
@@ -452,15 +606,99 @@ template(`pki_ra_template',`
 
 	gen_require(`
 		type httpd_t;
+                type devlog_t;
+                type syslogd_t;
+                type httpd_exec_t;
+                type httpd_suexec_exec_t;
 	')
 
-	allow httpd_t pki_ra_etc_rw_t:file { read getattr };
-	allow httpd_t pki_ra_log_t:file read;
-	allow httpd_t pki_ra_var_lib_t:lnk_file read;
+         # start up httpd in pki_ra_t mode
+        allow pki_ra_t httpd_config_t:file { read getattr execute };
+        allow pki_ra_t httpd_exec_t:file entrypoint;
+        allow pki_ra_t httpd_modules_t:lnk_file read;
+        allow pki_ra_t httpd_suexec_exec_t:file getattr;
 
+        #apache permissions
+        apache_read_config(pki_ra_t)
+        apache_exec_modules(pki_ra_t)
+        apache_list_modules(pki_ra_t)
+
+        allow pki_ra_t lib_t:file execute_no_trans;
+
+        allow pki_ra_t self:capability { setuid sys_nice setgid dac_override };
+        allow pki_ra_t self:process { setsched getsched signal signull};
+        allow pki_ra_t self:sem all_sem_perms;
+        allow pki_ra_t self:tcp_socket create_stream_socket_perms;
+
+        #RA specific? talking to mysql?
+        allow pki_ra_t self:udp_socket { write read create connect };
+        allow pki_ra_t self:unix_dgram_socket { write create connect };
+
+        # netlink needed?
+        allow pki_ra_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
+
+        corecmd_exec_bin(pki_ra_t)
+        corecmd_exec_sbin(pki_ra_t)
+        corecmd_exec_shell(pki_ra_t)
+        corecmd_read_sbin_symlinks(pki_ra_t)
+        corecmd_search_bin(pki_ra_t)
+        corecmd_search_sbin(pki_ra_t)
+
+        corenet_sendrecv_unlabeled_packets(pki_ra_t)
+        corenet_tcp_bind_inaddr_any_node(pki_ra_t)
+        corenet_tcp_bind_pki_ra_port(pki_ra_t)
+
+        corenet_tcp_sendrecv_all_if(pki_ra_t)
+        corenet_tcp_sendrecv_all_nodes(pki_ra_t)
+        corenet_tcp_sendrecv_all_ports(pki_ra_t)
+        corenet_non_ipsec_sendrecv(pki_ra_t)
+
+        # talk to other subsystems
+        corenet_tcp_connect_pki_ca_port(pki_ra_t)
+
+        dev_read_urand(pki_ra_t)
+        files_exec_usr_files(pki_ra_t)
+        fs_getattr_xattr_fs(pki_ra_t)
+
+        # ra writes files to /tmp
+        files_manage_generic_tmp_files(pki_ra_t)
+
+        kernel_read_kernel_sysctls(pki_ra_t)
+        kernel_read_system_state(pki_ra_t)
+
+        #send mail, sendmail writes to devlog, syslog
+        allow pki_ra_t mqueue_spool_t:file { write getattr read lock create unlink };
+        allow pki_ra_t devlog_t:sock_file write;
+        allow pki_ra_t syslogd_t:unix_dgram_socket sendto;
+        corenet_tcp_connect_smtp_port(pki_ra_t)
+        files_search_spool(pki_ra_t)
+        mta_manage_queue(pki_ra_t)
+        mta_read_config(pki_ra_t)
+        mta_sendmail_exec(pki_ra_t)
+ 
+        #resolve names?
+        auth_use_nsswitch(pki_ra_t)
+
+        sysnet_read_config(pki_ra_t)
+
+        allow httpd_t pki_ra_etc_rw_t:dir search;
+        allow httpd_t pki_ra_etc_rw_t:file { read getattr };
+        allow httpd_t pki_ra_log_t:dir search;
+        allow httpd_t pki_ra_log_t:file read;
+        allow httpd_t pki_ra_t:process { signal signull };
+        allow httpd_t pki_ra_var_lib_t:dir { getattr search };
+        allow httpd_t pki_ra_var_lib_t:lnk_file read;
 
 ')
 
+########################################
+## <summary>
+##	All of the rules required to administrate 
+##	an pki_ra environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
 ########################################
 ## <summary>
 ##	All of the rules required to administrate 

@@ -13,6 +13,11 @@ type pki_ca_tomcat_exec_t;
 files_type(pki_ca_tomcat_exec_t)
 
 pki_ca_template(pki_ca)
+allow pki_ca_t pki_kra_t:process signull;
+allow pki_ca_t pki_ocsp_t:process signull;
+allow pki_ca_t pki_tks_t:process signull;
+corenet_tcp_connect_pki_kra_port(pki_ca_t)
+corenet_tcp_connect_pki_ocsp_port(pki_ca_t)
 
 attribute pki_kra_config;
 attribute pki_kra_executable;
@@ -60,7 +65,6 @@ files_type(pki_ra_tomcat_exec_t)
 
 pki_ra_template(pki_ra)
 
-
 attribute pki_tks_config;
 attribute pki_tks_executable;
 attribute pki_tks_var_lib;
@@ -75,7 +79,11 @@ files_type(pki_tks_tomcat_exec_t)
 
 pki_ca_template(pki_tks)
 allow pki_tks_t pki_ca_t:process signull;
+allow pki_tks_t pki_kra_t:process signull;
 corenet_tcp_connect_pki_ca_port(pki_tks_t)
+
+# needed for token enrollment, list /var/cache/tomcat5/temp
+files_list_var(pki_tks_t)
 
 attribute pki_tps_config;
 attribute pki_tps_executable;
@@ -89,6 +97,6 @@ attribute pki_tps_process;
 type pki_tps_tomcat_exec_t;
 files_type(pki_tps_tomcat_exec_t)
 
-pki_ra_template(pki_tps)
+pki_tps_template(pki_tps)
 
 

@@ -237,15 +237,14 @@ start() {
 		/usr/sbin/selinuxenabled
 		RETVAL=$?
 		if [ $RETVAL = 0 ] ; then	
-			# start Apache in unconfined mode in SELinux-enabled RHEL4
 			if [ ${ARCHITECTURE} = "i386" ] ; then
-				LANG=$HTTPD_LANG daemon runcon -t unconfined_t -- $httpd $OPTIONS
+				LANG=$HTTPD_LANG daemon runcon -t pki_ra_t -- $httpd $OPTIONS
 				# overwrite output from "daemon"
 				echo -n $"Starting $prog:                                        "
 			elif [ ${ARCHITECTURE} = "x86_64" ] ; then
 				# NOTE:  "daemon" is incompatible with "httpd"
 				#        on 64-bit architectures
-				LANG=$HTTPD_LANG runcon -t unconfined_t -- $httpd $OPTIONS
+				LANG=$HTTPD_LANG runcon -t pki_ra_t -- $httpd $OPTIONS
 			fi
 		else
 			LANG=$HTTPD_LANG daemon $httpd $OPTIONS
