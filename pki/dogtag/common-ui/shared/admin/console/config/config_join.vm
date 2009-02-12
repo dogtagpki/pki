@@ -95,7 +95,7 @@ To join this PKI network, the setup wizard needs to submit the certificate reque
       </tr>       
       <tr>
         <th>Password:</th>
-        <td><input type="password" length="64" size="40" name="pwd" value="" autocomplete="off" /></td>
+        <td><input type="password" length="64" size="40" name="__pwd" value="" autocomplete="off" /></td>
       </tr>       
     </table>
 <p>

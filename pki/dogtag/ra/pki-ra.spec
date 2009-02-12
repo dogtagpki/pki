@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      12
+%define base_release      13
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -261,6 +261,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Feb 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-13
+- Bugzilla Bug #467155 - Change "renameTo" to "cp -p "
 * Wed Feb 11 2009 Ade Lee <alee@redhat.com> 1.0.0-12
 - Bugzilla # 484826 -selinux policy required for TPS and RA subsystems
 * Tue Jan 27 2009 Ade Lee <alee@redhat.com> 1.0.0-11

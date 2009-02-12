@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      10
+%define base_release      11
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Feb 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-11
+- Bugzilla Bug #467155 - Change "renameTo" to "cp -p "
 * Mon Feb 9 2009 Ade Lee <alee@redhat.com> 1.0.0-10
 - Bugzilla Bugs #480418, 480419, 479891
 * Thu Jan 22 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-9

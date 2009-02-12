@@ -46,7 +46,7 @@ By default, if the path is left blank, no PKCS #12 file will be imported.
       <tr>
         <th>PKCS #12 Password:</th>
 
-        <td><input type="password" size="40" name="password" value="$password" autocomplete="off"/></td>
+        <td><input type="password" size="40" name="__password" value="$password" autocomplete="off"/></td>
       </tr>
     </table>
 <br/>

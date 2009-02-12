@@ -46,7 +46,7 @@ If authentication is successful, a cloned subsystem will retrieve the configurat
       <tr>
         <th>Password:</th>
 
-        <td><input type="password" size="40" name="password" value="$password" autocomplete="off"/></td>
+        <td><input type="password" size="40" name="__password" value="$password" autocomplete="off"/></td>
       </tr>
     </table>
 <p>

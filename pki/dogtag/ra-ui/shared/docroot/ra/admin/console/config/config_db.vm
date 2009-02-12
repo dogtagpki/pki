@@ -93,7 +93,7 @@
       <tr>
         <th>Bind Password:</th>
                                                                                 
-        <td><input type="password" length="128" size="40" name="bindpwd" value="$bindpwd" autocomplete="off" /></td>
+        <td><input type="password" length="128" size="40" name="__bindpwd" value="$bindpwd" autocomplete="off" /></td>
       </tr>
         <td><input type="hidden" name="display" value=$displayStr /></td>
     </table>

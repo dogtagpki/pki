@@ -80,7 +80,7 @@ A one time random pin has been generated during setup to protect unauthorized ac
     <table class="details">
       <tr>
         <th>PIN:</th>
-        <td><input type=password name=pin></td>
+        <td><input type=password name="__pin"></td>
       </tr>
     </table>
                                                                                      <div align="right">

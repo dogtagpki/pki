@@ -75,7 +75,7 @@ A cloned subsystem setup provides scalability and high-availability. The connect
       <tr>
         <th>Bind Password:</th>
                                                                                 
-        <td><input type="password" length="128" size="40" name="bindpassword" autocomplete="off"/></td>
+        <td><input type="password" length="128" size="40" name="__bindpassword" autocomplete="off"/></td>
       </tr>
     </table>
 
