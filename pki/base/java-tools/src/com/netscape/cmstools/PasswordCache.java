@@ -612,28 +612,55 @@ class PWsdrCache {
             if (tmpPWcache.exists()) {
                 // it wasn't removed?
                 tmpPWcache.delete();
-                tmpPWcache = new File(mPWcachedb + ".tmp");
             }
             FileOutputStream outstream = new FileOutputStream(mPWcachedb + ".tmp");
 
             outstream.write(writebuf);
             outstream.close();
 
+            // Make certain that this temporary file has
+            // the correct permissions.
+            if( !isNT() ) {
+                exec( "chmod 00660 " + tmpPWcache.getAbsolutePath() );
+            }
+
             File origFile = new File(mPWcachedb);
 
             try {
-                if (tmpPWcache.renameTo(origFile) == true) {
-                    debug("operation completed for " + mPWcachedb);
+                // Always remove any pre-existing target file
+                if( origFile.exists() ) {
+                    origFile.delete();
+                }
+
+                if (isNT()) {
+                    // NT is very picky on the path
+                    exec("copy " +
+                        tmpPWcache.getAbsolutePath().replace('/', '\\') + " " +
+                        origFile.getAbsolutePath().replace('/', '\\'));
                 } else {
-                    if (isNT()) {
-                        // NT is very picky on the path
-                        exec("copy " +
-                            tmpPWcache.getAbsolutePath().replace('/', '\\') + " " +
-                            origFile.getAbsolutePath().replace('/', '\\'));
-                    } else {
-                        exec("cp " + tmpPWcache.getAbsolutePath() + " " +
-                            origFile.getAbsolutePath());
+                    // Create a copy of the temporary file which
+                    // preserves the temporary file's permissions.
+                    exec("cp -p " + tmpPWcache.getAbsolutePath() + " " +
+                        origFile.getAbsolutePath());
+                }
+
+                // Remove the temporary file if and only if
+                // the "rename" was successful.
+                if( origFile.exists() ) {
+                    tmpPWcache.delete();
+
+                    // Make certain that the final file has
+                    // the correct permissions.
+                    if( !isNT() ) {
+                        exec( "chmod 00660 " + origFile.getAbsolutePath() );
                     }
+
+                    // report success
+                    debug( "Renaming operation completed for " + mPWcachedb );
+                } else {
+                    // report failure and exit
+                    debug( "Renaming operation failed for " + mPWcachedb );
+                    System.exit(1);
                 }
             } catch (IOException exx) {
                 System.out.println("sdrPWcache: Error " + exx.toString());

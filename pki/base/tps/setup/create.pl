@@ -734,6 +734,7 @@ sub PopulateTPSTemplates
 {
   &CopyTemplate("$tpsDir/config/CS.cfg", 
     "$serverRoot/$instanceID/config/CS.cfg");
+  chmod(00660, "$serverRoot/$instanceID/config/CS.cfg");
 
   print "Creating $serverRoot/cgi-bin ...\n";
   mkdir ("$serverRoot/cgi-bin", 0755);

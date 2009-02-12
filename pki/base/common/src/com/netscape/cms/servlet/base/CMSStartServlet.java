@@ -26,6 +26,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import com.netscape.certsrv.apps.*;
 import com.netscape.certsrv.base.*;
+import com.netscape.cmsutil.util.Utils;
 
 
 /**
@@ -50,27 +51,33 @@ public class CMSStartServlet extends HttpServlet {
             }
             File f1 = new File(old_path);
             if (f1.exists()) {
-                boolean success = f1.renameTo(f);
-                if (!success) {
-                    String cmds[] = new String[3];
-                    if (File.separator.equals("\\")) {
-                        cmds[0] = "cmd";
-                        cmds[1] = "/c";
-                        cmds[2] = "copy "+
-                          f1.getAbsolutePath().replace('/', '\\') + " " +
-                          f.getAbsolutePath().replace('/', '\\');
+                // The following block of code moves "CMS.cfg" to "CS.cfg".
+                try {
+                    if( Utils.isNT() ) {
+                        // NT is very picky on the path
+                        Utils.exec( "copy " +
+                                    f1.getAbsolutePath().replace( '/', '\\' ) +
+                                    " " +
+                                    f.getAbsolutePath().replace( '/', '\\' ) );
                     } else {
-                        cmds[0] = "/bin/sh";
-                        cmds[1] = "-c";
-                        cmds[2] = "cp " + f1.getAbsolutePath() + " " +
-                          f.getAbsolutePath();
+                        // Create a copy of the original file which
+                        // preserves the original file permissions.
+                        Utils.exec( "cp -p " + f1.getAbsolutePath() + " " +
+                                    f.getAbsolutePath() );
                     }
 
-                    try {
-                        Process process = Runtime.getRuntime().exec(cmds);
-                        process.waitFor();
-                    } catch (Exception e) {
+                    // Remove the original file if and only if
+                    // the backup copy was successful.
+                    if( f.exists() ) {
+                        f1.delete();
+
+                        // Make certain that the new file has
+                        // the correct permissions.
+                        if( !Utils.isNT() ) {
+                            Utils.exec( "chmod 00660 " + f.getAbsolutePath() );
+                        }
                     }
+                } catch (Exception e) {
                 }
             }
         }

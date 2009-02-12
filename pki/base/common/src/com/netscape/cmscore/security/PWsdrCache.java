@@ -35,6 +35,7 @@ import com.netscape.cmscore.base.*;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmsutil.util.Utils;
 
 
 /* 
@@ -384,20 +385,37 @@ public class PWsdrCache {
             File origFile = new File(mPWcachedb);
 
             try {
-                if (tmpPWcache.renameTo(origFile) == true) {
-                    debug("operation completed for " + mPWcachedb);
+                if( Utils.isNT() ) {
+                    // NT is very picky on the path
+                    Utils.exec( "copy " +
+                                tmpPWcache.getAbsolutePath().replace( '/',
+                                                                      '\\' ) +
+                                " " +
+                                origFile.getAbsolutePath().replace( '/',
+                                                                    '\\' ) );
                 } else {
-                    if (isNT()) {
-                        // NT is very picky on the path
-                        exec("copy " +
-                            tmpPWcache.getAbsolutePath().replace('/', '\\') + " " +
-                            origFile.getAbsolutePath().replace('/', '\\'));
-                    } else {
-                        exec("cp " + tmpPWcache.getAbsolutePath() + " " +
-                            origFile.getAbsolutePath());
-                    }
+                    // Create a copy of the original file which
+                    // preserves the original file permissions.
+                    Utils.exec( "cp -p " + tmpPWcache.getAbsolutePath() + " " +
+                                origFile.getAbsolutePath() );
                 }
-            } catch (EBaseException exx) {
+
+                // Remove the original file if and only if
+                // the backup copy was successful.
+                if( origFile.exists() ) {
+                    if( !Utils.isNT() ) {
+                        try {
+                            Utils.exec( "chmod 00660 " +
+                                        origFile.getCanonicalPath() );
+                        } catch( IOException e ) {
+                            CMS.debug( "Unable to change file permissions on "
+                                     + origFile.toString() );
+                        }
+                    }
+                    tmpPWcache.delete();
+                    debug( "operation completed for " + mPWcachedb );
+                }
+            } catch (Exception exx) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_CACHE", exx.toString()));
                 throw new EBaseException(exx.toString() + ": " + mPWcachedb);
             }

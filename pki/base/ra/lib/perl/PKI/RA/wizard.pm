@@ -99,6 +99,9 @@ $config->load_file("$pkiroot/conf/CS.cfg");
 # read password cache file
 my $pwdconf = PKI::RA::Config->new();
 $pwdconf->load_file("$pkiroot/conf/pwcache.conf");
+if( -e "$pkiroot/conf/pwcache.conf" ) {
+    system( "chmod 00660 $pkiroot/conf/pwcache.conf" );
+}
 
 # create cfg debug log
 my $logfile = $config->get("service.instanceDir") .  "/logs/debug";
@@ -260,7 +263,10 @@ sub render_panel
     # fill in variables for new panel
     if ($currentpanel->{panelvars}) {
         $Data::Dumper::Indent = 1;
- 	    &debug_log("q=".Dumper($q));
+        # The '&debug_log("q=".Dumper($q));' call must be commented out to fix
+        # Bugzilla Bug #249923:  Incorrect file permissions on
+        #                        various files and/or directories 
+        # &debug_log("q=".Dumper($q));
         $currentpanel->{panelvars}($q);
     }
 
@@ -317,7 +323,7 @@ sub handler {
     my $q = new CGI;
 
     # check cookie
-    my $cookie = $q->cookie('pin');
+    my $cookie = $q->cookie('__pin');
     my $pin = $::config->get("preop.pin");
     if ($cookie ne $pin) {
          print $q->redirect("login");
@@ -328,7 +334,24 @@ sub handler {
     &debug_log("RA wizard: uri='" . $ENV{REQUEST_URI} . "'");
     my @pnames = $q->param();
     foreach $pn (@pnames) {
-      if ($pn =~ /^__/) {
+      # added this facility so that password can be hidden,
+      # all sensitive parameters should be prefixed with 
+      # __ (double underscores); however, in the event that
+      # a security parameter slips through, we perform multiple
+      # additional checks to insure that it is NOT displayed
+      if( $pn =~ /^__/                   ||
+          $pn =~ /password$/             ||
+          $pn =~ /passwd$/               ||
+          $pn =~ /pwd$/                  ||
+          $pn =~ /admin_password_again/i ||
+          $pn =~ /bindpassword/i         ||
+          $pn =~ /bindpwd/i              ||
+          $pn =~ /passwd/i               ||
+          $pn =~ /password/i             ||
+          $pn =~ /pin/i                  ||
+          $pn =~ /pwd/i                  ||
+          $pn =~ /pwdagain/i             ||
+          $pn =~ /uPasswd/i ) {
         &debug_log("RA wizard: http parameter name='" . $pn . "' value='(sensitive)'");
       } else {
         &debug_log("RA wizard: http parameter name='" . $pn . "' value='" . $q->param($pn) . "'");

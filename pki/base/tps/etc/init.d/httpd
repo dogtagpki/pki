@@ -30,6 +30,9 @@
 # config:       [HTTPD_CONF]
 # pidfile:      [SERVER_ROOT]/logs/[INSTANCE_ID].pid
 
+# Disallow 'others' the ability to 'write' to new files
+umask 00002
+
 # Check to insure that this script's original invocation directory
 # has not been deleted!
 CWD=`/bin/pwd > /dev/null 2>&1`
@@ -286,6 +289,14 @@ start() {
 		echo -n "https://[SERVER_NAME]:$SECURE_PORT"
 		echo
 		echo
+
+		# Set permissions of log files
+		pki_logs_directory=`dirname ${pidfile}`
+		for file in ${pki_logs_directory}; do
+			if [ "${file}" != "${pidfile}" ]; then
+				chmod -R 00660 ${file}
+			fi
+		done
 	else
 		if [ -x /etc/init.d/functions ]; then
 			echo_failure > /etc/rhgb/temp/rhgb-console

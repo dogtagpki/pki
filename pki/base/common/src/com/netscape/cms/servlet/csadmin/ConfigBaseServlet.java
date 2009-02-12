@@ -53,15 +53,35 @@ public abstract class ConfigBaseServlet extends BaseServlet {
             Context context);
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
-        CMS.debug("CMSServlet:serice() uri = " + httpReq.getRequestURI());
+        CMS.debug("ConfigBaseServlet:service() uri = " + httpReq.getRequestURI());
         Enumeration paramNames = httpReq.getParameterNames();
 
         while (paramNames.hasMoreElements()) {
             String pn = (String) paramNames.nextElement();
-
-            CMS.debug(
-                    "CMSServlet::service() param name='" + pn + "' value='"
-                    + httpReq.getParameter(pn) + "'");
+            // added this facility so that password can be hidden,
+            // all sensitive parameters should be prefixed with 
+            // __ (double underscores); however, in the event that
+            // a security parameter slips through, we perform multiple
+            // additional checks to insure that it is NOT displayed
+            if( pn.startsWith("__")                         ||
+                pn.endsWith("password")                     ||
+                pn.endsWith("passwd")                       ||
+                pn.endsWith("pwd")                          ||
+                pn.equalsIgnoreCase("admin_password_again") ||
+                pn.equalsIgnoreCase("bindpassword")         ||
+                pn.equalsIgnoreCase("bindpwd")              ||
+                pn.equalsIgnoreCase("passwd")               ||
+                pn.equalsIgnoreCase("password")             ||
+                pn.equalsIgnoreCase("pin")                  ||
+                pn.equalsIgnoreCase("pwd")                  ||
+                pn.equalsIgnoreCase("pwdagain")             ||
+                pn.equalsIgnoreCase("uPasswd") ) {
+               CMS.debug("ConfigBaseServlet::service() param name='" + pn +
+                         "' value='(sensitive)'" );
+            } else {
+               CMS.debug("ConfigBaseServlet::service() param name='" + pn +
+                         "' value='" + httpReq.getParameter(pn) + "'" );
+            }
         }
     }
 

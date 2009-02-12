@@ -100,6 +100,7 @@ sub update
     my $token_pwd = $::pwdconf->get($tokenname);
     $token_pwd  =~ s/\n//g;
     open FILE, ">$instanceDir/conf/.pwfile";
+    system( "chmod 00660 $instanceDir/conf/.pwfile" );
     print FILE $token_pwd;
     close FILE;
 

@@ -157,6 +157,7 @@ sub get_cert_pp
 
     my $token_pwd = $::pwdconf->get($tokenname);
     open FILE, ">$instanceDir/conf/.pwfile";
+    system( "chmod 00660 $instanceDir/conf/.pwfile" );
     $token_pwd  =~ s/\n//g;
     print FILE $token_pwd;
     close FILE;

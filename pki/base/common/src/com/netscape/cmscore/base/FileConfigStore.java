@@ -22,6 +22,7 @@ import java.io.*;
 import java.util.*;
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.cmsutil.util.Utils;
 
 
 /**
@@ -78,7 +79,8 @@ public class FileConfigStore extends PropConfigStore implements
     }
 
     /**
-     * The original config file is moved to <filename>.<date>.
+     * The original config file is copied to
+     * <filename>.<current_time_in_milliseconds>.
      * Commits the current properties to the configuration file.
      * <P>
      *
@@ -89,12 +91,48 @@ public class FileConfigStore extends PropConfigStore implements
             File newName = new File(mFile.getPath() + "." +
                     Long.toString(System.currentTimeMillis()));
 
-            if (!mFile.renameTo(newName)) {
-                throw new EBaseException("rename failed");
+            try {
+                if( Utils.isNT() ) {
+                    // NT is very picky on the path
+                    Utils.exec( "copy " +
+                                mFile.getAbsolutePath().replace( '/', '\\' ) +
+                                " " +
+                                newName.getAbsolutePath().replace( '/',
+                                                                   '\\' ) );
+                } else {
+                    // Create a copy of the original file which
+                    // preserves the original file permissions.
+                    Utils.exec( "cp -p " + mFile.getAbsolutePath() + " " +
+                                newName.getAbsolutePath() );
+                }
+
+                // Proceed only if the backup copy was successful.
+                if( !newName.exists() ) {
+                    throw new EBaseException( "backup copy failed" );
+                } else {
+                    // Make certain that the backup file has
+                    // the correct permissions.
+                    if( !Utils.isNT() ) {
+                        Utils.exec( "chmod 00660 " + newName.getAbsolutePath() );
+                    }
+                }
+            } catch( EBaseException e ) {
+                    throw new EBaseException( "backup copy failed" );
             }
         }
-        // proceed only if the rename is successful
-        save(mFile.getPath());
+
+        // Overwrite the contents of the original file
+        // to preserve the original file permissions.
+        save( mFile.getPath() );
+
+        try {
+            // Make certain that the original file retains
+            // the correct permissions.
+            if( !Utils.isNT() ) {
+                Utils.exec( "chmod 00660 " + mFile.getCanonicalPath() );
+            }
+        } catch( Exception e ) {
+        }
     }
 
     /**

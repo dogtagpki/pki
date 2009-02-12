@@ -27,6 +27,8 @@
     <property name="ldapjdk.jar" value="${jar.home}/ldapjdk.jar"/>
     <property name="servlet.jar" value="${jar.home}/servlet.jar"/>
     <property name="velocity.jar" value="${jar.home}/velocity.jar"/>
+    <property name="xalan-j2.jar" value="${jar.home}/xalan-j2.jar"/>
+    <property name="xerces-j2.jar" value="${jar.home}/xerces-j2.jar"/>
     <property name="cmsutil.jar" value="${pki-jar.home}/cmsutil.jar"/>
     <property name="nsutil.jar" value="${pki-jar.home}/nsutil.jar"/>
 
@@ -39,6 +41,12 @@
         <pathelement location="${osutil.jar}"/>
         <pathelement location="${symkey.jar}"/>
         <pathelement location="${velocity.jar}"/>
+    </path>
+    <path id="javadoc_classpath">
+        <path refid="classpath"/>
+        <pathelement location="${xalan-j2.jar}"/>
+        <pathelement location="${xerces-j2.jar}"/>
+        <pathelement location="./build/classes"/>
     </path>
     <path id="test_classpath">
         <pathelement location="${jar.home}/junit.jar"/>
@@ -208,7 +216,7 @@
                  version="true"
                  use="true"
                  windowtitle="${ant.project.name}"
-                 classpathref="classpath"
+                 classpathref="javadoc_classpath"
                  verbose="false">
             <doctitle>
                 <![CDATA[<h1>${ant.project.name}</h1>]]>

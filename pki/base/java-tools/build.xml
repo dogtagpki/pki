@@ -38,6 +38,10 @@
         <pathelement location="${cms.jar}"/>
         <pathelement location="${certsrv.jar}"/>
     </path>
+    <path id="javadoc_classpath">
+        <path refid="classpath"/>
+        <pathelement location="./build/classes"/>
+    </path>
 
 
     <target name="clean"
@@ -149,7 +153,7 @@
                  version="true"
                  use="true"
                  windowtitle="${ant.project.name}"
-                 classpathref="classpath"
+                 classpathref="javadoc_classpath"
                  verbose="false">
             <doctitle>
                 <![CDATA[<h1>${ant.project.name}</h1>]]>

@@ -103,10 +103,14 @@ sub commit
     my $suffix = time();
 
     if (-e $self->{filename}) {
-      system("mv \"" . $self->{filename} . "\" \"" . 
+      # Create a copy of the original file which
+      # preserves the original file permissions
+      system("cp -p \"" . $self->{filename} . "\" \"" .
           $self->{filename} . "." . $suffix . "\"");
     }
 
+    # Overwrite the contents of the original file
+    # to preserve the original file permissions
     open(F, ">" . $self->{filename});
     foreach my $k (sort keys %{$hash}) {
          print F "$k=$self->{hash}{$k}\n";
@@ -126,9 +130,13 @@ sub commit_with_backup
 #    print $self->{filename} . "\n";
     my $hash = $self->{hash};
     my $suffix = time();
-    system("mv \"" . $self->{filename} . "\" \"" . 
+    # Create a copy of the original file which
+    # preserves the original file permissions
+    system("cp -p \"" . $self->{filename} . "\" \"" . 
           $self->{filename} . "." . $suffix . "\"");
 
+    # Overwrite the contents of the original file
+    # to preserve the original file permissions
     open(F, ">" . $self->{filename});
     foreach my $k (sort keys %{$hash}) {
          print F "$k=$self->{hash}{$k}\n";

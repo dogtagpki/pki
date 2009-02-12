@@ -3565,6 +3565,7 @@ uninstall-cgibin_sowDATA:
 	done
 install-confDATA: $(conf_DATA)
 	@$(NORMAL_INSTALL)
+	chmod 00660 "$(srcdir)/doc/CS.cfg"
 	test -z "$(confdir)" || $(mkdir_p) "$(DESTDIR)$(confdir)"
 	@list='$(conf_DATA)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
@@ -3572,6 +3573,7 @@ install-confDATA: $(conf_DATA)
 	  echo " $(confDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(confdir)/$$f'"; \
 	  $(confDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(confdir)/$$f"; \
 	done
+	chmod 00660 "$(DESTDIR)/$(confdir)/CS.cfg"
 
 uninstall-confDATA:
 	@$(NORMAL_UNINSTALL)

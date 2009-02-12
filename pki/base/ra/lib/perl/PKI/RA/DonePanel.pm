@@ -117,6 +117,7 @@ sub register_ra
 
     my $token_pwd = $::pwdconf->get($tokenname);
     open FILE, ">$instDir/conf/.pwfile";
+    system( "chmod 00660 $instDir/conf/.pwfile" );
     $token_pwd  =~ s/\n//g;
     print FILE $token_pwd;
     close FILE;
@@ -300,6 +301,7 @@ sub display
 
     # update nss.conf
     open(TMP_NSS_CONF, ">$instDir/conf/nss.conf.tmp");
+    system( "chmod 00660 $instDir/conf/nss.conf.tmp" );
     open(NSS_CONF, "<$instDir/conf/nss.conf");
     while (<NSS_CONF>) {
       if (/NSSVerifyClient none/) {
@@ -315,7 +317,14 @@ sub display
     close(NSS_CONF);
     close(TMP_NSS_CONF);
 
-    system("mv $instDir/conf/nss.conf.tmp $instDir/conf/nss.conf");
+    # Create a copy of the original file which
+    # preserves the original file permissions
+    system( "cp -p $instDir/conf/nss.conf.tmp $instDir/conf/nss.conf" );
+
+    # Remove the original file only if the backup copy was successful
+    if( -e "$instDir/conf/nss.conf" ) {
+      system( "rm $instDir/conf/nss.conf.tmp" );
+    }
 
     &PKI::RA::Wizard::debug_log("DonePanel: Connecting to Security Domain");
 

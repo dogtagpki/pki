@@ -30,7 +30,7 @@
 #            -pki_instance_name=pki-ca1
 #            -subsystem_type=ca
 #            -secure_port=9543 || -agent_secure_port=9543
-#	                          -ee_secure_port=9544
+#                                 -ee_secure_port=9544
 #                                 -admin_secure_port=9545
 #            -unsecure_port=9580
 #            -tomcat_server_port=9801
@@ -278,15 +278,16 @@ my $velocity_prop_base_name      = "velocity.properties";  # CA, KRA, OCSP, TKS
 my $web_xml_base_name            = "web.xml";              # CA, KRA, OCSP, TKS
 
 # Subdirectory names
-my $initd_base_subsystem_dir        = "init.d";   # CA, KRA, OCSP, TKS, RA, TPS
-my $perl_base_instance_symlink      = "perl";     # RA, TPS
-my $perl_base_subsystem_dir         = "perl";     # RA, TPS
-my $webapps_root_base_instance_dir  = "ROOT";     # CA, KRA, OCSP, TKS
-my $webapps_root_base_subsystem_dir = "ROOT";     # CA, KRA, OCSP, TKS
-my $webinf_base_instance_dir        = "WEB-INF";  # CA, KRA, OCSP, TKS
-my $agent_base_ui_instance_dir      = "agent";    # CA, KRA, OCSP, TKS
-my $ee_base_ui_instance_dir         = "ee";       # CA, KRA, OCSP, TKS
-my $admin_base_ui_instance_dir      = "admin";    # CA, KRA, OCSP, TKS
+my $initd_base_subsystem_dir        = "init.d";      # CA, KRA, OCSP, TKS, RA, TPS
+my $perl_base_instance_symlink      = "perl";        # RA, TPS
+my $perl_base_subsystem_dir         = "perl";        # RA, TPS
+my $signed_audit_base_instance_dir  = "signedAudit"; # CA, KRA, OCSP, TKS
+my $webapps_root_base_instance_dir  = "ROOT";        # CA, KRA, OCSP, TKS
+my $webapps_root_base_subsystem_dir = "ROOT";        # CA, KRA, OCSP, TKS
+my $webinf_base_instance_dir        = "WEB-INF";     # CA, KRA, OCSP, TKS
+my $agent_base_ui_instance_dir      = "agent";       # CA, KRA, OCSP, TKS
+my $ee_base_ui_instance_dir         = "ee";          # CA, KRA, OCSP, TKS
+my $admin_base_ui_instance_dir      = "admin";       # CA, KRA, OCSP, TKS
 
 # Defaults
 my $default_apache_pids_path       = "/var/run";
@@ -1748,6 +1749,21 @@ sub process_pki_directories()
             emit( "Failed to copy directory $logs_subsystem_path to $logs_instance_path ...\n" );
             return 0;
         }
+
+        ## (CA, KRA, OCSP, TKS instances)
+        if( ( $subsystem_type ne $RA ) &&
+            ( $subsystem_type ne $TPS ) ) {
+            ## Create a "signedAudit" directory
+            $result = create_directory( "$logs_instance_path/$signed_audit_base_instance_dir" );
+            if( !$result ) {
+                emit( "Failed to create directory $logs_instance_path/$signed_audit_base_instance_dir ...\n" );
+                return 0;
+            }
+
+            ## Fix permissions of "signedAudit" directory
+            chmod( $default_dir_permissions,
+                   "$logs_instance_path/$signed_audit_base_instance_dir" );
+        }
     } else {
         # Populate optionally redirected instance directory path
         # and setup a symlink in the standard area
@@ -1756,6 +1772,21 @@ sub process_pki_directories()
         if( !$result ) {
             emit( "Failed to copy directory $logs_subsystem_path to $redirected_logs_path ...\n" );
             return 0;
+        }
+
+        ## (CA, KRA, OCSP, TKS instances)
+        if( ( $subsystem_type ne $RA ) &&
+            ( $subsystem_type ne $TPS ) ) {
+            ## Create a "signedAudit" directory
+            $result = create_directory( "$redirected_logs_path/$signed_audit_base_instance_dir" );
+            if( !$result ) {
+                emit( "Failed to create directory $redirected_logs_path/$signed_audit_base_instance_dir ...\n" );
+                return 0;
+            }
+
+            ## Fix permissions of "signedAudit" directory
+            chmod( $default_dir_permissions,
+                   "$redirected_logs_path/$signed_audit_base_instance_dir" );
         }
 
         push( @installed_stray_directories,
@@ -2091,7 +2122,16 @@ sub process_file_template
     # process each line substituting each [KEY]
     # with its corresponding slot hash value
     while( my( $key, $value ) = each( %$l_slot_hash ) ) {
-        emit( "        replacing: $key with: $value\n" );
+        if( $key eq $PKI_CERT_DB_PASSWORD_SLOT ) {
+            # Although this is nothing more than a random number
+            # used for initialization, for consistency, as with ALL
+            # other password/pin values (with one notable EXCEPTION),
+            # the word "(sensitive)" is printed out rather than the
+            # contents of "$value".
+            emit( "        replacing: $key with: (sensitive)\n" );
+        } else {
+            emit( "        replacing: $key with: $value\n" );
+        }
         $buff =~ s/\[$key\]/$value/g;
     }
 
@@ -2221,7 +2261,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT} = "";
 
         } 
-        $slot_hash{$PKI_WEBAPPS_NAME}	       = $webapps_base_subsystem_dir; 
+        $slot_hash{$PKI_WEBAPPS_NAME}          = $webapps_base_subsystem_dir; 
         $slot_hash{$PKI_USER_SLOT}             = $pki_user;
         $slot_hash{$TOMCAT_SERVER_PORT_SLOT}   = $tomcat_server_port;
         $slot_hash{$PKI_FLAVOR_SLOT}           = $pki_flavor;
@@ -2241,6 +2281,18 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         return 0;
     }
 
+    # fix ownership for "CS.cfg"
+    $result = give_file_to( $pki_cfg_instance_file_path,
+                            $pki_user,
+                            $pki_group );
+    if( !$result ) {
+        emit( "Can't change ownership of $pki_cfg_instance_file_path.\n",
+              "error" );
+        return 0;
+    }
+
+    chmod( $default_file_permissions,
+           $pki_cfg_instance_file_path );
 
     # process "httpd" template
     #
@@ -2384,6 +2436,17 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             return 0;
         }
 
+        # fix ownership for httpd.conf
+        $result = give_file_to( $httpd_conf_instance_file_path,
+                                $pki_user,
+                                $pki_group );
+        if( !$result ) {
+            emit( "Can't change ownership of "
+                . "$httpd_conf_instance_file_path.\n",
+                  "error" );
+            return 0;
+        }
+
         chmod( $default_file_permissions,
                $httpd_conf_instance_file_path );
 
@@ -2416,6 +2479,17 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
                                          $perl_conf_instance_file_path,
                                          \%slot_hash );
         if( !$result ) {
+            return 0;
+        }
+
+        # fix ownership for perl.conf
+        $result = give_file_to( $perl_conf_instance_file_path,
+                                $pki_user,
+                                $pki_group );
+        if( !$result ) {
+            emit( "Can't change ownership of "
+                . "$perl_conf_instance_file_path.\n",
+                  "error" );
             return 0;
         }
 
@@ -3571,6 +3645,10 @@ ASK_AGAIN:
         . "start | stop | restart\n",
           "log" );
 
+    # EXCEPTION:  To enable a user to easily configure their PKI subsystem,
+    #             this is the ONLY instance in which we print out the actual
+    #             value of the the one-time random PIN, as well as store this
+    #             message at the end of the initialization log.
     if( $ee_secure_port > 0 ) {
          print( STDOUT
                "Please start the configuration by accessing:\n"

@@ -151,6 +151,7 @@ sub update
         my $token_pwd = $::pwdconf->get($tokenname);
         &PKI::RA::Wizard::debug_log("NamePanel: creating pwfile");
         open FILE, ">$instanceDir/conf/.pwfile";
+        system( "chmod 00660 $instanceDir/conf/.pwfile" );
         $token_pwd  =~ s/\n//g;
         print FILE $token_pwd;
         close FILE;
@@ -188,6 +189,7 @@ sub update
 
         &PKI::RA::Wizard::debug_log("NamePanel: update got key type $keytype");
         my $req;
+        my $debug_req;
         my $filename = "/tmp/random.$$";
         `dd if\=/dev/urandom of\=\"$filename\" count\=256 bs\=1`;
         if ($keytype eq "rsa") {
@@ -286,14 +288,14 @@ GEN_CERT:
                 }
                 if ($changed eq "true") {
 $req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$port";
+$debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sensitive)\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$port";
                 } else {
 $req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$port";
+$debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sensitive)\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$port";
                 }
 
-                &PKI::RA::Wizard::debug_log("req = " . $req);
-                system("$req > $tmpfile");
-                my $content = `cat $tmpfile`;
-                system("rm $tmpfile");
+                &PKI::RA::Wizard::debug_log("debug_req = " . $debug_req);
+                my $content = `$req`;
                 &PKI::RA::Wizard::debug_log("content = " . $content);
 
                 $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;

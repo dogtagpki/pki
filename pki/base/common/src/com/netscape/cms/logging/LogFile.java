@@ -727,6 +727,14 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             out.seek(out.length());
             //XXX int or long?
             mBytesWritten = (int) out.length();
+            if( !Utils.isNT() ) {
+                try {
+                    Utils.exec( "chmod 00660 " + mFile.getCanonicalPath() );
+                } catch( IOException e ) {
+                    CMS.debug( "Unable to change file permissions on "
+                             + mFile.toString() );
+                }
+            }
             mLogWriter = new BufferedWriter(
                         new FileWriter(out.getFD()), mBufferSize);
 

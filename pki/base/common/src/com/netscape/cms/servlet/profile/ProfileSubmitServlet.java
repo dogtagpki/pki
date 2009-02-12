@@ -433,21 +433,40 @@ public class ProfileSubmitServlet extends ProfileServlet {
         Locale locale = getLocale(request);
         ArgSet args = new ArgSet();
 
-//xxx this ought to be removed.  pwds are logged
-/*
         if (CMS.debugOn()) {
-            CMS.debug("Start of Input Parameters");
+            CMS.debug("Start of ProfileSubmitServlet Input Parameters");
             Enumeration paramNames = request.getParameterNames();
 
             while (paramNames.hasMoreElements()) {
                 String paramName = (String) paramNames.nextElement();
-
-                CMS.debug("Input Parameter " + paramName + "='" + 
-                    request.getParameter(paramName) + "'");
+                // added this facility so that password can be hidden,
+                // all sensitive parameters should be prefixed with 
+                // __ (double underscores); however, in the event that
+                // a security parameter slips through, we perform multiple
+                // additional checks to insure that it is NOT displayed
+                if( paramName.startsWith("__")                         ||
+                    paramName.endsWith("password")                     ||
+                    paramName.endsWith("passwd")                       ||
+                    paramName.endsWith("pwd")                          ||
+                    paramName.equalsIgnoreCase("admin_password_again") ||
+                    paramName.equalsIgnoreCase("bindpassword")         ||
+                    paramName.equalsIgnoreCase("bindpwd")              ||
+                    paramName.equalsIgnoreCase("passwd")               ||
+                    paramName.equalsIgnoreCase("password")             ||
+                    paramName.equalsIgnoreCase("pin")                  ||
+                    paramName.equalsIgnoreCase("pwd")                  ||
+                    paramName.equalsIgnoreCase("pwdagain")             ||
+                    paramName.equalsIgnoreCase("uPasswd") ) {
+                    CMS.debug("ProfileSubmitServlet Input Parameter " +
+                              paramName + "='(sensitive)'");
+                } else {
+                    CMS.debug("ProfileSubmitServlet Input Parameter " +
+                              paramName + "='" + 
+                              request.getParameter(paramName) + "'");
+                }
             }
-            CMS.debug("End of Input Parameters");
+            CMS.debug("End of ProfileSubmitServlet Input Parameters");
         }
-*/
 
         CMS.debug("ProfileSubmitServlet: start serving");
 

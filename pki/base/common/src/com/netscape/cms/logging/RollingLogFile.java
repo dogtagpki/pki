@@ -210,16 +210,57 @@ public class RollingLogFile extends LogFile {
         //File backupFile = new File(mFileName + "." + mFileNumber);
         File backupFile = new File(mFileName + "." + mLogFileDateFormat.format(mDate));
 
-        // close, rename and reopen the log file
+        // close, backup, and reopen the log file zeroizing its contents
         super.close();
-        mFile.renameTo(backupFile);
-        if( !Utils.isNT() ) {
-            try {
-                Utils.exec( "chmod 00660 " + backupFile.getCanonicalPath() );
-            } catch( IOException e ) {
-                CMS.debug( "Unable to change file permissions on "
+        try {
+            if( Utils.isNT() ) {
+                // NT is very picky on the path
+                Utils.exec( "copy " +
+                            mFile.getCanonicalPath().replace( '/', '\\' ) +
+                            " " +
+                            backupFile.getCanonicalPath().replace( '/',
+                                                                   '\\' ) );
+            } else {
+                // Create a copy of the original file which
+                // preserves the original file permissions.
+                Utils.exec( "cp -p " + mFile.getCanonicalPath() + " " +
+                             backupFile.getCanonicalPath() );
+            }
+
+            // Zeroize the original file if and only if
+            // the backup copy was successful.
+            if( backupFile.exists() ) {
+
+                // Make certain that the backup file has
+                // the correct permissions.
+                if( !Utils.isNT() ) {
+                    Utils.exec( "chmod 00660 " + backupFile.getCanonicalPath() );
+                }
+
+                try {
+                    // Open and close the original file
+                    // to zeroize its contents.
+                    PrintWriter pw = new PrintWriter( mFile );
+                    pw.close();
+
+                    // Make certain that the original file retains
+                    // the correct permissions.
+                    if( !Utils.isNT() ) {
+                        Utils.exec( "chmod 00660 " + mFile.getCanonicalPath() );
+                    }
+                } catch ( FileNotFoundException e ) {
+                    CMS.debug( "Unable to zeroize "
+                             + mFile.toString() );
+                }
+            } else {
+                CMS.debug( "Unable to backup "
+                         + mFile.toString() + " to "
                          + backupFile.toString() );
             }
+        } catch( Exception e ) {
+            CMS.debug( "Unable to backup "
+                     + mFile.toString() + " to "
+                     + backupFile.toString() );
         }
         super.open(); // will reset mBytesWritten
         mFileNumber++;

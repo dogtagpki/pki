@@ -24,6 +24,7 @@
     <property name="jss.jar" value="${jss.home}/jss4.jar"/>
     <property name="osutil.jar" value="${jni-jar.home}/osutil.jar"/>
     <property name="ldapjdk.jar" value="${jar.home}/ldapjdk.jar"/>
+    <property name="xerces-j2.jar" value="${jar.home}/xerces-j2.jar"/>
 
     <path id="classpath">
         <pathelement location="${jss.jar}"/>
@@ -31,8 +32,8 @@
         <pathelement location="${osutil.jar}"/>
     </path>
     <path id="javadoc_classpath">
-        <pathelement location="${jss.jar}"/>
-        <pathelement location="${ldapjdk.jar}"/>
+        <path refid="classpath"/>
+        <pathelement location="${xerces-j2.jar}"/>
         <pathelement location="./build/classes"/>
     </path>
 
