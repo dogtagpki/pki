@@ -6,7 +6,7 @@ notBefore= $NotBefore
 Serial Number= 0x$HexSerialNumber
 
 To get your certificate, please follow this URL:
-https://$HttpHost:$HttpPort/displayBySerial?op=displayBySerial&serialNumber=$SerialNumber
+https://$HttpHost:$HttpPort/ca/ee/ca/displayBySerial?serialNumber=$SerialNumber
 
 Please contact your admin if there is any problem.
 And, of course, this is just a \$SAMPLE\$ email notification form.

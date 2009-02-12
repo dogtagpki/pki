@@ -28,6 +28,7 @@ import com.netscape.certsrv.notification.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.certsrv.apps.*;
 import com.netscape.cms.profile.input.SubjectNameInput;
+import com.netscape.cms.profile.input.SubmitterInfoInput;
 
 import java.io.IOException;
 import java.util.*;
@@ -195,7 +196,13 @@ public class RequestInQListener implements IRequestListener {
         if (profileId == null) {
           val = r.getExtDataInString(IRequest.HTTP_PARAMS, "csrRequestorEmail");
         } else {
-          val = r.getExtDataInString(SubjectNameInput.VAL_EMAIL);
+          // use the submitter info if available, otherwise, use the 
+          // subject name input email 
+          val = r.getExtDataInString(SubmitterInfoInput.EMAIL);
+
+          if ((val == null) || (((String) val).compareTo("") == 0)) {
+              val = r.getExtDataInString(SubjectNameInput.VAL_EMAIL);
+          }
         }
         if (val != null)
             mContentParams.put(IEmailFormProcessor.TOKEN_REQUESTOR_EMAIL,
