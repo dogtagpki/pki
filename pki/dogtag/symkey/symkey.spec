@@ -27,13 +27,18 @@
 ## Package Header Definitions
 %define base_name         %{base_component}
 %define base_version      1.0.0
-%define base_release      5
+%define base_release      6
 %define base_group        System Environment/Libraries
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
 %define base_packager     %{base_vendor} <http://bugzilla.redhat.com/bugzilla>
 %define base_summary      %{base_product}
 %define base_url          http://pki.fedoraproject.org/wiki/PKI_Documentation
+
+## Helper Definitions
+%define pki_jdk           java-devel >= 1:1.6.0
+# Override the default 'pki_jdk' on Fedora 8 platforms
+%{?fc8:%define pki_jdk    java-devel >= 1.7.0}
 
 ## Build Definitions
 %define base_build_dir    blds
@@ -118,7 +123,7 @@ BuildRoot:      %{_builddir}/%{name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, bash >= 3.0, java-devel >= 1.6.0, jpackage-utils >= 1.6.0, jss >= 4.2.4, nspr-devel >= 4.6.99, nss-devel >= 3.12.0
+BuildRequires:  ant >= 1.6.2, bash >= 3.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.4, nspr-devel >= 4.6.99, nss-devel >= 3.12.0, pkgconfig
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       jpackage-utils >= 1.6.0, jss >= 4.2.4, nss >= 3.12.0
@@ -234,6 +239,10 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Feb 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-6
+- Bugzilla Bug #483699 -  problem with the epoch in the spec file causes
+  build to fail
+- Bugzilla Bug #483698 -  unable to build osutil without pkgconfig
 * Thu Jan 22 2009 Jack Magne <jmagne@redhat.com> 1.0.0-5
 - Bugzilla Bug #459538 - TKS support for Safenet 330J.
 * Thu Dec 4 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4

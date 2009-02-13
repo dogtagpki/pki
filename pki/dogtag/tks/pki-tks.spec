@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      11
+%define base_release      12
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -47,6 +47,9 @@
 %define base_instance     /var/lib/%{base_name}
 
 ## Helper Definitions
+%define pki_jdk           java-devel >= 1:1.6.0
+# Override the default 'pki_jdk' on Fedora 8 platforms
+%{?fc8:%define pki_jdk    java-devel >= 1.7.0}
 %define pki_ca            %{base_entity} Certificate Authority
 %define pki_drm           %{base_entity} Data Recovery Manager
 %define pki_ds            Fedora Directory Server
@@ -128,7 +131,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0, %{base_prefix}-common >= 1.0.0, %{base_prefix}-util >= 1.0.0, java-devel >= 1.6.0, jpackage-utils >= 1.6.0, jss >= 4.2.4
+BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0, %{base_prefix}-common >= 1.0.0, %{base_prefix}-util >= 1.0.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.4
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       %{base_name}-ui, %{base_prefix}-common >= 1.0.0, %{base_prefix}-selinux >= 1.0.0
@@ -287,6 +290,9 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Feb 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-12
+- Bugzilla Bug #483699 -  problem with the epoch in the spec file causes
+  build to fail
 * Tue Jan 27 2009 Ade Lee <alee@redhat.com> 1.0.0-11
 - Bugzilla Bug 480679 - Integrate selinux into framework
 * Thu Jan 22 2009 Christina Fu <cfu@redhat.com> 1.0.0-10

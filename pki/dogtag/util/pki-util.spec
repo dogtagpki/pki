@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      9
+%define base_release      10
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -46,7 +46,9 @@
 %define javadoc_group     Development/Documentation
 
 ## Helper Definitions
-%define pki_jdk           java-devel >= 1.6.0
+%define pki_jdk           java-devel >= 1:1.6.0
+# Override the default 'pki_jdk' on Fedora 8 platforms
+%{?fc8:%define pki_jdk    java-devel >= 1.7.0}
 %define pki_ca            %{base_entity} Certificate Authority
 %define pki_drm           %{base_entity} Data Recovery Manager
 %define pki_ds            Fedora Directory Server
@@ -81,16 +83,6 @@
 %define dist_prefix       .fc
 %define dist_version      %(echo `rpm -qf --qf='%{VERSION}' /etc/fedora-release` | tr -d [A-Za-z])
 %define dist              %{dist_prefix}%{dist_version}
-%define openjdk           %(test %{dist_version} -ge 9 && echo 1 || echo 0)
-%if %{openjdk}
-## redefine the JDK used to build on Fedora 9 Linux
-%define pki_jdk           java-devel >= 1.6.0
-%endif
-%define openjdk           %(test %{dist_version} -eq 8 && echo 1 || echo 0)
-%if %{openjdk}
-## redefine the JDK used to build on Fedora 8 Linux
-%define pki_jdk           java-devel >= 1.7.0
-%endif
 %else
 %define is_redhat         %(test -e /etc/redhat-release && echo 1 || echo 0)
 %if %{is_redhat}
@@ -278,6 +270,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Feb 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-10
+- Bugzilla Bug #483699 -  problem with the epoch in the spec file causes
+  build to fail
 * Wed Feb 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-9
 - cleaned up some javadoc warnings
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-8

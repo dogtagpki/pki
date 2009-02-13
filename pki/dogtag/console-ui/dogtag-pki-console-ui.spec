@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -43,6 +43,9 @@
 %define base_url          http://pki.fedoraproject.org/wiki/PKI_Documentation
 
 ## Helper Definitions
+%define pki_jdk           java-devel >= 1:1.6.0
+# Override the default 'pki_jdk' on Fedora 8 platforms
+%{?fc8:%define pki_jdk    java-devel >= 1.7.0}
 %define pki_ca            %{base_entity} Certificate Authority
 %define pki_drm           %{base_entity} Data Recovery Manager
 %define pki_ds            Fedora Directory Server
@@ -113,7 +116,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, java-devel >= 1.6.0, jpackage-utils >= 1.6.0, jss >= 4.2.4, ldapjdk >= 4.17
+BuildRequires:  ant >= 1.6.2, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.4, ldapjdk >= 4.17
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       jss >= 4.2.4, ldapjdk >= 4.17
@@ -224,6 +227,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Feb 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
+- Bugzilla Bug #483699 -  problem with the epoch in the spec file causes
+  build to fail
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-3
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
                          "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"

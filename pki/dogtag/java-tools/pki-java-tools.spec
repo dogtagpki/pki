@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      5
+%define base_release      6
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -46,6 +46,11 @@
 %define javadoc_group     Development/Documentation
 
 ## Helper Definitions
+%define pki_jdk           java-devel >= 1:1.6.0
+%define pki_jre           java >= 1:1.6.0
+# Override the default 'pki_jdk' and 'pki_jre' on Fedora 8 platforms
+%{?fc8:%define pki_jdk    java-devel >= 1.7.0}
+%{?fc8:%define pki_jre    java >= 1.7.0}
 %define pki_ca            %{base_entity} Certificate Authority
 %define pki_drm           %{base_entity} Data Recovery Manager
 %define pki_ds            Fedora Directory Server
@@ -116,10 +121,10 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{base_prefix}-util >= 1.0.0, java-devel >= 1.6.0, jpackage-utils >= 1.6.0, jss >= 4.2.4
+BuildRequires:  ant >= 1.6.2, %{base_prefix}-util >= 1.0.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.4
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_prefix}-native-tools >= 1.0.0, %{base_prefix}-util >= 1.0.0, java >= 1.6.0
+Requires:       %{base_prefix}-native-tools >= 1.0.0, %{base_prefix}-util >= 1.0.0, %{pki_jre}
 
 
 ## This package is non-relocatable!
@@ -255,6 +260,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Feb 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-6
+- Bugzilla Bug #483699 -  problem with the epoch in the spec file causes
+  build to fail
 * Wed Feb 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-5
 - Bugzilla Bug #467155 - Change "renameTo" to "cp -p "
 - cleaned up some javadoc warnings
