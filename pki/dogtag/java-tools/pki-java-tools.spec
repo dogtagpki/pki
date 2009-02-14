@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      7
+%define base_release      8
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -121,7 +121,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{base_prefix}-util >= 1.0.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.5
+BuildRequires:  ant >= 1.6.2, %{base_prefix}-util >= 1.0.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.5, osutil >= 1.0.0
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       %{base_prefix}-native-tools >= 1.0.0, %{base_prefix}-util >= 1.0.0, %{pki_jre}
@@ -260,6 +260,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-8
+- Bugzilla Bug #485522 -  Need rpm spec file to require osutil
 * Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-7
 - Bugzilla Bug #250874 -Change spec file dependencies to rely on latest
   versions of components (NSPR, NSS, JSS, MOD_NSS)
