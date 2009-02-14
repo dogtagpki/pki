@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      11
+%define base_release      12
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -126,10 +126,10 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.4, ldapjdk >= 4.17, osutil >= 1.0.0, xerces-j2
+BuildRequires:  ant >= 1.6.2, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.5, ldapjdk >= 4.17, osutil >= 1.0.0, xerces-j2
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       jpackage-utils >= 1.6.0, jss >= 4.2.4, ldapjdk >= 4.17
+Requires:       jpackage-utils >= 1.6.0, jss >= 4.2.5, ldapjdk >= 4.17
 
 
 ## This package is non-relocatable!
@@ -270,6 +270,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-12
+- Bugzilla Bug #250874 -Change spec file dependencies to rely on latest
+  versions of components (NSPR, NSS, JSS, MOD_NSS)
 * Fri Feb 13 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-11
 - Bugzilla Bug #485522 -  Need rpm spec file to require xerces-j2
 - required to build javadocs
