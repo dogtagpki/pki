@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      13
+%define base_release      14
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -131,7 +131,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0, %{base_prefix}-common >= 1.0.0, %{base_prefix}-util >= 1.0.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.5
+BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0, %{base_prefix}-common >= 1.0.0, %{base_prefix}-util >= 1.0.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.5, tomcatjss >= 1.1.0
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       %{base_name}-ui, %{base_prefix}-common >= 1.0.0, %{base_prefix}-selinux >= 1.0.0
@@ -297,6 +297,9 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Feb 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-14
+- Bugzilla Bug #485790 -  Need changes made to spec files in various
+  packages to be able to build in koji/brew
 * Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-13
 - Bugzilla Bug #250874 -Change spec file dependencies to rely on latest
   versions of components (NSPR, NSS, JSS, MOD_NSS)
