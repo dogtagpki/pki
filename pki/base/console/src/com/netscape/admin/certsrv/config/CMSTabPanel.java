@@ -159,6 +159,7 @@ public class CMSTabPanel extends CMSBaseConfigPanel
             mTabbedPane.setSelectedIndex(currentTab);
         mbOK.setEnabled(false);
         mbReset.setEnabled(false);
+        mbHelp.requestFocusInWindow();
         return true;
     }
 
