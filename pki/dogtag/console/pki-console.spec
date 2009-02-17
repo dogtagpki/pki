@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      11
+%define base_release      12
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -234,6 +234,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Mon Feb 16 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-12
+- Bugzilla Bugs #443657 and #442387  - CA console freezes
 * Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-11
 - Bugzilla Bug #250874 -Change spec file dependencies to rely on latest
   versions of components (NSPR, NSS, JSS, MOD_NSS)
