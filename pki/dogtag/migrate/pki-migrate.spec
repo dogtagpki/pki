@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      5
+%define base_release      6
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -112,7 +112,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-#BuildRequires:  ant >= 1.6.2, java-devel, jpackage-utils >= 1.6.0
+BuildRequires:  ant >= 1.6.2, java-devel, jpackage-utils >= 1.6.0
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       java
@@ -287,6 +287,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Feb 17 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-6
+- Bugzilla Bug #485790 -  Need changes made to spec files in various packages
+  to be able to build in koji/brew
 * Fri Jan 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-5
 - Bugzilla Bug #253615 - RFE: migration tool needs to be written for the
   serialization changes
