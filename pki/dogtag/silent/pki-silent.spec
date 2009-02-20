@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      7
+%define base_release      8
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -234,6 +234,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Feb 20 2009 Ade Lee <alee@redhat.com> 1.0.0-8
+- Bugzilla Bug #486028 - Add audit_signing cert 
 * Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-7
 - Bugzilla Bug #250874 -Change spec file dependencies to rely on latest
   versions of components (NSPR, NSS, JSS, MOD_NSS)

@@ -124,11 +124,17 @@ public class ConfigureCA {
     public static String ca_subsystem_cert_pp = null;
     public static String ca_subsystem_cert_cert = null;
 
+    public static String ca_audit_signing_cert_name = null;
+    public static String ca_audit_signing_cert_req = null;
+    public static String ca_audit_signing_cert_pp = null;
+    public static String ca_audit_signing_cert_cert = null;
+
     // names 
     public static String ca_sign_cert_subject_name = null;
     public static String ca_subsystem_cert_subject_name = null;
     public static String ca_ocsp_cert_subject_name = null;
     public static String ca_server_cert_subject_name = null;
+    public static String ca_audit_signing_cert_subject_name = null;
 
     public static String subsystem_name = null;
 
@@ -507,7 +513,9 @@ public class ConfigureCA {
                     + "&signing_custom_size=" + key_size
                     + "&ocsp_signing_choice=custom" + "&signing_choice=custom"
                     + "&subsystem_choice=custom" + "&sslserver_keytype=" + key_type
-                    + "&sslserver_choice=custom" + ""; 
+                    + "&sslserver_choice=custom" + "&audit_signing_choice=custom" 
+                    + "&audit_signing_keytype=" + key_type 
+                    + "&audit_signing_custom_size=" + key_size + ""; 
             }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -529,6 +537,8 @@ public class ConfigureCA {
                         ocsp_cert_name = temp;
                     } else if (temp.indexOf("Subsystem Certificate") > 0) {
                         ca_subsystem_cert_name = temp;
+                    } else if (temp.indexOf("Audit Signing Certificate") > 0) {
+                        ca_audit_signing_cert_name = temp;
                     } else {
                         server_cert_name = temp;
                     }
@@ -539,6 +549,8 @@ public class ConfigureCA {
             System.out.println("default: ocsp_cert_name=" + ocsp_cert_name);
             System.out.println(
                 "default: ca_subsystem_cert_name=" + ca_subsystem_cert_name);
+            System.out.println(
+                "default: ca_audit_signing_cert_name=" + ca_audit_signing_cert_name);
             System.out.println("default: server_cert_name=" + server_cert_name);
             return true;
         } catch (Exception e) {
@@ -567,7 +579,8 @@ public class ConfigureCA {
                     + "&ocsp_signing="
                     + URLEncoder.encode(ca_ocsp_cert_subject_name) + "&signing="
                     + URLEncoder.encode(ca_sign_cert_subject_name) + "&sslserver="
-                    + URLEncoder.encode(ca_server_cert_subject_name) + "&urls=0"
+                    + URLEncoder.encode(ca_server_cert_subject_name) + "&audit_signing=" 
+                    + URLEncoder.encode(ca_audit_signing_cert_name) + "&urls=0"
                     + "";
             } else {
                 query_string = "p=11" + "&op=next" + "&xml=true" + "&sslserver="
@@ -653,28 +666,37 @@ public class ConfigureCA {
                     } else if (temp.indexOf("subsystemCert") >= 0) {
                         ca_subsystem_cert_req = (String) req_list.get(i);
                         ca_subsystem_cert_cert = (String) cert_list.get(i);
+                    } else if (temp.indexOf("auditSigningCert") >=0) {
+                        ca_audit_signing_cert_req = (String) req_list.get(i);
+                        ca_audit_signing_cert_cert = (String) cert_list.get(i);
                     } else {
                         server_cert_req = (String) req_list.get(i);
                         server_cert_cert = (String) cert_list.get(i);
                     }
                 }
             }
-		
+	
+            // print out subject names	
             System.out.println("ca_cert_name=" + ca_sign_cert_subject_name);
             System.out.println("ocsp_cert_name=" + ca_ocsp_cert_subject_name);
             System.out.println(
                 "ca_subsystem_cert_name=" + ca_subsystem_cert_subject_name);
             System.out.println("server_cert_name=" + ca_server_cert_subject_name);
+            System.out.println("audit_signing_cert_name=" + ca_audit_signing_cert_subject_name);
 
+            // print out requests
             System.out.println("ca_cert_req=" + ca_cert_req);
             System.out.println("ocsp_cert_req=" + ocsp_cert_req);
             System.out.println("ca_subsystem_cert_req=" + ca_subsystem_cert_req);
             System.out.println("server_cert_req=" + server_cert_req);
+            System.out.println("ca_audit_siging_cert_req=" + ca_audit_signing_cert_req);
 
+            // print out certs
             System.out.println("ca_cert_cert=" + ca_cert_cert);
             System.out.println("ocsp_cert_cert=" + ocsp_cert_cert);
             System.out.println("ca_subsystem_cert_cert=" + ca_subsystem_cert_cert);
             System.out.println("server_cert_cert=" + server_cert_cert);
+            System.out.println("ca_audit_signing_cert_cert=" + ca_audit_signing_cert_cert);
 
             return true;
         } catch (Exception e) {
@@ -701,6 +723,8 @@ public class ConfigureCA {
                 + "&ocsp_signing=" + URLEncoder.encode(ocsp_cert_cert)
                 + "&ocsp_signing_cc=" + "&signing="
                 + URLEncoder.encode(ca_cert_cert) + "&signing_cc="
+                + "&audit_signing=" + URLEncoder.encode(ca_audit_signing_cert_cert) 
+                + "&audit_signing_cc="
                 + "&sslserver=" + URLEncoder.encode(server_cert_cert)
                 + "&sslserver_cc=" + ""; 
 
@@ -738,6 +762,8 @@ public class ConfigureCA {
                 + "&ocsp_signing_cc=" + "&signing="
                 + URLEncoder.encode(ca_cert_cert) + "&signing_cc=" 
                 + URLEncoder.encode(signing_cc)
+                + "&audit_signing=" + URLEncoder.encode(genString) 
+                + "&audit_signing_cc=" 
                 + "&sslserver=" + URLEncoder.encode(genString)
                 + "&sslserver_cc=" + ""; 
 
@@ -770,6 +796,9 @@ public class ConfigureCA {
                     } else if (temp.indexOf("subsystemCert") >= 0) {
                         ca_subsystem_cert_req = (String) req_list.get(i);
                         ca_subsystem_cert_cert = (String) cert_list.get(i);
+                    } else if (temp.indexOf("auditSigningCert") >= 0) {
+                        ca_audit_signing_cert_req = (String) req_list.get(i);
+                        ca_audit_signing_cert_cert = (String) cert_list.get(i);
                     } else {
                         server_cert_req = (String) req_list.get(i);
                         server_cert_cert = (String) cert_list.get(i);
@@ -777,21 +806,28 @@ public class ConfigureCA {
                 }
             }
 
+            // print out subject name
             System.out.println("ca_cert_name=" + ca_sign_cert_subject_name);
             System.out.println("ocsp_cert_name=" + ca_ocsp_cert_subject_name);
             System.out.println(
                 "ca_subsystem_cert_name=" + ca_subsystem_cert_subject_name);
             System.out.println("server_cert_name=" + ca_server_cert_subject_name);
+            System.out.println(
+                "ca_audit_signing_cert_name=" + ca_audit_signing_cert_subject_name);
 
+            // print out requests
             System.out.println("ca_cert_req=" + ca_cert_req);
             System.out.println("ocsp_cert_req=" + ocsp_cert_req);
             System.out.println("ca_subsystem_cert_req=" + ca_subsystem_cert_req);
             System.out.println("server_cert_req=" + server_cert_req);
+            System.out.println("ca_audit_signing_cert_req=" + ca_audit_signing_cert_req);
 
+            // print out certs
             System.out.println("ca_cert_cert=" + ca_cert_cert);
             System.out.println("ocsp_cert_cert=" + ocsp_cert_cert);
             System.out.println("ca_subsystem_cert_cert=" + ca_subsystem_cert_cert);
             System.out.println("server_cert_cert=" + server_cert_cert);
+            System.out.println("ca_audit_signing_cert_cert=" + ca_audit_signing_cert_cert);
 
             return true;
         } catch (Exception e) {
@@ -1350,6 +1386,7 @@ public class ConfigureCA {
         StringHolder x_ca_subsystem_cert_subject_name = new StringHolder();
         StringHolder x_ca_ocsp_cert_subject_name = new StringHolder();
         StringHolder x_ca_server_cert_subject_name = new StringHolder();
+        StringHolder x_ca_audit_signing_cert_subject_name = new StringHolder();
 
         // subsystemName
         StringHolder x_subsystem_name = new StringHolder();
@@ -1424,6 +1461,9 @@ public class ConfigureCA {
         parser.addOption(
                 "-ca_server_cert_subject_name %s #CA server cert subject name",
                 x_ca_server_cert_subject_name); 
+        parser.addOption(
+                "-ca_audit_signing_cert_subject_name %s #CA audit signing cert subject name",
+                x_ca_audit_signing_cert_subject_name); 
 
         parser.addOption("-subsystem_name %s #CA subsystem name",
                 x_subsystem_name); 
@@ -1494,6 +1534,7 @@ public class ConfigureCA {
         ca_subsystem_cert_subject_name = x_ca_subsystem_cert_subject_name.value;
         ca_ocsp_cert_subject_name = x_ca_ocsp_cert_subject_name.value;
         ca_server_cert_subject_name = x_ca_server_cert_subject_name.value;
+        ca_audit_signing_cert_subject_name = x_ca_audit_signing_cert_subject_name.value;
 		
         subsystem_name = x_subsystem_name.value;
         
