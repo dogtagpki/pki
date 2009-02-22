@@ -54,7 +54,6 @@ endif
 #------------------------
 # Linker Flags
 #------------------------
-APACHE_LINK = @apache_lib@ -l@apr_libutil_version@ -lexpat -lpcre @db_lib@ -ldb
 APR_LINK = @apr_lib@ -l@apr_lib_version@
 LDAPSDK_LINK = @ldapsdk_lib@ -lssldap60 -lprldap60 -lldap60 -lldif60
 SVRCORE_LINK = @svrcore_lib@ -lsvrcore
@@ -263,7 +262,6 @@ libtokendb_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
 libtokendb_la_LIBADD = $(LDAPSDK_LINK) $(SVRCORE_LINK)                    \
 	$(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL) $(LIBSOCKET) $(LIBDL) \
 	$(LIBCSTD) $(LIBCRUN)
-libtokendb_la_LINK = $(CXXLINK)
 
 
 #------------------------
@@ -354,9 +352,9 @@ libtps_la_SOURCES =	src/main/Buffer.cpp                        \
 libtps_la_CPPFLAGS = $(AM_CPPFLAGS) @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
 libtps_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
-libtps_la_LIBADD = libtokendb.la $(LDAPSDK_LINK) $(SVRCORE_LINK)          \
-	$(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL) $(LIBSOCKET) $(LIBDL) \
-	$(LIBCSTD) $(LIBCRUN)
+libtps_la_LIBADD = ${top_builddir}/libtokendb.la $(LDAPSDK_LINK)       \
+	$(SVRCORE_LINK) $(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL)    \
+	$(LIBSOCKET) $(LIBDL) $(LIBCSTD) $(LIBCRUN)
 
 
 #------------------------
@@ -367,9 +365,9 @@ libldapauth_la_SOURCES =	src/authentication/LDAP_Authentication.cpp
 libldapauth_la_CPPFLAGS = $(AM_CPPFLAGS) @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
 libldapauth_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
-libldapauth_la_LIBADD = libtps.la $(LDAPSDK_LINK) $(SVRCORE_LINK)         \
-	$(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL) $(LIBSOCKET) $(LIBDL) \
-	$(LIBCSTD) $(LIBCRUN)
+libldapauth_la_LIBADD = ${top_builddir}/libtps.la $(LDAPSDK_LINK)       \
+	$(SVRCORE_LINK) $(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL)     \
+	$(LIBSOCKET) $(LIBDL) $(LIBCSTD) $(LIBCRUN)
 
 
 #------------------------
@@ -379,10 +377,10 @@ mod_tps_la_SOURCES =	src/modules/tps/AP_Context.cpp \
 						src/modules/tps/AP_Session.cpp \
 						src/modules/tps/mod_tps.cpp
 
-mod_tps_la_CPPFLAGS = $(AM_CPPFLAGS) @apr_inc@ @apache_inc@ \
+mod_tps_la_CPPFLAGS = $(AM_CPPFLAGS) @apr_inc@ \
 	@ldapsdk_inc@ @svrcore_inc@ @sasl_inc@ @nss_inc@ @nspr_inc@
 mod_tps_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version -module
-mod_tps_la_LIBADD = libtps.la $(APACHE_LINK) $(APR_LINK)                  \
+mod_tps_la_LIBADD = ${top_builddir}/libtps.la $(APR_LINK)                 \
 	$(LDAPSDK_LINK) $(SVRCORE_LINK) $(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) \
 	$(LIBNSL) $(LIBSOCKET) $(LIBDL) $(LIBCSTD) $(LIBCRUN)
 
@@ -392,10 +390,10 @@ mod_tps_la_LIBADD = libtps.la $(APACHE_LINK) $(APR_LINK)                  \
 #------------------------
 mod_tokendb_la_SOURCES =	src/modules/tokendb/mod_tokendb.cpp
 
-mod_tokendb_la_CPPFLAGS = $(AM_CPPFLAGS) @apr_inc@ @apache_inc@ \
+mod_tokendb_la_CPPFLAGS = $(AM_CPPFLAGS) @apr_inc@ \
 	@ldapsdk_inc@ @svrcore_inc@ @sasl_inc@ @nss_inc@ @nspr_inc@
 mod_tokendb_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version -module
-mod_tokendb_la_LIBADD = libtps.la $(APACHE_LINK) $(APR_LINK)              \
+mod_tokendb_la_LIBADD = ${top_builddir}/libtokendb.la $(APR_LINK)         \
 	$(LDAPSDK_LINK) $(SVRCORE_LINK) $(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) \
 	$(LIBNSL) $(LIBSOCKET) $(LIBDL) $(LIBCSTD) $(LIBCRUN)
 

@@ -289,7 +289,6 @@ m4_include(m4/mozldap.m4)
 m4_include(m4/sasl.m4)
 m4_include(m4/svrcore.m4)
 m4_include(m4/apr.m4)
-m4_include(m4/apache.m4)
 
 # write out paths for binary components
 AC_SUBST(nspr_inc)
@@ -311,15 +310,8 @@ AC_SUBST(APRDIR)
 AC_SUBST(apr_inc)
 AC_SUBST(apr_lib)
 AC_SUBST(apr_lib_version)
-AC_SUBST(apr_libutil_version)
 AC_SUBST(apr_libdir)
 AC_SUBST(apr_bindir)
-AC_SUBST(apache_inc)
-AC_SUBST(apache_lib)
-AC_SUBST(apache_libdir)
-AC_SUBST(db_lib)
-AC_SUBST(db_libdir)
-AC_SUBST(apache_bindir)
 
 # libtool on fedora/rhel contains some gcc-isms which cause problems
 # if not using gcc (e.g. Forte on Solaris, aCC on HP-UX)
