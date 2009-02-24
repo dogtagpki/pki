@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      22
+%define base_release      23
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -308,6 +308,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Feb 23 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-23
+- Bugzilla Bug #486435 -  clicking on configuration URL results in error
 * Tue Feb 17 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-22
 - Bugzilla Bug #485790 -  Need changes made to spec files in various packages
   to be able to build in koji/brew

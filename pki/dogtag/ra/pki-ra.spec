@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      14
+%define base_release      15
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -261,6 +261,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Feb 23 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-15
+- Bugzilla Bug #486435 -  clicking on configuration URL results in error
 * Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-14
 - Bugzilla Bug #250874 -Change spec file dependencies to rely on latest
   versions of components (NSPR, NSS, JSS, MOD_NSS)

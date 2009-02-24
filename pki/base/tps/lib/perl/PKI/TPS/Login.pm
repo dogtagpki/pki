@@ -106,8 +106,9 @@ if( -e "$pkiroot/conf/pwcache.conf" ) {
 }
 
 # create cfg debug log
-open(DEBUG, ">>" . $config->get("service.instanceDir") . 
-                "/logs/debug");
+my $logfile = $config->get("service.instanceDir") . "/logs/debug";
+open( DEBUG, ">>" . $logfile ) ||
+warn( "Could not open '" . $logfile . "':  $!" );
 
 # apache server
 
@@ -141,7 +142,9 @@ sub debug_log
   my ($msg) = @_;
   my $date = `date`;
   chomp($date);
-  print DEBUG "$date - $msg\n";
+  if( -w $logfile ) {
+      print DEBUG "$date - $msg\n";
+  }
 }
 
   # initializes entries in parser's global symbol table for panels
@@ -295,10 +298,10 @@ sub handler {
     my $q = new CGI;
 
     # check cookie
-    my $pin = $q->param('__pin');
+    my $pin = $q->param('pin');
     if (defined($pin)) {
          my $cookie = $q->cookie(
-                -name=>'__pin',
+                -name=>'pin',
                 -value=> $pin,
                 -expires=>'+1y',
                 -path=>'/');

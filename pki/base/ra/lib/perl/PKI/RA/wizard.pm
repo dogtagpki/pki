@@ -107,7 +107,8 @@ if( -e "$pkiroot/conf/pwcache.conf" ) {
 my $logfile = $config->get("service.instanceDir") .  "/logs/debug";
 system( "touch $logfile" );
 system( "chmod 00660 $logfile" );
-open(DEBUG, ">>" . $logfile);
+open( DEBUG, ">>" . $logfile ) ||
+warn( "Could not open '" . $logfile . "':  $!" );
 
 # apache server
 
@@ -143,7 +144,9 @@ sub debug_log
   my ($msg) = @_;
   my $date = `date`;
   chomp($date);
-  print DEBUG "$date - $msg\n";
+  if( -w $logfile ) {
+      print DEBUG "$date - $msg\n";
+  }
 }
 
   # initializes entries in parser's global symbol table for panels
@@ -323,7 +326,7 @@ sub handler {
     my $q = new CGI;
 
     # check cookie
-    my $cookie = $q->cookie('__pin');
+    my $cookie = $q->cookie('pin');
     my $pin = $::config->get("preop.pin");
     if ($cookie ne $pin) {
          print $q->redirect("login");
@@ -413,7 +416,7 @@ sub handler {
     }
 
     my $result;
-    if ($q->param("xml") eq "true") {
+    if ($q->param('xml') && $q->param('xml') eq "true") {
         $r->send_http_header('text/xml');
         $result = "<xml>";
         foreach $s (sort keys %symbol) {
