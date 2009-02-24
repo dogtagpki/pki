@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      41
+%define base_release      42
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Tue Feb 24 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-42
+- Bugzilla Bug: 449857 - publishing enhancement
 * Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-41
 - Bugzilla Bug #250874 -Change spec file dependencies to rely on latest
   versions of components (NSPR, NSS, JSS, MOD_NSS)
