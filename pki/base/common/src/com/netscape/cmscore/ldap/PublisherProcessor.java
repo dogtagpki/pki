@@ -1287,10 +1287,11 @@ public class PublisherProcessor implements
         IRequest r, Object obj) throws ELdapException {
         if (!enabled())
             return;
+CMS.debug("PublisherProcessor: in publishNow()");
         LDAPConnection conn = null;
 
         try {
-            String dirdn = null;
+            Object dirdn = null;
 
             if (mapper != null) {
                 LdapCertMapResult result = null;
@@ -1299,7 +1300,12 @@ public class PublisherProcessor implements
                     conn = mLdapConnModule.getConn();
                 }
                 try {
-                    dirdn = mapper.map(conn, r, obj); 
+                    if ((mapper instanceof com.netscape.cms.publish.mappers.LdapCertSubjMap) &&
+                         ((com.netscape.cms.publish.mappers.LdapCertSubjMap)mapper).useAllEntries()) {
+                        dirdn = ((com.netscape.cms.publish.mappers.LdapCertSubjMap)mapper).mapAll(conn, r, obj); 
+                    } else {
+                       dirdn = mapper.map(conn, r, obj); 
+                    }
                 } catch (Throwable e1) {
                     CMS.debug("Error mapping: mapper=" + mapper + " error=" + e1.toString());
                     throw e1;
@@ -1309,7 +1315,14 @@ public class PublisherProcessor implements
             X509Certificate cert = (X509Certificate) obj;
 
             try {
-                publisher.publish(conn, dirdn, cert);
+                if (dirdn instanceof String) {
+                    publisher.publish(conn, (String)dirdn, cert);
+                } else if (dirdn instanceof Vector) {
+                    int n = ((Vector)dirdn).size();
+                    for (int i = 0; i < n; i++) {
+                        publisher.publish(conn, (String)(((Vector)dirdn).elementAt(i)), cert);
+                    }
+                }
             } catch (Throwable e1) {
                 CMS.debug("Error publishing: publisher=" + publisher + " error=" + e1.toString());
                 throw e1;
