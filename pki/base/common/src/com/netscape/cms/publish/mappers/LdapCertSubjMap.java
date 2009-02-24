@@ -42,6 +42,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
     public static final String LDAP_CERTSUBJNAME_ATTR = "certSubjectName";
     protected String mSearchBase = null;
     protected String mCertSubjNameAttr = LDAP_CERTSUBJNAME_ATTR;
+    protected boolean mUseAllEntries = false;
 
     private ILogger mLogger = CMS.getLogger();
     protected IConfigStore mConfig = null;
@@ -82,6 +83,18 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         mInited = true;
     }
 
+    public LdapCertSubjMap(String searchBase, 
+        String certSubjNameAttr, String certAttr, boolean useAllEntries) {
+        if (searchBase == null || 
+            certSubjNameAttr == null || certAttr == null) 
+            throw new IllegalArgumentException(
+                    "a null argument to constructor " + this.getClass().getName());
+        mCertSubjNameAttr = certSubjNameAttr;
+        mSearchBase = searchBase;
+        mUseAllEntries = useAllEntries;
+        mInited = true;
+    }
+
     public String getImplName() {
         return "LdapCertSubjMap";
     }
@@ -95,6 +108,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
 
         v.addElement("certSubjNameAttr=" + mCertSubjNameAttr);
         v.addElement("searchBase=");
+        v.addElement("useAllEntries=" + mUseAllEntries);
         return v;
     }
 
@@ -102,6 +116,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         String[] params = {
                 "certSubjNameAttr;string;Name of Ldap attribute containing cert subject name",
                 "searchBase;string;Base DN to search from",
+                "useAllEntries;boolean;Use all entries for publishing",
                 IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-ldappublish-mapper-certsubjmapper",
                 IExtendedPluginInfo.HELP_TEXT +
@@ -125,6 +140,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         } else {
             v.addElement("searchBase=" + mSearchBase);
         }
+        v.addElement("useAllEntries=" + mUseAllEntries);
         return v;
     }
 
@@ -140,6 +156,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         mCertSubjNameAttr = config.getString("certSubjNameAttr",
                     LDAP_CERTSUBJNAME_ATTR);
         mSearchBase = config.getString("searchBase");
+        mUseAllEntries = config.getBoolean("useAllEntries", false);
         mInited = true;
     }
 
@@ -236,6 +253,63 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         return map(conn, obj);
     }
 
+    public Vector mapAll(LDAPConnection conn, Object obj)
+        throws ELdapException {
+        Vector v = new Vector();
+
+        if (conn == null)
+            return null;
+        X500Name subjectDN = null;
+
+        try {
+            X509Certificate cert = (X509Certificate) obj;
+            subjectDN = (X500Name) ((X509Certificate) cert).getSubjectDN();
+            CMS.debug("LdapCertSubjMap: cert subject dn:" + subjectDN.toString());
+        } catch (ClassCastException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"));
+            return v;
+        }
+        try {
+            boolean hasCert = false;
+            boolean hasSubjectName = false;
+            String[] attrs = new String[] { LDAPv3.NO_ATTRS }; 
+
+            log(ILogger.LL_INFO, "search " + mSearchBase +
+                " (" + mCertSubjNameAttr + "=" + subjectDN + ") " + mCertSubjNameAttr);
+
+            LDAPSearchResults results = 
+                conn.search(mSearchBase, LDAPv2.SCOPE_SUB, 
+                    "(" + mCertSubjNameAttr + "=" + subjectDN + ")", attrs, false);
+			
+            while (results.hasMoreElements()) {
+                LDAPEntry entry = results.next();
+                String dn = entry.getDN();
+                v.addElement(dn);
+                CMS.debug("LdapCertSubjMap: dn="+dn);
+            }
+            CMS.debug("LdapCertSubjMap: Number of entries: " + v.size());
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
+                // need to intercept this because message from LDAP is
+                // "DSA is unavailable" which confuses with DSA PKI.
+                log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
+            } else {
+                log(ILogger.LL_FAILURE, 
+                    CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()));
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
+            }
+        }
+
+        return v;
+    }
+
+    public Vector mapAll(LDAPConnection conn, IRequest req, Object obj)
+        throws ELdapException {
+        return mapAll(conn, obj);
+    }
+
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level, 
             "LdapCertSubjMap: " + msg);
@@ -253,6 +327,10 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
      */
     public String getCertSubjNameAttr() {
         return mCertSubjNameAttr;
+    }
+
+    public boolean useAllEntries() {
+        return mUseAllEntries;
     }
 
 }
