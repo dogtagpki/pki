@@ -1529,7 +1529,7 @@ public class CAAdminServlet extends AdminServlet {
         Enumeration enum1 = req.getParameterNames();
         boolean restart = false;
 
-        mCA.setMaxSerial("");
+        //mCA.setMaxSerial("");
         while (enum1.hasMoreElements()) {
             String key = (String) enum1.nextElement();
             String value = req.getParameter(key);
