@@ -44,6 +44,7 @@ fi
 
 PKI_INSTANCE_NAME="${PKI_PRODUCT_NAME}-${PKI_SUBSYSTEM_NAME}"
 SECURE_PORT=12889
+NON_CLIENTAUTH_SECURE_PORT=12890
 UNSECURE_PORT=12888
 
 
@@ -53,7 +54,7 @@ UNSECURE_PORT=12888
 
 if [ ! -e "/var/lib/${PKI_INSTANCE_NAME}" ]
 then
-	/usr/bin/pkicreate -pki_instance_root=/var/lib -pki_instance_name=${PKI_INSTANCE_NAME} -subsystem_type=${PKI_SUBSYSTEM_NAME} -secure_port=${SECURE_PORT} -unsecure_port=${UNSECURE_PORT} -redirect conf=/etc/${PKI_INSTANCE_NAME} -redirect logs=/var/log/${PKI_INSTANCE_NAME}
+	/usr/bin/pkicreate -pki_instance_root=/var/lib -pki_instance_name=${PKI_INSTANCE_NAME} -subsystem_type=${PKI_SUBSYSTEM_NAME} -secure_port=${SECURE_PORT} -non_clientauth_secure_port=${NON_CLIENTAUTH_SECURE_PORT} -unsecure_port=${UNSECURE_PORT} -redirect conf=/etc/${PKI_INSTANCE_NAME} -redirect logs=/var/log/${PKI_INSTANCE_NAME}
 fi
 
 

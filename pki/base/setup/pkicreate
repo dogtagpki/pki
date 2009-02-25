@@ -25,20 +25,19 @@
 #
 # Sample Invocation (for CA):
 #
-#    ./pkicreate
-#            -pki_instance_root=/var/lib
-#            -pki_instance_name=pki-ca1
-#            -subsystem_type=ca
-#            -secure_port=9543 || -agent_secure_port=9543
-#                                 -ee_secure_port=9544
-#                                 -admin_secure_port=9545
-#            -unsecure_port=9580
-#            -tomcat_server_port=9801
-#            -user=pkiuser
-#            -group=pkiuser
-#            -redirect conf=/export/pki/pki-ca1/conf
-#            -redirect logs=/export/pki/pki-ca1/logs
-#            -verbose
+#    ./pkicreate -pki_instance_root=/var/lib
+#                -pki_instance_name=pki-ca1
+#                -subsystem_type=ca
+#                -agent_secure_port=9543
+#                -ee_secure_port=9544
+#                -admin_secure_port=9545
+#                -unsecure_port=9580
+#                -tomcat_server_port=9801
+#                -user=pkiuser
+#                -group=pkiuser
+#                -redirect conf=/etc/pki-ca1
+#                -redirect logs=/var/log/pki-ca1
+#                -verbose
 #
 ##############################################################
 
@@ -317,6 +316,7 @@ my $OBJ_EXT                = "OBJ_EXT";
 my $PORT                   = "PORT";
 my $PROCESS_ID             = "PROCESS_ID";
 my $SECURE_PORT            = "SECURE_PORT";
+my $NON_CLIENTAUTH_SECURE_PORT = "NON_CLIENTAUTH_SECURE_PORT";
 my $SECURITY_LIBRARIES     = "SECURITY_LIBRARIES";
 my $SERVER_NAME            = "SERVER_NAME";
 my $SERVER_ROOT            = "SERVER_ROOT";
@@ -395,6 +395,7 @@ my $pki_instance_root  = "";
 my $pki_instance_name  = "";
 my $subsystem_type     = "";
 my $secure_port        = -1;
+my $non_clientauth_secure_port = -1;
 my $unsecure_port      = -1;
 my $tomcat_server_port = -1;
 
@@ -702,107 +703,186 @@ if( -l $jaas_link ) {
 # no return value
 sub usage()
 {
+    print( STDOUT "\n" );
     print( STDOUT
-           "Usage:  pkicreate -pki_instance_root=<pki_instance_root>   "
-         . "# Instance root\n"
-         . "                                                           "
-         . "# directory\n"
-         . "                                                           "
+           "###############################################################################\n"
+         . "###   USAGE:  CA, KRA, OCSP, or TKS subsystem instance creation (Tomcat)    ###\n"
+         . "###############################################################################\n\n"
+         . "pkicreate -pki_instance_root=<pki_instance_root>   "
+         . "# Instance root directory\n"
+         . "                                                   "
          . "# destination\n\n"
-         . "                  -pki_instance_name=<pki_instance_id>     "
-         . "# Unique PKI\n"
-         . "                                                           "
-         . "# subsystem\n"
-         . "                                                           "
+         . "          -pki_instance_name=<pki_instance_id>     "
+         . "# Unique PKI subsystem\n"
+         . "                                                   "
          . "# instance name\n\n"
-         . "                  -subsystem_type=<subsystem_type>         "
+         . "          -subsystem_type=<subsystem_type>         "
          . "# Subsystem type\n"
-         . "                                                           "
-         . "# [ca | kra | ocsp |\n"
-         . "                                                           "
-         . "#  tks | ra | tps]\n\n"
-         . "                  -secure_port=<secure_port>               "
-         . "# Secure port\n\n"
-         . "                  -unsecure_port=<unsecure_port>           "
-         . "#Unsecure port\n\n"
-         . "###################### Optional separate ports ############\n\n"
-         . "                  -agent_secure_port=<agent_secure_port>   "
-         . "#Agent secure port, Same as 'secure_port'\n\n"
-         . "                  -ee_secure_port=<ee_secure_port>         "
+         . "                                                   "
+         . "# [ca | kra | ocsp | tks]\n\n"
+         . "          #####################################################################\n"
+         . "          ###   SELECT separate secure ports for AGENT, EE, and ADMIN:      ###\n"
+         . "          #####################################################################\n\n"
+         . "          -agent_secure_port=<agent_secure_port>   "
+         . "# Agent secure port\n\n"
+         . "          -ee_secure_port=<ee_secure_port>         "
          . "# EE secure port\n\n"
-         . "                  -admin_secure_port=<admin_secure_port>   " 
-         . "# Admin secureport\n\n"                   
-         . "###################### End Optional separate ports ########\n\n"
-         . "                  -tomcat_server_port=<tomcat_server_port> "
-         . "# Unique port\n"
-         . "                                                           "
+         . "          -admin_secure_port=<admin_secure_port>   " 
+         . "# Admin secure port\n\n"
+         . "          #####################################################################\n"
+         . "          ###   OR a single secure port shared by AGENT, EE, and ADMIN:     ###\n"
+         . "          #####################################################################\n\n"
+         . "          -secure_port=<secure_port>               "
+         . "# Secure port\n"
+         . "                                                   "
+         . "# (shared by Agent,\n"
+         . "                                                   "
+         . "#  EE, and Admin)\n\n"
+         . "          #####################################################################\n"
+         . "          ###   END secure port SELECTION                                   ###\n"
+         . "          #####################################################################\n\n"
+         . "          -unsecure_port=<unsecure_port>           "
+         . "# Unsecure port\n\n"
+         . "          -tomcat_server_port=<tomcat_server_port> "
+         . "# Unique port for each\n"
+         . "                                                   "
+         . "# Tomcat instance\n\n"
+         . "          [-user=<username>]                       "
+         . "# User ownership\n"
+         . "                                                   "
+         . "# (must ALSO specify\n"
+         . "                                                   "
+         . "#  group ownership)\n"
+         . "                                                   "
+         . "#\n"
+         . "                                                   "
+         . "# [Default=pkiuser]\n\n"
+         . "          [-group=<groupname>]                     "
+         . "# Group ownership\n"
+         . "                                                   "
+         . "# (must ALSO specify\n"
+         . "                                                   "
+         . "#  user ownership)\n"
+         . "                                                   "
+         . "#\n"
+         . "                                                   "
+         . "# [Default=pkiuser]\n\n"
+         . "          [-redirect conf=<real conf dir path>]    "
+         . "# Redirection of\n"
+         . "                                                   "
+         . "# 'conf' directory\n\n"
+         . "          [-redirect logs=<real logs dir path>]    "
+         . "# Redirection of\n"
+         . "                                                   "
+         . "# 'logs' directory\n\n"
+         . "          [-verbose]                               "
+         . "# Print out liberal info\n"
+         . "                                                   "
+         . "# during 'pkicreate'\n\n"
+         . "          [-help]                                  "
+         . "# Print out this screen\n\n\n"
+         . "###############################################################################\n"
+         . "###   USAGE:  RA or TPS subsystem instance creation (Apache)                ###\n"
+         . "###############################################################################\n\n"
+         . "pkicreate -pki_instance_root=<pki_instance_root>   "
+         . "# Instance root directory\n"
+         . "                                                   "
+         . "# destination\n\n"
+         . "          -pki_instance_name=<pki_instance_id>     "
+         . "# Unique PKI subsystem\n"
+         . "                                                   "
+         . "# instance name\n\n"
+         . "          -subsystem_type=<subsystem_type>         "
+         . "# Subsystem type\n"
+         . "                                                   "
+         . "# [ra | tps]\n\n"
+         . "          -secure_port=<secure_port>               "
+         . "# Secure port\n"
+         . "                                                   "
+         . "# (clientauth)\n"
+         . "                                                   "
          . "# for each\n"
-         . "                                                           "
-         . "# tomcat instance\n"
-         . "                                                           "
-         . "# [ca | kra | ocsp |\n"
-         . "                                                           "
-         . "#  tks] ONLY\n\n"
-         . "                  [-user=<username>]                       "
-         . "# user ownership\n"
-         . "                                                           "
-         . "# [must ALSO specify\n"
-         . "                                                           "
-         . "#  group ownership]\n"
-         . "                                                           "
+         . "                                                   "
+         . "# Apache instance\n\n"
+         . "          -non_clientauth_secure_port=<non_clientauth_secure_port>\n\n"
+         . "                                                   "
+         . "# Secure port\n"
+         . "                                                   "
+         . "# (non-clientauth)\n"
+         . "                                                   "
+         . "# for each\n"
+         . "                                                   "
+         . "# Apache instance\n\n"
+         . "          -unsecure_port=<unsecure_port>           "
+         . "# Unsecure port\n\n"
+         . "          [-user=<username>]                       "
+         . "# User ownership\n"
+         . "                                                   "
+         . "# (must ALSO specify\n"
+         . "                                                   "
+         . "#  group ownership)\n"
+         . "                                                   "
          . "#\n"
-         . "                                                           "
-         . "# (Default=pkiuser)\n\n"
-         . "                  [-group=<groupname>]                     "
-         . "# group ownership\n"
-         . "                                                           "
-         . "# [must ALSO specify\n"
-         . "                                                           "
-         . "#  user ownership]\n"
-         . "                                                           "
+         . "                                                   "
+         . "# [Default=pkiuser]\n\n"
+         . "          [-group=<groupname>]                     "
+         . "# Group ownership\n"
+         . "                                                   "
+         . "# (must ALSO specify\n"
+         . "                                                   "
+         . "#  user ownership)\n"
+         . "                                                   "
          . "#\n"
-         . "                                                           "
-         . "# (Default=pkiuser)\n\n"
-         . "                  [-redirect conf=<real conf dir path>]    "
-         . "# redirection of\n"
-         . "                                                           "
-         . "# conf directory\n\n"
-         . "                  [-redirect logs=<real logs dir path>]    "
-         . "# redirection of\n"
-         . "                                                           "
-         . "# logs directory\n\n"
-         . "                  [-verbose]                               "
-         . "# Print out\n"
-         . "                                                           "
-         . "# liberal info\n"
-         . "                                                           "
-         . "# during pkicreate\n\n"
-         . "                  [-help]                                  "
-         . "# Print out\n"
-         . "                                                           "
-         . "# this screen\n\n" );
+         . "                                                   "
+         . "# [Default=pkiuser]\n\n"
+         . "          [-redirect conf=<real conf dir path>]    "
+         . "# Redirection of\n"
+         . "                                                   "
+         . "# 'conf' directory\n\n"
+         . "          [-redirect logs=<real logs dir path>]    "
+         . "# Redirection of\n"
+         . "                                                   "
+         . "# 'logs' directory\n\n"
+         . "          [-verbose]                               "
+         . "# Print out liberal info\n"
+         . "                                                   "
+         . "# during 'pkicreate'\n\n"
+         . "          [-help]                                  "
+         . "# Print out this screen\n\n\n" );
 
     print( STDOUT
-           "Example:  pkicreate -pki_instance_root=/var/lib\n"
-         . "                    -pki_instance_name=$pki_flavor-ca1\n"
-         . "                    -subsystem_type=ca\n"
-         . "[Either mandatory: \n"
-         . "                    -secure_port=9543\n"
-         . "] or\n"
-         . "[ Optional separate ports:\n"
-         . "                    -agent_secure_port=9543\n"
-         . "                    -ee_secure_port=9544\n"
-         . "                    -admin_secure_port=9545\n"
-         . "]\n"
-         . "                    -unsecure_port=9580\n"
-         . "                    -tomcat_server_port=9801\n"
-         . "                    -user=pkiuser\n"
-         . "                    -group=pkiuser\n"
-         . "                    -redirect conf=/export/pki/$pki_flavor-ca1/"
-         . "conf\n"
-         . "                    -redirect logs=/export/pki/$pki_flavor-ca1/"
-         . "logs\n"
-         . "                    -verbose\n\n" );
+           "###############################################################################\n"
+         . "###   EXAMPLE:  PKI (Apache) subsystem instance creation of a TPS           ###\n"
+         . "###############################################################################\n\n"
+         . "pkicreate -pki_instance_root=/var/lib      \\\n"
+         . "          -pki_instance_name=$pki_flavor-tps1      \\\n"
+         . "          -subsystem_type=tps              \\\n"
+         . "          -secure_port=7989                \\\n"
+         . "          -non_clientauth_secure_port=7990 \\\n"
+         . "          -unsecure_port=7988              \\\n"
+         . "          -user=pkiuser                    \\\n"
+         . "          -group=pkiuser                   \\\n"
+         . "          -redirect conf=/etc/$pki_flavor-tps1     \\\n"
+         . "          -redirect logs=/var/log/$pki_flavor-tps1 \\\n"
+         . "          -verbose\n\n" );
+
+    print( STDOUT
+           "###############################################################################\n"
+         . "###   EXAMPLE:  PKI (Tomcat) subsystem instance creation of a CA            ###\n"
+         . "###############################################################################\n\n"
+         . "pkicreate -pki_instance_root=/var/lib     \\\n"
+         . "          -pki_instance_name=$pki_flavor-ca1      \\\n"
+         . "          -subsystem_type=ca              \\\n"
+         . "          -agent_secure_port=9543         \\\n"
+         . "          -ee_secure_port=9544            \\\n"
+         . "          -admin_secure_port=9545         \\\n"
+         . "          -unsecure_port=9580             \\\n"
+         . "          -tomcat_server_port=9801        \\\n"
+         . "          -user=pkiuser                   \\\n"
+         . "          -group=pkiuser                  \\\n"
+         . "          -redirect conf=/etc/$pki_flavor-ca1     \\\n"
+         . "          -redirect logs=/var/log/$pki_flavor-ca1 \\\n"
+         . "          -verbose\n\n" );
 
     print( STDOUT
            "IMPORTANT:  Must be run as root!\n\n" );
@@ -835,6 +915,7 @@ sub pki_instance_already_exists
 sub parse_arguments()
 {
     my $l_secure_port        = -1;
+    my $l_non_clientauth_secure_port = -1;
     my $l_unsecure_port      = -1;
     my $l_tomcat_server_port = -1;
     my $l_agent_secure_port  = -1;
@@ -847,6 +928,7 @@ sub parse_arguments()
                           "pki_instance_name=s" => \$pki_instance_name,
                           "subsystem_type=s" => \$subsystem_type,
                           "secure_port:i" => \$l_secure_port,
+                          "non_clientauth_secure_port:i" => \$l_non_clientauth_secure_port,
                           "unsecure_port:i" => \$l_unsecure_port,
                           "agent_secure_port:i" => \$l_agent_secure_port,
                           "ee_secure_port:i" => \$l_ee_secure_port,
@@ -982,7 +1064,42 @@ sub parse_arguments()
         }
     }
 
+    ## Mandatory "-non_clientauth_secure_port=<non_clientauth_secure_port>"
+    ## option/exclusion
+    if( ( $subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
+        if( $l_non_clientauth_secure_port >= 0 ) {
+            $non_clientauth_secure_port = $l_non_clientauth_secure_port;
 
+            emit( "    non_clientauth_secure_port         "
+                . "$non_clientauth_secure_port\n" );
+        } else {
+            if( $l_non_clientauth_secure_port == -1)
+            {
+                emit( "Must include value for non_clientauth_secure_port!\n",
+                      "error" );
+                usage();
+                return 0;
+            }
+        }
+
+        if( $l_agent_secure_port > 0 ||
+            $l_ee_secure_port > 0    ||
+            $l_admin_secure_port > 0)  {
+            emit( "Must NOT include values for any agent|admin|ee ports!\n",
+                  "error");
+            usage();
+            return 0;
+        }
+    } else {
+        ## Mandatory EXCLUSION for CA, KRA, OCSP, and TKS subsystems
+        if( $l_non_clientauth_secure_port != -1 ) {
+            emit( "Must NOT include value for non_clientauth_secure_port!\n",
+                  "error" );
+            usage();
+            return 0;
+        }
+    }
+ 
     ## Mandatory "-unsecure_port=<unsecure_port>" option
     if( $l_unsecure_port >= 0 ) {
         $unsecure_port = $l_unsecure_port;
@@ -1016,19 +1133,6 @@ sub parse_arguments()
         }
     }
 
-    if( ($subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
-    ## Don't do port separation for RA or TPS
-
-        if( $l_agent_secure_port > 0 || $l_ee_secure_port > 0 
-            || $l_admin_secure_port > 0)  {
-
-            emit( "Must NOT include separate ports for RA or TPS!\n",
-                    "error");
-            usage();
-            return 0;
-        }
-    }
- 
     if( $l_agent_secure_port >= 0 ) {
         $agent_secure_port = $l_agent_secure_port;
      
@@ -2174,6 +2278,7 @@ sub process_pki_templates()
         $slot_hash{$PORT}                  = $unsecure_port;
         $slot_hash{$PROCESS_ID}            = $$;
         $slot_hash{$SECURE_PORT}           = $secure_port;
+        $slot_hash{$NON_CLIENTAUTH_SECURE_PORT} = $non_clientauth_secure_port;
         $slot_hash{$SECURITY_LIBRARIES}    = $default_security_libraries;
         $slot_hash{$SERVER_NAME}           = $host;
         $slot_hash{$SERVER_ROOT}           = $pki_instance_path;
@@ -3381,6 +3486,9 @@ sub process_pki_selinux_setup()
     parse_selinux_ports();
     if ($secure_port != -1) {
         &add_selinux_port($setype_p, $secure_port);
+    }
+    if ($non_clientauth_secure_port != -1) {
+        &add_selinux_port($setype_p, $non_clientauth_secure_port);
     }
     if ($unsecure_port != -1) {
         &add_selinux_port($setype_p, $unsecure_port);

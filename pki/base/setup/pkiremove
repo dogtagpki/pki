@@ -208,6 +208,7 @@ sub update_domain()
 {
     my $conf_file = $pki_instance_path . "/conf/CS.cfg";
     my $sport;
+    my $ncsport;
     my $secport;
     my $secselect;
     my $typeval;
@@ -220,6 +221,7 @@ sub update_domain()
         chomp($line);
         (my $varname, my $valname) = split(/=/, $line);
         if ($varname eq "service.securePort") { $sport = $valname; }
+        if ($varname eq "service.non_clientauth_securePort") { $ncsport = $valname; }
         if ($varname eq "securitydomain.host") { $sechost = $valname; }
         if ($varname eq "securitydomain.httpsport") { $secport = $valname; }
         if ($varname eq "securitydomain.select") { $secselect = $valname; }
@@ -283,6 +285,7 @@ sub update_domain()
                 'list' => $listval,
                 'host' => $machinename,
                 'sport' => $sport,
+                'ncsport' => $ncsport,
                 'operation' => 'remove'
             ],
         );
@@ -389,6 +392,7 @@ sub remove_selinux_ports()
     my $conf_file = $pki_instance_path . "/conf/CS.cfg";
     my $typeval;
     my $secure_port;
+    my $non_clientauth_secure_port;
     my $unsecure_port;
     my @ports = ();
 
@@ -400,6 +404,7 @@ sub remove_selinux_ports()
         (my $varname, my $valname) = split(/=/, $line);
         if ($varname eq "cs.type") { $typeval = $valname; }
         if ($varname eq "service.securePort") { $secure_port = $valname; }
+        if ($varname eq "service.non_clientauth_securePort") { $non_clientauth_secure_port = $valname; }
         if ($varname eq "service.unsecurePort") { $unsecure_port = $valname; }
     }
     close(DAT);
@@ -424,8 +429,13 @@ sub remove_selinux_ports()
             $ports[$i] = $secure_port;
             $i++;
         }
+        if (defined $non_clientauth_secure_port) {
+            $ports[$i] = $non_clientauth_secure_port;
+            $i++;
+        }
         if (defined $unsecure_port) {
             $ports[$i] = $unsecure_port;
+            $i++;
         }
     }  
 

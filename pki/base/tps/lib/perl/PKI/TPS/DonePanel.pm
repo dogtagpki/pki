@@ -316,15 +316,11 @@ sub display
     system( "chmod 00660 $instDir/conf/nss.conf.tmp" );
     open(NSS_CONF, "<$instDir/conf/nss.conf");
     while (<NSS_CONF>) {
-      if (/NSSVerifyClient none/) {
-        print TMP_NSS_CONF "NSSVerifyClient require\n";
-      } else {
         if ((/^NSSNickname/) && ($tokenname ne "") && ($tokenname ne "NSS Certificate DB")) {
             print TMP_NSS_CONF "NSSNickname \"$nickname\"\n";
         } else {
           print TMP_NSS_CONF $_;
         }
-      }
     }
     close(NSS_CONF);
     close(TMP_NSS_CONF);
