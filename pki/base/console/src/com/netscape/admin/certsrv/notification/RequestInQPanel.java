@@ -260,8 +260,10 @@ public class RequestInQPanel extends CMSBaseTab implements ItemListener {
         String senderEmail = mSenderEmailText.getText().trim();
         String receiverEmail = mReceiverEmailText.getText().trim();
 
-        if (emailForm.equals("") || senderEmail.equals("") |
-			   emailSubject.equals("") || receiverEmail.equals("")) {
+        if (mEnable.isSelected() && (emailForm.equals("") ||
+                                     senderEmail.equals("") ||
+			                         emailSubject.equals("") ||
+                                     receiverEmail.equals(""))) {
             showMessageDialog("BLANKFIELD");
             return false;
         }
