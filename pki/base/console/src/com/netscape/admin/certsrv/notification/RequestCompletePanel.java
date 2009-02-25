@@ -240,8 +240,9 @@ public class RequestCompletePanel extends CMSBaseTab implements ItemListener {
 		String emailSubject = mEmailSubjectText.getText().trim();
         String senderEmail = mSenderEmailText.getText().trim();
 
-        if (emailForm.equals("") || senderEmail.equals("") ||
-			   emailSubject.equals("")) {
+        if (mEnable.isSelected() && (emailForm.equals("") ||
+                                     senderEmail.equals("") ||
+                                     emailSubject.equals(""))) {
             showMessageDialog("BLANKFIELD");
             return false;
         }
