@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      42
+%define base_release      43
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Wed Feb 25 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-43
+- Bugzilla Bug: 480804 - to save general settings
 * Tue Feb 24 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-42
 - Bugzilla Bug: 449857 - publishing enhancement
 * Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-41
