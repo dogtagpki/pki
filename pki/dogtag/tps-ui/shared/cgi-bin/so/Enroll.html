@@ -19,11 +19,11 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel=stylesheet href="/so/style.css" type="text/css">
+<link rel=stylesheet href="/esc/so/style.css" type="text/css">
 
 <title>Enrollment</title>
 </head>
-<script type="text/JavaScript" src="/so/util.js">
+<script type="text/JavaScript" src="/esc/so/util.js">
 </script>
 
 <script type="text/javascript">
@@ -49,6 +49,30 @@ function UserOnDoneInitializeBindingTable()
   }
 }
 
+function UserOnCOOLKeyStateError()
+{
+  toggleAjaxProgress('ajax-pb', 'off');
+}
+
+
+function toggleAjaxProgress(id, i)
+{
+  var e = document.getElementById(id);
+  if (i == 'off') {
+    e.style.display = 'none';
+  } else {
+    e.style.display = 'block';
+  }
+}
+
+function UserOnCOOLKeyStatusUpdate(data)
+{
+  var progress = document.getElementById("progress");
+
+  if(progress)
+      progress.innerHTML = data + "%";
+}
+
 // -->
 </script>
 
@@ -58,18 +82,20 @@ function UserOnDoneInitializeBindingTable()
 <table width="100%" class="logobar">
   <tr>
     <td>
-<img alt="" src="/so/logo.jpg">
+<!--<img alt="" src="/esc/so/images/logo.gif"> -->
     </td>
-    <td>
+    <td align = "center">
       <p class="headerText">Security Officer Enrollment</p>
     </td>
   </tr>
 </table>
+  <div id="pb" style="display:none;">
   <table id="BindingTable" width="200px"align="center">
     <tr id="HeaderRow">
     </tr>
   </table>
-  <p class="bodyText">You have plugged in your smartcard! After answering a few easy questions, you will be able to use your smartcard.
+  </div>
+  <p class="bodyText">You have plugged in your smartcard! After answering a few easy questions, you will be able to enroll the smartcard for the Security Officer user.
   </p>
   <p class="bodyText"> 
       Now we would like you to identify yourself.
@@ -97,10 +123,16 @@ function UserOnDoneInitializeBindingTable()
         <td><input type="password" id="reenterpintf" name="reenterpintf" value=""></td>
     </table>
     <br>
+    <div id="ajax-pb" style="display:none;">
+       <img src="/esc/sow/images/indicator.gif">
+       <h2 id="progress" name="progress" value="0%" ></h2>
+    </table>
+    </div>
+
     <table width="100%">
       <tr>
         <td align="right">
-          <input type="button" id="enrollbtn" name="enrollbtn" value="Enroll My Smartcard" onClick="DoEnrollCOOLKey();">
+          <input type="button" id="enrollbtn" name="enrollbtn" value="Enroll My Smartcard" onClick="toggleAjaxProgress('ajax-pb','on');DoEnrollCOOLKey();">
         </td>
       </tr>
     </table>

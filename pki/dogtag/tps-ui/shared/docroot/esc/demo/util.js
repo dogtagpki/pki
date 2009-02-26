@@ -1487,7 +1487,7 @@ function refresh()
 
 function loadSuccessPage()
 {
-    window.location="/demo/EnrollSuccess.html";
+    window.location="/esc/demo/EnrollSuccess.html";
 }
 
 function ShowProgressBar(aKeyType,aKeyID, doShow)

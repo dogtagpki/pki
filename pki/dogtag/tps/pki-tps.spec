@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      24
+%define base_release      25
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -308,6 +308,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Feb 25 2009 Jack Magne <jmagne@redhat.com> 1.0.0-25
+- Bugzillw Bug #445274 - Make esc security officer mode work.
 * Tue Feb 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-24
 - Bugzilla Bug #485859 -  port separation for RA and TPS
 * Mon Feb 23 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-23

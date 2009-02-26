@@ -1635,6 +1635,8 @@ function OnCOOLKeyStateChange(keyType, keyID, keyState, data,strData)
       break;
     case 1021: // OperationStatusUpdate
       OnCOOLKeyStatusUpdate(KeyToProgressBarID(keyType, keyID), data);
+      if(UserOnCOOLKeyStatusUpdate)
+          UserOnCOOLKeyStatusUpdate(data);
       break;
 
      case 1022: //Need Auth 
@@ -1659,7 +1661,7 @@ function refresh()
 
 function loadSuccessPage()
 {
-    window.location="/sow/EnrollSuccess.html";
+    window.location="/esc/sow/EnrollSuccess.html";
 }
 
 function ShowProgressBar(aKeyType,aKeyID, doShow)

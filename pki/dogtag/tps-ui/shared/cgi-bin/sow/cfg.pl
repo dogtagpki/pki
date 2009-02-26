@@ -51,7 +51,7 @@ my $port = "7888";
 my $secure_port = "7889";
 my $host = "localhost";
 
-my $cfg = "/var/lib/rhpki-tps/conf/CS.cfg";
+my $cfg = "/var/lib/pki-tps/conf/CS.cfg";
 
 sub get_ldapsearch()
 {
