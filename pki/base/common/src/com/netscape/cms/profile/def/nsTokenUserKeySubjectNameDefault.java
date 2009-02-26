@@ -40,8 +40,8 @@ import netscape.security.x509.*;
  */
 public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
 
-	public static final String PROP_LDAP = "ldap";
-	public static final String PROP_PARAMS = "params";
+    public static final String PROP_LDAP = "ldap";
+    public static final String PROP_PARAMS = "params";
     public static final String CONFIG_DNPATTERN = "dnpattern";
     public static final String CONFIG_LDAP_ENABLE = "ldap.enable";
     public static final String CONFIG_LDAP_SEARCH_NAME = "ldap.searchName";
@@ -64,13 +64,13 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
         "CN=$request.uid$, E=$request.mail$";
 
     /* ldap configuration sub-store */
-	boolean mldapInitialized = false;
-	boolean mldapEnabled = false;
+    boolean mldapInitialized = false;
+    boolean mldapEnabled = false;
     protected IConfigStore mInstConfig;
     protected IConfigStore mLdapConfig;
     protected IConfigStore mParamsConfig;
 
-	    /* ldap base dn */
+    /* ldap base dn */
     protected String mBaseDN = null;
 
     /* factory of anonymous ldap connections */
@@ -85,103 +85,103 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
         addConfigName(CONFIG_DNPATTERN);
         addConfigName(CONFIG_LDAP_ENABLE);
         addConfigName(CONFIG_LDAP_SEARCH_NAME);
-		addConfigName(CONFIG_LDAP_STRING_ATTRS);
+        addConfigName(CONFIG_LDAP_STRING_ATTRS);
         addConfigName(CONFIG_LDAP_HOST);
         addConfigName(CONFIG_LDAP_PORT);
         addConfigName(CONFIG_LDAP_SEC_CONN);
         addConfigName(CONFIG_LDAP_VER);
         addConfigName(CONFIG_LDAP_BASEDN);
-		addConfigName(CONFIG_LDAP_MIN_CONN);
-		addConfigName(CONFIG_LDAP_MAX_CONN);
+        addConfigName(CONFIG_LDAP_MIN_CONN);
+        addConfigName(CONFIG_LDAP_MAX_CONN);
 
         addValueName(CONFIG_DNPATTERN);
         addValueName(CONFIG_LDAP_ENABLE);
         addValueName(CONFIG_LDAP_SEARCH_NAME);
-		addValueName(CONFIG_LDAP_STRING_ATTRS);
+        addValueName(CONFIG_LDAP_STRING_ATTRS);
         addValueName(CONFIG_LDAP_HOST);
         addValueName(CONFIG_LDAP_PORT);
         addValueName(CONFIG_LDAP_SEC_CONN);
         addValueName(CONFIG_LDAP_VER);
         addValueName(CONFIG_LDAP_BASEDN);
-		addValueName(CONFIG_LDAP_MIN_CONN);
-		addValueName(CONFIG_LDAP_MAX_CONN);
+        addValueName(CONFIG_LDAP_MIN_CONN);
+        addValueName(CONFIG_LDAP_MAX_CONN);
     }
 
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
-		mInstConfig = config;
+        mInstConfig = config;
         super.init(profile, config);
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
-		CMS.debug("nsTokenUserKeySubjectNameDefault: in getConfigDescriptor, name="+ name);
+        CMS.debug("nsTokenUserKeySubjectNameDefault: in getConfigDescriptor, name="+ name);
         if (name.equals(CONFIG_DNPATTERN)) { 
             return new Descriptor(IDescriptor.STRING, 
                     null, null, CMS.getUserMessage(locale,
                         "CMS_PROFILE_SUBJECT_NAME"));
-		} else if (name.equals(CONFIG_LDAP_STRING_ATTRS)) {
+        } else if (name.equals(CONFIG_LDAP_STRING_ATTRS)) {
             return new Descriptor(IDescriptor.STRING, 
-								  null,
-								  null,
-								  CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_STRING_ATTRS"));
-		} else if (name.equals(CONFIG_LDAP_ENABLE)) {
+                null,
+                null,
+                CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_STRING_ATTRS"));
+        } else if (name.equals(CONFIG_LDAP_ENABLE)) {
             return new Descriptor(IDescriptor.STRING, 
-								  null,
-								  null,
-								  CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_ENABLE"));
-		} else if (name.equals(CONFIG_LDAP_SEARCH_NAME)) {
+                null,
+                null,
+                CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_ENABLE"));
+        } else if (name.equals(CONFIG_LDAP_SEARCH_NAME)) {
             return new Descriptor(IDescriptor.STRING, 
-								  null,
-								  null,
-								  CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_SEARCH_NAME"));
-		} else if (name.equals(CONFIG_LDAP_HOST)) {
+                null,
+                null,
+                CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_SEARCH_NAME"));
+        } else if (name.equals(CONFIG_LDAP_HOST)) {
             return new Descriptor(IDescriptor.STRING, 
-								  null,
-								  null,
-								  CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_HOST_NAME"));
-		} else if (name.equals(CONFIG_LDAP_PORT)) {
+                null,
+                null,
+                CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_HOST_NAME"));
+        } else if (name.equals(CONFIG_LDAP_PORT)) {
             return new Descriptor(IDescriptor.STRING, 
-								  null,
-								  null,
-								  CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_PORT_NUMBER"));
-		} else if (name.equals(CONFIG_LDAP_SEC_CONN)) {
+                null,
+                null,
+                CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_PORT_NUMBER"));
+        } else if (name.equals(CONFIG_LDAP_SEC_CONN)) {
             return new Descriptor(IDescriptor.BOOLEAN,
-								  null, 
-								  "false",
-								  CMS.getUserMessage(locale, "CMS_PROFILE_TOKENKEY_LDAP_SECURE_CONN"));
-		} else if (name.equals(CONFIG_LDAP_VER)) {
+                null, 
+                "false",
+                CMS.getUserMessage(locale, "CMS_PROFILE_TOKENKEY_LDAP_SECURE_CONN"));
+        } else if (name.equals(CONFIG_LDAP_VER)) {
             return new Descriptor(IDescriptor.CHOICE, CONFIG_LDAP_VERS,
                     "3",
                     CMS.getUserMessage(locale, "CMS_PROFILE_TOKENKEY_LDAP_VERSION"));
-		} else if (name.equals(CONFIG_LDAP_BASEDN)) {
+        } else if (name.equals(CONFIG_LDAP_BASEDN)) {
             return new Descriptor(IDescriptor.STRING, 
-								  null,
-								  null,
-								  CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_BASEDN"));
-		} else if (name.equals(CONFIG_LDAP_MIN_CONN)) {
+                null,
+                null,
+                CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_BASEDN"));
+        } else if (name.equals(CONFIG_LDAP_MIN_CONN)) {
             return new Descriptor(IDescriptor.STRING, 
-								  null,
-								  null,
-								  CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_MIN_CONN"));
-		} else if (name.equals(CONFIG_LDAP_MAX_CONN)) {
+                null,
+                null,
+            CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_MIN_CONN"));
+        } else if (name.equals(CONFIG_LDAP_MAX_CONN)) {
             return new Descriptor(IDescriptor.STRING, 
-								  null,
-								  null,
-								  CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_MAX_CONN"));
+                null,
+                null,
+                CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_MAX_CONN"));
         } else {
             return null;
         }
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
-		CMS.debug("nsTokenUserKeySubjectNameDefault: in getValueDescriptor name="+name);
+        CMS.debug("nsTokenUserKeySubjectNameDefault: in getValueDescriptor name="+name);
 
         if (name.equals(VAL_NAME)) {
             return new Descriptor(IDescriptor.STRING,
-				null,
-				null,
-				CMS.getUserMessage(locale, 
-					"CMS_PROFILE_SUBJECT_NAME"));
+                null,
+                null,
+                CMS.getUserMessage(locale, 
+                  "CMS_PROFILE_SUBJECT_NAME"));
         } else {
             return null;
         }
@@ -191,7 +191,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
         X509CertInfo info, String value)
         throws EPropertyException {
 
-			CMS.debug("nsTokenUserKeySubjectNameDefault: in setValue, value="+value);
+        CMS.debug("nsTokenUserKeySubjectNameDefault: in setValue, value="+value);
 
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage( 
@@ -225,7 +225,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
     public String getValue(String name, Locale locale,
         X509CertInfo info)
         throws EPropertyException {
-		CMS.debug("nsTokenUserKeySubjectNameDefault: in getValue, name="+name);
+        CMS.debug("nsTokenUserKeySubjectNameDefault: in getValue, name="+name);
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage( 
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -242,7 +242,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
             } catch (Exception e) {
                 // nothing
                 CMS.debug("nsTokenUserKeySubjectNameDefault: getValue " + e.toString());
-		
+
             }
             throw new EPropertyException(CMS.getUserMessage( 
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -253,58 +253,58 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
     }
 
     public String getText(Locale locale) {
-		CMS.debug("nsTokenUserKeySubjectNameDefault: in getText");
+        CMS.debug("nsTokenUserKeySubjectNameDefault: in getText");
         return CMS.getUserMessage(locale, "CMS_PROFILE_SUBJECT_NAME", 
                 getConfig(CONFIG_DNPATTERN));
     }
 
-	public void ldapInit()
-	    throws EProfileException {
-		if (mldapInitialized == true) return;
+    public void ldapInit()
+        throws EProfileException {
+        if (mldapInitialized == true) return;
 
-		CMS.debug("nsTokenUserKeySubjectNameDefault: ldapInit(): begin");
+        CMS.debug("nsTokenUserKeySubjectNameDefault: ldapInit(): begin");
 
-		try {
-			// cfu - XXX do more error handling here later
-			/* initialize ldap server configuration */
-			mParamsConfig = mInstConfig.getSubStore(PROP_PARAMS);
-			mLdapConfig = mParamsConfig.getSubStore(PROP_LDAP);
-			mldapEnabled = mParamsConfig.getBoolean(CONFIG_LDAP_ENABLE,
-												   false);
-			if (mldapEnabled == false)
-				return;
+        try {
+          // cfu - XXX do more error handling here later
+          /* initialize ldap server configuration */
+          mParamsConfig = mInstConfig.getSubStore(PROP_PARAMS);
+          mLdapConfig = mParamsConfig.getSubStore(PROP_LDAP);
+          mldapEnabled = mParamsConfig.getBoolean(CONFIG_LDAP_ENABLE,
+            false);
+          if (mldapEnabled == false)
+            return;
 
-			mBaseDN = mParamsConfig.getString(CONFIG_LDAP_BASEDN, null);
-			mConnFactory = CMS.getLdapAnonConnFactory();
-			mConnFactory.init(mLdapConfig);
+          mBaseDN = mParamsConfig.getString(CONFIG_LDAP_BASEDN, null);
+          mConnFactory = CMS.getLdapAnonConnFactory();
+          mConnFactory.init(mLdapConfig);
 
-			/* initialize dn pattern */
-			String pattern = mParamsConfig.getString(CONFIG_DNPATTERN, null);
+          /* initialize dn pattern */
+          String pattern = mParamsConfig.getString(CONFIG_DNPATTERN, null);
 
-			if (pattern == null || pattern.length() == 0) 
-				pattern = DEFAULT_DNPATTERN;
+          if (pattern == null || pattern.length() == 0) 
+              pattern = DEFAULT_DNPATTERN;
 
-			/* initialize ldap string attribute list */
-			String ldapStringAttrs = mParamsConfig.getString(CONFIG_LDAP_STRING_ATTRS, null);
+          /* initialize ldap string attribute list */
+          String ldapStringAttrs = mParamsConfig.getString(CONFIG_LDAP_STRING_ATTRS, null);
 
-			if ((ldapStringAttrs != null) && (ldapStringAttrs.length() != 0)) {
-				StringTokenizer pAttrs = 
-					new StringTokenizer(ldapStringAttrs, ",", false);
+          if ((ldapStringAttrs != null) && (ldapStringAttrs.length() != 0)) {
+            StringTokenizer pAttrs = 
+                new StringTokenizer(ldapStringAttrs, ",", false);
 
-				mLdapStringAttrs = new String[pAttrs.countTokens()];
+            mLdapStringAttrs = new String[pAttrs.countTokens()];
 
-				for (int i = 0; i < mLdapStringAttrs.length; i++) {
-					mLdapStringAttrs[i] = ((String) pAttrs.nextElement()).trim();
-				}
-			}
-			CMS.debug("nsTokenUserKeySubjectNameDefault: ldapInit(): done");
-			mldapInitialized = true;
-		} catch (Exception e) {
-			CMS.debug("nsTokenUserKeySubjectNameDefault: ldapInit(): "+e.toString());
-			// throw EProfileException...
-            throw new EProfileException("ldap init failure: "+e.toString());
-		}
-	}
+            for (int i = 0; i < mLdapStringAttrs.length; i++) {
+                mLdapStringAttrs[i] = ((String) pAttrs.nextElement()).trim();
+            }
+          }
+          CMS.debug("nsTokenUserKeySubjectNameDefault: ldapInit(): done");
+          mldapInitialized = true;
+        } catch (Exception e) {
+          CMS.debug("nsTokenUserKeySubjectNameDefault: ldapInit(): "+e.toString());
+          // throw EProfileException...
+          throw new EProfileException("ldap init failure: "+e.toString());
+        }
+      }
 
     /**
      * Populates the request with this policy default.
@@ -312,14 +312,14 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
     public void populate(IRequest request, X509CertInfo info)
         throws EProfileException {
         X500Name name = null;
-		CMS.debug("nsTokenUserKeySubjectNameDefault: in populate");
-		ldapInit();
+        CMS.debug("nsTokenUserKeySubjectNameDefault: in populate");
+ldapInit();
         try {
-			// cfu - this goes to ldap
-			String subjectName = getSubjectName(request);
-			CMS.debug("subjectName=" + subjectName);
-			if (subjectName == null || subjectName.equals(""))
-				return;
+            // cfu - this goes to ldap
+            String subjectName = getSubjectName(request);
+            CMS.debug("subjectName=" + subjectName);
+            if (subjectName == null || subjectName.equals(""))
+                return;
 
             name = new X500Name(subjectName);
         } catch (IOException e) {
@@ -338,37 +338,37 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
         }
     }
 
-	private String getSubjectName(IRequest request)
-		throws EProfileException, IOException {
+    private String getSubjectName(IRequest request)
+        throws EProfileException, IOException {
 
-		CMS.debug("nsTokenUserKeySubjectNameDefault: in getSubjectName");
+        CMS.debug("nsTokenUserKeySubjectNameDefault: in getSubjectName");
 
-		String pattern = getConfig(CONFIG_DNPATTERN);
-		if (pattern == null || pattern.equals("")) {
-			pattern = " ";
-		}
-		String sbjname = "";
+        String pattern = getConfig(CONFIG_DNPATTERN);
+        if (pattern == null || pattern.equals("")) {
+            pattern = " ";
+        }
+        String sbjname = "";
 
-		if (mldapInitialized == false) {
-			if (request != null)  {
-				CMS.debug("pattern = "+pattern);
-				sbjname = mapPattern(request, pattern);
-				CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): subject name mapping done");
-			}
-			return sbjname;
-		}
+        if (mldapInitialized == false) {
+            if (request != null)  {
+              CMS.debug("pattern = "+pattern);
+              sbjname = mapPattern(request, pattern);
+              CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): subject name mapping done");
+            }
+            return sbjname;
+        }
 
-		// ldap is initialized, do more substitution
-		String searchName = getConfig(CONFIG_LDAP_SEARCH_NAME);
-		if (searchName == null || searchName.equals("")) {
-			searchName = "uid";
-		}
+        // ldap is initialized, do more substitution
+        String searchName = getConfig(CONFIG_LDAP_SEARCH_NAME);
+        if (searchName == null || searchName.equals("")) {
+            searchName = "uid";
+        }
 
-		LDAPConnection conn = null;
+        LDAPConnection conn = null;
         String userdn = null;
-		// get DN from ldap to fill request
-		try {
-			if (mConnFactory == null) {
+        // get DN from ldap to fill request
+        try {
+            if (mConnFactory == null) {
                 conn = null;
                 CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): no LDAP connection");
                 throw new EProfileException("no LDAP connection");
@@ -381,18 +381,9 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
                 }
                 CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): got LDAP connection");
             }
-			if (request != null)  {
-				CMS.debug("pattern = "+pattern);
-				sbjname = mapPattern(request, pattern);
-				CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): subject name mapping done");
-			} else {
-                CMS.debug( "nsTokenUserKeySubjectNameDefault::getSubjectName() "
-                         + "- request is null!" );
-                throw new EProfileException( "request is null" );
-			}
-			// retrieve the attributes
+            // retrieve the attributes
             // get user dn.
-			CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): about to search with basedn = "+ mBaseDN);
+            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): about to search with basedn = "+ mBaseDN);
             LDAPSearchResults res = conn.search(mBaseDN,
                     LDAPv2.SCOPE_SUB, "("+ searchName + "=" + request.getExtDataInString("uid") + ")", null, false);
 
@@ -404,43 +395,54 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
                 CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): "+ searchName + " does not exist");
                 throw new EProfileException("id does not exist");
             }
-			CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): retrieved entry for "+searchName + " = "+request.getExtDataInString("uid"));
+            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): retrieved entry for "+searchName + " = "+request.getExtDataInString("uid"));
 
-			LDAPEntry entry = null;
-			CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): about to search with "+ mLdapStringAttrs.length +" attributes");
-			LDAPSearchResults results = 
-				conn.search(userdn, LDAPv2.SCOPE_BASE, "objectclass=*", 
-							mLdapStringAttrs, false);
+            LDAPEntry entry = null;
+            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): about to search with "+ mLdapStringAttrs.length +" attributes");
+            LDAPSearchResults results = 
+            conn.search(userdn, LDAPv2.SCOPE_BASE, "objectclass=*", 
+            mLdapStringAttrs, false);
 
-			if (!results.hasMoreElements()) {
-				CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): no attributes");
-				throw new EProfileException("no ldap attributes found");
-			}
-			entry = results.next();
-			// set attrs into request
+            if (!results.hasMoreElements()) {
+                CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): no attributes");
+                throw new EProfileException("no ldap attributes found");
+            }
+            entry = results.next();
+            // set attrs into request
             for (int i = 0; i < mLdapStringAttrs.length; i++) {
                LDAPAttribute la =
-				   entry.getAttribute(mLdapStringAttrs[i]);
-			   if (la != null) {
-				   String[] sla = la.getStringValueArray();
-				   			CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): got attribute: "+sla[0]);
-				   request.setExtData(mLdapStringAttrs[i], sla[0]);
-			   }
+                   entry.getAttribute(mLdapStringAttrs[i]);
+               if (la != null) {
+                   String[] sla = la.getStringValueArray();
+                   CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): got attribute: "+mLdapStringAttrs[i]+
+                       "=" +sla[0]);
+                       request.setExtData(mLdapStringAttrs[i], sla[0]);
+               }
             }
-			CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): attributes set in request");
+//cfu
+            if (request != null)  {
+                CMS.debug("pattern = "+pattern);
+                sbjname = mapPattern(request, pattern);
+                CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): subject name mapping done");
+            } else {
+                CMS.debug( "nsTokenUserKeySubjectNameDefault::getSubjectName() "
+                         + "- request is null!" );
+                throw new EProfileException( "request is null" );
+            }
+            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): attributes set in request");
 
-		} catch (Exception e) {
-			CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): "+e.toString());
+        } catch (Exception e) {
+            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): "+e.toString());
             throw new EProfileException("getSubjectName() failure: "+e.toString());
-		} finally {
-			try {
-				if (conn != null)
-					mConnFactory.returnConn(conn);
-			} catch  (Exception e) {
-				throw new EProfileException("nsTokenUserKeySubjectNameDefault: getSubjectName(): connection return failure");
-			}
-		}
-		return sbjname;
+        } finally {
+            try {
+                if (conn != null)
+                    mConnFactory.returnConn(conn);
+            } catch  (Exception e) {
+                throw new EProfileException("nsTokenUserKeySubjectNameDefault: getSubjectName(): connection return failure");
+            }
+        }
+        return sbjname;
 
-	}
+    }
 }
