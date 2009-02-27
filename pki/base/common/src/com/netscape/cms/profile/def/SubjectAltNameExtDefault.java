@@ -68,12 +68,12 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         addValueName(VAL_GENERAL_NAMES);
 
         addConfigName(CONFIG_CRITICAL);
-	int num = getNumGNs();
+        int num = getNumGNs();
         for (int i = 0; i < num; i++) {
-	    addConfigName(CONFIG_TYPE + i);
-	    addConfigName(CONFIG_PATTERN + i);
-	    addConfigName(CONFIG_GN_ENABLE + i);
-	}
+        addConfigName(CONFIG_TYPE + i);
+        addConfigName(CONFIG_PATTERN + i);
+        addConfigName(CONFIG_GN_ENABLE + i);
+        }
     }
 
     protected int getNumGNs() {
@@ -150,7 +150,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     null,
                     CMS.getUserMessage(locale, 
                         "CMS_PROFILE_SUBJECT_ALT_NAME_PATTERN"));
-	} else if (name.startsWith(CONFIG_GN_ENABLE)) {
+        } else if (name.startsWith(CONFIG_GN_ENABLE)) {
             return new Descriptor(IDescriptor.BOOLEAN, null, 
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_GN_ENABLE"));
@@ -223,7 +223,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
 
                 while (st.hasMoreTokens()) {
                     String gname = (String) st.nextToken();
-		    CMS.debug("SubjectAltNameExtDefault: setValue GN:" + gname);
+                    CMS.debug("SubjectAltNameExtDefault: setValue GN:" + gname);
 
                     if (!isGeneralNameValid(gname)) {
                         continue;
@@ -313,14 +313,14 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                 while (e.hasMoreElements()) {
                     Object o = (Object) e.nextElement();
                     if (!(o instanceof GeneralName))
-			continue;
+                            continue;
                     GeneralName gn = (GeneralName) o;
 
                     if (!sb.toString().equals("")) {
                         sb.append("\r\n");
-                    }	
+                    }
                     sb.append(toGeneralNameString(gn));
-		    CMS.debug("SubjectAltNameExtDefault: getValue append GN:" + toGeneralNameString(gn));
+                    CMS.debug("SubjectAltNameExtDefault: getValue append GN:" + toGeneralNameString(gn));
                 }
                 return sb.toString();
             } else {
@@ -339,24 +339,24 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
      * a profile
      */
     public String getText(Locale locale) {
-	StringBuffer sb = new StringBuffer();
-	String numGNs = getConfig(CONFIG_NUM_GNS);
-	int num = getNumGNs();
+        StringBuffer sb = new StringBuffer();
+        String numGNs = getConfig(CONFIG_NUM_GNS);
+        int num = getNumGNs();
 
-	for (int i= 0; i< num; i++) {
-	    sb.append("Record #");
+        for (int i= 0; i< num; i++) {
+            sb.append("Record #");
             sb.append(i);
             sb.append("{");
-	    sb.append(GN_PATTERN + ":");
-	    sb.append(getConfig(CONFIG_PATTERN + i));
+            sb.append(GN_PATTERN + ":");
+            sb.append(getConfig(CONFIG_PATTERN + i));
             sb.append(",");
-	    sb.append(GN_TYPE +":");
-	    sb.append(getConfig(CONFIG_TYPE +i));
+            sb.append(GN_TYPE +":");
+            sb.append(getConfig(CONFIG_TYPE +i));
             sb.append(",");
             sb.append(GN_ENABLE + ":");
             sb.append(getConfig(CONFIG_GN_ENABLE + i));
             sb.append("}");
-	};
+        };
 
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_SUBJECT_ALT_NAME_EXT", getConfig(CONFIG_CRITICAL), sb.toString());
     }
@@ -369,7 +369,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         SubjectAlternativeNameExtension ext = null;
 
         try {
-	    /* read from config file*/
+            /* read from config file*/
             ext = createExtension(request);
 
         } catch (IOException e) {
@@ -386,48 +386,54 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     public SubjectAlternativeNameExtension createExtension(IRequest request)
         throws IOException {
         SubjectAlternativeNameExtension ext = null;
-	    int num = getNumGNs();
+        int num = getNumGNs();
 
         boolean critical = Boolean.valueOf(
                 getConfig(CONFIG_CRITICAL)).booleanValue();
 
-	    GeneralNames gn = new GeneralNames();
+        GeneralNames gn = new GeneralNames();
         int count = 0; // # of actual gnames
-	    for (int i=0; i< num; i++) {
-	        String enable = getConfig(CONFIG_GN_ENABLE +i);
+        for (int i=0; i< num; i++) {
+        String enable = getConfig(CONFIG_GN_ENABLE +i);
             if (enable != null && enable.equals("true")) {
-		        CMS.debug("SubjectAltNameExtDefault: createExtension i=" +i);
+                CMS.debug("SubjectAltNameExtDefault: createExtension i=" +i);
                 
-		        String pattern = getConfig(CONFIG_PATTERN + i);
-		        if (pattern == null || pattern.equals("")) {
-			        pattern = " ";
-		        }
+                String pattern = getConfig(CONFIG_PATTERN + i);
+                if (pattern == null || pattern.equals("")) {
+                    pattern = " ";
+                }
 
                 if (!pattern.equals("")) {
-			        String gname = "";
+                    String gname = "";
 
                     // cfu - see if this is server-generated (e.g. UUID4)
                     // to use this feature, use $server.source$ in pattern
                     String source = getConfig(CONFIG_SOURCE +i); 
                     String type = getConfig(CONFIG_TYPE + i);
-                    if ((source != null) && (type.equalsIgnoreCase("OtherName"))) {
-                        CMS.debug("SubjectAlternativeNameExtension: using "+
-                           source+ " as gn");
-                        if (source.equals(CONFIG_SOURCE_UUID4)) {
-                          UUID randUUID = UUID.randomUUID();
-                          // call the mapPattern that does server-side gen
-                          // request is not used, but needed for the substitute
-                          // function
-                          gname = mapPattern(randUUID.toString(), request, pattern);
-                        } else { //expand more server-gen types here
-                          CMS.debug("SubjectAltNameExtDefault: createExtension - unsupported server-generated type: "+source+". Supported: UUID4");
-                          continue;
+                    if ((source != null) && (!source.equals(""))) {
+                        if (type.equalsIgnoreCase("OtherName")) {
+                            CMS.debug("SubjectAlternativeNameExtension: using "+
+                               source+ " as gn");
+                            if (source.equals(CONFIG_SOURCE_UUID4)) {
+                              UUID randUUID = UUID.randomUUID();
+                              // call the mapPattern that does server-side gen
+                              // request is not used, but needed for the substitute
+                              // function
+                              gname = mapPattern(randUUID.toString(), request, pattern);
+                            } else { //expand more server-gen types here
+                              CMS.debug("SubjectAltNameExtDefault: createExtension - unsupported server-generated type: "+source+". Supported: UUID4");
+                              continue;
+                            }
+                        } else {
+                              CMS.debug("SubjectAltNameExtDefault: createExtension - source is only supported for subjAltExtType OtherName");
+                              continue;
                         }
                     } else {
-			            if (request != null)  {
-			                gname = mapPattern(request, pattern);
-		        	    }
+                        if (request != null)  {
+                            gname = mapPattern(request, pattern);
+                        }
                     }
+
                     if (gname.equals("")) {
                         CMS.debug("gname is empty, not added");
                         continue;
@@ -439,7 +445,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     CMS.debug("adding gname: "+gname);
                     if (n != null) {
                         CMS.debug("SubjectAlternativeNameExtension: n not null");
-			            gn.addElement(n);
+                        gn.addElement(n);
                         count++;
                     } else {
                         CMS.debug("SubjectAlternativeNameExtension: n null");
