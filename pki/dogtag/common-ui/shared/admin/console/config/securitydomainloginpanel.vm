@@ -70,7 +70,7 @@
       <tr>
         <th>Password:</th>
                                                                                 
-        <td><input type="password" length="64" size="40" name="__pwd" value="$sd_pwd" autocomplete="off" /></td>
+        <td><input type="password" length="64" size="40" name="pwd" value="$sd_pwd" autocomplete="off" /></td>
       </tr>       
 <input type=hidden name=url value="$url">
 

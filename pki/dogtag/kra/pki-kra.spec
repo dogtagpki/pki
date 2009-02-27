@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      16
+%define base_release      17
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -288,6 +288,8 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Feb 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-17
+- Bugzilla Bug #458337 -  Provide separate listening ports for CS
 * Tue Feb 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-16
 - Bugzilla Bug #458337 -  Provide separate listening ports for CS
 * Mon Feb 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-15

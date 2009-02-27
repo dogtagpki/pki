@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      44
+%define base_release      45
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,8 +285,11 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
-* Wed Feb 26 2009 Christina Fu <cfu@redhat.com> 1.0.0-43
-- Bugzilla Bugs: 487592 - nsTokenUserKeySubjectNameDefault does not fill in attributes retrieved from ldap
+* Thu Feb 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-45
+- Bugzilla Bug #458337 -  Provide separate listening ports for CS
+* Wed Feb 25 2009 Christina Fu <cfu@redhat.com> 1.0.0-44
+- Bugzilla Bugs: 487592 - nsTokenUserKeySubjectNameDefault does not fill in
+  attributes retrieved from ldap
   481790 - SubjectAltNameExtDefault: Handling Of Non-UUID OtherName Is Broken
 * Wed Feb 25 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-43
 - Bugzilla Bug: 480804 - to save general settings
