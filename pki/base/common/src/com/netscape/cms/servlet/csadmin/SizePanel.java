@@ -170,6 +170,7 @@ public class SizePanel extends WizardPanelBase {
         context.put("certs", mCerts);
         context.put("errorString", errorString);
         context.put("default_keysize", DEFAULT_RSA_KEY_SIZE);
+        context.put("default_ecc_keysize", DEFAULT_ECC_KEY_SIZE);
         context.put("panel", "admin/console/config/sizepanel.vm");
     }
 
@@ -474,6 +475,7 @@ public class SizePanel extends WizardPanelBase {
         context.put("title", "Key Pairs");
         context.put("certs", mCerts);
         context.put("default_keysize", DEFAULT_RSA_KEY_SIZE);
+        context.put("default_ecc_keysize", DEFAULT_ECC_KEY_SIZE);
         context.put("panel", "admin/console/config/sizepanel.vm");
     }
 }

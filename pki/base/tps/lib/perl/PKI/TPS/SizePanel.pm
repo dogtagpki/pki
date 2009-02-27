@@ -222,6 +222,13 @@ sub display
     } else {
         $::symbol{default_keysize} = $default_size;
     }
+    my $default_ecc_size =  $::config->get("preop.keysize.ecc.size");
+    if ($default_ecc_size eq "") {
+        $::symbol{default_ecc_keysize} = 256;
+    } else {
+        $::symbol{default_ecc_keysize} = $default_ecc_size;
+    }
+
     my $custom_size = $::config->get("preop.keysize.customsize");
     if ($custom_size eq "") {
         $::symbol{custom_size} = 2048;

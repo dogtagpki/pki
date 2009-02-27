@@ -443,7 +443,9 @@ public class CertRequestPanel extends WizardPanelBase {
     private boolean findBootstrapServerCert() {
         IConfigStore cs = CMS.getConfigStore();
         try {
-            String nickname = cs.getString("preop.cert.sslserver.nickname", "");
+            String instanceID = cs.getString("instanceId", "");
+            String nickname = "Server-Cert cert-" + instanceID;
+
             CryptoManager cm = CryptoManager.getInstance();
             X509Certificate cert = cm.findCertByNickname(nickname);
             Principal issuerDN = cert.getIssuerDN();
@@ -460,7 +462,9 @@ public class CertRequestPanel extends WizardPanelBase {
     private void deleteBootstrapServerCert() {
         IConfigStore cs = CMS.getConfigStore();
         try {
-            String nickname = cs.getString("preop.cert.sslserver.nickname", "");
+            String instanceID = cs.getString("instanceId", "");
+            String nickname = "Server-Cert cert-" + instanceID;
+
             deleteCert("Internal Key Storage Token", nickname);
         } catch (Exception e) {
             CMS.debug("CertRequestPanel deleteBootstrapServerCert Exception="+e.toString());

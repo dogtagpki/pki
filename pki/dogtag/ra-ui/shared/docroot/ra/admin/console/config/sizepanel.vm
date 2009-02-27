@@ -166,7 +166,7 @@ Within each key pair type (but not comparable between two different key pair typ
 #if ($select == "default")
  checked
 #end
- onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default key size (2048 bits for RSA, 256 bits for ECC)</b>.
+ onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default key size ($default_keysize bits for RSA, $default_ecc_keysize bits for ECC)</b>.
     <p>
     <input
 #if ($select == "custom")
@@ -204,7 +204,7 @@ Within each key pair type (but not comparable between two different key pair typ
 #if ($item.useDefaultKey())
  checked
 #end
- type=radio name=$item.getCertTag()_choice value="default"><b>Use the default key size ($default_keysize bits).
+ type=radio name=$item.getCertTag()_choice value="default"><b>Use the default key size ($default_keysize bits for RSA, $default_ecc_keysize bits for ECC).
     <p>
     <input
 #if (!$item.useDefaultKey())

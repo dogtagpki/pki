@@ -304,7 +304,7 @@ sub display
     system( "chmod 00660 $instDir/conf/nss.conf.tmp" );
     open(NSS_CONF, "<$instDir/conf/nss.conf");
     while (<NSS_CONF>) {
-        if ((/^NSSNickname/) && ($tokenname ne "") && ($tokenname ne "NSS Certificate DB")) {
+        if (/^NSSNickname/) {
             print TMP_NSS_CONF "NSSNickname \"$nickname\"\n";
         } else {
           print TMP_NSS_CONF $_;

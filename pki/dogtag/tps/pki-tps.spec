@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      27
+%define base_release      28
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -308,7 +308,9 @@ fi
 ###############################################################################
 
 %changelog
-* Thur Feb 26 2009 Ade Lee <alee@redhat.com> 1.0.0-27
+* Fri Feb 27 2009 Ade Lee <alee@redhat.com> 1.0.0-28
+- Bugzilla 224835 and 367171: Allow cert nicknames to be edited and sizepanel fixes
+* Thu Feb 26 2009 Ade Lee <alee@redhat.com> 1.0.0-27
 - Bugzilla Bug 484275 and 483304: TPS roles defined and correcting error templates
 * Thu Feb 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-26
 - Bugzilla Bug #458337 -  Provide separate listening ports for CS

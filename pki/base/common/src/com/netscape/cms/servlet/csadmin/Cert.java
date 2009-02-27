@@ -51,6 +51,10 @@ public class Cert {
         return mEnable;
     }
 
+    public void setNickname(String s) {
+        mNickname = s;
+    }
+
     public String getNickname() {
         return mNickname;
     }

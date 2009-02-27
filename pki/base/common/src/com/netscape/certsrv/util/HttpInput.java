@@ -241,6 +241,12 @@ public class HttpInput
     {
         return getString(request, name);
     }
+
+    public static String getNickname(HttpServletRequest request, String name)
+        throws IOException
+    {
+        return getString(request, name);
+    }
                                                                                 
     public static String getHostname(HttpServletRequest request, String name)
         throws IOException

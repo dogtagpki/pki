@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      9
+%define base_release      10
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Feb 27 2009 Ade Lee <alee@redhat.com> 1.0.0-10
+- Bugzilla 224835 and 367171: Allow cert nicknames to be edited and sizepanel fixes
 * Thu Feb 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-9
 - Bugzilla Bug #458337 -  Provide separate listening ports for CS
 * Wed Feb 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-8

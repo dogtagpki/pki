@@ -562,16 +562,29 @@ public class NamePanel extends WizardPanelBase {
    {
             CMS.debug("NamePanel: configCertWithTag start");
             Enumeration c = mCerts.elements();
-
+            IConfigStore config = CMS.getConfigStore();
+         
             while (c.hasMoreElements()) {
                 Cert cert = (Cert) c.nextElement();
                 String ct = cert.getCertTag(); 
                 CMS.debug("NamePanel: configCertWithTag ct=" + ct + 
                         " tag=" +tag);
                 if (ct.equals(tag)) {
-                  configCert(request, response, context, cert);
-                  CMS.debug("NamePanel: configCertWithTag done with tag=" + tag);
-                  return;
+                    try {
+                        String nickname = HttpInput.getNickname(request, ct + "_nick");
+                        if (nickname != null) {
+                            CMS.debug("configCertWithTag: Setting nickname for " + ct + " to " + nickname);
+                            config.putString(PCERT_PREFIX  + ct + ".nickname", nickname);
+                            cert.setNickname(nickname);
+                            config.commit(false);
+			}
+                    } catch (Exception e) {
+                        CMS.debug("NamePanel: configCertWithTag: Exception in setting nickname for " + ct + ": " + e.toString());
+                    }
+
+                    configCert(request, response, context, cert);
+                    CMS.debug("NamePanel: configCertWithTag done with tag=" + tag);
+                    return;
                 }
            }
             CMS.debug("NamePanel: configCertWithTag done");
@@ -598,6 +611,12 @@ public class NamePanel extends WizardPanelBase {
 
                 if (!olddn.equals(dn))
                     hasChanged = true;
+
+               String oldnick = config.getString(PCERT_PREFIX + ct + ".nickname");
+               String nick = HttpInput.getNickname(request, ct + "_nick");
+               if (!oldnick.equals(nick))
+                   hasChanged = true;
+
             }
         } catch (Exception e) {
         }
@@ -727,7 +746,6 @@ public class NamePanel extends WizardPanelBase {
             while (c.hasMoreElements()) {
                 Cert cert = (Cert) c.nextElement();
                 String ct = cert.getCertTag(); 
-                String nickname = cert.getNickname();
                 String tokenname = cert.getTokenname();
                 boolean enable = config.getBoolean(PCERT_PREFIX+ct+".enable", true);
                 if (!enable)
@@ -737,10 +755,20 @@ public class NamePanel extends WizardPanelBase {
                 if (certDone)
                     continue;
 
-                // get the dn's and put in config
-                String dn = HttpInput.getDN(request, cert.getCertTag());
+                // get the nicknames and put in config
+                String nickname = HttpInput.getNickname(request, ct + "_nick");
+                if (nickname != null) {
+                    CMS.debug("NamePanel: update: Setting nickname for " + ct + " to " + nickname);
+                    config.putString(PCERT_PREFIX + ct + ".nickname", nickname);
+                    cert.setNickname(nickname);
+                } else {
+                    nickname = cert.getNickname();
+                }
 
-                config.putString(PCERT_PREFIX + cert.getCertTag() + ".dn", dn);
+                // get the dn's and put in config
+                String dn = HttpInput.getDN(request, ct);
+
+                config.putString(PCERT_PREFIX + ct + ".dn", dn);
                 // commit here in case it changes
                 config.commit(false);
 

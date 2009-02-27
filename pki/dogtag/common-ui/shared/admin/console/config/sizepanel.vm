@@ -166,7 +166,7 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
       </tr>
 </table>
 <p>
-    <input checked onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default key size (2048 bits for RSA, 256 bits for ECC)</b>.
+    <input checked onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default key size ($default_keysize bits for RSA, $default_ecc_keysize bits for ECC)</b>.
     <p>
     <input onChange="customChange()" type=radio name="choice" value="custom"><b>Use the following custom key size:</b>
                                                                                 
@@ -206,7 +206,7 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
 #if ($item.useDefaultKey())
  checked
 #end
- type=radio name=$item.getCertTag()_choice value="default"><b>Use the default key size ($default_keysize bits).
+ type=radio name=$item.getCertTag()_choice value="default"><b>Use the default key size (2048 bits for RSA, 256 bits for ECC).
 #else
     <input
 #if ($item.useDefaultKey())

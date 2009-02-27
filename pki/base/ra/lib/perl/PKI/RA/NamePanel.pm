@@ -128,6 +128,21 @@ sub update
         $::config->put("preop.cert.".$certtag.".dn", $cert_dn);
         $::config->commit();
 
+        my $sslnickname = $::config->get("preop.cert.sslserver.nickname");
+        my $nickname = $q->param($certtag . "_nick");
+        if ($nickname ne "") {
+            &PKI::RA::Wizard::debug_log("NamePanel: update nickname for $certtag set to $nickname");
+                &PKI::RA::Wizard::debug_log("NamePanel: update nickname for $certtag being updated in config file");
+                $::config->put("preop.cert.".$certtag.".nickname", $nickname);
+                $::config->commit();
+        } else {
+            $nickname = $::config->get("preop.cert.$certtag.nickname");
+            if ($nickname eq "") {
+                $nickname = "RA ".$certtag." cert";
+                &PKI::RA::Wizard::debug_log("NamePanel: update nickname not found for $certtag  -- try $nickname");
+            }
+        }
+
         my $cert_request = $::config->get("preop.cert.$certtag.certreq");
         if ($cert_request ne "") {
             &PKI::RA::Wizard::debug_log("NamePanel: update do not generate new keys");
@@ -137,12 +152,6 @@ sub update
 
         # =====generate requests========
         #   getting new request should void old cert
-        my $sslnickname = $::config->get("preop.cert.sslserver.nickname");
-        my $nickname = $::config->get("preop.cert.$certtag.nickname");
-        if ($nickname eq "") {
-            $nickname = "RA ".$certtag." cert";
-            &PKI::RA::Wizard::debug_log("NamePanel: update nickname not found for $certtag  -- try $nickname");
-        }
 
         my $file= "$instanceDir/conf/".$certtag."_cert.txt";
         my $tmp = `rm $file`;
@@ -347,9 +356,16 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
                 $nickname = "RA ".$certtag." cert";
                 &PKI::RA::Wizard::debug_log("NamePanel: update nickname not found for $certtag  -- try $nickname");
             }
-            &PKI::RA::Wizard::debug_log("NamePanel: update: try to delete existing cert $nickname, if any....ok if it fails");
-            $tmp = `certutil -d $instanceDir/alias -D -n "$nickname"`;
-            $tmp = `certutil -d $instanceDir/alias -D $hw -f $instanceDir/conf/.pwfile -n "$tk$nickname"`;
+
+            if ($certtag ne "sslserver") {
+                &PKI::RA::Wizard::debug_log("NamePanel: update: try to delete existing cert $nickname, if any....ok if it fails");
+                $tmp = `certutil -d $instanceDir/alias -D -n "$nickname"`;
+                $tmp = `certutil -d $instanceDir/alias -D $hw -f $instanceDir/conf/.pwfile -n "$tk$nickname"`;
+            } else {
+                &PKI::RA::Wizard::debug_log("NamePanel: update: try to delete existing cert $sslnickname, if any....ok if it fails");
+                $tmp = `certutil -d $instanceDir/alias -D -n "$sslnickname"`;
+                $tmp = `certutil -d $instanceDir/alias -D $hw -f $instanceDir/conf/.pwfile -n "$tk$sslnickname"`;
+            }
 
             &PKI::RA::Wizard::debug_log("NamePanel: update: try to import cert from $cert_fn");
             $tmp = `certutil -d $instanceDir/alias $hw -f $instanceDir/conf/.pwfile -A -n "$nickname" -t "u,u,u" -a -i $cert_fn`;
@@ -369,7 +385,17 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
                     $::config->put("conn.tks1.clientNickname", "$tk$nickname");
                 }
                 $::config->commit();
+            } else {
+                if ($certtag eq "subsystem") {
+                    # setting these just in case the subsystem nickname changed.
+                    &PKI::RA::Wizard::debug_log("NamePanel: update: setting in case the subsystem nickname changed");
+                    $::config->put("conn.ca1.clientNickname", "$nickname");
+                    $::config->put("conn.drm1.clientNickname", "$nickname");
+                    $::config->put("conn.tks1.clientNickname", "$nickname");
+                }
+                $::config->commit();
             }
+
 
             &PKI::RA::Wizard::debug_log("NamePanel: update: done importing cert: $tk$nickname");
             $tmp = `rm $cert_fn`;
