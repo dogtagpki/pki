@@ -45,32 +45,76 @@
 
 <SCRIPT type="text/JavaScript">
 <!--
-var uri = "";
+var uri0 = "";
 if (typeof(uriBase) == "undefined") {
-    uri += "/tus";
+    uri0 += "/tus";
 } else {
-    uri += uriBase;
+    uri0 += uriBase;
 }
 
 document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
-               "<a href=\""+uri+"\">Main Menu</a></font>\n");
+               "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : Search Activity</font>\n");
+
 document.write("<table width=\"100%\"><tr><td align=\"right\">" +
                 "<b>UID:</b>" +
                 userid + "</td></tr></table>\n");
 document.write("<HR NOSHADE SIZE=1>\n");
 
-if (typeof(tid) == "undefined") {
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n");
-    document.write("Missing "+ editType + " ID</font>\n");
-    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
-} else {
-    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n");
-    document.write(editType + " record "+tid+" has been updated.</font>\n");
-    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
+function doFind(form) {
+        var uri = "";
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus"
+        } else {
+            uri += uriBase;
+        }
+        uri += "?op=view_activity_admin";
+        uri += "&tid=" + form.tid.value;
+        uri += "&uid=" + form.uid.value;
+        uri += "&maxCount=" + form.maxCount.value;
+        if ((typeof(topLevel) != "undefined") && (topLevel == "operator")) {
+            uri += "top=operator";
+        }
+        location.href = uri;
 }
-
 //-->
 </SCRIPT>
 
+<FORM NAME ="findForm" ACTION="" METHOD=GET>
+<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        Token ID:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT NAME=tid SIZE=20>
+    </td>
+  </tr>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        User ID:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT NAME=uid SIZE=20>
+    </td>
+  </tr>
+  <tr>
+    <td ALIGN=LEFT width=30%>
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+        Max Count:
+      </font>
+    </td>
+    <td>
+      <input TYPE=TEXT NAME=maxCount SIZE=4 value="20">
+    </td>
+  </tr>
+</table>
+<HR NOSHADE SIZE=1>
+<DIV ALIGN=RIGHT>
+<input TYPE=button VALUE=Find onClick="doFind(findForm);">
+</form>
 </BODY>
 </HTML>

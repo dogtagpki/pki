@@ -90,6 +90,10 @@ function doSave(form) {
     }
     uri += "?op=save&tid="+results[0].cn;
 
+    if (results[0].tokenUserID != form.uid.value) {
+            uri += "&uid=" + form.uid.value;
+    }
+
     if (results[0].tokenPolicy != form.tokenPolicy.value) {
        uri += "&tokenPolicy=" + form.tokenPolicy.value;
     }
@@ -137,7 +141,7 @@ if (typeof(results) == "undefined" || results.length == 0) {
                    "User ID:&nbsp;</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
-    document.write(results[0].tokenUserID+"\n");
+    document.write("<input TYPE=TEXT NAME=uid SIZE=20 VALUE="+results[0].tokenUserID+">\n");
     document.write("</td>\n");
     document.write("</tr>\n");
 

@@ -157,8 +157,8 @@ static char *searchActivityTemplate          = NULL;
 static char *searchCertificateTemplate       = NULL;
 static char *searchCertificateResultTemplate = NULL;
 static char *searchActivityResultTemplate    = NULL;
-static char *editAdminTemplate               = NULL;
-static char *editAdminResultTemplate         = NULL;
+static char *searchActivityAdminTemplate     = NULL;
+static char *searchActivityAdminResultTemplate = NULL;
 static char *editTemplate                    = NULL;
 static char *editResultTemplate              = NULL;
 static char *showTemplate                    = NULL;
@@ -1612,6 +1612,33 @@ int get_tus_config( char *name )
         }
     }
 
+    if( ( s = PL_strstr( buf, "tokendb.searchActivityAdminTemplate=" ) ) != NULL) {
+        s += PL_strlen( "tokendb.searchActivityAdminTemplate=" );
+        v = s;
+
+        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' && 
+               ( PRUint32 ) ( s - buf ) < size ) {
+            s++;
+        }
+
+        n = s - v;
+
+        s = PL_strndup( v, n );
+        if( s != NULL ) {
+            if( searchActivityAdminTemplate != NULL ) {
+                PL_strfree( searchActivityAdminTemplate );
+                searchActivityAdminTemplate = NULL;
+            }
+            searchActivityAdminTemplate = s;
+        } else {
+            if( buf != NULL ) {
+                PR_Free( buf );
+                buf = NULL;
+            }
+            return 0;
+        }
+    }
+
     if( ( s = PL_strstr( buf, "tokendb.searchCertificateResultTemplate=" ) ) !=
         NULL ) {
         s += PL_strlen( "tokendb.searchCertificateResultTemplate=" );
@@ -1938,8 +1965,8 @@ int get_tus_config( char *name )
         }
     }
 
-    if( ( s = PL_strstr( buf, "tokendb.editAdminTemplate=" ) ) != NULL ) {
-        s += PL_strlen( "tokendb.editAdminTemplate=" );
+    if( ( s = PL_strstr( buf, "tokendb.searchActivityAdminResultTemplate=" ) ) != NULL ) {
+        s += PL_strlen( "tokendb.searchActivityAdminResultTemplate=" );
         v = s;
 
         while( *s != '\x0D' && *s != '\x0A' && *s != '\0' && 
@@ -1951,11 +1978,11 @@ int get_tus_config( char *name )
 
         s = PL_strndup( v, n );
         if( s != NULL ) {
-            if( editAdminTemplate != NULL ) {
-                PL_strfree( editAdminTemplate );
-                editAdminTemplate = NULL;
+            if( searchActivityAdminResultTemplate != NULL ) {
+                PL_strfree( searchActivityAdminResultTemplate );
+                searchActivityAdminResultTemplate = NULL;
             }
-            editAdminTemplate = s;
+            searchActivityAdminResultTemplate = s;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -2010,34 +2037,6 @@ int get_tus_config( char *name )
                 editTemplate = NULL;
             }
             editTemplate = s;
-        } else {
-            if( buf != NULL ) {
-                PR_Free( buf );
-                buf = NULL;
-            }
-            return 0;
-        }
-    }
-
-    if( ( s = PL_strstr( buf, "tokendb.editAdminResultTemplate=" ) ) !=
-        NULL ) {
-        s += PL_strlen( "tokendb.editAdminResultTemplate=" );
-        v = s;
-
-        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' && 
-               ( PRUint32 ) ( s - buf ) < size ) {
-            s++;
-        }
-
-        n = s - v;
-
-        s = PL_strndup( v, n );
-        if( s != NULL ) {
-            if( editAdminResultTemplate != NULL ) {
-                PL_strfree( editAdminResultTemplate );
-                editAdminResultTemplate = NULL;
-            }
-            editAdminResultTemplate = s;
         } else {
             if( buf != NULL ) {
                 PR_Free( buf );
@@ -2600,7 +2599,7 @@ mod_tokendb_handler( request_rec *rq )
                 buf = NULL;
             }
 
-            return DECLINED;
+            return DONE;
         }
     } else {
         tokendbDebug( "token DB was initialized\n" );
@@ -2616,7 +2615,7 @@ mod_tokendb_handler( request_rec *rq )
     if( cert == NULL ) {
           error_out("Authentication Failure", "Failed to authenticate request");
           do_free(buf);
-          return DECLINED;
+          return DONE;
     }
 
     tokendbDebug( cert );
@@ -2633,7 +2632,7 @@ mod_tokendb_handler( request_rec *rq )
           error_out("Authentication Failure", "Failed to authenticate request");
           do_free(buf);
 
-          return DECLINED;
+          return DONE;
     }
 
     /* authorization */
@@ -2680,7 +2679,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -2700,7 +2699,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -2719,7 +2718,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -2739,7 +2738,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         /* XXX - chrisho */
@@ -2932,7 +2931,7 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             } else if( rc > 0 ) {
                 tokendbDebug( "token is physically damaged. rc > 0\n" );
 
@@ -2956,7 +2955,7 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             }
 
         /* Is this token permanently lost? */
@@ -3110,7 +3109,7 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             } else if( rc > 0 ) {
                 PR_snprintf( injection, MAX_INJECTION_SIZE,
                              "%s%s%s%s%s", JS_START,
@@ -3132,7 +3131,7 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             }
 
         /* Is this token temporarily lost? */
@@ -3268,7 +3267,7 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             } else if( rc > 0 ) {
                 PR_snprintf( injection, MAX_INJECTION_SIZE,
                              "%s%s%s%s%s", JS_START,
@@ -3290,7 +3289,7 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             }
 
         /* Is this temporarily lost token found? */
@@ -3407,7 +3406,7 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             } else if( rc > 0 ) {
                 ldap_error_out("LDAP mod error: ", "LDAP error: %s");
 
@@ -3415,7 +3414,7 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             }
 
         /* Does this temporarily lost token become permanently lost? */
@@ -3577,7 +3576,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         /* XXX - chrisho */
@@ -3593,18 +3592,37 @@ mod_tokendb_handler( request_rec *rq )
         PL_strcat(injection, JS_STOP);
 
         buf = getData( revokeTemplate, injection );
-    } else if( ( PL_strstr( query, "op=search_activity" ) ) ) {
+    } else if( ( PL_strstr( query, "op=search_activity_admin" ) ) ) {
         tokendbDebug( "authorization\n" );
 
-        /* check removed - all roles permit this
-
-        if ((! is_agent) && (! is_operator) && (! is_admin)) {
+        if (! is_admin) {
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
-        } */
+            return DONE;
+        } 
+
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid,
+                     "\";\n" );
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
+
+        buf = getData( searchActivityAdminTemplate, injection );
+    } else if( ( PL_strstr( query, "op=search_activity" ) ) ) {
+        tokendbDebug( "authorization\n" );
+
+        if ((! is_agent) && (! is_operator)) {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+            return DONE;
+        } 
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
                      "%s%s%s%s%s%s%s", JS_START,
@@ -3631,7 +3649,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -3654,7 +3672,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -3679,7 +3697,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -3699,12 +3717,13 @@ mod_tokendb_handler( request_rec *rq )
         buf = getData( searchTemplate, injection );
     } else if( ( PL_strstr( query, "op=new" ) ) ) {
         tokendbDebug( "authorization\n" );
-        if( ! is_agent ) {
+        if( ! is_admin ) {
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
+
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -3724,7 +3743,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -3738,6 +3757,7 @@ mod_tokendb_handler( request_rec *rq )
         buf = getData( newUserTemplate,injection );
     } else if( ( PL_strstr( query, "op=view_admin" ) )       ||
                ( PL_strstr( query, "op=view_certificate" ) ) ||
+               ( PL_strstr( query, "op=view_activity_admin" ) ) ||
                ( PL_strstr( query, "op=view_activity" ) )    ||
                ( PL_strstr( query, "op=view_users" ) )       ||
                ( PL_strstr( query, "op=view" ) )             ||
@@ -3751,6 +3771,7 @@ mod_tokendb_handler( request_rec *rq )
                ( PL_strstr( query, "op=confirm" ) ) ) {
         if( ( PL_strstr( query, "op=confirm" ) )    ||
             ( PL_strstr( query, "op=view_admin" ) ) ||
+            ( PL_strstr( query, "op=view_activity_admin" ) ) ||
             ( PL_strstr( query, "op=show_admin" ) ) ||
             ( PL_strstr( query, "op=view_users") )  ||
             ( PL_strstr( query, "op=edit_user") )   ||
@@ -3764,7 +3785,7 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             }
         } else if ((PL_strstr(query, "op=edit")) || 
                    (PL_strstr(query, "do_confirm_token"))) {
@@ -3776,7 +3797,7 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             }
         } else if (PL_strstr(query, "op=view_activity")) {
             tokendbDebug( "authorization for view_activity\n" );
@@ -3799,11 +3820,12 @@ mod_tokendb_handler( request_rec *rq )
                 do_free(uri);
                 do_free(query);
 
-                return DECLINED;
+                return DONE;
             }
         }
 
-        if( PL_strstr( query, "op=view_activity" ) ) {
+        if ((PL_strstr( query, "op=view_activity_admin")) || 
+            (PL_strstr( query, "op=view_activity" ) )) {
             getActivityFilter( filter, query );
         } else if( PL_strstr( query, "op=view_certificate" ) ) {
             getCertificateFilter( filter, query );
@@ -3839,7 +3861,8 @@ mod_tokendb_handler( request_rec *rq )
             }
         }
 
-        if( PL_strstr( query, "op=view_activity" ) ) {
+        if (( PL_strstr( query, "op=view_activity_admin" )) ||
+            ( PL_strstr( query, "op=view_activity" ) )) {
             status = find_tus_activity_entries_no_vlv( complete_filter, &result, 0 );
         } else if( PL_strstr( query, "op=view_certificate" ) ) {
 
@@ -3884,7 +3907,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
 
         do_free(complete_filter);
@@ -3902,7 +3925,14 @@ mod_tokendb_handler( request_rec *rq )
         PL_strcat( injection, "\";\n" );
 
         if( nEntries > 1 ) {
-            if( sendInPieces && PL_strstr( query, "op=view_activity" ) ) {
+            if( sendInPieces && PL_strstr( query, "op=view_activity_admin" ) ) {
+                buf = getTemplateFile( searchActivityAdminResultTemplate,
+                                       &tagOffset );
+                if( buf != NULL && tagOffset >= 0 ) {
+                    ( void ) ap_rwrite( ( const void * ) buf, tagOffset, rq );
+                    sendPieces = 1;
+                }
+            } else if( sendInPieces && PL_strstr( query, "op=view_activity" ) ) {
                 buf = getTemplateFile( searchActivityResultTemplate,
                                        &tagOffset );
                 if( buf != NULL && tagOffset >= 0 ) {
@@ -3974,7 +4004,8 @@ mod_tokendb_handler( request_rec *rq )
         }
 
         /* get attributes to be displayed to the user */
-        if( PL_strstr( query, "op=view_activity" ) ) {
+        if (( PL_strstr( query, "op=view_activity_admin" ) ) ||
+            ( PL_strstr( query, "op=view_activity" ) )) {
             attrs = get_activity_attributes();
         } else if( PL_strstr( query, "op=view_certificate" ) ) {
             attrs = get_certificate_attributes();
@@ -4235,12 +4266,12 @@ mod_tokendb_handler( request_rec *rq )
                 buf = NULL;
             }
         } else {
-            if( PL_strstr( query, "op=view_activity" ) ) {
+            if( PL_strstr( query, "op=view_activity_admin" ) ) {
+                buf = getData( searchActivityAdminResultTemplate, injection ); 
+            } else if( PL_strstr( query, "op=view_activity" ) ) {
                 buf = getData( searchActivityResultTemplate, injection );
             } else if( PL_strstr( query, "op=view_certificate" ) ) {
                 buf = getData( searchCertificateResultTemplate, injection );
-            } else if( PL_strstr( query, "op=edit_admin" ) ) {
-                buf = getData( editAdminTemplate, injection );
             } else if( PL_strstr( query, "op=show_admin" ) ) {
                 buf = getData( showAdminTemplate, injection );
             } else if( PL_strstr( query, "op=view_admin" ) ) {
@@ -4283,7 +4314,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
         uid = get_post_field(post, "uid", SHORT_LEN);
         char *profile = get_post_field(post, "profile_0", SHORT_LEN);
@@ -4345,7 +4376,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
         // first save user details
         uid = get_post_field(post, "uid", SHORT_LEN);
@@ -4375,7 +4406,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(opAgent);
             do_free(opAdmin);
 
-            return DECLINED;
+            return DONE;
         }
  
         if ((opOperator != NULL) && (PL_strstr(opOperator, OPERATOR))) {
@@ -4465,59 +4496,6 @@ mod_tokendb_handler( request_rec *rq )
 
         ap_internal_redirect_handler(injection, rq);
         return OK;
-   } else if( PL_strstr( query, "op=save_admin" ) ) {
-        tokendbDebug( "authorization\n" );
-
-        if( ! is_admin ) {
-            error_out("Authorization Failure", "Failed to authorize request");
-            do_free(buf);
-            do_free(uri);
-            do_free(query);
-
-            return DECLINED;
-        }
-
-        getCN( filter, query );
-
-        mNum = parse_modification_number( query );
-
-        mods = getModifications( query );
-
-        if( mNum != NULL ) {
-            status = check_and_modify_tus_db_entry( userid, filter,
-                                                    mNum, mods );
-
-            PL_strfree( mNum );
-
-            mNum = NULL;
-        } else {
-            status = modify_tus_db_entry( userid, filter, mods );
-        }
-
-        if( mods != NULL ) {
-            free_modifications( mods, 0 );
-
-            mods = NULL;
-        }
-
-        if( status != LDAP_SUCCESS ) {
-            ldap_error_out("LDAP modify error: ", "LDAP error: %s");
-            do_free(buf);
-            do_free(uri);
-            do_free(query);
-            return DECLINED;
-        }
-
-        PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s%s%s%s", JS_START,
-                     "var uriBase = \"", uri, "\";\n",
-                     "var userid = \"", userid, "\";\n",
-                     "var editType = \"Token\";\n",
-                     "var tid = \"", filter, "\";\n");
-        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
-        PL_strcat(injection, JS_STOP);
-
-        buf = getData( editAdminResultTemplate, injection );
     } else if( PL_strstr( query, "op=save" ) ) {
         tokendbDebug( "authorization\n" );
 
@@ -4526,7 +4504,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         getCN( filter, query );
@@ -4554,7 +4532,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -4576,7 +4554,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
 
         uid = get_post_field(post, "uid", SHORT_LEN);
@@ -4593,7 +4571,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(opAdmin);
             do_free(opAgent);
             
-            return DECLINED;
+            return DONE;
         }
 
         if (opOperator != NULL) {
@@ -4634,7 +4612,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(query);
             do_free(uid);
            
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf((char *)msg, 256,
@@ -4662,7 +4640,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
 
         uid = get_post_field(post, "userid", SHORT_LEN);
@@ -4727,7 +4705,7 @@ mod_tokendb_handler( request_rec *rq )
             }
         }
 
-        if ((opAgent != NULL) && (PL_strstr(opOperator, AGENT))) {
+        if ((opAgent != NULL) && (PL_strstr(opAgent, AGENT))) {
             status = add_user_to_role_db_entry(userid, uid, AGENT);
             if ((status!= LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
                 PR_snprintf(msg, 512, "Error adding user %s to role %s", uid, AGENT);
@@ -4783,7 +4761,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         getCN( filter, query );
@@ -4804,7 +4782,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         status = add_default_tus_db_entry( NULL, userid,
@@ -4816,7 +4794,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(buf);
             do_free(uri);
             do_free(query);
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -4840,7 +4818,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
 
         getCN( filter, query );
@@ -4865,7 +4843,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -4887,7 +4865,7 @@ mod_tokendb_handler( request_rec *rq )
             do_free(uri);
             do_free(query);
 
-            return DECLINED;
+            return DONE;
         }
 
         getTemplateName( template1, query );

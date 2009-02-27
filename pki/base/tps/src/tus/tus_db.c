@@ -786,7 +786,13 @@ TPS_PUBLIC char *get_authorized_profiles(const char *userid, int is_admin)
             nVals = ldap_count_values(vals);
             if (nVals == 1) {
                 if (PL_strstr(vals[0], ALL_PROFILES)) {
-                    PR_snprintf(ret, 4096, ALL_PROFILES);
+                    if (is_admin) {
+                        // all profiles
+                        PR_snprintf(ret, 4096, ALL_PROFILES);
+                    } else {
+                        // all profile except admin no token events
+                        PR_snprintf(ret, 4096, "(!(tokenType=%s))", NO_TOKEN_TYPE);
+                    }
                 } else {
                     if (is_admin) {
                         PL_strcat(ret, "(|(tokenType=");
@@ -2208,7 +2214,7 @@ TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPa
         userCert_values[0] = &berval;
         userCert_values[1] = NULL;
 
-        a06.mod_op =0;
+        a06.mod_op = LDAP_MOD_BVALUES;
         a06.mod_type = USER_CERT;
         a06.mod_values = userCert_values;
         

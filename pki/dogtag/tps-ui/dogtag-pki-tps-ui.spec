@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      8
+%define base_release      9
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thur Feb 26 2009 Ade Lee <alee@redhat.com> 1.0.0-9
+- Bugzilla Bug 484275 and 483304: TPS roles defined and correcting error templates
 * Thu Feb 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-8
 - Bugzilla Bug #458337 -  Provide separate listening ports for CS
 * Wed Feb 25 2009 Jack Magne <jmagne@redhat.com> 1.0.0-7

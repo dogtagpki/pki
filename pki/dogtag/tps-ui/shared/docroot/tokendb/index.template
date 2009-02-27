@@ -109,9 +109,6 @@ document.write("</tr></table>");
     <td><li><a href="tus?op=search">Search Tokens</a></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=new">Add New Token</a></td>
-  </tr>
-  <tr>
     <td><i>Certificates</i></td>
   </tr>
   <tr>

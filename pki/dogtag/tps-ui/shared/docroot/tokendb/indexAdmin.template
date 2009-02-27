@@ -110,6 +110,9 @@ document.write("</tr></table>");
   <tr>
     <td><li><a href="tus?op=search_admin">Search Tokens</a></td>
   </tr>
+   <tr>
+    <td><li><a href="tus?op=new">Add New Token</a></td>
+  </tr>
   <tr> 
     <td><i>Users</i></td>
   </tr>
@@ -126,10 +129,10 @@ document.write("</tr></table>");
     <td><i>Activities</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=view_activity">List Activities</a></td>
+    <td><li><a href="tus?op=view_activity_admin">List Activities</a></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=search_activity">Search Activities</a></td>
+    <td><li><a href="tus?op=search_activity_admin">Search Activities</a></td>
   </tr>
 </table>
 <HR NOSHADE SIZE=1>
