@@ -176,7 +176,7 @@ public class AgentAuthenticatePanel extends WizardPanelBase {
                 throw new IOException("Uid is empty");
             }
             context.put("uid", uid);
-            String pwd = HttpInput.getPassword(request, "password");
+            String pwd = HttpInput.getPassword(request, "__password");
             config.putString("preop.ca.agent.uid", uid);
             config.putString("preop.ca.agent.pwd", pwd);
             String host = "";

@@ -153,7 +153,7 @@ public class ConfigJoinServlet extends ConfigBaseServlet {
                 /* automated enrollment */
                 String url = request.getParameter("url");
                 String uid = request.getParameter("uid");
-                String pwd = request.getParameter("pwd");
+                String pwd = request.getParameter("__pwd");
 
                 config.putString("preop.join.url", url);
                 config.putString("preop.join.uid", uid);

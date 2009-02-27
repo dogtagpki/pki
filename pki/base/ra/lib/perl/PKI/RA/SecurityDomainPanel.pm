@@ -78,7 +78,7 @@ sub display
     $::symbol{panelname} = "Security Domain";
     $::symbol{sdomainName} = "Security Domain";
     my $hostname = $::config->get("service.machineName");
-    $::symbol{sdomainURL} = "https://" . $hostname . ":9443";
+    $::symbol{sdomainURL} = "https://" . $hostname . ":9444";
 
     return 1;
 }

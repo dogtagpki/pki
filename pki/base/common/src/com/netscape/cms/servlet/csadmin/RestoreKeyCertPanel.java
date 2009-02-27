@@ -177,7 +177,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
         
         if (s != null && !s.equals("")) {
-            s = HttpInput.getPassword(request, "password");
+            s = HttpInput.getPassword(request, "__password");
             if (s == null || s.equals("")) {
                 CMS.debug("RestoreKeyCertPanel validate: password is empty");
                 throw new IOException("Empty password");
@@ -204,7 +204,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             getConfigEntriesFromMaster(request, response, context);
             return;
         }
-        String pwd = HttpInput.getPassword(request, "password");
+        String pwd = HttpInput.getPassword(request, "__password");
         
         String tokenn = "";
         String instanceRoot = "";

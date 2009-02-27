@@ -176,7 +176,7 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
                 throw new IOException("Uid is empty");
             }
             context.put("uid", uid);
-            String pwd = HttpInput.getPassword(request, "password");
+            String pwd = HttpInput.getPassword(request, "__password");
             config.putString("preop.master.admin.uid", uid);
             config.putString("preop.master.admin.pwd", pwd);
             String host = "";

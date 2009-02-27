@@ -141,7 +141,7 @@ public class ConfigDatabaseServlet extends ConfigBaseServlet {
             errorString = "Database is empty string";
         }
 
-        String bindpwd = request.getParameter("bindpwd");
+        String bindpwd = request.getParameter("__bindpwd");
         IConfigStore psStore = null;
 
         if (bindpwd != null && bindpwd.length() > 0) {

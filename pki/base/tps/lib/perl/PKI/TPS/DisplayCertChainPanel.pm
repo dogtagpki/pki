@@ -204,7 +204,7 @@ sub get_domain_xml
 
     my $sdom_info = new URI::URL($sdomainURL);
     # get the domain xml
-    # e. g. - https://water.sfbay.redhat.com:9443/ca/ee/ca/getDomainXML
+    # e. g. - https://water.sfbay.redhat.com:9444/ca/ee/ca/getDomainXML
 
     my $nickname = $::config->get("preop.cert.sslserver.nickname");
     my $instanceID = $::config->get("service.instanceID");

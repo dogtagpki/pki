@@ -100,7 +100,8 @@ $config->load_file("$pkiroot/conf/CS.cfg");
 # read password cache file
 my $pwdconf = PKI::TPS::Config->new();
 $pwdconf->load_file("$pkiroot/conf/pwcache.conf");
-if( -e "$pkiroot/conf/pwcache.conf" ) {
+# SELinux disallows performing a "chmod" on this file
+if( $^O ne "linux" ) {
     system( "chmod 00660 $pkiroot/conf/pwcache.conf" );
 }
 
