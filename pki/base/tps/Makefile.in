@@ -610,7 +610,9 @@ apache_modules_LTLIBRARIES = mod_tps.la \
 #------------------------
 # create an empty 'alias' directory
 alias_DATA = 
-applets_DATA = $(srcdir)/applets/1.3.44724DDE.ijc
+applets_DATA = $(srcdir)/applets/1.4.499dc06c.ijc \
+		$(srcdir)/applets/1.3.44724DDE.ijc
+
 bin_SCRIPTS = wrappers/tpsclient
 cgibin_demo_DATA = 
 cgibin_demo_SCRIPTS = $(srcdir)/forms/esc/cgi-bin/demo/enroll.cgi \
