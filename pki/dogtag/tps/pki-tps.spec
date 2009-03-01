@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      28
+%define base_release      29
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -308,6 +308,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Feb 27 2009 Jack Magne <jmagne@redhat.com> 1.0.0-29
+- Bugzilla #485829 - Support for 2048 bit safenet keys.
 * Fri Feb 27 2009 Ade Lee <alee@redhat.com> 1.0.0-28
 - Bugzilla 224835 and 367171: Allow cert nicknames to be edited and sizepanel fixes
 * Thu Feb 26 2009 Ade Lee <alee@redhat.com> 1.0.0-27
