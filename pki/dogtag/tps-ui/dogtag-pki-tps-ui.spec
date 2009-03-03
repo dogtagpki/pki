@@ -224,7 +224,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %changelog
 * Fri Feb 27 2009 Ade Lee <alee@redhat.com> 1.0.0-10
 - Bugzilla 224835 and 367171: Allow cert nicknames to be edited and sizepanel fixes
-* Thur Feb 26 2009 Ade Lee <alee@redhat.com> 1.0.0-9
+* Thu Feb 26 2009 Ade Lee <alee@redhat.com> 1.0.0-9
 - Bugzilla Bug 484275 and 483304: TPS roles defined and correcting error templates
 * Thu Feb 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-8
 - Bugzilla Bug #458337 -  Provide separate listening ports for CS
