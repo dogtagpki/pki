@@ -517,6 +517,8 @@ my $pki_cfg_instance_file_path                = "";  # CA, KRA, OCSP, TKS,
                                                      # RA, TPS
 my $pki_cfg_subsystem_file_path               = "";  # CA, KRA, OCSP, TKS,
                                                      # RA, TPS
+my $pki_start_stop_command                    = "";  # CA, KRA, OCSP, TKS,
+                                                     # RA, TPS
 my $pki_start_stop_script_instance_file_path  = "";  # CA, KRA, OCSP, TKS,
                                                      # RA, TPS
 my $pki_start_stop_script_subsystem_file_path = "";  # CA, KRA, OCSP, TKS,
@@ -3740,16 +3742,23 @@ ASK_AGAIN:
         exit 255;
     }
 
-    $command = "$pki_start_stop_script_instance_file_path start";
+    if( $^O eq "linux" ) {
+        $pki_start_stop_command = "/sbin/service" . " " . $pki_instance_name;
+    } else {
+        # default case:  e. g. - ( $^O eq "solaris" )
+        $pki_start_stop_command = $pki_start_stop_script_instance_file_path;
+    }
+
+    $command = "$pki_start_stop_command start";
 
     system( "$command" );
 
     print( STDOUT
            "Server can be operated with "
-         . "$pki_start_stop_script_instance_file_path "
+         . "$pki_start_stop_command "
          . "start | stop | restart\n\n" );
     emit( "Server can be operated with "
-        . "$pki_start_stop_script_instance_file_path "
+        . "$pki_start_stop_command "
         . "start | stop | restart\n",
           "log" );
 

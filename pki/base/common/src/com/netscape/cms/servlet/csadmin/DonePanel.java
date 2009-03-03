@@ -175,7 +175,13 @@ public class DonePanel extends WizardPanelBase {
             select = cs.getString("preop.subsystem.select", "");
         } catch (Exception e) {}
 
-        context.put("instanceId", instanceId);
+        String os = System.getProperty( "os.name" );
+        if( os.equalsIgnoreCase( "Linux" ) ) {
+            context.put( "initCommand", "/sbin/service " + instanceId );
+        } else {
+            /* default case:  e. g. - ( os.equalsIgnoreCase( "SunOS" ) */
+            context.put( "initCommand", "/etc/init.d/" + instanceId );
+        }
         context.put("title", "Done");
         context.put("panel", "admin/console/config/donepanel.vm");
         context.put("host", ownhost);

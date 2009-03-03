@@ -329,10 +329,18 @@ sub display
     my $unsecurePort = $::config->get("service.unsecurePort");
     my $instanceID = $::config->get("service.instanceID");
 
+    my $initCommand = "";
+    if( $^O eq "linux" ) {
+        $initCommand = "/sbin/service $instanceID";
+    } else {
+        ## default case:  e. g. - ( $^O eq "solaris" )
+        $initCommand  = "/etc/init.d/$instanceID";
+    }
+
     $::symbol{host}  = $machineName;
     $::symbol{port}  = $securePort;
     $::symbol{unsecurePort}  = $unsecurePort;
-    $::symbol{instanceId}  = $instanceID;
+    $::symbol{initCommand}  = $initCommand;
 
     $::config->deleteSubstore("preop.");
     $::config->commit();

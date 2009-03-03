@@ -1,7 +1,7 @@
 <!-- --- BEGIN COPYRIGHT BLOCK ---
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public
-     License as published by the Free Software Foundation; either
+     License as published by the Free Software Foundation.
      
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -33,12 +33,12 @@ function performPanel() {
 <img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 #if ($systemType == "tks")
-Restart the server on the command line by typing "/etc/init.d/$instanceId restart". After performing this restart, the server should become operational. 
+As 'root', restart the server on the command line by typing "$initCommand restart". After performing this restart, the server should become operational. 
 #else
 #if ($externalCA == "true" && $systemType == "kra")
-Restart the server on the command line by typing "/etc/init.d/$instanceId restart". Startup the administration console to add the peer CA to the Trusted Manager's Group. Make sure to add the transport certificate and connector information to the peer CA. After performing this restart, the server should become operational.
+As 'root', restart the server on the command line by typing "$initCommand restart". Startup the administration console to add the peer CA to the Trusted Manager's Group. Make sure to add the transport certificate and connector information to the peer CA. After performing this restart, the server should become operational.
 #else
-Restart the server on the command line by typing "/etc/init.d/$instanceId
+As 'root', restart the server on the command line by typing "$initCommand
  restart". After performing this restart, the server should become operational.
 <br/>
 Please go to the <A href="https://$host:$port">agent interface</A> page to access all of the available agent interfaces.
