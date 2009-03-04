@@ -936,22 +936,30 @@ public class DatabasePanel extends WizardPanelBase {
           importLDIFS("preop.internaldb.post_ldif", conn);
 
           /* For vlvtask, we need to check if the task has 
-             been completed or not
+             been completed or not.  Presence of nsTaskExitCode means task is complete
            */
           String wait_dn = cs.getString("preop.internaldb.wait_dn", "");
           if (!wait_dn.equals("")) {
             LDAPEntry task = null;
+            boolean taskComplete = false;
+            CMS.debug("Checking wait_dn " + wait_dn);
             do {
+              Thread.sleep(1000);
               try {
-                CMS.debug("Checking wait_dn " + wait_dn);
                 task = conn.read(wait_dn, (String[])null);
                 if (task != null) {
-                   Thread.sleep(1000);
+                   LDAPAttribute attr = task.getAttribute("nsTaskExitCode");
+                   if (attr != null) {
+                       taskComplete = true;
+                       String val = (String) attr.getStringValues().nextElement();
+                       if (val.compareTo("0") != 0) {
+                           CMS.debug("Error in populating local indexes: nsTaskExitCode=" + val);
+                       } 
+                   } 
                 }
               } catch (LDAPException e) {
-                task = null;
               }
-            } while (task != null);
+            } while (!taskComplete);
             CMS.debug("Done checking wait_dn " + wait_dn);
           }
 
