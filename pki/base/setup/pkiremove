@@ -473,6 +473,7 @@ sub remove_instance()
                          . "/" . $saved_cleanup_file_name;
     my @files;
     my @directories;
+    my $pki_start_stop_command = "";
     my $pki_start_stop_script_instance_file_path = "";
     my $confirm = "Y";
 
@@ -553,7 +554,14 @@ ASK_AGAIN:
         return $result;
     }
 
-    $command = "$pki_start_stop_script_instance_file_path stop";
+    if( $^O eq "linux" ) {
+        $pki_start_stop_command = "/sbin/service" . " " . $pki_instance_name;
+    } else {
+        # default case:  e. g. - ( $^O eq "solaris" )
+        $pki_start_stop_command = $pki_start_stop_script_instance_file_path;
+    }
+
+    $command = "$pki_start_stop_command stop";
 
     system( "$command" );
 

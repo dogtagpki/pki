@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      12
+%define base_release      13
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Mar 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-13
+- Bugzilla Bug #440344 -  Installation page should tell admins to use
+  "service", not "/etc/init.d" on Linux
 * Tue Feb 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-12
 - Bugzilla Bug #485859 -  port separation for RA and TPS
 * Wed Feb 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-11
