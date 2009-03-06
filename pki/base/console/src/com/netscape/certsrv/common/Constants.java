@@ -217,6 +217,7 @@ public interface Constants {
     public final static String PR_CACHE_RECOVERY = "enableCacheRecovery";
     public final static String PR_EXTENSIONS = "allowExtensions";
     public final static String PR_INCLUDE_EXPIREDCERTS = "includeExpiredCerts";
+    public final static String PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME = "includeExpiredCertsOneExtraTime";
     public final static String PR_CA_CERTS_ONLY = "caCertsOnly";
     public final static String PR_PROFILE_CERTS_ONLY = "profileCertsOnly";
     public final static String PR_PROFILE_LIST = "profileList";
@@ -471,6 +472,7 @@ public interface Constants {
     //public final static String PR_CA_SIGNING_CERT = "cacert";
     //public final static String PR_SERVER_CERT = "servercert";
     public final static String PR_CLIENT_CERT = "clientcert";
+    public final static String PR_FULL_INTERNAL_TOKEN_NAME="Internal Key Storage Token";
     public final static String PR_INTERNAL_TOKEN_NAME = 
         "internal";
     public final static String PR_TOKEN_NAME = "tokenName";
