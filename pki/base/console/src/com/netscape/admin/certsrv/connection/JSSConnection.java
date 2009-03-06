@@ -442,18 +442,18 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 	    //return is.readLine(line, startpos, len);
         int pos = startpos;
         int count = 0;
-        while (true) 
+        while (len > 0) 
         {
           int nRead = httpIn.read(line, pos, 1);
           if (nRead == -1)
-            return -1;
+            break;
           count++;
           if (line[pos] == '\n') {
             break;
           }
           pos++;
         }
-        return count;
+        return count > 0 ? count : -1;
     }
 
 	private void readHeader() throws IOException
