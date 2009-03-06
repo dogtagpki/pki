@@ -96,6 +96,11 @@ sub register_ra
 
     &PKI::RA::Wizard::debug_log("DonePanel: Security Domain Info " . $url);
 
+    # add service.securityDomainPort to the config file in case pkiremove needs to
+    # remove system reference from the security domain
+    $::config->put("service.securityDomainPort", $securePort);
+    $::config->commit();
+
     my $uid = "RA-" . $machineName . "-" . $securePort;
     my $name = "Registration Authority Subsystem";
 

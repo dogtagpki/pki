@@ -95,6 +95,11 @@ sub register_tps
 
     &PKI::TPS::Wizard::debug_log("DonePanel: Security Domain Info " . $url);
 
+    # add service.securityDomainPort to the config file in case pkiremove needs to
+    # remove system reference from the security domain
+    $::config->put("service.securityDomainPort", $securePort);
+    $::config->commit();
+
     my $uid = "TPS-" . $machineName . "-" . $securePort;
     my $name = "Token Processing Subsystem";
 

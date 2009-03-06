@@ -320,6 +320,15 @@ public class DonePanel extends WizardPanelBase {
             }
         }
 
+        // add service.securityDomainPort to CS.cfg in case pkiremove needs to remove system reference from the security domain
+        try {
+            cs.putString("service.securityDomainPort", ownsport);
+            cs.commit(false);
+        } catch (Exception e) {
+            CMS.debug("DonePanel: exception in adding service.securityDomainPort to CS.cfg" + e);
+        }
+
+
         // need to push connector information to the CA
         if (type.equals("KRA") && !ca_host.equals("")) {
             try {

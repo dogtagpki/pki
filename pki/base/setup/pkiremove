@@ -220,7 +220,7 @@ sub update_domain()
     foreach my $line (@conf_data) {
         chomp($line);
         (my $varname, my $valname) = split(/=/, $line);
-        if ($varname eq "service.securePort") { $sport = $valname; }
+        if ($varname eq "service.securityDomainPort") { $sport = $valname; }
         if ($varname eq "service.non_clientauth_securePort") { $ncsport = $valname; }
         if ($varname eq "securitydomain.host") { $sechost = $valname; }
         if ($varname eq "securitydomain.httpsport") { $secport = $valname; }
@@ -267,9 +267,13 @@ sub update_domain()
         srand(time() ^($$ + ($$ <<15))) ;
         my $p12pw = rand();
 
-        my @args = ("pk12util", "-d", $dbpath, "-o" , 
-            $tempfile, "-n", $subsystemnick , "-K", $intpw, "-W", $p12pw ); 
-        system(@args) == 0 or die "Could not generate pk12 file for client authentication."; 
+        my $errs = `pk12util -d $dbpath -o $tempfile -n "$subsystemnick" -K $intpw -W $p12pw 2>&1`;
+        if ($? != 0) {
+            print STDERR $errs;
+            print $errs;
+            print STDOUT "\n";
+            die "Could not generate pk12 file for client authentication.";
+        }
 
         #update domainXML
 
@@ -413,16 +417,18 @@ sub remove_selinux_ports()
     $subsystem_type =  lc($typeval);
 
     if (($typeval eq "CA") || ($typeval eq "KRA") || ($typeval eq "OCSP") || ($typeval eq "TKS")) {
-        use XML::Simple;
-        my $config = XMLin($pki_instance_path . "/conf/server.xml") 
+        use XML::LibXML;
+        my $parser = XML::LibXML->new();
+        my $config = $parser->parse_file($pki_instance_path . "/conf/server.xml") 
             or die "Could not read XML from server.xml to determine ports.";
+        
+        my $root = $config->getDocumentElement;
 
         my $i = 0;
-        while (defined ( $config->{"Service"}->{"Connector"}[$i]->{'port'} )) {
-            $ports[$i] = $config->{"Service"}->{"Connector"}[$i]->{'port'};
+        foreach my $port ($root->findnodes('//@port')) {
+            $ports[$i] = $port->getValue();
             $i++;
         }
-        $ports[$i] = $config->{"port"};
     } else {  # TPS, RA
         my $i =0;
         if (defined $secure_port) {
