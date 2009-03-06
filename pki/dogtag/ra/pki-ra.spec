@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      20
+%define base_release      21
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -66,6 +66,10 @@
 ## Disallow an initial login shell
 ## NOTE:  SELinux policy requires a shell of /sbin/nologin
 %define base_login_shell  /sbin/nologin
+
+## For PKI version information, ALWAYS refer to the version of the
+## Dogtag UI package dependency associated with this Dogtag spec file!
+%define pki_version       %(echo `rpm -q --queryformat '%{VERSION}' %{base_flavor}-%{base_name}-ui`)
 
 ## A distribution model is required on certain Linux operating systems!
 ##
@@ -184,6 +188,7 @@ ant -Dspecfile=%{base_name}.spec
 %install
 cd dist/binary
 unzip %{name}-%{version}.zip -d ${RPM_BUILD_ROOT}
+sed -i 's/^preop.product.version=.*$/preop.product.version=%{pki_version}/' ${RPM_BUILD_ROOT}/usr/share/%{base_prefix}/%{base_component}/conf/CS.cfg
 
 
 
@@ -261,6 +266,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Mar 6 2009 Ade Lee <alee@redhat.com> 1.0.0-21
+- Bugzilla Bug 472308 - web installer display wrong product version in first Welcome panel
 * Wed Mar 4 2009 Ade Lee <alee@redhat.com> 1.0.0-20
 - Bugzilla Bug 487871, 488561 - pkiremove cleanup and remove all selinux ports
 * Wed Mar 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-19
