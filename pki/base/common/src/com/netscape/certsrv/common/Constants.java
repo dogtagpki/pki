@@ -215,6 +215,7 @@ public interface Constants {
     public final static String PR_CACHE_RECOVERY = "enableCacheRecovery";
     public final static String PR_EXTENSIONS = "allowExtensions";
     public final static String PR_INCLUDE_EXPIREDCERTS = "includeExpiredCerts";
+    public final static String PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME = "includeExpiredCertsOneExtraTime";
     public final static String PR_CA_CERTS_ONLY = "caCertsOnly";
     public final static String PR_PROFILE_CERTS_ONLY = "profileCertsOnly";
     public final static String PR_PROFILE_LIST = "profileList";
