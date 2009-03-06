@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      13
+%define base_release      14
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -234,6 +234,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Mar 6 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-14
+- Bugzilla Bug #334253 - Revoked certs must appear on one CRL after expiration
 * Wed Feb 25 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-13
 - Bugzilla Bug #487403  - CA console incorrectly validates disabled notification
 * Mon Feb 16 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-12
