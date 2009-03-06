@@ -40,6 +40,7 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
     private static String PANEL_NAME = "CRLFORMAT";
     private JCheckBox mEnableExtensions;
     private JCheckBox mEnableExpired;
+    private JCheckBox mEnableOneExtraTime;
     private JCheckBox mCACertsOnly;
     private JCheckBox mProfileCertsOnly;
     private JTextField mProfiles;
@@ -51,6 +52,8 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
     private String mId = null;
     private static final String HELPINDEX =
         "configuration-ca-ldappublish-crl-help";
+    private boolean mCacheEnabled;
+    private boolean mInitialized = false;
 
     /*==========================================================
      * constructors
@@ -166,6 +169,18 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         contentsPanel.add(mEnableExpired, gbc);
 
 
+        // include expired certs one extra time
+        CMSAdminUtil.resetGBC(gbc);
+        mEnableOneExtraTime = makeJCheckBox("ONEEXTRATIME");
+        gbc.anchor = gbc.WEST;
+        gbc.fill = gbc.NONE;
+        gbc.gridx = 0;
+        gbc.weightx = 1.0;
+        gbc.gridwidth = gbc.REMAINDER;
+        gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
+        contentsPanel.add(mEnableOneExtraTime, gbc);
+
+
         // CA certs only
         CMSAdminUtil.resetGBC(gbc);
         mCACertsOnly = makeJCheckBox("CACERTSONLY");
@@ -199,6 +214,7 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
 
 
         refresh();
+        mInitialized = true;
     }
 
     public void refresh() {
@@ -207,9 +223,11 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         nvps.add(Constants.PR_EXTENSIONS, "");
         nvps.add(Constants.PR_SIGNING_ALGORITHM, "");
         nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS, "");
+        nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, "");
         nvps.add(Constants.PR_CA_CERTS_ONLY, "");
         nvps.add(Constants.PR_PROFILE_CERTS_ONLY, "");
         nvps.add(Constants.PR_PROFILE_LIST, "");
+        nvps.add(Constants.PR_ENABLE_CACHE, "");
 
         try {
             NameValuePairs val = null;
@@ -235,6 +253,8 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         } else {
             CMSAdminUtil.enableJTextField(mProfiles, false, getBackground());
         }
+        mEnableOneExtraTime.setEnabled(mCacheEnabled && (!mEnableExpired.isSelected()));
+        CMSAdminUtil.repaintComp(mEnableOneExtraTime);
     }
 
     public void populate(NameValuePairs nvps) {
@@ -251,12 +271,16 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
                 initAlgorithmBox(value);
             } else if (name.equals(Constants.PR_INCLUDE_EXPIREDCERTS)) {
                 mEnableExpired.setSelected(getBoolean(value));
+            } else if (name.equals(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME)) {
+                mEnableOneExtraTime.setSelected(getBoolean(value));
             } else if (name.equals(Constants.PR_CA_CERTS_ONLY)) {
                 mCACertsOnly.setSelected(getBoolean(value));
             } else if (name.equals(Constants.PR_PROFILE_CERTS_ONLY)) {
                 mProfileCertsOnly.setSelected(getBoolean(value));
             } else if (name.equals(Constants.PR_PROFILE_LIST)) {
                 mProfiles.setText(value);
+            } else if (name.equals(Constants.PR_ENABLE_CACHE)) {
+                mCacheEnabled = Boolean.getBoolean(value);
             }
         }
 
@@ -312,6 +336,11 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
             nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS, Constants.TRUE);
         else
             nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS, Constants.FALSE);
+
+        if (mEnableOneExtraTime.isSelected())
+            nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, Constants.TRUE);
+        else
+            nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, Constants.FALSE);
 
         if (mCACertsOnly.isSelected())
             nvps.add(Constants.PR_CA_CERTS_ONLY, Constants.TRUE);
@@ -383,8 +412,23 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
             } else {
                 CMSAdminUtil.enableJTextField(mProfiles, false, getBackground());
             }
+        } else if (e.getSource().equals(mEnableExpired)) {
+            mEnableOneExtraTime.setEnabled(mCacheEnabled && (!mEnableExpired.isSelected()));
+            CMSAdminUtil.repaintComp(mEnableOneExtraTime);
         }
+
         super.actionPerformed(e);
     }
+
+    public void setCacheEnabled (boolean cacheEnabled) {
+        if (mCacheEnabled != cacheEnabled) {
+            mCacheEnabled = cacheEnabled;
+            if (mInitialized) {
+                mEnableOneExtraTime.setEnabled(mCacheEnabled && (!mEnableExpired.isSelected()));
+                CMSAdminUtil.repaintComp(mEnableOneExtraTime);
+            }
+        }
+    }
+
 }
 
