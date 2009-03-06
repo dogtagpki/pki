@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      13
+%define base_release      14
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -115,7 +115,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 BuildRequires:  ant >= 1.6.2
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0, perl-XML-Simple >= 2.14, perl-libwww-perl >= 5.8.0, policycoreutils
+Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0, perl-XML-LibXML, perl-libwww-perl >= 5.8.0, policycoreutils, perl-Crypt-SSLeay
 
 
 ## This package is non-relocatable!
@@ -217,6 +217,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Mar 4 2009 Ade Lee <alee@redhat.com> 1.0.0-14
+- Bugzilla Bug 487871, 488561 - pkiremove cleanup and remove all selinux ports
 * Wed Mar 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-13
 - Bugzilla Bug #440344 -  Installation page should tell admins to use
   "service", not "/etc/init.d" on Linux

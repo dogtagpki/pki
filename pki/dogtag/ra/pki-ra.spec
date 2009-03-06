@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      19
+%define base_release      20
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -261,6 +261,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Mar 4 2009 Ade Lee <alee@redhat.com> 1.0.0-20
+- Bugzilla Bug 487871, 488561 - pkiremove cleanup and remove all selinux ports
 * Wed Mar 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-19
 - Bugzilla Bug #440344 -  Installation page should tell admins to use
   "service", not "/etc/init.d" on Linux
