@@ -55,6 +55,7 @@ public class CMSCRLCachePanel extends CMSBaseTab {
     private String mId = null;
     private static final String HELPINDEX =
         "configuration-ca-ldappublish-crl-help";
+    private CMSCRLFormatPanel mCRLFormatPanel = null;
 
     /*==========================================================
      * constructors
@@ -168,6 +169,13 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         cachePanel.add(mEnableCacheRecovery, gbc);
 
+        int nTabs = mParent.mTabbedPane.getTabCount();
+        for (int i = 0; i < nTabs; i++) {
+            Object p = mParent.mTabbedPane.getComponentAt(i);
+            if (p instanceof CMSCRLFormatPanel) {
+                mCRLFormatPanel = (CMSCRLFormatPanel)p;
+            }
+        }
 
         refresh();
     }
@@ -247,7 +255,6 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         else
             nvps.add(Constants.PR_ENABLE_CACHE, Constants.FALSE);
 
-
         cacheFreq = mCacheFreq.getText().trim();
         if (cacheFreq.equals("")) {
             showMessageDialog("BLANKFIELD");
@@ -312,6 +319,7 @@ public class CMSCRLCachePanel extends CMSBaseTab {
     private void enableFields() {
         boolean enable = mEnableCache.isSelected();
         Color color = (enable)? mActiveColor: getBackground();
+        mCRLFormatPanel.setCacheEnabled(enable);
 
         mCacheFreqLabel.setEnabled(enable);
         CMSAdminUtil.repaintComp(mCacheFreqLabel);
