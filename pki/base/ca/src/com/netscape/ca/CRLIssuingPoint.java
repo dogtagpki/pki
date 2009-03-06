@@ -127,6 +127,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private Hashtable mUnrevokedCerts = new Hashtable();
     private Hashtable mExpiredCerts = new Hashtable();
     private boolean mIncludeExpiredCerts = false;
+    private boolean mIncludeExpiredCertsOneExtraTime = false;
     private boolean mCACertsOnly = false;
 
     private boolean mProfileCertsOnly = false;
@@ -235,6 +236,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * Last CRL update date
      */
     private Date mLastUpdate;
+    private Date mLastFullUpdate;
 
     /**
      * Next scheduled CRL update date
@@ -584,6 +586,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mAllowExtensions = config.getBoolean(Constants.PR_EXTENSIONS, false);
 
         mIncludeExpiredCerts = config.getBoolean(Constants.PR_INCLUDE_EXPIREDCERTS, false);
+        mIncludeExpiredCertsOneExtraTime = config.getBoolean(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, false);
         mCACertsOnly = config.getBoolean(Constants.PR_CA_CERTS_ONLY, false);
         mProfileCertsOnly = config.getBoolean(Constants.PR_PROFILE_CERTS_ONLY, false);
         if (mProfileCertsOnly) {
@@ -683,6 +686,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (mLastUpdate == null) {
                 mLastUpdate = new Date(0L);
             }
+            mLastFullUpdate = null;
 
             mNextUpdate = crlRecord.getNextUpdate();
             if (isDeltaCRLEnabled()) {
@@ -718,6 +722,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         }
                     }
                     if (x509crl != null) {
+                        mLastFullUpdate = x509crl.getThisUpdate();
                         if (mEnableCRLCache) {
                             if (mCRLCacheIsCleared && mUpdatingCRL == CRL_UPDATE_DONE) {
                                 mRevokedCerts = crlRecord.getRevokedCerts();
@@ -981,6 +986,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         clearCRLCache();
                         updateCRLCacheRepository();
                         mIncludeExpiredCerts = true;
+                    }
+                }
+
+                if (name.equals(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME)) {
+                    if (value.equals(Constants.FALSE) && mIncludeExpiredCertsOneExtraTime) {
+                        mIncludeExpiredCertsOneExtraTime = false;
+                    } else if (value.equals(Constants.TRUE) && (!mIncludeExpiredCertsOneExtraTime)) {
+                        mIncludeExpiredCertsOneExtraTime = true;
                     }
                 }
 
@@ -2086,7 +2099,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 Hashtable deltaCRLCerts = (Hashtable) clonedRevokedCerts.clone();
 
                 deltaCRLCerts.putAll(clonedUnrevokedCerts);
-                deltaCRLCerts.putAll(clonedExpiredCerts);
+                if (mIncludeExpiredCertsOneExtraTime) {
+                    if (!clonedExpiredCerts.isEmpty()) {
+                        for (Enumeration e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
+                            BigInteger serialNumber = (BigInteger) e.nextElement();
+                            if ((mLastFullUpdate != null &&
+                                 mLastFullUpdate.after(((RevokedCertificate)(mExpiredCerts.get(serialNumber))).getRevocationDate())) ||
+                                 mLastFullUpdate == null) {
+                                deltaCRLCerts.put(serialNumber, clonedExpiredCerts.get(serialNumber));
+                            }
+                        }
+                    }
+                } else {
+                    deltaCRLCerts.putAll(clonedExpiredCerts);
+                }
 
                 mLastCRLNumber = mCRLNumber;
 
@@ -2218,13 +2244,19 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         for (Enumeration e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
                             BigInteger serialNumber = (BigInteger) e.nextElement();
 
-                            if (mCRLCerts.containsKey(serialNumber)) {
-                                mCRLCerts.remove(serialNumber);
+                            if ((!mIncludeExpiredCertsOneExtraTime) ||
+                                 (mLastFullUpdate != null &&
+                                  mLastFullUpdate.after(((RevokedCertificate)(mExpiredCerts.get(serialNumber))).getRevocationDate())) ||
+                                 mLastFullUpdate == null) {
+                                if (mCRLCerts.containsKey(serialNumber)) {
+                                    mCRLCerts.remove(serialNumber);
+                                }
+                                mExpiredCerts.remove(serialNumber);
                             }
-                            mExpiredCerts.remove(serialNumber);
                         }
                     }
                 }
+                mLastFullUpdate = mLastUpdate;
             }
             mSplits[5] += System.currentTimeMillis();
         }
