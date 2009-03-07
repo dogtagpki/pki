@@ -267,6 +267,7 @@ my $password_conf_base_name      = "password.conf";        # CA, KRA, OCSP, TKS,
                                                            # RA, TPS
 my $pfile_base_name              = "pfile";                # CA, KRA, OCSP, TKS,
                                                            # RA, TPS
+my $pwcache_conf_base_name       = "pwcache.conf";         # RA, TPS
 my $pki_cfg_base_name            = "CS.cfg";               # CA, KRA, OCSP, TKS,
                                                            # RA, TPS
 my $schemaMods_ldif_base_name    = "schemaMods.ldif";      # RA, TPS
@@ -513,6 +514,7 @@ my $perl_instance_symlink_path                = "";  # RA, TPS
 my $perl_subsystem_path                       = "";  # RA, TPS
 my $pfile_instance_file_path                  = "";  # CA, KRA, OCSP, TKS,
                                                      # RA, TPS
+my $pwcache_conf_instance_file_path           = "";  # RA, TPS
 my $pki_cfg_instance_file_path                = "";  # CA, KRA, OCSP, TKS,
                                                      # RA, TPS
 my $pki_cfg_subsystem_file_path               = "";  # CA, KRA, OCSP, TKS,
@@ -1708,6 +1710,8 @@ sub process_pki_directories()
                                            . "/" . $nss_conf_base_name;
             $perl_conf_instance_file_path  = "$conf_instance_path"
                                            . "/" . $perl_conf_base_name;
+            $pwcache_conf_instance_file_path = $conf_instance_path
+                                             . "/" . $pwcache_conf_base_name;
 
             # create instance directory
             $result = create_directory( $conf_instance_path );
@@ -1776,6 +1780,8 @@ sub process_pki_directories()
                                            . "/" . $nss_conf_base_name;
             $perl_conf_instance_file_path  = "$redirected_conf_path"
                                            . "/" . $perl_conf_base_name;
+            $pwcache_conf_instance_file_path = $redirected_conf_path
+                                             . "/" . $pwcache_conf_base_name;
 
             # create redirected instance directory
             $result = create_directory( $redirected_conf_path );
@@ -2936,6 +2942,21 @@ sub process_pki_files_and_symlinks()
 
     ## Populate instances (RA, TPS instances)
     if( $subsystem_type eq $RA || $subsystem_type eq $TPS ) {
+        # create an empty file called "pwcache.conf" for this instance
+        create_empty_file( $pwcache_conf_instance_file_path );
+
+        $result = give_file_to( $pwcache_conf_instance_file_path,
+                                $pki_user,
+                                $pki_group );
+        if( !$result ) {
+            emit( "Can't change ownership of $pwcache_conf_base_name.\n",
+                  "error" );
+            return 0;
+        }
+
+        chmod( $default_file_permissions,
+               $pwcache_conf_instance_file_path );
+
         # Subdirectory Specific symbolic links
 
         # create instance symlink to subsystem "perl" subdirectory
@@ -3742,6 +3763,40 @@ ASK_AGAIN:
         exit 255;
     }
 
+    # Create "kill scripts" (relative symbolic links) at ALL runlevels based
+    # upon the stop priority specified in this instance's start/stop script,
+    # and register this instance with "chkconfig"
+    if( $^O eq "linux" ) {
+        my $runlevel = $DEFAULT_RUNLEVEL;
+        my $start_priority = $DEFAULT_START_PRIORITY;
+        my $stop_priority = $DEFAULT_STOP_PRIORITY;
+        my $kill_script_link = "";
+
+        # Extract "chkconfig" parameters from instance start/stop script
+        ( $runlevel, $start_priority, $stop_priority ) =
+        extract_chkconfig_parameters_from_start_stop_script(
+           $pki_start_stop_script_instance_file_path );
+        emit( "Setting '$pki_instance_name' runlevel "
+            . "to '$runlevel'\n" );
+        emit( "Setting '$pki_instance_name' start priority "
+            . "to '$start_priority'\n" );
+        emit( "Setting '$pki_instance_name' stop priority "
+            . "to '$stop_priority'\n" );
+
+        # Create "kill script" symbolic links for ALL runlevels
+        $kill_script_link = "K" . "$stop_priority" . $pki_instance_name;
+        chdir( "$default_start_stop_scripts" );
+        create_kill_script_symbolic_links_for_all_runlevels( $kill_script_link,
+                                                             $pki_instance_name,
+                                                             $root_user,
+                                                             $root_group );
+        chdir( "/tmp" );
+
+        # Register this instance with '/sbin/chkconfig'
+        register_pki_instance_with_chkconfig( $pki_instance_name );
+    }
+
+    # Activate this instance
     if( $^O eq "linux" ) {
         $pki_start_stop_command = "/sbin/service" . " " . $pki_instance_name;
     } else {
@@ -3775,12 +3830,6 @@ ASK_AGAIN:
             . "https://$host:$ee_secure_port/$subsystem_type/admin/"
             . "console/config/login?pin=$random\n",
               "log" );
-
-        print( STDOUT
-              "Before proceeding with the configuration, make sure \n"
-            . "the firewall settings of this machine permit proper \n"
-            . "access to this subsystem. \n");
-
     }  else  {
         print( STDOUT
                "Please start the configuration by accessing:\n"
@@ -3790,13 +3839,13 @@ ASK_AGAIN:
             . "http://$host:$unsecure_port/$subsystem_type/admin/"
             . "console/config/login?pin=$random\n",
               "log" );
-
-        print( STDOUT
-              "Before proceeding with the configuration, make sure \n"
-            . "the firewall settings of this machine permit proper \n"
-            . "access to this subsystem. \n");
-
     }
+
+    # Notify user to check firewall settings . . .
+    print( STDOUT
+           "Before proceeding with the configuration, make sure \n"
+           . "the firewall settings of this machine permit proper \n"
+           . "access to this subsystem. \n");
 
     # If it exists, close the log file
     close_logfile( $logfile );

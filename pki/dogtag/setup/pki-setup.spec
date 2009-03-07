@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      14
+%define base_release      15
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Mar 6 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-15
+- Bugzilla Bug #440350 -  Dogtag stop/start scripts should be chkconfig aware
+- Bugzilla Bug #488162 -  Fix permissions on "pwcache.conf" file . . .
 * Wed Mar 4 2009 Ade Lee <alee@redhat.com> 1.0.0-14
 - Bugzilla Bug 487871, 488561 - pkiremove cleanup and remove all selinux ports
 * Wed Mar 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-13

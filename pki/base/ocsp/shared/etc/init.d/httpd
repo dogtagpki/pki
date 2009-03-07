@@ -18,14 +18,14 @@
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ### ---
 #
-# Startup script for Tomcat 5.0, the Apache Servlet Engine
+# [PKI_INSTANCE_ID]    Startup script for Tomcat 5.0, the Apache Servlet Engine
 #
-# chkconfig: - 80 20
-# description: Tomcat 5.0 is the Apache Servlet Engine RI
-#              for Servlet 2.4/JSP 2.0
-# processname: tomcat
-# pidfile: /var/run/tomcat5.pid
-# config:  /etc/tomcat5/tomcat5.conf
+# chkconfig:    - 83 17
+# description:  Tomcat 5.0 is the Apache Servlet Engine RI
+#               for Servlet 2.4/JSP 2.0
+# processname:  [PKI_INSTANCE_ID]
+# pidfile:      /var/run/[PKI_INSTANCE_ID].pid
+# config:       /etc/[PKI_INSTANCE_ID]/tomcat5.conf
 #
 # Gomez Henri <hgomez@users.sourceforge.net>
 # Keith Irwin <keith_irwin@non.hp.com>

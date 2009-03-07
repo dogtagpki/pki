@@ -20,10 +20,10 @@
 #
 # [INSTANCE_ID]    Startup script for the Apache HTTP Server
 #
-# chkconfig:    - 85 15
+# chkconfig:    - 86 14
 # description:  Apache is a World Wide Web server.  It is used to serve \
 #               HTML files and CGI.
-# processname:  httpd
+# processname:  [INSTANCE_ID]
 # config:       [HTTPD_CONF]
 # pidfile:      [SERVER_ROOT]/logs/[INSTANCE_ID].pid
 

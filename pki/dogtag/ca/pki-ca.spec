@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      29
+%define base_release      30
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Mar 6 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-30
+- Bugzilla Bug #440350 -  Dogtag stop/start scripts should be chkconfig aware
 * Fri Mar 6 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-29
 - Bugzilla Bug #334253 - Revoked certs must appear on one CRL after expiration
 * Tue Mar 3 2009 Ade Lee <alee@redhat.com> 1.0.0-28

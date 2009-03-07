@@ -167,6 +167,11 @@ $default_modutil_command    = "$default_system_user_binaries/modutil";
 
 $ROOTUID = 0;
 
+$MAX_RUNLEVEL = 6;
+$DEFAULT_RUNLEVEL = "-";
+$DEFAULT_START_PRIORITY = 99;
+$DEFAULT_STOP_PRIORITY = 99;
+
 $MAX_WELL_KNOWN_PORT = 511;    #      well-known ports =     0 through   511
 $MAX_RESERVED_PORT   = 1023;   #        reserved ports =   512 through  1023
 $MAX_REGISTERED_PORT = 49151;  #      registered ports =  1024 through 49151
@@ -198,6 +203,11 @@ $logfile = "";
 
 # Whether or not to do verbose mode
 $verbose = 0;
+
+# chkconfig parameters (Linux ONLY)
+if( $^O eq "linux" ) {
+    @chkconfig_fields = ();
+}
 
 
 ##############################################################
@@ -1574,11 +1584,6 @@ sub create_empty_file
         my $rv = 0;
 
         $rv = `touch $file`;
-        if( !$rv ) {
-            emit( "create_empty_file():  unable to create empty file called "
-                . "$file.\n",
-                  "error" );
-        }
     }
 
     return;
@@ -2083,12 +2088,6 @@ sub create_symbolic_link
     if( symbolic_link_exists( $symlink ) ) {
         # delete symbolic link so that we can recreate link for upgrades
         $result = `rm -rf $symlink`;
-        if( !$result ) {
-            emit( "create_symbolic_link():  unable to delete original "
-                . "$symlink.\n",
-                  "error" );
-            return 0;
-        }
     }
 
     if( !is_path_valid( $symlink ) ) {
@@ -2191,6 +2190,167 @@ sub give_symbolic_link_to
     }
 
     return 1;
+}
+
+
+##############################################################
+# Generic "chkconfig" Subroutines (Linux ONLY)
+##############################################################
+
+if( $^O eq "linux" ) {
+    # arg0 start/stop script instance file path
+    # arg1 pki instance name
+    # return ( $runtime, $start_priority, $stop_priority )
+    sub extract_chkconfig_parameters_from_start_stop_script
+    {
+        my $pki_start_stop_script_instance_file_path = $_[0];
+
+        # Extract "chkconfig" options from start/stop script
+        my $inf = new FileHandle;
+
+        $inf->open( "<$pki_start_stop_script_instance_file_path" ) or
+        die "Could not open $pki_start_stop_script_instance_file_path\n";
+
+        while( <$inf> ) {
+            my $line = $_;
+            chomp( $line );
+            if( $line =~ "^#.*chkconfig:" ) {
+                # "# chkconfig: <runlevel> <start_priority> <stop_priority>"
+                @chkconfig_fields = split( ' ', $line );
+
+                # determine instance runlevel
+                if( ( "$chkconfig_fields[2]" ne "$DEFAULT_RUNLEVEL" ) &&
+                    ( substr( "$chkconfig_fields[2]", 0 ) != "0" )    &&
+                    ( substr( "$chkconfig_fields[2]", 0 ) != "1" )    &&
+                    ( substr( "$chkconfig_fields[2]", 0 ) != "2" )    &&
+                    ( substr( "$chkconfig_fields[2]", 0 ) != "3" )    &&
+                    ( substr( "$chkconfig_fields[2]", 0 ) != "4" )    &&
+                    ( substr( "$chkconfig_fields[2]", 0 ) != "5" )    &&
+                    ( substr( "$chkconfig_fields[2]", 0 ) != "6" ) ) {
+                    $chkconfig_fields[2] = $DEFAULT_RUNLEVEL;
+                }
+
+                # determine instance start priority
+                if( ( $chkconfig_fields[3] < 0 ) && 
+                    ( $chkconfig_fields[3] > $DEFAULT_START_PRIORITY ) ) {
+                    $chkconfig_fields[3] = $DEFAULT_START_PRIORITY;
+                }
+
+                # determine instance stop priority
+                if( ( $chkconfig_fields[4] < 0 ) && 
+                    ( $chkconfig_fields[4] > $DEFAULT_STOP_PRIORITY ) ) {
+                    $chkconfig_fields[4] = $DEFAULT_STOP_PRIORITY;
+                }
+            }
+        }
+
+        return( $chkconfig_fields[2],
+                $chkconfig_fields[3],
+                $chkconfig_fields[4] );
+    }
+
+
+    # arg0 kill script link
+    # arg1 pki instance name
+    # arg2 user
+    # arg3 group
+    # no return
+    sub create_kill_script_symbolic_links_for_all_runlevels
+    {
+        my $kill_script_link = $_[0];
+        my $pki_instance_name = $_[1];
+        my $user = $_[2];
+        my $group = $_[3];
+
+        my $i = 0;
+        my $kill_symlink_path = "";
+        my $init_instance_path = "../init.d/$pki_instance_name";
+
+        emit( "Creating '$kill_script_link' symbolic links for "
+            . "'$pki_instance_name' at ALL runlevels:\n" );
+
+        for( $i = 0; $i <= $MAX_RUNLEVEL; $i++ ) {
+            $kill_symlink_path = "/etc/rc" . $i . ".d" . "/"
+                               . $kill_script_link;
+
+            $result = create_symbolic_link( $kill_symlink_path,
+                                            $init_instance_path );
+            if( !$result ) {
+                emit( "Failed to create symlink $kill_symlink_path ...\n" );
+                return;
+            }
+
+            $result = give_symbolic_link_to( $kill_symlink_path,
+                                             $user,
+                                             $group );
+            if( !$result ) {
+                emit( "$kill_symlink_path ownership problems!",
+                      "error" );
+                return;
+            }
+
+            emit( "    runlevel $i:  '$kill_script_link' created\n" );
+        }
+
+        return;
+    }
+
+
+    # arg0 kill script link
+    # arg1 pki instance name
+    # no return
+    sub delete_kill_script_symbolic_links_for_all_runlevels
+    {
+        my $kill_script_link = $_[0];
+
+        my $i = 0;
+        my $kill_symlink_path = "";
+        my $result = 0;
+
+        for( $i = 0; $i <= $MAX_RUNLEVEL; $i++ ) {
+            $kill_symlink_path = "/etc/rc" . $i . ".d" . "/"
+                               . $kill_script_link;
+            if( symbolic_link_exists( $kill_symlink_path ) ) {
+                system( "rm -rf $kill_symlink_path" );
+            }
+        }
+
+        return;
+    }
+
+
+    # arg0 pki instance name
+    # no return
+    sub register_pki_instance_with_chkconfig
+    {
+        my $pki_instance_name = $_[0];
+
+        my $command = "";
+
+        $command = "/sbin/chkconfig" . " "
+                 . "--add" . " "
+                 . $pki_instance_name;
+
+        system( "$command" );
+
+        emit( "Registered '$pki_instance_name' with '/sbin/chkconfig'.\n" );
+    }
+
+
+    # arg0 pki instance name
+    # no return
+    sub deregister_pki_instance_with_chkconfig
+    {
+        my $pki_instance_name = $_[0];
+
+        my $command = "";
+
+        $command = "/sbin/chkconfig" . " "
+                 . "--del" . " "
+                 . $pki_instance_name;
+
+        system( "$command" );
+    }
 }
 
 1;

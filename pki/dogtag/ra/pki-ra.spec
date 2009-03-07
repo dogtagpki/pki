@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      21
+%define base_release      22
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Mar 6 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-22
+- Bugzilla Bug #440350 -  Dogtag stop/start scripts should be chkconfig aware
 * Fri Mar 6 2009 Ade Lee <alee@redhat.com> 1.0.0-21
 - Bugzilla Bug 472308 - web installer display wrong product version in first Welcome panel
 * Wed Mar 4 2009 Ade Lee <alee@redhat.com> 1.0.0-20

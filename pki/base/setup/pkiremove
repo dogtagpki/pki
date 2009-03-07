@@ -232,7 +232,7 @@ sub update_domain()
     close(DAT);
 
     if ((!defined($sechost)) || (!defined($secport))) {
-        print (STDOUT "No security domain defined.  If this is an unconfigured instance, then that is OK.\n" .
+        print (STDOUT "No security domain defined.\nIf this is an unconfigured instance, then that is OK.\n" .
             "Otherwise, manually delete the entry from the security domain master.\n" ); 
         return;
     }
@@ -341,7 +341,7 @@ sub remove_selinux_fcontexts()
         $conf_path = readlink $conf_path;
     };
 
-    print STDOUT "Removing selinux file contexts. \n";
+    print STDOUT "Removing selinux file contexts.\n";
 
     # remove context for /usr/bin/dtomcat5-$pki_instance_name
     if (($java_component) && ($pki_instance_name ne $default_inst_name )) {
@@ -445,6 +445,7 @@ sub remove_selinux_ports()
         }
     }  
 
+    print( STDOUT "\n" );
     foreach my $port (@ports) {
         my $setype = "pki_" . lc($typeval) . "_port_t";
         my $errs;
@@ -455,7 +456,7 @@ sub remove_selinux_ports()
                 warn "Port $port not removed from selinux policy correctly.\n";
                 print $errs;
             } else {
-                print "Port $port not removed from selinux policy because it is defined in policy.  This is OK.\n";
+                print "Port $port not removed from selinux policy because it is defined in policy.\nThis is OK.\n";
             }
         }
     }
@@ -558,6 +559,35 @@ ASK_AGAIN:
                "ERROR:  Can't locate start script of "
              . "instance to be cleaned up!\n" );
         return $result;
+    }
+
+    # De-register this instance with "chkconfig", and remove the "kill scripts"
+    # (relative symbolic links) at ALL runlevels based upon the stop priority
+    # specified in this instance's start/stop script,
+    if( $^O eq "linux" ) {
+        my $runlevel = "";
+        my $start_priority = "";
+        my $stop_priority = "";
+        my $kill_script_link = "";
+
+        # De-register this instance with '/sbin/chkconfig'
+        print( STDOUT "\n" );
+        print( STDOUT
+               "De-registering '$pki_instance_name' from "
+             . "'/sbin/chkconfig'.\n" );
+        deregister_pki_instance_with_chkconfig( $pki_instance_name );
+
+        # Extract "chkconfig" parameters from instance start/stop script
+        ( $runlevel, $start_priority, $stop_priority ) =
+        extract_chkconfig_parameters_from_start_stop_script(
+           $pki_start_stop_script_instance_file_path );
+
+        # Delete "kill script" symbolic links for ALL runlevels
+        $kill_script_link = "K" . "$stop_priority" . $pki_instance_name;
+        print( STDOUT
+               "Deleting '$kill_script_link' from ALL runlevels.\n\n" );
+        delete_kill_script_symbolic_links_for_all_runlevels(
+            $kill_script_link );
     }
 
     if( $^O eq "linux" ) {
