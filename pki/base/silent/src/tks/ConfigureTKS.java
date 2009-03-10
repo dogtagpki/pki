@@ -113,12 +113,18 @@ public class ConfigureTKS
 	public static String tks_subsystem_cert_pp = null;
 	public static String tks_subsystem_cert_cert = null;
 
+        public static String tks_audit_signing_cert_name = null;
+        public static String tks_audit_signing_cert_req = null;
+        public static String tks_audit_signing_cert_pp = null;
+        public static String tks_audit_signing_cert_cert = null;
+ 
 	public static String backup_pwd = null;
 
 	// names 
 	public static String tks_subsystem_cert_subject_name = null;
 	public static String tks_server_cert_subject_name = null;
 	public static String subsystem_name = null;
+        public static String tks_audit_signing_cert_subject_name = null;
 
 	public ConfigureTKS ()
 	{
@@ -390,13 +396,17 @@ public class ConfigureTKS
 							"&subsystem_custom_size=" + key_size +
 							"&sslserver_custom_size=" + key_size +
 							"&custom_size=" + key_size +
+                                                        "&audit_signing_custom_size=" + key_size +
 							"&subsystem_keytype=" + key_type + 
 							"&sslserver_keytype=" + key_type + 
 							"&keytype=" + key_type + 
+                                                        "&audit_signing_keytype=" + key_type +
 							"&subsystem_choice=default"+
 							"&sslserver_choice=default"+
+                                                        "&audit_signing_choice=default" +
 							"&choice=default"+
 							""; 
+
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -416,6 +426,10 @@ public class ConfigureTKS
 				{
 					tks_subsystem_cert_name = temp;
 				}
+                                else if(temp.indexOf("Audit Signing Certificate") > 0)
+                                {
+                                        tks_audit_signing_cert_name = temp;
+                                }
 				else 
 				{
 					server_cert_name = temp;
@@ -427,6 +441,7 @@ public class ConfigureTKS
 				tks_subsystem_cert_name);
 	System.out.println("default: server_cert_name=" + 
 				server_cert_name);
+        System.out.println("default: tks_audit_signing_cert_name=" + tks_audit_signing_cert_name);
 		return true;
 	}
 
@@ -446,7 +461,9 @@ public class ConfigureTKS
 					"&subsystem=" + 
 					URLEncoder.encode(tks_subsystem_cert_subject_name) +
 					"&sslserver=" + 
-					URLEncoder.encode(tks_server_cert_subject_name) + 
+					URLEncoder.encode(tks_server_cert_subject_name) +
+                                        "&audit_signing=" +
+                                        URLEncoder.encode(tks_audit_signing_cert_name) +
 					"&urls=" + 
 					URLEncoder.encode(domain_url) + 
 					""; 
@@ -473,6 +490,10 @@ public class ConfigureTKS
 					tks_subsystem_cert_req = (String) req_list.get(i);
 					tks_subsystem_cert_cert = (String) cert_list.get(i);
 				}
+                                else if (temp.indexOf("auditSigningCert") >=0) {
+                                        tks_audit_signing_cert_req = (String) req_list.get(i);
+                                        tks_audit_signing_cert_cert = (String) cert_list.get(i);
+                                }
 				else 
 				{
 					server_cert_req = (String) req_list.get(i);
@@ -503,6 +524,9 @@ public class ConfigureTKS
 							"&sslserver=" + 
 							URLEncoder.encode(server_cert_cert) + 
 							"&sslserver_cc=" + 
+                                                        "&audit_signing=" +
+                                                        URLEncoder.encode(tks_audit_signing_cert_cert) +
+                                                        "&audit_signing_cc=" +
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -919,6 +943,7 @@ public class ConfigureTKS
 		// tks cert subject name params
 		StringHolder x_tks_subsystem_cert_subject_name = new StringHolder();
 		StringHolder x_tks_server_cert_subject_name = new StringHolder();
+                StringHolder x_tks_audit_signing_cert_subject_name = new StringHolder();
 
 		// subsystemName
 		StringHolder x_subsystem_name = new StringHolder();
@@ -1007,6 +1032,10 @@ public class ConfigureTKS
 		"-subsystem_name %s #CA subsystem name",
 							x_subsystem_name); 
 
+                parser.addOption(
+                "-tks_audit_signing_cert_subject_name %s #TKS audit signing cert subject name",
+                                                        x_tks_audit_signing_cert_subject_name);
+
 		// and then match the arguments
 		String [] unmatched = null;
 		unmatched = parser.matchAllArgs (args,0,parser.EXIT_ON_UNMATCHED);
@@ -1064,6 +1093,7 @@ public class ConfigureTKS
 			x_tks_server_cert_subject_name.value ;
 		
 		subsystem_name = x_subsystem_name.value ;
+                tks_audit_signing_cert_subject_name = x_tks_audit_signing_cert_subject_name.value;
 
 
 

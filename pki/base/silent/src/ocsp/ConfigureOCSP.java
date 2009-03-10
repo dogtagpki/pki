@@ -118,12 +118,19 @@ public class ConfigureOCSP
 	public static String ocsp_subsystem_cert_pp = null;
 	public static String ocsp_subsystem_cert_cert = null;
 
+        public static String ocsp_audit_signing_cert_name = null;
+        public static String ocsp_audit_signing_cert_req = null;
+        public static String ocsp_audit_signing_cert_pp = null;
+        public static String ocsp_audit_signing_cert_cert = null;
+
+
 	public static String backup_pwd = null;
 
 	// cert subject names 
 	public static String ocsp_sign_cert_subject_name = null;
 	public static String ocsp_subsystem_cert_subject_name = null;
 	public static String ocsp_server_cert_subject_name = null;
+        public static String ocsp_audit_signing_cert_subject_name = null;
 
 	public static String subsystem_name = null;
 	public ConfigureOCSP ()
@@ -397,16 +404,20 @@ public class ConfigureOCSP
 							"&signing_custom_size=" + key_size +
 							"&subsystem_custom_size=" + key_size +
 							"&sslserver_custom_size=" + key_size +
+                                                        "&audit_signing_custom_size=" + key_size +
 							"&custom_size=" + key_size +
 							"&signing_keytype=" + key_type + 
 							"&subsystem_keytype=" + key_type + 
-							"&sslserver_keytype=" + key_type + 
+							"&sslserver_keytype=" + key_type +
+                                                        "&audit_signing_keytype=" + key_type + 
 							"&keytype=" + key_type + 
 							"&signing_choice=default"+
 							"&subsystem_choice=default"+
 							"&sslserver_choice=default"+
+                                                        "&audit_signing_choice=default" +
 							"&choice=default"+
 							""; 
+
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -430,6 +441,9 @@ public class ConfigureOCSP
 				{
 					ocsp_subsystem_cert_name = temp;
 				}
+                                else if (temp.indexOf("Audit Signing Certificate") > 0) {
+                                        ocsp_audit_signing_cert_name = temp;
+                                }
 				else 
 				{
 					server_cert_name = temp;
@@ -440,6 +454,8 @@ public class ConfigureOCSP
 	System.out.println("default: ocsp_signing_cert_name=" + ocsp_signing_cert_name);
 	System.out.println("default: ocsp_subsystem_cert_name=" + ocsp_subsystem_cert_name);
 	System.out.println("default: server_cert_name=" + server_cert_name);
+        System.out.println("default: oscp_audit_signing_cert_name=" + ocsp_audit_signing_cert_name);
+
 		return true;
 	}
 
@@ -462,6 +478,8 @@ public class ConfigureOCSP
 				URLEncoder.encode(ocsp_sign_cert_subject_name) + 
 				"&sslserver=" + 
 				URLEncoder.encode(ocsp_server_cert_subject_name) + 
+                                "&audit_signing=" +
+                                URLEncoder.encode(ocsp_audit_signing_cert_name) +
 				"&urls=" + 
 				URLEncoder.encode(domain_url) + 
 				""; 
@@ -493,6 +511,10 @@ public class ConfigureOCSP
 					ocsp_subsystem_cert_req = (String) req_list.get(i);
 					ocsp_subsystem_cert_cert = (String) cert_list.get(i);
 				}
+                                else if (temp.indexOf("auditSigningCert") >=0) {
+                                        ocsp_audit_signing_cert_req = (String) req_list.get(i);
+                                        ocsp_audit_signing_cert_cert = (String) cert_list.get(i);
+                                }
 				else 
 				{
 					server_cert_req = (String) req_list.get(i);
@@ -526,6 +548,9 @@ public class ConfigureOCSP
 							"&sslserver=" + 
 							URLEncoder.encode(server_cert_cert) + 
 							"&sslserver_cc=" + 
+                                                        "&audit_signing=" + 
+                                                        URLEncoder.encode(ocsp_audit_signing_cert_cert) +
+                                                        "&audit_signing_cc=" +
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -944,6 +969,7 @@ public class ConfigureOCSP
 		StringHolder x_ocsp_sign_cert_subject_name = new StringHolder();
 		StringHolder x_ocsp_subsystem_cert_subject_name = new StringHolder();
 		StringHolder x_ocsp_server_cert_subject_name = new StringHolder();
+                StringHolder x_ocsp_audit_signing_cert_subject_name = new StringHolder();
 
 		// subsystemName
 		StringHolder x_subsystem_name = new StringHolder();
@@ -1035,6 +1061,10 @@ public class ConfigureOCSP
 		"-subsystem_name %s #OCSP subsystem name",
 							x_subsystem_name); 
 
+                parser.addOption(
+                "-ocsp_audit_signing_cert_subject_name %s #OCSP audit signing cert subject name",
+                                                        x_ocsp_audit_signing_cert_subject_name);
+
 		// and then match the arguments
 		String [] unmatched = null;
 		unmatched = parser.matchAllArgs (args,0,parser.EXIT_ON_UNMATCHED);
@@ -1090,6 +1120,7 @@ public class ConfigureOCSP
 		ocsp_subsystem_cert_subject_name = 
 			x_ocsp_subsystem_cert_subject_name.value;
 		ocsp_server_cert_subject_name = x_ocsp_server_cert_subject_name.value ;
+                ocsp_audit_signing_cert_subject_name = x_ocsp_audit_signing_cert_subject_name.value;
 		
 		subsystem_name = x_subsystem_name.value ;
 

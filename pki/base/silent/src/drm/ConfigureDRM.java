@@ -126,6 +126,11 @@ public class ConfigureDRM
 	public static String drm_subsystem_cert_pp = null;
 	public static String drm_subsystem_cert_cert = null;
 
+        public static String drm_audit_signing_cert_name = null;
+        public static String drm_audit_signing_cert_req = null;
+        public static String drm_audit_signing_cert_pp = null;
+        public static String drm_audit_signing_cert_cert = null;
+
 	public static String backup_pwd = null;
 
 	// cert subject names 
@@ -133,6 +138,8 @@ public class ConfigureDRM
 	public static String drm_subsystem_cert_subject_name = null;
 	public static String drm_storage_cert_subject_name = null;
 	public static String drm_server_cert_subject_name = null;
+        public static String drm_audit_signing_cert_subject_name = null;
+
 
 	public static String subsystem_name = null;
 
@@ -409,16 +416,19 @@ public class ConfigureDRM
 							"&subsystem_custom_size=" + key_size +
 							"&sslserver_custom_size=" + key_size +
 							"&custom_size=" + key_size +
+                                                        "&audit_signing_custom_size=" + key_size +
 							"&transport_keytype=" + key_type + 
 							"&storage_keytype=" + key_type + 
 							"&subsystem_keytype=" + key_type + 
 							"&sslserver_keytype=" + key_type + 
+                                                        "&audit_signing_keytype=" + key_type +
 							"&keytype=" + key_type + 
 							"&transport_choice=default"+
 							"&storage_choice=default"+
 							"&subsystem_choice=default"+
 							"&sslserver_choice=default"+
 							"&choice=default"+
+                                                        "&audit_signing_choice=default" +
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -447,6 +457,9 @@ public class ConfigureDRM
 				{
 					drm_subsystem_cert_name = temp;
 				}
+                                else if (temp.indexOf("DRM Audit Signing Certificate") > 0) {
+                                        drm_audit_signing_cert_name = temp;
+                                }
 				else 
 				{
 					server_cert_name = temp;
@@ -460,6 +473,9 @@ public class ConfigureDRM
 			drm_storage_cert_name);
 		System.out.println("default: drm_subsystem_cert_name=" + 
 			drm_subsystem_cert_name);
+                System.out.println("default: drm_audit_signing_cert_name=" +
+                        drm_audit_signing_cert_name);
+
 		System.out.println("default: server_cert_name=" + 
 			server_cert_name);
 		return true;
@@ -493,6 +509,8 @@ public class ConfigureDRM
 				URLEncoder.encode(drm_storage_cert_subject_name) + 
 				"&sslserver=" + 
 				URLEncoder.encode(drm_server_cert_subject_name) + 
+                                "&audit_signing=" +
+                                URLEncoder.encode(drm_audit_signing_cert_name) + 
 				"&urls=" + 
 				URLEncoder.encode(domain_url) + 
 				""; 
@@ -529,6 +547,10 @@ public class ConfigureDRM
 					drm_subsystem_cert_req = (String) req_list.get(i);
 					drm_subsystem_cert_cert = (String) cert_list.get(i);
 				}
+                                else if (temp.indexOf("auditSigningCert") >=0) {
+                                        drm_audit_signing_cert_req = (String) req_list.get(i);
+                                        drm_audit_signing_cert_cert = (String) cert_list.get(i);
+                                }
 				else 
 				{
 					server_cert_req = (String) req_list.get(i);
@@ -565,6 +587,9 @@ public class ConfigureDRM
 							"&sslserver=" + 
 							URLEncoder.encode(server_cert_cert) + 
 							"&sslserver_cc=" + 
+                                                        "&audit_signing=" + 
+                                                        URLEncoder.encode(drm_audit_signing_cert_cert) +
+                                                        "&audit_signing_cc=" +
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -980,6 +1005,7 @@ public class ConfigureDRM
 		StringHolder x_drm_server_cert_subject_name = new StringHolder();
 		StringHolder x_drm_transport_cert_subject_name = new StringHolder();
 		StringHolder x_drm_storage_cert_subject_name = new StringHolder();
+                StringHolder x_drm_audit_signing_cert_subject_name = new StringHolder();
 
 		// subsystemName
 		StringHolder x_subsystem_name = new StringHolder();
@@ -1074,6 +1100,10 @@ public class ConfigureDRM
 		"-subsystem_name %s #CA subsystem name",
 							x_subsystem_name); 
 
+                parser.addOption(
+                "-drm_audit_signing_cert_subject_name %s #DRM audit signing cert subject name",
+                                                        x_drm_audit_signing_cert_subject_name);
+
 		// and then match the arguments
 		String [] unmatched = null;
 		unmatched = parser.matchAllArgs (args,0,parser.EXIT_ON_UNMATCHED);
@@ -1131,6 +1161,7 @@ public class ConfigureDRM
 			x_drm_subsystem_cert_subject_name.value;
 		drm_storage_cert_subject_name = x_drm_storage_cert_subject_name.value ;
 		drm_server_cert_subject_name = x_drm_server_cert_subject_name.value ;
+                drm_audit_signing_cert_subject_name = x_drm_audit_signing_cert_subject_name.value;
 		
 		subsystem_name = x_subsystem_name.value ;
 
