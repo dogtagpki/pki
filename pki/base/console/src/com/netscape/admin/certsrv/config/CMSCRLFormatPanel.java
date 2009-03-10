@@ -280,7 +280,7 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
             } else if (name.equals(Constants.PR_PROFILE_LIST)) {
                 mProfiles.setText(value);
             } else if (name.equals(Constants.PR_ENABLE_CACHE)) {
-                mCacheEnabled = Boolean.getBoolean(value);
+                mCacheEnabled = (value.equals(Constants.TRUE))? true: false;
             }
         }
 
