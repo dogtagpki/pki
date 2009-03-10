@@ -797,8 +797,7 @@ start()
 			if [ "$CONSOLETYPE" = "serial" ]; then
 				echo -n "         "
 			fi
-			echo_success > /etc/rhgb/temp/rhgb-console
-			cat /etc/rhgb/temp/rhgb-console
+			echo_success
 			echo
 		else
 			echo "         [  OK  ]"
@@ -819,8 +818,7 @@ start()
 			if [ "$CONSOLETYPE" = "serial" ]; then
 				echo -n "         "
 			fi
-			echo_failure > /etc/rhgb/temp/rhgb-console
-			cat /etc/rhgb/temp/rhgb-console
+			echo_failure
 			echo
 		else
 			echo "         [  FAILED  ]"
@@ -875,8 +873,7 @@ stop()
 				if [ "$CONSOLETYPE" = "serial" ]; then
 					echo -n "         "
 				fi
-				echo_success > /etc/rhgb/temp/rhgb-console
-				cat /etc/rhgb/temp/rhgb-console
+				echo_success
 				echo
 			else
 				echo "         [  OK  ]"
@@ -886,8 +883,7 @@ stop()
 				if [ "$CONSOLETYPE" = "serial" ]; then
 					echo -n "         "
 				fi
-				echo_failure > /etc/rhgb/temp/rhgb-console
-				cat /etc/rhgb/temp/rhgb-console
+				echo_failure
 				echo
 			else
 				echo "         [  FAILED  ]"

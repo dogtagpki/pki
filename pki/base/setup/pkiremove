@@ -561,33 +561,14 @@ ASK_AGAIN:
         return $result;
     }
 
-    # De-register this instance with "chkconfig", and remove the "kill scripts"
-    # (relative symbolic links) at ALL runlevels based upon the stop priority
-    # specified in this instance's start/stop script,
+    # De-register this instance with "chkconfig"
     if( $^O eq "linux" ) {
-        my $runlevel = "";
-        my $start_priority = "";
-        my $stop_priority = "";
-        my $kill_script_link = "";
-
         # De-register this instance with '/sbin/chkconfig'
         print( STDOUT "\n" );
         print( STDOUT
                "De-registering '$pki_instance_name' from "
              . "'/sbin/chkconfig'.\n" );
         deregister_pki_instance_with_chkconfig( $pki_instance_name );
-
-        # Extract "chkconfig" parameters from instance start/stop script
-        ( $runlevel, $start_priority, $stop_priority ) =
-        extract_chkconfig_parameters_from_start_stop_script(
-           $pki_start_stop_script_instance_file_path );
-
-        # Delete "kill script" symbolic links for ALL runlevels
-        $kill_script_link = "K" . "$stop_priority" . $pki_instance_name;
-        print( STDOUT
-               "Deleting '$kill_script_link' from ALL runlevels.\n\n" );
-        delete_kill_script_symbolic_links_for_all_runlevels(
-            $kill_script_link );
     }
 
     if( $^O eq "linux" ) {

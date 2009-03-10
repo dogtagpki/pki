@@ -272,8 +272,7 @@ start() {
 		done
 
 		if [ -x /etc/init.d/functions ]; then
-			echo_success > /etc/rhgb/temp/rhgb-console
-			cat /etc/rhgb/temp/rhgb-console
+			echo_success
 			echo
 		else
 			echo "                                       [  OK  ]"
@@ -299,8 +298,7 @@ start() {
 		done
 	else
 		if [ -x /etc/init.d/functions ]; then
-			echo_failure > /etc/rhgb/temp/rhgb-console
-			cat /etc/rhgb/temp/rhgb-console
+			echo_failure
 			echo
 		else
 			echo "                                       [  FAILED  ]"
@@ -346,16 +344,14 @@ stop() {
 			rm -f ${pidfile}
 
 			if [ -x /etc/init.d/functions ]; then
-				echo_success > /etc/rhgb/temp/rhgb-console
-				cat /etc/rhgb/temp/rhgb-console
+				echo_success
 				echo
 			else
 				echo "                                       [  OK  ]"
 			fi
 		else
 			if [ -x /etc/init.d/functions ]; then
-				echo_failure > /etc/rhgb/temp/rhgb-console
-				cat /etc/rhgb/temp/rhgb-console
+				echo_failure
 				echo
 			else
 				echo "                                       [  FAILED  ]"

@@ -3763,14 +3763,11 @@ ASK_AGAIN:
         exit 255;
     }
 
-    # Create "kill scripts" (relative symbolic links) at ALL runlevels based
-    # upon the stop priority specified in this instance's start/stop script,
-    # and register this instance with "chkconfig"
+    # Register this instance with "chkconfig"
     if( $^O eq "linux" ) {
         my $runlevel = $DEFAULT_RUNLEVEL;
         my $start_priority = $DEFAULT_START_PRIORITY;
         my $stop_priority = $DEFAULT_STOP_PRIORITY;
-        my $kill_script_link = "";
 
         # Extract "chkconfig" parameters from instance start/stop script
         ( $runlevel, $start_priority, $stop_priority ) =
@@ -3782,15 +3779,6 @@ ASK_AGAIN:
             . "to '$start_priority'\n" );
         emit( "Setting '$pki_instance_name' stop priority "
             . "to '$stop_priority'\n" );
-
-        # Create "kill script" symbolic links for ALL runlevels
-        $kill_script_link = "K" . "$stop_priority" . $pki_instance_name;
-        chdir( "$default_start_stop_scripts" );
-        create_kill_script_symbolic_links_for_all_runlevels( $kill_script_link,
-                                                             $pki_instance_name,
-                                                             $root_user,
-                                                             $root_group );
-        chdir( "/tmp" );
 
         # Register this instance with '/sbin/chkconfig'
         register_pki_instance_with_chkconfig( $pki_instance_name );
