@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      50
+%define base_release      51
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Tue Mar 10 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-51
+- Bugzilla Bug #489404 -  fixed non-secure port
 * Fri Mar 6 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-50
 - Bugzilla Bug #334253 - Revoked certs must appear on one CRL after expiration
 * Wed Mar 4 2009 Ade Lee <alee@redhat.com> 1.0.0-49

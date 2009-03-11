@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      19
+%define base_release      20
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -288,6 +288,8 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Mar 10 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-20
+- Bugzilla Bug #489404 -  fixed non-secure port
 * Tue Mar 10 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-19
 - Bugzilla Bug #440350 -  Removed use of "rhgb-console" from "httpd"
 * Fri Mar 6 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-18
