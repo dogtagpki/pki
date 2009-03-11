@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      23
+%define base_release      24
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -128,7 +128,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_name}-ui, %{base_prefix}-setup >= 1.0.0, mod_nss >= 1.0.7, mod_perl >= 1.99_16, mozldap >= 6.0.2, perl-DBD-SQLite >= 1.11, perl-DBI >= 1.52, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, perl-XML-SAX >= 0.12, sendmail >= 8.13.1, sqlite >= 3.3.3, %{base_prefix}-selinux >= 1.0.0
+Requires:       %{base_name}-ui, %{base_prefix}-setup >= 1.0.0, mod_nss >= 1.0.7, mod_perl >= 1.99_16, mozldap >= 6.0.2, perl-DBD-SQLite >= 1.11, perl-DBI >= 1.52, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, perl-XML-SAX >= 0.12, sendmail >= 8.13.1, sqlite >= 3.3.3, %{base_prefix}-selinux >= 1.0.0, perl-XML-Simple
 
 
 ## This package is non-relocatable!
@@ -266,6 +266,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Mar 11 2009 Ade Lee <alee@redhat.com> 1.0.0-24
+  Bugzilla Bug #489712 RA and TPS need perl-XML-Simple as prereq
 * Tue Mar 10 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-23
 - Bugzilla Bug #440350 -  Removed use of "rhgb-console" from "httpd"
 * Fri Mar 6 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-22
