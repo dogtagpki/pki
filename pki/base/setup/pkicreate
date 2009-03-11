@@ -356,6 +356,8 @@ my $TOMCAT_SERVER_PORT_SLOT   = "TOMCAT_SERVER_PORT";
 my $PKI_FLAVOR_SLOT           = "PKI_FLAVOR";
 my $PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT  = "PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT";
 my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT = "PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT";
+my $PKI_OPEN_SHARED_PORTS_COMMENT_SERVER_SLOT  = "PKI_OPEN_SHARED_PORTS_SERVER_COMMENT";
+my $PKI_CLOSE_SHARED_PORTS_COMMENT_SERVER_SLOT = "PKI_CLOSE_SHARED_PORTS_SERVER_COMMENT";
 my $PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT  = "PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT";
 my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT = "PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT";
 my $PKI_OPEN_COMMENT          = "<!--";
@@ -2353,27 +2355,36 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
         $slot_hash{$PKI_UNSECURE_PORT_SLOT}    = $unsecure_port;
 
-        #Take care of the case where we want separate listening ports.
+        # Take care of the case where we want separate listening ports.
         if( $do_port_separation) 
         {
             $slot_hash{$PKI_SECURE_PORT_SLOT}     = $agent_secure_port;
             $slot_hash{$PKI_EE_SECURE_PORT_SLOT}        = $ee_secure_port; 
             $slot_hash{$PKI_ADMIN_SECURE_PORT_SLOT}     = $admin_secure_port;
-            # Do NOT comment out the other ports
+            # Do NOT comment out the Admin/EE/Unsecure Ports
+            # used by Port Separation
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = "";
             $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT} = "";
+            # Comment out the Secure/Unsecure Ports used by Shared Ports
+            $slot_hash{$PKI_OPEN_SHARED_PORTS_COMMENT_SERVER_SLOT}  = $PKI_OPEN_COMMENT;
+            $slot_hash{$PKI_CLOSE_SHARED_PORTS_COMMENT_SERVER_SLOT} = $PKI_CLOSE_COMMENT;
             # Comment out the Authentication Servlet for the non-Admin Ports
+            # used by Port Separation
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT}  = $PKI_OPEN_COMMENT;
             $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT} = $PKI_CLOSE_COMMENT;
         } else {
-            # Comment out the other ports
+            # Comment out the Admin/EE/Unsecure Ports used by Port Separation
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = $PKI_OPEN_COMMENT;
             $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT} = $PKI_CLOSE_COMMENT;;
+            # Do NOT comment out the Secure/Unsecure Ports used by Shared Ports
+            $slot_hash{$PKI_OPEN_SHARED_PORTS_COMMENT_SERVER_SLOT}  = "";
+            $slot_hash{$PKI_CLOSE_SHARED_PORTS_COMMENT_SERVER_SLOT} = "";
             # Do NOT comment out the Authentication Servlet for the Admin Port
+            # used by Shared Ports
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT}  = "";
             $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT} = "";
-
         } 
+
         $slot_hash{$PKI_WEBAPPS_NAME}          = $webapps_base_subsystem_dir; 
         $slot_hash{$PKI_USER_SLOT}             = $pki_user;
         $slot_hash{$TOMCAT_SERVER_PORT_SLOT}   = $tomcat_server_port;

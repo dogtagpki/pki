@@ -77,11 +77,17 @@
 
 
 
+    <!-- Shared Ports:  Unsecure Port -->
+    [PKI_OPEN_SHARED_PORTS_SERVER_COMMENT]
     <Connector port="[PKI_UNSECURE_PORT]" maxHttpHeaderSize="8192"
                maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
                enableLookups="false" redirectPort="8443" acceptCount="100"
                connectionTimeout="20000" disableUploadTimeout="true" />
+    [PKI_CLOSE_SHARED_PORTS_SERVER_COMMENT]
 
+<!-- Port Separation:  Agent Secure Port                -->
+<!--                   OR                               -->
+<!-- Shared Ports:     Agent, EE, and Admin Secure Port -->
 <!-- Define a SSL HTTP/1.1 Connector on port 8443 -->
 <!-- DO NOT REMOVE - Begin define PKI secure port -->
 <Connector port="[PKI_SECURE_PORT]" maxHttpHeaderSize="8192"
@@ -391,6 +397,9 @@
 
   </Service>
 
+<!-- Port Separation:  Admin Secure Port -->
+<!-- Port Separation:  Unsecure Port -->
+<!-- Port Separation:  EE Secure Port -->
 [PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT]
 
 <Service name="CatalinaAdmin">
@@ -431,6 +440,11 @@
 
 
 <Service name="CatalinaEE">
+
+<Connector port="[PKI_UNSECURE_PORT]" maxHttpHeaderSize="8192"
+        maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+        enableLookups="false" redirectPort="8443" acceptCount="100"
+        connectionTimeout="20000" disableUploadTimeout="true"/>
 
 <Connector port="[PKI_EE_SECURE_PORT]" maxHttpHeaderSize="8192"
         maxThreads="150" minSpareThreads="25" maxSpareThreads="75"

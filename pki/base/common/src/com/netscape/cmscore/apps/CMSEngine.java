@@ -466,22 +466,68 @@ public class CMSEngine implements ICMSEngine {
                 secure = n.hasAttribute("sslProtocol");
                 port = n.getAttribute("port");
              
-                //Do agent port or every port, if there is only one port. 
+                // The "server.xml" file is parsed from top-to-bottom, and
+                // supports BOTH "Port Separation" (the new default method)
+                // as well as "Shared Ports" (the old legacy method).  Since
+                // both methods must be supported, the file structure MUST
+                // conform to the following format:
+                //
+                //     <Catalina>
+                //         Shared Ports:     Unsecure Port
+                //
+                //         Port Separation:  Agent Secure Port
+                //                           OR
+                //         Shared Ports:     Agent, EE, and Admin Secure Port
+                //     </Catalina>
+                //
+                //     <CatalinaAdmin>
+                //         Port Separation:  Admin Secure Port
+                //     </CatalinaAdmin>
+                //
+                //     <CatalinaEE>
+                //         Port Separation:  Unsecure Port
+                //
+                //         Port Separation:  EE Secure Port
+                //     </CatalinaEE>
+                //
+                // NOTE:  If the "Port Separation" method is being used,
+                //        then the "Unsecure Port" specified in the
+                //        "Catalina" section section will be commented out on
+                //        an instance-by-instance basis.
+                //
+                //        Similarly, if the "Shared Ports" method is being
+                //        used, the entire "CatalinaAdmin" and "CatalinaEE"
+                //        sections will be commented out on an
+                //        instance-by-instance basis.
+                //
                 if ( parentName.equals("Catalina"))  {
 
                     if (secure) {
                         mServerCertNickname = n.getAttribute("serverCert");
+                        // Port Separation:  Agent Secure Port
+                        //                   OR
+                        // Shared Ports:     Agent, EE, and Admin Secure Port
                         info[AGENT][PORT] = port;
                         info[ADMIN][PORT] = port;
                         info[EE_SSL][PORT] = port;
                     } else {
+                        // Shared Ports:  Unsecure Port
                         info[EE_NON_SSL][PORT] = port;
                     }
                 }   
                 if( parentName.equals("CatalinaEE"))  {
-                    info[EE_SSL][PORT] = port; 
+                    if (secure) {
+                        // Port Separation:  EE Secure Port
+                        // (overwrites value obtained from Catalina section)
+                        info[EE_SSL][PORT] = port; 
+                    } else {
+                        // Port Separation:  Unsecure Port
+                        info[EE_NON_SSL][PORT] = port;
+                    }
                 }
                 if( parentName.equals("CatalinaAdmin"))  {
+                    // Port Separation:  Admin Secure Port
+                    // (overwrites value obtained from Catalina section)
                     info[ADMIN][PORT] = port;
                 }
            }
