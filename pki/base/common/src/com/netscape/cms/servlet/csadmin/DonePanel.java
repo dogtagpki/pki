@@ -34,6 +34,7 @@ import com.netscape.certsrv.dbs.crldb.*;
 import com.netscape.certsrv.ocsp.*;
 import com.netscape.certsrv.logging.*;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.*;
 import com.netscape.cmsutil.password.*;
 import netscape.security.x509.*;
 import netscape.ldap.*;
@@ -50,6 +51,8 @@ public class DonePanel extends WizardPanelBase {
 
     public static final BigInteger BIG_ZERO = new BigInteger("0");
     public static final Long MINUS_ONE = Long.valueOf(-1);
+    public static final String RESTART_SERVER_AFTER_CONFIGURATION =
+        "restart_server_after_configuration";
 
     public DonePanel() {}
 
@@ -169,9 +172,11 @@ public class DonePanel extends WizardPanelBase {
 
         String type = "";
         String instanceId = "";
+        String instanceRoot = "";
         try {
             type = cs.getString("cs.type", "");
             instanceId = cs.getString("instanceId");
+            instanceRoot = cs.getString("instanceRoot");
             select = cs.getString("preop.subsystem.select", "");
         } catch (Exception e) {}
 
@@ -462,6 +467,16 @@ public class DonePanel extends WizardPanelBase {
 
             cs.removeSubStore("preop");
             cs.commit(false);
+
+            // Create an empty file that designates the fact that although
+            // this server instance has been configured, it has NOT yet
+            // been restarted!
+            String restart_server = instanceRoot + "/conf/"
+                                  + RESTART_SERVER_AFTER_CONFIGURATION;
+            if( !Utils.isNT() ) {
+                Utils.exec( "touch " + restart_server );
+                Utils.exec( "chmod 00660 " + restart_server );
+            }
 
         } catch (Exception e) {
         }

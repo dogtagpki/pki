@@ -2344,23 +2344,17 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         $slot_hash{$PKI_INSTANCE_ROOT_SLOT}    = $pki_instance_root;
         $slot_hash{$PKI_MACHINE_NAME_SLOT}     = $host;
         $slot_hash{$PKI_RANDOM_NUMBER_SLOT}    = $random;
-
-        if (! $do_port_separation)  {
-            $slot_hash{$PKI_SECURE_PORT_SLOT}      = $secure_port;
-        }  else {
-            $slot_hash{$PKI_SECURE_PORT_SLOT}      = $ee_secure_port;
-        }
-
         $slot_hash{$PKI_SERVER_XML_CONF}       = $server_xml_instance_file_path;
         $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
         $slot_hash{$PKI_UNSECURE_PORT_SLOT}    = $unsecure_port;
 
-        # Take care of the case where we want separate listening ports.
+        # Define "Port Separation" versus "Shared Ports"
         if( $do_port_separation) 
         {
-            $slot_hash{$PKI_SECURE_PORT_SLOT}     = $agent_secure_port;
-            $slot_hash{$PKI_EE_SECURE_PORT_SLOT}        = $ee_secure_port; 
-            $slot_hash{$PKI_ADMIN_SECURE_PORT_SLOT}     = $admin_secure_port;
+            $slot_hash{$PKI_SECURE_PORT_SLOT}       = $agent_secure_port;
+            $slot_hash{$PKI_AGENT_SECURE_PORT_SLOT} = $agent_secure_port;
+            $slot_hash{$PKI_EE_SECURE_PORT_SLOT}    = $ee_secure_port; 
+            $slot_hash{$PKI_ADMIN_SECURE_PORT_SLOT} = $admin_secure_port;
             # Do NOT comment out the Admin/EE/Unsecure Ports
             # used by Port Separation
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = "";
@@ -2373,6 +2367,10 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT}  = $PKI_OPEN_COMMENT;
             $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT} = $PKI_CLOSE_COMMENT;
         } else {
+            $slot_hash{$PKI_SECURE_PORT_SLOT}       = $secure_port;
+            $slot_hash{$PKI_AGENT_SECURE_PORT_SLOT} = $secure_port;
+            $slot_hash{$PKI_EE_SECURE_PORT_SLOT}    = $secure_port; 
+            $slot_hash{$PKI_ADMIN_SECURE_PORT_SLOT} = $secure_port;
             # Comment out the Admin/EE/Unsecure Ports used by Port Separation
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = $PKI_OPEN_COMMENT;
             $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT} = $PKI_CLOSE_COMMENT;;

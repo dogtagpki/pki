@@ -21,8 +21,8 @@
 # [PKI_INSTANCE_ID]    Startup script for Tomcat 5.0, the Apache Servlet Engine
 #
 # chkconfig:    - 82 18
-# description:  Tomcat 5.0 is the Apache Servlet Engine RI
-#               for Servlet 2.4/JSP 2.0
+# description:  Data Recovery Manager \
+#               (Tomcat 5.0)
 # processname:  [PKI_INSTANCE_ID]
 # pidfile:      /var/run/[PKI_INSTANCE_ID].pid
 # config:       /etc/[PKI_INSTANCE_ID]/tomcat5.conf
@@ -115,7 +115,7 @@ else
 	# The checkpid() function is provided for platforms that do not
 	# contain the "/etc/init.d/functions" file (e. g. - Solaris) . . .
 
-	# Check if $pid (could be plural) are running (keep count)
+	# Check if ${pid} (could be plural) are running (keep count)
 	checkpid()
 	{
 		rv=0
@@ -206,7 +206,90 @@ fi
 # Please use the /etc/tomcat.conf file instead ; it will
 # be read by the $tomcat script
 
+pidfile=${PIDFILE:-/var/run/[PKI_INSTANCE_ID].pid}
+lockfile=${LOCKFILE:-/var/lock/subsys/[PKI_INSTANCE_ID]}
+RESTART_SERVER=/var/lib/[PKI_INSTANCE_ID]/conf/restart_server_after_configuration
 RETVAL=0
+
+check_pki_configuration_status()
+{
+	rv=0
+
+	rv=`grep -c ^preop /etc/[PKI_INSTANCE_ID]/CS.cfg`
+
+	rv=`expr ${rv} + 0`
+
+	if [ ${rv} -ne 0 ] ; then
+		echo "    '[PKI_INSTANCE_ID]' must still be CONFIGURED!"
+		echo "    (see /var/log/[PKI_INSTANCE_ID]-install.log)"
+	elif [ -f ${RESTART_SERVER} ] ; then
+		echo "    Although '[PKI_INSTANCE_ID]' has been CONFIGURED, it must still be RESTARTED!"
+		rv=255
+	fi
+
+	return ${rv}
+}
+
+get_pki_status_definitions()
+{
+	# establish well-known strings
+	begin_pki_status_comment="<!-- DO NOT REMOVE - Begin PKI Status Definitions -->"
+	end_pki_status_comment="<!-- DO NOT REMOVE - End PKI Status Definitions -->"
+	total_ports=0
+	unsecure_port_statement="Unsecure Port     = "
+	secure_agent_port_statement="Secure Agent Port = "
+	secure_ee_port_statement="Secure EE Port    = "
+	secure_admin_port_statement="Secure Admin Port = "
+	tomcat_port_statement="Tomcat Port       = "
+
+	# initialize looping variables
+	pki_status_comment_found=0
+
+	# first check to see that an instance-specific "server.xml" file exists
+	if [ ! -f [PKI_SERVER_XML_CONF] ] ; then
+		echo "File '[PKI_SERVER_XML_CONF]' does not exist!"
+		exit 255
+	fi
+
+	# read this instance-specific "server.xml" file line-by-line
+	# to obtain the current PKI Status Definitions
+	exec < [PKI_SERVER_XML_CONF]
+	while read line; do
+		# first look for the well-known end PKI Status comment
+		# (to turn off processing)
+		if [ "$line" == "$end_pki_status_comment" ] ; then
+			pki_status_comment_found=0
+			break;
+		fi
+
+		# then look for the well-known begin PKI Status comment
+		# (to turn on processing)
+		if [ "$line" == "$begin_pki_status_comment" ] ; then
+			pki_status_comment_found=1
+		fi
+
+		# once the well-known begin PKI Status comment has been found,
+		# begin processing to obtain all of the PKI Status Definitions
+		if [ $pki_status_comment_found -eq 1 ] ; then
+			# look for a PKI Status Definition and print it
+			head=`echo "$line" | cut -b1-20`
+			if	[ "$head" == "$unsecure_port_statement"     ] ||
+				[ "$head" == "$secure_agent_port_statement" ] ||
+				[ "$head" == "$secure_ee_port_statement"    ] ||
+				[ "$head" == "$secure_admin_port_statement" ] ||
+				[ "$head" == "$tomcat_port_statement"       ] ; then
+				echo "    $line"
+				total_ports=`expr ${total_ports} + 1`
+			fi
+		fi
+    done
+
+	if [ ${total_ports} -eq 6 ] ; then
+		return 0
+	else
+		return 255
+	fi
+}
 
 get_pki_secure_port()
 {
@@ -259,14 +342,17 @@ get_pki_secure_port()
 	return 255
 }
 
-# See how we were called.
 start()
 {
 	echo -n "Starting $TOMCAT_PROG: "
 
-	if [ -f /var/lock/subsys/[PKI_INSTANCE_ID] ] ; then
-		if [ -f /var/run/[PKI_INSTANCE_ID].pid ]; then
-			read kpid < /var/run/[PKI_INSTANCE_ID].pid
+	if [ -f ${RESTART_SERVER} ] ; then
+		rm -f ${RESTART_SERVER}
+	fi
+
+	if [ -f ${lockfile} ] ; then
+		if [ -f ${pidfile} ]; then
+			read kpid < ${pidfile}
 			if checkpid $kpid 2>&1; then
 				echo
 				echo "process already running"
@@ -281,7 +367,7 @@ start()
 		fi
 	fi
 
-	CATALINA_PID=/var/run/[PKI_INSTANCE_ID].pid
+	CATALINA_PID=${pidfile}
 	export CATALINA_PID
 	touch $CATALINA_PID
 	chown $TOMCAT_USER:$TOMCAT_GROUP $CATALINA_PID
@@ -779,13 +865,13 @@ start()
 	fi
 
 	RETVAL=$?
-	[ $RETVAL = 0 ] && touch /var/lock/subsys/[PKI_INSTANCE_ID]
+	[ $RETVAL = 0 ] && touch ${lockfile}
 
 	if [ $RETVAL = 0 ] ; then
 		count=0;
 
 		let swait=$STARTUP_WAIT
-		while	[ ! -s /var/run/[PKI_INSTANCE_ID].pid ] &&
+		while	[ ! -s ${pidfile} ] &&
 				[ $count -lt $swait ]
 		do
 			echo -n "."
@@ -833,8 +919,8 @@ stop()
 {
 	echo -n "Stopping $TOMCAT_PROG: "
 
-	if [ -f /var/lock/subsys/[PKI_INSTANCE_ID] ] ; then
-		CATALINA_PID=/var/run/[PKI_INSTANCE_ID].pid
+	if [ -f ${lockfile} ] ; then
+		CATALINA_PID=${pidfile}
 		export CATALINA_PID
 
 		# daemon --user $TOMCAT_USER $TOMCAT_SCRIPT stop
@@ -849,8 +935,8 @@ stop()
 		if [ $RETVAL = 0 ]; then
 			count=0;
 
-			if [ -f /var/run/[PKI_INSTANCE_ID].pid ]; then
-				read kpid < /var/run/[PKI_INSTANCE_ID].pid
+			if [ -f ${pidfile} ]; then
+				read kpid < ${pidfile}
 				let kwait=$SHUTDOWN_WAIT
 
 				until	[ `ps -p $kpid | grep -c $kpid` = '0' ] ||
@@ -866,8 +952,8 @@ stop()
 				fi
 			fi
 
-			rm -f /var/lock/subsys/[PKI_INSTANCE_ID]
-			rm -f /var/run/[PKI_INSTANCE_ID].pid
+			rm -f ${lockfile}
+			rm -f ${pidfile}
 
 			if [ -x /etc/init.d/functions ]; then
 				if [ "$CONSOLETYPE" = "serial" ]; then
@@ -895,6 +981,31 @@ stop()
 	fi
 }
 
+status()
+{
+	if [ -f ${pidfile} ] ; then
+		pid=`cat ${pidfile}`
+		if [ "${pid}" == "" ] ; then
+			echo "[PKI_INSTANCE_ID] pid file exists but is empty"
+		elif kill -0 ${pid} > /dev/null 2>&1 ; then
+			echo "[PKI_INSTANCE_ID] (pid ${pid}) is running ..."
+			echo
+			check_pki_configuration_status
+			if [ $? -eq 0 ] ; then
+				get_pki_status_definitions
+				if [ $? -ne 0 ] ; then
+					echo "[PKI_INSTANCE_ID] Status Definitions not found"
+				fi
+			fi
+			echo
+		else
+			echo "[PKI_INSTANCE_ID] is dead but pid file exists"
+		fi
+	else
+		echo "[PKI_INSTANCE_ID] is stopped"
+	fi
+}
+
 # See how we were called.
 case "$1" in
 	start)
@@ -909,18 +1020,21 @@ case "$1" in
 		start
 		;;
 	condrestart)
-		if [ -f /var/run/[PKI_INSTANCE_ID].pid ] ; then
+		if [ -f ${pidfile} ] ; then
 			stop
 			sleep 2	
 			start
 		else
 			echo -n "Unable to restart process since "
-			echo -n "'/var/run/[PKI_INSTANCE_ID].pid' does not exist!"
+			echo -n "'${pidfile}' does not exist!"
 			echo
 		fi
 		;;
+	status)
+		status
+		;;
 	*)
-		echo "Usage: $TOMCAT_PROG {start|stop|restart|condrestart}"
+		echo "Usage: $TOMCAT_PROG {start|stop|restart|condrestart|status}"
 		exit 1
 esac
 

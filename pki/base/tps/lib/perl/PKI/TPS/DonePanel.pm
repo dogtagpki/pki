@@ -362,6 +362,13 @@ sub display
     $::config->deleteSubstore("preop.");
     $::config->commit();
 
+    ## Create an empty file that designates the fact that although
+    ## this server instance has been configured, it has NOT yet
+    ## been restarted!
+    my $restart_server = "$instDir/conf/restart_server_after_configuration";
+    system( "touch $restart_server" );
+    system( "chmod 00660 $restart_server" );
+
     return 1;
 }
 

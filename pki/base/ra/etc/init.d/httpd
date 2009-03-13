@@ -21,8 +21,8 @@
 # [INSTANCE_ID]    Startup script for the Apache HTTP Server
 #
 # chkconfig:    - 86 14
-# description:  Apache is a World Wide Web server.  It is used to serve \
-#               HTML files and CGI.
+# description:  Registration Authority \
+#               (Apache 2.2)
 # processname:  [INSTANCE_ID]
 # config:       [HTTPD_CONF]
 # pidfile:      [SERVER_ROOT]/logs/[INSTANCE_ID].pid
@@ -95,7 +95,7 @@ else
 	# The checkpid() function is provided for platforms that do not
 	# contain the "/etc/init.d/functions" file (e. g. - Solaris) . . .
 
-	# Check if $pid (could be plural) are running (keep count)
+	# Check if ${pid} (could be plural) are running (keep count)
 	checkpid()
 	{
 		rv=0
@@ -160,6 +160,7 @@ httpd=${HTTPD:-[FORTITUDE_DIR]/sbin/httpd}
 prog=[INSTANCE_ID]
 pidfile=${PIDFILE:-[SERVER_ROOT]/logs/[INSTANCE_ID].pid}
 lockfile=${LOCKFILE:-/var/lock/subsys/[INSTANCE_ID]}
+RESTART_SERVER=/var/lib/[INSTANCE_ID]/conf/restart_server_after_configuration
 RETVAL=0
 
 # see if httpd is linked with the openldap libraries - we need to override them
@@ -170,11 +171,7 @@ if [ ${OS} = "Linux" ]; then
 
 	if [ $hasopenldap -eq 1 ] ; then
 		LD_PRELOAD="[SYSTEM_USER_LIBRARIES]/libldap60.so"
-		if [ -e [SYSTEM_USER_LIBRARIES]/dirsec/libssl3.so ] ; then
-			LD_PRELOAD="[SYSTEM_USER_LIBRARIES]/dirsec/libssl3.so:${LD_PRELOAD}"
-		else
-			LD_PRELOAD="[SYSTEM_USER_LIBRARIES]/libssl3.so:${LD_PRELOAD}"
-                fi
+		LD_PRELOAD="[SYSTEM_USER_LIBRARIES]/libssl3.so:${LD_PRELOAD}"
 		export LD_PRELOAD
 	fi
 elif [ ${OS} = "SunOS" ] ; then
@@ -182,6 +179,100 @@ elif [ ${OS} = "SunOS" ] ; then
 	LD_PRELOAD_64="[SYSTEM_USER_LIBRARIES]/dirsec/libssl3.so:${LD_PRELOAD_64}"
 	export LD_PRELOAD_64
 fi
+
+check_pki_configuration_status()
+{
+	rv=0
+
+	rv=`grep -c ^preop /etc/[INSTANCE_ID]/CS.cfg`
+
+	rv=`expr ${rv} + 0`
+
+	if [ ${rv} -ne 0 ] ; then
+		echo "    '[INSTANCE_ID]' must still be CONFIGURED!"
+		echo "    (see /var/log/[INSTANCE_ID]-install.log)"
+	elif [ -f ${RESTART_SERVER} ] ; then
+		echo "    Although '[INSTANCE_ID]' has been CONFIGURED, it must still be RESTARTED!"
+		rv=255
+	fi
+
+	return ${rv}
+}
+
+get_pki_status_definitions()
+{
+	# establish well-known strings
+	listen_statement="Listen"
+	total_ports=0
+	UNSECURE_PORT=""
+	CLIENTAUTH_PORT=""
+	NON_CLIENTAUTH_PORT=""
+
+	# check to see that an instance-specific "httpd.conf" file exists
+	if [ ! -f [HTTPD_CONF] ] ; then
+		echo "File '[HTTPD_CONF]' does not exist!"
+		exit 255
+	fi
+
+	# check to see that an instance-specific "nss.conf" file exists
+	if [ ! -f [NSS_CONF] ] ; then
+		echo "File '[NSS_CONF]' does not exist!"
+		exit 255
+	fi
+
+	# read this instance-specific "httpd.conf" file line-by-line
+	# to obtain the current value of the PKI unsecure port
+
+	exec < [HTTPD_CONF]
+	while read line; do
+		# look for the listen statement
+		head=`echo $line | cut -b1-6`
+		if [ "$head" == "$listen_statement" ] ; then
+			# once the 'unsecure' listen statement has been found,
+			# extract the numeric port information
+			port=`echo $line | cut -d: -f2`
+			UNSECURE_PORT=$port
+			echo "    Unsecure Port              = http://[SERVER_NAME]:${UNSECURE_PORT}"
+			total_ports=`expr ${total_ports} + 1`
+			break;
+		fi
+	done
+
+	# read this instance-specific "nss.conf" file line-by-line
+	# to obtain the current value of the "clientauth" PKI secure port
+	# AND the current value of the "non-clientauth" PKI secure port
+
+	exec < [NSS_CONF]
+	while read line; do
+		# look for the listen statement
+		head=`echo $line | cut -b1-6`
+		if	[ "$head" == "$listen_statement" ] &&
+			[ ${total_ports} -eq 2           ] ; then
+			# once the 'non-clientauth' listen statement has been found,
+			# extract the numeric port information
+			non_clientauth_port=`echo $line | cut -d: -f2`
+			NON_CLIENTAUTH_PORT=$non_clientauth_port
+			echo "    Secure Non-Clientauth Port = https://[SERVER_NAME]:${NON_CLIENTAUTH_PORT}"
+			total_ports=`expr ${total_ports} + 1`
+			break
+		fi
+		if	[ "$head" == "$listen_statement" ] &&
+			[ ${total_ports} -eq 1           ] ; then
+			# once the 'clientauth' listen statement has been found,
+			# extract the numeric port information
+			clientauth_port=`echo $line | cut -d: -f2`
+			CLIENTAUTH_PORT=$clientauth_port
+			echo "    Secure Clientauth Port     = https://[SERVER_NAME]:${CLIENTAUTH_PORT}"
+			total_ports=`expr ${total_ports} + 1`
+		fi
+	done
+
+	if [ ${total_ports} -eq 3 ] ; then
+		return 0
+	else
+		return 255
+	fi
+}
 
 get_pki_secure_port()
 {
@@ -195,13 +286,14 @@ get_pki_secure_port()
 	fi
 
 	# read this instance-specific "nss.conf" file line-by-line
-	# to obtain the current value of the PKI secure port
+	# to obtain the current value of the "clientauth" PKI secure port
+	
 	exec < [NSS_CONF]
 	while read line; do
 		# look for the listen statement
 		head=`echo $line | cut -b1-6`
 		if [ "$head" == "$listen_statement" ] ; then
-			# once the listen statement has been found,
+			# once the 'clientauth' listen statement has been found,
 			# extract the numeric port information
 			port=`echo $line | cut -d: -f2`
 			SECURE_PORT=$port
@@ -216,8 +308,13 @@ get_pki_secure_port()
 # things -- attempting to start while running is a failure, and shutdown
 # when not running is also a failure.  So we just do it the way init scripts
 # are expected to behave here.
-start() {
+start()
+{
 	echo -n $"Starting $prog: "
+
+	if [ -f ${RESTART_SERVER} ] ; then
+		rm -f ${RESTART_SERVER}
+	fi
 
 	if [ -f ${lockfile} ] ; then
 		if [ -f ${pidfile} ]; then
@@ -314,7 +411,8 @@ start() {
 	return $RETVAL
 }
 
-stop() {
+stop()
+{
 	echo -n "Stopping $prog: "
 
 	if [ -f ${lockfile} ] ; then
@@ -364,7 +462,8 @@ stop() {
 	fi
 }
 
-reload() {
+reload()
+{
 	echo -n $"Reloading $prog: "
 
 	if ! LANG=$HTTPD_LANG $httpd $OPTIONS -t >&/dev/null; then
@@ -400,6 +499,31 @@ reload() {
 	echo
 }
 
+status()
+{
+	if [ -f ${pidfile} ] ; then
+		pid=`cat ${pidfile}`
+		if [ "${pid}" == "" ] ; then
+			echo "[INSTANCE_ID] pid file exists but is empty"
+		elif kill -0 ${pid} > /dev/null 2>&1 ; then
+			echo "[INSTANCE_ID] (pid ${pid}) is running ..."
+			echo
+			check_pki_configuration_status
+			if [ $? -eq 0 ] ; then
+				get_pki_status_definitions
+				if [ $? -ne 0 ] ; then
+					echo "[INSTANCE_ID] Status Definitions not found"
+				fi
+			fi
+			echo
+		else
+			echo "[INSTANCE_ID] is dead but pid file exists"
+		fi
+	else
+		echo "[INSTANCE_ID] is stopped"
+	fi
+}
+
 # See how we were called.
 case "$1" in
 	start)
@@ -407,10 +531,6 @@ case "$1" in
 		;;
 	stop)
 		stop
-		;;
-	status)
-		status $httpd
-		RETVAL=$?
 		;;
 	restart)
 		stop
@@ -431,8 +551,11 @@ case "$1" in
 	reload)
 		reload
 		;;
+	status)
+		status
+		;;
 	*)
-		echo $"Usage: $prog {start|stop|restart|condrestart|reload|status|fullstatus|graceful|help|configtest}"
+		echo $"Usage: $prog {start|stop|restart|condrestart|reload|status}"
 		exit 1
 esac
 
