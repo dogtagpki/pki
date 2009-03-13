@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      24
+%define base_release      25
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,11 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Mar 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-25
+- Bugzilla Bug #488338 -  start/stop scripts should list all the
+  available port numbers with their functionality
+- Bugzilla Bug #440164 -  Dogtag subsystems should show up in
+  Fedora8 administrator Services window
 * Wed Mar 11 2009 Ade Lee <alee@redhat.com> 1.0.0-24
   Bugzilla Bug #489712 RA and TPS need perl-XML-Simple as prereq
 * Tue Mar 10 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-23
