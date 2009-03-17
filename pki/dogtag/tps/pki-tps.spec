@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      36
+%define base_release      37
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -312,6 +312,8 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Mar 12 2009 Jack Magne <jmagne@redhat.com> 1.0.0-37
+- Bugilla Bug #48901 - Safenet 300J support key changeover.
 * Wed Mar 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-36
 - Bugzilla Bug #488338 -  start/stop scripts should list all the
   available port numbers with their functionality

@@ -1150,6 +1150,12 @@ int Secure_Channel::PutKeys(RA_Session *session, BYTE key_version,
     RA::Debug(LL_PER_CONNECTION, FN,
         "RA_Processor::PutKey");
 
+    //For certain keys that require the implicit keyset
+    //00 00
+    //
+    if(key_version == 0xFF)
+        key_version = 0;
+
     put_key_apdu = new Put_Key_APDU(key_version, 0x80 | key_index, 
              *key_data);
     rc = ComputeAPDU(put_key_apdu);

@@ -976,7 +976,7 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
     {
         newSlot = slot;
     }
-    if(strcmp( oldMasterKeyNameChars, "#01#01") == 0)
+    if(strcmp( oldMasterKeyNameChars, "#01#01") == 0 || strcmp( oldMasterKeyNameChars, "#FF#01") == 0)
     {
         old_kek_key_buff    =   Buffer((BYTE*)old_kek_key, 16);
     }else if(strcmp( oldMasterKeyNameChars, "#00#00") == 0)
