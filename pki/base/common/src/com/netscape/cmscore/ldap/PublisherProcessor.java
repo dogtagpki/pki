@@ -1315,13 +1315,14 @@ CMS.debug("PublisherProcessor: in publishNow()");
             X509Certificate cert = (X509Certificate) obj;
 
             try {
-                if (dirdn instanceof String) {
-                    publisher.publish(conn, (String)dirdn, cert);
-                } else if (dirdn instanceof Vector) {
+                if (dirdn instanceof Vector) {
                     int n = ((Vector)dirdn).size();
                     for (int i = 0; i < n; i++) {
                         publisher.publish(conn, (String)(((Vector)dirdn).elementAt(i)), cert);
                     }
+                } else if (dirdn instanceof String || 
+                           publisher instanceof com.netscape.cms.publish.publishers.FileBasedPublisher) {
+                    publisher.publish(conn, (String)dirdn, cert);
                 }
             } catch (Throwable e1) {
                 CMS.debug("Error publishing: publisher=" + publisher + " error=" + e1.toString());
