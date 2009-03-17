@@ -45,7 +45,7 @@ usage() {
     echo "     where <url> is the url to the administration port of your"
     echo "                 Certificate Subsystem.  For example:"
     echo
-    echo "                     https://water:9443/ca"
+    echo "                     https://<hostname>:9445/ca"
     echo
 }
                                                                                 
