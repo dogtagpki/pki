@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      9
+%define base_release      10
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -234,6 +234,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Mar 17 2009 Ade Lee <alee@redhat.com> 1.0.0-10
+- Bugzilla Bug #490645 - DRM fails to configure
 * Tue Mar 10 2009 Ade Lee <alee@redhat.com> 1.0.0-9
 - Bugzilla Bug #489057 - Add audit_signing cert to drm, ocsp, tks 
 * Fri Feb 20 2009 Ade Lee <alee@redhat.com> 1.0.0-8

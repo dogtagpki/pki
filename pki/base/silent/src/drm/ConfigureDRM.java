@@ -510,7 +510,7 @@ public class ConfigureDRM
 				"&sslserver=" + 
 				URLEncoder.encode(drm_server_cert_subject_name) + 
                                 "&audit_signing=" +
-                                URLEncoder.encode(drm_audit_signing_cert_name) + 
+                                URLEncoder.encode(drm_audit_signing_cert_subject_name) + 
 				"&urls=" + 
 				URLEncoder.encode(domain_url) + 
 				""; 
