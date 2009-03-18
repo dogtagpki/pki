@@ -74,12 +74,13 @@ printf "           DEFAULT PKI instances.\n\n"
 printf "           CUSTOMIZED PKI instances may be named anything and\n"
 printf "           may be located anywhere.  Please use the 'pkiremove'\n"
 printf "           utility to remove any CUSTOMIZED PKI instances.\n\n"
+printf "           IMPORTANT:  NEITHER CUSTOMIZED PKI instances,\n"
+printf "                       NOR DEFAULT PKI instances will be\n"
+printf "                       REMOVED by this script!\n\n"
 while :
 do
-    printf "NEITHER CUSTOMIZED PKI instances, NOR DEFAULT PKI instances will\n"
-    printf "be REMOVED by this script!  Do any DEFAULT or CUSTOMIZED\n"
-    printf "PKI instances need to be removed PRIOR to uninstalling\n"
-    printf "ALL of the PKI components?  [yn]  "
+    printf "Do any DEFAULT or CUSTOMIZED PKI instances need to be removed\n"
+    printf "PRIOR to uninstalling ALL of the PKI components?  [yn]  "
     read ANSWER
     printf "\n"
     if [ "${ANSWER}" = "Y" ] ||
