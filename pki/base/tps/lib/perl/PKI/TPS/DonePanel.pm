@@ -314,6 +314,7 @@ sub display
     }
 
     $::config->put("preop.done.status", "done");
+    $::config->put("tps.configured", "true");
     $::config->commit();
 
     # update nss.conf

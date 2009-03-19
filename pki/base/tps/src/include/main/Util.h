@@ -52,6 +52,7 @@ class Util
 	  TPS_PUBLIC Util();
 	  TPS_PUBLIC ~Util();
   public:
+          TPS_PUBLIC static int ReadLine(PRFileDesc *f, char *buf, int buf_len, int *removed_return);
           TPS_PUBLIC static int ascii2numeric(char ch);
 	  TPS_PUBLIC static char *Buffer2String (Buffer &data);
 	  TPS_PUBLIC static Buffer *Str2Buf (const char *s);

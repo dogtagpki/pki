@@ -775,6 +775,7 @@ TPS_PUBLIC char *get_authorized_profiles(const char *userid, int is_admin)
     LDAPMessage *result = NULL;
     LDAPMessage *e = NULL;
 
+//    Debug("TUS","get_authorized_profiles");
     PR_snprintf(filter, 512, "(uid=%s)", userid);
     status = find_tus_user_entries_no_vlv(filter, &result, 0);
 

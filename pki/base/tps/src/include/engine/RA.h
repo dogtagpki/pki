@@ -32,12 +32,12 @@
 #undef PACKAGE_STRING
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
-
 #include <config.h>
 #endif /* AUTOTOOLS_CONFIG_H */
 #endif /* HAVE_CONFIG_H */
 
 #include "pk11func.h"
+#include "engine/audit.h"
 #include "ldap.h"
 #include "main/Base.h"
 #include "main/ConfigStore.h"
@@ -96,9 +96,13 @@ class RA
 	  RA();
 	  ~RA();
   public:
+          static bool IsAuditEventSelected(const char *auditEvent);
+          static void getLastSignature();
 	  static int IsTokendbInitialized();
+	  static int IsTpsConfigured();
 	  TPS_PUBLIC static int Initialize(char *cfg_path, RA_Context *ctx);
-	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx);
+//	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx);
+	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount);
 	  TPS_PUBLIC static int Shutdown();
   public:
 
@@ -131,7 +135,7 @@ class RA
   public:
 	  TPS_PUBLIC static void Audit(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Error(const char *func_name, const char *fmt, ...);
-	  TPS_PUBLIC static void Debug(const char *func_name, const char *fmt, ...);
+          TPS_PUBLIC static void Debug(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void DebugBuffer(const char *func_name, const char *prefix, Buffer *buf);
 	  TPS_PUBLIC static void Audit(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Error(RA_Log_Level level, const char *func_name, const char *fmt, ...);
@@ -143,6 +147,7 @@ class RA
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
   public:
           static int InitializeTokendb(char *cfg_path);
+          static int InitializeSignedAudit();
           static PRLock *GetVerifyLock();
           TPS_PUBLIC static CERTCertificate **ra_get_certificates(LDAPMessage *e);
           TPS_PUBLIC static LDAPMessage *ra_get_first_entry(LDAPMessage *e);
@@ -227,7 +232,10 @@ class RA
           static const char *CFG_DEBUG_LEVEL;
 	  static const char *CFG_AUDIT_ENABLE;
 	  static const char *CFG_AUDIT_FILENAME;
+	  static const char *CFG_SIGNED_AUDIT_FILENAME;
           static const char *CFG_AUDIT_LEVEL;
+          static const char *CFG_AUDIT_SIGNED;
+          static const char *CFG_AUDIT_SIGNING_CERT_NICK;
           static const char *CFG_ERROR_LEVEL;
 	  static const char *CFG_ERROR_ENABLE;
 	  static const char *CFG_ERROR_FILENAME;
@@ -269,6 +277,10 @@ class RA
           static int m_audit_log_level;
           static int m_debug_log_level;
           static int m_error_log_level;
+          static bool m_audit_signed;
+          static SECKEYPrivateKey *m_audit_signing_key;
+          static char *m_last_audit_signature;
+          static SECOidTag m_audit_signAlgTag;
       static HttpConnection* m_caConnection[];
       static HttpConnection* m_tksConnection[];
       static int m_caConns_len;

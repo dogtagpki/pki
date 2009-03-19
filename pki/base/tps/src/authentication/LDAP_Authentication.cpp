@@ -65,31 +65,6 @@ LDAP_Authentication::~LDAP_Authentication ()
     }
 }
 
-static int ReadLine(PRFileDesc *f, char *buf, int buf_len, int *removed_return)
-{
-       char *cur = buf;
-       int sum = 0;
-       PRInt32 rc;
-
-       *removed_return = 0;
-       while (1) {
-         rc = PR_Read(f, cur, 1);
-         if (rc == -1 || rc == 0)
-             break;
-         if (*cur == '\r') {
-             continue;
-         }
-         if (*cur == '\n') {
-             *cur = '\0';
-             *removed_return = 1;
-             break;
-         }
-         sum++;
-         cur++;
-       }
-       return sum;
-}
-
 /*
  * Search for password name "name" in the password file "filepath"
  */
@@ -106,7 +81,7 @@ static char *get_pwd_from_conf(char *filepath, char *name)
     }
 
     while (1) {
-        int n = ReadLine(fd, line, 1024, &removed_return);
+        int n = Util::ReadLine(fd, line, 1024, &removed_return);
         if (n > 0) {
             /* handle comment line */
             if (line[0] == '#')

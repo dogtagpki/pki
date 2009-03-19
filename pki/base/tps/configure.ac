@@ -135,7 +135,7 @@ docroot_tps_jsdir=/docroot/tps/admin/console/js
 initddir=/init.d
 # relative to prefix
 licensedir=/doc
-logsdir=/logs
+logsdir=/logs/signedAudit
 perl_modulesdir=/perl/modules
 perl_templatesdir=/perl/templates
 samplesdir=/samples

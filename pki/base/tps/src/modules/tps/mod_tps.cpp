@@ -97,6 +97,7 @@ static const char MOD_TPS_CONFIGURATION_FILE_USAGE[] =
 /* per-process config structure */
 typedef struct {
     int nInitCount;
+    int nSignedAuditInitCount;
 } mod_tps_global_config;
 
 
@@ -154,6 +155,7 @@ mod_tps_global_config *mod_tps_config_global_create(server_rec *s)
      * initialize per-module configuration
      */
     globalc->nInitCount = 0;
+    globalc->nSignedAuditInitCount = 0;
 
     apr_pool_userdata_set(globalc, MOD_TPS_KEY_NAME,
                           apr_pool_cleanup_null,
@@ -341,7 +343,9 @@ mod_tps_initialize( apr_pool_t *p,
     }
   
     if (sc->gconfig->nInitCount < 2 ) {
-        status = RA::InitializeInChild( sc->context); 
+        sc->gconfig->nSignedAuditInitCount++;
+        status = RA::InitializeInChild( sc->context,
+                   sc->gconfig->nSignedAuditInitCount); 
     } else {
         ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, sv,
             "mod_tps_initialize - pid is [%d] - post config already done once -"
@@ -612,7 +616,9 @@ static void mod_tps_init_child(apr_pool_t *p, server_rec *sv)
            ap_get_module_config(sv->module_config, &MOD_TPS_CONFIG_KEY));
 
     if (srv_cfg->gconfig->nInitCount > 1) {
-        status = RA::InitializeInChild(srv_cfg->context);
+        srv_cfg->gconfig->nSignedAuditInitCount++; 
+        status = RA::InitializeInChild(srv_cfg->context,
+                   srv_cfg->gconfig->nSignedAuditInitCount); 
     } else {
         ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, sv,
                      "mod_tps_init_child - pid is [%d] - config should be done in regular post config",

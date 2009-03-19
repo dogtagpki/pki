@@ -2668,12 +2668,16 @@ mod_tokendb_handler( request_rec *rq )
         char *itemplate = NULL;
         tokendbDebug( "authorization for index case\n" );
         if (is_agent) {
+//   RA::Audit(EventName, format, va_list...);
+//   just an example... not really the right place
+            RA::Audit(EV_ROLE_ASSUME, AUDIT_MSG_FORMAT, userid, "Success", "Tokendb agent user authorization");
             itemplate = indexTemplate;
         } else if (is_operator) {
             itemplate = indexOperatorTemplate;
         } else if (is_admin) {
             itemplate = indexAdminTemplate;
         } else {
+            RA::Audit("AUTHZ", AUDIT_MSG_FORMAT, userid, "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
             do_free(uri);
