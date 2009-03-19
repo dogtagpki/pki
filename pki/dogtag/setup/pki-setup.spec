@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      18
+%define base_release      19
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Mar 18 2009 Christina Fu <cfu@redhat.com> 1.0.0-19
+- Bugzilla Bug # 485166 - Signed Audit Feature for TPS
 * Wed Mar 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-18
 - Bugzilla Bug #488338 -  start/stop scripts should list all the
   available port numbers with their functionality
