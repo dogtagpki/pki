@@ -281,7 +281,7 @@ my $web_xml_base_name            = "web.xml";              # CA, KRA, OCSP, TKS
 my $initd_base_subsystem_dir        = "init.d";      # CA, KRA, OCSP, TKS, RA, TPS
 my $perl_base_instance_symlink      = "perl";        # RA, TPS
 my $perl_base_subsystem_dir         = "perl";        # RA, TPS
-my $signed_audit_base_instance_dir  = "signedAudit"; # CA, KRA, OCSP, TKS
+my $signed_audit_base_instance_dir  = "signedAudit"; # CA, KRA, OCSP, TKS, TPS
 my $webapps_root_base_instance_dir  = "ROOT";        # CA, KRA, OCSP, TKS
 my $webapps_root_base_subsystem_dir = "ROOT";        # CA, KRA, OCSP, TKS
 my $webinf_base_instance_dir        = "WEB-INF";     # CA, KRA, OCSP, TKS
@@ -1865,8 +1865,7 @@ sub process_pki_directories()
         }
 
         ## (CA, KRA, OCSP, TKS instances)
-        if( ( $subsystem_type ne $RA ) &&
-            ( $subsystem_type ne $TPS ) ) {
+        if( $subsystem_type ne $RA ) {
             ## Create a "signedAudit" directory
             $result = create_directory( "$logs_instance_path/$signed_audit_base_instance_dir" );
             if( !$result ) {
@@ -1889,8 +1888,7 @@ sub process_pki_directories()
         }
 
         ## (CA, KRA, OCSP, TKS instances)
-        if( ( $subsystem_type ne $RA ) &&
-            ( $subsystem_type ne $TPS ) ) {
+        if( $subsystem_type ne $RA ) {
             ## Create a "signedAudit" directory
             $result = create_directory( "$redirected_logs_path/$signed_audit_base_instance_dir" );
             if( !$result ) {
