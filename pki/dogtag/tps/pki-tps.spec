@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      37
+%define base_release      38
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -301,6 +301,7 @@ fi
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/etc
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/lib
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/logs
+%attr(00770,root,root) %{_datadir}/%{base_prefix}/%{base_component}/logs/signedAudit
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/samples
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/scripts
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/setup
@@ -312,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Mar 18 2009 Christina Fu <cfu@redhat.com> 1.0.0-38
+- Bugzilla Bug # 485166 - Signed Audit Feature for TPS
 * Thu Mar 12 2009 Jack Magne <jmagne@redhat.com> 1.0.0-37
 - Bugilla Bug #48901 - Safenet 300J support key changeover.
 * Wed Mar 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-36
