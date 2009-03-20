@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      33
+%define base_release      34
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Mar 20 2009 Christina Fu <cfu@redhat.com> 1.0.0-34
+- Bugzilla Bug #472916 - Renewal: certs created during post-installation can not be renewed via profile framework.  PHASE 1 ONLY.
 * Wed Mar 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-33
 - Bugzilla Bug #488338 -  start/stop scripts should list all the
   available port numbers with their functionality

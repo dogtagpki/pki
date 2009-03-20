@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      53
+%define base_release      54
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Fri Mar 20 2009 Christina Fu <cfu@redhat.com> 1.0.0-54
+- Bugzilla Bug #472916 - Renewal: certs created during post-installation can not be renewed via profile framework.  PHASE 1 ONLY.
 * Tue Mar 17 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-53
 - Bugzilla Bug #490461 - Certificate file based publishing fails
 * Wed Mar 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-52
