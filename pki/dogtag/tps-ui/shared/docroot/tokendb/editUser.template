@@ -270,8 +270,8 @@ if (typeof(results) == "undefined" || results.length == 0) {
     document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
     document.write("<tr>\n");
 
-    if ((typeof(start_val) != "undefined") && (start_val > 0)) {
-        var new_start = start_val - 5;
+    if ((typeof(start_val) != "undefined") && (start_val > 0) && (typeof(num_profiles_to_display) != "undefined")) {
+        var new_start = start_val - num_profiles_to_display;
         if (new_start < 0) new_start =0;
         document.write("<td> <form name=prev_edit method=get action=\"doCancel()\">");
         document.write("<input TYPE=hidden name=op VALUE=edit_user>");

@@ -167,6 +167,45 @@ if (typeof(results) == "undefined" || results.length == 0) {
         document.write("</tr>\n");
     }
     document.write("</table>\n");
+    document.write("<DIV ALIGN=LEFT>\n");
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
+    document.write("<tr>\n");
+    if ((typeof(start_entry_val) != "undefined") && (start_entry_val > 1) &&
+        (typeof(num_entries_per_page) != "undefined") &&
+        (typeof(my_query) != "undefined")) {
+
+        var new_start = start_entry_val - num_entries_per_page;
+        if (new_start < 0) new_start = 0;
+        var query = my_query.replace(/&*start_entry_val=\d*/,"");
+        var query_array = query.split("&");
+        document.write("<td> <form name=prev_entries method=get >");
+        for (var i=0; i< query_array.length ; i++) {
+            var a = query_array[i].split("=");
+            document.write("<input TYPE=hidden name=" + a[0] + " VALUE=" + a[1] + ">");
+        }
+        document.write("<input TYPE=hidden name=start_entry_val VALUE=" + new_start + ">");
+        document.write("<input TYPE=submit VALUE=\"\<\"></form><td>\n");
+    }
+
+    if ((typeof(has_more_entries) != "undefined") && (has_more_entries == 1) &&
+        (typeof(num_entries_per_page) != "undefined") &&
+        (typeof(my_query) != "undefined")) {
+
+        var new_start = start_entry_val + num_entries_per_page;
+        var query = my_query.replace(/&*start_entry_val=\d*/,"");
+        var query_array = query.split("&");
+        document.write("<td> <form method=get name=next_entries >");
+        for (var i=0; i< query_array.length ; i++) {
+            var a = query_array[i].split("=");
+            document.write("<input TYPE=hidden name=" + a[0] + " VALUE=" + a[1] + ">");
+        }
+        document.write("<input TYPE=hidden name=start_entry_val VALUE=" + new_start + ">");
+        document.write("<input TYPE=submit VALUE=\"\>\"></form><td>\n");
+    }
+    document.write("</tr>\n");
+    document.write("</table>\n");
+    document.write("</div>\n");
+
     document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
     if (typeof(results) != "undefined" && results.length > 0) {
         document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-2\">");
