@@ -183,6 +183,33 @@ public class CertUtil {
         }
     }
 
+
+/*
+ * create requests so renewal can work on these initial certs
+ */
+    public static IRequest createLocalRequest(IRequestQueue queue, String serialNum, X509CertInfo info) throws EBaseException {
+//        RequestId rid = new RequestId(serialNum);
+        // just need a request, no need to get into a queue
+//        IRequest r = new EnrollmentRequest(rid);
+        CMS.debug("CertUtil: createLocalRequest for serial: "+ serialNum);
+        IRequest req = queue.newRequest("enrollment", serialNum);
+        CMS.debug("certUtil: newRequest called");
+        req.setExtData("profile", "true");
+        req.setExtData("requestversion", "1.0.0");
+        req.setExtData("req_seq_num", "0");
+        req.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
+        req.setExtData(IEnrollProfile.REQUEST_EXTENSIONS,
+                    new CertificateExtensions());
+        req.setExtData("cert_request_type", "pkcs10");
+        req.setExtData("requesttype", "enrollment");
+        // note: more info needed... TBD
+        // mark request as complete
+        CMS.debug("certUtil: calling setRequestStatus");
+        req.setRequestStatus(RequestStatus.COMPLETE);
+
+        return req;
+    }
+
     public static X509CertImpl createLocalCert(IConfigStore config, X509Key x509key,
             String prefix, String certTag, String type, Context context) throws IOException {
 
@@ -221,6 +248,37 @@ public class CertUtil {
                         serialNo.intValue(), issuerdn, dn, date, date);
             }
             CMS.debug("Cert Template: " + info.toString());
+
+            // cfu - create request to enable renewal
+            try {
+                IRequestQueue queue = ca.getRequestQueue();
+                if (queue != null) {
+                    IRequest req = createLocalRequest(queue, serialNo.toString(), info);
+                    // set profileId - diff place than regular place
+                    // consider stuffing a regular one here
+                    CMS.debug("CertUtil profile name= "+profile);
+                    int idx = profile.lastIndexOf('.');
+//                    String[] profileName = profile.split(".");
+//                    if (profileName.length == 0) {
+                    if (idx == -1) {
+                        CMS.debug("CertUtil profileName contains no .");
+                        req.setExtData("profileid", profile);
+                    } else {
+                        String name = profile.substring(0, idx);
+                        req.setExtData("profileid", name);
+                    }
+                    req.setExtData("req_key", x509key.toString());
+
+                    CMS.debug("certUtil: before updateRequest");
+
+                    // store request record in db
+                    queue.updateRequest(req);
+                } else {
+                    CMS.debug("certUtil: requestQueue null");
+                }
+            } catch (Exception e) {
+                CMS.debug("Creating local request exception:"+e.toString());
+            }
 
             String instanceRoot = config.getString("instanceRoot");
 

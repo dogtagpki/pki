@@ -239,10 +239,20 @@ public abstract class ARequestQueue
      */
     public IRequest newRequest(String requestType)
         throws EBaseException {
+        return newRequest(requestType, null);
+    }
+
+    public IRequest newRequest(String requestType, String serialNum)
+        throws EBaseException {
         if (requestType == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_REQUEST_TYPE", "null"));
         }
-        RequestId rId = newRequestId();
+        RequestId rId = null;
+        if (serialNum == null) {
+            rId = newRequestId();
+        } else {
+            rId = new RequestId(serialNum);
+        }
 
         IRequest r = createRequest(rId, requestType);
 

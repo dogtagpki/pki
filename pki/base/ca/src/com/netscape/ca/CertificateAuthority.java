@@ -265,10 +265,16 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         initCaDatabases();
 
         // init signing unit & CA cert.
-        initSigUnit();
-
-        // init default CA attributes like cert version, validity.
-        initDefCaAttrs();
+        try {
+            initSigUnit();
+            // init default CA attributes like cert version, validity.
+            initDefCaAttrs();
+        } catch (EBaseException e) {
+            if (CMS.isPreOpMode())
+                ;
+            else
+                throw e;
+        }
 
         // init web gateway.
         initWebGateway();
@@ -276,6 +282,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         // init request queue and related modules.
         CMS.debug("CertificateAuthority init: initRequestQueue");
         initRequestQueue();
+        if (CMS.isPreOpMode())
+            return;
 
         // set certificate status to 10 minutes
         mCertRepot.setCertStatusUpdateInterval(

@@ -57,6 +57,13 @@ public interface IRequestQueue {
         throws EBaseException;
 
     /**
+     *  same as newRequest, only to take serial number. 
+     *  To be solely used during root CA installation
+     */
+    public IRequest newRequest(String requestType, String serialNum)
+        throws EBaseException;
+
+    /**
      * Clones a request object. A new request id is assigned 
      * and all attributes of the request is copied to cloned request, 
      * except for the sourceID of the original request 
