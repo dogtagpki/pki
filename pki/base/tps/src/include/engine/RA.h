@@ -52,7 +52,6 @@
 #include "cms/ConnectionInfo.h"
 #include  "publisher/IPublisher.h"
 
-
 /*
  *
  * LL_PER_SERVER = 4        these messages will occur only once during the
@@ -89,6 +88,8 @@ enum RA_Log_Level {
 /* For now, this value must correspond exactly to the successful exit */
 /* status of RA::Initialize( char *cfg_path, RA_Context *ctx ).       */
 #define RA_INITIALIZATION_SUCCESS 1
+
+typedef char NSSUTF8;
 
 class RA
 {

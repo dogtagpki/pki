@@ -39,7 +39,6 @@ extern "C"
 #include "tus/tus_db.h"
 #include "secder.h"
 #include "nss.h"
-#include "nssbaset.h"
 #include "nssb64.h"
 
 #ifdef __cplusplus
