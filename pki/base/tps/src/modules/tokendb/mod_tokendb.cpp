@@ -96,6 +96,7 @@ extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
 #define OP_PREFIX "op.format"
 
 #define NUM_PROFILES_TO_DISPLAY 15
+#define NUM_ENTRIES_PER_PAGE 25
 #define MAX_LEN_PROFILES_TO_DISPLAY 1000
 
 #define error_out(msg1,msg2) \
@@ -3853,7 +3854,7 @@ mod_tokendb_handler( request_rec *rq )
         /*  retrieve maxCount */
         s1 = PL_strstr( query, "maxCount=" );
         if( s1 == NULL ) {
-            maxReturns = 20;
+            maxReturns = 100;
         } else {
             s2 = PL_strchr( ( const char * ) s1, '&' );
             if( s2 == NULL ) {
@@ -3867,7 +3868,7 @@ mod_tokendb_handler( request_rec *rq )
 
         if (( PL_strstr( query, "op=view_activity_admin" )) ||
             ( PL_strstr( query, "op=view_activity" ) )) {
-            status = find_tus_activity_entries_no_vlv( complete_filter, &result, 0 );
+            status = find_tus_activity_entries_no_vlv( complete_filter, &result, 1 );
         } else if( PL_strstr( query, "op=view_certificate" ) ) {
 
             ap_log_error( ( const char * ) "tus", __LINE__,
@@ -4045,12 +4046,43 @@ mod_tokendb_handler( request_rec *rq )
               PL_strcat(injection, "\";\n");
               do_free(flash);
            }
+           PR_snprintf(msg, 256, "var num_profiles_to_display = %d ;\n", NUM_PROFILES_TO_DISPLAY);
+           PL_strcat(injection, msg);
         }
+
+        /* start_entry_val is used for pagination of entries on all other pages */
+        int start_entry_val;
+        int end_entry_val;
+        int first_pass = 1;
+        int one_time = 1;
+        char *start_entry_val_str = get_field(query, "start_entry_val=", SHORT_LEN);
+        if (start_entry_val_str != NULL) {
+            start_entry_val = atoi(start_entry_val_str);
+            do_free(start_entry_val_str);
+        } else {
+            start_entry_val = 1;
+        }
+        end_entry_val = start_entry_val + NUM_ENTRIES_PER_PAGE;
 
         for( e = get_first_entry( result );
              ( maxReturns > 0 ) && ( e != NULL );
              e = get_next_entry( e ) ) {
             maxReturns--;
+            entryNum++;
+
+            if ((entryNum < start_entry_val) || (entryNum >= end_entry_val)) {
+                if (one_time == 1) {
+                    PL_strcat(injection, "var my_query = \"");
+                    PL_strcat(injection, query);
+                    PL_strcat(injection, "\";\n");
+                    one_time =0;
+                }
+                // skip values not within the page range
+                if (entryNum == (end_entry_val + 1)) {
+                    PL_strcat( injection, "var has_more_entries = 1;\n"); 
+                } 
+                continue;
+            }
 
             PL_strcat( injection, "var o = new Object();\n" );
 
@@ -4107,9 +4139,7 @@ mod_tokendb_handler( request_rec *rq )
 
             len = PL_strlen( injection );
 
-            entryNum++;
-
-            if( entryNum == 1 && nEntries > 1 && sendPieces == 0 ) {
+            if( first_pass == 1 && nEntries > 1 && sendPieces == 0 ) {
                 if( ( nEntries * len ) > MAX_INJECTION_SIZE ) {
                     size = nEntries;
                     if( ( nEntries * len ) >
@@ -4131,6 +4161,11 @@ mod_tokendb_handler( request_rec *rq )
                         size = MAX_INJECTION_SIZE;
                     }
                 }
+                first_pass=0;
+
+		PR_snprintf(msg, 256, "var start_entry_val = %d ; \nvar num_entries_per_page= %d ; \n", 
+                            start_entry_val, NUM_ENTRIES_PER_PAGE);
+                PL_strcat( injection, msg);
             }
 
             if( sendPieces ) {

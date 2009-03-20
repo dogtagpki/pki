@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      38
+%define base_release      39
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Mar 20 2009 Ade Lee <alee@redhat.com> 1.0.0-39
+- Bugzilla 489318 TPS does not list more than 20 activities
 * Wed Mar 18 2009 Christina Fu <cfu@redhat.com> 1.0.0-38
 - Bugzilla Bug # 485166 - Signed Audit Feature for TPS
 * Thu Mar 12 2009 Jack Magne <jmagne@redhat.com> 1.0.0-37
