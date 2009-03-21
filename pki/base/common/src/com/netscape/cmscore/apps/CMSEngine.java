@@ -262,7 +262,7 @@ public class CMSEngine implements ICMSEngine {
         if ((state == 1) && (sd.equals("existing"))) {
             mSDTimer.cancel();
         }
-		
+
         // initialize the PasswordReader and PasswordWriter
         String pwdPath = config.getString("passwordFile");
         String pwdClass = config.getString("passwordClass");
@@ -282,7 +282,7 @@ public class CMSEngine implements ICMSEngine {
         if (tsClass != null) {
             try {
                 mTimeSource = (ITimeSource)
-                        Class.forName(tsClass).newInstance();	
+                        Class.forName(tsClass).newInstance();
             } catch (Exception e) {
                 // nothing to do
             }
@@ -293,7 +293,7 @@ public class CMSEngine implements ICMSEngine {
         }
 
         instanceDir = config.getString("instanceRoot");
-		
+
         loadDynSubsystems();
 
         java.security.Security.addProvider(
@@ -453,7 +453,7 @@ public class CMSEngine implements ICMSEngine {
             parser.parse(path);
             NodeList nodes = parser.getDocument().getElementsByTagName("Connector");
             String parentName="";
-            boolean secure=false;
+            String name="";
             String port="";
             for (int i=0; i<nodes.getLength(); i++) {
                 Element n = (Element)nodes.item(i);
@@ -463,73 +463,76 @@ public class CMSEngine implements ICMSEngine {
                 if(p != null)  {
                     parentName = p.getAttribute("name");   
                 }
-                secure = n.hasAttribute("sslProtocol");
+                name = n.getAttribute("name");
                 port = n.getAttribute("port");
              
                 // The "server.xml" file is parsed from top-to-bottom, and
                 // supports BOTH "Port Separation" (the new default method)
                 // as well as "Shared Ports" (the old legacy method).  Since
                 // both methods must be supported, the file structure MUST
-                // conform to the following format:
+                // conform to ONE AND ONLY ONE of the following formats:
                 //
-                //     <Catalina>
-                //         Shared Ports:     Unsecure Port
+                // Port Separation:
                 //
-                //         Port Separation:  Agent Secure Port
-                //                           OR
-                //         Shared Ports:     Agent, EE, and Admin Secure Port
-                //     </Catalina>
+                //  <Catalina>
+                //     ...
+                //     <!-- Port Separation:  Unsecure Port -->
+                //     <Connector name="Unsecure" . . .
+                //     ...
+                //     <!-- Port Separation:  Agent Secure Port -->
+                //     <Connector name="Agent" . . .
+                //     ...
+                //     <!-- Port Separation:  Admin Secure Port -->
+                //     <Connector name="Admin" . . .
+                //     ...
+                //     <!-- Port Separation:  EE Secure Port -->
+                //     <Connector name="EE" . . .
+                //     ...
+                //  </Catalina>
                 //
-                //     <CatalinaAdmin>
-                //         Port Separation:  Admin Secure Port
-                //     </CatalinaAdmin>
                 //
-                //     <CatalinaEE>
-                //         Port Separation:  Unsecure Port
+                // Shared Ports:
                 //
-                //         Port Separation:  EE Secure Port
-                //     </CatalinaEE>
-                //
-                // NOTE:  If the "Port Separation" method is being used,
-                //        then the "Unsecure Port" specified in the
-                //        "Catalina" section section will be commented out on
-                //        an instance-by-instance basis.
-                //
-                //        Similarly, if the "Shared Ports" method is being
-                //        used, the entire "CatalinaAdmin" and "CatalinaEE"
-                //        sections will be commented out on an
-                //        instance-by-instance basis.
+                //  <Catalina>
+                //     ...
+                //     <!-- Shared Ports:  Unsecure Port -->
+                //     <Connector name="Unsecure" . . .
+                //     ...
+                //     <!-- Shared Ports:  Agent, EE, and Admin Secure Port -->
+                //     <Connector name="Secure" . . .
+                //     ...
+                //     <!--
+                //     <Connector name="Unused" . . .
+                //     -->
+                //     ...
+                //     <!--
+                //     <Connector name="Unused" . . .
+                //     -->
+                //     ...
+                //  </Catalina>
                 //
                 if ( parentName.equals("Catalina"))  {
-
-                    if (secure) {
-                        mServerCertNickname = n.getAttribute("serverCert");
-                        // Port Separation:  Agent Secure Port
+                    if( name.equals( "Unsecure" ) ) {
+                        // Port Separation:  Unsecure Port
                         //                   OR
-                        // Shared Ports:     Agent, EE, and Admin Secure Port
+                        // Shared Ports:     Unsecure Port
+                        info[EE_NON_SSL][PORT] = port;
+                    } else if( name.equals( "Agent" ) ) {
+                        // Port Separation:  Agent Secure Port
+                        info[AGENT][PORT] = port;
+                    } else if( name.equals( "Admin" ) ) {
+                        // Port Separation:  Admin Secure Port
+                        info[ADMIN][PORT] = port;
+                    } else if( name.equals( "EE" ) ) {
+                        // Port Separation:  EE Secure Port
+                        info[EE_SSL][PORT] = port;
+                    } else if( name.equals( "Secure" ) ) {
+                        // Shared Ports:  Agent, EE, and Admin Secure Port
                         info[AGENT][PORT] = port;
                         info[ADMIN][PORT] = port;
                         info[EE_SSL][PORT] = port;
-                    } else {
-                        // Shared Ports:  Unsecure Port
-                        info[EE_NON_SSL][PORT] = port;
                     }
                 }   
-                if( parentName.equals("CatalinaEE"))  {
-                    if (secure) {
-                        // Port Separation:  EE Secure Port
-                        // (overwrites value obtained from Catalina section)
-                        info[EE_SSL][PORT] = port; 
-                    } else {
-                        // Port Separation:  Unsecure Port
-                        info[EE_NON_SSL][PORT] = port;
-                    }
-                }
-                if( parentName.equals("CatalinaAdmin"))  {
-                    // Port Separation:  Admin Secure Port
-                    // (overwrites value obtained from Catalina section)
-                    info[ADMIN][PORT] = port;
-                }
            }
  
            } catch (Exception e) {
@@ -787,7 +790,7 @@ public class CMSEngine implements ICMSEngine {
             ISubsystem ss = null;
 
             try {
-                ss = (ISubsystem) Class.forName(classname).newInstance();	
+                ss = (ISubsystem) Class.forName(classname).newInstance();
             } catch (InstantiationException e) { 
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()));

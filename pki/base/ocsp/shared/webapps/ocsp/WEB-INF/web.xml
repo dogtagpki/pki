@@ -7,6 +7,42 @@
    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "file:///usr/share/rhpki/setup/web-app_2_3.dtd">
 <web-app>
 
+    <filter>
+        <filter-name>PassThroughRequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.PassThroughRequestFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>AgentRequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.AgentRequestFilter</filter-class>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_AGENT_SECURE_PORT]</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>AdminRequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.AdminRequestFilter</filter-class>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_ADMIN_SECURE_PORT]</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>EERequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.EERequestFilter</filter-class>
+        <init-param>
+            <param-name>http_port</param-name>
+            <param-value>[PKI_UNSECURE_PORT]</param-value>
+        </init-param>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_EE_SECURE_PORT]</param-value>
+        </init-param>
+    </filter>
+
     <servlet>
         <servlet-name>csadmin-wizard</servlet-name>
         <servlet-class>com.netscape.cms.servlet.wizard.WizardServlet</servlet-class>
@@ -453,6 +489,24 @@
                          <param-value> ee          </param-value> </init-param>
    </servlet>
 
+[PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
+   <filter-mapping>
+      <filter-name>  AgentRequestFilter  </filter-name>
+      <url-pattern>  /agent/*            </url-pattern>
+   </filter-mapping>
+
+   <filter-mapping>
+      <filter-name>  AdminRequestFilter  </filter-name>
+      <url-pattern>  /admin/*            </url-pattern>
+      <url-pattern>  /auths              </url-pattern>
+   </filter-mapping>
+
+   <filter-mapping>
+      <filter-name>  EERequestFilter  </filter-name>
+      <url-pattern>  /ee/*            </url-pattern>
+   </filter-mapping>
+[PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
+
    <servlet-mapping>
       <servlet-name>  ocspregistry  </servlet-name>
       <url-pattern>   /registry  </url-pattern>
@@ -482,14 +536,12 @@
       <servlet-name>  ocsplog  </servlet-name>
       <url-pattern>   /log  </url-pattern>
    </servlet-mapping>
-                      
-[PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]                                                          
+
    <servlet-mapping>
       <servlet-name>  ocspauths  </servlet-name>
       <url-pattern>   /auths  </url-pattern>
    </servlet-mapping>
-[PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
-                                                                                
+                    
    <servlet-mapping>
       <servlet-name>  ocspstart  </servlet-name>
       <url-pattern>   /start  </url-pattern>

@@ -296,7 +296,7 @@ get_pki_secure_port()
 	# establish well-known strings
 	begin_ssl_comment="<!-- DO NOT REMOVE - Begin define PKI secure port -->"
 	end_ssl_comment="<!-- DO NOT REMOVE - End define PKI secure port -->"
-	connector_statement="<Connector port=\""
+	connector_statement="<Connector name=\""
 
 	# initialize looping variables
 	ssl_comment_found=0
@@ -331,10 +331,15 @@ get_pki_secure_port()
 			if [ "$head" == "$connector_statement" ] ; then
 				# once the Connector statement has been found,
 				tail=`echo $line | cut -b18-`
-				# extract the numeric port information
-				port=`echo $tail | cut -d\" -f1`
-				PKI_SECURE_PORT=$port
-				return 0
+				# extract the name of the connector
+				name=`echo $tail | cut -d\" -f1`
+				if	[ "$name" == "Agent"  ] ||
+					[ "$name" == "Secure" ] ; then
+					# extract the numeric port information
+					port=`echo $tail | cut -d\" -f3`
+					PKI_SECURE_PORT=$port
+					return 0
+				fi
 			fi
 		fi
     done

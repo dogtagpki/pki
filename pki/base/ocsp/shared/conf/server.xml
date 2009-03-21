@@ -83,25 +83,18 @@ Tomcat Port       = [TOMCAT_SERVER_PORT] (for shutdown)
          IP address of the remote client.
     -->
 
-    <!-- Define a non-SSL HTTP/1.1 Connector on port 8080 -->
+<!-- Define a non-SSL HTTP/1.1 Connector on port 8080 -->
+[PKI_UNSECURE_PORT_SERVER_COMMENT]
+<Connector name="[PKI_UNSECURE_PORT_CONNECTOR_NAME]" port="[PKI_UNSECURE_PORT]" maxHttpHeaderSize="8192"
+        maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+        enableLookups="false" redirectPort="8443" acceptCount="100"
+        connectionTimeout="20000" disableUploadTimeout="true"/>
 
 
-
-
-    <!-- Shared Ports:  Unsecure Port -->
-    [PKI_OPEN_SHARED_PORTS_SERVER_COMMENT]
-    <Connector port="[PKI_UNSECURE_PORT]" maxHttpHeaderSize="8192"
-               maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
-               enableLookups="false" redirectPort="8443" acceptCount="100"
-               connectionTimeout="20000" disableUploadTimeout="true" />
-    [PKI_CLOSE_SHARED_PORTS_SERVER_COMMENT]
-
-<!-- Port Separation:  Agent Secure Port                -->
-<!--                   OR                               -->
-<!-- Shared Ports:     Agent, EE, and Admin Secure Port -->
 <!-- Define a SSL HTTP/1.1 Connector on port 8443 -->
+[PKI_SECURE_PORT_SERVER_COMMENT]
 <!-- DO NOT REMOVE - Begin define PKI secure port -->
-<Connector port="[PKI_SECURE_PORT]" maxHttpHeaderSize="8192"
+<Connector name="[PKI_SECURE_PORT_CONNECTOR_NAME]" port="[PKI_SECURE_PORT]" maxHttpHeaderSize="8192"
         maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
         enableLookups="false" disableUploadTimeout="true"
         acceptCount="100" scheme="https" secure="true"
@@ -116,6 +109,40 @@ Tomcat Port       = [TOMCAT_SERVER_PORT] (for shutdown)
         passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
         certdbDir="[PKI_INSTANCE_PATH]/alias"/>
 <!-- DO NOT REMOVE - End define PKI secure port -->
+
+[PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT][PKI_ADMIN_SECURE_PORT_SERVER_COMMENT]
+<Connector name="[PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME]" port="[PKI_ADMIN_SECURE_PORT]" maxHttpHeaderSize="8192"
+        maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+        enableLookups="false" disableUploadTimeout="true"
+        acceptCount="100" scheme="https" secure="true"
+        clientAuth="false" sslProtocol="SSL"
+        sslOptions="ssl2=true,ssl3=true,tls=true"
+        ssl2Ciphers="-SSL2_RC4_128_WITH_MD5,-SSL2_RC4_128_EXPORT40_WITH_MD5,-SSL2_RC2_128_CBC_WITH_MD5,-SSL2_RC2_128_CBC_EXPORT40_WITH_MD5,-SSL2_DES_64_CBC_WITH_MD5,-SSL2_DES_192_EDE3_CBC_WITH_MD5"
+        ssl3Ciphers="-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA"
+        tls3Ciphers="-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA"
+        SSLImplementation="org.apache.tomcat.util.net.jss.JSSImplementation"
+        serverCertNickFile="[PKI_INSTANCE_PATH]/conf/serverCertNick.conf"
+        passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
+        passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
+        certdbDir="[PKI_INSTANCE_PATH]/alias"/>
+[PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT]
+
+[PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT][PKI_EE_SECURE_PORT_SERVER_COMMENT]
+<Connector name="[PKI_EE_SECURE_PORT_CONNECTOR_NAME]" port="[PKI_EE_SECURE_PORT]" maxHttpHeaderSize="8192"
+        maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+        enableLookups="false" disableUploadTimeout="true"
+        acceptCount="100" scheme="https" secure="true"
+        clientAuth="false" sslProtocol="SSL"
+        sslOptions="ssl2=true,ssl3=true,tls=true"
+        ssl2Ciphers="-SSL2_RC4_128_WITH_MD5,-SSL2_RC4_128_EXPORT40_WITH_MD5,-SSL2_RC2_128_CBC_WITH_MD5,-SSL2_RC2_128_CBC_EXPORT40_WITH_MD5,-SSL2_DES_64_CBC_WITH_MD5,-SSL2_DES_192_EDE3_CBC_WITH_MD5"
+        ssl3Ciphers="-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA"
+        tls3Ciphers="-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA"
+        SSLImplementation="org.apache.tomcat.util.net.jss.JSSImplementation"
+        serverCertNickFile="[PKI_INSTANCE_PATH]/conf/serverCertNick.conf"
+        passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
+        passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
+        certdbDir="[PKI_INSTANCE_PATH]/alias"/>
+[PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT]
 
     <!-- Note : To disable connection timeouts, set connectionTimeout value
      to 0 -->
@@ -408,88 +435,4 @@ Tomcat Port       = [TOMCAT_SERVER_PORT] (for shutdown)
 
   </Service>
 
-<!-- Port Separation:  Admin Secure Port -->
-<!-- Port Separation:  Unsecure Port -->
-<!-- Port Separation:  EE Secure Port -->
-[PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT]
-
-<Service name="CatalinaAdmin">
-
-<Connector port="[PKI_ADMIN_SECURE_PORT]" maxHttpHeaderSize="8192"
-        maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
-        enableLookups="false" disableUploadTimeout="true"
-        acceptCount="100" scheme="https" secure="true"
-        clientAuth="false" sslProtocol="SSL"
-        sslOptions="ssl2=true,ssl3=true,tls=true"
-        ssl2Ciphers="-SSL2_RC4_128_WITH_MD5,-SSL2_RC4_128_EXPORT40_WITH_MD5,-SSL2_RC2_128_CBC_WITH_MD5,-SSL2_RC2_128_CBC_EXPORT40_WITH_MD5,-SSL2_DES_64_CBC_WITH_MD5,-SSL2_DES_192_EDE3_CBC_WITH_MD5"
-        ssl3Ciphers="-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA"
-        tls3Ciphers="-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA"
-        SSLImplementation="org.apache.tomcat.util.net.jss.JSSImplementation"
-        serverCertNickFile="[PKI_INSTANCE_PATH]/conf/serverCertNick.conf"
-        passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
-        passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
-        certdbDir="[PKI_INSTANCE_PATH]/alias"/>
-
-    <Engine name="CatalinaAdmin" defaultHost="localhost">
-
-      <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
-             resourceName="UserDatabase"/>
-
-      <Host name="localhost" appBase="webapps.admin"
-       unpackWARs="true" autoDeploy="false" 
-       xmlValidation="false" xmlNamespaceAware="false">
-
-        <Valve className="org.apache.catalina.valves.AccessLogValve"
-                 directory="logs"  prefix="localhost_access_log." suffix=".txt"
-                 pattern="common" resolveHosts="false"/>
-
-      </Host>
-
-    </Engine>
-
-  </Service>
-
-
-<Service name="CatalinaEE">
-
-<Connector port="[PKI_UNSECURE_PORT]" maxHttpHeaderSize="8192"
-        maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
-        enableLookups="false" redirectPort="8443" acceptCount="100"
-        connectionTimeout="20000" disableUploadTimeout="true"/>
-
-<Connector port="[PKI_EE_SECURE_PORT]" maxHttpHeaderSize="8192"
-        maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
-        enableLookups="false" disableUploadTimeout="true"
-        acceptCount="100" scheme="https" secure="true"
-        clientAuth="false" sslProtocol="SSL"
-        sslOptions="ssl2=true,ssl3=true,tls=true"
-        ssl2Ciphers="-SSL2_RC4_128_WITH_MD5,-SSL2_RC4_128_EXPORT40_WITH_MD5,-SSL2_RC2_128_CBC_WITH_MD5,-SSL2_RC2_128_CBC_EXPORT40_WITH_MD5,-SSL2_DES_64_CBC_WITH_MD5,-SSL2_DES_192_EDE3_CBC_WITH_MD5"
-        ssl3Ciphers="-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA"
-        tls3Ciphers="-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA"
-        SSLImplementation="org.apache.tomcat.util.net.jss.JSSImplementation"
-        serverCertNickFile="[PKI_INSTANCE_PATH]/conf/serverCertNick.conf"
-        passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
-        passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
-        certdbDir="[PKI_INSTANCE_PATH]/alias"/>
-
-    <Engine name="CatalinaEE" defaultHost="localhost">
-
-      <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
-             resourceName="UserDatabase"/>
-
-      <Host name="localhost" appBase="webapps.ee"
-       unpackWARs="true" autoDeploy="false" 
-       xmlValidation="false" xmlNamespaceAware="false">
-
-
-        <Valve className="org.apache.catalina.valves.AccessLogValve"
-                 directory="logs"  prefix="localhost_access_log." suffix=".txt"
-                 pattern="common" resolveHosts="false"/>
-
-      </Host>
-
-    </Engine>
-
-  </Service>
-[PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT]
 </Server>
