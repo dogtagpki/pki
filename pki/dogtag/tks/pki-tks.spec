@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      20
+%define base_release      21
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -290,6 +290,10 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Mar 20 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-21
+- Bugzilla Bug #490489 -  Configuration modifications are not replicated
+  between admins, agents, and end entities
+- Bugzilla Bug #490483 -  Unable to configure CA using "Shared Ports"
 * Wed Mar 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-20
 - Bugzilla Bug #488338 -  start/stop scripts should list all the
   available port numbers with their functionality

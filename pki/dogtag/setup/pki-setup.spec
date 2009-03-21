@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      19
+%define base_release      20
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,10 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Mar 20 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-20
+- Bugzilla Bug #490489 -  Configuration modifications are not replicated
+  between admins, agents, and end entities
+- Bugzilla Bug #490483 -  Unable to configure CA using "Shared Ports"
 * Wed Mar 18 2009 Christina Fu <cfu@redhat.com> 1.0.0-19
 - Bugzilla Bug # 485166 - Signed Audit Feature for TPS
 * Wed Mar 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-18
