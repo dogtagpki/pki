@@ -65,6 +65,7 @@ class ConfigStore
 	  static ConfigStore *CreateFromConfigFile(const char *cfg_path);
 
 	  int                 IsNameDefined(const char *name);
+          void                SetFilePath(const char* cfg_file_path);
 	  void                Add(const char *name, const char *value);
 	  const char *        GetConfig(const char *name);
 	  int                 Size();
@@ -82,6 +83,7 @@ class ConfigStore
       bool              GetConfigAsBool(const char *key);
       TPS_PUBLIC bool GetConfigAsBool(const char *key, bool def); 
       TOKENDB_PUBLIC const char *GetConfigAsString(const char *key, const char *def);  
+      TPS_PUBLIC int Commit(const bool backup);
       TPS_PUBLIC const char *GetConfigAsString(const char *key);
 	  /**
 	   * operator[] is used to look up config strings in the ConfigStore.
@@ -96,6 +98,8 @@ class ConfigStore
   private: 
 	  char      *m_substore_name;
 	  ConfigStoreRoot *m_root;
+          char      *m_cfg_file_path;
+          PRLock *m_lock;
 };
 
 class ConfigStoreRoot

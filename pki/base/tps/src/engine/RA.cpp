@@ -72,12 +72,17 @@ PRLock *RA::m_auth_lock = NULL;
 PRLock *RA::m_debug_log_lock = NULL;
 PRLock *RA::m_error_log_lock = NULL;
 PRLock *RA::m_audit_log_lock = NULL;
+bool RA::m_audit_enabled = false;
 bool RA::m_audit_signed = false;
 static int m_sa_count = 0;
 SECKEYPrivateKey *RA::m_audit_signing_key = NULL;
 NSSUTF8 *RA::m_last_audit_signature = NULL;
 SECOidTag RA::m_audit_signAlgTag;
 SecurityLevel RA::m_global_security_level;
+char *RA::m_signedAuditSelectedEvents = NULL;
+char *RA::m_signedAuditSelectableEvents = NULL;
+char *RA::m_signedAuditNonSelectableEvents = NULL;
+
 
 int RA::m_audit_log_level = (int) LL_PER_SERVER;
 int RA::m_debug_log_level = (int) LL_PER_SERVER;
@@ -129,6 +134,9 @@ const char *RA::CFG_APPLET_NETKEY_OLD_INSTANCE_AID = "applet.aid.netkey_old_inst
 const char *RA::CFG_APPLET_NETKEY_OLD_FILE_AID = "applet.aid.netkey_old_file"; 
 const char *RA::CFG_APPLET_SO_PIN = "applet.so_pin"; 
 const char *RA::CFG_APPLET_DELETE_NETKEY_OLD = "applet.delete_old"; 
+const char *RA::CFG_AUDIT_SELECTED_EVENTS="logging.audit.selected.events";
+const char *RA::CFG_AUDIT_NONSELECTABLE_EVENTS="logging.audit.nonselectable.events";
+const char *RA::CFG_AUDIT_SELECTABLE_EVENTS="logging.audit.selectable.events";
 
 const char *RA::CFG_AUTHS_ENABLE="auth.enable";
 
@@ -315,7 +323,13 @@ TPS_PUBLIC int RA::Initialize(char *cfg_path, RA_Context *ctx)
         m_audit_log_level = m_cfg->GetConfigAsInt(CFG_AUDIT_LEVEL, (int) LL_PER_SERVER);
         m_debug_log_level = m_cfg->GetConfigAsInt(CFG_DEBUG_LEVEL, (int) LL_PER_SERVER);
 
-	if (m_cfg->GetConfigAsBool(CFG_AUDIT_ENABLE, 0)) {
+        // get events for audit signing
+        m_signedAuditSelectedEvents = PL_strdup(m_cfg->GetConfigAsString(CFG_AUDIT_SELECTED_EVENTS, ""));
+        m_signedAuditSelectableEvents = PL_strdup(m_cfg->GetConfigAsString(CFG_AUDIT_SELECTABLE_EVENTS, ""));
+        m_signedAuditNonSelectableEvents= PL_strdup(m_cfg->GetConfigAsString(CFG_AUDIT_NONSELECTABLE_EVENTS, ""));
+        m_audit_enabled = m_cfg->GetConfigAsBool(CFG_AUDIT_ENABLE, false);
+
+	if (m_audit_enabled) {
                 // is audit logSigning on?
                 m_audit_signed = m_cfg->GetConfigAsBool(CFG_AUDIT_SIGNED, false);
                 RA::Debug("RA:: Initialize", "Audit signing is %s",
@@ -503,12 +517,48 @@ int RA::testTokendb() {
 }
 
 /*
- * returns ture if an audit event is selected, false if not
- *   -- to be implemented --
+ * returns true if item is a value in the comma separated list
+ * used by audit logging functions and profile selection functions
+ */
+TPS_PUBLIC bool RA::match_comma_list(const char* item, char *list)
+{
+    char *pList = PL_strdup(list);
+    char *sresult = NULL;
+
+    sresult = strtok(pList, ",");
+    while (sresult != NULL) {
+        if (PL_strcmp(sresult, item) == 0) {
+            if (pList != NULL) {
+                PR_Free(pList);
+                pList = NULL;
+            }
+            return true;
+        }
+        sresult = strtok(NULL, ",");
+    }
+    if (pList != NULL) {
+        PR_Free(pList);
+        pList = NULL;
+    }
+    return false;
+}
+
+/*
+ * returns true if an audit event is valid, false if not
+ */
+bool RA::IsValidEvent(const char *auditEvent)
+{
+    return match_comma_list(auditEvent, m_signedAuditNonSelectableEvents) ||
+           match_comma_list(auditEvent, m_signedAuditSelectableEvents);
+}
+
+/*
+ * returns true if an audit event is selected, false if not
  */
 bool RA::IsAuditEventSelected(const char* auditEvent)
 {
-  return true;
+  return match_comma_list(auditEvent, m_signedAuditNonSelectableEvents) || 
+         match_comma_list(auditEvent, m_signedAuditSelectedEvents);
 }
 
 int RA::IsTokendbInitialized()
@@ -2164,6 +2214,27 @@ int RA::InitializeTokendb(char *cfg_path)
     }
 
     return status;
+}
+
+TPS_PUBLIC void RA::update_signed_audit_selected_events(char *new_selected)
+{
+    char *tmp = NULL;
+    m_cfg->Add(CFG_AUDIT_SELECTED_EVENTS, new_selected);
+
+    tmp = m_signedAuditSelectedEvents;
+    m_signedAuditSelectedEvents = PL_strdup(new_selected);
+    PL_strfree(tmp);
+}
+
+TPS_PUBLIC void RA::update_signed_audit_enable(char *enable)
+{
+   m_cfg->Add(CFG_AUDIT_ENABLE, enable);
+}
+
+
+TPS_PUBLIC void RA::update_signed_audit_logging_enable(char *enable)
+{
+   m_cfg->Add(CFG_AUDIT_SIGNED, enable);
 }
 
 TPS_PUBLIC int RA::ra_find_tus_certificate_entries_by_order_no_vlv (char *filter,

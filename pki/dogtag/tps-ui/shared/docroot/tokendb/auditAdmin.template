@@ -1,0 +1,194 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+<HEAD>
+<TITLE>TPS</Title>
+</HEAD>
+
+<table border="0" width="100%" cellspacing="0" cellpadding="6">
+  <tr bgcolor="#666699">
+    <td width=25%>
+      <table border="0" cellspacing="0" cellpadding="6">
+        <tr>
+          <td nowrap><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<b>&reg;<br>
+            Certificate<br>System</b></font> </td>
+        </tr>
+      </table>
+    </td>
+    <td align=right width=65% nowrap><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">TPS Services</font></td>
+    <td width="10%">&nbsp;</td>
+  </tr>
+</table>
+<p>
+
+<BODY>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/JavaScript">
+<!--
+var uri0 = "";
+if (typeof(uriBase) == "undefined") {
+    uri0 += "/tus";
+} else {
+    uri0 += uriBase;
+}
+
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : Configure Audit Logging</font>\n");
+
+if ((typeof(flash) != "undefined") && (flash != "")) {
+    document.write("<table width=\"100%\"><tr><td align=\"left\">" +
+        "<font color=\"#ff0000\"><b>" + flash.replace(/\+/g, " ") + "</b><font>" +
+        "</td></tr></table>\n");
+}
+
+document.write("<table width=\"100%\"><tr><td align=\"right\">" +
+                "<b>UID:</b>" + userid
+                + "</td></tr></table>\n");
+document.write("<HR NOSHADE SIZE=1>\n");
+
+function doUpdateAudit(form) {
+        var uri = "";
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus";
+        } else {
+            uri += uriBase;
+        }
+        this.action = uri;
+        return true;
+}
+
+function doCancel() {
+    var uri = "";
+    if (typeof(uriBase) == "undefined") {
+        uri += "/tus";
+    } else {
+        uri += uriBase;
+    }
+    location.href = uri;
+}
+
+
+    document.write("<BR>");
+    document.write("<form NAME =\"editAuditForm\" METHOD=POST onSubmit=\"return doUpdateAudit(this);\">");
+    document.write("<input TYPE=HIDDEN NAME=query VALUE=\"op=update_audit_admin\">");
+
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Enable Audit Logging:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    if (signedAuditEnable == "true") {
+        document.write("<input TYPE=RADIO NAME=auditEnable VALUE=\"true\" checked> Enable &nbsp;&nbsp;&nbsp;");
+        document.write("<input TYPE=RADIO NAME=auditEnable VALUE=\"false\"> Disable");
+    } else {
+        document.write("<input TYPE=RADIO NAME=auditEnable VALUE=\"true\" > Enable &nbsp;&nbsp;&nbsp;");
+        document.write("<input TYPE=RADIO NAME=auditEnable VALUE=\"false\" checked> Disable");
+    }
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Enable Audit Log Signing:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    if (logSigningEnable == "true") {
+        document.write("<input TYPE=RADIO NAME=logSigningEnable VALUE=\"true\" checked> Enable &nbsp;&nbsp;&nbsp;");
+        document.write("<input TYPE=RADIO NAME=logSigningEnable VALUE=\"false\"> Disable");
+    } else {
+        document.write("<input TYPE=RADIO NAME=logSigningEnable VALUE=\"true\" > Enable &nbsp;&nbsp;&nbsp;");
+        document.write("<input TYPE=RADIO NAME=logSigningEnable VALUE=\"false\" checked> Disable");
+    }
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    var nonselectable_array = signedAuditNonSelectableEvents.split(",");
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Events Always Logged:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<textarea name=nonselect cols=40 rows=10 >\n");
+    for (var i=0; i< nonselectable_array.length; i++) {
+        document.write(nonselectable_array[i] + "\n");
+    }
+    document.write("</textarea>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("</table>\n");
+
+    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
+
+    document.write("<p> Selected Optional Events to be logged: </p>");
+    var selectable_array = signedAuditSelectableEvents.split(",");
+    var signedAuditSelectedEvents_tmp = "," + signedAuditSelectedEvents + ",";
+
+
+    if ((typeof(selectable_array) != "undefined") && (selectable_array.length > 0)) {
+        document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
+        for (var i=0; i < selectable_array.length; i++) {
+            if (i % 3 == 0) {
+                document.write("<tr bgcolor=#e5e5e5>\n");
+            }
+            document.write("<td>" + selectable_array[i] + "</td>");
+            if (signedAuditSelectedEvents_tmp.search("," + selectable_array[i] + ",") != -1) {
+                document.write("<td><input type=checkbox name=\"event_" + i + "\" value=\"" + selectable_array[i] + "\" checked></td>");
+            } else {
+                document.write("<td><input type=checkbox name=\"event_" + i + "\" value=\"" + selectable_array[i] + "\"></td>");
+            }
+
+            if ((i % 3 == 2) || (i == (selectable_array.length - 1))) {
+                document.write("</tr>");
+            }
+        }
+        document.write("</table>");
+    } else {
+        document.write("<p>There are no optional events to select.</p>");
+    }
+
+    document.write("<input type=hidden name=\"nEvents\" value=" + selectable_array.length + ">");
+
+    document.write("<DIV ALIGN=RIGHT>\n");
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
+    document.write("<tr>\n");
+    document.write("<td>\n");
+    document.write("<input TYPE=submit VALUE=Update>");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<input TYPE=button VALUE=Cancel onClick=\"doCancel();\">");
+    document.write("</td>\n");
+    document.write("</form>\n");
+    document.write("</tr>\n");
+    document.write("</table>\n");
+
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>

@@ -134,6 +134,12 @@ document.write("</tr></table>");
   <tr>
     <td><li><a href="tus?op=search_activity_admin">Search Activities</a></td>
   </tr>
+   <tr>
+    <td><i>Auditing</i></td>
+  </tr>
+  <tr>
+    <td><li><a href="tus?op=audit_admin">Configure Signed Audit</a></td>
+  </tr>
 </table>
 <HR NOSHADE SIZE=1>
 <DIV ALIGN=RIGHT>

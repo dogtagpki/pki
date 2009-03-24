@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      12
+%define base_release      13
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Mar 24 2009 Ade Lee <alee@redhat.com> 1.0.0-13
+- Bugzilla 490452 support for signed audit in UI
 * Tue Mar 17 2009 Ade Lee <alee@redhat.com> 1.0.0-12
 - Bugzilla 489318 TPS does not list more than 20 activities
 * Wed Mar 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-11

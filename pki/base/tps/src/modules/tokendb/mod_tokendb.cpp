@@ -127,6 +127,28 @@ extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
         APLOG_ERR, 0, rq->server, \
         (const char *) msg,  ldap_err2string( status ) );
 
+#define get_cfg_string(cname, vname) \
+    if( ( s = PL_strstr( buf, cname ) ) != NULL ) { \
+        s += PL_strlen( cname ); \
+        v = s; \
+        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' && \
+               ( PRUint32 ) ( s - buf ) < size ) { \
+            s++; \
+        } \
+        n = s - v; \
+        s = PL_strndup( v, n ); \
+        if( s != NULL ) { \
+            if( vname != NULL ) { \
+                PL_strfree( vname ); \
+                vname = NULL; \
+            } \
+            vname = s; \
+        } else { \
+            do_free(buf); \
+            return 0; \
+        } \
+    }
+
 /**
  * Provide reasonable defaults for some defines.
  */
@@ -176,6 +198,8 @@ static char *searchUserResultTemplate        = NULL;
 static char *searchUserTemplate              = NULL;
 static char *newUserTemplate                 = NULL;
 static char *userDeleteTemplate              = NULL;
+static char *auditAdminTemplate              = NULL;
+
 static char *profileList                     = NULL;
 
 static int sendInPieces = 0;
@@ -375,21 +399,9 @@ char *get_encoded_post_field(apr_table_t *post, const char *fname, int len)
  */
 bool match_profile(const char *profile)
 {
-   char *pList = PL_strdup(profileList);
-   char *sresult = NULL;
-
-   sresult = strtok(pList, ",");
-   while (sresult != NULL) {
-       if (PL_strcmp(sresult, profile) == 0) {
-           do_free(pList);
-           return true;
-       }
-       sresult = strtok(NULL, ",");
-   }
-   do_free(pList);
-   return false;
+   return RA::match_comma_list(profile, profileList);
 }
-   
+
 char *getTemplateFile( char *fileName, int *injectionTagOffset )
 {
     char *buf = NULL;
@@ -1218,7 +1230,6 @@ LDAPMod **getModifications( char *query )
 
     return mods;
 }
-
 
 int get_tus_config( char *name )
 {
@@ -2177,6 +2188,7 @@ int get_tus_config( char *name )
         }
     }
 
+    get_cfg_string("tokendb.auditAdminTemplate=", auditAdminTemplate);
 
     if( buf != NULL ) {
         PR_Free( buf );
@@ -4910,6 +4922,160 @@ mod_tokendb_handler( request_rec *rq )
         getTemplateName( template1, query );
 
         buf = getData( template1, injection );
+    } else if ( PL_strstr( query, "op=audit_admin") ) {
+        tokendbDebug( "authorization for op=audit_admin\n" );
+
+        if (!is_admin )  {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+
+            return DONE;
+        }
+
+        PR_snprintf (injection, MAX_INJECTION_SIZE,
+             "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+             "var uriBase = \"", uri, "\";\n",
+             "var userid = \"", userid, "\";\n",
+             "var signedAuditEnable = \"", RA::m_audit_enabled ? "true": "false", "\";\n",
+             "var logSigningEnable = \"", RA::m_audit_signed ? "true" : "false", "\";\n",
+             "var signedAuditSelectedEvents = \"", RA::m_signedAuditSelectedEvents, "\";\n",
+             "var signedAuditSelectableEvents = \"", RA::m_signedAuditSelectableEvents, "\";\n",
+             "var signedAuditNonSelectableEvents = \"", RA::m_signedAuditNonSelectableEvents, "\";\n");
+
+         RA::Debug( "mod_tokendb::mod_tokendb_handler",
+               "signedAudit: %s %s %s %s %s", 
+               RA::m_audit_enabled ? "true": "false",
+               RA::m_audit_signed ? "true": "false",
+               RA::m_signedAuditSelectedEvents,
+               RA::m_signedAuditSelectableEvents, 
+               RA::m_signedAuditNonSelectableEvents);
+         
+        char *flash = get_field(query, "flash=", SHORT_LEN);
+        if (flash != NULL) {
+            PL_strcat(injection, "var flash = \"");
+            PL_strcat(injection, flash);
+            PL_strcat(injection, "\";\n");
+            do_free(flash);
+        }
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
+        buf = getData(auditAdminTemplate, injection);
+    } else if (PL_strstr( query, "op=update_audit_admin") ) {
+        tokendbDebug( "authorization for op=audit_admin\n" );
+
+        if (!is_admin )  {
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+
+            return DONE;
+        }
+ 
+        int need_update=0;
+
+        char *auditEnable = get_post_field(post, "auditEnable", SHORT_LEN);
+        if (PL_strcmp(auditEnable, "true") == 0) {
+           if (! RA::m_audit_enabled) {
+               need_update = 1;
+               RA::m_audit_enabled = true;
+               RA::update_signed_audit_enable("true");
+            
+               PR_snprintf((char *)msg, 512, "'%s' has enabled audit logging", userid);
+               RA::tdb_activity(rq->connection->remote_ip, "", "enable_audit_logging", "success", msg, userid, NO_TOKEN_TYPE);
+
+               // we need to sleep or not all our actvity logs will be written
+               PR_Sleep(PR_SecondsToInterval(1));
+           }
+        }
+
+        if (PL_strcmp(auditEnable, "false") == 0) {
+           if (RA::m_audit_enabled) {
+               need_update = 1;
+               RA::m_audit_enabled = false;
+               RA::update_signed_audit_enable("false");
+
+               PR_snprintf((char *)msg, 512, "'%s' has disabled audit logging", userid);
+               RA::tdb_activity(rq->connection->remote_ip, "", "disable_audit_logging", "success", msg, userid, NO_TOKEN_TYPE);
+               PR_Sleep(PR_SecondsToInterval(1));
+           }
+        }
+        do_free(auditEnable);
+
+        char *logSigning = get_post_field(post, "logSigningEnable", SHORT_LEN);
+        if (PL_strcmp(logSigning, "true") == 0) {
+           if (! RA::m_audit_signed) {
+               need_update = 1;
+               RA::m_audit_signed = true;
+               RA::update_signed_audit_logging_enable("true");
+
+               PR_snprintf((char *)msg, 512, "'%s' has enabled audit log signing", userid);
+               RA::tdb_activity(rq->connection->remote_ip, "", "enable_audit_log_signing", "success", msg, userid, NO_TOKEN_TYPE);
+               PR_Sleep(PR_SecondsToInterval(1));
+           }
+        }
+
+        if (PL_strcmp(logSigning, "false") == 0) {
+           if (RA::m_audit_signed) {
+               need_update = 1;
+               RA::m_audit_signed = false;
+               RA::update_signed_audit_logging_enable("false");
+
+               PR_snprintf((char *)msg, 512, "'%s' has disabled audit log signing", userid);
+               RA::tdb_activity(rq->connection->remote_ip, "", "disable_audit_log_signing", "success", msg, userid, NO_TOKEN_TYPE);
+               PR_Sleep(PR_SecondsToInterval(1));
+           }
+        }
+        do_free(logSigning);
+
+        int nEvents = atoi (get_post_field(post, "nEvents", SHORT_LEN));
+
+        char new_selected[MAX_INJECTION_SIZE];
+
+        int first_match = 1;
+        for (int i=0; i< nEvents; i++) {
+            char e_name[256];
+            PR_snprintf(e_name, 256, "event_%d", i);
+            char *event = get_post_field(post, e_name, SHORT_LEN);
+            if ((event != NULL) && RA::IsValidEvent(event)) {
+                if (first_match != 1) {
+                    PL_strcat(new_selected, ",");
+                }
+                first_match = 0;
+                PL_strcat(new_selected, event);
+            }
+            do_free(event);
+        }
+
+        if (PL_strcmp(new_selected, RA::m_signedAuditSelectedEvents) != 0) {
+            need_update = 1;
+            RA::update_signed_audit_selected_events(new_selected);
+
+            PR_snprintf((char *)msg, 512,
+            "'%s' has modified audit signing configuration", userid);
+            RA::tdb_activity(rq->connection->remote_ip, "", "modify_audit_signing", "success", msg, userid, NO_TOKEN_TYPE);
+
+        }
+
+        if (need_update == 1) {
+           tokendbDebug("Updating signed audit events in CS.cfg");
+           RA::GetConfigStore()->Commit(true);
+        } 
+
+        PR_snprintf(injection, MAX_INJECTION_SIZE,
+                    "/tus/tus?op=audit_admin&flash=Signed+Audit+configuration+has+been+updated");
+        do_free(buf);
+        do_free(uri);
+        do_free(query);
+
+        rq->method = apr_pstrdup(rq->pool, "GET");
+        rq->method_number = M_GET;
+
+        ap_internal_redirect_handler(injection, rq);
+        return OK;
     }
 
     if( buf != NULL ) {

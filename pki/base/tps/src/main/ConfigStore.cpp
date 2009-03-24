@@ -28,6 +28,7 @@
 #include "main/ConfigStore.h"
 #include "main/Memory.h"
 #include "main/Util.h"
+#include "engine/RA.h"
 
 #ifdef XP_WIN32
 #define TPS_PUBLIC __declspec(dllexport)
@@ -147,6 +148,7 @@ ConfigStore::ConfigStore(ConfigStoreRoot* root, const char *subStoreName)
 	m_substore_name = PL_strdup(subStoreName);
 	m_root = root;
 	root->addref();
+        m_lock = PR_NewLock();
 }
 
 ConfigStore::~ConfigStore ()
@@ -154,8 +156,14 @@ ConfigStore::~ConfigStore ()
 	if (m_substore_name != NULL) {
 		PR_Free(m_substore_name);
 	}
+        if (m_cfg_file_path != NULL) {
+        	PR_Free(m_cfg_file_path);
+        }
 	m_root->release();
         delete m_root;
+    
+        if (m_lock != NULL ) 
+            PR_DestroyLock(m_lock);
 }
 
 
@@ -221,8 +229,8 @@ ConfigStore *ConfigStore::CreateFromConfigFile(const char *cfg_path)
         PRFileDesc *f = NULL;
         int removed_return;
         char line[MAX_CFG_LINE_LEN];
-		ConfigStoreRoot *root = NULL;
-		ConfigStore *cfg = NULL;
+	ConfigStoreRoot *root = NULL;
+	ConfigStore *cfg = NULL;
 
         f = PR_Open(cfg_path, PR_RDWR, 00400|00200);
         if (f == NULL)
@@ -256,6 +264,7 @@ ConfigStore *ConfigStore::CreateFromConfigFile(const char *cfg_path)
             PR_Close( f );
             f = NULL;
         }
+        cfg->SetFilePath(cfg_path);
 
 loser:
         return cfg;
@@ -312,6 +321,12 @@ typedef struct {
 	char *key;
 } Criteria;
 
+typedef struct {
+    PRCList list;
+    char *key;
+} OrderedEntry_t;
+
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -335,6 +350,41 @@ static PRIntn Loop(PLHashEntry *he, PRIntn index, void *arg)
     }
 }
 
+/**
+ * Called from PL_HashTableEnumerateEntries
+ * A pointer to a PRCList (circular linked list) is passed in. 
+ * Once enumeration is complete, the PRCList will contain a lexically
+ * ordered list of a copy of the keys in the hash.  
+ * The caller needs to free the copies
+ */ 
+static PRIntn OrderLoop(PLHashEntry *he, PRIntn index, void *arg)
+{
+    PRCList *qp = (PRCList *)arg;
+    OrderedEntry_t *entry;
+
+    if (he != NULL) {
+        entry = (OrderedEntry_t *) PR_Malloc(sizeof(OrderedEntry_t));
+        entry->key = PL_strdup((char *) he->key);
+        if (index ==0) {
+            PR_APPEND_LINK((PRCList *)entry, qp);
+            return HT_ENUMERATE_NEXT;
+        }
+        PRCList *head = PR_LIST_HEAD(qp);
+        PRCList *next;
+        while (head != qp) {
+            OrderedEntry_t *current = (OrderedEntry_t *) head;
+            if (strcmp((char *) he->key, (char *) current->key) <=0) 
+                break;
+            next = PR_NEXT_LINK(head);
+            head = next;
+        }
+        PR_INSERT_BEFORE((PRCList*) entry, head);
+        return HT_ENUMERATE_NEXT;
+    } else {
+        return HT_ENUMERATE_STOP;
+    }
+}
+
 #ifdef __cplusplus
 }
 #endif
@@ -344,7 +394,11 @@ int ConfigStore::Size()
         Criteria criteria;
 	criteria.index = 0;
 	criteria.key = NULL;
+
+        PR_Lock(m_lock);
 	PL_HashTableEnumerateEntries(m_root->getSet(), &CountLoop, &criteria);
+        PR_Unlock(m_lock);
+
 	return criteria.index;
 }
 
@@ -353,7 +407,11 @@ const char *ConfigStore::GetNameAt(int pos)
         Criteria criteria;
 	criteria.index = pos;
 	criteria.key = NULL;
+
+        PR_Lock(m_lock);
 	PL_HashTableEnumerateEntries(m_root->getSet(), &Loop, &criteria);
+        PR_Unlock(m_lock);
+
 	return criteria.key;
 }
 
@@ -363,25 +421,35 @@ const char *ConfigStore::GetNameAt(int pos)
 int ConfigStore::IsNameDefined(const char *name)
 { 
 	if (m_root->getSet()!= NULL) {
-	  if (GetConfig(name) != NULL)
+	  if (GetConfig(name) != NULL) 
 		return 1;
 	}
 	return 0; 
 }
 
+void ConfigStore::SetFilePath(const char* cfg_file_path) 
+{
+    m_cfg_file_path = PL_strdup(cfg_file_path);
+}
+
 void ConfigStore::Add(const char *name, const char *value)
 {
 	if (IsNameDefined(name)) {
+          PR_Lock(m_lock);
 	  PL_HashTableRemove(m_root->getSet(), name);
 	  PL_HashTableAdd(m_root->getSet(), PL_strdup(name), PL_strdup(value));
+          PR_Unlock(m_lock);
 	} else {
+          PR_Lock(m_lock);
 	  PL_HashTableAdd(m_root->getSet(), PL_strdup(name), PL_strdup(value));
+          PR_Unlock(m_lock);
 	}
 }
 
 const char *ConfigStore::GetConfig(const char *name)
 { 
 	char buf[256];
+        char *ret;
 	if (m_root->getSet() ==NULL) {
 		return NULL;
 	}
@@ -390,7 +458,12 @@ const char *ConfigStore::GetConfig(const char *name)
 	} else {
 		PR_snprintf(buf,256,"%s.%s",m_substore_name,name);
 	}
-	return (char *)PL_HashTableLookupConst(m_root->getSet(), buf);
+
+        PR_Lock(m_lock);
+        ret = (char *)PL_HashTableLookupConst(m_root->getSet(), buf);
+        PR_Unlock(m_lock);
+
+	return ret;
 }
 
 /**
@@ -399,7 +472,6 @@ const char *ConfigStore::GetConfig(const char *name)
 int ConfigStore::GetConfigAsInt(const char *name)
 {
         char *value = NULL;
-
         value = (char *)GetConfig(name);
         if (value == NULL)
           return 0;
@@ -550,5 +622,66 @@ Buffer *ConfigStore::GetConfigAsBuffer(const char *key, const char *def)
         } else {
                 return Util::Str2Buf(value);
         }
+}
+
+/**
+ * Commits changes to the config file
+ */
+TPS_PUBLIC int ConfigStore::Commit(const bool backup)
+{
+    char name_tmp[256], cdate[256], name_bak[256];
+    PRFileDesc *ftmp  = NULL;
+    PRExplodedTime time;
+    PRTime now;
+
+    if (m_cfg_file_path == NULL) 
+        return 1;
+
+    now = PR_Now();
+    PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
+    PR_snprintf(cdate, 16, "%04d%02d%02d%02d%02d%02dZ",
+        time.tm_year, (time.tm_month + 1), time.tm_mday,
+        time.tm_hour, time.tm_min, time.tm_sec);
+    PR_snprintf(name_tmp, 256, "%s.%s.tmp", m_cfg_file_path,cdate);
+    PR_snprintf(name_bak, 256, "%s.%s",  m_cfg_file_path, cdate);
+
+    ftmp = PR_Open(name_tmp, PR_WRONLY| PR_CREATE_FILE, 00400|00200);
+    if (ftmp == NULL) {
+        // unable to create temporary config file 
+        return 1;
+    }
+
+    PRCList order_list;
+    PR_INIT_CLIST(&order_list);
+
+    PR_Lock(m_lock);
+    PL_HashTableEnumerateEntries(m_root->getSet(), &OrderLoop, &order_list);
+    PR_Unlock(m_lock);
+
+    PRCList *current = PR_LIST_HEAD(&order_list);
+    PRCList *next;
+
+    while (current != &order_list) {
+        OrderedEntry_t *entry = (OrderedEntry_t *) current;
+        PR_Write(ftmp, entry->key, PL_strlen(entry->key));
+        PR_Write(ftmp, "=", 1);
+        const char *value = GetConfigAsString(entry->key, "");
+        PR_Write(ftmp, value, PL_strlen(value));
+        PR_Write(ftmp, "\n", 1);
+
+        // free the memory for the Ordered Entry
+        if (entry->key != NULL)  PL_strfree(entry->key);
+
+        next = PR_NEXT_LINK(current);
+        PR_REMOVE_AND_INIT_LINK(current);
+        current = next;
+    }
+
+    PR_Close(ftmp);
+
+    PR_Rename(m_cfg_file_path, name_bak);
+    PR_Rename(name_tmp, m_cfg_file_path);
+
+    return 0;
 }
 

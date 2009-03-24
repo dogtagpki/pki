@@ -98,6 +98,7 @@ class RA
 	  ~RA();
   public:
           static bool IsAuditEventSelected(const char *auditEvent);
+          static bool IsValidEvent(const char *auditEvent);
           static void getLastSignature();
 	  static int IsTokendbInitialized();
 	  static int IsTpsConfigured();
@@ -133,6 +134,7 @@ class RA
 	  static Buffer *ComputeHostCryptogram(Buffer &card_challenge, Buffer &host_challenge);
   public:
 	  TPS_PUBLIC static ConfigStore *GetConfigStore();
+          TPS_PUBLIC static bool match_comma_list(const char* item, char *list);
   public:
 	  TPS_PUBLIC static void Audit(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Error(const char *func_name, const char *fmt, ...);
@@ -211,6 +213,10 @@ class RA
           static void SetAuthCurrentIndex(int index);
           TPS_PUBLIC static PRLock *GetAuthLock();
           TPS_PUBLIC static void IncrementAuthCurrentIndex(int len);
+          TPS_PUBLIC static void update_signed_audit_selected_events(char *new_selected);
+          TPS_PUBLIC static void update_signed_audit_enable(char *enable);
+          TPS_PUBLIC static void update_signed_audit_logging_enable(char *enable);
+     
 	  static void SetGlobalSecurityLevel(SecurityLevel sl);
 	  static SecurityLevel GetGlobalSecurityLevel();
   public: /* default values */
@@ -237,6 +243,9 @@ class RA
           static const char *CFG_AUDIT_LEVEL;
           static const char *CFG_AUDIT_SIGNED;
           static const char *CFG_AUDIT_SIGNING_CERT_NICK;
+          static const char *CFG_AUDIT_SELECTED_EVENTS;
+          static const char *CFG_AUDIT_SELECTABLE_EVENTS;
+          static const char *CFG_AUDIT_NONSELECTABLE_EVENTS;
           static const char *CFG_ERROR_LEVEL;
 	  static const char *CFG_ERROR_ENABLE;
 	  static const char *CFG_ERROR_FILENAME;
@@ -278,10 +287,14 @@ class RA
           static int m_audit_log_level;
           static int m_debug_log_level;
           static int m_error_log_level;
-          static bool m_audit_signed;
+          TPS_PUBLIC static bool m_audit_signed;
+          TPS_PUBLIC static bool m_audit_enabled;
           static SECKEYPrivateKey *m_audit_signing_key;
           static char *m_last_audit_signature;
           static SECOidTag m_audit_signAlgTag;
+          TPS_PUBLIC static char *m_signedAuditSelectedEvents;
+          TPS_PUBLIC static char *m_signedAuditSelectableEvents;
+          TPS_PUBLIC static char *m_signedAuditNonSelectableEvents;
       static HttpConnection* m_caConnection[];
       static HttpConnection* m_tksConnection[];
       static int m_caConns_len;
@@ -299,7 +312,8 @@ class RA
           static int InitializePublishers();
           static int InitializeHttpConnections(const char *id, int *len, HttpConnection **conn, RA_Context *ctx);
           static void CleanupPublishers();
-        static int Failover(HttpConnection *&conn, int len);        
+        static int Failover(HttpConnection *&conn, int len);   
+         
 };
 
 #endif /* RA_H */
