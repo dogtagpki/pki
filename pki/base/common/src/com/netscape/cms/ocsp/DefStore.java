@@ -255,7 +255,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 s.delete(rep_dn);
             }
         } finally {
-            s.close();
+            if (s != null) s.close();
         }
     }
 
