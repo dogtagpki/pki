@@ -777,9 +777,12 @@ public class CertificateRepository extends Repository
         throws EBaseException {
         CMS.debug("findCertRecs " + filter);
         IDBSSession s = mDBService.createSession();
-        Enumeration e = s.search(getDN(), filter);
-
-        s.close();
+        Enumeration e = null;
+        try {
+            e = s.search(getDN(), filter);
+        } finally {
+            if (s != null) s.close();
+        }
         return e;
     }
 
@@ -789,9 +792,12 @@ public class CertificateRepository extends Repository
         CMS.debug( "findCertRecs " + filter
                  + "attrs " + Arrays.toString( attrs ) );
         IDBSSession s = mDBService.createSession();
-        Enumeration e = s.search(getDN(), filter, attrs);
-
-        s.close();
+        Enumeration e = null;
+        try {
+            e = s.search(getDN(), filter, attrs);
+        } finally {
+            if (s != null) s.close();
+        }
         return e;
 
     }
