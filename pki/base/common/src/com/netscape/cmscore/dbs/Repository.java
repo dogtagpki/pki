@@ -179,7 +179,6 @@ public abstract class Repository implements IRepository {
      * @param num serial number
      */
     protected void setSerialNumber(BigInteger num) throws EBaseException {
-        IDBSSession s = mDB.createSession();
 
         CMS.debug("Repository:setSerialNumber " +  num.toString());
 
