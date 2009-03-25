@@ -3121,12 +3121,18 @@ RA::Debug("RA_Enroll_Processor::ProcessRecovery", "keyType == %s ", keyTypeValue
 			    RA::DebugBuffer("cfu debug", "key check=", decodeKeyCheck);
 			  */
 
+                          BYTE alg = 0x80;
+                          if(decodeKey && decodeKey->size()) {
+                              alg = 0x81;
+                          }
+
 			  //XXX need randomize this later
 			  BYTE iv[] = {0x01, 0x01,0x01,0x01,0x01,0x01,0x01,0x01};
 
 			  data =
 			    Buffer((BYTE*)objid, 4)+ // object id
-			    Buffer(1, 0x08) + // key type is DES3: 8
+                            Buffer(1,alg) +
+			//    Buffer(1, 0x08) + // key type is DES3: 8
 			    Buffer(1, (BYTE) decodeKey->size()) + // 1 byte length
 			    Buffer((BYTE *) *decodeKey, decodeKey->size())+ // key -encrypted to 3des block
 			    // check size
