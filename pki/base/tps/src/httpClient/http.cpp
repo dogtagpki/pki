@@ -44,7 +44,7 @@
  */
 PSHttpServer::PSHttpServer(const char *addr, PRUint16 af) {
     SSLOn = PR_FALSE;
-    int port = 80;
+    PRUint16  port = 80;
 //--	static const char *DEBUG_METHOD_NAME = "Constructor";
 //-- 	DebugLogger *logger = DebugLogger::GetDebugLogger( DEBUG_MODULE );
 
@@ -64,7 +64,7 @@ PSHttpServer::PSHttpServer(const char *addr, PRUint16 af) {
     pPort = PL_strchr(_addr, ':');
     if (pPort) {
         *pPort = '\0';
-        port = atoi(++pPort);
+        port = (PRUint16)  atoi(++pPort);
     }
 
     /* kludge for doing IPv6 tests on localhost */
@@ -72,12 +72,16 @@ PSHttpServer::PSHttpServer(const char *addr, PRUint16 af) {
          PL_strcpy(_addr, "::1");
     }
 
-    PR_InitializeNetAddr(PR_IpAddrNull, port, &_netAddr);
+//    PR_InitializeNetAddr(PR_IpAddrNull, port, &_netAddr);
 
     if (PR_StringToNetAddr(_addr, &_netAddr) == PR_FAILURE) {
         char buf[2000];
         PRHostEnt ent;
 
+        RA::Debug( LL_PER_PDU,
+                                   "PSHttpServer::PSHttpServer ",
+                                   " host %s port %d ",_addr,port );
+        PR_InitializeNetAddr(PR_IpAddrNull, port, &_netAddr);
         if (PR_GetIPNodeByName(_addr, af, PR_AI_DEFAULT,
 							   buf, sizeof(buf), &ent) == PR_SUCCESS) {
             PR_EnumerateHostEnt(0, &ent, port, &_netAddr);
@@ -145,7 +149,7 @@ long PSHttpServer::getIp() const {
  */
 
 long PSHttpServer::getPort() const {
-    return _netAddr.inet.port;
+    return (long)  PR_ntohs(_netAddr.inet.port);
 }
 
 /**

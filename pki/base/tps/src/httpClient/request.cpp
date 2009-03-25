@@ -246,7 +246,7 @@ PRBool PSHttpRequest::send( PRFileDesc *sock ) {
     char *data = NULL;
 
     if (_proto == HTTP11) {
-        hostname = getHeader("host");
+        hostname = getHeader("Host");
 
         if (hostname == NULL) {
             // long port = _server->getPort();
@@ -254,7 +254,7 @@ PRBool PSHttpRequest::send( PRFileDesc *sock ) {
             char address[100];
             PR_snprintf(address, 100, "%s:%d", _server->getAddr(),
               _server->getPort());
-            addHeader("host", address);
+            addHeader("Host", address);
         }
     }
 
