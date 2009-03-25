@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      41
+%define base_release      42
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Mar 25 2009 Jack Magne <jmagne@redhat.com> 1.0.0-42
+- Bugzilla 492210 TPS Http Client fix.
 * Wed Mar 25 2009 Jack Magne <jmagne@redhat.com> 1.0.0-41
 - Bugzilla 491994 Key recovery into the token issue.
 * Tue Mar 24 2009 Ade Lee <alee@redhat.com> 1.0.0-40
