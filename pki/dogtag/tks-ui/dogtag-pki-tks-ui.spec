@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Mar 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-4
+- Bugzilla Bug #488388 -  copyright notices - remove from UI
+- Bugzilla Bug #440543 -  CA's web-services page needs improvements
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-3
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
                          "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"

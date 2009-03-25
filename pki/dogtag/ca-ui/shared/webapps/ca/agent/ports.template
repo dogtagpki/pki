@@ -25,17 +25,16 @@
 
 <body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
 <table border="0" width="100%" cellspacing="0" cellpadding="6">
-  <tr bgcolor="#666699"> 
-    <td width=25%> 
-      <table border="0" cellspacing="0" cellpadding="6">
+  <tr bgcolor="#000080"> 
+    <td> 
+      <table border="0" cellspacing="12" cellpadding="0">
         <tr> 
-          <td nowrap><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<b>&reg;<br>
-            Certificate<br>System</b></font> </td>
+          <td><img src="/ca/admin/console/img/logo_header.gif"></td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Dogtag<sup><font color="#999999" size="-2">&reg;</font></sup> Services Summary</b></font></td>
         </tr>
       </table>
     </td>
-    <td width=65% nowrap><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">Services Summary</font></td>
-    <td width="10%">&nbsp;</td>
   </tr>
   <tr valign="TOP"> 
     <td>&nbsp;</td>
@@ -115,14 +114,6 @@ if (result.header.errorDetails != null) {
         </tr>
       </table>
     </td>
-    <td>&nbsp;</td>
-  </tr>
-  <tr valign="TOP"> 
-    <td>&nbsp;</td>
-    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">
-    &copy; 2001 Sun Microsystems, Inc. Used by permission.
-    &copy; 2005 Red Hat, Inc.. All rights reserved.
-    </font></td>
     <td>&nbsp;</td>
   </tr>
 </table>

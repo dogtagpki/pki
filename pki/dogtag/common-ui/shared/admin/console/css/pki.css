@@ -1,7 +1,7 @@
 /* --- BEGIN COPYRIGHT BLOCK ---
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
+ * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -718,11 +718,11 @@ span.no-details {
 		width: 100%;
 }
 
-div.rhn-embedded-help { 
+div.pki-embedded-help { 
   padding: 6px 20px 6px 20px;
 }
 
-.rhn-embedded-help-NAVHEADER th { 
+.pki-embedded-help-NAVHEADER th { 
   margin-top: 0;
   padding-bottom: 1em;
   font-size: 20px;
@@ -732,11 +732,11 @@ div.rhn-embedded-help {
   text-align: left;
 }
 
-.rhn-embedded-help-NAVHEADER td { 
+.pki-embedded-help-NAVHEADER td { 
   padding: 0 2em;
 }
 
-.rhn-embedded-help-TOC { 
+.pki-embedded-help-TOC { 
   padding: 0 4em;
 }
 

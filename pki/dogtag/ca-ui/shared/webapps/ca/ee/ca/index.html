@@ -306,25 +306,20 @@ function reloadTabs(tabnum)
 function loadTabs()
 {
 	with (top.tabsf.document) {
-        writeln('<body onresize="top.doResize();" bgcolor="#9999cc" link="#FFFFFF" vlink="#FFFFFF" alink="#CCCCFF">');
+        writeln('<body onresize="top.doResize();" bgcolor="#4f52b5" link="#FFFFFF" vlink="#FFFFFF" alink="#CCCCFF">');
 
-		writeln('<table border=0 width="100%" cellspacing="0" cellpadding="0" bgcolor="#9999CC">');
+		writeln('<table border=0 width="100%" cellspacing="0" cellpadding="0" bgcolor="#4f52b5">');
 		writeln('<tr><td>');
-		writeln('<table border=0 cellspacing=0 cellpadding=0 width="100%" >');
-		writeln('<tr><td>');
-		writeln('<table border=0 cellspacing=12 cellpadding=0 width="100%">');
+		writeln('<table border=0 cellspacing=12 cellpadding=0>');
 		writeln('<tr>');
-                writeln('<td><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<font color="#cccccc" size="-2">&reg;</font>'+ '<b><br>Certificate<br> System</b></font><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b></b></font></td>');
-		writeln('<td></td>');
+		writeln('<td><img src="/ca/admin/console/img/logo_header.gif"></td>');
+		writeln('<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>');
 	if (subsystemname == 'ca') {
-		writeln('<td width=350 align=right><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Certificate Manager</b></font></td>');
-	}
-	else {
-		writeln('<td width=350><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Registration Manager</b></font></td>');
+		writeln('<td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Dogtag<sup><font color="#cccccc" size="-2">&reg;</font></sup> Certificate Manager</b></font></td>');
+	} else {
+		writeln('<td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b><b>Dogtag<sup><font color="#cccccc" size="-2">&reg;</font></sup> Registration Manager</b></font></td>');
 	}
 		writeln('</tr>');
-		writeln('</table>');
-		writeln('</td></tr>');
 		writeln('</table>');
 
 		writeln('<table border=0 cellspacing="0" cellpadding="0">');

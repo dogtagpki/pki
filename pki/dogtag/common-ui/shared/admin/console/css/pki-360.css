@@ -1,7 +1,7 @@
 /* --- BEGIN COPYRIGHT BLOCK ---
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
+ * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -85,15 +85,35 @@ a:visited {
 search areas */	
 #header {
 	height: 31px;	/* changed height added bottom margin  */
-	margin-bottom: 10px;
+	margin-top: 10px;
+	margin-bottom: 20px;
 	}
 	
+#headertitle {
+	height: 31px;          /* same as header */
+	margin-top: 10px;      /* same as header */
+	margin-right: 100px;   /* "myLogo" margin-left + "logo_header.gif" */
+	margin-bottom: 20px;   /* same as header */
+	font-size: large;
+	font-weight: bold;
+	}
+
+#headerpaddedtitle {
+	height: 31px;          /* same as header */
+	margin-top: 10px;      /* same as header */
+	margin-bottom: 20px;   /* same as header */
+	font-size: large;
+	font-weight: bold;
+	padding-left: 115px;   /* "myLogo" margin-left +
+	                          "logo_header.gif" + 15px */
+	}
+
 img#myLogo {
 	float: left;
 	margin-left: 15px;
 	}
 	
-img#rhnLogo {
+img#pkiLogo {
 	float: left;
 	}
 	
@@ -341,7 +361,7 @@ h1 {
 	margin-top: 0;
 	}
 	
-/* existing RHN STYLES - modded - these need to be inserted carefully */
+/* existing PKI STYLES - modded - these need to be inserted carefully */
 
 .sidebar {
 	padding-right: 15px;
@@ -377,7 +397,7 @@ th {
 }
 
 
-/* -- YOUR RHN stuff -- */
+/* -- YOUR PKI stuff -- */
 table.half-table {
 	background: #b4b19a url(/img/table_corner_tr.gif) 100% 0 no-repeat;
 	padding: 0px;
@@ -388,11 +408,11 @@ table.half-table {
 	background-color: #fff;
 }	
 
-table.your-rhn table.half-table td { 
+table.your-pki table.half-table td { 
   padding: 2px 8px;
 }
 
-table.your-rhn table.full-table td { 
+table.your-pki table.full-table td { 
   padding-left: 4px;
   padding-right: 4px;
   padding-top: 4px;
@@ -547,37 +567,37 @@ tr.table-tree-odd + tr.table-tree-odd td {
         margin-top: 64px;
 }
 
-h1#rhn_welcome {
-	background-image: url(/img/rhn_welcome.gif);
+h1#pki_welcome {
+	background-image: url(/img/pki_welcome.gif);
 	background-position: 0 0;
 	background-repeat: no-repeat;
 	padding-bottom: 5px;
 	height: 20px;
 	}
 	
-h1#rhn_welcome2 {
-	background-image: url(/img/rhn_welcome2.gif);
+h1#pki_welcome2 {
+	background-image: url(/img/pki_welcome2.gif);
 	background-position: 0 0;
 	background-repeat: no-repeat;
 	height: 37px;
 	}
 	
-h1#rhn_welcome3 {
-	background-image: url(/img/rhn_welcome3.gif);
+h1#pki_welcome3 {
+	background-image: url(/img/pki_welcome3.gif);
 	background-position: 0 0;
 	background-repeat: no-repeat;
 	height: 40px;
 	}
 	
-h1#rhn_welcome span {
+h1#pki_welcome span {
 	display: none;
 	}
 	
-h1#rhn_welcome2 span {
+h1#pki_welcome2 span {
 	display: none;
 	}
 	
-h1#rhn_welcome3 span {
+h1#pki_welcome3 span {
 	display: none;
 	}
 	
@@ -802,7 +822,7 @@ div.contentnav-row2 div.bottom {
 	background-image: url(/img/corner_mainnav_bottom_chopped.png);
 	background-position: bottom right;
 	background-repeat: no-repeat;
-	background-color: #c00;
+	background-color: #4f52b5;
 	}
 	
 #mainNav {
@@ -856,7 +876,7 @@ div.contentnav-row2 div.bottom {
 #mainNav li#mainFirst-active,
 #mainNav li#main-active,
 #mainNav li#mainLast-active {
-	background-color: #800000;
+	background-color: #000080;
 	}
 	
 

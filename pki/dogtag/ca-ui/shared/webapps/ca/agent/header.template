@@ -23,22 +23,15 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
 
-<body bgcolor="#CCCCCC" link="#FFFFFF" vlink="#FFFFFF" alink="#CCCCFF">
-<table border="0" width="100%" cellspacing="0" cellpadding="0" bgcolor="#666699">
+<body onResize=location.reload() bgcolor="#CCCCCC" link="#FFFFFF" vlink="#FFFFFF" alink="#CCCCFF">
+<table border="0" width="100%" cellspacing="0" cellpadding="0" bgcolor="#000080">
   <tr>
     <td> 
-      <table border="0" cellspacing="0" cellpadding="0">
-        <tr> 
-          <td>
-            <table border="0" cellspacing="12" cellpadding="0" width="100%">
-              <tr> 
-                <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif" color="white">Dogtag<font color="#999999" size="-2">&reg;</font><b><br>
-                  Certificate<br>System</b></font></td>
-                <td></td>
-                <td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">Agent Services</font> </td>
-              </tr>
-            </table>
-          </td>
+      <table border="0" cellspacing="12" cellpadding="0">
+        <tr>
+          <td><img src="/ca/admin/console/img/logo_header.gif"></td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Dogtag<sup><font color="#999999" size="-2">&reg;</font></sup> Agent Services</b></font></td>
         </tr>
       </table>
       <table border="0" cellspacing="0" cellpadding="0">

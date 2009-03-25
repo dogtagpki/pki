@@ -27,7 +27,10 @@
 <body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
 
 <div id="header">
-    <a href="http://pki.fedoraproject.org/" title="Visit pki.fedoraproject.org for more information about Dogtag products and services"><img src="admin/console/img/logo_header.gif" alt="Dogtag" width="37" height="31" id="myLogo" /></a><a href="/" title="Dogtag Network homepage">Dogtag Certificate System</a>
+    <a href="http://pki.fedoraproject.org/" title="Visit pki.fedoraproject.org for more information about Dogtag products and services"><img src="admin/console/img/logo_header.gif" alt="Dogtag" id="myLogo" /></a>
+    <div id="headertitle">
+    <a href="/" title="Dogtag Network homepage">Dogtag<sup><font size="-2">&reg;</font></sup> Certificate System</a>
+    </div>
     <div id="account">
           <dl><dt><span></span></dt><dd></dd></dl>
     </div>
@@ -35,14 +38,8 @@
 
 <div id="mainNavOuter">
 <div id="mainNav">
-                                                                                
 <div id="mainNavInner">
-                                                                                
-                                                                                
-<ul>
-<li id="mainFirst-active">Certificate System</li>
-</ul>
-                                                                                
+
 </div><!-- end mainNavInner -->
 </div><!-- end mainNav -->
 </div><!-- end mainNavOuter -->
@@ -103,9 +100,7 @@ for (var i=0; i<result.recordSet.length; ++i) {
 </tr>
 </table>
 </center>
-  <div id="footer">
-    Copyright &#169; 2002-06 Red Hat, Inc. All rights reserved. <a href="http://www.redhat.com/">http://www.redhat.com</a>
-  </div>
-
+<div id="footer">
+</div>
 </body>
 </html>
