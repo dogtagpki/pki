@@ -349,7 +349,7 @@
 
 [PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
    <filter-mapping>
-      <filter-name>  AgentRequestFilter  </filter-name>
+      <filter-name>  PassThroughRequestFilter  </filter-name>
       <url-pattern>  /agent/*            </url-pattern>
    </filter-mapping>
 
