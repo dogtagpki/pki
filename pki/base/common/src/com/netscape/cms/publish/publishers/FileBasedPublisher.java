@@ -82,8 +82,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 PROP_DIR + ";string;Directory in which to put the files (absolute path or relative path to cert-* instance directory).",
                 PROP_DER + ";boolean;Store certificates or CRLs into *.der files.",
                 PROP_B64 + ";boolean;Store certificates or CRLs into *.b64 files.",
-                PROP_LNK + ";boolean;Generate link to the latest binary CRL. It requires '"+PROP_DER+"' to be enabled.",
                 PROP_GMT + ";choice(LocalTime,GMT);Use local time or GMT to time stamp CRL file name with CRL's 'thisUpdate' field.",
+                PROP_LNK + ";boolean;Generate link to the latest binary CRL. It requires '"+PROP_DER+"' to be enabled.",
                 PROP_EXT + ";string;Name extension used by link to the latest CRL. Default name extension is 'der'.",
                 PROP_ZIP + ";boolean;Generate compressed CRLs.",
                 PROP_LEV + ";choice(0,1,2,3,4,5,6,7,8,9);Set compression level from 0 to 9.",
@@ -126,8 +126,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             v.addElement(PROP_DIR+"=" + dir);
             v.addElement(PROP_DER+"=" + mConfig.getBoolean(PROP_DER,true));
             v.addElement(PROP_B64+"=" + mConfig.getBoolean(PROP_B64,false));
-            v.addElement(PROP_LNK+"=" + mConfig.getBoolean(PROP_LNK,false));
             v.addElement(PROP_GMT+"=" + mTimeStamp);
+            v.addElement(PROP_LNK+"=" + mConfig.getBoolean(PROP_LNK,false));
             v.addElement(PROP_EXT+"=" + ext);
             v.addElement(PROP_ZIP+"=" + mConfig.getBoolean(PROP_ZIP,false));
             v.addElement(PROP_LEV+"=" + mZipLevel);
@@ -145,8 +145,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         v.addElement(PROP_DIR+"=");
         v.addElement(PROP_DER+"=true");
         v.addElement(PROP_B64+"=false");
-        v.addElement(PROP_LNK+"=false");
         v.addElement(PROP_GMT+"=LocalTime");
+        v.addElement(PROP_LNK+"=false");
         v.addElement(PROP_EXT+"=");
         v.addElement(PROP_ZIP+"=false");
         v.addElement(PROP_LEV+"=9");
@@ -165,8 +165,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             dir = mConfig.getString(PROP_DIR, null);
             mDerAttr = mConfig.getBoolean(PROP_DER, true);
             mB64Attr = mConfig.getBoolean(PROP_B64, false);
-            mLatestCRL = mConfig.getBoolean(PROP_LNK, false);
             mTimeStamp = mConfig.getString(PROP_GMT, "LocalTime");
+            mLatestCRL = mConfig.getBoolean(PROP_LNK, false);
             mLinkExt = mConfig.getString(PROP_EXT, null);
             mZipCRL = mConfig.getBoolean(PROP_ZIP, false);
             mZipLevel = mConfig.getInteger(PROP_LEV, 9);
