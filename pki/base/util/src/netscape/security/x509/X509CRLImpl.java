@@ -875,6 +875,41 @@ public class X509CRLImpl extends X509CRL {
        return null;
     }
 
+    public BigInteger getDeltaBaseCRLNumber() {
+        try {
+            CRLExtensions exts = getExtensions();
+            if (exts == null)
+                return null;
+            Enumeration e = exts.getElements();
+            while (e.hasMoreElements()) {
+                Extension ext = (Extension)e.nextElement();
+                if (ext instanceof DeltaCRLIndicatorExtension) {
+                    DeltaCRLIndicatorExtension numExt = (DeltaCRLIndicatorExtension)ext;
+                    return (BigInteger)numExt.get(DeltaCRLIndicatorExtension.NUMBER);
+                }
+            }
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    public boolean isDeltaCRL() {
+        try {
+            CRLExtensions exts = getExtensions();
+            if (exts == null)
+                return false;
+            Enumeration e = exts.getElements();
+            while (e.hasMoreElements()) {
+                Extension ext = (Extension)e.nextElement();
+                if (ext instanceof DeltaCRLIndicatorExtension) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+        }
+        return false;
+    }
+
     /**
      * Returns extensions for this impl.
      *
