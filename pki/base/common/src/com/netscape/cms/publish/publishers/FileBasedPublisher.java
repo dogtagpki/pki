@@ -22,6 +22,7 @@ import java.math.*;
 import java.io.*;
 import java.security.cert.*;
 import java.util.*;
+import java.util.zip.*;
 import netscape.ldap.*;
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.logging.*;
@@ -41,19 +42,25 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private static final String PROP_DER = "Filename.der";
     private static final String PROP_B64 = "Filename.b64";
     private static final String PROP_LNK = "latestCrlLink";
+    private static final String PROP_GMT = "timeStamp";
     private static final String PROP_EXT = "crlLinkExt";
+    private static final String PROP_ZIP = "zipCRLs";
+    private static final String PROP_LEV = "zipLevel";
     private IConfigStore mConfig = null;
     private String mDir = null;
     private ILogger mLogger = CMS.getLogger();
-    private String mcrlIssuingPointId;
+    private String mCrlIssuingPointId;
     protected boolean mDerAttr = true;
     protected boolean mB64Attr = false;
     protected boolean mLatestCRL = false;
+    protected boolean mZipCRL = false;
+    protected String mTimeStamp = null;
     protected String mLinkExt = null;
+    protected int mZipLevel = 9;
 
     public void setIssuingPointId(String crlIssuingPointId)
     {
-        mcrlIssuingPointId = crlIssuingPointId;
+        mCrlIssuingPointId = crlIssuingPointId;
     }
     /**
      * Returns the implementation name.
@@ -75,8 +82,11 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 PROP_DIR + ";string;Directory in which to put the files (absolute path or relative path to cert-* instance directory).",
                 PROP_DER + ";boolean;Store certificates or CRLs into *.der files.",
                 PROP_B64 + ";boolean;Store certificates or CRLs into *.b64 files.",
-                PROP_LNK + ";boolean;Generate link to the latest CRL.",
+                PROP_LNK + ";boolean;Generate link to the latest binary CRL. It requires '"+PROP_DER+"' to be enabled.",
+                PROP_GMT + ";choice(LocalTime,GMT);Use local time or GMT to time stamp CRL file name with CRL's 'thisUpdate' field.",
                 PROP_EXT + ";string;Name extension used by link to the latest CRL. Default name extension is 'der'.",
+                PROP_ZIP + ";boolean;Generate compressed CRLs.",
+                PROP_LEV + ";choice(0,1,2,3,4,5,6,7,8,9);Set compression level from 0 to 9.",
                 IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-ldappublish-publisher-filepublisher",
                 IExtendedPluginInfo.HELP_TEXT +
@@ -103,13 +113,24 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         } catch (EBaseException e) {
         }
         try {
+            mTimeStamp = mConfig.getString(PROP_GMT);
+        } catch (EBaseException e) {
+        }
+        try {
+            mZipLevel = mConfig.getInteger(PROP_LEV, 9);
+        } catch (EBaseException e) {
+        }
+        try {
+            if (mTimeStamp == null || (!mTimeStamp.equals("GMT")))
+                mTimeStamp = "LocalTime";
             v.addElement(PROP_DIR+"=" + dir);
-            
             v.addElement(PROP_DER+"=" + mConfig.getBoolean(PROP_DER,true));
-            v.addElement(PROP_B64+"=" +  mConfig.getBoolean(PROP_B64,false));
-            v.addElement(PROP_LNK+"=" +  mConfig.getBoolean(PROP_LNK,false));
-
+            v.addElement(PROP_B64+"=" + mConfig.getBoolean(PROP_B64,false));
+            v.addElement(PROP_LNK+"=" + mConfig.getBoolean(PROP_LNK,false));
+            v.addElement(PROP_GMT+"=" + mTimeStamp);
             v.addElement(PROP_EXT+"=" + ext);
+            v.addElement(PROP_ZIP+"=" + mConfig.getBoolean(PROP_ZIP,false));
+            v.addElement(PROP_LEV+"=" + mZipLevel);
         } catch (Exception e) {
         }
         return v;
@@ -125,7 +146,10 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         v.addElement(PROP_DER+"=true");
         v.addElement(PROP_B64+"=false");
         v.addElement(PROP_LNK+"=false");
+        v.addElement(PROP_GMT+"=LocalTime");
         v.addElement(PROP_EXT+"=");
+        v.addElement(PROP_ZIP+"=false");
+        v.addElement(PROP_LEV+"=9");
         return v;
     }
 
@@ -142,7 +166,10 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             mDerAttr = mConfig.getBoolean(PROP_DER, true);
             mB64Attr = mConfig.getBoolean(PROP_B64, false);
             mLatestCRL = mConfig.getBoolean(PROP_LNK, false);
+            mTimeStamp = mConfig.getString(PROP_GMT, "LocalTime");
             mLinkExt = mConfig.getString(PROP_EXT, null);
+            mZipCRL = mConfig.getBoolean(PROP_ZIP, false);
+            mZipLevel = mConfig.getInteger(PROP_LEV, 9);
         } catch (EBaseException e) {
         }
         if (dir == null) {
@@ -178,6 +205,50 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     public IConfigStore getConfigStore() {
         return mConfig;
+    }
+
+    private String[] getCrlNamePrefix(X509CRL crl, boolean useGMT) {
+        String[] namePrefix = {"crl", "crl"};
+
+        if (mCrlIssuingPointId != null && mCrlIssuingPointId.length() != 0) {
+            namePrefix[0] = mCrlIssuingPointId;
+            namePrefix[1] = mCrlIssuingPointId;
+        }
+        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss");
+        TimeZone tz = TimeZone.getTimeZone("GMT");
+        if (useGMT) format.setTimeZone(tz);
+        String timeStamp = format.format(crl.getThisUpdate()).toString();
+        namePrefix[0] += "-" + timeStamp;
+        if (((netscape.security.x509.X509CRLImpl)crl).isDeltaCRL()) {
+            namePrefix[0] += "-delta";
+            namePrefix[1] += "-delta";
+        }
+
+        return namePrefix;
+    }
+
+    private void createLink(String linkName,  String fileName) {
+        String cmd = "ln -s " + fileName + " " + linkName + ".new";
+        if (com.netscape.cmsutil.util.Utils.exec(cmd)) {
+            File oldLink = new File(linkName + ".old");
+            if (oldLink.exists()) {     // remove old link if exists
+                oldLink.delete();
+            }
+            File link = new File(linkName);
+            if (link.exists()) {        // current link becomes an old link 
+                link.renameTo(new File(linkName + ".old"));
+            }
+            File newLink = new File(linkName + ".new");
+            if (newLink.exists()) {     // new link becomes current link
+                newLink.renameTo(new File(linkName));
+            }
+            oldLink = new File(linkName + ".old");
+            if (oldLink.exists()) {     // remove a new old link
+                oldLink.delete();
+            }
+        } else {
+            CMS.debug("FileBasedPublisher:  createLink: '" + cmd + "' --- failed");
+        }
     }
 
     /**
@@ -222,80 +293,51 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 }
             } else if (object instanceof X509CRL) {
                 X509CRL crl = (X509CRL) object;
-                java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("yyMMddHHmmss");
-                TimeZone tz = TimeZone.getTimeZone("GMT");
-                format.setTimeZone(tz);
-                String GMTTime = "20" + format.format(crl.getThisUpdate()) ;
-                String prefix;
-                String deltaNumber = null;
-                if(mcrlIssuingPointId!=null && mcrlIssuingPointId.length()!=0)
-                {
-                    com.netscape.certsrv.ca.ICertificateAuthority ca = 
-                        (com.netscape.certsrv.ca.ICertificateAuthority)CMS.getSubsystem(CMS.SUBSYSTEM_CA);
-                    com.netscape.certsrv.ca.ICRLIssuingPoint currentIssuingPoint =  
-                        ca.getCRLIssuingPoint(mcrlIssuingPointId);
-                    if(currentIssuingPoint.isDeltaCRLEnabled()){
-                        deltaNumber = currentIssuingPoint.getCRLNumber().toString();
-                    }
-                    prefix = mcrlIssuingPointId;
-                }else
-                    prefix = "crl";
-        
-                String baseName = mDir + File.separator + prefix + "-" + GMTTime;
-                if(deltaNumber!=null && deltaNumber.length()!=0)
-                    baseName = baseName + "." + deltaNumber;
+                String[] namePrefix = getCrlNamePrefix(crl, mTimeStamp.equals("GMT"));
+                String baseName = mDir + File.separator + namePrefix[0];
                 String tempFile = baseName + ".temp";
                 FileOutputStream fos;
+                ZipOutputStream zos;
                 byte [] encodedArray = null;
                 File destFile = null;
                 String destName = null;
-                File renameFile = null; 
-                if(mDerAttr==true)
-                {
-                fos = new FileOutputStream(
-                        tempFile);
-                encodedArray = crl.getEncoded();
-                fos.write(encodedArray);
-                fos.close();
-                destName = baseName + ".der";
-                destFile = new File(destName);
-                
-                if(destFile.exists())
-                    destFile.delete();
-                renameFile = new File(tempFile);
-                renameFile.renameTo(destFile);
+                File renameFile = null;
 
-                if (mLatestCRL) {
-                    String linkExt = ".";
-                    if (mLinkExt != null && mLinkExt.length() > 0) {
-                        linkExt += mLinkExt;
-                    } else {
-                        linkExt += "der";
+                if (mDerAttr) {
+                    fos = new FileOutputStream(tempFile);
+                    encodedArray = crl.getEncoded();
+                    fos.write(encodedArray);
+                    fos.close();
+                    if (mZipCRL) {
+                        zos = new ZipOutputStream(new FileOutputStream(baseName+".zip"));
+                        zos.setLevel(mZipLevel);
+                        zos.putNextEntry(new ZipEntry(baseName+".der"));
+                        zos.write(encodedArray, 0, encodedArray.length);
+                        zos.closeEntry();
+                        zos.close();
                     }
-                    String linkName = mDir + File.separator + prefix + linkExt;
-                    String cmd = "ln -s " + destName + " " + linkName + ".new";
-                    CMS.debug("FileBasedPublisher: cmd: " + cmd);
-                    if (com.netscape.cmsutil.util.Utils.exec(cmd)) {
-                        File oldLink = new File(linkName + ".old");
-                        if (oldLink.exists()) {
-                            oldLink.delete();
+                    destName = baseName + ".der";
+                    destFile = new File(destName);
+                
+                    if (destFile.exists())
+                        destFile.delete();
+                    renameFile = new File(tempFile);
+                    renameFile.renameTo(destFile);
+
+                    if (mLatestCRL) {
+                        String linkExt = ".";
+                        if (mLinkExt != null && mLinkExt.length() > 0) {
+                            linkExt += mLinkExt;
+                        } else {
+                            linkExt += "der";
                         }
-                        File link = new File(linkName);
-                        if (link.exists()) {
-                            link.renameTo(new File(linkName + ".old"));
+                        String linkName = mDir + File.separator + namePrefix[1] + linkExt;
+                        createLink(linkName,  destName);
+                        if (mZipCRL) {
+                            linkName = mDir + File.separator + namePrefix[1] + ".zip";
+                            createLink(linkName,  baseName+".zip");
                         }
-                        File newLink = new File(linkName + ".new");
-                        if (newLink.exists()) {
-                            newLink.renameTo(new File(linkName));
-                        }
-                        oldLink = new File(linkName + ".old");
-                        if (oldLink.exists()) {
-                            oldLink.delete();
-                        }
-                    } else {
-                        CMS.debug("FileBasedPublisher: cmd: " + cmd + " --- failed");
                     }
-                }
                 }
                 
                 // output base64 file
@@ -344,17 +386,25 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         throws ELdapException {
         CMS.debug("FileBasedPublisher: unpublish");
         String name = mDir + File.separator;
+        String fileName;
+
         if (object instanceof X509Certificate) {
             X509Certificate cert = (X509Certificate) object;
             BigInteger sno = cert.getSerialNumber();
             name += "cert-" + sno.toString();
         } else if (object instanceof X509CRL) {
             X509CRL crl = (X509CRL) object;
-            name += "crl-" + crl.getThisUpdate().getTime();
+            String[] namePrefix = getCrlNamePrefix(crl, mTimeStamp.equals("GMT"));
+            name += namePrefix[0];
+
+            fileName = name + ".zip";
+            File f = new File(fileName);
+            f.delete();
         }
-        String fileName = name + ".der";
+        fileName = name + ".der";
         File f = new File(fileName);
         f.delete();
+
         fileName = name + ".b64";
         f = new File(fileName);
         f.delete();
