@@ -17,7 +17,7 @@
      --- END COPYRIGHT BLOCK --- -->
 <div id="header">
     <a href="http://pki.fedoraproject.org" title="Visit pki.fedoraproject.org for more information"><img src="/images/logo_header.gif" alt="Dogtag" id="myLogo" /></a>
-    <div id="headerpaddedtitle">
+    <div id="headertitle">
     <a href="/" title="Dogtag homepage">Dogtag<sup><font size="-2">&reg;</font></sup> Certificate System</a>
     </div>
     <div id="account">
