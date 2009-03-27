@@ -373,7 +373,7 @@
         </exec>
         <delete file="./build/cmds/PKCS12Export.tmp"/>
 
-        <copy file="./templates/pki_java_command_wrapper"
+        <copy file="./templates/pretty_print_cert_command_wrapper"
               tofile="./build/cmds/PrettyPrintCert.tmp"/>
         <exec executable="sed"
               output="./build/cmds/PrettyPrintCert">
@@ -385,7 +385,7 @@
         </exec>
         <delete file="./build/cmds/PrettyPrintCert.tmp"/>
 
-        <copy file="./templates/pki_java_command_wrapper"
+        <copy file="./templates/pretty_print_crl_command_wrapper"
               tofile="./build/cmds/PrettyPrintCrl.tmp"/>
         <exec executable="sed"
               output="./build/cmds/PrettyPrintCrl">

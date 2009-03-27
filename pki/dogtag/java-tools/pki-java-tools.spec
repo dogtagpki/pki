@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      8
+%define base_release      9
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -260,6 +260,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Mar 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-9
+- Bugzilla Bug #490947 -  PrettyPrintCrl throws exceptions
 * Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-8
 - Bugzilla Bug #485522 -  Need rpm spec file to require osutil
 * Sat Feb 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-7
