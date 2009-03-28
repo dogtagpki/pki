@@ -452,7 +452,7 @@ locale),
        if (strcmp(login->GetUID(), xuserid) != 0) {
           RA::Debug(LL_PER_PDU, "RA_Format_Processor::Process",
             "Token owner mismatched");
-          status = STATUS_ERROR_LOGIN;
+          status = STATUS_ERROR_NOT_TOKEN_OWNER;
           goto loser;
        }
      }
