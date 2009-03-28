@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      10
+%define base_release      11
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Mar 27 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-11
+- Bugzilla Bug #224827 - new default cryptographic provider
 * Tue Mar 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-10
 - Bugzilla Bug #488388 -  copyright notices - remove from UI
 - Bugzilla Bug #440543 -  CA's web-services page needs improvements
