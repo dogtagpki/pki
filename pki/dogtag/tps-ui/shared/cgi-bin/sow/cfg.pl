@@ -35,9 +35,9 @@ if( $^O eq "linux" ) {
 	}
 } elsif( $^O eq "solaris" ) {
 	if( $default_hardware_platform eq "sparc" ) {
-		$ldapsearch = "/usr/lib/mozldap/ldapsearch";
+		$ldapsearch = "/usr/lib/mozldap6/ldapsearch";
 	} elsif( $default_hardware_platform eq "sparcv9" ) {
-		$ldapsearch = "/usr/lib/sparcv9/mozldap/ldapsearch";
+		$ldapsearch = "/usr/lib/sparcv9/mozldap6/ldapsearch";
 	}
 }
 
@@ -123,17 +123,19 @@ sub is_agent()
   my $x_bindpwd = `grep -e "^tokendbBindPass" $x_bindpwdpath | cut -c17-`;
   chomp($x_bindpwd);
 
-  my $cmd = $ldapsearch . "\" " .
+   my $cmd = $ldapsearch . " " .
             "-D \"" . $x_binddn . "\" " .
             "-w \"" . $x_bindpwd . "\" " .
             "-b \"" . "cn=TUS Officers,ou=Groups,".$x_basedn . "\" " .
             "-h \"" . $x_host . "\" " .
             "-p \"" . $x_port ."\" " .
-            "-1 \"(uniqueMember=uid=" . $uid . "*)\" | wc -l";
+            "-1 \"(uid=" . $uid . "*)\" | wc -l";
+
   my $matched = `$cmd`;
+
   chomp($matched);
 
-  if ($matched eq "0") {
+  if ($matched eq "0" || $matched eq "") {
     return 0;
   } else {
     return 1;
