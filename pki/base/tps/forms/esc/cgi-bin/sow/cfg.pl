@@ -3,8 +3,7 @@
 # --- BEGIN COPYRIGHT BLOCK ---
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation;
-# version 2.1 of the License.
+# License as published by the Free Software Foundation.
 # 
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -124,17 +123,19 @@ sub is_agent()
   my $x_bindpwd = `grep -e "^tokendbBindPass" $x_bindpwdpath | cut -c17-`;
   chomp($x_bindpwd);
 
-  my $cmd = $ldapsearch . "\" " .
+   my $cmd = $ldapsearch . " " .
             "-D \"" . $x_binddn . "\" " .
             "-w \"" . $x_bindpwd . "\" " .
             "-b \"" . "cn=TUS Officers,ou=Groups,".$x_basedn . "\" " .
             "-h \"" . $x_host . "\" " .
             "-p \"" . $x_port ."\" " .
-            "-1 \"(member=uid=" . $uid . "*)\" | wc -l";
+            "-1 \"(uid=" . $uid . "*)\" | wc -l";
+
   my $matched = `$cmd`;
+
   chomp($matched);
 
-  if ($matched eq "0") {
+  if ($matched eq "0" || $matched eq "") {
     return 0;
   } else {
     return 1;
