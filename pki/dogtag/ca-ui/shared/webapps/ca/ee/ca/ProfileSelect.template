@@ -478,6 +478,8 @@ Function FindProviders
 	Dim el
 	Dim temp
 	Dim first
+	Dim firstE
+	Dim firstS
 	Dim TheForm
 	Set TheForm = document.ReqForm
 	On Error Resume Next
@@ -506,12 +508,22 @@ Function FindProviders
           If temp = "Microsoft Base Cryptographic Provider v1.0" Then
             first = i
           End If
+          If temp = "Microsoft Strong Cryptographic Provider" Then
+            firstS = i
+          End If
+          If temp = "Microsoft Enhanced Cryptographic Provider v1.0" Then
+            firstE = i
+          End If
 	  TheForm.cryptprovider.add(el)
-	  If first = 0  Then
+	  If firstE > 0  Then
+	    TheForm.cryptprovider.selectedIndex = firstE
+      ElseIf firstS > 0  Then
+	    TheForm.cryptprovider.selectedIndex = firstS
+      ElseIf first > 0  Then
+	    TheForm.cryptprovider.selectedIndex = first
+      Else
 	    first = 1
 	    TheForm.cryptprovider.selectedIndex = 0
-          Else
-	    TheForm.cryptprovider.selectedIndex = first
 	  End If
 	  i = i + 1
 	  End If
@@ -530,7 +542,11 @@ Function FindProviders
             Dim curName
             Dim csp
             Dim selected 
+            Dim selectedS 
+            Dim selectedE 
             selected = 0
+            selectedS = 0
+            selectedE = 0
             For i = 0 to csps.Count-1
                
                 curName = csps.ItemByIndex(i).Name
@@ -543,10 +559,22 @@ Function FindProviders
                   If curName = "Microsoft Base Cryptographic Provider v1.0" Then
                     selected = i
                   End If
+                  If curName = "Microsoft Strong Cryptographic Provider" Then
+                    selectedS = i
+                  End If
+                  If curName = "Microsoft Enhanced Cryptographic Provider v1.0" Then
+                    selectedE = i
+                  End If
                   'result = MsgBox(curName,0,"")
                 End If 
             Next
-            TheForm.cryptprovider.selectedIndex = selected
+            If selectedE > 0  Then
+              TheForm.cryptprovider.selectedIndex = selectedE
+            ElseIf selectedS > 0  Then
+              TheForm.cryptprovider.selectedIndex = selectedS
+            Else
+              TheForm.cryptprovider.selectedIndex = selected
+            End If
         End If
 End Function
 
