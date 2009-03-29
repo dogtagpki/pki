@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      23
+%define base_release      24
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -288,6 +288,9 @@ fi
 ###############################################################################
 
 %changelog
+* Sat Mar 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-24
+- Bugzilla Bug #490489 -  Configuration modifications are not replicated
+  between admins, agents, and end entities
 * Thu Mar 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-23
 - Bugzilla Bug #470175 -  RFE: Directory Listing Enabled
 * Fri Mar 20 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-22
