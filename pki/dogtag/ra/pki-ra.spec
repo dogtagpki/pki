@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      25
+%define base_release      26
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -128,7 +128,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_name}-ui, %{base_prefix}-setup >= 1.0.0, mod_nss >= 1.0.7, mod_perl >= 1.99_16, mozldap >= 6.0.2, perl-DBD-SQLite >= 1.11, perl-DBI >= 1.52, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, perl-XML-SAX >= 0.12, sendmail >= 8.13.1, sqlite >= 3.3.3, %{base_prefix}-selinux >= 1.0.0, perl-XML-Simple
+Requires:       %{base_name}-ui, %{base_prefix}-setup >= 1.0.0, mod_nss >= 1.0.7, mod_perl >= 1.99_16, mod_revocator >= 1.0.2, mozldap >= 6.0.2, perl-DBD-SQLite >= 1.11, perl-DBI >= 1.52, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, perl-XML-SAX >= 0.12, sendmail >= 8.13.1, sqlite >= 3.3.3, %{base_prefix}-selinux >= 1.0.0, perl-XML-Simple
 
 
 ## This package is non-relocatable!
@@ -266,6 +266,11 @@ fi
 ###############################################################################
 
 %changelog
+* Sat Mar 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-26
+- Bugzilla Bug #492180 -  Security officer: token recovery for a security
+  officer throws error 28 'connection to server lost'.
+- Bugzilla Bug #492503 -  Integrate "mod_revocator" as a runtime dependency
+  for RA and TPS  
 * Wed Mar 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-25
 - Bugzilla Bug #488338 -  start/stop scripts should list all the
   available port numbers with their functionality

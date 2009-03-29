@@ -340,6 +340,12 @@ sub display
       system( "rm $instDir/conf/nss.conf.tmp" );
     }
 
+    # Append security domain getCRL URL to end of "revocator.conf"
+    open(REVOCATOR_CONF, ">>$instDir/conf/revocator.conf");
+    print REVOCATOR_CONF "CRLFile \"" . $sdom
+          . "/ca/ee/ca/getCRL?op=getCRL&crlIssuingPoint=MasterCRL;60;60\"\n";
+    close(REVOCATOR_CONF);
+
     &PKI::TPS::Wizard::debug_log("DonePanel: Connecting to Security Domain");
 
     my $machineName = $::config->get("service.machineName");

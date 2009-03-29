@@ -643,11 +643,12 @@ cgibin_sow_SCRIPTS = $(srcdir)/forms/esc/cgi-bin/sow/ajax-list.cgi   \
 						$(srcdir)/forms/esc/cgi-bin/sow/seturl.cgi      \
 						$(srcdir)/forms/esc/cgi-bin/sow/welcome.cgi
 
-conf_DATA = $(srcdir)/apache/conf/httpd.conf \
-			$(srcdir)/apache/conf/magic      \
-			$(srcdir)/apache/conf/mime.types \
-			$(srcdir)/apache/conf/nss.conf   \
-			$(srcdir)/apache/conf/perl.conf  \
+conf_DATA = $(srcdir)/apache/conf/httpd.conf      \
+			$(srcdir)/apache/conf/magic           \
+			$(srcdir)/apache/conf/mime.types      \
+			$(srcdir)/apache/conf/nss.conf        \
+			$(srcdir)/apache/conf/perl.conf       \
+			$(srcdir)/apache/conf/revocator.conf  \
 			$(srcdir)/doc/CS.cfg
 
 docroot_DATA = $(srcdir)/forms/index.html

@@ -101,6 +101,8 @@ sub update
       $::config->put("conn.tks1.serverKeygen", "true");
       $::config->put("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "true");
       $::config->put("op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
+      $::config->put("op.enroll.soKey.keyGen.encryption.serverKeygen.enable", "true");
+      $::config->put("op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
     } else { 
       # no keygen
       $::config->put("conn.tks1.serverKeygen", "false");
@@ -110,6 +112,10 @@ sub update
       $::config->put("op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
       $::config->put("conn.drm1.clientNickname", "");
       $::config->put("conn.drm1.hostport", "");
+      $::config->put("op.enroll.soKey.keyGen.encryption.serverKeygen.enable", "false");
+      $::config->put("op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable", "false");
+      $::config->put("op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme", "GenerateNewKey");
+      $::config->put("op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
     }
     $::config->commit();
 

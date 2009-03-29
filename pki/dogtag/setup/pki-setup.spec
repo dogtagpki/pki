@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      20
+%define base_release      21
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,11 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Sat Mar 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-21
+- Bugzilla Bug #492180 -  Security officer: token recovery for a security
+  officer throws error 28 'connection to server lost'.
+- Bugzilla Bug #492503 -  Integrate "mod_revocator" as a runtime dependency
+  for RA and TPS  
 * Fri Mar 20 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-20
 - Bugzilla Bug #490489 -  Configuration modifications are not replicated
   between admins, agents, and end entities
