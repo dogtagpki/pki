@@ -33,6 +33,8 @@ public class CertInfoProfile
     private String mName = null;
     private String mID = null;
     private String mDescription = null;
+    private String mProfileIDMapping = null;
+    private String mProfileSetIDMapping = null;
 
     public CertInfoProfile(String cfg) throws Exception
     {
@@ -40,6 +42,8 @@ public class CertInfoProfile
         mID = config.getString("id");
         mName = config.getString("name");
         mDescription = config.getString("description");
+        mProfileIDMapping = config.getString("profileIDMapping");
+        mProfileSetIDMapping = config.getString("profileSetIDMapping");
         StringTokenizer st = new StringTokenizer(config.getString("list"), ",");
         while (st.hasMoreTokens()) {
             String id = (String)st.nextToken();
@@ -79,6 +83,16 @@ public class CertInfoProfile
     public String getDescription()
     {
         return mDescription;
+    }
+
+    public String getProfileIDMapping()
+    {
+        return mProfileIDMapping;
+    }
+
+    public String getProfileSetIDMapping()
+    {
+        return mProfileSetIDMapping;
     }
 
     public void populate(X509CertInfo info)

@@ -4,6 +4,8 @@
 id=serverCert.profile
 name=All Purpose SSL server cert Profile
 description=This profile creates an SSL server certificate that is valid for SSL servers
+profileIDMapping=caServerCert
+profileSetIDMapping=serverCertSet
 list=2,4,5,6,7
 2.default.class=com.netscape.cms.profile.def.ValidityDefault
 2.default.name=Validity Default

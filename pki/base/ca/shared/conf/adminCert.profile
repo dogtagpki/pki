@@ -4,6 +4,8 @@
 id=adminCert.profile
 name=All Purpose admin server cert Profile
 description=This profile creates an administrator's certificate
+profileIDMapping=caAdminCert
+profileSetIDMapping=adminCertSet
 list=2,4,5,6,7
 2.default.class=com.netscape.cms.profile.def.ValidityDefault
 2.default.name=Validity Default

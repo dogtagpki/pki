@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      36
+%define base_release      37
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Mar 27 2009 Ade Lee <alee@redhat.com> 1.0.0-37
+- Bugzilla Bug: 472916 - Renewal: certs created during post-installation can not be renewed via profile framework
 * Thu Mar 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-36
 - Bugzilla Bug #470175 -  RFE: Directory Listing Enabled
 * Fri Mar 20 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-35

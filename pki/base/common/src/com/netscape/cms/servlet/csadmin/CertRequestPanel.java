@@ -679,6 +679,11 @@ public class CertRequestPanel extends WizardPanelBase {
                     }
                 }
 
+                //update requests in request queue for local certs to allow renewal
+                if ((cert.getType().equals("local")) || (cert.getType().equals("selfsign"))) {
+                    CertUtil.updateLocalRequest(config, certTag, cert.getRequest(), "pkcs10", null);
+                }
+
                 if (certTag.equals("signing") && subsystem.equals("ca")) {
                     String NickName = nickname;
                     if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))

@@ -571,6 +571,9 @@ public class AdminPanel extends WizardPanelBase {
             X509CertImpl impl = CertUtil.createLocalCert(cs, x509key,
               PCERT_PREFIX, CERT_TAG, caType, context);
 
+            // update the locally created request for renewal
+            CertUtil.updateLocalRequest(cs, CERT_TAG, cert_request,cert_request_type, subject);
+
             ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
             if (ca != null) {
                 createPKCS7(impl);

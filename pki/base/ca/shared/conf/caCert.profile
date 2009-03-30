@@ -4,6 +4,8 @@
 id=caCert.profile
 name=All Purpose CA Profile
 description=This profile creates a CA certificate that is valid for all signing purposes.
+profileIDMapping=caCACert
+profileSetIDMapping=caCertSet
 list=2,4,5,6,7,8
 2.default.class=com.netscape.cms.profile.def.ValidityDefault
 2.default.name=Validity Default

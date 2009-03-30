@@ -200,15 +200,54 @@ public class CertUtil {
         req.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
         req.setExtData(IEnrollProfile.REQUEST_EXTENSIONS,
                     new CertificateExtensions());
-        req.setExtData("cert_request_type", "pkcs10");
         req.setExtData("requesttype", "enrollment");
-        // note: more info needed... TBD
+        req.setExtData("requestor_name", "");
+        req.setExtData("requestor_email", "");
+        req.setExtData("requestor_phone", "");
+        req.setExtData("requestnotes","");
+        req.setExtData("isencryptioncert", "false");
+
         // mark request as complete
         CMS.debug("certUtil: calling setRequestStatus");
         req.setRequestStatus(RequestStatus.COMPLETE);
 
         return req;
     }
+
+/**
+ * update local cert request with the actual request
+ * called from CertRequestPanel.java
+ */
+    public static void updateLocalRequest(IConfigStore config, String certTag, String certReq, String reqType, String subjectName)
+    {
+        try { 
+            CMS.debug("Updating local request... certTag=" + certTag);
+            RequestId rid = new RequestId(config.getString("preop.cert." + certTag + ".reqId"));
+
+            ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(
+                    ICertificateAuthority.ID);
+
+            IRequestQueue queue = ca.getRequestQueue();
+            if (queue != null) {
+                IRequest req = queue.findRequest(rid);
+                if (req != null) {
+                    if (!certReq.equals(""))
+                        req.setExtData("cert_request", certReq);
+                    req.setExtData("cert_request_type", reqType);
+                    if (subjectName != null) {
+                        req.setExtData("subject", subjectName);
+                        X500Name x5Name = new X500Name(subjectName);
+                    }
+                }
+                queue.updateRequest(req);
+            } else {
+		CMS.debug("CertUtil:updateLocalRequest - request queue = null");
+            }
+        } catch (Exception e) {
+            CMS.debug("CertUtil:updateLocalRequest - Exception:" + e.toString());
+        }
+    }
+ 
 
     public static X509CertImpl createLocalCert(IConfigStore config, X509Key x509key,
             String prefix, String certTag, String type, Context context) throws IOException {
@@ -223,6 +262,8 @@ public class CertUtil {
         X509CertImpl cert = null;
         ICertificateAuthority ca = null;
         ICertificateRepository cr = null;
+        RequestId reqId = null;
+        String profileId = null;
 
         try {
             String dn = config.getString(prefix + certTag + ".dn");
@@ -249,25 +290,37 @@ public class CertUtil {
             }
             CMS.debug("Cert Template: " + info.toString());
 
+            String instanceRoot = config.getString("instanceRoot");
+
+            CertInfoProfile processor = new CertInfoProfile(
+                    instanceRoot + "/conf/" + profile);
+
             // cfu - create request to enable renewal
+            IRequest req = null;
             try {
                 IRequestQueue queue = ca.getRequestQueue();
                 if (queue != null) {
-                    IRequest req = createLocalRequest(queue, serialNo.toString(), info);
-                    // set profileId - diff place than regular place
-                    // consider stuffing a regular one here
+                    req = createLocalRequest(queue, serialNo.toString(), info);
                     CMS.debug("CertUtil profile name= "+profile);
+                    req.setExtData("req_key", x509key.toString());
+
+                    // store original profile id in cert request
                     int idx = profile.lastIndexOf('.');
-//                    String[] profileName = profile.split(".");
-//                    if (profileName.length == 0) {
                     if (idx == -1) {
                         CMS.debug("CertUtil profileName contains no .");
-                        req.setExtData("profileid", profile);
+                        req.setExtData("origprofileid", profile);
                     } else {
                         String name = profile.substring(0, idx);
-                        req.setExtData("profileid", name);
+                        req.setExtData("origprofileid", name);
                     }
-                    req.setExtData("req_key", x509key.toString());
+                    
+                    // store mapped profile ID for use in renewal
+                    profileId = processor.getProfileIDMapping();
+                    req.setExtData("profileid", profileId);
+                    req.setExtData("profilesetid", processor.getProfileSetIDMapping());
+
+                    reqId = req.getRequestId();
+                    config.putString("preop.cert." + certTag + ".reqId", reqId.toString());
 
                     CMS.debug("certUtil: before updateRequest");
 
@@ -279,11 +332,6 @@ public class CertUtil {
             } catch (Exception e) {
                 CMS.debug("Creating local request exception:"+e.toString());
             }
-
-            String instanceRoot = config.getString("instanceRoot");
-
-            CertInfoProfile processor = new CertInfoProfile(
-                    instanceRoot + "/conf/" + profile);
 
             processor.populate(info);
 
@@ -327,8 +375,21 @@ public class CertUtil {
                     "Ceritifcate Authority is not ready to serve.");
             throw new IOException("Ceritifcate Authority is not ready to serve.");
         }
-        ICertRecord record = (ICertRecord) cr.createCertRecord(
-                cert.getSerialNumber(), cert, null);
+
+        ICertRecord record = null;
+        try {
+            MetaInfo meta = new MetaInfo();
+            if (reqId != null) {
+                meta.set(ICertRecord.META_REQUEST_ID, reqId.toString());
+            }
+        
+            meta.set(ICertRecord.META_PROFILE_ID, profileId);
+            record = (ICertRecord) cr.createCertRecord(
+                cert.getSerialNumber(), cert, meta);
+        } catch (Exception e) {
+            CMS.debug(
+                "NamePanel configCert: failed to add metainfo. Exception: " + e.toString());
+        }
 
         try {
             cr.addCertificateRecord(record);

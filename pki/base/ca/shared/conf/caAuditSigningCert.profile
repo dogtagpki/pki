@@ -4,6 +4,8 @@
 id=caAuditSigningCert.profile
 name=CA Audit Signing Certificate Profile
 description=This profile creates a CA Audit signing certificate that is valid for audit log signing purpose.
+profileIDMapping=caSignedLogCert
+profileSetIDMapping=caLogSigningSet
 list=2,4,6,8,9
 2.default.class=com.netscape.cms.profile.def.ValidityDefault
 2.default.name=Validity Default
