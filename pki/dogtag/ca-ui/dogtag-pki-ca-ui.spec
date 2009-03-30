@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      11
+%define base_release      12
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Mon Mar 30 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-12
+- Bugzilla Bug #492952 - better handling of enrollment objects for IE
 * Fri Mar 27 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-11
 - Bugzilla Bug #224827 - new default cryptographic provider
 * Tue Mar 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-10
