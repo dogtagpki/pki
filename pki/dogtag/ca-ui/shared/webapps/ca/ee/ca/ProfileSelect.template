@@ -114,14 +114,6 @@ function setCRMFRequest()
 
 </SCRIPT>
 
-<OBJECT
-        classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
-        CODEBASE="/xenroll.dll"
-        id="Enroll">
-</OBJECT>
-
-<OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'>
-</OBJECT>
 
 <script language=javascript>
   var uri = 'profileSubmit';
@@ -131,6 +123,11 @@ function setCRMFRequest()
     }
   }
   if (navigator.appName == "Microsoft Internet Explorer") {
+    if ((navigator.appVersion).indexOf("NT 6.") > -1) {
+      document.writeln("<OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'></OBJECT>");
+    } else {
+      document.writeln("<OBJECT classid='clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1' CODEBASE='/xenroll.dll' id='Enroll'></OBJECT>");
+    }
     document.writeln('<form name="ReqForm" method="post" action="' + uri + '">');
   } else if (typeof(crypto.version) != "undefined") {
     document.writeln('<form name="ReqForm" onSubmit="return validate();" method="post" action="' + uri + '">');
