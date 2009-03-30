@@ -1033,7 +1033,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
               // set subjectDN to be used in subject name default
               reqs[k].setExtData(IProfileAuthenticator.AUTHENTICATED_NAME, origSubjectDN);
               // set request type
-              reqs[k].setExtData("requestType", "renewal");
+              reqs[k].setRequestType("renewal");
             } else
               setInputsIntoRequest(request, profile, reqs[k]);
 
