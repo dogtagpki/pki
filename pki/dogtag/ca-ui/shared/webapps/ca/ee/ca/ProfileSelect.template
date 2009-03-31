@@ -89,15 +89,15 @@ function validate()
                 "regToken", "authenticator",
         	keyTransportCert,
                 "setCRMFRequest();",
-                1024, null, "rsa-ex",
-                1024, null, "rsa-sign");
+                parseInt(encKeyLength.value), null, "rsa-ex",
+                parseInt(signKeyLength.value), null, "rsa-sign");
             } else {
               crmfObject = crypto.generateCRMFRequest(
                 "CN=x",
                 "regToken", "authenticator",
         	keyTransportCert,
                 "setCRMFRequest();",
-                1024, null, "rsa-dual-use");
+                parseInt(keyLength.value), null, "rsa-dual-use");
             }
         }
         return false;
@@ -395,7 +395,9 @@ for (var j = 0; j < inputPluginListSet.length; j++) {
       if (navigator.appName == "Microsoft Internet Explorer") { 
         document.writeln('<input type=hidden name=' + inputListSet[i].inputId + '>');
       } else if (typeof(crypto.version) != "undefined") {
-        document.writeln('1024 (Encryption), 1024 (Signing)<input type=hidden name=cert_request value="">');
+        document.write('<SELECT NAME="encKeyLength"><OPTION VALUE=1024 SELECTED>1024<OPTION VALUE=2048>2048<OPTION VALUE=4096>4096</SELECT> (Encryption),'); 
+        document.write('<SELECT NAME="signKeyLength"><OPTION VALUE=1024 SELECTED>1024<OPTION VALUE=2048>2048<OPTION VALUE=4096>4096</SELECT> (Signing)');
+        document.writeln('<input type=hidden name=cert_request value="">');
         dual = 'true';
       } else {
         document.writeln('Not Supported<input type=hidden name=cert_request value="">');
@@ -405,7 +407,8 @@ for (var j = 0; j < inputPluginListSet.length; j++) {
         document.writeln('<input type=hidden name=' + inputListSet[i].inputId + '>');
         document.writeln('<SELECT NAME=\"cryptprovider\"></SELECT>');
       } else if (typeof(crypto.version) != "undefined") {
-        document.writeln('1024 (High Grade)<input type=hidden name=cert_request value="">');
+        document.write('<SELECT NAME="keyLength"><OPTION VALUE=1024 SELECTED>1024<OPTION VALUE=2048>2048<OPTION VALUE=4096>4096</SELECT> (Encryption and Signing)');
+        document.writeln('<input type=hidden name=cert_request value="">');
       } else {
         document.writeln('<KEYGEN name=' + inputListSet[i].inputId + '>');
       }
