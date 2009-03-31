@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      44
+%define base_release      45
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Mar 31 2009 Christina Fu <cfu@redhat.com> 1.0.0-45
+- Bugzilla Bug #488291 - Missing renewal feature for smart cards in TMS
 * Sat Mar 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-44
 - Bugzilla Bug #492180 -  Security officer: token recovery for a security
   officer throws error 28 'connection to server lost'.
