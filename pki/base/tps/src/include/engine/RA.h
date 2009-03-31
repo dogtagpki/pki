@@ -176,6 +176,7 @@ class RA
 	  TPS_PUBLIC static int ra_is_token_pin_resetable(char *cuid);
 	  TPS_PUBLIC static int ra_is_token_present(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_reenroll(char *cuid);
+	  TPS_PUBLIC static int ra_allow_token_renew(char *cuid);
 	  TPS_PUBLIC static int ra_is_update_pin_resetable_policy(char *cuid);
 	  TPS_PUBLIC static char *ra_get_token_policy(char *cuid);
 	  TPS_PUBLIC static char *ra_get_token_userid(char *cuid);

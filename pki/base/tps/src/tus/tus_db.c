@@ -3813,7 +3813,17 @@ TPS_PUBLIC char *get_token_policy(char *cn)
     return ret;
 }
 
+TPS_PUBLIC int allow_token_renew(char *cn)
+{
+    return allow_token_enroll_policy(cn, "RENEW=YES");
+}
+
 TPS_PUBLIC int allow_token_reenroll(char *cn)
+{
+    return allow_token_enroll_policy(cn, "RE_ENROLL=YES");
+}
+
+TPS_PUBLIC int allow_token_enroll_policy(char *cn, const char *policy)
 {
     LDAPMessage *result = NULL;
     LDAPMessage *e = NULL;
@@ -3827,7 +3837,7 @@ TPS_PUBLIC int allow_token_reenroll(char *cn)
             if (e != NULL) {
                 if ((v = ldap_get_values(ld, e, TOKEN_POLICY)) != NULL) {
                     if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-                        if (PL_strstr(v[0], "RE_ENROLL=YES")) {
+                        if (PL_strstr(v[0], policy)) {
                             can_reenroll = 1;
                         }
                     }

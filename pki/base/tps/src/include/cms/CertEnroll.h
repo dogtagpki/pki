@@ -65,6 +65,7 @@ class CertEnroll
   ReturnStatus verifyProof(SECKEYPublicKey* /*pk*/, SECItem* /*siProof*/,
 			   unsigned short /*pkeyb_len*/, unsigned char* /*pkeyb*/,
 			   Buffer* /*challenge*/);
+  TOKENDB_PUBLIC Buffer *RenewCertificate(PRUint64 serialno, const char *connid, const char *profileId);
   TOKENDB_PUBLIC int RevokeCertificate(const char *reason, const char *serialno, const char *connid, char *&status);
   TOKENDB_PUBLIC int UnrevokeCertificate(const char *serialno, const char *connid, char *&status);
   PSHttpResponse * sendReqToCA(const char *servlet, const char *parameters, const char *connid);

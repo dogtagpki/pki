@@ -2375,6 +2375,11 @@ TPS_PUBLIC int RA::ra_allow_token_reenroll(char *cuid)
     return allow_token_reenroll(cuid);
 }
 
+TPS_PUBLIC int RA::ra_allow_token_renew(char *cuid)
+{
+    return allow_token_renew(cuid);
+}
+
 TPS_PUBLIC void RA::ra_tus_print_integer(char *out, SECItem *data)
 {
     tus_print_integer(out, data);
@@ -2421,10 +2426,13 @@ int RA::tdb_update_certificates(char* cuid, char **tokentypes, char *userid, CER
             tus_print_integer(filter, &(certificates[i])->serialNumber);
 
             int r = find_tus_certificate_entries_by_order_no_vlv(filter, &result, 1);
+            RA::Debug(LL_PER_PDU, "RA::tdb_update_certificates",
+                "find_tus_certificate_entries_by_order_no_vlv returned");
             bool found = false;
             if (r == LDAP_SUCCESS) {
                 for (e = get_first_entry(result); e != NULL; e = get_next_entry(e)) {
                     char **values = get_attribute_values(e, "tokenStatus");
+ 
                     found = true;
                     RA::Debug("RA::tdb_update_certificates", "Certificate status is %s", values[0]);
                     add_certificate(cuid, origins[i], tokentypes[i], userid, certificates[i], 

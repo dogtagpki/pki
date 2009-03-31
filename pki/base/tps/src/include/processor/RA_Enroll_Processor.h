@@ -85,6 +85,11 @@ class RA_Enroll_Processor : public RA_Processor
 				const char *pub_attr_id,
 				BYTE se_p1, BYTE se_p2, int keysize, const char *connid, const char *keyTypePrefix,char * applet_version);
 
+        bool DoRenewal(const char *connid,
+                const char *profileId,
+                CERTCertificate *i_cert,
+                CERTCertificate **o_cert);
+
         bool GenerateCertificate(AuthParams *login,
                 int keyTypeNum, 
                 const char *keyTypeValue, 
@@ -179,6 +184,22 @@ class RA_Enroll_Processor : public RA_Processor
 				CERTCertificate **&certificates,
                 char *lostTokenCUID,
                 int &o_certNums, char **&tokenTypes, char *origTokenType);
+
+                bool ProcessRenewal(AuthParams *login,
+                        RA_Session *session, 
+                        char **&ktypes,   
+                        char **&origins, 
+                        char *tokenType, 
+                        PKCS11Obj *pkcs11objx, 
+                        int pkcs11obj_enable, 
+                        Secure_Channel *channel, 
+                        const char *cuid,
+                        char *msn, 
+                        const char *final_applet_version, 
+                        const char *userid, 
+                        RA_Status &o_status, 
+                        CERTCertificate **&certificates,
+                       int &o_certNums, char **&tokenTypes);
 
 		bool GetCardManagerAppletInfo(
 				RA_Session*, 
