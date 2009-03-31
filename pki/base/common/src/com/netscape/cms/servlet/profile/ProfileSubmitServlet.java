@@ -518,6 +518,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
         String renewProfileId = null;
         IRequest origReq = null;
+        Integer origSeqNum = 0;
 
         // if we did not configure profileId in xml file,
         // then accept the user-provided one
@@ -717,6 +718,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                                   outputTemplate(request, response, args);
                                   return;
                                 }
+                                origSeqNum = origReq.getExtDataInInteger(IEnrollProfile.REQUEST_SEQ_NUM);
+                                
                             } else { //if origReq
                                 CMS.debug("ProfileSubmitServlet: renewal original request not found for request id "+ rid);
                                 args.set(ARG_ERROR_CODE, "1");
@@ -883,8 +886,9 @@ public class ProfileSubmitServlet extends ProfileServlet {
         // for renewal, input needs to be retrieved from the orig req record
             CMS.debug("ProfileSubmitServlet: set original Inputs into profile Context");
             setInputsIntoContext(origReq, profile, ctx, locale);
-            ctx.set("renewal", "true");
+            ctx.set(IEnrollProfile.CTX_RENEWAL, "true");
             ctx.set("renewProfileId", renewProfileId);
+            ctx.set(IEnrollProfile.CTX_RENEWAL_SEQ_NUM, origSeqNum.toString()); 
         } else {
             setInputsIntoContext(request, profile, ctx);
         }
@@ -1023,7 +1027,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         for (int k = 0; k < reqs.length; k++) {
             boolean fromRA = false;
             String uid = "";
-            
+
             // adding parameters to request
             if (isRenewal) {
               setInputsIntoRequest(origReq, profile, reqs[k], locale);

@@ -87,6 +87,8 @@ public abstract class EnrollProfile extends BasicProfile
         // determine how many requests should be created
         String cert_request_type = ctx.get(CTX_CERT_REQUEST_TYPE); 
         String cert_request = ctx.get(CTX_CERT_REQUEST);
+        String is_renewal = ctx.get(CTX_RENEWAL);
+        Integer renewal_seq_num = 0;
 
         /* cert_request_type can be null for the case of CMC */
         if (cert_request_type == null) {
@@ -113,12 +115,28 @@ public abstract class EnrollProfile extends BasicProfile
                 num_requests = msgs.length;
         }
 
+        // only 1 request for renewal 
+        if ((is_renewal != null) && (is_renewal.equals("true"))) {
+            num_requests = 1;
+            String renewal_seq_num_str = ctx.get(CTX_RENEWAL_SEQ_NUM);
+            if (renewal_seq_num_str != null) {
+                renewal_seq_num = Integer.parseInt(renewal_seq_num_str);
+            } else {
+                renewal_seq_num =0;
+            }
+        }
+                
+
         // populate requests with appropriate content
         IRequest result[] = new IRequest[num_requests];
 
         for (int i = 0; i < num_requests; i++) {
             result[i] = createEnrollmentRequest();
-            result[i].setExtData(REQUEST_SEQ_NUM, Integer.valueOf(i));
+            if ((is_renewal != null) && (is_renewal.equals("true"))) {
+                result[i].setExtData(REQUEST_SEQ_NUM,renewal_seq_num);
+            } else {
+                result[i].setExtData(REQUEST_SEQ_NUM, Integer.valueOf(i));
+            }
             if (locale != null) {
                 result[i].setExtData(REQUEST_LOCALE, locale.getLanguage());
             }

@@ -73,6 +73,19 @@ public interface IEnrollProfile extends IProfile {
     public static final String REQUEST_SEQ_NUM = "req_seq_num";
 
     /**
+     * Name of the request attribute that stores the sequence number for a
+     * renewal request. Only one request at a time is permitted for a renewal.
+     * This value corresponds to the sequence number (and hence the appropriate
+     * certificate) of the original request
+     */
+    public static final String CTX_RENEWAL_SEQ_NUM = "renewal_seq_num";
+
+    /**
+     * Name of request attribute to indicate if this is a renewal
+     */
+    public static final String CTX_RENEWAL = "renewal";
+
+    /**
      * Name of request attribute that stores the End-User Supplied
      * Key.
      * <p>
