@@ -2990,7 +2990,8 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                         continue;
                     }
 
-                    char label[1024];
+                    const char *label= NULL;
+                    const char *pattern= NULL;
                     char *tmp_c = NULL;
 
                     // retrieve the most recent certificate to start
@@ -3051,17 +3052,13 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 
                         // got cert... 
 
-/*
-                        PR_snprintf((char *)configname, 256, "%s.%s.renewal.%s.label", 
+                        // build label
+                        PR_snprintf((char *)configname, 256, "%s.%s.keyGen.%s.label", 
 		                OP_PREFIX, tokenType, keyTypeValue);
                         RA::Debug(LL_PER_CONNECTION,FN,
 		                "label '%s'", configname);
-                        const char *pattern = RA::GetConfigStore()->GetConfigAsString(configname);
-			const char* label = MapPattern(&nv, (char *) pattern);
-*/
-// ahh! hard coded for now
-                        PR_snprintf(label, 256, "renewed cert key type %s for %s",
-                            keyTypeValue, cuid);
+                        pattern = RA::GetConfigStore()->GetConfigAsString(configname);
+			label = MapPattern(&nv, (char *) pattern);
 
 			if (o_cert != NULL) {
 			  RA::Debug("RA_Enroll_Processor::ProcessRenewal", "got cert!!");
@@ -3119,12 +3116,10 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 			  PR_Free(attr[0]);
 			  attr[0] = NULL;
 			}
-/*
 			if( label != NULL ) {
 			  PL_strfree( (char *) label );
 			  label = NULL;
 			}
-*/
 			if( tmp_c != NULL ) {
 			  PL_strfree( (char *) tmp_c );
 			  tmp_c = NULL;
