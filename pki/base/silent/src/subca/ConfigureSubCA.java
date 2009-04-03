@@ -123,6 +123,11 @@ public class ConfigureSubCA
 	public static String ca_subsystem_cert_pp = null;
 	public static String ca_subsystem_cert_cert = null;
 
+        public static String ca_audit_signing_cert_name = null;
+        public static String ca_audit_signing_cert_req = null;
+        public static String ca_audit_signing_cert_pp = null;
+        public static String ca_audit_signing_cert_cert = null;
+
 	public static String backup_pwd = null;
 
 	public static String subsystem_name = null;
@@ -132,6 +137,7 @@ public class ConfigureSubCA
 	public static String subca_subsystem_cert_subject_name = null;
 	public static String subca_ocsp_cert_subject_name = null;
 	public static String subca_server_cert_subject_name = null;
+        public static String subca_audit_signing_cert_subject_name = null;
 
 	public ConfigureSubCA ()
 	{
@@ -426,6 +432,9 @@ public class ConfigureSubCA
 							"&subsystem_choice=default"+
 							"&sslserver_keytype=" + key_type + 
 							"&sslserver_choice=default"+
+                                                        "&audit_signing_choice=default" + 
+                                                        "&audit_signing_keytype=" + key_type +
+                                                        "&audit_signing_custom_size=" + key_size + 
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -453,7 +462,11 @@ public class ConfigureSubCA
 				else if(temp.indexOf("Subsystem Certificate") > 0 )
 				{
 					ca_subsystem_cert_name = temp;
-				}
+                                } 
+                                else if (temp.indexOf("Audit Signing Certificate") > 0) 
+                                {
+                                        ca_audit_signing_cert_name = temp;
+                                }
 				else 
 				{
 					server_cert_name = temp;
@@ -466,6 +479,8 @@ public class ConfigureSubCA
 		System.out.println("default: ca_subsystem_cert_name=" + 
 						ca_subsystem_cert_name);
 		System.out.println("default: server_cert_name=" + server_cert_name);
+                System.out.println("default: ca_audit_signing_cert_name=" + 
+                    ca_audit_signing_cert_name);
 		return true;
 	}
 
@@ -491,6 +506,8 @@ public class ConfigureSubCA
 			URLEncoder.encode(subca_sign_cert_subject_name) + 
 			"&sslserver=" + 
 			URLEncoder.encode(subca_server_cert_subject_name) + 
+                        "&audit_signing=" +
+                        URLEncoder.encode(subca_audit_signing_cert_subject_name) + 
 			"&urls=" + 
 			URLEncoder.encode(domain_url) + 
 			""; 
@@ -531,6 +548,10 @@ public class ConfigureSubCA
 					ca_subsystem_cert_req = (String) req_list.get(i);
 					ca_subsystem_cert_cert = (String) cert_list.get(i);
 				}
+                                else if (temp.indexOf("auditSigningCert") >=0) {
+                                    ca_audit_signing_cert_req = (String) req_list.get(i);
+                                    ca_audit_signing_cert_cert = (String) cert_list.get(i);
+                                }
 				else 
 				{
 					server_cert_req = (String) req_list.get(i);
@@ -545,16 +566,19 @@ public class ConfigureSubCA
 						subca_subsystem_cert_subject_name);
 		System.out.println("server_cert_name=" + 
 						subca_server_cert_subject_name);
+                System.out.println("audit_signing_cert_name=" + subca_audit_signing_cert_subject_name);
 
 		System.out.println("ca_cert_req=" + ca_cert_req);
 		System.out.println("ocsp_cert_req=" + ocsp_cert_req);
 		System.out.println("ca_subsystem_cert_req=" + ca_subsystem_cert_req);
 		System.out.println("server_cert_req=" + server_cert_req);
+                System.out.println("ca_audit_siging_cert_req=" + ca_audit_signing_cert_req);
 
 		System.out.println("ca_cert_cert=" + ca_cert_cert);
 		System.out.println("ocsp_cert_cert=" + ocsp_cert_cert);
 		System.out.println("ca_subsystem_cert_cert=" + ca_subsystem_cert_cert);
 		System.out.println("server_cert_cert=" + server_cert_cert);
+                System.out.println("ca_audit_signing_cert_cert=" + ca_audit_signing_cert_cert);
 
 		return true;
 	}
@@ -584,6 +608,9 @@ public class ConfigureSubCA
 							"&sslserver=" + 
 							URLEncoder.encode(server_cert_cert) + 
 							"&sslserver_cc=" + 
+                                                        "&audit_signing=" + 
+                                                        URLEncoder.encode(ca_audit_signing_cert_cert) +
+                                                        "&audit_signing_cc=" +
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -698,7 +725,7 @@ public class ConfigureSubCA
 
 		admin_cert_request = crmf_request;
 
-		String query_string = "p=15" + "&op=next" + "&xml=true" +
+		String query_string = "p=16" + "&op=next" + "&xml=true" +
 							"&cert_request_type=" + "crmf" +
 							"&uid=" + admin_user +
 							"&name=" + admin_user +
@@ -776,7 +803,7 @@ public class ConfigureSubCA
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
 
-		String query_string = "p=16" + "&op=next" + "&xml=true" +
+		String query_string = "p=17" + "&op=next" + "&xml=true" +
 							"&caHost=" + URLEncoder.encode("/") +
 							"&caPort=" + URLEncoder.encode("/") +
 							""; 
@@ -1007,6 +1034,7 @@ public class ConfigureSubCA
 		StringHolder x_subca_subsystem_cert_subject_name = new StringHolder();
 		StringHolder x_subca_ocsp_cert_subject_name = new StringHolder();
 		StringHolder x_subca_server_cert_subject_name = new StringHolder();
+                StringHolder x_subca_audit_signing_cert_subject_name = new StringHolder();
 
 		// parse the args
 		ArgParser parser = new ArgParser("ConfigureSubCA");
@@ -1096,6 +1124,9 @@ public class ConfigureSubCA
 		parser.addOption (
 		"-subca_server_cert_subject_name %s #subCA server cert subject name",
 							x_subca_server_cert_subject_name); 
+                parser.addOption(
+                "-subca_audit_signing_cert_subject_name %s #CA audit signing cert subject name",
+                x_subca_audit_signing_cert_subject_name);
 
 		// and then match the arguments
 		String [] unmatched = null;
@@ -1153,7 +1184,7 @@ public class ConfigureSubCA
 				x_subca_subsystem_cert_subject_name.value;
 		subca_ocsp_cert_subject_name = x_subca_ocsp_cert_subject_name.value ;
 		subca_server_cert_subject_name = x_subca_server_cert_subject_name.value ;
-
+                subca_audit_signing_cert_subject_name = x_subca_audit_signing_cert_subject_name.value;
 
 		boolean st = ca.ConfigureCAInstance();
 	

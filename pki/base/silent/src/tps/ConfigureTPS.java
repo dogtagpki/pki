@@ -134,12 +134,18 @@ public class ConfigureTPS
 	public static String tps_subsystem_cert_pp = null;
 	public static String tps_subsystem_cert_cert = null;
 
+        public static String tps_audit_signing_cert_name = null;
+        public static String tps_audit_signing_cert_req = null;
+        public static String tps_audit_signing_cert_pp = null;
+        public static String tps_audit_signing_cert_cert = null;
+
 	public static String ss_keygen = null;
 
 	// names 
 	public static String tps_subsystem_cert_subject_name = null;
 	public static String tps_server_cert_subject_name = null;
 	public static String subsystem_name = null;
+	public static String tps_audit_signing_cert_subject_name = null;
 
 
 	public ConfigureTPS ()
@@ -486,11 +492,14 @@ public class ConfigureTPS
 							"&subsystem_custom_size=" + key_size +
 							"&sslserver_custom_size=" + key_size +
 							"&custom_size=" + key_size +
+                                                        "&audit_signing_custom_size=" + key_size +
 							"&subsystem_keytype=" + key_type + 
 							"&sslserver_keytype=" + key_type + 
+                                                        "&audit_signing_keytype=" + key_type +
 							"&keytype=" + key_type + 
 							"&subsystem_choice=custom"+
 							"&sslserver_choice=custom"+
+                                                        "&audit_signing_choice=default" +
 							"&choice=custom"+
 							""; 
 
@@ -522,6 +531,8 @@ public class ConfigureTPS
 					URLEncoder.encode(tps_subsystem_cert_subject_name) +
 					"&sslserver=" + 
 					URLEncoder.encode(tps_server_cert_subject_name) + 
+                                        "&audit_signing=" +
+                                        URLEncoder.encode(tps_audit_signing_cert_subject_name) +
 					"&urls=" +
 					URLEncoder.encode(ca_url) +
 					""; 
@@ -555,6 +566,8 @@ public class ConfigureTPS
 							"&subsystem_cc=" + 
 							"&sslserver=" + 
 							"&sslserver_cc=" + 
+                                                        "&audit_signing=" +
+                                                        "&audit_signing_cc=" +
 							""; 
 
 		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -907,6 +920,8 @@ public class ConfigureTPS
 		// tps cert subject name params
 		StringHolder x_tps_subsystem_cert_subject_name = new StringHolder();
 		StringHolder x_tps_server_cert_subject_name = new StringHolder();
+                StringHolder x_tps_audit_signing_cert_subject_name = new StringHolder();
+
 
 		// subsystemName
 		StringHolder x_subsystem_name = new StringHolder();
@@ -1012,6 +1027,10 @@ public class ConfigureTPS
 		parser.addOption (
 		"-subsystem_name %s #CA subsystem name",
 							x_subsystem_name); 
+                parser.addOption(
+                "-tps_audit_signing_cert_subject_name %s #TPS audit signing cert subject name",
+                                                        x_tps_audit_signing_cert_subject_name);
+
 
 		// and then match the arguments
 		String [] unmatched = null;
@@ -1078,6 +1097,9 @@ public class ConfigureTPS
 			x_tps_subsystem_cert_subject_name.value;
 		tps_server_cert_subject_name = 
 			x_tps_server_cert_subject_name.value ;
+                tps_audit_signing_cert_subject_name = 
+                        x_tps_audit_signing_cert_subject_name.value;
+
 		
 		subsystem_name = x_subsystem_name.value ;
 

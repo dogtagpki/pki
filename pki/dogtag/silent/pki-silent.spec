@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      10
+%define base_release      11
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -234,6 +234,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Apr 3 2009 Ade Lee <alee@redhat.com> 1.0.0-11
+- Bugzilla Bug #491517 and #492648 - subca and TPS fail to configure - audit signing
 * Tue Mar 17 2009 Ade Lee <alee@redhat.com> 1.0.0-10
 - Bugzilla Bug #490645 - DRM fails to configure
 * Tue Mar 10 2009 Ade Lee <alee@redhat.com> 1.0.0-9
