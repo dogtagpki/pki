@@ -93,6 +93,12 @@ public class PrettyPrintCrl {
                 InvalidityDateExtension.NAME);
         } catch (CertificateException e) {
         }
+        try {
+            OIDMap.addAttribute(IssuingDistributionPointExtension.class.getName(),
+                IssuingDistributionPointExtension.OID,
+                IssuingDistributionPointExtension.NAME);
+        } catch (CertificateException e) {
+        }
 
         // (2) Create a DataInputStream() object to the BASE 64
         //     encoded CRL contained within the file
