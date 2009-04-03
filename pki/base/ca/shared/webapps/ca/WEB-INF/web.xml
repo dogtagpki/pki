@@ -1874,6 +1874,10 @@
                          <param-value> BasicAclAuthz </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
                          <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath </param-name>
+                         <param-value> /ee/ca/revocationResult.template </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caDoRevoke  </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
