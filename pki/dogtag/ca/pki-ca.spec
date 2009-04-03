@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.0.0
-%define base_release      38
+%define base_release      39
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Apr 3 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-39
+- Bugzilla Bug #491944 - Revoking certificates from the End Entities pages fails
 * Tue Mar 31 2009 Christina Fu <cfu@redhat.com> 1.0.0-38
 - Bugzilla Bug: 488291 - Missing renewal feature for smart cards in TMS
   new renewal profiles for smart cards and update for allow grace period
