@@ -33,8 +33,8 @@
 
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
-%define base_version      1.0.0
-%define base_release      15
+%define base_version      1.1.0
+%define base_release      1
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -234,6 +234,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
+- Version update to Dogtag 1.1.0.
 * Tue Mar 17 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-15
 - Bugzilla Bug #224892 - corrected pkiconsole usage
 * Fri Mar 6 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-14

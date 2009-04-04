@@ -32,8 +32,8 @@
 
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
-%define base_version      1.0.0
-%define base_release      3
+%define base_version      1.1.0
+%define base_release      1
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -226,6 +226,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
+- Version update to Dogtag 1.1.0.
 * Fri Nov 28 2008 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-3
 - Bugzilla Bug #445402 - changed "linux"/"fedora" to "dogtag"; changed
                          "pki-svn.fedora.redhat.com" to "pki.fedoraproject.org"

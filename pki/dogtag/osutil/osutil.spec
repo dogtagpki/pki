@@ -26,8 +26,8 @@
 
 ## Package Header Definitions
 %define base_name         %{base_component}
-%define base_version      1.0.0
-%define base_release      6
+%define base_version      1.1.0
+%define base_release      1
 %define base_group        System Environment/Libraries
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -239,6 +239,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
+- Version update to Dogtag 1.1.0.
 * Thu Feb 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-6
 - Bugzilla Bug #483699 -  problem with the epoch in the spec file causes
   build to fail

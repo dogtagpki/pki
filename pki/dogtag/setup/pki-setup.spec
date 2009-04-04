@@ -32,8 +32,8 @@
 
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
-%define base_version      1.0.0
-%define base_release      21
+%define base_version      1.1.0
+%define base_release      1
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
+- Version update to Dogtag 1.1.0.
 * Sat Mar 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-21
 - Bugzilla Bug #492180 -  Security officer: token recovery for a security
   officer throws error 28 'connection to server lost'.
