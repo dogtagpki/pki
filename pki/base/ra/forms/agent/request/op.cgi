@@ -76,10 +76,22 @@ sub process()
   $queue->open($cfg);
 
   my $ref;
-  my $pref = $queue->read_request($id);
+
+  my @roles = $self->get_current_roles($cfg);
+  my $pref = $queue->read_request_by_roles(\@roles, $id);
+
+  if (! defined $pref) {
+    $queue->close();
+    $self->debug_log($cfg, "Invalid attempt to process request id= " . $id .
+        " by userid= " . $uid);
+    print $q->redirect("/agent/error.cgi");
+    return;
+  }
+
   my $curr_status = $pref->{'status'};
   if ($type eq "approve") {
     if (($curr_status ne "OPEN") && ($curr_status ne "ERROR")) {
+      $queue->close();
       print $q->redirect("/agent/request/read.cgi?id=$id");
       return;
     }
@@ -87,6 +99,7 @@ sub process()
     $ref = $queue->approve_request($id, $uid);
   } elsif ($type eq "reject") {
     if (($curr_status ne "OPEN") && ($curr_status ne "ERROR")) {
+      $queue->close();
       print $q->redirect("/agent/request/read.cgi?id=$id");
       return;
     }
