@@ -43,8 +43,16 @@ public class SigningAlgConstraint extends EnrollConstraint {
 
     public static final String CONFIG_ALGORITHMS_ALLOWED = "signingAlgsAllowed";
 
-    public static final String DEF_CONFIG_ALGORITHMS =
-      "MD5withRSA,MD2withRSA,SHA1withRSA,SHA256withRSA,SHA512withRSA";
+    private static StringBuffer sb = new StringBuffer("");
+    static {
+        for (int i = 0; i < AlgorithmId.ALL_SIGNING_ALGORITHMS.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(AlgorithmId.ALL_SIGNING_ALGORITHMS[i]);
+        }
+    }
+    public static final String DEF_CONFIG_ALGORITHMS = new String(sb);
 
     public SigningAlgConstraint() {
         super();
