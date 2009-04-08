@@ -1866,9 +1866,6 @@ public class ProfileAdminServlet extends AdminServlet {
                 } catch (EPropertyException e) {
 
                    CMS.debug("ProfileAdminServlet: modifyPolicyConstraintsConfig setConfig exception.");
-                   try {
-                     profile.deleteProfilePolicy(setId, pId);
-                   } catch (Exception e11) {}
                    sendResponse(ERROR,BAD_CONFIGURATION_VAL,null,resp);
                    return;
                 }
