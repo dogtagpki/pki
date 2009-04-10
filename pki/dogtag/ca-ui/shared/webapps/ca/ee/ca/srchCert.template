@@ -126,8 +126,8 @@ function renderDateFromSecs(secs)
         year %= 100;
         year += 2000;
     }
-    return (dateTmp.getMonth()+1)+"/"+dateTmp.getDate()+"/"+year+"&nbsp;"+
-            (dateTmp.getHours()<10?"&nbsp;":"")+
+    return (dateTmp.getMonth()+1)+"/"+dateTmp.getDate()+"/"+year+" "+
+            (dateTmp.getHours()<10?" ":"")+
             dateTmp.getHours()+":"+(dateTmp.getMinutes()<10?"0":"")+
             dateTmp.getMinutes()+":"+(dateTmp.getSeconds()<10?"0":"")+
             dateTmp.getSeconds();
@@ -176,6 +176,13 @@ function addSpaces(str)
         }
     }
 
+    return outStr;
+}
+
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
     return outStr;
 }
 
@@ -304,7 +311,7 @@ function displayCertificateRecord(i, cert)
      " <a index='"+i+"' href='/ca/ee/ca/displayBySerial?op=displayBySerial&serialNumber=0x"+
            cert.serialNumber+"' onmouseover='mouseover(this,event);' "+
            "onmouseout='mouseout(this);'>"+
-         cert.subject+"</div></font>"+
+         addEscapes(cert.subject)+"</div></font>"+
      "</a></td>"+
      "</tr>\n"
 

@@ -415,8 +415,8 @@ ldapInit();
                if (la != null) {
                    String[] sla = la.getStringValueArray();
                    CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): got attribute: "+mLdapStringAttrs[i]+
-                       "=" +sla[0]);
-                       request.setExtData(mLdapStringAttrs[i], sla[0]);
+                       "=" + escapeValueRfc1779(sla[0], false).toString());
+                       request.setExtData(mLdapStringAttrs[i], escapeValueRfc1779(sla[0], false).toString());
                }
             }
 //cfu

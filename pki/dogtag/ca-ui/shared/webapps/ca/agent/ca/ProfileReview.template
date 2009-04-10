@@ -25,8 +25,16 @@ TABLE { border-spacing: 0 0; }
 <script type="text/javascript">
 function escapeValue(value)
 {
-   return value.replace('"','&quot;');
+   return value.replace(/"/g,'&quot;');
 }
+
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
+    return outStr;
+}
+
 document.writeln('<font size="+1" face="PrimaSans BT, Verdana, sans-serif">Request ');
 document.writeln(requestId);
 document.writeln('<br></font>');
@@ -230,7 +238,7 @@ document.writeln('</FONT>');
   document.writeln('</td>');
   document.writeln('<td>');
 document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
-  document.writeln(inputListSet[i].inputVal);
+  document.writeln(addEscapes(inputListSet[i].inputVal));
 document.writeln('</FONT>');
   document.writeln('</td>');
   document.writeln('</tr>');

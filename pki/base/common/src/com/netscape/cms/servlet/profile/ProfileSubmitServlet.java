@@ -107,9 +107,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
                 while (inputNames.hasMoreElements()) {
                     String inputName = (String) inputNames.nextElement();
-
                     if (request.getParameter(inputName) != null) {
-                        ctx.set(inputName, request.getParameter(inputName));
+                        // all subject name parameters start with sn_, no other input parameters do
+                        if (inputName.matches("^sn_.*")) {
+                            ctx.set(inputName, escapeValueRfc1779(request.getParameter(inputName), false).toString());
+                        } else {
+                            ctx.set(inputName, request.getParameter(inputName));
+                        }
                     }
                 }
             }
@@ -306,7 +310,12 @@ public class ProfileSubmitServlet extends ProfileServlet {
                         String inputName = (String) inputNames.nextElement();
 
                         if (request.getParameter(inputName) != null) {
-                            req.setExtData(inputName, request.getParameter(inputName));
+                            // special characters in subject names parameters must be escaped
+                            if (inputName.matches("^sn_.*")) {
+                                req.setExtData(inputName, escapeValueRfc1779(request.getParameter(inputName), false).toString());
+                            } else {
+                                req.setExtData(inputName, request.getParameter(inputName));
+                            }
                         }
                     }
                 }
@@ -350,7 +359,6 @@ public class ProfileSubmitServlet extends ProfileServlet {
         }
 
     }
-
 
     private void setOutputIntoArgs(IProfile profile, ArgList outputlist, Locale locale, IRequest req) {
         Enumeration outputIds = profile.getProfileOutputIds();

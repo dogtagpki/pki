@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Apr 10 2009 Ade Lee <alee@redhat.com> 1.1.0-2
+- Bugzilla Bug #223353 - Values entered through web ui are not checked/escaped
 * Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
 - Version update to Dogtag 1.1.0.
 * Tue Mar 31 2009 Christina Fu <cfu@redhat.com> 1.0.0-45

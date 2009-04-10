@@ -742,4 +742,29 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         }
         return p.substitute2("request", attrSet);
     }
+
+    protected StringBuffer escapeValueRfc1779(String v, boolean doubleEscape)
+    {
+        StringBuffer result = new StringBuffer();
+
+        // Do we need to escape any characters
+        for (int i = 0; i < v.length(); i++) {
+            int c = v.charAt(i);
+            if (c == ',' || c == '=' || c == '+' || c == '<' ||
+                c == '>' || c == '#' || c == ';' || c == '\r' ||
+                c == '\n' || c == '\\' || c == '"') {
+                        result.append('\\');
+                        if (doubleEscape) result.append('\\');
+            }
+            if (c == '\r') {
+                result.append("0D");
+            } else if (c == '\n') {
+                result.append("0A");
+            } else {
+                result.append((char)c);
+            }
+        }
+        return result;
+    }
+ 
 }

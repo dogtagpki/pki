@@ -162,6 +162,13 @@ function addSpaces(str)
     return outStr;
 }
 
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
+    return outStr;
+}
+
 function getRevocationReason(revocationReason)
 {
     var reasons = new Array("Unspecified",
@@ -189,7 +196,7 @@ function displayCertificateRecord(cert)
 "<tr><td><font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
 "<a href=\"displayBySerial?op=displayBySerial&serialNumber=0x"+ cert.serialNumber + "\">"+renderHexNumber(cert.serialNumber,8) +"</a></font></td>\n"+
 "<td colspan=\"2\"><font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+
-addSpaces(cert.subject) +"</font></td></tr>\n"+
+addSpaces(addEscapes(cert.subject)) +"</font></td></tr>\n"+
 
 "<tr bgcolor=\"#e5e5e5\"><td>\n"+
 "<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">\n"+

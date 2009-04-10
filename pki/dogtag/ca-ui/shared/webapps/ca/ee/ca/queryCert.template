@@ -91,6 +91,13 @@ function toHex(number)
     return sign + absValue;
 }
 
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
+    return outStr;
+}
+
 function revokeCert(serialNumber)
 { 
 	return confirm("WARNING!! You are about to do an irreversible operation.\nDo you really want to revoke certificate # "+ 
@@ -291,7 +298,7 @@ function displayCertificateRecord(i, cert)
      " <a index='"+i+"' href='/ca/ee/ca/displayBySerial?op=displayBySerial&serialNumber=0x"+
            cert.serialNumber+"' onmouseover='mouseover(this,event);' "+
            "onmouseout='mouseout(this);'>"+
-         cert.subject+"</a></div></font>"+
+         addEscapes(cert.subject)+"</a></div></font>"+
      "</td>"+
      "</tr>\n"
 

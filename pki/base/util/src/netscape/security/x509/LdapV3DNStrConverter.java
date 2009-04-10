@@ -758,7 +758,11 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter
 	    if (specialChars.indexOf(valueStr.charAt(i)) != -1) {
 		retval.append('\\');
 		retval.append(valueStr.charAt(i));
-	    }
+	    } else 
+            if (valueStr.charAt(i) == '"') {
+                retval.append('\\');
+                retval.append(valueStr.charAt(i));
+            }
 	    else
 		retval.append(valueStr.charAt(i));
 	}

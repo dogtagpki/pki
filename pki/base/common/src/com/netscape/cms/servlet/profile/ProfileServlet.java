@@ -328,7 +328,8 @@ public class ProfileServlet extends CMSServlet {
         for (int i = 0; i < l; i++) {
             char c = in[i];
 
-            if (c > 0x23) {
+            /* presumably this gives better performance */
+            if ((c > 0x23) && (c != 0x5c)) {
                 out[j++] = c;
                 continue;
             }

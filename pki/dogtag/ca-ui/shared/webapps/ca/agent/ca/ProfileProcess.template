@@ -18,7 +18,15 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <CMS_TEMPLATE>
+
 <script type="text/javascript">
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
+    return outStr;
+}
+
 document.writeln('<font size="+1" face="PrimaSans BT, Verdana, sans-serif">Request ');
 document.writeln(requestId);
 document.writeln('<br></font>');
@@ -30,6 +38,7 @@ document.writeln('<br></font>');
   </tr>
 </table>
 <p>
+
 <script type="text/javascript">
 document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
 document.writeln('<b>Request Information:</b>');
@@ -139,10 +148,10 @@ for (var i = 0; i < outputListSet.length; i++) {
     document.writeln('</tr>');
     document.writeln('<td>');
     if (outputListSet[i].outputSyntax == 'string') {
-      document.writeln(outputListSet[i].outputVal);
+      document.writeln(addEscapes(outputListSet[i].outputVal));
     } else if (outputListSet[i].outputSyntax == 'pretty_print') {
       document.writeln('<pre>');
-      document.writeln(outputListSet[i].outputVal);
+      document.writeln(addEscapes(outputListSet[i].outputVal));
       document.writeln('</pre>');
     }
     document.writeln('</td>');

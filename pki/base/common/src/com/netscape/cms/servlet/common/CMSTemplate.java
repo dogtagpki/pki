@@ -372,7 +372,7 @@ public class CMSTemplate extends CMSFile {
         for (int i = 0; i < l; i++) {
             char c = in[i];
 
-            if (c > 0x23) {
+            if ((c > 0x23) && (c!= 0x5c)) {
                 out[j++] = c;
                 continue;
             }
@@ -407,6 +407,7 @@ public class CMSTemplate extends CMSFile {
                 out[j++] = c;
             }
         }
+        String ret = new String(out,0,j);
         return new String(out, 0, j);
     }
 

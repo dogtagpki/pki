@@ -75,6 +75,14 @@ function doReload()
         document.reloadForm.submit();
     }
 }
+
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
+    return outStr;
+}
+
 //-->
 </SCRIPT>
 
@@ -105,7 +113,7 @@ Certificate contents</font></td></tr></table>
 
 <pre>
 <SCRIPT type="text/javascript">
-document.write(result.header.certPrettyPrint);
+document.write(addEscapes(result.header.certPrettyPrint));
 </SCRIPT>
 </pre>
 

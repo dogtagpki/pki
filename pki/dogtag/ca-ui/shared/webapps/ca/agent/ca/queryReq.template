@@ -164,6 +164,13 @@ function addSpaces(str)
     return outStr;
 }
 
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
+    return outStr;
+}
+
 function renderDetailsButtonForProfile(serialNumber)
 {
         return '<form method=post '+
@@ -302,7 +309,7 @@ function displayRequest(i, req)
         document.write("<TD colspan=2>\n"+
             "<div class='subject'><font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">\n"+
 	    link+
-            addSpaces(req.subject) + "</a></font></div></td></tr>\n");
+            addSpaces(addEscapes(req.subject)) + "</a></font></div></td></tr>\n");
     } else {
         document.write("<TD></TD><TD></TD></tr>\n");
     }

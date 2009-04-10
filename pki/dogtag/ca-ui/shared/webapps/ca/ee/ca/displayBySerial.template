@@ -33,6 +33,13 @@ function navMajorVersion()
     return parseInt(navigator.appVersion.substring(0, navigator.appVersion.indexOf(".")));
 }
 
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
+    return outStr;
+}
+
 function toHex(number)
 {
     var absValue = "", sign = "";
@@ -80,7 +87,7 @@ Certificate contents</font></td></tr></table>
 
 <pre>
 <SCRIPT LANGUAGE="JavaScript">
-document.write(result.header.certPrettyPrint);
+document.write(addEscapes(result.header.certPrettyPrint));
 </SCRIPT>
 </pre>
 

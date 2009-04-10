@@ -195,29 +195,6 @@ public class SrchCerts extends CMSServlet {
         }
     }
 
-    private StringBuffer escapeValueRfc1779(String v)
-    {
-        StringBuffer result = new StringBuffer();
-
-        // Do we need to escape any characters
-        for (int i = 0; i < v.length(); i++) {
-            int c = v.charAt(i);
-            if (c == ',' || c == '=' || c == '+' || c == '<' ||
-                c == '>' || c == '#' || c == ';' || c == '\r' ||
-                c == '\n' || c == '\\' || c == '"') {
-                        result.append('\\');
-            }
-            if (c == '\r') {
-                result.append("0D");
-            } else if (c == '\n') {
-                result.append("0A");
-            } else {
-                result.append((char)c);
-            }
-        }
-        return result;
-    }
-
     private void buildAVAFilter(HttpServletRequest req, String paramName, 
                                  String avaName, StringBuffer lf, String match)
     {
@@ -228,12 +205,12 @@ public class SrchCerts extends CMSServlet {
                 lf.append("(x509cert.subject=*");
                 lf.append(avaName);
                 lf.append("=");
-                lf.append(escapeValueRfc1779(val));
+                lf.append(escapeValueRfc1779(val, true));
                 lf.append(",*)");
                 lf.append("(x509cert.subject=*");
                 lf.append(avaName);
                 lf.append("=");
-                lf.append(escapeValueRfc1779(val));
+                lf.append(escapeValueRfc1779(val, true));
                 lf.append(")");
                 lf.append(")");
             } else {
@@ -241,7 +218,7 @@ public class SrchCerts extends CMSServlet {
                 lf.append(avaName);
                 lf.append("=");
                 lf.append("*");
-                lf.append(escapeValueRfc1779(val));
+                lf.append(escapeValueRfc1779(val, true));
                 lf.append("*)");
             }
         }

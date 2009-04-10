@@ -547,6 +547,32 @@ char *getData( char *fileName, char *injection )
     return buf;
 }
 
+/**
+ * returns string with special characters escaped.  Caller must free the contents 
+ */
+char *escapeSpecialChars(char* src)
+{
+    char *ret;
+    int i =0;
+
+    if (PL_strlen(src) == 0) {
+        return PL_strdup(src);
+    }
+    ret = (char *)PR_Malloc(PL_strlen(src) * 2 + 1);
+
+    while (*src != '\0') {
+        if (*src == '"') {
+            ret[i++] = '\\';
+            ret[i++] = '"';
+        } else {
+            ret[i++] = *src;
+        }
+        src++; 
+    }
+    ret[i]='\0';  
+    return ret;   
+}
+
 
 void getCertificateFilter( char *filter, char *query )
 {
@@ -4119,7 +4145,12 @@ mod_tokendb_handler( request_rec *rq )
                             PL_strcat( injection, "\"" );
                         }
 
-                        PL_strcat( injection, vals[i] );
+                        // make sure to escape any special characters
+                        char *escaped = escapeSpecialChars(vals[i]);
+                        PL_strcat( injection, escaped );
+                        if (escaped != NULL) {
+                            PL_strfree(escaped);
+                        }
                     }
 
                     if( i > v_start ) {

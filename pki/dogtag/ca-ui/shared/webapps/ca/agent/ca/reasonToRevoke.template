@@ -161,6 +161,13 @@ function addSpaces(str)
     return outStr;
 }
 
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
+    return outStr;
+}
+
 function displayCertInfo()
 {
     document.write("<table border=\"0\" cellspacing=\"2\">");
@@ -180,7 +187,7 @@ function displayCertInfo()
         }
         if (result.recordSet[i].subject != null) {
             document.write(renderRow("Subject Name:",
-                                     addSpaces(result.recordSet[i].subject)));
+                                     addSpaces(addEscapes(result.recordSet[i].subject))));
         }
         if ((result.recordSet[i].validNotBefore != null) &&
             (result.recordSet[i].validNotAfter != null)) {
