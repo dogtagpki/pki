@@ -90,6 +90,9 @@ public class Monitor extends CMSServlet {
         mQueue = mAuthority.getRequestQueue();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+
+        if (mOutputTemplatePath != null)
+            mFormPath = mOutputTemplatePath;
     }
 
     /**
