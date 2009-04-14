@@ -734,6 +734,8 @@
                          <param-value> ca          </param-value> </init-param>
              <init-param><param-name>  interface  </param-name>
                          <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ca/monitor.template </param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caMonitor   </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
