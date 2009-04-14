@@ -184,6 +184,8 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
             return true;
         if (def instanceof BasicConstraintsExtDefault)
             return true;
+        if (def instanceof UserExtensionDefault)
+            return true;
         return false;
     }
 
