@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,8 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Apr 14 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-2
+- Bugzilla Bug #490224 - Monitor regression
 * Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
 - Version update to Dogtag 1.1.0.
 * Fri Apr 3 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-39
