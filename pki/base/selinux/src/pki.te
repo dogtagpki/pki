@@ -13,11 +13,11 @@ type pki_ca_tomcat_exec_t;
 files_type(pki_ca_tomcat_exec_t)
 
 pki_ca_template(pki_ca)
-allow pki_ca_t pki_kra_t:process signull;
-allow pki_ca_t pki_ocsp_t:process signull;
-allow pki_ca_t pki_tks_t:process signull;
 corenet_tcp_connect_pki_kra_port(pki_ca_t)
 corenet_tcp_connect_pki_ocsp_port(pki_ca_t)
+
+# for crl publishing
+allow pki_ca_t pki_ca_var_lib_t:lnk_file { rename create unlink };
 
 attribute pki_kra_config;
 attribute pki_kra_executable;
@@ -32,7 +32,6 @@ type pki_kra_tomcat_exec_t;
 files_type(pki_kra_tomcat_exec_t)
 
 pki_ca_template(pki_kra)
-allow pki_kra_t pki_ca_t:process signull;
 corenet_tcp_connect_pki_ca_port(pki_kra_t)
 
 attribute pki_ocsp_config;
@@ -48,7 +47,6 @@ type pki_ocsp_tomcat_exec_t;
 files_type(pki_ocsp_tomcat_exec_t)
 
 pki_ca_template(pki_ocsp)
-allow pki_ocsp_t pki_ca_t:process signull;
 corenet_tcp_connect_pki_ca_port(pki_ocsp_t)
 
 attribute pki_ra_config;
@@ -78,8 +76,6 @@ type pki_tks_tomcat_exec_t;
 files_type(pki_tks_tomcat_exec_t)
 
 pki_ca_template(pki_tks)
-allow pki_tks_t pki_ca_t:process signull;
-allow pki_tks_t pki_kra_t:process signull;
 corenet_tcp_connect_pki_ca_port(pki_tks_t)
 
 # needed for token enrollment, list /var/cache/tomcat5/temp
@@ -99,4 +95,23 @@ files_type(pki_tps_tomcat_exec_t)
 
 pki_tps_template(pki_tps)
 
+#interprocess communication on process shutdown
+allow pki_ca_t pki_kra_t:process signull;
+allow pki_ca_t pki_ocsp_t:process signull;
+allow pki_ca_t pki_tks_t:process signull;
+
+allow pki_kra_t pki_ca_t:process signull;
+allow pki_kra_t pki_ocsp_t:process signull;
+allow pki_kra_t pki_tks_t:process signull;
+
+allow pki_ocsp_t pki_ca_t:process signull;
+allow pki_ocsp_t pki_kra_t:process signull;
+allow pki_ocsp_t pki_tks_t:process signull;
+
+allow pki_tks_t pki_ca_t:process signull;
+allow pki_tks_t pki_kra_t:process signull;
+allow pki_tks_t pki_ocsp_t:process signull;
+
+#allow httpd_t pki_tks_tomcat_exec_t:process signull;
+#allow httpd_t pki_tks_var_lib_t:process signull;
 

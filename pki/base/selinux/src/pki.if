@@ -37,6 +37,7 @@ template(`pki_ca_template',`
 		attribute pki_ca_executable, pki_ca_script, pki_ca_var_log;
 		type pki_ca_tomcat_exec_t;
 		type $1_port_t;
+                type rpm_var_lib_t;
 	')
 	########################################
 	#
@@ -92,6 +93,9 @@ template(`pki_ca_template',`
 	# This is for /etc/$1/tomcat.conf:
 	can_exec($1_t, $1_tomcat_exec_t)
         allow $1_t $1_tomcat_exec_t:file {getattr read};
+
+        #installation requires this for access to /var/lib/tomcat5/common/lib/jdtcore.jar 
+        rpm_read_db($1_t)
 
 	# Init script handling
 	domain_use_interactive_fds($1_t)
