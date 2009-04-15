@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -249,6 +249,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Apr 15 2009 Ade Lee <alee@redhat.com> 1.1.0-2
+- Bugzilla Bug #492799 - MasterCRL.bin file is not published to the specified directory
 * Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
 - Version update to Dogtag 1.1.0.
 * Wed Feb 11 2009 Ade Lee <alee@redhat.com> 1.0.0-7
