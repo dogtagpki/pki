@@ -213,7 +213,7 @@ int LDAP_Authentication::Authenticate(AuthParams *params)
     } else {
         for (e = ldap_first_entry(ld, result); e != NULL; e = ldap_next_entry(ld, e)) {
             if ((dn = ldap_get_dn(ld, e)) != NULL) {
-RA::Debug("LDAP_Authentication::Authenticate", "User bind required '%s' '%s'", dn, password);
+RA::Debug("LDAP_Authentication::Authenticate", "User bind required '%s' '(sensitive)'", dn );
                 if (ldap_simple_bind_s(ld, dn, password) == LDAP_SUCCESS) {
                     /* retrieve attributes and, */
                     /* put them into the auth parameters */
