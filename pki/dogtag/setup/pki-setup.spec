@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -115,7 +115,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 BuildRequires:  ant >= 1.6.2
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0, perl-XML-LibXML, perl-libwww-perl >= 5.8.0, policycoreutils, perl-Crypt-SSLeay
+Requires:       %{base_prefix}-native-tools >= 1.0.0, perl >= 5.8.0, perl-XML-LibXML, perl-libwww-perl >= 5.8.0, policycoreutils, perl-Crypt-SSLeay, perl-XML-SAX >= 0.12
 
 
 ## This package is non-relocatable!
@@ -217,6 +217,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Apr 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-2
+- Bugzilla Bug #495959 -  pkiremove requires "perl-XML-SAX" as a runtime
+  dependency
 * Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
 - Version update to Dogtag 1.1.0.
 * Sat Mar 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-21
