@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      5
+%define base_release      6
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Fri Apr 17 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-6
+- Bugzilla Bug #443120 - administrator cannot remove imported CA certificate
 * Tue Apr 14 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-5
 - Bugzilla Bug #490224 - Monitor regression
 * Mon Apr 13 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-4
