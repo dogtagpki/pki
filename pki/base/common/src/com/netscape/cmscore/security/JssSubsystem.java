@@ -933,6 +933,11 @@ CMS.debug("*** removing this interna cert");
 
     public void deleteRootCert(String nickname, String serialno, 
       String issuername) throws EBaseException {
+        int index = nickname.indexOf(":");
+        String tokenname = nickname.substring(0, index);
+        if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+            nickname = nickname.substring(index+1);
+        }
         try {
             if (mNicknameMapCertsTable != null) {
                 X509Certificate[] certs = (X509Certificate[]) mNicknameMapCertsTable.get(nickname);
