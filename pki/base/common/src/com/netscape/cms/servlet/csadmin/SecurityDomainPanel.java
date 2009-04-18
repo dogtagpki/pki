@@ -280,11 +280,15 @@ public class SecurityDomainPanel extends WizardPanelBase {
               CMS.getEENonSSLHost());
             config.putString("preop.securitydomain.httpport", 
               CMS.getEENonSSLPort());
+            config.putString("securitydomain.httpport", 
+              CMS.getEENonSSLPort());
             config.putString("preop.securitydomain.httpsport", 
               CMS.getEESSLPort());
             config.putString("securitydomain.httpsport", 
               CMS.getEESSLPort());
             config.putString("preop.securitydomain.name", 
+              HttpInput.getDomainName(request, "sdomainName"));
+            config.putString("securitydomain.name", 
               HttpInput.getDomainName(request, "sdomainName"));
 
             // make sure the subsystem certificate is issued by the security  

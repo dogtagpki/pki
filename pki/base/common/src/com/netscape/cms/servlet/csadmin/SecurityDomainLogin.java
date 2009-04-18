@@ -66,8 +66,10 @@ public class SecurityDomainLogin extends BaseServlet {
               subsystem = "DRM";
             }
             context.put("subsystem", subsystem);
+            // The "securitydomain.name" property ONLY resides in the "CS.cfg"
+            // associated with the CS subsystem hosting the security domain.
             IConfigStore cs = CMS.getConfigStore();
-            String sdname = cs.getString("preop.securitydomain.name", "");
+            String sdname = cs.getString("securitydomain.name", "");
             context.put("name", sdname); 
             template = Velocity.getTemplate("admin/console/config/securitydomainloginpanel.vm");
         } catch (Exception e) {
