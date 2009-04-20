@@ -163,7 +163,7 @@ httpd=${HTTPD:-[FORTITUDE_DIR]/sbin/httpd}
 prog=[INSTANCE_ID]
 pidfile=${PIDFILE:-[SERVER_ROOT]/logs/[INSTANCE_ID].pid}
 lockfile=${LOCKFILE:-/var/lock/subsys/[INSTANCE_ID]}
-RESTART_SERVER=/var/lib/[INSTANCE_ID]/conf/restart_server_after_configuration
+RESTART_SERVER=[SERVER_ROOT]/conf/restart_server_after_configuration
 RETVAL=0
 
 # see if httpd is linked with the openldap libraries - we need to override them
@@ -179,7 +179,7 @@ if [ ${OS} = "Linux" ]; then
 	fi
 elif [ ${OS} = "SunOS" ] ; then
 	LD_PRELOAD_64="[SYSTEM_USER_LIBRARIES]/libldap60.so"
-	LD_PRELOAD_64="[SYSTEM_USER_LIBRARIES]/libssl3.so:${LD_PRELOAD_64}"
+	LD_PRELOAD_64="[SYSTEM_USER_LIBRARIES]/dirsec/libssl3.so:${LD_PRELOAD_64}"
 	export LD_PRELOAD_64
 fi
 
@@ -187,7 +187,7 @@ check_pki_configuration_status()
 {
 	rv=0
 
-	rv=`grep -c ^preop /etc/[INSTANCE_ID]/CS.cfg`
+	rv=`grep -c ^preop [SERVER_ROOT]/conf/CS.cfg`
 
 	rv=`expr ${rv} + 0`
 

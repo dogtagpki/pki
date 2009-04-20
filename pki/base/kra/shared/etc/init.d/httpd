@@ -25,7 +25,7 @@
 #               (Tomcat 5.0)
 # processname:  [PKI_INSTANCE_ID]
 # pidfile:      /var/run/[PKI_INSTANCE_ID].pid
-# config:       /etc/[PKI_INSTANCE_ID]/tomcat5.conf
+# config:       [PKI_INSTANCE_PATH]/conf/tomcat5.conf
 #
 # Gomez Henri <hgomez@users.sourceforge.net>
 # Keith Irwin <keith_irwin@non.hp.com>
@@ -139,8 +139,8 @@ else
 
 	#######################################################################
 	## NOTE:  The following code needs to eventually be moved into the   ##
-	##        template used to create the "/etc/<instance>/tomcat5.conf" ##
-	##        file!                                                      ##
+	##        template used to create the                                ##
+	##        "[PKI_INSTANCE_PATH]/conf/tomcat5.conf" file!              ##
 	#######################################################################
 
 	if [ ${OS} = "SunOS" ] ; then
@@ -203,19 +203,19 @@ fi
 
 # Since the daemon function will sandbox $tomcat
 # no environment stuff should be defined here anymore.
-# Please use the /etc/tomcat.conf file instead ; it will
-# be read by the $tomcat script
+# Please use the [PKI_INSTANCE_PATH]/conf/tomcat5.conf
+# file instead ; it will be read by the $tomcat script
 
 pidfile=${PIDFILE:-/var/run/[PKI_INSTANCE_ID].pid}
 lockfile=${LOCKFILE:-/var/lock/subsys/[PKI_INSTANCE_ID]}
-RESTART_SERVER=/var/lib/[PKI_INSTANCE_ID]/conf/restart_server_after_configuration
+RESTART_SERVER=[PKI_INSTANCE_PATH]/conf/restart_server_after_configuration
 RETVAL=0
 
 check_pki_configuration_status()
 {
 	rv=0
 
-	rv=`grep -c ^preop /etc/[PKI_INSTANCE_ID]/CS.cfg`
+	rv=`grep -c ^preop [PKI_INSTANCE_PATH]/conf/CS.cfg`
 
 	rv=`expr ${rv} + 0`
 
