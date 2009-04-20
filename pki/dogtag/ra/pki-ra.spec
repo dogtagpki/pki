@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,9 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Apr 20 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
+- Bugzilla Bug #496679 -  Use instance-specific paths rather than
+  redirected paths in Execution Management Scripts
 * Thu Apr 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-3
 - Bugzilla Bug #493122 -  Proper invocation and use of mod_revocator
 - Bugzilla Bug #495959 -  pkiremove requires "perl-XML-SAX" as a runtime

@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      5
+%define base_release      6
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,9 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Apr 20 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-6
+- Bugzilla Bug #496679 -  Use instance-specific paths rather than
+  redirected paths in Execution Management Scripts
 * Sat Apr 18 2009 Christina Fu <cfu@redhat.com> 1.1.0-5
 - Bugzilla Bug #496416 - TPS smart card renewal clean-up needed
 * Fri Apr 17 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
