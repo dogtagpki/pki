@@ -157,7 +157,7 @@ if (typeof(results) == "undefined" || results.length == 0) {
         var new_start = start_entry_val + num_entries_per_page;
         var query = my_query.replace(/&*start_entry_val=\d*/,"");
         var query_array = query.split("&");
-        document.write("<td> <form method=get name=next_entries ">");
+        document.write("<td> <form method=get name=next_entries >");
         for (var i=0; i< query_array.length ; i++) {
             var a = query_array[i].split("=");
             document.write("<input TYPE=hidden name=" + a[0] + " VALUE=" + a[1] + ">");
