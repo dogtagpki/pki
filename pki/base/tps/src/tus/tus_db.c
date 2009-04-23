@@ -595,6 +595,7 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
     int  rc = -1;
 #define MAX_FILTER_LEN 4096
     char filter[MAX_FILTER_LEN];
+    char searchBase[MAX_FILTER_LEN];
     char **v = NULL;
     char *userid = NULL;
     LDAPMessage *result = NULL;
@@ -633,10 +634,12 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
       PR_snprintf(filter, MAX_FILTER_LEN, "%s\\%02x", filter, (c & 0xff) );
     }
     PR_snprintf(filter, MAX_FILTER_LEN, "%s)", filter);
+    PR_snprintf(searchBase, MAX_FILTER_LEN, "ou=People, %s", userBaseDN);
+
     if (dst != NULL) free(dst);
 
     for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_search_ext_s(ld, userBaseDN, LDAP_SCOPE_SUBTREE, 
+        if ((rc = ldap_search_ext_s(ld, searchBase, LDAP_SCOPE_SUBTREE, 
                filter, NULL, 0, NULL, NULL, NULL, 0, &result)) == LDAP_SUCCESS )  
 		{
             break;
