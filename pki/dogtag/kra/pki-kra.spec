@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -288,6 +288,9 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Apr 22 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
+- Bugzilla Bug #488338 -  start/stop scripts should list all the
+  available port numbers with their functionality
 * Tue Apr 21 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-3
 - Bugzilla Bug #495597 -  Unable to access Agent page using a configured
   CA/KRA containing an HSM
