@@ -393,10 +393,7 @@ start()
 		fi
 
 		echo
-		echo -n "PKI service(s) are available at "
-		echo -n "https://[SERVER_NAME]:$SECURE_PORT"
-		echo
-		echo
+		status
 
 		# Set permissions of log files
 		pki_logs_directory=`dirname ${pidfile}`

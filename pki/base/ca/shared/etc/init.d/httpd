@@ -900,10 +900,7 @@ start()
 		fi
 
 		echo
-		echo -n "PKI service(s) are available at "
-		echo -n "https://[PKI_MACHINE_NAME]:$PKI_SECURE_PORT"
-		echo
-		echo
+		status
 	else
 		if [ -x /etc/init.d/functions ]; then
 			if [ "$CONSOLETYPE" = "serial" ]; then

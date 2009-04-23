@@ -309,6 +309,7 @@ my $db_password_high = 999999999999;
 my $GROUPID                = "GROUPID";
 my $HTTPD_CONF             = "HTTPD_CONF";
 my $INSTANCE_ID            = "INSTANCE_ID";
+my $INSTANCE_ROOT          = "INSTANCE_ROOT";
 my $LIB_PREFIX             = "LIB_PREFIX";
 my $NSS_CONF               = "NSS_CONF";
 my $OBJ_EXT                = "OBJ_EXT";
@@ -2208,6 +2209,7 @@ sub process_pki_templates()
         $slot_hash{$GROUPID}               = $pki_group;
         $slot_hash{$HTTPD_CONF}            = $httpd_conf_instance_file_path;
         $slot_hash{$INSTANCE_ID}           = $pki_instance_name;
+        $slot_hash{$INSTANCE_ROOT}         = $pki_instance_root;
         $slot_hash{$LIB_PREFIX}            = $lib_prefix;
         $slot_hash{$NSS_CONF}              = $nss_conf_instance_file_path;
         $slot_hash{$OBJ_EXT}               = $obj_ext;
