@@ -16,7 +16,7 @@ Unsecure Port     = http://[PKI_MACHINE_NAME]:[PKI_UNSECURE_PORT]/[PKI_SUBSYSTEM
 Secure Agent Port = https://[PKI_MACHINE_NAME]:[PKI_AGENT_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/agent/[PKI_SUBSYSTEM_TYPE]
 Secure EE Port    = https://[PKI_MACHINE_NAME]:[PKI_EE_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/ee/[PKI_SUBSYSTEM_TYPE]
 Secure Admin Port = https://[PKI_MACHINE_NAME]:[PKI_ADMIN_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/services
-Secure Admin Port = pkiconsole https://[PKI_MACHINE_NAME]:[PKI_ADMIN_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]
+PKI Console Port  = pkiconsole https://[PKI_MACHINE_NAME]:[PKI_ADMIN_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]
 Tomcat Port       = [TOMCAT_SERVER_PORT] (for shutdown)
 -->
 <!-- DO NOT REMOVE - End PKI Status Definitions -->

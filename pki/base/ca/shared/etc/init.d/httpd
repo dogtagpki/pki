@@ -240,6 +240,7 @@ get_pki_status_definitions()
 	secure_agent_port_statement="Secure Agent Port = "
 	secure_ee_port_statement="Secure EE Port    = "
 	secure_admin_port_statement="Secure Admin Port = "
+	pki_console_port_statement="PKI Console Port  = "
 	tomcat_port_statement="Tomcat Port       = "
 
 	# initialize looping variables
@@ -277,6 +278,7 @@ get_pki_status_definitions()
 				[ "$head" == "$secure_agent_port_statement" ] ||
 				[ "$head" == "$secure_ee_port_statement"    ] ||
 				[ "$head" == "$secure_admin_port_statement" ] ||
+				[ "$head" == "$pki_console_port_statement"  ] ||
 				[ "$head" == "$tomcat_port_statement"       ] ; then
 				echo "    $line"
 				total_ports=`expr ${total_ports} + 1`
