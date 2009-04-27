@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      8
+%define base_release      9
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,9 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Apr 27 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-9
+- Bugzilla Bug #497585 -  rhcs80beta tps init script - restarting
+  shows incorrect output
 * Thu Apr 23 2009 Ade Lee <alee@redhat.com> 1.1.0-8
 - Bugzilla Bug 497212 -  unable to enroll a tps operator/ agent/ admin using a token user
 * Wed Apr 22 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-7
