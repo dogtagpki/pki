@@ -514,6 +514,7 @@ template(`pki_tps_template',`
         dev_read_urand(pki_tps_t)
         files_exec_usr_files(pki_tps_t)
         files_read_usr_symlinks(pki_tps_t)
+        files_read_usr_files(pki_tps_t)
 
         #installation and debug uses /tmp
         files_manage_generic_tmp_dirs(pki_tps_t)

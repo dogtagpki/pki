@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,11 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Apr 24 2009 Ade Lee <alee@redhat.com> 1.1.0-5
+- Bugzilla Bug #496332 pkicreate tps instance with -user, -group and 
+  -pki_instance_root throws error
+- Bugzilla Bug #496175 pkiremove of tps instance throws error message 
+  when tps log location is changed.  
 * Wed Apr 22 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
 - Bugzilla Bug #488338 -  start/stop scripts should list all the
   available port numbers with their functionality

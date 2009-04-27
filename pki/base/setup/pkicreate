@@ -999,7 +999,6 @@ sub parse_arguments()
         return 0;
     }
 
-
     ## Mandatory "-pki_instance_name=s" option
     if( $pki_instance_name eq "" ) {
         usage();
@@ -1282,6 +1281,26 @@ sub parse_arguments()
 
         emit( "redirect            $key => $value\n" );
     }
+
+    ## selinux warning
+    if (($pki_instance_root ne "/var/lib") && ($^O eq "linux")) {
+        print STDOUT 
+            "WARNING: This utility will attempt to relabel the selinux context of the directory\n" . 
+            $pki_instance_path . " and the files within it as pki_$subsystem_type" . "_var_lib_t . \n" .
+            "Depending on the location of pki_instance_root and the selinux rules currently\n" .
+            "in place on the system, this may not succeed.  In that case, the directory may\n" .
+            "have to be manually relabeled, or selinux will have to be run in permissive mode.\n\n" .
+            "It is therefore recommended that the default setting of /var/lib be used for pki_instance_root.\n\n";
+ASK_CONTINUE_NONSTD_INSTANCE_ROOT:
+        $confirm  = prompt( "You have chosen the following value for pki_instance_root instead: " .  $pki_instance_root .
+                            "\nDo you wish to proceed with this value (Y/N)?" );
+
+        if( $confirm eq "N" || $confirm eq "n" ) {
+            return 0;
+        } elsif( $confirm ne "Y" && $confirm ne "y" ) {
+           goto ASK_CONTINUE_NONSTD_INSTANCE_ROOT;
+        }
+    }  
 
     return 1;
 }
@@ -3263,20 +3282,30 @@ sub process_pki_selinux_setup()
     }
 
     # set file context for $log_path
-    if ($log_path ne $default_log_path) {
-        &add_selinux_file_context( $setype . "_log_t", 
-            "\"$log_path(/.*)?\"", "a");
+    $log_path =~ s/\/+$//;
+    if ($log_path eq "") {
+        emit("Error: Cannot set selinux context $setype" . "_log_t for directory /");
+    } else {
+        if ($log_path ne $default_log_path) {
+            &add_selinux_file_context( $setype . "_log_t", 
+                "\"$log_path(/.*)?\"", "a");
+        }
+        emit("Restorecon file context for $log_path\n");
+        system("$restorecon -F -R $log_path");
     }
-    emit("Restorecon file context for $log_path\n");
-    system("$restorecon -F -R $log_path");
 
     # set file context for $conf_path
-    if ($conf_path ne $default_conf_path) {
-        &add_selinux_file_context( $setype . "_etc_rw_t", 
-            "\"$conf_path(/.*)?\"", "a");
-    } 
-    emit("Restorecon $conf_path\n");
-    system("$restorecon -F -R $conf_path");
+    $conf_path =~ s/\/+$//;
+    if ($conf_path eq "") {
+        emit("Error: Cannot set selinux context $setype" . "_etc_rw_t for directory /");
+    } else {
+        if ($conf_path ne $default_conf_path) {
+            &add_selinux_file_context( $setype . "_etc_rw_t", 
+                "\"$conf_path(/.*)?\"", "a");
+        } 
+        emit("Restorecon $conf_path\n");
+        system("$restorecon -F -R $conf_path");
+    }
     
     # set file context for $conf_path/tomcat5.conf
     if ($java_component) {
