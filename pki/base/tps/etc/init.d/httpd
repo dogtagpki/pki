@@ -392,9 +392,6 @@ start()
 			SECURE_PORT="<Port Undefined>"
 		fi
 
-		echo
-		status
-
 		# Set permissions of log files
 		pki_logs_directory=`dirname ${pidfile}`
 		for file in ${pki_logs_directory}; do
@@ -416,6 +413,8 @@ start()
 	elif [ ${OS} = "SunOS" ] ; then
 		sleep 20
 	fi
+	echo
+	status
 	return $RETVAL
 }
 
