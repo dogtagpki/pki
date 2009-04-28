@@ -1116,7 +1116,7 @@ bool RA_Enroll_Processor::CheckAndUpgradeApplet(
 			}
 
 			// Upgrade Applet reported success
-			RA::Audit("Enrollment", "op='applet_upgrade' app_ver='%s' new_app_ver='%s'",
+			RA::Audit(EV_ENROLLMENT, "op='applet_upgrade' app_ver='%s' new_app_ver='%s'",
 					o_current_applet_on_token, g_applet_target_version);
 			o_current_applet_on_token = strdup(g_applet_target_version);
 
@@ -1486,7 +1486,7 @@ bool RA_Enroll_Processor::CheckAndUpgradeSymKeys(
 					defKeyIndex  /* default key index */, tksid);
 
 			if (o_channel == NULL) {
-            	RA::Audit("Enrollment", "status='error' key_ver=00 cuid='%s' msn='%s' note='failed to create secure channel'", a_cuid, a_msn );
+            	RA::Audit(EV_ENROLLMENT, "status='error' key_ver=00 cuid='%s' msn='%s' note='failed to create secure channel'", a_cuid, a_msn );
 				RA::Error(FN, "failed to establish secure channel");
 				o_status = STATUS_ERROR_SECURE_CHANNEL;		 
 				RA::tdb_activity(a_session->GetRemoteIP(), a_cuid, "enrollment", "failure", "secure channel error", "", a_tokenType);
@@ -1545,7 +1545,7 @@ bool RA_Enroll_Processor::CheckAndUpgradeSymKeys(
 					curVersion, 
 					curIndex,
 					&key_data_set);
-			RA::Audit("Enrollment", "op='key_change_over' cuid='%s' msn='%s' old_key_ver='%02x' new_key_ver='%02x'",  a_cuid, a_msn, curVersion, ((BYTE*)newVersion)[0]);
+			RA::Audit(EV_ENROLLMENT, "op='key_change_over' cuid='%s' msn='%s' old_key_ver='%02x' new_key_ver='%02x'",  a_cuid, a_msn, curVersion, ((BYTE*)newVersion)[0]);
 
 			/**
 			 * Re-select the Applet.
@@ -2311,11 +2311,11 @@ op.enroll.certificates.caCert.label=caCert Label
     /* audit log for successful enrollment */
     if (authid == NULL) {
     RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process", "authid == NULL");
-        RA::Audit("Enrollment", "status='success' app_ver='%s' key_ver='%s' cuid='%s' msn='%s' uid='%s' time='%d msec'",
+        RA::Audit(EV_ENROLLMENT, "status='success' app_ver='%s' key_ver='%s' cuid='%s' msn='%s' uid='%s' time='%d msec'",
           final_applet_version, keyVersion, cuid, msn, userid, ((PR_IntervalToMilliseconds(end) - PR_IntervalToMilliseconds(start))));
     } else { 
     RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process", "has authid");
-        RA::Audit("Enrollment", "status='success' app_ver='%s' key_ver='%s' cuid='%s' msn='%s' uid='%s' auth='%s' time='%d msec'",
+        RA::Audit(EV_ENROLLMENT, "status='success' app_ver='%s' key_ver='%s' cuid='%s' msn='%s' uid='%s' auth='%s' time='%d msec'",
           final_applet_version, keyVersion, cuid, msn, userid, authid, ((PR_IntervalToMilliseconds(end) - PR_IntervalToMilliseconds(start))));
     }
 

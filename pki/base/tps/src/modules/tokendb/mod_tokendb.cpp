@@ -2716,7 +2716,7 @@ mod_tokendb_handler( request_rec *rq )
         } else if (is_admin) {
             itemplate = indexAdminTemplate;
         } else {
-            RA::Audit("AUTHZ", AUDIT_MSG_FORMAT, userid, "Failure", "Tokendb user authorization");
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_FORMAT, userid, "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
             do_free(uri);

@@ -484,7 +484,7 @@ locale),
         RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "applet upgrade error", "", tokenType);
         goto loser;
     } 
-    RA::Audit("Upgrade", 
+    RA::Audit(EV_UPGRADE, 
       "op='applet_upgrade' app_ver='%s' new_app_ver='%s'", 
       appletVersion, expected_version);
     final_applet_version = expected_version;
@@ -607,7 +607,7 @@ locale),
                   curVersion,
                   curIndex,
                   &key_data_set);
-            RA::Audit("Format", "op='key_change_over' app_ver='%s' cuid='%s' old_key_ver='%02x01' new_key_ver='%02x01'", 
+            RA::Audit(EV_FORMAT, "op='key_change_over' app_ver='%s' cuid='%s' old_key_ver='%02x01' new_key_ver='%02x01'", 
               final_applet_version, cuid, curVersion, 
               ((BYTE*)newVersion)[0]);
 
@@ -793,10 +793,10 @@ locale),
 
     /* audit log for successful enrollment */
     if (authid == NULL)
-        RA::Audit("Format", "status='success' app_ver='%s' key_ver='%d' cuid='%s' msn='%s' uid='%s' time='%d msec'",
+        RA::Audit(EV_FORMAT, "status='success' app_ver='%s' key_ver='%d' cuid='%s' msn='%s' uid='%s' time='%d msec'",
           final_applet_version,(int) finalKeyVersion, cuid, msn, userid, ((PR_IntervalToMilliseconds(end) - PR_IntervalToMilliseconds(start))));
     else
-        RA::Audit("Format", "status='success' app_ver='%s' key_ver='%d' cuid='%s' msn='%s' uid='%s' auth='%s' time='%d msec'",
+        RA::Audit(EV_FORMAT, "status='success' app_ver='%s' key_ver='%d' cuid='%s' msn='%s' uid='%s' auth='%s' time='%d msec'",
           final_applet_version,(int) finalKeyVersion, cuid, msn, userid, authid, ((PR_IntervalToMilliseconds(end) - PR_IntervalToMilliseconds(start))));
 
 loser:
