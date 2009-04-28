@@ -103,6 +103,7 @@ public class ConfigureCA {
 
     public static String save_p12 = null;
     public static String backup_pwd = null;
+    public static String backup_fname = null;
 
     public static String ca_cert_name = null;
     public static String ca_cert_req = null;
@@ -864,14 +865,24 @@ public class ConfigureCA {
                 // dump hr.getResponseData() to file
 
                 try {
-                    FileOutputStream fos = new FileOutputStream("/tmp/tmp-ca.p12");
+                    FileOutputStream fos = new FileOutputStream(backup_fname);
 
                     fos.write(hr.getResponseData());
                     fos.close();
 
+                    // set file to permissions 600
+                    String rtParams[] = { "chmod","600", backup_fname};
+                    Process proc = Runtime.getRuntime().exec(rtParams);
+
+                    BufferedReader br = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+                    String line = null;
+                    while ( (line = br.readLine()) != null)
+                        System.out.println("Error: "  + line);
+                    int exitVal = proc.waitFor();
+
                     // verify p12 file
                     // Decode the P12 file
-                    FileInputStream fis = new FileInputStream("/tmp/tmp-ca.p12");
+                    FileInputStream fis = new FileInputStream(backup_fname);
                     PFX.Template pfxt = new PFX.Template();
                     PFX pfx = (PFX) pfxt.decode(new BufferedInputStream(fis, 2048));
 
@@ -1374,6 +1385,7 @@ public class ConfigureCA {
         StringHolder x_agent_name = new StringHolder();
         StringHolder x_save_p12 = new StringHolder();
         StringHolder x_backup_pwd = new StringHolder();
+        StringHolder x_backup_fname = new StringHolder();
 
         // separate key size for agent cert
 
@@ -1449,6 +1461,7 @@ public class ConfigureCA {
         parser.addOption("-save_p12 %s #Enable/Disable p12 Export[true,false]",
                 x_save_p12); 
         parser.addOption("-backup_pwd %s #Backup Password for p12", x_backup_pwd); 
+        parser.addOption("-backup_fname %s #Backup File for p12, default is /root/tmp-ca.p12", x_backup_fname);
 
         parser.addOption("-ca_sign_cert_subject_name %s #CA cert subject name",
                 x_ca_sign_cert_subject_name);
@@ -1525,6 +1538,11 @@ public class ConfigureCA {
         token_pwd = x_token_pwd.value;
         save_p12 = x_save_p12.value;
         backup_pwd = x_backup_pwd.value;
+        if ((x_backup_fname.value == null) || (x_backup_fname.equals(""))) {
+            backup_fname = "/root/tmp-ca.p12";
+        } else {
+            backup_fname = x_backup_fname.value;
+        }
 
         agent_key_size = x_agent_key_size.value;
         agent_key_type = x_agent_key_type.value;
