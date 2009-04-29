@@ -204,8 +204,11 @@ public class CertUtil {
         req.setExtData("requestor_name", "");
         req.setExtData("requestor_email", "");
         req.setExtData("requestor_phone", "");
+        req.setExtData("profileRemoteHost", "");
+        req.setExtData("profileRemoteAddr", "");
         req.setExtData("requestnotes","");
         req.setExtData("isencryptioncert", "false");
+        req.setExtData("profileapprovedby", "system");
 
         // mark request as complete
         CMS.debug("certUtil: calling setRequestStatus");
@@ -264,6 +267,8 @@ public class CertUtil {
         ICertificateRepository cr = null;
         RequestId reqId = null;
         String profileId = null;
+        IRequestQueue queue = null; 
+        IRequest req = null;
 
         try {
             String dn = config.getString(prefix + certTag + ".dn");
@@ -296,9 +301,8 @@ public class CertUtil {
                     instanceRoot + "/conf/" + profile);
 
             // cfu - create request to enable renewal
-            IRequest req = null;
             try {
-                IRequestQueue queue = ca.getRequestQueue();
+                queue = ca.getRequestQueue();
                 if (queue != null) {
                     req = createLocalRequest(queue, serialNo.toString(), info);
                     CMS.debug("CertUtil profile name= "+profile);
@@ -321,11 +325,6 @@ public class CertUtil {
 
                     reqId = req.getRequestId();
                     config.putString("preop.cert." + certTag + ".reqId", reqId.toString());
-
-                    CMS.debug("certUtil: before updateRequest");
-
-                    // store request record in db
-                    queue.updateRequest(req);
                 } else {
                     CMS.debug("certUtil: requestQueue null");
                 }
@@ -404,6 +403,21 @@ public class CertUtil {
                 cr.addCertificateRecord(record);
             } catch (Exception ee) {
                 CMS.debug("NamePanel update: Exception: " + ee.toString());
+            }
+        }
+
+        if (req != null) {
+            // update request with cert 
+            req.setExtData(IEnrollProfile.REQUEST_ISSUED_CERT, cert);
+
+            // store request in db 
+            try {
+                CMS.debug("certUtil: before updateRequest");
+                if (queue != null) {
+                    queue.updateRequest(req);
+                }
+            } catch (Exception e) {
+                CMS.debug("Exception in updateRequest" + e);
             }
         }
 

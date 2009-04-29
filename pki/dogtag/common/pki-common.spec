@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      7
+%define base_release      8
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Tue Apr 28 2009 Ade Lee <alee@redhat.com> 1.1.0-8
+- Bugzilla Bug #496334 -  Renewal: Missing information in the first 6 requests in the CA request queue.
 * Sat Apr 18 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-7
 - Bugzilla Bug #496409 -  Display missing "Security Domain" information on
   Security Domain Login Panel
