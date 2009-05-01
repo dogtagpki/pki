@@ -3832,16 +3832,38 @@ TPS_PUBLIC int allow_token_enroll_policy(char *cn, const char *policy)
     LDAPMessage *e = NULL;
     char **v = NULL;
     int can_reenroll = 0;
+    int token_is_uninitialized = 0;
+    int is_reenroll_attempt = 0;
     int rc = -1;
+    char *token_status = NULL;
+
+    if(PL_strstr(policy,"RE_ENROLL"))
+        is_reenroll_attempt = 1;
 
     if (cn != NULL && PL_strlen(cn) > 0) {
         if ((rc = find_tus_db_entry (cn, 0, &result)) == LDAP_SUCCESS) {
             e = get_first_entry (result);
             if (e != NULL) {
+                if(is_reenroll_attempt) {
+                    token_status = get_token_status(e);
+
+                    if(token_status && PL_strcmp(token_status,STATE_UNINITIALIZED) == 0)
+                        token_is_uninitialized = 1;
+
+                    if(token_status)  {    
+                        PR_Free(token_status);
+                        token_status = NULL;
+                    }
+                }
+
                 if ((v = ldap_get_values(ld, e, TOKEN_POLICY)) != NULL) {
                     if (v[0] != NULL && PL_strlen(v[0]) > 0) {
                         if (PL_strstr(v[0], policy)) {
                             can_reenroll = 1;
+                        }  else  {
+                            if( is_reenroll_attempt && token_is_uninitialized)  {
+                                can_reenroll = 1;
+                            }
                         }
                     }
                     if( v != NULL ) {
