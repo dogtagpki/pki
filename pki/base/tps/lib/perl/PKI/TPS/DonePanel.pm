@@ -352,7 +352,11 @@ sub display
             if( -e "/etc/fedora-release" ) {
                 print TMP_REVOCATOR_CONF "CRLEngine off\n";
             } else {
-                print TMP_REVOCATOR_CONF "CRLEngine on\n";
+                # Bugzilla Bug #498528  Disable mod_revocator on RHEL
+                #                       since it will no longer work
+                #                       with the updated mod_nss which
+                #                       is required for HSMs
+                print TMP_REVOCATOR_CONF "CRLEngine off\n";
             }
         } else {
             print TMP_REVOCATOR_CONF $_;
