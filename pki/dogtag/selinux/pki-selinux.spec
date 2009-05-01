@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -249,6 +249,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri May 1 2009 Ade Lee <alee@redhat.com> 1.1.0-4
+- Bugzilla Bug 495157 - SELinux prevents CA from using nethsm pkcs11 module
 * Fri Apr 24 2009 Ade Lee <alee@redhat.com> 1.1.0-3
 - Bugzilla Bug 496175 - pkiremove of tps instance throws error message when 
   tps log location is changed.  
