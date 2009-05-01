@@ -63,3 +63,8 @@
 /var/lib/pki-tps(/.*)?          gen_context(system_u:object_r:pki_tps_var_lib_t,s0)
 /var/log/pki-tps(/.*)?          gen_context(system_u:object_r:pki_tps_log_t,s0)
 
+# default labeling for nCipher
+/opt/nfast/scripts/init.d/(.*)  gen_context(system_u:object_r:initrc_exec_t, s0)
+/opt/nfast/sbin/init.d-ncipher  gen_context(system_u:object_r:initrc_exec_t, s0)
+/opt/nfast(/.*)?                gen_context(system_u:object_r:pki_common_t, s0)
+/dev/nfast(/.*)?                gen_context(system_u:object_r:pki_common_dev_t, s0)

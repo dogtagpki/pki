@@ -1,4 +1,4 @@
-policy_module(pki,1.0.5)
+policy_module(pki,1.0.6)
 
 attribute pki_ca_config;
 attribute pki_ca_executable;
@@ -8,6 +8,12 @@ attribute pki_ca_var_run;
 attribute pki_ca_pidfiles;
 attribute pki_ca_script;
 attribute pki_ca_process;
+
+type pki_common_t;
+files_type(pki_common_t)
+
+type pki_common_dev_t;
+files_type(pki_common_dev_t)
 
 type pki_ca_tomcat_exec_t;
 files_type(pki_ca_tomcat_exec_t)

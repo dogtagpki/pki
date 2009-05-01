@@ -158,11 +158,20 @@ template(`pki_ca_template',`
 		term_dontaudit_use_generic_ptys($1_t)
 	')
 
-#This is broken in selinux-policy we need java_exec defined, Will add to policy
+        #This is broken in selinux-policy we need java_exec defined, Will add to policy
 	gen_require(`
 		type java_exec_t;
 	')
 	can_exec($1_t, java_exec_t)
+
+        # allow java subsystems to talk to the hsm
+        allow $1_t pki_common_dev_t:sock_file write;
+        allow $1_t pki_common_dev_t:dir search;
+        allow $1_t pki_common_t:dir create_dir_perms;
+        manage_files_pattern($1_t, pki_common_t, pki_common_t)
+        can_exec($1_t, pki_common_t)
+        init_stream_connect_script($1_t)
+
 
 ')
 
@@ -540,6 +549,14 @@ template(`pki_tps_template',`
         allow httpd_t httpd_config_t:file execute;
         files_exec_usr_files(httpd_t)
 
+        # talk to the hsm
+        allow pki_tps_t pki_common_dev_t:sock_file write;
+        allow pki_tps_t pki_common_dev_t:dir search;
+        allow pki_tps_t pki_common_t:dir create_dir_perms;
+        manage_files_pattern(pki_tps_t, pki_common_t, pki_common_t)
+        can_exec(pki_tps_t, pki_common_t)
+        init_stream_connect_script(pki_tps_t)
+
 ')
 
 template(`pki_ra_template',`
@@ -693,6 +710,15 @@ template(`pki_ra_template',`
         allow httpd_t pki_ra_t:process { signal signull };
         allow httpd_t pki_ra_var_lib_t:dir { getattr search };
         allow httpd_t pki_ra_var_lib_t:lnk_file read;
+
+        # talk to the hsm
+        allow pki_ra_t pki_common_dev_t:sock_file write;
+        allow pki_ra_t pki_common_dev_t:dir search;
+        allow pki_ra_t pki_common_t:dir create_dir_perms;
+        manage_files_pattern(pki_ra_t, pki_common_t, pki_common_t)
+        can_exec(pki_ra_t, pki_common_t)
+        init_stream_connect_script(pki_ra_t)
+
 
 ')
 
