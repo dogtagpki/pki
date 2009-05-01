@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      6
+%define base_release      7
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,9 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Apr 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-7
+- Bugzilla Bug #498528 -  Disable mod_revocator on RHEL since it will no
+  longer work with the updated mod_nss which is required for HSMs
 * Mon Apr 27 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-6
 - Bugzilla Bug #497585 -  rhcs80beta tps init script - restarting
   shows incorrect output
