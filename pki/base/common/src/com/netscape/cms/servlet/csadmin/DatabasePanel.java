@@ -1103,10 +1103,10 @@ public class DatabasePanel extends WizardPanelBase {
             CMS.debug("DatabasePanel setupReplication: Finished enabling replication");
 
             createReplicationAgreement(replicadn, conn1, masterAgreementName, 
-              master2_hostname, master2_port, master2_replicationpwd, basedn, cloneBindUser);
+              master2_hostname, master2_port, master2_replicationpwd, basedn, cloneBindUser, secure);
 
             createReplicationAgreement(replicadn, conn2, cloneAgreementName, 
-              master1_hostname, master1_port, master1_replicationpwd, basedn, masterBindUser);
+              master1_hostname, master1_port, master1_replicationpwd, basedn, masterBindUser, secure);
 
             // initialize consumer
             initializeConsumer(replicadn, conn1, masterAgreementName);
@@ -1301,7 +1301,7 @@ public class DatabasePanel extends WizardPanelBase {
 
     private void createReplicationAgreement(String replicadn, 
       LDAPConnection conn, String name, String replicahost, int replicaport, 
-      String replicapwd, String basedn, String bindUser) throws LDAPException {
+      String replicapwd, String basedn, String bindUser, String secure) throws LDAPException {
         String dn = "cn="+name+","+replicadn;
         CMS.debug("DatabasePanel createReplicationAgreement: dn: "+dn);
         LDAPEntry entry = null;
@@ -1319,6 +1319,10 @@ public class DatabasePanel extends WizardPanelBase {
               "cn=" + bindUser + ",cn=config"));
             attrs.add(new LDAPAttribute("nsDS5ReplicaBindMethod", "Simple"));
             attrs.add(new LDAPAttribute("nsds5replicacredentials", replicapwd));
+
+            if (secure.equals("true")) {
+                attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "SSL"));
+            }
             CMS.debug("About to set description attr to " + name);
             attrs.add(new LDAPAttribute("description",name));
 
