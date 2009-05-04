@@ -409,7 +409,7 @@ start()
 	fi
 
 	if [ ${OS} = "Linux" ] ; then
-		sleep 5
+		sleep 10
 	elif [ ${OS} = "SunOS" ] ; then
 		sleep 20
 	fi
