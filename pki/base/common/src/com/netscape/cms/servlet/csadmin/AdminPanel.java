@@ -176,7 +176,7 @@ public class AdminPanel extends WizardPanelBase {
 
         String domainname = "";
         try {
-            domainname = cs.getString("preop.securitydomain.name", "");
+            domainname = cs.getString("securitydomain.name", "");
         } catch (EBaseException e1) {}
         context.put("securityDomain", domainname);
         context.put("title", "Administrator");
@@ -286,8 +286,8 @@ public class AdminPanel extends WizardPanelBase {
                 }
             } else {
                 try {
-                    ca_hostname = config.getString("preop.securitydomain.host", "");
-                    ca_port = config.getInteger("preop.securitydomain.httpsport");
+                    ca_hostname = config.getString("securitydomain.host", "");
+                    ca_port = config.getInteger("securitydomain.httpseeport");
                 } catch (Exception e) {
                 }
             }
@@ -362,7 +362,7 @@ public class AdminPanel extends WizardPanelBase {
                 system.modifyGroup(group);
             }
 
-            String select = config.getString("preop.securitydomain.select", "");
+            String select = config.getString("securitydomain.select", "");
             if (select.equals("new")) {
                 group = system.getGroupFromName("Security Domain Administrators");
                 if (!group.isMember(uid)) {
@@ -419,8 +419,8 @@ public class AdminPanel extends WizardPanelBase {
         int sd_port = -1;
 
         try {
-            sd_hostname = config.getString("preop.securitydomain.host", "");
-            sd_port = config.getInteger("preop.securitydomain.httpsport");
+            sd_hostname = config.getString("securitydomain.host", "");
+            sd_port = config.getInteger("securitydomain.httpseeport");
         } catch (Exception e) {}
 
         String profileId = HttpInput.getID(request, "profileId");

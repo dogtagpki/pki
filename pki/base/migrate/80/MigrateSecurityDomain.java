@@ -191,6 +191,13 @@ public class MigrateSecurityDomain {
                     attrs.add(new LDAPAttribute("SubsystemName", (String)v_name.elementAt(0)));
                     attrs.add(new LDAPAttribute("cn", cn));
                     attrs.add(new LDAPAttribute("DomainManager", "true"));
+                    // Since the initial port separation feature didn't occur
+                    // until an RHCS 7.3 errata, simply store the "SecurePort"
+                    // value for BOTH the "SecureAgentPort" and the
+                    // "SecureAdminPort", and DON'T store any values for the
+                    // "UnSecurePort"
+                    attrs.add(new LDAPAttribute("SecureAgentPort", (String)v_port.elementAt(0)));
+                    attrs.add(new LDAPAttribute("SecureAdminPort", (String)v_port.elementAt(0)));
                     entry = new LDAPEntry(dn, attrs);
 
                     try {

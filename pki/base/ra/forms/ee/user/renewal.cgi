@@ -53,7 +53,7 @@ sub process()
   $self->debug_params($cfg, $q);
 
   my $host = $cfg->get("service.machineName");
-  my $port = $cfg->get("service.securePort");
+  my $port = $cfg->get("service.non_clientauth_securePort");
 
   my %context;
   $context{url} = "https://$host:$port/ee/user/renew.cgi";

@@ -220,8 +220,6 @@
                          <param-value> services </param-value> </init-param>
              <init-param><param-name>  templatePath  </param-name>
                          <param-value> /services.template </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -437,6 +435,17 @@
                          <param-value> ca          </param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caGetCertChain </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetCertChainAdmin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetCertChain  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetCertChainAdmin </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -1903,8 +1912,6 @@
                          <param-value> caSecurityDomainLogin  </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
                          <param-value> certServer.ee.certificates </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -1920,14 +1927,12 @@
                          <param-value> ca          </param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caGetCookie  </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
              <init-param><param-name>  AuthMgr     </param-name>
                          <param-value> passwdUserDBAuthMgr </param-value> </init-param>
              <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /ee/ca/sendCookie.template </param-value> </init-param>
+                         <param-value> /admin/ca/sendCookie.template </param-value> </init-param>
              <init-param><param-name>  errorTemplatePath  </param-name>
-                         <param-value> /ee/ca/securitydomainlogin.template </param-value> </init-param>
+                         <param-value> /admin/ca/securitydomainlogin.template </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -1997,53 +2002,56 @@
 
 [PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
    <filter-mapping>
-      <filter-name>   PassThroughRequestFilter  </filter-name>
-      <url-pattern>   /agent/ca/updateDomainXML  </url-pattern>
+      <filter-name>   PassThroughRequestFilter    </filter-name>
+      <url-pattern>   /subsystem/*                </url-pattern>
+      <url-pattern>   /ca/getCertFromRequest      </url-pattern>
+      <url-pattern>   /ca/getBySerial             </url-pattern>
+      <url-pattern>   /index                      </url-pattern>
+      <url-pattern>   /ca/connector               </url-pattern>
+      <url-pattern>   /ca/displayCertFromRequest  </url-pattern>
+      <url-pattern>   /ca/cloneConnector          </url-pattern>
+      <url-pattern>   /doRevoke                   </url-pattern>
+
+      <url-pattern>   /acl                        </url-pattern>
+      <url-pattern>   /ug                         </url-pattern>
+      <url-pattern>   /server                     </url-pattern>
+      <url-pattern>   /capolicy                   </url-pattern>
+      <url-pattern>   /log                        </url-pattern>
+      <url-pattern>   /ca/getAdminCertBySerial    </url-pattern>
+      <url-pattern>   /caadmin                    </url-pattern>
+      <url-pattern>   /registry                   </url-pattern>
+      <url-pattern>   /ocsp                       </url-pattern>
+      <url-pattern>   /caprofile                  </url-pattern>
+      <url-pattern>   /jobsScheduler              </url-pattern>
+      <url-pattern>   /capublisher                </url-pattern>
+
+      <url-pattern>   /renewal                    </url-pattern>
+      <url-pattern>   /remoteAuthConfig           </url-pattern>
+      <url-pattern>   /certbasedenrollment        </url-pattern>
+      <url-pattern>   /enrollment                 </url-pattern>
+      <url-pattern>   /ocsp                       </url-pattern>
+      <url-pattern>   /profileSubmit              </url-pattern>
+
+      <url-pattern>   /services                   </url-pattern>
+
+      <url-pattern>   /start                      </url-pattern>
+      <url-pattern>   /cgi-bin/pkiclient.exe      </url-pattern>
    </filter-mapping>
 
    <filter-mapping>
-      <filter-name>   AgentRequestFilter     </filter-name>
-      <url-pattern>   /agent/ca/getOCSPInfo  </url-pattern>
-      <url-pattern>   /agent/ca/updateDir  </url-pattern>
-      <url-pattern>   /agent/ca/profileSelect  </url-pattern>
-      <url-pattern>   /agent/ca/monitor  </url-pattern>
-      <url-pattern>   /agent/ca/reasonToRevoke  </url-pattern>
-      <url-pattern>   /agent/ca/listRequests.html  </url-pattern>
-      <url-pattern>   /agent/ca/searchReqs  </url-pattern>
-      <url-pattern>   /agent/ca/profileApprove  </url-pattern>
-      <url-pattern>   /agent/ca/updateDir.html  </url-pattern>
-      <url-pattern>   /agent/ca/profileReview  </url-pattern>
-      <url-pattern>   /agent/ca/srchCerts  </url-pattern>
-      <url-pattern>   /agent/header  </url-pattern>
-      <url-pattern>   /agent/ca/listCerts  </url-pattern>
-      <url-pattern>   /agent/ca/queryReq  </url-pattern>
-      <url-pattern>   /agent/ca/processReq  </url-pattern>
-      <url-pattern>   /agent/ca/srchCert.html  </url-pattern>
-      <url-pattern>   /agent/ca/profileList  </url-pattern>
-      <url-pattern>   /agent/ca/displayBySerial  </url-pattern>
-      <url-pattern>   /agent/ca/srchRevokeCert.html  </url-pattern>
-      <url-pattern>   /agent/ca/doUnrevoke  </url-pattern>
-      <url-pattern>   /agent/ca/doRevoke  </url-pattern>
-      <url-pattern>   /agent/ca/profileProcess  </url-pattern>
-      <url-pattern>   /agent/ca/processCertReq  </url-pattern>
-      <url-pattern>   /agent/ca/bulkissuance  </url-pattern>
-      <url-pattern>   /agent/ca/queryBySerial.html  </url-pattern>
-      <url-pattern>   /agent/ca/updateCRL  </url-pattern>
-      <url-pattern>   /agent/ca/displayCRL  </url-pattern>
-      <url-pattern>   /agent/ca/getInfo  </url-pattern>
-      <url-pattern>   /agent/ca/getStats </url-pattern>
-      <url-pattern>   /agent/bulkissuance </url-pattern>
+      <filter-name>   AgentRequestFilter          </filter-name>
+      <url-pattern>   /agent/*                    </url-pattern>
    </filter-mapping>
 
    <filter-mapping>
-      <filter-name>   AdminRequestFilter  </filter-name>
-      <url-pattern>   /admin/*            </url-pattern>
-      <url-pattern>   /auths              </url-pattern>
+      <filter-name>   AdminRequestFilter          </filter-name>
+      <url-pattern>   /admin/*                    </url-pattern>
+      <url-pattern>   /auths                      </url-pattern>
    </filter-mapping>
 
    <filter-mapping>
-      <filter-name>  EERequestFilter  </filter-name>
-      <url-pattern>  /ee/*            </url-pattern>
+      <filter-name>  EERequestFilter              </filter-name>
+      <url-pattern>  /ee/*                        </url-pattern>
    </filter-mapping>
 [PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
 
@@ -2089,7 +2097,7 @@
 
    <servlet-mapping>
       <servlet-name>  caGetDomainXML </servlet-name>
-      <url-pattern>   /ee/ca/getDomainXML  </url-pattern>
+      <url-pattern>   /admin/ca/getDomainXML  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
@@ -2113,8 +2121,13 @@
    </servlet-mapping>
 
    <servlet-mapping>
+      <servlet-name>  caGetCertChainAdmin  </servlet-name>
+      <url-pattern>   /admin/ca/getCertChain  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
       <servlet-name>  caGetStatus  </servlet-name>
-      <url-pattern>   /ee/ca/getStatus  </url-pattern>
+      <url-pattern>   /admin/ca/getStatus  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
@@ -2599,12 +2612,12 @@
 
    <servlet-mapping>
       <servlet-name>  caSecurityDomainLogin </servlet-name>
-      <url-pattern>   /ee/ca/securityDomainLogin  </url-pattern>
+      <url-pattern>   /admin/ca/securityDomainLogin  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  caGetCookie </servlet-name>
-      <url-pattern>   /ee/ca/getCookie  </url-pattern>
+      <url-pattern>   /admin/ca/getCookie  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

@@ -110,10 +110,6 @@ public class CAInfoPanel extends WizardPanelBase {
         CMS.debug("CAInfoPanel: display");
 
         IConfigStore cs = CMS.getConfigStore();
-        String sdcaHostname = "";
-        String sdcaHttpPort = "";
-        String othercaHostname = "";
-        String othercaPort = "";
         String hostname = "";
         String httpport = "";
         String httpsport = "";
@@ -153,6 +149,7 @@ public class CAInfoPanel extends WizardPanelBase {
         }
 
         String cstype = "CA";
+        String portType = "SecurePort";
 
 /*
         try {
@@ -161,7 +158,7 @@ public class CAInfoPanel extends WizardPanelBase {
 */
                                                                                 
         CMS.debug("CAInfoPanel: Ready to get url");
-        Vector v = getUrlListFromSecurityDomain(cs, cstype);
+        Vector v = getUrlListFromSecurityDomain(cs, cstype, portType);
         v.addElement("External CA");
         StringBuffer list = new StringBuffer();
         int size = v.size();
@@ -254,7 +251,7 @@ public class CAInfoPanel extends WizardPanelBase {
         } else { 
             select = "sdca";
 
-            // parse URL (CA1 - http://...)
+            // parse URL (CA1 - https://...)
             url = url.substring(url.indexOf("https"));
             urlx = new URL(url);
         }
@@ -286,34 +283,35 @@ public class CAInfoPanel extends WizardPanelBase {
         } catch (Exception e) {}
     }
 
-    private void sdca(HttpServletRequest request, Context context, String hostname, String httpPortStr) throws IOException {
+    private void sdca(HttpServletRequest request, Context context, String hostname, String httpsPortStr) throws IOException {
         CMS.debug("CAInfoPanel update: this is the CA in the security domain.");
         IConfigStore config = CMS.getConfigStore();
 
         context.put("sdcaHostname", hostname);
-        context.put("sdHttpPort", httpPortStr);
+        context.put("sdcaHttpsPort", httpsPortStr);
 
         if (hostname == null || hostname.length() == 0) {
             context.put("errorString", "Hostname is null");
             throw new IOException("Hostname is null");
         }
 
-        int httpport = -1;
+        int httpsport = -1;
 
         try {
-            httpport = Integer.parseInt(httpPortStr);
+            httpsport = Integer.parseInt(httpsPortStr);
         } catch (Exception e) {
             CMS.debug(
-                    "CAInfoPanel update: Http port is not valid. Exception: "
+                    "CAInfoPanel update: Https port is not valid. Exception: "
                             + e.toString());
             throw new IOException("Http Port is not valid.");
         }
 
         config.putString("preop.ca.hostname", hostname);
-        config.putString("preop.ca.httpsport", httpPortStr);
+        config.putString("preop.ca.httpsport", httpsPortStr);
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
-        updateCertChain(config, "ca", hostname, httpport, true, context,
-          certApprovalCallback);
+        updateCertChainUsingSecureEEPort( config, "ca", hostname,
+                                          httpsport, true, context,
+                                          certApprovalCallback );
     }
 
     /**

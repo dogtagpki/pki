@@ -337,6 +337,7 @@ my $FORTITUDE_REVOCATOR_MODULES  = "FORTITUDE_REVOCATOR_MODULES";
 
 # Template slot constants (CA, KRA, OCSP, TKS)
 my $INSTALL_TIME              = "INSTALL_TIME";
+my $PKI_AGENT_CLIENTAUTH_SLOT = "PKI_AGENT_CLIENTAUTH";
 my $PKI_CERT_DB_PASSWORD_SLOT = "PKI_CERT_DB_PASSWORD";
 my $PKI_CFG_PATH_NAME_SLOT    = "PKI_CFG_PATH_NAME";
 my $PKI_GROUP_SLOT            = "PKI_GROUP";
@@ -1036,6 +1037,7 @@ sub parse_arguments()
     # (always overwrite this file)
     $logfile = "/var/log/$pki_instance_name-install.log";
     open_logfile( $logfile );
+    chmod( $default_file_permissions, $logfile );
     push( @installed_files, $logfile );
 
     emit( "Capturing installation information in $logfile.\n" );
@@ -1174,7 +1176,7 @@ sub parse_arguments()
         emit( "    ee_secure_port      $ee_secure_port\n");
 
     } else {
-        if(agent_secure_port >= 0) {
+        if($agent_secure_port >= 0) {
             emit( "Must include value for ee_secure_port if agent_secure_port is given!\n");
         }
     }
@@ -1187,7 +1189,7 @@ sub parse_arguments()
         emit( "    admin_secure_port   $admin_secure_port\n");
 
     } else {
-        if(agent_secure_port >= 0) {
+        if($agent_secure_port >= 0) {
             emit( "Must include value for admin_secure_port if agent_secure_port is given!\n");
         }
     }
@@ -2312,7 +2314,6 @@ LoadModule nss_module  /opt/fortitude/modules.local/mod_rev.so
             $slot_hash{$PKI_SECURE_PORT_CONNECTOR_NAME_SLOT}       = $PKI_AGENT_SECURE_PORT_NAME;
             $slot_hash{$PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT} = $PKI_ADMIN_SECURE_PORT_NAME;
             $slot_hash{$PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT}    = $PKI_EE_SECURE_PORT_NAME;
-my $PKI_SECURE_PORT_NAME       = "Secure";
 
             # Establish "Port Separation" Connector Ports
             $slot_hash{$PKI_SECURE_PORT_SLOT}       = $agent_secure_port;
@@ -2325,6 +2326,9 @@ my $PKI_SECURE_PORT_NAME       = "Secure";
             $slot_hash{$PKI_SECURE_PORT_COMMENT_SERVER_SLOT}       = $PKI_AGENT_SECURE_SEPARATE_PORTS_COMMENT;
             $slot_hash{$PKI_ADMIN_SECURE_PORT_COMMENT_SERVER_SLOT} = $PKI_ADMIN_SECURE_SEPARATE_PORTS_COMMENT;
             $slot_hash{$PKI_EE_SECURE_PORT_COMMENT_SERVER_SLOT}    = $PKI_EE_SECURE_SEPARATE_PORTS_COMMENT;
+
+            # Set appropriate "clientAuth" parameter for "Port Separation"
+            $slot_hash{$PKI_AGENT_CLIENTAUTH_SLOT} = "true";
 
             # Do NOT comment out the "Admin/EE" Ports
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = "";
@@ -2352,6 +2356,9 @@ my $PKI_SECURE_PORT_NAME       = "Secure";
             $slot_hash{$PKI_SECURE_PORT_COMMENT_SERVER_SLOT}       = $PKI_SECURE_SHARED_PORTS_COMMENT;
             $slot_hash{$PKI_ADMIN_SECURE_PORT_COMMENT_SERVER_SLOT} = "";
             $slot_hash{$PKI_EE_SECURE_PORT_COMMENT_SERVER_SLOT}    = "";
+
+            # Set appropriate "clientAuth" parameter for "Shared Ports"
+            $slot_hash{$PKI_AGENT_CLIENTAUTH_SLOT} = "agent";
 
             # Comment out the "Admin/EE" Ports
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = $PKI_OPEN_COMMENT;
@@ -3613,44 +3620,61 @@ ASK_AGAIN:
 
     system( "$command" );
 
+    # Notify user to check firewall settings . . .
     print( STDOUT
-           "Server can be operated with "
-         . "$pki_start_stop_command "
-         . "start | stop | restart\n\n" );
-    emit( "Server can be operated with "
-        . "$pki_start_stop_command "
-        . "start | stop | restart\n",
-          "log" );
+           "Before proceeding with the configuration, make sure \n"
+           . "the firewall settings of this machine permit proper \n"
+           . "access to this subsystem. \n\n");
 
     # EXCEPTION:  To enable a user to easily configure their PKI subsystem,
     #             this is the ONLY instance in which we print out the actual
     #             value of the the one-time random PIN, as well as store this
     #             message at the end of the initialization log.
-    if( $ee_secure_port > 0 ) {
-         print( STDOUT
-               "Please start the configuration by accessing:\n"
-             . "https://$host:$ee_secure_port/$subsystem_type/admin/"
-             . "console/config/login?pin=$random\n\n" );
-        emit( "Configuration Wizard listening on\n"
-            . "https://$host:$ee_secure_port/$subsystem_type/admin/"
-            . "console/config/login?pin=$random\n",
-              "log" );
-    }  else  {
+    if( $subsystem_type eq $CA   ||
+        $subsystem_type eq $KRA  ||
+        $subsystem_type eq $OCSP ||
+        $subsystem_type eq $TKS ) {
+        if( $admin_secure_port > 0 ) {
+            # Port Separation:  CA, KRA, OCSP, TKS
+            print( STDOUT
+                   "Please start the configuration by accessing:\n\n"
+                 . "https://$host:$admin_secure_port/$subsystem_type/admin/"
+                 . "console/config/login?pin=$random\n\n" );
+            emit( "Configuration Wizard listening on\n"
+                . "https://$host:$admin_secure_port/$subsystem_type/admin/"
+                . "console/config/login?pin=$random\n",
+                  "log" );
+        } else {
+            # Shared Ports:  CA, KRA, OCSP, TKS
+            print( STDOUT
+                   "Please start the configuration by accessing:\n\n"
+                 . "https://$host:$secure_port/$subsystem_type/admin/"
+                 . "console/config/login?pin=$random\n\n" );
+            emit( "Configuration Wizard listening on\n"
+                . "https://$host:$secure_port/$subsystem_type/admin/"
+                . "console/config/login?pin=$random\n",
+                  "log" );
+        }
+    } else {
+        # Port Separation:  RA, TPS
         print( STDOUT
-               "Please start the configuration by accessing:\n"
-             . "http://$host:$unsecure_port/$subsystem_type/admin/"
-             . "console/config/login?pin=$random\n\n" );
+               "Please start the configuration by accessing:\n\n"
+             . "https://$host:$non_clientauth_secure_port/$subsystem_type/"
+             . "admin/console/config/login?pin=$random\n\n" );
         emit( "Configuration Wizard listening on\n"
-            . "http://$host:$unsecure_port/$subsystem_type/admin/"
-            . "console/config/login?pin=$random\n",
+            . "https://$host:$non_clientauth_secure_port/$subsystem_type/"
+            . "admin/console/config/login?pin=$random\n",
               "log" );
     }
 
-    # Notify user to check firewall settings . . .
     print( STDOUT
-           "Before proceeding with the configuration, make sure \n"
-           . "the firewall settings of this machine permit proper \n"
-           . "access to this subsystem. \n");
+           "After configuration, the server can be operated by the command:\n\n"
+         . "    $pki_start_stop_command "
+         . "start | stop | restart\n\n" );
+    emit( "After configuration, the server can be operated by the command:\n"
+        . "$pki_start_stop_command "
+        . "start | stop | restart\n",
+          "log" );
 
     # If it exists, close the log file
     close_logfile( $logfile );

@@ -126,7 +126,7 @@ public class GetCookie extends CMSServlet {
             header.addStringValue("subsystem", subsystem);
             header.addStringValue("url", url_e);
             header.addStringValue("errorString", "Failed Authentication");
-            String sdname = cs.getString("preop.securitydomain.name", "");
+            String sdname = cs.getString("securitydomain.name", "");
             header.addStringValue("sdname", sdname);
 
             CMS.debug("mErrorFormPath=" + mErrorFormPath);

@@ -70,7 +70,7 @@ public class AgentAuthenticatePanel extends WizardPanelBase {
         // if we are root, no need to get the certificate chain.
                                                                                 
         try {
-            String select = cs.getString("preop.securitydomain.select","");
+            String select = cs.getString("securitydomain.select","");
             if (select.equals("new")) {
                 return true;
             }

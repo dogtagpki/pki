@@ -141,7 +141,7 @@ public class TokenAuthentication implements IAuthManager,
         String sessionId = (String)authCred.get(CRED_SESSION_ID);
         String givenHost = (String)authCred.get("clientHost");
         String auth_host = sconfig.getString("securitydomain.host");
-        int auth_port = sconfig.getInteger("securitydomain.httpsport");
+        int auth_port = sconfig.getInteger("securitydomain.httpseeport");
 
         HttpClient httpclient = new HttpClient();
         String c = null;

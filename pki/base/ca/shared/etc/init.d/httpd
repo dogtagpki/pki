@@ -208,6 +208,7 @@ fi
 
 pidfile=${PIDFILE:-/var/run/[PKI_INSTANCE_ID].pid}
 lockfile=${LOCKFILE:-/var/lock/subsys/[PKI_INSTANCE_ID]}
+PKI_SECURITY_DOMAIN=[PKI_INSTANCE_PATH]/conf/pki_security_domain
 RESTART_SERVER=[PKI_INSTANCE_PATH]/conf/restart_server_after_configuration
 RETVAL=0
 
@@ -287,6 +288,78 @@ get_pki_status_definitions()
     done
 
 	if [ ${total_ports} -eq 6 ] ; then
+		return 0
+	else
+		return 255
+	fi
+}
+
+get_pki_security_domain_definitions()
+{
+	# establish well-known strings
+	begin_pki_status_comment="<!-- DO NOT REMOVE - Begin PKI Status Definitions -->"
+	end_pki_status_comment="<!-- DO NOT REMOVE - End PKI Status Definitions -->"
+	announce_urls=0
+	total_ports=0
+	secure_admin_port_statement="Secure Admin Port = "
+
+	# initialize looping variables
+	pki_status_comment_found=0
+
+	# first check to see that an instance-specific "server.xml" file exists
+	if [ ! -f [PKI_SERVER_XML_CONF] ] ; then
+		echo "File '[PKI_SERVER_XML_CONF]' does not exist!"
+		exit 255
+	fi
+
+	# read this instance-specific "server.xml" file line-by-line
+	# to obtain the current PKI Status Definitions
+	exec < [PKI_SERVER_XML_CONF]
+	while read line; do
+		# first look for the well-known end PKI Status comment
+		# (to turn off processing)
+		if [ "$line" == "$end_pki_status_comment" ] ; then
+			pki_status_comment_found=0
+			break;
+		fi
+
+		# then look for the well-known begin PKI Status comment
+		# (to turn on processing)
+		if [ "$line" == "$begin_pki_status_comment" ] ; then
+			pki_status_comment_found=1
+		fi
+
+		# once the well-known begin PKI Status comment has been found,
+		# begin processing to obtain all of the PKI Status Definitions
+		if [ $pki_status_comment_found -eq 1 ] ; then
+
+			# announce security domain URL
+			if [ ${announce_urls} -eq 0 ] ; then
+				echo
+				echo
+				echo "    Security Domain URL:"
+				echo "    =========================================================================="
+				announce_urls=`expr ${total_ports} + 1`
+			fi
+
+			# look for a PKI Status Definition and print the
+			# security domain portion of it
+			head=`echo "$line" | cut -b1-20`
+			url=`echo "$line" | cut -b21-`
+			if    [ "$head" == "$secure_admin_port_statement" ]
+			then
+				security_domain=`echo "$url" | awk '{loc=index($0, "/ca/services"); printf substr($0, 1, (loc-1))}'` ;
+				echo "    $security_domain" ;
+				total_ports=`expr ${total_ports} + 1`
+			fi
+		fi
+	done
+
+	if [ ${announce_urls} -ne 0 ] ; then
+		echo "    =========================================================================="
+	fi
+
+	if [ ${total_ports} -eq 1 ] ; then
 		return 0
 	else
 		return 255
@@ -999,6 +1072,19 @@ status()
 				get_pki_status_definitions
 				if [ $? -ne 0 ] ; then
 					echo "[PKI_INSTANCE_ID] Status Definitions not found"
+				fi
+				if [ -f ${PKI_SECURITY_DOMAIN} ] ; then
+					get_pki_security_domain_definitions
+					if [ $? -ne 0 ] ; then
+						echo "[PKI_INSTANCE_ID] Security Domain Definitions not found"
+					fi
+				else
+					echo
+					echo
+				    echo "    Security Domain URL:"
+				    echo "    =========================================================================="
+				    echo "    '[PKI_INSTANCE_ID]' is NOT a Security Domain!"
+		            echo "    =========================================================================="
 				fi
 			fi
 			echo

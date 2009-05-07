@@ -75,7 +75,9 @@ sub update
     $::symbol{subsystemName} = "Token Processing System";
     $::symbol{fullsystemname} = "Token Processing System ";
     $::symbol{machineName} = "localhost";
+    $::symbol{http_port} = "7888";
     $::symbol{https_port} = "7889";
+    $::symbol{non_clientauth_https_port} = "7890";
     $::symbol{check_clonesubsystem} = " ";
     $::symbol{check_newsubsystem} = " ";
     $::symbol{disableClone} = 1;
@@ -96,12 +98,15 @@ sub display
     $::symbol{fullsystemname} = "Token Processing System ";
 
     my $machineName = $::config->get("service.machineName");
-    my $securePort = $::config->get("service.securePort");
     my $unsecurePort = $::config->get("service.unsecurePort");
+    my $securePort = $::config->get("service.securePort");
+    my $non_clientauth_securePort = $::config->get("service.non_clientauth_securePort");
 
 
     $::symbol{machineName} = $machineName;
+    $::symbol{http_port} = $unsecurePort;
     $::symbol{https_port} = $securePort;
+    $::symbol{non_clientauth_https_port} = $non_clientauth_securePort;
     $::symbol{check_clonesubsystem} = "";
     $::symbol{check_newsubsystem} = "checked ";
 
@@ -116,7 +121,7 @@ sub display
       if ($host eq "") {
         goto DONE;
       }
-      my $port = $::config->get("preop.securitydomain.tps$count.secureport");
+      my $port = $::config->get("preop.securitydomain.tps$count.non_clientauth_secure_port");
       my $name = $::config->get("preop.securitydomain.tps$count.subsystemname");
       unshift(@{$::symbol{urls}}, "https://" . $host . ":" . $port);
       $count++;

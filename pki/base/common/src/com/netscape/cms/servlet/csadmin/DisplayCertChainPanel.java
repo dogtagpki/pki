@@ -94,7 +94,7 @@ public class DisplayCertChainPanel extends WizardPanelBase {
         // if we are root, no need to get the certificate chain.
 
         try { 
-            String select = cs.getString("preop.securitydomain.select","");
+            String select = cs.getString("securitydomain.select","");
             String type = cs.getString("preop.subsystem.select", "");
             String hierarchy = cs.getString("preop.hierarchy.select", "");
 
@@ -194,13 +194,26 @@ public class DisplayCertChainPanel extends WizardPanelBase {
             int panel = getPanelNo()+1;
             IConfigStore cs = CMS.getConfigStore();
             try {
-                String hostname = cs.getString("preop.securitydomain.host", "");
-                int port = cs.getInteger("preop.securitydomain.httpsport", -1);
+                String sd_hostname = cs.getString("securitydomain.host", "");
+                int sd_port = cs.getInteger("securitydomain.httpsadminport", -1);
+                String cs_hostname = cs.getString("machineName", "");
+                int cs_port = cs.getInteger("pkicreate.admin_secure_port", -1);
                 String subsystem = cs.getString("cs.type", "");
-                String urlVal = "https://"+CMS.getEESSLHost()+":"+CMS.getEESSLPort()+"/"+toLowerCaseSubsystemType(subsystem)+"/admin/console/config/wizard?p="+panel+"&subsystem="+subsystem;
+                String urlVal = "https://"+cs_hostname+":"+cs_port+"/"+toLowerCaseSubsystemType(subsystem)+"/admin/console/config/wizard?p="+panel+"&subsystem="+subsystem;
                 String encodedValue = URLEncoder.encode(urlVal, "UTF-8");
-                String sdurl =  "https://"+hostname+":"+port+"/ca/ee/ca/securityDomainLogin?url="+encodedValue;
+                String sdurl =  "https://"+sd_hostname+":"+sd_port+"/ca/admin/ca/securityDomainLogin?url="+encodedValue;
                 response.sendRedirect(sdurl);
+
+                // The user previously specified the CA Security Domain's
+                // SSL Admin port in the "Security Domain Panel";
+                // now retrieve this specified CA Security Domain's
+                // non-SSL EE, SSL Agent, and SSL EE ports:
+                cs.putString( "securitydomain.httpport", 
+                              getSecurityDomainPort( cs, "UnSecurePort" ) );
+                cs.putString("securitydomain.httpsagentport", 
+                              getSecurityDomainPort( cs, "SecureAgentPort" ) );
+                cs.putString("securitydomain.httpseeport", 
+                              getSecurityDomainPort( cs, "SecurePort" ) );
             } catch (Exception ee) {
                 CMS.debug("DisplayCertChainPanel Exception="+ee.toString());
             }

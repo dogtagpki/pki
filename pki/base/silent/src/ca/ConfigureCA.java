@@ -61,8 +61,8 @@ public class ConfigureCA {
     public static String domain_uri = "/ca/ee/ca/domain";
     public static String ee_uri = "/ca/ee/ca/getBySerial";
     public static String pkcs12_uri = "/ca/admin/console/config/savepkcs12";
-    public static String sd_login_uri = "/ca/ee/ca/securityDomainLogin";
-    public static String sd_get_cookie_uri = "/ca/ee/ca/getCookie";
+    public static String sd_login_uri = "/ca/admin/ca/securityDomainLogin";
+    public static String sd_get_cookie_uri = "/ca/admin/ca/getCookie";
 
     public static String cs_hostname = null;
     public static String cs_port = null;

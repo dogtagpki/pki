@@ -53,6 +53,7 @@ public class DonePanel extends WizardPanelBase {
     public static final Long MINUS_ONE = Long.valueOf(-1);
     public static final String RESTART_SERVER_AFTER_CONFIGURATION =
         "restart_server_after_configuration";
+    public static final String PKI_SECURITY_DOMAIN = "pki_security_domain";
 
     public DonePanel() {}
 
@@ -166,8 +167,13 @@ public class DonePanel extends WizardPanelBase {
         }
 
         IConfigStore cs = CMS.getConfigStore();
+        String ownport = CMS.getEENonSSLPort();
         String ownsport = CMS.getEESSLPort();
         String ownhost = CMS.getEESSLHost();
+        String ownagentsport = CMS.getAgentPort();
+        String ownagenthost = CMS.getAgentHost();
+        String ownadminsport = CMS.getAdminPort();
+        String ownadminhost = CMS.getAdminHost();
         String select = "";
 
         String type = "";
@@ -189,8 +195,8 @@ public class DonePanel extends WizardPanelBase {
         }
         context.put("title", "Done");
         context.put("panel", "admin/console/config/donepanel.vm");
-        context.put("host", ownhost);
-        context.put("port", ownsport);
+        context.put("host", ownadminhost);
+        context.put("port", ownadminsport);
         String subsystemType = toLowerCaseSubsystemType(type);
         context.put("systemType", subsystemType);
 
@@ -205,12 +211,14 @@ public class DonePanel extends WizardPanelBase {
         } catch (Exception e) {
         }
 
-        String sd_port = "";
+        String sd_agent_port = "";
+        String sd_admin_port = "";
         String sd_host = "";
         String ca_host = "";
         try {
-            sd_host = cs.getString("preop.securitydomain.host", "");
-            sd_port = cs.getString("preop.securitydomain.httpsport", "");
+            sd_host = cs.getString("securitydomain.host", "");
+            sd_agent_port = cs.getString("securitydomain.httpsagentport", "");
+            sd_admin_port = cs.getString("securitydomain.httpsadminport", "");
             ca_host = cs.getString("preop.ca.hostname", "");
         } catch (Exception e) {
         }
@@ -225,7 +233,7 @@ public class DonePanel extends WizardPanelBase {
         String instanceName = "";
         String subsystemName = "";
         try {
-            sdtype = cs.getString("preop.securitydomain.select", "");
+            sdtype = cs.getString("securitydomain.select", "");
             instanceName = cs.getString("instanceId", "");
             subsystemName = cs.getString("preop.subsystem.name", "");
         } catch (Exception e) {
@@ -237,7 +245,7 @@ public class DonePanel extends WizardPanelBase {
                 LDAPConnection conn = getLDAPConn(context);
 
                 String basedn = cs.getString("internaldb.basedn");
-                String secdomain = cs.getString("preop.securitydomain.name");
+                String secdomain = cs.getString("securitydomain.name");
 
                 try {                
                     // Create security domain ldap entry
@@ -288,6 +296,11 @@ public class DonePanel extends WizardPanelBase {
                     attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
                     attrs.add(new LDAPAttribute("Host", ownhost));
                     attrs.add(new LDAPAttribute("SecurePort", ownsport));
+                    attrs.add(new LDAPAttribute("SecureAgentPort",
+                              ownagentsport));
+                    attrs.add(new LDAPAttribute("SecureAdminPort",
+                              ownadminsport));
+                    attrs.add(new LDAPAttribute("UnSecurePort", ownport));
                     attrs.add(new LDAPAttribute("Clone", "false"));
                     attrs.add(new LDAPAttribute("SubsystemName", subsystemName));
                     attrs.add(new LDAPAttribute("cn", cn));
@@ -304,10 +317,34 @@ public class DonePanel extends WizardPanelBase {
             } catch (Exception e) {
                 CMS.debug("DonePanel display: "+e.toString());
             }
-        } else { //existing domain
-            int p = -1;
+
+            int sd_admin_port_int = -1;
             try {
-                p = Integer.parseInt(sd_port);
+                sd_admin_port_int = Integer.parseInt( sd_admin_port );
+            } catch (Exception e) {
+            }
+
+            try {
+                // Fetch the "new" security domain and display it
+                CMS.debug( "Dump contents of new Security Domain . . ." );
+                String c = getDomainXML( sd_host, sd_admin_port_int, true );
+            } catch( Exception e ) {}
+
+            // Since this instance is a new Security Domain,
+            // create an empty file to designate this fact.
+            String security_domain = instanceRoot + "/conf/"
+                                   + PKI_SECURITY_DOMAIN;
+            if( !Utils.isNT() ) {
+                Utils.exec( "touch " + security_domain );
+                Utils.exec( "chmod 00660 " + security_domain );
+            }
+
+        } else { //existing domain
+            int sd_agent_port_int = -1;
+            int sd_admin_port_int = -1;
+            try {
+                sd_agent_port_int = Integer.parseInt(sd_agent_port);
+                sd_admin_port_int = Integer.parseInt(sd_admin_port);
             } catch (Exception e) {
             }
 
@@ -317,17 +354,31 @@ public class DonePanel extends WizardPanelBase {
                     cloneStr = "&clone=true";
                 else
                     cloneStr = "&clone=false";
-                updateDomainXML(sd_host, p, true, "/ca/agent/ca/updateDomainXML", 
-                  "list="+s+"&type="+type+"&host="+ownhost+"&name="+subsystemName+"&sport="+ownsport+"&dm=false"+cloneStr);
+                updateDomainXML( sd_host, sd_agent_port_int, true,
+                                 "/ca/agent/ca/updateDomainXML", 
+                                 "list=" + s
+                               + "&type=" + type
+                               + "&host=" + ownhost
+                               + "&name=" + subsystemName
+                               + "&sport=" + ownsport
+                               + "&dm=false" + cloneStr
+                               + "&agentsport=" + ownagentsport
+                               + "&adminsport=" + ownadminsport
+                               + "&httpport=" + ownport );
+
+                // Fetch the "updated" security domain and display it
+                CMS.debug( "Dump contents of updated Security Domain . . ." );
+                String c = getDomainXML( sd_host, sd_admin_port_int, true );
             } catch (Exception e) {
                 context.put("errorString", "Failed to update the security domain on the domain master.");
                 //return;
             }
         }
 
-        // add service.securityDomainPort to CS.cfg in case pkiremove needs to remove system reference from the security domain
+        // add service.securityDomainPort to CS.cfg in case pkiremove
+        // needs to remove system reference from the security domain
         try {
-            cs.putString("service.securityDomainPort", ownsport);
+            cs.putString("service.securityDomainPort", ownagentsport);
             cs.commit(false);
         } catch (Exception e) {
             CMS.debug("DonePanel: exception in adding service.securityDomainPort to CS.cfg" + e);
@@ -337,7 +388,7 @@ public class DonePanel extends WizardPanelBase {
         // need to push connector information to the CA
         if (type.equals("KRA") && !ca_host.equals("")) {
             try {
-                updateConnectorInfo(ownhost, ownsport, sd_host, sd_port);
+                updateConnectorInfo(ownagenthost, ownagentsport);
             } catch (IOException e) {
                 context.put("errorString", "Failed to update connector information.");
                 return;
@@ -495,8 +546,8 @@ public class DonePanel extends WizardPanelBase {
         try {
             cahost = config.getString("preop.ca.hostname", "");
             caport = config.getInteger("preop.ca.httpsport", -1);
-            sdhost = config.getString("preop.securitydomain.host", "");
-            sdport = config.getInteger("preop.securitydomain.httpsport", -1);
+            sdhost = config.getString("securitydomain.host", "");
+            sdport = config.getInteger("securitydomain.httpseeport", -1);
         } catch (Exception e) {
         }
 
@@ -589,8 +640,7 @@ public class DonePanel extends WizardPanelBase {
         return "CA-" + host + "-" + port;
     }
 
-    private void updateConnectorInfo(String ownhost, String ownsport, 
-      String sd_host, String sd_port)
+    private void updateConnectorInfo(String ownagenthost, String ownagentsport)
       throws IOException {
         IConfigStore cs = CMS.getConfigStore();
         int port = -1;
@@ -614,7 +664,7 @@ public class DonePanel extends WizardPanelBase {
         } else {
           CMS.debug("DonePanel: Transport certificate is being setup in " + url);
           String session_id = CMS.getConfigSDSessionId();
-          String content = "ca.connector.KRA.enable=true&ca.connector.KRA.local=false&ca.connector.KRA.timeout=30&ca.connector.KRA.uri=/kra/agent/kra/connector&ca.connector.KRA.host="+ownhost+"&ca.connector.KRA.port="+ownsport+"&ca.connector.KRA.transportCert="+URLEncoder.encode(transportCert)+"&sessionID="+session_id; 
+          String content = "ca.connector.KRA.enable=true&ca.connector.KRA.local=false&ca.connector.KRA.timeout=30&ca.connector.KRA.uri=/kra/agent/kra/connector&ca.connector.KRA.host="+ownagenthost+"&ca.connector.KRA.port="+ownagentsport+"&ca.connector.KRA.transportCert="+URLEncoder.encode(transportCert)+"&sessionID="+session_id; 
 
           updateConnectorInfo(host, port, true, content);
         }

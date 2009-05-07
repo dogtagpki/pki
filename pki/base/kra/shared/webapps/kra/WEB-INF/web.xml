@@ -782,8 +782,6 @@
                          <param-value> services </param-value> </init-param>
              <init-param><param-name>  templatePath  </param-name>
                          <param-value> /services.template </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -851,6 +849,25 @@
 [PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
    <filter-mapping>
       <filter-name>  PassThroughRequestFilter  </filter-name>
+      <url-pattern>   /index  </url-pattern>
+
+      <url-pattern>   /server  </url-pattern>
+      <url-pattern>   /kra  </url-pattern>
+      <url-pattern>   /log  </url-pattern>
+      <url-pattern>   /registry  </url-pattern>
+      <url-pattern>   /ug  </url-pattern>
+      <url-pattern>   /acl  </url-pattern>
+      <url-pattern>   /jobsScheduler  </url-pattern>
+      <url-pattern>   /krapolicy  </url-pattern>
+
+      <url-pattern>   /services  </url-pattern>
+
+      <url-pattern>   /start  </url-pattern>
+      <url-pattern>   /dynamicVars.js  </url-pattern>
+   </filter-mapping>
+
+   <filter-mapping>
+      <filter-name>  AgentRequestFilter  </filter-name>
       <url-pattern>  /agent/*            </url-pattern>
    </filter-mapping>
 

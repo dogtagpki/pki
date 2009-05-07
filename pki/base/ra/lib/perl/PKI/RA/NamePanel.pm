@@ -87,25 +87,25 @@ sub update
     &PKI::RA::Wizard::debug_log("NamePanel: update - selected ca= $count");
 
     my $host = "";
-    my $port = "";
+    my $https_ee_port = "";
 
     my $useExternalCA = "off";
     if ($count =~ /http/) {
       my $info = new URI::URL($count);
       $host = $info->host;
-      $port = $info->port;
+      $https_ee_port = $info->port;
     } else {
       $host = $::config->get("preop.securitydomain.ca$count.host");
       if ($host eq "") {
           $useExternalCA = "on";
       } else {
-          $port = $::config->get("preop.securitydomain.ca$count.secureport");
-          &PKI::RA::Wizard::debug_log("NamePanel: update - host= $host, port= $port");
+          $https_ee_port = $::config->get("preop.securitydomain.ca$count.secureport");
+          &PKI::RA::Wizard::debug_log("NamePanel: update - host= $host, https_ee_port= $https_ee_port");
       }
     }
     $::config->put("preop.certenroll.useExternalCA", $useExternalCA);
 
-    $::config->put("preop.ca.url", "https://" . $host . ":" . $port);
+    $::config->put("preop.ca.url", "https://" . $host . ":" . $https_ee_port);
 
     my $tokenname = $::config->get("preop.module.token");
     &PKI::RA::Wizard::debug_log("NamePanel: update got token name = $tokenname");
@@ -242,7 +242,7 @@ GEN_CERT:
 #   see if there is an existing cert
 
         my $cert = $::config->get("preop.cert.$certtag.cert");
-        my $sdom = $::config->get("config.sdomainURL");
+        my $sdom = $::config->get("config.sdomainEEURL");
         my $sdom_url = new URI::URL($sdom);
 
         if (($useExternalCA eq "on") && ($certtag ne "subsystem")) {
@@ -293,14 +293,14 @@ GEN_CERT:
 
                 if ($certtag eq "subsystem") {
                     $host = $sdom_url->host;
-                    $port = $sdom_url->port;
+                    $https_ee_port = $sdom_url->port;
                 }
                 if ($changed eq "true") {
-$req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$port";
-$debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sensitive)\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$port";
+$req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$https_ee_port";
+$debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sensitive)\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$https_ee_port";
                 } else {
-$req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$port";
-$debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sensitive)\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$port";
+$req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$https_ee_port";
+$debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sensitive)\" -v -n \"$sslnickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$https_ee_port";
                 }
 
                 &PKI::RA::Wizard::debug_log("debug_req = " . $debug_req);
@@ -480,9 +480,9 @@ sub display
       if ($host eq "") {
         goto DONE;
       }
-      my $port = $::config->get("preop.securitydomain.ca$count.secureport");
+      my $https_ee_port = $::config->get("preop.securitydomain.ca$count.secureport");
       my $name = $::config->get("preop.securitydomain.ca$count.subsystemname");
-      my $item = $name . " - https://" . $host . ":" . $port;
+      my $item = $name . " - https://" . $host . ":" . $https_ee_port;
       $::symbol{urls}[$count++] = $item;
 
     }

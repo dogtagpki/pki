@@ -80,24 +80,24 @@ sub update
       my $count = $q->param('urls');
       my $instanceID = $::config->get("service.instanceID");
       my $host = "";
-      my $port = "";
+      my $https_agent_port = "";
       if ($count =~ /http/) {
         my $info = new URI::URL($count);
         $host = $info->host;
-        $port = $info->port;
+        $https_agent_port = $info->port;
       } else {
         $host = $::config->get("preop.securitydomain.kra$count.host");
-        $port = $::config->get("preop.securitydomain.kra$count.secureport");
+        $https_agent_port = $::config->get("preop.securitydomain.kra$count.secureagentport");
       }
-      if (($host eq "") || ($port eq "")) {
+      if (($host eq "") || ($https_agent_port eq "")) {
         $::symbol{errorString} = "no DRM found.  CA, TKS and DRM must be installed prior to TPS installation";
         return 0;
       }
 
-      $::config->put("preop.krainfo.select", "https://$host:$port");
+      $::config->put("preop.krainfo.select", "https://$host:$https_agent_port");
       my $subsystemCertNickName = $::config->get("preop.cert.subsystem.nickname");
       $::config->put("conn.drm1.clientNickname", $subsystemCertNickName);
-      $::config->put("conn.drm1.hostport", $host . ":" . $port); 
+      $::config->put("conn.drm1.hostport", $host . ":" . $https_agent_port); 
       $::config->put("conn.tks1.serverKeygen", "true");
       $::config->put("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "true");
       $::config->put("op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
@@ -134,9 +134,9 @@ sub display
       if ($host eq "") {
         goto DONE;
       }
-      my $port = $::config->get("preop.securitydomain.kra$count.secureport");
+      my $https_agent_port = $::config->get("preop.securitydomain.kra$count.secureagentport");
       my $name = $::config->get("preop.securitydomain.kra$count.subsystemname");
-      $::symbol{urls}[$count++] = $name . " - https://" . $host . ":" . $port;
+      $::symbol{urls}[$count++] = $name . " - https://" . $host . ":" . $https_agent_port;
     }
 DONE:
     $::symbol{urls_size}   = $count;

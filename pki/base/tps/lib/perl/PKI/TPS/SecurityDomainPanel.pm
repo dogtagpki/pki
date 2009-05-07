@@ -25,6 +25,7 @@ use strict;
 use warnings;
 use PKI::TPS::GlobalVar;
 use PKI::TPS::Common;
+use URI::URL;
 use XML::Simple;
 use Data::Dumper;
 
@@ -77,7 +78,7 @@ sub display
     $::symbol{panelname} = "Security Domain";
     $::symbol{sdomainName} = "Security Domain";
     my $hostname = $::config->get("service.machineName");
-    $::symbol{sdomainURL} = "https://" . $hostname . ":9444";
+    $::symbol{sdomainAdminURL} = "https://" . $hostname . ":9445";
 
     return 1;
 }
@@ -89,15 +90,22 @@ sub update
     &PKI::TPS::Wizard::debug_log("SecurityPanel: update");
     my $sdomainURL = $q->param("sdomainURL");
 
+    my $sdomainURL_info = new URI::URL($sdomainURL);
+
     if ($sdomainURL eq "") {
         &PKI::TPS::Wizard::debug_log("SecurityPanel: sdomainURL not found");
-        $::symbol{errorString} = "Security Domain URL not found";
+        $::symbol{errorString} = "Security Domain HTTPS Admin URL not found";
         return 0;
     }
 
-    # save url in CS.cfg
+    # save urls in CS.cfg
     &PKI::TPS::Wizard::debug_log("SecurityPanel: sdomainURL=" . $sdomainURL);
-    $::config->put("config.sdomainURL", $sdomainURL);
+    $::config->put("config.sdomainAdminURL", $sdomainURL);
+
+    # Add values necessary for 'pkiremove' . . .
+    $::config->put("securitydomain.select", "existing");
+    $::config->put("securitydomain.host", $sdomainURL_info->host);
+    $::config->put("securitydomain.httpsadminport", $sdomainURL_info->port);
     $::config->commit();
 
     return 1;

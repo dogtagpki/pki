@@ -210,11 +210,11 @@ sub display
 
     #for "common key settings"
     my $select = $::config->get("preop.keysize.select");
-    if ($select ne "") {
+    if (($select eq "") || ($select eq "default")) {
+        $::symbol{select} = "default";
+    } else {
         &PKI::TPS::Wizard::debug_log("SizePanel: display keysize select= $select");
         $::symbol{select} = $select;
-    } else {
-        $::symbol{select} = "default";
     }
     my $default_size = $::config->get("preop.keysize.size");
     if ($default_size eq "") {

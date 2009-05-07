@@ -381,6 +381,21 @@ attributeTypes: ( SecurePort-oid NAME 'SecurePort'  SYNTAX 1.3.6.1.4.1.1466.115.
 dn: cn=schema
 changetype: modify
 add: attributeTypes
+attributeTypes: ( SecureAgentPort-oid NAME 'SecureAgentPort'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( SecureAdminPort-oid NAME 'SecureAdminPort'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( UnSecurePort-oid NAME 'UnSecurePort'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
 attributeTypes: ( SubsystemName-oid NAME 'SubsystemName'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE X-ORIGIN 'user defined' )
 
 dn: cn=schema
@@ -441,7 +456,7 @@ objectClasses: ( pkiSecurityGroup-oid NAME 'pkiSecurityGroup' DESC 'CMS defined 
 dn: cn=schema
 changetype: modify
 add: objectClasses
-objectClasses: ( pkiSubsystem-oid NAME 'pkiSubsystem' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ Host $ SecurePort $ SubsystemName $ Clone ) MAY ( DomainManager ) X-ORIGIN 'user defined' ) 
+objectClasses: ( pkiSubsystem-oid NAME 'pkiSubsystem' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ Host $ SecurePort $ SubsystemName $ Clone ) MAY ( DomainManager $ SecureAgentPort $ SecureAdminPort $ UnSecurePort ) X-ORIGIN 'user defined' ) 
 
 dn: cn=schema
 changetype: modify

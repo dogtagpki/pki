@@ -83,29 +83,29 @@ sub update
     
     my $instanceID = $::config->get("service.instanceID");
     my $host = "";
-    my $port = "";
+    my $https_ee_port = "";
 
     if ($count =~ /http/) {
       my $info = new URI::URL($count);
       $host = $info->host;
-      $port = $info->port;
+      $https_ee_port = $info->port;
     } else {
       $host = $::config->get("preop.securitydomain.ca$count.host");
-      $port = $::config->get("preop.securitydomain.ca$count.secureport");
+      $https_ee_port = $::config->get("preop.securitydomain.ca$count.secureport");
     }
-    if (($host eq "") || ($port eq "")) {
+    if (($host eq "") || ($https_ee_port eq "")) {
       $::symbol{errorString} = "no CA found.  CA, TKS and optionally DRM must be installed prior to TPS installation";
       return 0;
     }
 
-    &PKI::TPS::Wizard::debug_log("CAInfoPanel: update - host= $host, port= $port");
+    &PKI::TPS::Wizard::debug_log("CAInfoPanel: update - host= $host, https_ee_port= $https_ee_port");
 
-    $::config->put("preop.cainfo.select", "https://$host:$port");
+    $::config->put("preop.cainfo.select", "https://$host:$https_ee_port");
     my $serverCertNickName = $::config->get("preop.cert.sslserver.nickname");
 
     my $subsystemCertNickName = $::config->get("preop.cert.subsystem.nickname");
     $::config->put("conn.ca1.clientNickname", $subsystemCertNickName);
-    $::config->put("conn.ca1.hostport", $host . ":" . $port);
+    $::config->put("conn.ca1.hostport", $host . ":" . $https_ee_port);
 
     $::config->commit();
 
@@ -115,7 +115,7 @@ sub update
     my $db_password = `grep \"internal:\" \"$instanceDir/conf/password.conf\" | cut -c10-`;
     $db_password =~ s/\n$//g;
     my $tmpfile = "/tmp/ca-$$";
-    system("/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$serverCertNickName\" -r \"/ca/ee/ca/getCertChain\" $host:$port > $tmpfile");
+    system("/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$serverCertNickName\" -r \"/ca/ee/ca/getCertChain\" $host:$https_ee_port > $tmpfile");
     my $cmd = `cat $tmpfile`;
     system("rm $tmpfile");
     my $caCert;
@@ -164,10 +164,10 @@ sub display
       if ($host eq "") {
         goto DONE;
       }
-      my $port = $::config->get("preop.securitydomain.ca$count.secureport");
+      my $https_ee_port = $::config->get("preop.securitydomain.ca$count.secureport");
       my $name = $::config->get("preop.securitydomain.ca$count.subsystemname");
-      my $item = $name . " - https://" . $host . ":" . $port;
-#      my $item = "https://" . $host . ":" . $port;
+      my $item = $name . " - https://" . $host . ":" . $https_ee_port;
+#      my $item = "https://" . $host . ":" . $https_ee_port;
 #      unshift(@{$::symbol{urls}}, $item);
       $::symbol{urls}[$count++] = $item;
       if ($first eq 1) {

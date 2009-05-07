@@ -57,8 +57,8 @@ public class ConfigureTKS
 	public static String wizard_uri = "/tks/admin/console/config/wizard";
 	public static String ee_uri = "/ca/ee/ca/getBySerial";
 
-	public static String sd_login_uri = "/ca/ee/ca/securityDomainLogin";
-	public static String sd_get_cookie_uri = "/ca/ee/ca/getCookie";
+	public static String sd_login_uri = "/ca/admin/ca/securityDomainLogin";
+	public static String sd_get_cookie_uri = "/ca/admin/ca/getCookie";
 	public static String pkcs12_uri = "/tks/admin/console/config/savepkcs12";
 
 	public static String cs_hostname = null;

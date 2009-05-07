@@ -55,6 +55,7 @@ sub process()
   $self->debug_params($cfg, $q);
 
   $::symbol{machineName} = $cfg->get("service.machineName");
+  $::symbol{non_clientauth_securePort} = $cfg->get("service.non_clientauth_securePort");
   $::symbol{securePort} = $cfg->get("service.securePort");
   $::symbol{unsecurePort} = $cfg->get("service.unsecurePort");
 
