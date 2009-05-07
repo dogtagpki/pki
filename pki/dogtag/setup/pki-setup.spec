@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      5
+%define base_release      6
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,11 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue May 5 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-6
+- Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
+  port values within TPS "CS.cfg" . . .
+- Bugzilla Bug #495597 -  Unable to access Agent page using a configured
+  CA/KRA containing an HSM
 * Fri Apr 24 2009 Ade Lee <alee@redhat.com> 1.1.0-5
 - Bugzilla Bug #496332 pkicreate tps instance with -user, -group and 
   -pki_instance_root throws error

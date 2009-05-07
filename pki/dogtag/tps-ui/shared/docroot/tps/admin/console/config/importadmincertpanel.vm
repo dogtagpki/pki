@@ -38,12 +38,12 @@ An administrator's certificate has been created and imported into this browser. 
     <table class="details">
       <tr>
 #if ($ca == 'true' && $import == 'true')
-<iframe scrolling=no frameborder=0 height=0 width=0 src="/ca/ee/ca/getBySerial?serialNumber=$serialNumber&importCert=true"></iframe>
+<iframe scrolling=no frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/ee/ca/getBySerial?serialNumber=$serialNumber&importCert=true"></iframe>
 #else
 #if ($caType == 'ca' && $import == 'true')
 <iframe scrolling=no frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/ee/ca/getBySerial?serialNumber=$serialNumber&importCert=true"></iframe>
 #else
-<iframe scrolling=no frameborder=0 height=0 width=0 src="/ca/ee/ca/getBySerial?serialNumber=$serialNumber&importCert=true"></iframe>
+<iframe scrolling=no frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/ee/ca/getBySerial?serialNumber=$serialNumber&importCert=true"></iframe>
 #end 
 #end
 <input type="hidden" name="serialNumber" value=$serialNumber />

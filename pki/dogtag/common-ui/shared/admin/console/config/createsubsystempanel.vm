@@ -46,8 +46,20 @@ This instance can be configured as a new $systemname subsystem.
         <td><input type=text size="40" name="subsystemName" value="$subsystemName"> (e.g. - $fullsystemname)</td>
       </tr>
       <tr>
-        <th>Subsystem URL: </th>
-        <td>https://$machineName:$https_port</td>
+        <th>Subsystem HTTP EE URL (unsecure): </th>
+        <td>http://$machineName:$http_port</td>
+      </tr>
+      <tr>
+        <th>Subsystem HTTPS Agent URL (clientauth): </th>
+        <td>https://$machineName:$https_agent_port</td>
+      </tr>
+      <tr>
+        <th>Subsystem HTTPS EE URL (non-clientauth): </th>
+        <td>https://$machineName:$https_ee_port</td>
+      </tr>
+      <tr>
+        <th>Subsystem HTTPS Admin URL (non-clientauth): </th>
+        <td>https://$machineName:$https_admin_port</td>
       </tr>
     </table>
 <p>

@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      12
+%define base_release      13
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,11 @@ fi
 ###############################################################################
 
 %changelog
+* Tue May 5 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-13
+- Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
+  port values within TPS "CS.cfg" . . .
+- Bugzilla Bug #495597 -  Unable to access Agent page using a configured
+  CA/KRA containing an HSM
 * Fri May 1  2009 Jack Magne <jmagne@redhat.com> 1.1.0-12
 - Bugzilla Bug #494983 - Can't re-enroll if policy is set to no.
 * Thu Apr 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-11

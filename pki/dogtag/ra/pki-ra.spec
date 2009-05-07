@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      7
+%define base_release      8
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,11 @@ fi
 ###############################################################################
 
 %changelog
+* Tue May 5 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-8
+- Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
+  port values within TPS "CS.cfg" . . .
+- Bugzilla Bug #495597 -  Unable to access Agent page using a configured
+  CA/KRA containing an HSM
 * Thu Apr 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-7
 - Bugzilla Bug #498528 -  Disable mod_revocator on RHEL since it will no
   longer work with the updated mod_nss which is required for HSMs

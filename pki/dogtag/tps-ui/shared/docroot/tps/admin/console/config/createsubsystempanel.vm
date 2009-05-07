@@ -46,8 +46,16 @@ This instance can be configured as a new $systemname subsystem.
         <td><input type=text size="40" name="subsystemName" value="$subsystemName"> (e.g. - $fullsystemname)</td>
       </tr>
       <tr>
-        <th>Subsystem URL: </th>
+        <th>Subsystem HTTP URL (unsecure): </th>
+        <td>http://$machineName:$http_port</td>
+      </tr>
+      <tr>
+        <th>Subsystem HTTPS URL (clientauth): </th>
         <td>https://$machineName:$https_port</td>
+      </tr>
+      <tr>
+        <th>Subsystem HTTPS URL (non-clientauth): </th>
+        <td>https://$machineName:$non_clientauth_https_port</td>
       </tr>
     </table>
 <p>

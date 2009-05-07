@@ -65,8 +65,20 @@ If no security domain exists, a new one must be created for this CA.
         <td><input type=text size="40" name="sdomainName" value="$sdomainName"> (e.g. - Dogtag Security Domain)</td>
       </tr>
       <tr>
-        <th>Security Domain URL: </th>
-        <td>https://$machineName:$https_port</td>
+        <th>Security Domain HTTP EE URL (unsecure): </th>
+        <td>http://$machineName:$http_ee_port</td>
+      </tr>
+      <tr>
+        <th>Security Domain HTTPS Agent URL (clientauth): </th>
+        <td>https://$machineName:$https_agent_port</td>
+      </tr>
+      <tr>
+        <th>Security Domain HTTPS EE URL (non-clientauth): </th>
+        <td>https://$machineName:$https_ee_port</td>
+      </tr>
+      <tr>
+        <th>Security Domain HTTPS Admin URL (non-clientauth): </th>
+        <td>https://$machineName:$https_admin_port</td>
       </tr>
     </table>
 <br/>
@@ -89,8 +101,15 @@ Enter the URL to an existing security domain.
 <br/>
     <table class="details">
       <tr>
-        <th>Security Domain URL: </th>
-        <td><input type=text size="40" name="sdomainURL" value="$sdomainURL"> (e.g. - https://hostname:port)</td>
+        <th>Security Domain HTTPS Admin URL (non-clientauth): </th>
+        <td><input type=text size="40" name="sdomainURL" value=""> (e.g. - $sdomainAdminURL)</td>
       </tr>
     </table>
+<br/>
+<table>
+<tr>
+<td valign="top"><b>NOTE:&nbsp;&nbsp; </b></td>
+<td>Since a Security Domain MUST be a CA (although all CAs are NOT necessarily Security Domains), an appropriate value for this URL may be obtained by logging into the machine which hosts the desired Security Domain CA as 'root' and running the command "$initCommand status" from the command-line.  If no Security Domain URL is shown, the CA subsystem is not a Security Domain.</td>
+</tr>
+</table>
 <br/>

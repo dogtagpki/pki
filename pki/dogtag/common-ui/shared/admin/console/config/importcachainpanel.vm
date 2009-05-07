@@ -48,7 +48,7 @@ function importCAChain()
 
     alert("You will now be asked to import and trust the Certificate Chain from the CA. Please do so.");
 
-    importcachain.src="/ca/ee/ca/getCAChain?op=download&mimeType=application/x-x509-ca-cert";
+    importcachain.src="https://$machineName:$https_port/ca/ee/ca/getCAChain?op=download&mimeType=application/x-x509-ca-cert";
 }
 
 #if ($ca == 'true' && $import == 'true')

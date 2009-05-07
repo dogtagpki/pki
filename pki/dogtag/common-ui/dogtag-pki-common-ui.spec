@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,11 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue May 5 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-2
+- Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
+  port values within TPS "CS.cfg" . . .
+- Bugzilla Bug #495597 -  Unable to access Agent page using a configured
+  CA/KRA containing an HSM
 * Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
 - Version update to Dogtag 1.1.0.
 * Tue Mar 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-12

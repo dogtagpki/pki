@@ -35,7 +35,7 @@ function performPanel() {
 As 'root', restart the server on the command line by typing "$initCommand
  restart". After performing this restart, the server should become operational.
 <br/>
-Please go to the <A href="https://$host:$port">service</A> page to access all of the available agent interfaces.
+Please go to the <A href="https://$host:$non_clientauth_port"><b>services page</b></A> to access all of the available interfaces.
 <br/>
 <br/>
 To create additional instances, type "/usr/bin/pkicreate" on the command line.

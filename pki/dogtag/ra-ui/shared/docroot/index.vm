@@ -64,7 +64,7 @@ Certificate System RA Services Page
 <tr valign="TOP">
 <td>
 <font size=4 face="PrimaSans BT, Verdana, sans-serif">
-<li><a href="https://$machineName:$securePort/ee/index.cgi">SSL End Users Services</a></li>
+<li><a href="https://$machineName:$non_clientauth_securePort/ee/index.cgi">SSL End Users Services</a></li>
 </font>
 </td>
 </tr>
