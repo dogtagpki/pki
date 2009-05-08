@@ -48,7 +48,11 @@ PKI_TKS="pki-tks"
 PKI_RA="pki-ra"
 PKI_TPS="pki-tps"
 
-PKI_INSTANCES="${PKI_CA} ${PKI_DRM} ${PKI_OCSP} ${PKI_TKS} ${PKI_RA} ${PKI_TPS}"
+##
+## NOTE:  Always remove "${PKI_CA}" last, as it will most
+##        likely host the default Security Domain!
+##
+PKI_INSTANCES="${PKI_TPS} ${PKI_RA} ${PKI_TKS} ${PKI_OCSP} ${PKI_DRM} ${PKI_CA}"
 
 
 
