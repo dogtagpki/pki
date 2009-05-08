@@ -274,6 +274,14 @@ sub get_domain_xml
             $::config->put( "config.sdomainHttpURL", $http_ee_port );
             $::config->put( "config.sdomainAgentURL", $https_agent_port );
             $::config->put( "config.sdomainEEURL", $https_ee_port );
+
+            # Store additional values necessary for 'pkiremove' . . .
+            $::config->put( "securitydomain.httpport", 
+                            $c->{'UnSecurePort'}[0] );
+            $::config->put( "securitydomain.httpsagentport",
+                            $c->{'SecureAgentPort'}[0] );
+            $::config->put( "securitydomain.httpseeport", 
+                            $c->{'SecurePort'}[0] );
         }
 
         $count++;

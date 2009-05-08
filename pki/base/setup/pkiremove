@@ -234,14 +234,7 @@ sub update_domain()
         if ($varname eq "securitydomain.httpsagentport") { $secagentport = $valname; }
         if ($varname eq "securitydomain.httpsadminport") { $secadminport = $valname; }
         if ($varname eq "securitydomain.select") { $secselect = $valname; }
-        # CA, KRA, OCSP, TKS
-        if ($varname =~ /[a-z]*.subsystem.nickname/) {
-            $subsystemnick = $valname;
-        }
-        # RA, TPS
-        if ($varname =~ /conn.[a-z]*.clientNickname/) {
-            $subsystemnick = $valname;
-        }
+        if ($varname eq "pkiremove.cert.subsystem.nickname") { $subsystemnick = $valname; }
     }
     close(DAT);
 

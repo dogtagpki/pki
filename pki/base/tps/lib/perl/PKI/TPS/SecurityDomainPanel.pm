@@ -71,15 +71,77 @@ sub has_sub_panel
     return 0;
 }
 
+sub pingCS
+{
+    my( $instanceDir ) = $_[0];
+    my( $db_password ) = $_[1];
+    my( $nickname ) = $_[2];
+    my( $hostname ) = $_[3];
+    my( $port ) = $_[4];
+
+    my $content = `/usr/bin/sslget -d $instanceDir/alias -p $db_password -v -n \"$nickname\" -r "/ca/admin/ca/getStatus" $hostname:$port`;
+    if( "$content" eq "" ) {
+        return 0;
+    } else {
+        $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;
+        $content = $1;
+
+        my $parser = XML::Simple->new();
+        my $response = $parser->XMLin($content);
+        my $state = $response->{State};
+
+        if( "$state" eq "1" ) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+}
+
 sub display
 {
     my ($q) = @_;
     &PKI::TPS::Wizard::debug_log("SecurityPanel: display");
     $::symbol{panelname} = "Security Domain";
     $::symbol{sdomainName} = "Security Domain";
-    my $hostname = $::config->get("service.machineName");
-    $::symbol{sdomainAdminURL} = "https://" . $hostname . ":9445";
 
+    my $instanceDir = $::config->get("service.instanceDir");
+    my $db_password = `grep \"internal:\" \"$instanceDir/conf/password.conf\" | cut -c10-`;
+    $db_password =~ s/\n$//g;
+    my $nickname = $::config->get("preop.cert.sslserver.nickname");
+    my $hostname = $::config->get("service.machineName");
+    my $default_https_admin_port = 9445;
+
+    # check to see if "default" security domain exists on local machine
+    my $status = pingCS( $instanceDir,
+                         $db_password,
+                         $nickname,
+                         $hostname,
+                         $default_https_admin_port );
+    if( "$status" eq "1" ) {
+        # "default" security domain exists on local machine;
+        # fill "sdomainURL" in with "default" security domain
+        # as an initial "guess"
+        $::symbol{sdomainURL} = "https://" . $hostname . ":"
+                              . $default_https_admin_port;
+    } else {
+        # "default" security domain does NOT exist on local machine;
+        # leave "sdomainURL" blank
+        $::symbol{sdomainURL} = "";
+    }
+
+    $::symbol{sdomainAdminURL} = "https://" . $hostname . ":"
+                               . $default_https_admin_port;
+
+    my $initCommand = "";
+    my $instanceID = "&lt;security_domain_instance_name&gt; ";
+    if( $^O eq "linux" ) {
+        $initCommand = "/sbin/service $instanceID";
+    } else {
+        ## default case:  e. g. - ( $^O eq "solaris" )
+        $initCommand  = "/etc/init.d/$instanceID";
+    }
+    $::symbol{initCommand} = $initCommand;
     return 1;
 }
 
@@ -90,9 +152,29 @@ sub update
     &PKI::TPS::Wizard::debug_log("SecurityPanel: update");
     my $sdomainURL = $q->param("sdomainURL");
 
+    if ($sdomainURL eq "") {
+        &PKI::TPS::Wizard::debug_log("SecurityPanel: sdomainURL has not been specified!");
+        $::symbol{errorString} = "Security Domain HTTPS has not been specified!";
+        return 0;
+    }
+
     my $sdomainURL_info = new URI::URL($sdomainURL);
 
-    if ($sdomainURL eq "") {
+    my $instanceDir = $::config->get("service.instanceDir");
+    my $db_password = `grep \"internal:\" \"$instanceDir/conf/password.conf\" | cut -c10-`;
+    $db_password =~ s/\n$//g;
+    my $nickname = $::config->get("preop.cert.sslserver.nickname");
+    my $hostname = $sdomainURL_info->host;
+    my $https_admin_port = $sdomainURL_info->port;
+
+    # check to see if "default" security domain exists on local machine
+    my $status = pingCS( $instanceDir,
+                         $db_password,
+                         $nickname,
+                         $hostname,
+                         $https_admin_port );
+    if( "$status" ne "1" ) {
+        # invalid security domain specified
         &PKI::TPS::Wizard::debug_log("SecurityPanel: sdomainURL not found");
         $::symbol{errorString} = "Security Domain HTTPS Admin URL not found";
         return 0;
