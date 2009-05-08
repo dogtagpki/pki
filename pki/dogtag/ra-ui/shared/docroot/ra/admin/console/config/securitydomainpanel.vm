@@ -102,7 +102,7 @@ Enter the URL to an existing security domain.
     <table class="details">
       <tr>
         <th>Security Domain HTTPS Admin URL (non-clientauth): </th>
-        <td><input type=text size="40" name="sdomainURL" value=""> (e.g. - $sdomainAdminURL)</td>
+        <td><input type=text size="40" name="sdomainURL" value="$sdomainURL"> (e.g. - https://example.com:9445)</td>
       </tr>
     </table>
 <br/>

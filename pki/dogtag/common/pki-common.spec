@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      10
+%define base_release      11
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,9 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Fri May 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-11
+- Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
+  port values within TPS "CS.cfg" . . .
 * Tue May 5 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-10
 - Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
   port values within TPS "CS.cfg" . . .
