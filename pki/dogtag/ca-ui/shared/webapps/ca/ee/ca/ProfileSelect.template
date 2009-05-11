@@ -37,6 +37,74 @@ width="100%">
 
 var dual = 'false';
 
+var keyList = new Array();
+var key = new Object();
+key.type = "RSA";
+key.size = [512, 1024, 2048, 3072, 4096, 5120, 6144, 7168, 8192];
+keyList[0] = key;
+var key = new Object();
+key.type = "DSA";
+key.size = new Array();
+keyList[1] = key;
+var key = new Object();
+key.type = "EC";
+key.size = new Array();
+keyList[2] = key;
+
+function keyOptions (keyPurpose)
+{
+  var maxKeyLen = 8192;
+  var minKeyLen = 512;
+  var keyType = "RSA";
+  var options = "";
+
+  for (var i = 0; i < policySetListSet.length; i++) {
+    for (var j = 0; j < policySetListSet[i].policySet.length; j++) {
+      if (typeof(policySetListSet[i].policySet[j].constraintSet) != "undefined") {
+        for (var k = 0; k < policySetListSet[i].policySet[j].constraintSet.length; k++) {
+          if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyMinLength") {
+            if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
+              minKeyLen = parseInt(policySetListSet[i].policySet[j].constraintSet[k].value);
+            }
+          }
+          if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyMaxLength") {
+            if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
+              maxKeyLen = parseInt(policySetListSet[i].policySet[j].constraintSet[k].value);
+            }
+          }
+          if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyType") {
+            if (policySetListSet[i].policySet[j].constraintSet[k].value != "-") {
+              if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
+                keyType = policySetListSet[i].policySet[j].constraintSet[k].value;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  for (var i = 0; i < keyList.length; i++) {
+    if (keyList[i].type == keyType) {
+      var k = 0;
+      for (var j = 0; j < keyList[i].size.length; j++) {
+        if (keyList[i].size[j] <= maxKeyLen && keyList[i].size[j] >= minKeyLen) {
+          options += '<OPTION VALUE="'+keyList[i].size[j]+'"';
+          if (k == 0) {
+            options += ' SELECTED';
+          }
+          options += '>'+keyList[i].size[j];
+          k++;
+        }
+      }
+    }
+  }
+  if (options.length == 0) {
+    options = "<OPTION VALUE=1024 SELECTED>1024";
+  }
+
+  return options;
+}
+
 function validate()
 {
    if (keygen_request == 'false')
@@ -76,7 +144,7 @@ function validate()
         //              512, null, keyGenAlg);
         /////////////////////////////////////////////////////////////////
         var keyTransportCert = null;
-        if (transportCert != "") {
+        if ((typeof(transportCert) != "undefined" && transportCert != "") {
           // from CS7.2, transport certificate will be 
           // inserted automatically
           keyTransportCert = transportCert;
@@ -395,8 +463,8 @@ for (var j = 0; j < inputPluginListSet.length; j++) {
       if (navigator.appName == "Microsoft Internet Explorer") { 
         document.writeln('<input type=hidden name=' + inputListSet[i].inputId + '>');
       } else if (typeof(crypto.version) != "undefined") {
-        document.write('<SELECT NAME="encKeyLength"><OPTION VALUE=1024 SELECTED>1024<OPTION VALUE=2048>2048<OPTION VALUE=4096>4096</SELECT> (Encryption),'); 
-        document.write('<SELECT NAME="signKeyLength"><OPTION VALUE=1024 SELECTED>1024<OPTION VALUE=2048>2048<OPTION VALUE=4096>4096</SELECT> (Signing)');
+        document.write('<SELECT NAME="encKeyLength">'+keyOptions("encryption")+'</SELECT> (Encryption),&nbsp;&nbsp;');
+        document.write('<SELECT NAME="signKeyLength">'+keyOptions("signing")+'</SELECT> (Signing)');
         document.writeln('<input type=hidden name=cert_request value="">');
         dual = 'true';
       } else {
@@ -407,7 +475,7 @@ for (var j = 0; j < inputPluginListSet.length; j++) {
         document.writeln('<input type=hidden name=' + inputListSet[i].inputId + '>');
         document.writeln('<SELECT NAME=\"cryptprovider\"></SELECT>');
       } else if (typeof(crypto.version) != "undefined") {
-        document.write('<SELECT NAME="keyLength"><OPTION VALUE=1024 SELECTED>1024<OPTION VALUE=2048>2048<OPTION VALUE=4096>4096</SELECT> (Encryption and Signing)');
+        document.write('<SELECT NAME="keyLength">'+keyOptions("")+'</SELECT> (Encryption and Signing)');
         document.writeln('<input type=hidden name=cert_request value="">');
       } else {
         document.writeln('<KEYGEN name=' + inputListSet[i].inputId + '>');
