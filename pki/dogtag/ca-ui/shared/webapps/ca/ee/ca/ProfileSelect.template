@@ -585,11 +585,11 @@ Function FindProviders
 	  TheForm.cryptprovider.add(el)
 	  If firstE > 0  Then
 	    TheForm.cryptprovider.selectedIndex = firstE
-      ElseIf firstS > 0  Then
+	  ElseIf firstS > 0  Then
 	    TheForm.cryptprovider.selectedIndex = firstS
-      ElseIf first > 0  Then
+	  ElseIf first > 0  Then
 	    TheForm.cryptprovider.selectedIndex = first
-      Else
+	  Else
 	    first = 1
 	    TheForm.cryptprovider.selectedIndex = 0
 	  End If
