@@ -92,6 +92,9 @@ public class ProfileServlet extends CMSServlet {
     public final static String ARG_DEF_DESC = "defDesc";
     public final static String ARG_DEF_LIST = "defList";
     public final static String ARG_CON_DESC = "conDesc";
+    public final static String ARG_CON_LIST = "constraint";
+    public final static String ARG_CON_NAME = "name";
+    public final static String ARG_CON_VALUE = "value";
     public final static String ARG_PROFILE_SET_ID = "profileSetId";
     public final static String ARG_POLICY_SET_ID = "setId";
     public final static String ARG_POLICY = "policy";
