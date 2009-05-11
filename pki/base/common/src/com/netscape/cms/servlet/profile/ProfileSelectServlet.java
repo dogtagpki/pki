@@ -382,6 +382,18 @@ public class ProfileSelectServlet extends ProfileServlet {
         String conDesc = con.getText(locale);
 
         set.set(ARG_CON_DESC, conDesc);
+        ArgList conlist = new ArgList();
+        Enumeration conNames = con.getConfigNames();
+        if (conNames != null) {
+            while (conNames.hasMoreElements()) {
+                ArgSet conset = new ArgSet();
+                String conName = (String) conNames.nextElement();
+                conset.set(ARG_CON_NAME, conName);
+                conset.set(ARG_CON_VALUE, con.getConfig(conName));
+                conlist.add(conset);
+            }
+        }
+        set.set(ARG_CON_LIST, conlist);
 
         list.add(set);
     }
