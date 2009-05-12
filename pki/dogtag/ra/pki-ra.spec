@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      9
+%define base_release      10
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,9 @@ fi
 ###############################################################################
 
 %changelog
+* Mon May 11 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-10
+- Bugzilla Bug #499025 -  pki-tps and pki-ra startup script needs to loop
+  on pid file availability
 * Fri May 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-9
 - Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
   port values within TPS "CS.cfg" . . .
