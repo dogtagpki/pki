@@ -373,9 +373,10 @@ start()
 		count=0;
 
 		let swait=$STARTUP_WAIT
-		until	[ ! -s ${pidfile} ] ||
+		until	[ -s ${pidfile} ] ||
 				[ $count -gt $swait ]
 		do
+			echo -n "."
 			sleep 1
 			let count=$count+1;
 		done
@@ -437,6 +438,7 @@ stop()
 				until	[ `ps -p $kpid | grep -c $kpid` = '0' ] ||
 						[ $count -gt $kwait ]
 				do
+					echo -n "."
 					sleep 1
 					let count=$count+1;
 				done
