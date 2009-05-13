@@ -40,16 +40,16 @@ An administrator's certificate has been created and imported into this browser. 
 <SCRIPT LANGUAGE="JavaScript">
 #if ($ca == 'true' && $import == 'true')
 if (navigator.appName == "Netscape") {
-document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/ee/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=netscape"></iframe>');
+document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/admin/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=netscape"></iframe>');
 } else {
-document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/ee/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=ie"></iframe>');
+document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/admin/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=ie"></iframe>');
 }
 #else
 #if ($import == 'true')
 if (navigator.appName == "Netscape") {
-document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/ee/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=netscape"></iframe>');
+document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/admin/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=netscape"></iframe>');
 } else {
-document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/ee/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=ie"></iframe>');
+document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/admin/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=ie"></iframe>');
 }
 #end
 #end

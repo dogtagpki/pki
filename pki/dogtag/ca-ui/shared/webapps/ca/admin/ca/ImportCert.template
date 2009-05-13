@@ -1,0 +1,242 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+
+<TITLE>
+CS Enroll Request Success
+</TITLE>
+
+<BODY bgcolor="white">
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Import Certificate
+</font>
+
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+
+
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+
+//document.writeln('<P>');
+//document.writeln('host  '+result.fixed.host+'<BR>');
+//document.writeln('port  '+result.fixed.port+'<BR>');
+//document.writeln('scheme  '+result.fixed.scheme+'<BR>');
+//document.writeln('authority  '+result.fixed.authorityName+'<BR>');
+
+function navMajorVersion()
+{
+	return parseInt(
+		navigator.appVersion.substring(0, navigator.appVersion.indexOf(".")));
+}
+
+document.writeln('<P>');
+document.writeln('Importing the following certificate to your browser:');
+
+document.writeln('<P>');
+
+if (result.recordSet == null || result.recordSet.length == 0) {
+	document.writeln('<BLOCKQUOTE><B><PRE>');
+	document.writeln('No more information on your certificate is provided.');
+	document.writeln('Please consult your local administrator for assistance.');
+	document.writeln('</BLOCKQUOTE></B></PRE>');
+} else {
+	document.writeln('<UL>');
+	for (var i = 0; i < result.recordSet.length; i++) {
+		if (result.recordSet[i].serialNo != null) {
+			//document.write('Serial number ');
+			//document.write('<BLOCKQUOTE><B><PRE>');
+			//document.writeln(result.recordSet[i].serialNo);
+			//document.write('</BLOCKQUOTE></B></PRE>');
+			//document.writeln('<P>');
+			//document.write('Your certificate in Base 64 encoded form:<BR>');
+			//document.write('<BLOCKQUOTE><PRE>');
+			//document.writeln(result.recordSet[i].base64Cert);
+			//document.write('</PRE></BLOCKQUOTE>');
+			document.writeln('<P>');
+			document.write('Certificate Content: <BR>');
+			document.write('<BLOCKQUOTE><PRE>');
+			document.writeln(result.recordSet[i].certPrettyPrint);
+			document.write('</PRE></BLOCKQUOTE>');
+		}
+	}
+	document.writeln('</UL>');
+
+}
+
+// NOTE: importUserCertificate should be done before this point  but 
+// it creates a javascript error that clobbers the result variable set in 
+// the template. 
+
+if (navigator.appName == 'Netscape' && (navMajorVersion() > 3) && 
+	typeof(crypto.version) != "undefined" && 
+	typeof(result.fixed.crmfReqId) != "undefined") {
+	//alert('certNickname is '+result.fixed.certNickname);
+	//alert(result.fixed.cmmfResponse);
+	var errors = crypto.importUserCertificates(null,
+				 result.fixed.cmmfResponse, false);
+	// var errors = crypto.importUserCertificates(result.fixed.certNickname,
+	//			 result.fixed.cmmfResponse, false);
+
+	// NOTE: Alpha version of cartman always returns a non-empty string 
+	// from importUserCertificates() so we can only always assume succcess. 
+	// Uncomment the following line and add appropriate javascripts/messages 
+	// for use with a later version of cartman.
+	// This is fixed in Alpha-3. For use with alpha-3 uncomment the lines below 
+	// to check for errors returned from importUserCertificates.  
+	if (errors != '') {
+		document.writeln(
+			'<b>ERROR</b>Could not import the certificate into your browser '+
+			'using nickname '+result.fixed.certNickname+'.<p>');
+		document.writeln(
+			'The following error message was returned by the browser '+
+			'when importing the certificate:');
+		document.writeln('<BLOCKQUOTE><PRE>');
+		document.writeln(errors);
+		document.writeln('</PRE></BLOCKQUOTE>');
+	}
+	else {
+		document.writeln(
+			'Your certificate was successfully imported to the browser '+
+			'with nickname '+result.fixed.certNickname);
+	}
+
+//	document.writeln(
+//		'NOTE: '+
+//		'The following was returned by the browser when importing '+
+//		'the certificate:');
+//	document.writeln('<BLOCKQUOTE><PRE>');
+//	document.writeln(errors);
+//	document.writeln('</PRE></BLOCKQUOTE>');
+//	document.writeln(
+//		'If there was an error message it could be that you do not have '+
+//		'the private key of the certificate you are trying to import. '+
+//		'Please consult your system administrator for assistance.');
+}
+
+//-->
+</SCRIPT>
+
+<OBJECT
+	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
+	CODEBASE="/xenroll.dll"
+	id=Enroll    >
+</OBJECT>
+
+<OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'>
+</OBJECT>
+
+<SCRIPT LANGUAGE=VBS>
+<!--
+'========================================================
+'
+' In VBS, there are several ways in which the event handler for the
+' click event can be bound to the right control. We use one of the
+' methods here, which indicates the binding by appending the
+' event name to the control name with an intervening '_'.
+'
+'========================================================
+
+        'Get OS Version, works for Vista and below only
+        Function GetOSVersion
+               dim agent
+               dim res
+               dim pos
+
+               agent = Navigator.appVersion
+               pos = InStr(agent,"NT 6.")
+
+               If pos > 0 Then
+                  GetOSVersion = 6
+                  Exit Function
+               End If
+
+               pos = InStr(agent,"NT 5.")
+
+               If pos > 0 Then
+                  GetOSVersion = 5
+                  Exit Function
+               End If
+
+               GetOSVersion = 5
+        End Function
+
+	Sub ImportCertificate
+		Dim pkcs7
+                Dim res
+                Dim osVersion
+
+		On Error Resume Next
+                osVersion = GetOSVersion()
+                 
+		'Convert the cert to PKCS7 format
+		pkcs7 = result.header.pkcs7ChainBase64
+		If (IsEmpty(pkcs7) OR theError <> 0) Then
+			ret = MsgBox("Could not convert certificate to PKCS7 format", 0, "Import Cert")
+			Exit Sub
+		End If
+
+                If osVersion <> 6 Then  'Not Vista
+
+		  'Import the PKCS7 object
+		  Enroll.DeleteRequestCert = FALSE
+		  Enroll.WriteCertToCSP = true
+		  Enroll.acceptPKCS7(pkcs7)
+		  if err.number <> 0 then
+			Enroll.WriteCertToCSP = false
+		  end if
+		  err.clear
+		  Enroll.acceptPKCS7(pkcs7)
+		  if err.number = 0 then
+			MsgBox "Certificate has been successfully imported."
+		  else 
+			sz = "Error in acceptPKCS7. Error Number " & Hex(err.number) & "occurred."
+			MsgBox sz
+		  end if
+		  Exit Sub
+                Else  'Vista
+                  Dim enrollObj
+
+                  Set enrollObj = g_objClassFactory.CreateObject("X509Enrollment.CX509Enrollment")
+		  If IsObject(enrollObj) =  False Then
+                    res = MsgBox("Can't create Enroll Object!")
+                    Exit Sub
+                  End If
+
+                  enrollObj.Initialize(1)
+                  enrollObj.InstallResponse 0,pkcs7,6,""
+
+                  If Err.number <> 0 Then
+                    sz = "Error in InstallResponse. Error Number " & Hex(err.number) & " occurred."
+                    res =MsgBox(sz & Err.description)
+                  else
+                    res = MsgBox("Certificate has been successfully imported.")
+                  End If
+                End If
+	End Sub
+
+	ImportCertificate()
+-->
+</SCRIPT>
+
+</font>
+</BODY>
+</HTML>
+

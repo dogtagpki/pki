@@ -1,0 +1,58 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>VBScript Administrator Certificate Enrollment
+</TITLE>
+<CMS_TEMPLATE>
+<OBJECT classid="clsid:127698E4-E730-4E5C-A2b1-21490A70C8A1"
+    codebase="xenroll.dll"
+    id=Enroll >
+</OBJECT>
+<SCRIPT language="VBScript">
+<!--
+                Dim pkcs7
+
+                On Error Resume Next
+
+                'Convert the cert to PKCS7 format
+                pkcs7 = result.header.pkcs7
+                If (IsEmpty(pkcs7) OR theError <> 0) Then
+                    ret = MsgBox("Could not convert certificate to PKCS7 format", 0, "Import Cert")
+                End If
+
+                'Import the PKCS7 object
+                Enroll.DeleteRequestCert = FALSE
+                Enroll.WriteCertToCSP = true
+                Enroll.acceptPKCS7(pkcs7)
+                if err.number <> 0 then
+                        Enroll.WriteCertToCSP = false
+                end if
+                err.clear
+                Enroll.acceptPKCS7(pkcs7)
+                if err.number = 0 then
+                    MsgBox "Certificate has been successfully imported."
+                else
+                    sz = "Error in acceptPKCS7. Error Number " & Hex(err.number) & "occurred."
+                    MsgBox sz
+                end if
+-->
+</SCRIPT>
+</head>
+</HTML>
