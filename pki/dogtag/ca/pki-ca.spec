@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      8
+%define base_release      9
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,9 @@ fi
 ###############################################################################
 
 %changelog
+* Tue May 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-9
+- Bugzilla Bug #500489 -  CA installation wizard doesn't prompt to
+  download/install CA chain on Firefox 3
 * Fri May 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-8
 - Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
   port values within TPS "CS.cfg" . . .

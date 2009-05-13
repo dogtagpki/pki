@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue May 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-5
+- Bugzilla Bug #500489 -  CA installation wizard doesn't prompt to
+  download/install CA chain on Firefox 3
 * Sun May 10 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-4
 - Bugzilla Bug #490551 - Use profile key constraints to control enrollment key sizes
 * Tue May 5 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-3
