@@ -134,7 +134,7 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             if (type.equals("otherca")) {
                 try {
                     caHost = cs.getString("securitydomain.host", "");
-                    caPort = cs.getString("securitydomain.httpseeport", "");
+                    caPort = cs.getString("securitydomain.httpsadminport", "");
                 } catch (Exception e) {}
             } else if (type.equals("sdca")) {
                 try {
@@ -146,7 +146,7 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             // Provide default Security Domain values for 'caHost' and 'caPort'
             try {
                 caHost = cs.getString("securitydomain.host", "");
-                caPort = cs.getString("securitydomain.httpseeport", "");
+                caPort = cs.getString("securitydomain.httpsadminport", "");
             } catch (Exception e) {}
         }
 

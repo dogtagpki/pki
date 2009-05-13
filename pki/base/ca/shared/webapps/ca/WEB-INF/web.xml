@@ -1455,6 +1455,29 @@
    </servlet>
 
    <servlet>
+      <servlet-name>  caGetAdminBySerial  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetBySerial  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /admin/ca/ImportCert.template </param-value> </init-param>
+             <init-param><param-name>  importCertTemplate  </param-name>
+                         <param-value> /admin/ca/ImportAdminCert.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name> 
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin       </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetAdminBySerial </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.admin.certificate </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin       </param-value> </init-param>
+   </servlet>
+
+   <servlet>
       <servlet-name>  cacertbasedenrollment  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -2388,6 +2411,11 @@
    <servlet-mapping>
       <servlet-name>  caGetBySerial  </servlet-name>
       <url-pattern>   /ee/ca/getBySerial  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetAdminBySerial  </servlet-name>
+      <url-pattern>   /admin/ca/getBySerial  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
