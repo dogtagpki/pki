@@ -144,7 +144,7 @@ function validate()
         //              512, null, keyGenAlg);
         /////////////////////////////////////////////////////////////////
         var keyTransportCert = null;
-        if ((typeof(transportCert) != "undefined" && transportCert != "") {
+        if (typeof(transportCert) != "undefined" && transportCert != "") {
           // from CS7.2, transport certificate will be 
           // inserted automatically
           keyTransportCert = transportCert;
