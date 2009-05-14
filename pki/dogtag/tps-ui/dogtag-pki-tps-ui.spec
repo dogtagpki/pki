@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu May 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-5
+- Bugzilla Bug #500498 -  CA installation wizard doesn't install
+  administrator cert into browser on Firefox 3
 * Fri May 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
 - Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
   port values within TPS "CS.cfg" . . .
