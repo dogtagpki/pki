@@ -706,13 +706,13 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             c.putString("extension.CRLReason.type", "CRLEntryExtension");
             c.putString("extension.CRLReason.class",
                 "com.netscape.cms.crl.CMSCRLReasonExtension");
-            // HoldInstruction
-            c.putString("extension.HoldInstruction.enable", "false");
-            c.putString("extension.HoldInstruction.critical", "false");
-            c.putString("extension.HoldInstruction.type", "CRLEntryExtension");
-            c.putString("extension.HoldInstruction.class",
-                "com.netscape.cms.crl.CMSHoldInstructionExtension");
-            c.putString("extension.HoldInstruction.instruction", "none");
+            // HoldInstruction - removed by RFC 5280
+            // c.putString("extension.HoldInstruction.enable", "false");
+            // c.putString("extension.HoldInstruction.critical", "false");
+            // c.putString("extension.HoldInstruction.type", "CRLEntryExtension");
+            // c.putString("extension.HoldInstruction.class",
+            //     "com.netscape.cms.crl.CMSHoldInstructionExtension");
+            // c.putString("extension.HoldInstruction.instruction", "none");
             // InvalidityDate
             c.putString("extension.InvalidityDate.enable", "true");
             c.putString("extension.InvalidityDate.critical", "false");
