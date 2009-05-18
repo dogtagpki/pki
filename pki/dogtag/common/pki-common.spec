@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      13
+%define base_release      14
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Mon May 18 2009 Ade Lee <alee@redhat.com> 1.1.0-14
+- Bugzilla Bug #500736 -  \n characters are being incorrectly escaped on profile review form
 * Wed May 13 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-13
 - Bugzilla Bug #500498 -  CA installation wizard doesn't install
   administrator cert into browser on Firefox 3

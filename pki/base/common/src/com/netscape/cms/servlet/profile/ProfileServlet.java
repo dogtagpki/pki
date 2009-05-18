@@ -337,6 +337,15 @@ public class ProfileServlet extends CMSServlet {
                 continue;
             }
 
+            /* some inputs are coming in as '\' and 'n' */
+            /* see BZ 500736 for details */
+            if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n')) {
+                out[j++] = '\\';
+                out[j++] = 'n';
+                i++;
+                continue;
+            }
+
             switch (c) {
             case '\n':
                 out[j++] = '\\';
