@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      2
+%define base_release      3
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -280,6 +280,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/TxtTo80/classes/*
 %attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/TxtTo80/run.sh
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/80/*
+%attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/TpsTo80/*
 
 
 ###############################################################################
@@ -287,6 +288,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue May 12 2009 Ade Lee <alee@redhat.com> 1.1.0-3
+- Bugzilla Bug #493717 -  Migration scripts needed for TPS groups
 * Tue May 5 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-2
 - Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
   port values within TPS "CS.cfg" . . .
