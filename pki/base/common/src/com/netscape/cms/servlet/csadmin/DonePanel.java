@@ -287,7 +287,7 @@ public class DonePanel extends WizardPanelBase {
 
                 try {
                     // Add this host (only CA can create new domain) 
-                    String cn = ownhost + ":" + ownsport;
+                    String cn = ownhost + ":" + ownadminsport;
                     String dn = "cn=" + cn + ",cn=CAList,ou=Security Domain," + basedn;
                     LDAPEntry entry = null;
                     LDAPAttributeSet attrs = null;
