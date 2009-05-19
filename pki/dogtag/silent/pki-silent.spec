@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -234,6 +234,12 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Sat May 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
+- Bugzilla Bug #491517 -  pkisilent Configure RA and TPS fail
+  (port separation changes only)
+- Bugzilla Bug #495676 -  pkisilent ConfigureCA failure on AdminCertImportPanel
+- Bugzilla Bug #500748 -  pki-silent : issues due to port separation changes
+  (only addressed CA, KRA, OCSP, and TKS)
 * Tue May 5 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-3
 - Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
   port values within TPS "CS.cfg" . . .
