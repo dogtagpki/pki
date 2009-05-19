@@ -55,24 +55,28 @@ public class ConfigureRA
 	
 	public static String login_uri = "/ra/admin/console/config/login";
 	public static String wizard_uri = "/ra/admin/console/config/wizard";
-	public static String domain_uri = "/ra/ee/ca/domain";
-	public static String ee_uri = "/ca/ee/ca/getBySerial";
+	public static String admin_uri = "/ca/admin/ca/getBySerial";
 
 	public static String sd_login_uri = "/ca/admin/ca/securityDomainLogin";
 	public static String sd_get_cookie_uri = "/ca/admin/ca/getCookie";
+	public static String sd_update_domain_uri = "/ca/agent/ca/updateDomainXML";
 	public static String pkcs12_uri = "/ra/admin/console/config/savepkcs12";
 
 	public static String cs_hostname = null;
 	public static String cs_port = null;
+	public static String cs_clientauth_port = null;
 
 	public static String sd_hostname = null;
 	public static String sd_ssl_port = null;
+	public static String sd_agent_port = null;
+	public static String sd_admin_port = null;
 	public static String sd_admin_name = null;
 	public static String sd_admin_password = null;
 
 	public static String ca_hostname = null;
 	public static String ca_port = null;
 	public static String ca_ssl_port = null;
+	public static String ca_admin_port = null;
 
 	public static String client_certdb_dir = null;
 	public static String client_certdb_pwd = null;
@@ -112,6 +116,11 @@ public class ConfigureRA
 	public static String ra_server_cert_subject_name = null;
 	public static String subsystem_name = null;
 
+	// Security Domain Login Panel
+	public static String ra_session_id = null;
+
+	// Admin Certificate Request Panel
+	public static String requestor_name = null;
 
 	public ConfigureRA ()
 	{
@@ -141,7 +150,7 @@ public class ConfigureRA
 
 		String query_string = "pin=" + pin + "&xml=true"; 
 	
-		hr = hc.nonsslConnect(cs_hostname,cs_port,login_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,login_uri,query_string);
 		System.out.println("xml returned: " + hr.getHTML());
 
 		// parse xml here - nothing to parse
@@ -158,7 +167,7 @@ public class ConfigureRA
 		}
 
 		hr = null;
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,
 						"p=0&op=next&xml=true");
 
 		// parse xml here
@@ -180,7 +189,7 @@ public class ConfigureRA
 		ParseXML px = new ParseXML();
 
 
-		String domain_url = "https://" + sd_hostname + ":" + sd_ssl_port ;
+		String domain_url = "https://" + sd_hostname + ":" + sd_admin_port ;
 
 		String query_string = "sdomainURL=" +
 							URLEncoder.encode(domain_url) +
@@ -189,7 +198,7 @@ public class ConfigureRA
 							"&op=next" +
 							"&xml=true"; 
 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -209,7 +218,7 @@ public class ConfigureRA
 		String query_string = null;
 
 		query_string = "p=2" + "&op=next" + "&xml=true"; 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		return true;
 
@@ -229,19 +238,19 @@ public class ConfigureRA
 
 		String query_string = "url=" + URLEncoder.encode(ra_url); 
 
-		hr = hc.sslConnect(sd_hostname,sd_ssl_port,sd_login_uri,query_string);
+		hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_login_uri,query_string);
 
 		String query_string_1 = "uid=" + sd_admin_name +
 								"&pwd=" + sd_admin_password +
 								"&url=" + URLEncoder.encode(ra_url) ;
 
-		hr = hc.sslConnect(sd_hostname,sd_ssl_port,sd_get_cookie_uri,
+		hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_get_cookie_uri,
 						query_string_1);
 
 		// get session id from security domain
 		sleep_time();
 
-		String ra_session_id = hr.getContentValue("header.session_id");
+		ra_session_id = hr.getContentValue("header.session_id");
 		String ra_url_1 = hr.getContentValue("header.url");
 
 		System.out.println("RA_SESSION_ID=" + ra_session_id );
@@ -254,7 +263,7 @@ public class ConfigureRA
 								"&subsystem=RA" +
 								"&xml=true" ;
 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,
 						query_string_2);
 
 		// parse xml - no parsing
@@ -276,7 +285,7 @@ public class ConfigureRA
 						URLEncoder.encode(subsystem_name) + 
 						"&choice=newsubsystem" ; 
 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
 		px.parse(bais);
@@ -290,7 +299,7 @@ public class ConfigureRA
 							"&urls=" +
 							URLEncoder.encode(ca_url) ;
 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
 		px.parse(bais);
@@ -311,7 +320,7 @@ public class ConfigureRA
 
 		String query_string = "p=5" + "&op=next" + "&xml=true" ;
 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -338,7 +347,7 @@ public class ConfigureRA
 							"&choice=" + 
 					URLEncoder.encode("NSS Certificate DB") +
 								""; 
-			hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 			// parse xml
 			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
 			px.parse(bais);
@@ -354,7 +363,7 @@ public class ConfigureRA
 							"&__uPasswd=" + 
 							URLEncoder.encode(token_pwd) +
 							""; 
-			hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 			// parse xml
 			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
 			px.parse(bais);
@@ -365,7 +374,7 @@ public class ConfigureRA
 							"&choice=" + 
 							URLEncoder.encode(token_name) +
 							""; 
-			hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 			// parse xml
 			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
 			px.parse(bais);
@@ -399,7 +408,7 @@ public class ConfigureRA
 							"&choice=custom"+
 							""; 
 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -431,7 +440,7 @@ public class ConfigureRA
 					URLEncoder.encode(ca_url) +
 					""; 
 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -462,7 +471,7 @@ public class ConfigureRA
 							"&sslserver_cc=" + 
 							""; 
 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -480,8 +489,7 @@ public class ConfigureRA
 		ParseXML px = new ParseXML();
 		String admin_cert_request = null;
 
-		// not used
-		String cert_subject = "CN=" + "ra-" + admin_user;
+		requestor_name = "RA-" + cs_hostname + "-" + cs_clientauth_port;
 
 		ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
 										client_certdb_pwd,
@@ -511,17 +519,23 @@ public class ConfigureRA
 							"&__pwd=" + admin_password +
 							"&__admin_password_again=" + admin_password +
 							"&profileId=" + "caAdminCert" +
+							"&requestor_name=" + requestor_name +
 							"&email=" + 
 							URLEncoder.encode(admin_email) +
 							"&cert_request=" + 
 							URLEncoder.encode(admin_cert_request) +
-							"&subject=" + agent_cert_subject +
-							"&clone=0" +
+							"&subject=" +
+							URLEncoder.encode(agent_cert_subject) +
+							"&clone=new" +
 							"&import=true" +
-							"&securitydomain=" + domain_name +
+							"&securitydomain=" +
+							URLEncoder.encode(domain_name) +
+							"&sessionID=" + ra_session_id +
+							"&auth_hostname=" + ca_hostname +
+							"&auth_port=" + ca_ssl_port +
 							""; 
 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -539,13 +553,18 @@ public class ConfigureRA
 		HTTPResponse hr = null;
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
+		String cert_to_import = null;
 
 		String query_string = "serialNumber=" + admin_serial_number +
 							"&importCert=" + "true" +
 							""; 
 
-		hr = hc.sslConnect(ca_hostname,ca_ssl_port,ee_uri,query_string);
-		String cert_to_import = null;
+		// NOTE:  CA, DRM, OCSP, and TKS use the Security Domain Admin Port;
+		//        whereas RA and TPS use the CA Admin Port associated with
+		//        the 'CA choice panel' as invoked from the SubsystemPanel()
+		//        which MAY or MAY NOT be the same CA as the CA specified
+		//        by the Security Domain.
+		hr = hc.sslConnect(ca_hostname,ca_admin_port,admin_uri,query_string);
 
 		try
 		{
@@ -591,11 +610,16 @@ public class ConfigureRA
 		ParseXML px = new ParseXML();
 
 		String query_string = "p=12" + "&op=next" + "&xml=true" +
-							"&caHost=" + URLEncoder.encode(ca_hostname) +
-							"&caPort=" + URLEncoder.encode(ca_ssl_port) +
-							""; 
+							"&list=" + "RAList" +
+							"&type=" + "RA" +
+							"&host=" + URLEncoder.encode(cs_hostname) +
+							"&name=" + URLEncoder.encode(subsystem_name) + 
+							"&sport=" + cs_clientauth_port +
+							"&dm=false" +
+							"";
 
-		hr = hc.nonsslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+		hr = hc.sslConnect( sd_hostname, sd_agent_port,
+                            sd_update_domain_uri, query_string );
 
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -748,15 +772,19 @@ public class ConfigureRA
 		// set variables
 		StringHolder x_cs_hostname = new StringHolder();
 		StringHolder x_cs_port = new StringHolder();
+		StringHolder x_cs_clientauth_port = new StringHolder();
 
 		StringHolder x_sd_hostname = new StringHolder();
 		StringHolder x_sd_ssl_port = new StringHolder();
+		StringHolder x_sd_agent_port = new StringHolder();
+		StringHolder x_sd_admin_port = new StringHolder();
 		StringHolder x_sd_admin_name = new StringHolder();
 		StringHolder x_sd_admin_password = new StringHolder();
 
 		StringHolder x_ca_hostname = new StringHolder();
 		StringHolder x_ca_port = new StringHolder();
 		StringHolder x_ca_ssl_port = new StringHolder();
+		StringHolder x_ca_admin_port = new StringHolder();
 
 		StringHolder x_client_certdb_dir = new StringHolder();
 		StringHolder x_client_certdb_pwd = new StringHolder();
@@ -795,11 +823,17 @@ public class ConfigureRA
 							x_cs_hostname); 
 		parser.addOption ("-cs_port %s #CS SSL port",
 							x_cs_port); 
+		parser.addOption ("-cs_clientauth_port %s #CS SSL port",
+							x_cs_clientauth_port); 
 
 		parser.addOption ("-sd_hostname %s #Security Domain Hostname",
 							x_sd_hostname); 
-		parser.addOption ("-sd_ssl_port %s #Security Domain SSL port",
+		parser.addOption ("-sd_ssl_port %s #Security Domain SSL EE port",
 							x_sd_ssl_port); 
+		parser.addOption ("-sd_agent_port %s #Security Domain SSL Agent port",
+							x_sd_agent_port); 
+		parser.addOption ("-sd_admin_port %s #Security Domain SSL Admin port",
+							x_sd_admin_port); 
 		parser.addOption ("-sd_admin_name %s #Security Domain username",
 							x_sd_admin_name); 
 		parser.addOption ("-sd_admin_password %s #Security Domain password",
@@ -807,10 +841,12 @@ public class ConfigureRA
 
 		parser.addOption ("-ca_hostname %s #CA Hostname",
 							x_ca_hostname); 
-		parser.addOption ("-ca_port %s #CA non SSL port",
+		parser.addOption ("-ca_port %s #CA non-SSL port",
 							x_ca_port); 
 		parser.addOption ("-ca_ssl_port %s #CA SSL port",
 							x_ca_ssl_port); 
+		parser.addOption ("-ca_admin_port %s #CA SSL Admin port",
+							x_ca_admin_port); 
 
 		parser.addOption ("-client_certdb_dir %s #Client CertDB dir",
 							x_client_certdb_dir); 
@@ -869,15 +905,19 @@ public class ConfigureRA
 		// set variables
 		cs_hostname = x_cs_hostname.value;
 		cs_port = x_cs_port.value;
+		cs_clientauth_port = x_cs_clientauth_port.value;
 
 		sd_hostname = x_sd_hostname.value;
 		sd_ssl_port = x_sd_ssl_port.value;
+		sd_agent_port = x_sd_agent_port.value;
+		sd_admin_port = x_sd_admin_port.value;
 		sd_admin_name = x_sd_admin_name.value;
 		sd_admin_password = x_sd_admin_password.value;
 
 		ca_hostname = x_ca_hostname.value;
 		ca_port = x_ca_port.value;
 		ca_ssl_port = x_ca_ssl_port.value;
+		ca_admin_port = x_ca_admin_port.value;
 
 		client_certdb_dir = x_client_certdb_dir.value;
 		client_certdb_pwd = x_client_certdb_pwd.value;

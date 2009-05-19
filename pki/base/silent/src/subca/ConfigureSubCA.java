@@ -55,8 +55,7 @@ public class ConfigureSubCA
 	
 	public static String login_uri = "/ca/admin/console/config/login";
 	public static String wizard_uri = "/ca/admin/console/config/wizard";
-	public static String domain_uri = "/ca/ee/ca/domain";
-	public static String ee_uri = "/ca/ee/ca/getBySerial";
+	public static String admin_uri = "/ca/admin/ca/getBySerial";
 	public static String sd_login_uri = "/ca/admin/ca/securityDomainLogin";
 	public static String sd_get_cookie_uri = "/ca/admin/ca/getCookie";
 	public static String pkcs12_uri = "/ca/admin/console/config/savepkcs12";
@@ -66,6 +65,8 @@ public class ConfigureSubCA
 
 	public static String sd_hostname = null;
 	public static String sd_ssl_port = null;
+	public static String sd_agent_port = null;
+	public static String sd_admin_port = null;
 	public static String sd_admin_name = null;
 	public static String sd_admin_password = null;
 
@@ -204,7 +205,7 @@ public class ConfigureSubCA
 		ParseXML px = new ParseXML();
 
 
-		String domain_url = "https://" + sd_hostname + ":" + sd_ssl_port ;
+		String domain_url = "https://" + sd_hostname + ":" + sd_admin_port ;
 
 		String query_string = "sdomainURL=" +
 							URLEncoder.encode(domain_url) +
@@ -245,13 +246,13 @@ public class ConfigureSubCA
 
 		String query_string = "url=" + URLEncoder.encode(subca_url); 
 
-		hr = hc.sslConnect(sd_hostname,sd_ssl_port,sd_login_uri,query_string);
+		hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_login_uri,query_string);
 
 		String query_string_1 = "uid=" + sd_admin_name +
 								"&pwd=" + sd_admin_password +
 								"&url=" + URLEncoder.encode(subca_url) ;
 
-		hr = hc.sslConnect(sd_hostname,sd_ssl_port,sd_get_cookie_uri,
+		hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_get_cookie_uri,
 						query_string_1);
 
 		// get session id from security domain
@@ -736,7 +737,8 @@ public class ConfigureSubCA
 							URLEncoder.encode(admin_email) +
 							"&cert_request=" + 
 							URLEncoder.encode(admin_cert_request) +
-							"&subject=" + agent_cert_subject +
+							"&subject=" +
+							URLEncoder.encode(agent_cert_subject) +
 							"&clone=new" +
 							"&import=true" +
 							"&securitydomain=" + domain_name +
@@ -765,7 +767,7 @@ public class ConfigureSubCA
 							"&importCert=" + "true" +
 							""; 
 
-		hr = hc.sslConnect(cs_hostname,cs_port,ee_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,admin_uri,query_string);
 		
 		// get response data
 		String cert_to_import = 
@@ -988,6 +990,8 @@ public class ConfigureSubCA
 
 		StringHolder x_sd_hostname = new StringHolder();
 		StringHolder x_sd_ssl_port = new StringHolder();
+		StringHolder x_sd_agent_port = new StringHolder();
+		StringHolder x_sd_admin_port = new StringHolder();
 		StringHolder x_sd_admin_name = new StringHolder();
 		StringHolder x_sd_admin_password = new StringHolder();
 
@@ -1046,8 +1050,12 @@ public class ConfigureSubCA
 
 		parser.addOption ("-sd_hostname %s #Security Domain Hostname",
 							x_sd_hostname); 
-		parser.addOption ("-sd_ssl_port %s #Security Domain SSL port",
+		parser.addOption ("-sd_ssl_port %s #Security Domain SSL EE port",
 							x_sd_ssl_port); 
+		parser.addOption ("-sd_agent_port %s #Security Domain SSL Agent port",
+							x_sd_agent_port); 
+		parser.addOption ("-sd_admin_port %s #Security Domain SSL Admin port",
+							x_sd_admin_port); 
 		parser.addOption ("-sd_admin_name %s #Security Domain admin name",
 							x_sd_admin_name); 
 		parser.addOption ("-sd_admin_password %s #Security Domain admin password",
@@ -1055,7 +1063,7 @@ public class ConfigureSubCA
 
 		parser.addOption ("-ca_hostname %s #CA Hostname",
 							x_ca_hostname); 
-		parser.addOption ("-ca_port %s #CA non SSL port",
+		parser.addOption ("-ca_port %s #CA non-SSL port",
 							x_ca_port); 
 		parser.addOption ("-ca_ssl_port %s #CA SSL port",
 							x_ca_ssl_port); 
@@ -1144,6 +1152,8 @@ public class ConfigureSubCA
 
 		sd_hostname = x_sd_hostname.value;
 		sd_ssl_port = x_sd_ssl_port.value;
+		sd_agent_port = x_sd_agent_port.value;
+		sd_admin_port = x_sd_admin_port.value;
 		sd_admin_name = x_sd_admin_name.value;
 		sd_admin_password = x_sd_admin_password.value;
 

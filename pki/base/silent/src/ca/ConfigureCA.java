@@ -58,8 +58,7 @@ public class ConfigureCA {
 	
     public static String login_uri = "/ca/admin/console/config/login";
     public static String wizard_uri = "/ca/admin/console/config/wizard";
-    public static String domain_uri = "/ca/ee/ca/domain";
-    public static String ee_uri = "/ca/ee/ca/getBySerial";
+    public static String admin_uri = "/ca/admin/ca/getBySerial";
     public static String pkcs12_uri = "/ca/admin/console/config/savepkcs12";
     public static String sd_login_uri = "/ca/admin/ca/securityDomainLogin";
     public static String sd_get_cookie_uri = "/ca/admin/ca/getCookie";
@@ -71,6 +70,8 @@ public class ConfigureCA {
 
     public static String sd_hostname = null;
     public static String sd_ssl_port = null;
+    public static String sd_agent_port = null;
+    public static String sd_admin_port = null;
     public static String sd_admin_name = null;
     public static String sd_admin_password = null;
 
@@ -220,7 +221,7 @@ public class ConfigureCA {
                     + "&sdomainName=" + URLEncoder.encode(domain_name)
                     + "&choice=newdomain" + "&p=1" + "&op=next" + "&xml=true";
             } else {
-                domain_url = "https://" + sd_hostname + ":" + sd_ssl_port ;
+                domain_url = "https://" + sd_hostname + ":" + sd_admin_port ;
                 query_string = "sdomainURL=" + URLEncoder.encode(domain_url)
                     + "&sdomainName="
                     + "&choice=existingdomain" + "&p=1" + "&op=next" + "&xml=true";
@@ -269,12 +270,12 @@ public class ConfigureCA {
 
             String query_string = "url=" + URLEncoder.encode(subca_url);
 
-            hr = hc.sslConnect(sd_hostname,sd_ssl_port,sd_login_uri,query_string);
+            hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_login_uri,query_string);
 
             String query_string_1 = "uid=" + sd_admin_name + "&pwd=" + sd_admin_password +
                                     "&url=" + URLEncoder.encode(subca_url) ;
 
-            hr = hc.sslConnect(sd_hostname,sd_ssl_port,sd_get_cookie_uri,
+            hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_get_cookie_uri,
                                                 query_string_1);
 
             // get session id from security domain
@@ -985,8 +986,10 @@ public class ConfigureCA {
                 + "&__admin_password_again=" + admin_password + "&profileId="
                 + "caAdminCert" + "&email=" + URLEncoder.encode(admin_email)
                 + "&cert_request=" + URLEncoder.encode(admin_cert_request)
-                + "&subject=" + agent_cert_subject + "&clone=new"
-                + "&import=true" + "&securitydomain=" + domain_name + ""; 
+                + "&subject=" + URLEncoder.encode(agent_cert_subject)
+				+ "&clone=new"
+                + "&import=true" + "&securitydomain="
+                + URLEncoder.encode(domain_name) + ""; 
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -1017,7 +1020,7 @@ public class ConfigureCA {
             String query_string = "&serialNumber=" + admin_serial_number
                 + "&importCert=true" + "";
 
-            hr = hc.sslConnect(cs_hostname, cs_port, ee_uri, query_string);
+            hr = hc.sslConnect(cs_hostname, cs_port, admin_uri, query_string);
 		
             try {
                 // get response data
@@ -1418,6 +1421,8 @@ public class ConfigureCA {
         //security domain
         StringHolder x_sd_hostname = new StringHolder();
         StringHolder x_sd_ssl_port = new StringHolder();
+        StringHolder x_sd_agent_port = new StringHolder();
+        StringHolder x_sd_admin_port = new StringHolder();
         StringHolder x_sd_admin_name = new StringHolder();
         StringHolder x_sd_admin_password = new StringHolder();
 
@@ -1426,7 +1431,7 @@ public class ConfigureCA {
         ArgParser parser = new ArgParser("ConfigureCA");
 
         parser.addOption("-cs_hostname %s #CS Hostname", x_cs_hostname); 
-        parser.addOption("-cs_port %s #CS SSL port", x_cs_port); 
+        parser.addOption("-cs_port %s #CS SSL Admin port", x_cs_port); 
         parser.addOption("-client_certdb_dir %s #Client CertDB dir",
                 x_client_certdb_dir); 
         parser.addOption("-client_certdb_pwd %s #client certdb password",
@@ -1496,7 +1501,9 @@ public class ConfigureCA {
         parser.addOption("-clone_p12_password %s #Password for pk12 file", x_clone_p12_passwd);
 
         parser.addOption ("-sd_hostname %s #Security Domain Hostname", x_sd_hostname);
-        parser.addOption ("-sd_ssl_port %s #Security Domain SSL port", x_sd_ssl_port);
+        parser.addOption ("-sd_ssl_port %s #Security Domain SSL EE port", x_sd_ssl_port);
+        parser.addOption ("-sd_agent_port %s #Security Domain SSL Agent port", x_sd_agent_port);
+        parser.addOption ("-sd_admin_port %s #Security Domain SSL Admin port", x_sd_admin_port);
         parser.addOption ("-sd_admin_name %s #Security Domain admin name",
             x_sd_admin_name);
         parser.addOption ("-sd_admin_password %s #Security Domain admin password",
@@ -1578,6 +1585,8 @@ public class ConfigureCA {
 
         sd_hostname = x_sd_hostname.value;
         sd_ssl_port = x_sd_ssl_port.value;
+        sd_agent_port = x_sd_agent_port.value;
+        sd_admin_port = x_sd_admin_port.value;
         sd_admin_name = x_sd_admin_name.value;
         sd_admin_password = x_sd_admin_password.value;
 
