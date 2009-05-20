@@ -34,6 +34,7 @@ import netscape.security.x509.InvalidityDateExtension;
 import netscape.security.x509.CertificateIssuerExtension;
 import netscape.security.x509.FreshestCRLExtension;
 import netscape.security.x509.OIDMap;
+import netscape.security.extensions.AuthInfoAccessExtension;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.certsrv.base.EBaseException;
@@ -87,10 +88,11 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         mDefaultCRLExtensionNames.addElement(DeltaCRLIndicatorExtension.NAME);
         mDefaultCRLExtensionNames.addElement(IssuingDistributionPointExtension.NAME);
         mDefaultCRLExtensionNames.addElement(FreshestCRLExtension.NAME);
+        mDefaultCRLExtensionNames.addElement(AuthInfoAccessExtension.NAME2);
 
         /* Default CRL Entry Extensions */
         mDefaultCRLEntryExtensionNames.addElement(CRLReasonExtension.NAME);
-        mDefaultCRLEntryExtensionNames.addElement(HoldInstructionExtension.NAME);
+        //mDefaultCRLEntryExtensionNames.addElement(HoldInstructionExtension.NAME);
         mDefaultCRLEntryExtensionNames.addElement(InvalidityDateExtension.NAME);
         //mDefaultCRLEntryExtensionNames.addElement(CertificateIssuerExtension.NAME);
 
@@ -126,6 +128,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         //                     CertificateIssuerExtension.NAME);
         mDefaultCRLExtensionIDs.put(PKIXExtensions.FreshestCRL_Id.toString(),
             FreshestCRLExtension.NAME);
+        mDefaultCRLExtensionIDs.put(AuthInfoAccessExtension.ID.toString(),
+            AuthInfoAccessExtension.NAME2);
 
         /* Class names */
         mDefaultCRLExtensionClassNames.put(AuthorityKeyIdentifierExtension.NAME,
@@ -148,6 +152,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         //        "com.netscape.cms.crl.CMSCertificateIssuerExtension");
         mDefaultCRLExtensionClassNames.put(FreshestCRLExtension.NAME,
             "com.netscape.cms.crl.CMSFreshestCRLExtension");
+        mDefaultCRLExtensionClassNames.put(AuthInfoAccessExtension.NAME2,
+            "com.netscape.cms.crl.CMSAuthInfoAccessExtension");
 
         try {
             OIDMap.addAttribute(DeltaCRLIndicatorExtension.class.getName(),
