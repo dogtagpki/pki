@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      7
+%define base_release      8
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed May 20 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-8
+- Bugzilla Bug #491185 - added new revocation reasons to comply with RFC 5280
 * Wed May 13 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-7
 - Bugzilla Bug #490551 - Use profile key constraints to control enrollment key sizes on IE
 * Wed May 13 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-6
