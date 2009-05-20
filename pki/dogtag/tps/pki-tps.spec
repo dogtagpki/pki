@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      16
+%define base_release      17
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,9 @@ fi
 ###############################################################################
 
 %changelog
+* Sat May 16 2009 Jack Magne <jmagne@redhat.com> 1.1.0-17
+- Bugzilla Bug #491019 - Security Officer token can get formatted with
+  user format page.
 * Thu May 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-16
 - Bugzilla Bug #500498 -  CA installation wizard doesn't install
   administrator cert into browser on Firefox 3
