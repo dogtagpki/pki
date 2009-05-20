@@ -1698,3 +1698,73 @@ function DoCoolKeySetConfigValue(configValue,newValue)
 
     return result;
 }
+
+//Is the user "uid"  an "agent" or "user"
+// Input "type" either "agent" or "user"
+
+function IsAgentOrUser(uid,type)
+{
+  var url = window.location.href;
+  var lastSlash = 0;
+
+  var result = false;
+
+  if(!uid || !type)
+      return false;
+
+  var isAgent = 0;
+
+  if(type == "agent")
+     isAgent = 1;
+
+  //Accept either uid=name or name
+
+  if(uid.lastIndexOf("uid=") < 0)
+  {
+     uid = "uid=" + uid;
+  }
+
+  if(url)
+  {
+    lastSlash = url.lastIndexOf("/");
+  }
+  if(lastSlash > 0)
+  {
+    url =  url.substring(0,lastSlash);
+  }
+
+  if(isAgent)
+    url = url + "/is_agent.cgi?" + uid;
+  else
+    url = url +  "/is_user.cgi?" + uid;
+
+  var req = new XMLHttpRequest();
+  req.open('GET',url,false);
+  req.send(null);
+  if(req.status == 200)
+  {
+    //alert(req.responseText);
+    if(req.responseText.lastIndexOf("yes") >= 0)
+    {
+      result = true;
+    }
+  }
+  return result;
+}
+
+function GetCoolKeyIssuedTo(keyType,keyID)
+{
+  var keyStatus = GetStatusForKeyID(keyType,keyID);
+
+  var issuedTo = null;
+
+  try {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+      issuedTo = netkey.GetCoolKeyIssuedTo(keyType,keyID);
+
+  } catch (e)
+  {
+  }
+  return issuedTo;
+}
+
