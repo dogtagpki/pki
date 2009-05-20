@@ -49,6 +49,9 @@ public class ReasonFlags {
     public static final String CESSATION_OF_OPERATION
                                    = "cessation_of_operation";
     public static final String CERTIFICATION_HOLD = "certification_hold";
+    public static final String PRIVILEGE_WITHDRAWN = "privilege_withdrawn";
+    public static final String AA_COMPROMISE = "aa_compromise";
+
 
     // Private data members
     private boolean[] bitString;
@@ -145,6 +148,10 @@ public class ReasonFlags {
 	    set(5,val);
 	} else if (name.equalsIgnoreCase(CERTIFICATION_HOLD)) {
 	    set(6,val);
+	} else if (name.equalsIgnoreCase(PRIVILEGE_WITHDRAWN)) {
+	    set(7,val);
+	} else if (name.equalsIgnoreCase(AA_COMPROMISE)) {
+	    set(8,val);
 	} else {
 	  throw new IOException("Name not recognized by ReasonFlags");
 	}
@@ -168,6 +175,10 @@ public class ReasonFlags {
 	    return new Boolean(isSet(5));
 	} else if (name.equalsIgnoreCase(CERTIFICATION_HOLD)) {
 	    return new Boolean(isSet(6));
+	} else if (name.equalsIgnoreCase(PRIVILEGE_WITHDRAWN)) {
+	    return new Boolean(isSet(7));
+	} else if (name.equalsIgnoreCase(AA_COMPROMISE)) {
+	    return new Boolean(isSet(8));
 	} else {
 	  throw new IOException("Name not recognized by ReasonFlags");
 	}
@@ -191,6 +202,10 @@ public class ReasonFlags {
 	    set(5,false);
 	} else if (name.equalsIgnoreCase(CERTIFICATION_HOLD)) {
 	    set(6,false);
+	} else if (name.equalsIgnoreCase(PRIVILEGE_WITHDRAWN)) {
+	    set(7,false);
+	} else if (name.equalsIgnoreCase(AA_COMPROMISE)) {
+	    set(8,false);
 	} else {
 	  throw new IOException("Name not recognized by ReasonFlags");
 	}
@@ -224,6 +239,12 @@ public class ReasonFlags {
         if (isSet(6)) {
             s += "  Certificate Hold\n";
         }
+        if (isSet(7)) {
+            s += "  Privilege Withdrawn\n";
+        }
+        if (isSet(8)) {
+            s += "  AA Compromise\n";
+        }
 	} catch (ArrayIndexOutOfBoundsException ex) {}
 
         s += "]\n";
@@ -254,6 +275,8 @@ public class ReasonFlags {
         elements.addElement(SUPERSEDED);
         elements.addElement(CESSATION_OF_OPERATION);
         elements.addElement(CERTIFICATION_HOLD);
+        elements.addElement(PRIVILEGE_WITHDRAWN);
+        elements.addElement(AA_COMPROMISE);
 
 	return (elements.elements());
     }
