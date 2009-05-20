@@ -42,10 +42,11 @@ public final class RevocationReason {
     public static final RevocationReason CA_COMPROMISE = new RevocationReason(2);
     public static final RevocationReason AFFILIATION_CHANGED = new RevocationReason(3);
     public static final RevocationReason SUPERSEDED = new RevocationReason(4);
-    public static final RevocationReason CESSATION_OF_OPERATION
-                                   = new RevocationReason(5);
+    public static final RevocationReason CESSATION_OF_OPERATION = new RevocationReason(5);
     public static final RevocationReason CERTIFICATE_HOLD = new RevocationReason(6);
     public static final RevocationReason REMOVE_FROM_CRL = new RevocationReason(8);
+    public static final RevocationReason PRIVILEGE_WITHDRAWN = new RevocationReason(9);
+    public static final RevocationReason AA_COMPROMISE = new RevocationReason(10);
 
     // Private data members
     private int mReason;
@@ -72,6 +73,8 @@ public final class RevocationReason {
 	    if (reason == CESSATION_OF_OPERATION.mReason) return CESSATION_OF_OPERATION;
 	    if (reason == CERTIFICATE_HOLD.mReason) return CERTIFICATE_HOLD;
 	    if (reason == REMOVE_FROM_CRL.mReason) return REMOVE_FROM_CRL;
+	    if (reason == PRIVILEGE_WITHDRAWN.mReason) return PRIVILEGE_WITHDRAWN;
+	    if (reason == AA_COMPROMISE.mReason) return AA_COMPROMISE;
     	return null;
     }
 
@@ -97,6 +100,8 @@ public final class RevocationReason {
 	    if (equals(CESSATION_OF_OPERATION)) return "Cessation_of_Operation";
 	    if (equals(CERTIFICATE_HOLD)) return "Certificate_Hold";
 	    if (equals(REMOVE_FROM_CRL)) return "Remove_from_CRL";
+	    if (equals(PRIVILEGE_WITHDRAWN)) return "Privilege_Withdrawn";
+	    if (equals(AA_COMPROMISE)) return "AA_Compromise";
     	return "[UNDEFINED]";
 	}
 }
