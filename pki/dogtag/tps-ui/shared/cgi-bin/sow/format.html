@@ -1,7 +1,7 @@
 <!-- --- BEGIN COPYRIGHT BLOCK ---
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public
-     License as published by the Free Software Foundation.
+     License as published by the Free Software Foundation; either
      
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="/esc/sow/css/style.css" media="screen" type="text/css">
 <script type="text/javascript">
 <!--
+
 function UserOnCOOLKeyStateError()
 {
   toggleAjaxProgress('ajax-pb', 'off');
@@ -108,6 +109,26 @@ function UserOnCOOLKeyInserted(keyType, keyID)
     updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
   }
   UserSelectRowByKeyID(keyType, keyID);
+
+  var uid = null;
+  var isAgent = false;
+
+  if(keyStatus == "ENROLLED")
+  {
+    uid =  GetCoolKeyIssuedTo(keyType,keyID);
+
+    if(uid)
+    {
+        isAgent = window.IsAgentOrUser(uid,"agent");
+    }      
+    if(isAgent == true)
+    {
+        MyAlert("You can't Format a card that belongs to another Security Officer!");
+
+        updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" SECURITY OFFICER is detected!');
+        toggleButton('enrollbtn','off');
+    }
+  }
 }
 
 function UserOnCOOLKeyRemoved(keyType, keyID)

@@ -1,7 +1,7 @@
 <!-- --- BEGIN COPYRIGHT BLOCK ---
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public
-     License as published by the Free Software Foundation.
+     License as published by the Free Software Foundation; either
      
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -88,6 +88,26 @@ function UserOnCOOLKeyInserted(keyType, keyID)
     updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
   }
   UserSelectRowByKeyID(keyType, keyID);
+
+   var uid = null;
+  var isUser = false;
+
+  if(keyStatus == "ENROLLED")
+  {
+    uid =  GetCoolKeyIssuedTo(keyType,keyID);
+
+    if(uid)
+    {
+        isUser = IsAgentOrUser(uid,"user");
+    }
+    if(isUser == true)
+    {
+        MyAlert("You can't Format a User card here!  Try another card.");
+
+        updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" USER is detected!');
+        toggleButton('enrollbtn','off');
+    }
+  }
 }
 
 function UserOnCOOLKeyRemoved(keyType, keyID)
