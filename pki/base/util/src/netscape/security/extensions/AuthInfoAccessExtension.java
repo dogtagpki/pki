@@ -57,6 +57,7 @@ import netscape.security.util.*;
  */
 public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
     public static final String NAME = "AuthInfoAccessExtension";
+    public static final String NAME2 = "AuthorityInformationAccess";
 
     public static final int OID_OCSP[] = { 1, 3, 6, 1, 5, 5, 7, 48, 1 };
     public static final ObjectIdentifier METHOD_OCSP = new 
