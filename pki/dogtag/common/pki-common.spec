@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      15
+%define base_release      16
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Wed May 20 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-16
+- Bugzilla Bug #491185 - added new revocation reasons to comply with RFC 5280
 * Tue May 19 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-15
 - Bugzilla Bug #491185 - added Authority Info Access extension to comply with RFC 5280
 * Mon May 18 2009 Ade Lee <alee@redhat.com> 1.1.0-14
