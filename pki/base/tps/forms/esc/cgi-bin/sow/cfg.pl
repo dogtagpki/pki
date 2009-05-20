@@ -141,3 +141,44 @@ sub is_agent()
     return 1;
   }
 }
+
+sub is_user()
+{
+  my ($dn) = @_;
+
+  my $uid = $dn;
+  # need to map a subject dn into user DN
+  $uid =~ /uid=([^,]*)/; # retrieve the uid
+  $uid = $1;
+
+  my $x_host = get_ldap_host();
+  $x_port = get_ldap_port();
+  my $x_basedn = get_base_dn();
+  chomp($x_basedn);
+  my $x_binddn = `grep -e "^tokendb.bindDN" $cfg | cut -c16-`;
+  chomp($x_binddn);
+  my $x_bindpwdpath = `grep -e "^tokendb.bindPassPath" $cfg | cut -c22-`;
+  chomp($x_bindpwdpath);
+  my $x_bindpwd = `grep -e "^tokendbBindPass" $x_bindpwdpath | cut -c17-`;
+  chomp($x_bindpwd);
+
+   my $cmd = $ldapsearch . " " .
+            "-D \"" . $x_binddn . "\" " .
+            "-w \"" . $x_bindpwd . "\" " .
+            "-b \"" . "ou=people,".$x_basedn . "\" " .
+            "-h \"" . $x_host . "\" " .
+            "-p \"" . $x_port ."\" " .
+            "-1 \"(uid=" . $uid . "*)\" | wc -l";
+
+
+  my $matched = `$cmd`;
+
+  chomp($matched);
+
+  if ($matched eq "0" || $matched eq "") {
+    return 0;
+  } else {
+    return 1;
+  }
+}
+
