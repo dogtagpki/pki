@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      11
+%define base_release      12
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,8 @@ fi
 ###############################################################################
 
 %changelog
+* Tue May 19 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-12
+- Bugzilla Bug #491185 - added Authority Info Access extension to comply with RFC 5280
 * Thu May 14 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-11
 - Bugzilla Bug #491185 - removed Hold Instruction Code extension to comply with RFC 5280
 * Wed May 13 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-10
