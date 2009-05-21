@@ -37,7 +37,7 @@ sub new {
     my $self = {}; 
 
     $self->{"isSubPanel"} = \&PKI::TPS::Common::no;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(12);
     $self->{"getName"} = &PKI::TPS::Common::r("ConfigHSMLogin");
     $self->{"vmfile"} = "config_hsm.vm";
@@ -58,6 +58,8 @@ sub update
 {
     my ($q) = @_;
     &PKI::TPS::Wizard::debug_log("ConfigHSMPanel: update");
+    $::config->put("preop.confighsm.done", "true");
+    $::config->commit();
     return 1;
 }
 
@@ -66,6 +68,11 @@ sub display
     my ($q) = @_;
     &PKI::TPS::Wizard::debug_log("ConfigHSMPanel: display");
     return 1;
+}
+
+sub is_panel_done
+{
+   return $::config->get("preop.confighsm.done");
 }
 
 1;

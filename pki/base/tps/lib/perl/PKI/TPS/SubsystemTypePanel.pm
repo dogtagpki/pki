@@ -38,7 +38,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(3);
     $self->{"getName"} = &PKI::TPS::Common::r("Subsystem Type");
     $self->{"vmfile"} = "createsubsystempanel.vm";
@@ -84,6 +84,7 @@ sub update
 
     my $subsystemName = $q->param('subsystemName');
     $::config->put("preop.subsystem.name", $subsystemName);
+    $::config->put("preop.subsystemtype.done", "true");
     $::config->commit();
 
     return 1;
@@ -135,6 +136,11 @@ DONE:
 
     # XXX - how to deal with urls
     return 1;
+}
+
+sub is_panel_done
+{
+   return $::config->get("preop.subsystemtype.done");
 }
 
 

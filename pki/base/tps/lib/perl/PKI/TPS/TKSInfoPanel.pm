@@ -39,7 +39,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(5);
     $self->{"getName"} = &PKI::TPS::Common::r("TKS Information");
     $self->{"vmfile"} = "tksinfopanel.vm";
@@ -100,6 +100,7 @@ sub update
     my $subsystemCertNickName = $::config->get("preop.cert.subsystem.nickname");
     $::config->put("conn.tks1.clientNickname", $subsystemCertNickName);
     $::config->put("conn.tks1.hostport", $host . ":" . $https_agent_port); 
+    $::config->put("preop.tksinfo.done", "true");
     $::config->commit();
 
     return 1;
@@ -129,5 +130,11 @@ DONE:
 
     return 1;
 }
+
+sub is_panel_done
+{
+   return $::config->get("preop.tksinfo.done");
+}
+
 
 1;

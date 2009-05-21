@@ -39,7 +39,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(6);
     $self->{"getName"} = &PKI::TPS::Common::r("DRM Information");
     $self->{"vmfile"} = "drminfopanel.vm";
@@ -117,6 +117,7 @@ sub update
       $::config->put("op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme", "GenerateNewKey");
       $::config->put("op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
     }
+    $::config->put("preop.drminfo.done", "true");
     $::config->commit();
 
     return 1;
@@ -143,5 +144,11 @@ DONE:
 
     return 1;
 }
+
+sub is_panel_done
+{
+   return $::config->get("preop.drminfo.done");
+}
+
 
 1;

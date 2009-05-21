@@ -38,7 +38,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(13);
     $self->{"getName"} = &PKI::TPS::Common::r("Certificates");
     $self->{"vmfile"} = "certprettyprintpanel.vm";
@@ -71,6 +71,8 @@ sub update
 {
     my ($q) = @_;
     &PKI::TPS::Wizard::debug_log("CertPrettyPrintPanel: update");
+    $::config->put("preop.certprettyprint.done", "true");
+    $::config->commit();
     return 1;
 }
 
@@ -79,6 +81,11 @@ sub display
     my ($q) = @_;
     &PKI::TPS::Wizard::debug_log("CertPrettyPrintPanel: display");
     return 1;
+}
+
+sub is_panel_done
+{
+   return $::config->get("preop.certprettyprint.done");
 }
 
 1;

@@ -46,7 +46,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(12);
     $self->{"getName"} = &PKI::TPS::Common::r("Subject Names");
     $self->{"vmfile"} = "namepanel.vm";
@@ -402,6 +402,9 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
     }
 
 DONE:
+    $::config->put("preop.namepanel.done", "true");
+    $::config->commit();
+
     &PKI::TPS::Wizard::debug_log("NamePanel: removing pwfile");
     my $tmp = `rm $instanceDir/conf/.pwfile`;
     return 1;
@@ -561,6 +564,11 @@ sub extract_cert_req_from_file_sans_header_and_footer
     $fd->close();
 
     return $cert_request;
+}
+
+sub is_panel_done
+{
+   return $::config->get("preop.namepanel.done");
 }
 
 1;

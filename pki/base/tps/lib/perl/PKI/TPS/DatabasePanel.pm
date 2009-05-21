@@ -38,7 +38,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(8);
     $self->{"getName"} = &PKI::TPS::Common::r("Internal Database");
     $self->{"vmfile"} = "databasepanel.vm";
@@ -173,6 +173,9 @@ sub update
               "-f '$tmp'");
     system("rm $tmp");
 
+    $::config->put("preop.database.done", "true");
+    $::config->commit();
+
     return 1;
 }
 
@@ -214,5 +217,11 @@ sub display
 
     return 1;
 }
+
+sub is_panel_done
+{
+   return $::config->get("preop.database.done");
+}
+
 
 1;

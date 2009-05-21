@@ -40,7 +40,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(16);
     $self->{"getName"} = &PKI::TPS::Common::r("Done");
     $self->{"vmfile"} = "donepanel.vm";
@@ -416,7 +416,15 @@ sub display
     system( "touch $restart_server" );
     system( "chmod 00660 $restart_server" );
 
+    $::config->put("preop.donepanel.done", "true");
+    $::config->commit();
+
     return 1;
+}
+
+sub is_panel_done
+{
+   return $::config->get("preop.donepanel.done");
 }
 
 1;

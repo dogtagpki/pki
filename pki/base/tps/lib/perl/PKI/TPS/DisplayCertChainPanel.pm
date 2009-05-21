@@ -40,7 +40,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(2);
     $self->{"getName"} = &PKI::TPS::Common::r("Display Certificate Chain");
     $self->{"vmfile"} = "displaycertchainpanel.vm";
@@ -121,6 +121,8 @@ sub update
 
     get_domain_xml($sdomainAdminURL);
 
+    $::config->put("preop.displaycertchain.done", "true");
+    $::config->commit();
 
     return 3;
 }
@@ -342,5 +344,11 @@ sub get_domain_xml
     }
     $::config->commit();
 }
+
+sub is_panel_done
+{
+    return $::config->get("preop.displaycertchain.done");
+}
+
 
 1;

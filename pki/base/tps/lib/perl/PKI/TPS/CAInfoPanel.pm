@@ -42,7 +42,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(4);
     $self->{"getName"} = &PKI::TPS::Common::r("CA Information");
     $self->{"vmfile"} = "cainfopanel.vm";
@@ -156,6 +156,9 @@ sub update
         }
     }
 
+    $::config->put("preop.cainfo.done", "true");
+    $::config->commit();
+
     return 1;
 }
 
@@ -239,5 +242,11 @@ sub get_secure_admin_port_from_domain_xml
 
     return $https_admin_port;
 }
+
+sub is_panel_done
+{
+   return $::config->get("preop.cainfo.done");
+}
+
 
 1;

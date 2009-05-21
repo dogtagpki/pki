@@ -39,7 +39,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(15);
     $self->{"getName"} = &PKI::TPS::Common::r("Import Administrator Certificate");
     $self->{"vmfile"} = "importadmincertpanel.vm";
@@ -113,6 +113,9 @@ sub update
     $content = $1;
     &PKI::TPS::Wizard::debug_log($content);
 
+    $::config->put("preop.importadmincert.done", "true");
+    $::config->commit();
+
     return 1;
 }
 
@@ -137,6 +140,11 @@ sub display
     $::symbol{serialNumber} = $serialNumber;
 
     return 1;
+}
+
+sub is_panel_done
+{
+   return $::config->get("preop.importadmincert.done");
 }
 
 1;

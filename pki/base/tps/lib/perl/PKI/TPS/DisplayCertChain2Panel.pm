@@ -42,7 +42,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(7);
     $self->{"getName"} = &PKI::TPS::Common::r("Display Certificate Chain");
     $self->{"vmfile"} = "displaycertchain2panel.vm";
@@ -111,6 +111,9 @@ sub update
 #    my $tmp = `rm $instanceDir/conf/caCertChain2.txt`;
 #    $tmp = `rm $instanceDir/conf/CAchain2_pp.txt`;
 
+    $::config->put("preop.displaycertchain2.done", "true");
+    $::config->commit();
+
     return 1;
 }
 
@@ -173,6 +176,11 @@ sub extract_cert_from_file_sans_header_and_footer
     $fd->close();
 
     return $cert;
+}
+
+sub is_panel_done
+{
+   return $::config->get("preop.displaycertchain2.done");
 }
 
 1;

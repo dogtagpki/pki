@@ -45,7 +45,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done; 
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(13);
     $self->{"getName"} = &PKI::TPS::Common::r("Certificate Requests");
     $self->{"vmfile"} = "certrequestpanel.vm";
@@ -210,6 +210,7 @@ sub update
     }
 
 DONE:
+    $::config->put("preop.certrequest.done", "true");
     $::config->commit();
     my $tmp = `rm $instanceDir/conf/.pwfile`;
 
@@ -294,6 +295,11 @@ sub extract_cert_from_file_sans_header_and_footer
     $fd->close();
 
     return $cert;
+}
+
+sub is_panel_done
+{
+   return $::config->get("preop.certrequest.done");
 }
 
 

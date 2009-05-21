@@ -41,7 +41,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(9);
     $self->{"getName"} = &PKI::TPS::Common::r("Security Modules");
     $self->{"vmfile"} = "modulepanel.vm";
@@ -88,11 +88,12 @@ sub update
     } elsif ($defTok ne $select) {
         &PKI::TPS::Wizard::debug_log("ModulePanel -> update changing defTok to $select");
         $::config->put("preop.module.token", $select);
-        $::config->put("preop.ModulePanel.done", "true");
     } else {
         # this is not an error...just information
         &PKI::TPS::Wizard::debug_log("ModulePanel -> update  defTok not changed");
     }
+
+    $::config->put("preop.ModulePanel.done", "true");
 
     $::config->commit();
     return 1;
@@ -267,6 +268,11 @@ sub getModules {
 #  PKI::TPS::Wizard::dbg("sms: ". Dumper([@supportedModules]));
 
     &PKI::TPS::Wizard::debug_log("ModulePanel -> set sms, oms");
+}
+
+sub is_panel_done
+{
+   return $::config->get("preop.ModulePanel.done");
 }
 
 1;

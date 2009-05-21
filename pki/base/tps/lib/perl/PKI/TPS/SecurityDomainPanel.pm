@@ -41,7 +41,7 @@ sub new {
 
     $self->{"isSubPanel"} = \&is_sub_panel;
     $self->{"hasSubPanel"} = \&has_sub_panel;
-    $self->{"isPanelDone"} = \&PKI::TPS::Common::no;
+    $self->{"isPanelDone"} = \&is_panel_done;
     $self->{"getPanelNo"} = &PKI::TPS::Common::r(1);
     $self->{"getName"} = &PKI::TPS::Common::r("Security Domain");
     $self->{"vmfile"} = "securitydomainpanel.vm";
@@ -188,9 +188,15 @@ sub update
     $::config->put("securitydomain.select", "existing");
     $::config->put("securitydomain.host", $sdomainURL_info->host);
     $::config->put("securitydomain.httpsadminport", $sdomainURL_info->port);
+    $::config->put("preop.securitydomain.done", "true");
     $::config->commit();
 
     return 1;
+}
+
+sub is_panel_done
+{
+   return $::config->get("preop.securitydomain.done");
 }
 
 1;
