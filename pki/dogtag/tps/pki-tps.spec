@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      17
+%define base_release      18
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed May 20 2009 Ade Lee <alee@redhat.com> 1.1.0-18
+- Bugzilla Bug #497583 -  web wizard tps - menu highlight and label typo
 * Sat May 16 2009 Jack Magne <jmagne@redhat.com> 1.1.0-17
 - Bugzilla Bug #491019 - Security Officer token can get formatted with
   user format page.

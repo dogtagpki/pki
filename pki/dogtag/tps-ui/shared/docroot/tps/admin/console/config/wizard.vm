@@ -92,7 +92,11 @@ function process(fop) {
 <ul>
 #foreach ($pn in $panels)
 #if (!$pn.isSubPanel())
-  <li><center><font color=black size="2">$pn.getName()</font></center></li>
+  #if ($pn.isPanelDone() == "false")
+    <li><center><font color=black size="2">$pn.getName()</font></center></li>
+  #else
+    <li><center><font color=white size="2">$pn.getName()</font></center></li>
+  #end
 #end
 #end
 </ul>

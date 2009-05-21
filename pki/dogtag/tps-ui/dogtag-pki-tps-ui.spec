@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      6
+%define base_release      7
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed May 20 2009 Ade Lee <alee@redhat.com> 1.1.0-7
+- Bugzilla Bug #497583 -  web wizard tps - menu highlight and label typo
 * Sat May 16 2009 Jack Magne <jmagne@redhat.com> 1.1.0-6
 - Bugzilla Bug #491019 - Security Officer token can get formatted with 
   user format page.
