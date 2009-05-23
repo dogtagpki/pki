@@ -364,7 +364,7 @@ public class CMSTemplate extends CMSFile {
     public static String escapeJavaScriptString(String v) {
         int l = v.length();
         char in[] = new char[l];
-        char out[] = new char[l * 2];
+        char out[] = new char[l * 4];
         int j = 0;
 
         v.getChars(0, l, in, 0);
@@ -372,8 +372,17 @@ public class CMSTemplate extends CMSFile {
         for (int i = 0; i < l; i++) {
             char c = in[i];
 
-            if ((c > 0x23) && (c!= 0x5c)) {
+            if ((c > 0x23) && (c!= 0x5c) && (c!= 0x3c) && (c!= 0x3e)) {
                 out[j++] = c;
+                continue;
+            }
+
+            if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
+                 in[i+1] == 'n' || in[i+1] == 'f' || in[i+1] == 't' ||
+                 in[i+1] == '\"' || in[i+1] == '\'' || in[i+1] == '\\')) {
+                out[j++] = '\\';
+                out[j++] = in[i+1];
+                i++;
                 continue;
             }
 
@@ -403,11 +412,29 @@ public class CMSTemplate extends CMSFile {
                 out[j++] = 'f';
                 break;
 
+            case '\t':
+                out[j++] = '\\';
+                out[j++] = 't';
+                break;
+
+            case '<':
+                out[j++] = '\\';
+                out[j++] = 'x';
+                out[j++] = '3';
+                out[j++] = 'c';
+                break;
+
+            case '>':
+                out[j++] = '\\';
+                out[j++] = 'x';
+                out[j++] = '3';
+                out[j++] = 'e';
+                break;
+
             default:
                 out[j++] = c;
             }
         }
-        String ret = new String(out,0,j);
         return new String(out, 0, j);
     }
 
@@ -431,6 +458,14 @@ public class CMSTemplate extends CMSFile {
                 continue;
             }
 
+            if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
+                 in[i+1] == 'n' || in[i+1] == 'f' || in[i+1] == 't')) {
+                out[j++] = '\\';
+                out[j++] = in[i+1];
+                i++;
+                continue;
+            }
+
             switch (c) {
             case '\n':
                 out[j++] = '\\';
@@ -457,11 +492,22 @@ public class CMSTemplate extends CMSFile {
                 out[j++] = 'f';
                 break;
 
-            case '<':
-                out[j++] = '&';
-                out[j++] = 'l';
+            case '\t':
+                out[j++] = '\\';
                 out[j++] = 't';
-                out[j++] = ';';
+                break;
+
+            case '<':
+                out[j++] = '\\';
+                out[j++] = 'x';
+                out[j++] = '3';
+                out[j++] = 'c';
+                break;
+            case '>':
+                out[j++] = '\\';
+                out[j++] = 'x';
+                out[j++] = '3';
+                out[j++] = 'e';
                 break;
 
             default:
