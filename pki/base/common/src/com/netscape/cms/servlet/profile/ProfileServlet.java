@@ -323,7 +323,7 @@ public class ProfileServlet extends CMSServlet {
     protected String escapeJavaScriptString(String v) {
         int l = v.length();
         char in[] = new char[l];
-        char out[] = new char[l * 2];
+        char out[] = new char[l * 4];
         int j = 0;
 
         v.getChars(0, l, in, 0);
@@ -339,9 +339,10 @@ public class ProfileServlet extends CMSServlet {
 
             /* some inputs are coming in as '\' and 'n' */
             /* see BZ 500736 for details */
-            if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n')) {
+            if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
+                 in[i+1] == 'n' || in[i+1] == 'f' || in[i+1] == 't')) {
                 out[j++] = '\\';
-                out[j++] = 'n';
+                out[j++] = in[i+1];
                 i++;
                 continue;
             }
@@ -370,6 +371,25 @@ public class ProfileServlet extends CMSServlet {
             case '\f':
                 out[j++] = '\\';
                 out[j++] = 'f';
+                break;
+
+            case '\t':
+                out[j++] = '\\';
+                out[j++] = 't';
+                break;
+
+            case '<':
+                out[j++] = '\\';
+                out[j++] = 'x';
+                out[j++] = '3';
+                out[j++] = 'c';
+                break;
+
+            case '>':
+                out[j++] = '\\';
+                out[j++] = 'x';
+                out[j++] = '3';
+                out[j++] = 'e';
                 break;
 
             default:
