@@ -70,7 +70,7 @@ template(`pki_ca_template',`
 	#
 
 	# Execstack/execmem caused by java app.
-	allow $1_t self:process { execstack execmem getsched setsched };
+	allow $1_t self:process { execstack execmem getsched setsched signal};
 
 	## internal communication is often done using fifo and unix sockets.
 	allow $1_t self:fifo_file rw_file_perms;
@@ -488,7 +488,7 @@ template(`pki_tps_template',`
         allow pki_tps_t lib_t:file execute_no_trans;
 
         allow pki_tps_t self:capability { setuid sys_nice setgid dac_override };
-        allow pki_tps_t self:process { setsched signal getsched  signull execstack};
+        allow pki_tps_t self:process { setsched signal getsched  signull execstack execmem};
         allow pki_tps_t self:sem all_sem_perms;
         allow pki_tps_t self:tcp_socket create_stream_socket_perms;
 
@@ -560,6 +560,11 @@ template(`pki_tps_template',`
         manage_files_pattern(pki_tps_t, pki_common_t, pki_common_t)
         can_exec(pki_tps_t, pki_common_t)
         init_stream_connect_script(pki_tps_t)
+
+        #allow tps to talk to lunasa hsm
+        allow pki_tps_t devlog_t:sock_file write;
+        allow pki_tps_t self:unix_dgram_socket { write create connect };
+        allow pki_tps_t syslogd_t:unix_dgram_socket sendto;
 
 ')
 
@@ -652,7 +657,7 @@ template(`pki_ra_template',`
         allow pki_ra_t lib_t:file execute_no_trans;
 
         allow pki_ra_t self:capability { setuid sys_nice setgid dac_override };
-        allow pki_ra_t self:process { setsched getsched signal signull execstack};
+        allow pki_ra_t self:process { setsched getsched signal signull execstack execmem};
         allow pki_ra_t self:sem all_sem_perms;
         allow pki_ra_t self:tcp_socket create_stream_socket_perms;
 
@@ -722,7 +727,6 @@ template(`pki_ra_template',`
         manage_files_pattern(pki_ra_t, pki_common_t, pki_common_t)
         can_exec(pki_ra_t, pki_common_t)
         init_stream_connect_script(pki_ra_t)
-
 
 ')
 
