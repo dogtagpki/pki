@@ -416,9 +416,6 @@ sub display
     system( "touch $restart_server" );
     system( "chmod 00660 $restart_server" );
 
-    $::config->put("preop.donepanel.done", "true");
-    $::config->commit();
-
     return 1;
 }
 

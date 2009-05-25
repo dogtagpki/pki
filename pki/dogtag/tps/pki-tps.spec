@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      18
+%define base_release      19
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Sun May 24 2009 Ade Lee <alee@redhat.com> 1.1.0-19
+- Bugzilla Bug #502105 - Restart tps server or check for the status is not showing the tps ports
 * Wed May 20 2009 Ade Lee <alee@redhat.com> 1.1.0-18
 - Bugzilla Bug #497583 -  web wizard tps - menu highlight and label typo
 * Sat May 16 2009 Jack Magne <jmagne@redhat.com> 1.1.0-17
