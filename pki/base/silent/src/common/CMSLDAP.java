@@ -234,7 +234,8 @@ public class CMSLDAP {
     }
 
     /**
-     * Returns the SerialNumber;issuerDN;SubjectDN string . Takes certficate as parameter
+     * Returns the SerialNumber;issuerDN;SubjectDN string.
+     * Takes certificate as parameter
      */
 
     public String getCertificateString(X509Certificate cert) {

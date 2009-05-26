@@ -1117,7 +1117,7 @@ public class ConfigureTKS
 			System.exit(-1);
 		}
 	
-		System.out.println("Certficate System - TKS Instance Configured.");
+		System.out.println("Certificate System - TKS Instance Configured.");
 		System.exit(0);
 		
 	}

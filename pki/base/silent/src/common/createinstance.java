@@ -97,11 +97,11 @@ public class createinstance {
         boolean st = newinstance.CreateInstance();
 
         if (!st) {
-            System.out.println("ERROR: Certficate System - Instance NOT created");
+            System.out.println("ERROR: Certificate System - Instance NOT created");
             System.exit(-1);
         }
 
-        System.out.println("Certficate System - Instance created");
+        System.out.println("Certificate System - Instance created");
         System.exit(0);
 	
     }

@@ -780,19 +780,17 @@ public class ConfigureDRM
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
 
-		String query_string = "p=14" + "&op=next" + 
+		String query_string = "p=14" + "&op=next" + "&xml=true" +
 							"&caHost=" + URLEncoder.encode(sd_hostname) +
 							"&caPort=" + URLEncoder.encode(sd_agent_port) +
-							"&pkcs7=" + URLEncoder.encode("/") +
-							"&serialNumber=" + URLEncoder.encode(admin_serial_number) +
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-// 		px.parse(bais);
-// 		px.prettyprintxml();
+		px.parse(bais);
+		px.prettyprintxml();
 		
 		return true;
 	}
@@ -1184,7 +1182,7 @@ public class ConfigureDRM
 			System.exit(-1);
 		}
 	
-		System.out.println("Certficate System - DRM Instance Configured");
+		System.out.println("Certificate System - DRM Instance Configured");
 		System.exit(0);
 		
 	}

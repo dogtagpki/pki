@@ -112,8 +112,10 @@ public class ConfigureRA
 	public static String ra_subsystem_cert_cert = null;
 
 	// names 
-	public static String ra_subsystem_cert_subject_name = null;
 	public static String ra_server_cert_subject_name = null;
+	public static String ra_server_cert_nickname = null;
+	public static String ra_subsystem_cert_subject_name = null;
+	public static String ra_subsystem_cert_nickname = null;
 	public static String subsystem_name = null;
 
 	// Security Domain Login Panel
@@ -148,14 +150,14 @@ public class ConfigureRA
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
 
-		String query_string = "pin=" + pin + "&xml=true"; 
+		String query_string = "pin=" + pin + "&xml=true";
 	
 		hr = hc.sslConnect(cs_hostname,cs_port,login_uri,query_string);
 		System.out.println("xml returned: " + hr.getHTML());
 
 		// parse xml here - nothing to parse
 
-		// no cookie for tps
+		// no cookie for ra
 		// get cookie
 		String temp = hr.getCookieValue("pin");
 
@@ -191,12 +193,12 @@ public class ConfigureRA
 
 		String domain_url = "https://" + sd_hostname + ":" + sd_admin_port ;
 
-		String query_string = "sdomainURL=" +
+		String query_string = "p=1" +
+							"&choice=existingdomain" +
+							"&sdomainURL=" +
 							URLEncoder.encode(domain_url) +
-							"&choice=existingdomain"+ 
-							"&p=1" +
 							"&op=next" +
-							"&xml=true"; 
+							"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -217,7 +219,7 @@ public class ConfigureRA
 		ParseXML px = new ParseXML();
 		String query_string = null;
 
-		query_string = "p=2" + "&op=next" + "&xml=true"; 
+		query_string = "p=2" + "&op=next" + "&xml=true";
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		return true;
@@ -236,13 +238,14 @@ public class ConfigureRA
 							"/ra/admin/console/config/wizard" +
 							"?p=3&subsystem=RA" ;
 
-		String query_string = "url=" + URLEncoder.encode(ra_url); 
+		String query_string = "url=" + URLEncoder.encode(ra_url) + "";
 
 		hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_login_uri,query_string);
 
 		String query_string_1 = "uid=" + sd_admin_name +
 								"&pwd=" + sd_admin_password +
-								"&url=" + URLEncoder.encode(ra_url) ;
+								"&url=" + URLEncoder.encode(ra_url) +
+								"" ;
 
 		hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_get_cookie_uri,
 						query_string_1);
@@ -259,8 +262,8 @@ public class ConfigureRA
 		// use session id to connect back to RA
 
 		String query_string_2 = "p=3" +
-								"&session_id=" + ra_session_id +
 								"&subsystem=RA" +
+								"&session_id=" + ra_session_id +
 								"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,
@@ -280,10 +283,12 @@ public class ConfigureRA
 		ParseXML px = new ParseXML();
 
 		sleep_time();
-		String query_string = "p=3" + "&op=next" + "&xml=true" + 
+		String query_string = "p=3" +
+						"&choice=newsubsystem" +
 						"&subsystemName=" +
-						URLEncoder.encode(subsystem_name) + 
-						"&choice=newsubsystem" ; 
+						URLEncoder.encode(subsystem_name) +
+						"&op=next" +
+						"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 		// parse xml
@@ -295,9 +300,10 @@ public class ConfigureRA
 		String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port ;
 
 		// CA choice panel
-		query_string = "p=4" + "&op=next" + "&xml=true" + 
-							"&urls=" +
-							URLEncoder.encode(ca_url) ;
+		query_string = "p=4" +
+					"&urls=0" +
+					"&op=next" +
+					"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 		// parse xml
@@ -318,7 +324,7 @@ public class ConfigureRA
 
 		// SQL LITE PANEL
 
-		String query_string = "p=5" + "&op=next" + "&xml=true" ;
+		String query_string = "p=5" + "&op=next" + "&xml=true";
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -343,10 +349,12 @@ public class ConfigureRA
 		// Software Token
 		if(token_name.equalsIgnoreCase("internal"))
 		{
-			query_string = "p=6" + "&op=next" + "&xml=true" +
-							"&choice=" + 
-					URLEncoder.encode("NSS Certificate DB") +
-								""; 
+			query_string = "p=6" +
+							"&choice=" +
+							URLEncoder.encode("NSS Certificate DB") +
+							"&op=next" +
+							"&xml=true" ;
+
 			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 			// parse xml
 			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -357,12 +365,14 @@ public class ConfigureRA
 		else
 		{
 			// login to hsm first
-			query_string = "p=7" + "&op=next" + "&xml=true" +
-							"&uTokName=" + 
+			query_string = "p=7" +
+							"&uTokName=" +
 							URLEncoder.encode(token_name) +
-							"&__uPasswd=" + 
+							"&__uPasswd=" +
 							URLEncoder.encode(token_pwd) +
-							""; 
+							"&op=next" +
+							"&xml=true" ;
+
 			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 			// parse xml
 			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -370,10 +380,12 @@ public class ConfigureRA
 			px.prettyprintxml();
 		
 			// choice with token name now
-			query_string = "p=6" + "&op=next" + "&xml=true" +
-							"&choice=" + 
+			query_string = "p=6" +
+							"&choice=" +
 							URLEncoder.encode(token_name) +
-							""; 
+							"&op=next" +
+							"&xml=true" ;
+
 			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 			// parse xml
 			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -392,21 +404,20 @@ public class ConfigureRA
 		HTTPResponse hr = null;
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
-		ArrayList friendly_list = null;
-		ArrayList dn_list = null;
 
 
-		String query_string = "p=8" + "&op=next" + "&xml=true" +
-							"&subsystem_custom_size=" + key_size +
-							"&sslserver_custom_size=" + key_size +
+		String query_string = "p=8" +
+							"&keytype=" + key_type +
+							"&choice=default"+
 							"&custom_size=" + key_size +
-							"&subsystem_keytype=" + key_type + 
-							"&sslserver_keytype=" + key_type + 
-							"&keytype=" + key_type + 
-							"&subsystem_choice=custom"+
-							"&sslserver_choice=custom"+
-							"&choice=custom"+
-							""; 
+							"&sslserver_keytype=" + key_type +
+							"&sslserver_choice=custom" +
+							"&sslserver_custom_size=" + key_size +
+							"&subsystem_keytype=" + key_type +
+							"&subsystem_choice=custom" +
+							"&subsystem_custom_size=" + key_size +
+							"&op=next" +
+							"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -427,18 +438,21 @@ public class ConfigureRA
 		ArrayList req_list = null;
 		ArrayList cert_list = null;
 		ArrayList dn_list = null;
-		ArrayList friendly_list = null;
 
 		String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port ;
 
-		String query_string = "p=9" + "&op=next" + "&xml=true" +
-					"&subsystem=" + 
+		String query_string = "p=9" +
+					"&sslserver=" +
+					URLEncoder.encode(ra_server_cert_subject_name) +
+					"&sslserver_nick=" +
+					URLEncoder.encode(ra_server_cert_nickname) +
+					"&subsystem=" +
 					URLEncoder.encode(ra_subsystem_cert_subject_name) +
-					"&sslserver=" + 
-					URLEncoder.encode(ra_server_cert_subject_name) + 
-					"&urls=" +
-					URLEncoder.encode(ca_url) +
-					""; 
+					"&subsystem_nick=" +
+					URLEncoder.encode(ra_subsystem_cert_nickname) +
+					"&urls=0" +
+					"&op=next" +
+					"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -447,8 +461,6 @@ public class ConfigureRA
 		px.parse(bais);
 		px.prettyprintxml();
 
-		// parse the certs if needed
-		
 		return true;
 	}
 
@@ -458,18 +470,15 @@ public class ConfigureRA
 		HTTPResponse hr = null;
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
-		ArrayList req_list = null;
-		ArrayList cert_list = null;
-		ArrayList dn_list = null;
-		ArrayList pp_list = null;
 
 
-		String query_string = "p=10" + "&op=next" + "&xml=true" +
-							"&subsystem=" + 
-							"&subsystem_cc=" + 
-							"&sslserver=" + 
-							"&sslserver_cc=" + 
-							""; 
+		String query_string = "p=10" +
+							"&sslserver=" +
+							"&sslserver_cc=" +
+							"&subsystem=" +
+							"&subsystem_cc=" +
+							"&op=next" +
+							"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -512,28 +521,33 @@ public class ConfigureRA
 
 		admin_cert_request = crmf_request;
 
-		String query_string = "p=11" + "&op=next" + "&xml=true" +
-							"&cert_request_type=" + "crmf" +
+		String query_string = "p=11" +
 							"&uid=" + admin_user +
-							"&name=" + admin_user +
+							"&name=" +
+							URLEncoder.encode("RA Administrator") +
+							"&email=" +
+							URLEncoder.encode(admin_email) +
 							"&__pwd=" + admin_password +
 							"&__admin_password_again=" + admin_password +
-							"&profileId=" + "caAdminCert" +
-							"&requestor_name=" + requestor_name +
-							"&email=" + 
-							URLEncoder.encode(admin_email) +
-							"&cert_request=" + 
+							"&cert_request=" +
 							URLEncoder.encode(admin_cert_request) +
-							"&subject=" +
-							URLEncoder.encode(agent_cert_subject) +
-							"&clone=new" +
+							"&display=0" +
+							"&profileId=" + "caAdminCert" +
+							"&cert_request_type=" + "crmf" +
 							"&import=true" +
+							"&uid=" + admin_user +
+							"&clone=0" +
 							"&securitydomain=" +
 							URLEncoder.encode(domain_name) +
+							"&subject=" +
+							URLEncoder.encode(agent_cert_subject) +
+							"&requestor_name=" +
+							URLEncoder.encode( requestor_name ) +
 							"&sessionID=" + ra_session_id +
 							"&auth_hostname=" + ca_hostname +
 							"&auth_port=" + ca_ssl_port +
-							""; 
+							"&op=next" +
+							"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -557,7 +571,7 @@ public class ConfigureRA
 
 		String query_string = "serialNumber=" + admin_serial_number +
 							"&importCert=" + "true" +
-							""; 
+							"" ;
 
 		// NOTE:  CA, DRM, OCSP, and TKS use the Security Domain Admin Port;
 		//        whereas RA and TPS use the CA Admin Port associated with
@@ -599,32 +613,21 @@ public class ConfigureRA
 		}
 
 		System.out.println("SUCCESS: imported admin user cert");
-		return true;
-	}
 
-	public boolean UpdateDomainPanel()
-	{
-		boolean st = false;
-		HTTPResponse hr = null;
-		ByteArrayInputStream bais = null;
-		ParseXML px = new ParseXML();
+		String query_string_1 = "p=12" +
+								"&serialNumber=" + admin_serial_number +
+								"&caHost=" +
+								URLEncoder.encode( ca_hostname ) +
+								"&caPort=" + ca_admin_port +
+								"&op=next" +
+								"&xml=true" ;
 
-		String query_string = "p=12" + "&op=next" + "&xml=true" +
-							"&list=" + "RAList" +
-							"&type=" + "RA" +
-							"&host=" + URLEncoder.encode(cs_hostname) +
-							"&name=" + URLEncoder.encode(subsystem_name) + 
-							"&sport=" + cs_clientauth_port +
-							"&dm=false" +
-							"";
-
-		hr = hc.sslConnect( sd_hostname, sd_agent_port,
-                            sd_update_domain_uri, query_string );
+		hr = hc.sslConnect( cs_hostname, cs_port, wizard_uri ,query_string_1 );
 
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-		// px.parse(bais);
-		// px.prettyprintxml();
+		px.parse(bais);
+		px.prettyprintxml();
 		
 		return true;
 	}
@@ -682,7 +685,7 @@ public class ConfigureRA
 		}
 
 		sleep_time();
-		// subsystem panel
+		// 4. subsystem panel
 		boolean disp_ss = SubsystemPanel();
 		if(!disp_ss)
 		{
@@ -691,7 +694,7 @@ public class ConfigureRA
 		}
 
 		sleep_time();
-		// 7. ldap connection panel
+		// 5. ldap connection panel
 		boolean disp_ldap = DBPanel();
 		if(!disp_ldap)
 		{
@@ -700,7 +703,7 @@ public class ConfigureRA
 		}
 
 		sleep_time();
-		// 8. Token Choice Panel
+		// 6. Token Choice Panel
 		boolean disp_token = TokenChoicePanel();
 		if(!disp_token)
 		{
@@ -709,7 +712,7 @@ public class ConfigureRA
 		}
 
 		sleep_time();
-		// 9. Key Panel
+		// 8. Key Panel
 		boolean disp_key = KeyPanel();
 		if(!disp_key)
 		{
@@ -718,7 +721,7 @@ public class ConfigureRA
 		}
 
 		sleep_time();
-		// 10. Cert Subject Panel
+		// 9. Cert Subject Panel
 		boolean disp_csubj = CertSubjectPanel();
 		if(!disp_csubj)
 		{
@@ -727,7 +730,7 @@ public class ConfigureRA
 		}
 
 		sleep_time();
-		// 11. Certificate Panel
+		// 10. Certificate Panel
 		boolean disp_cp = CertificatePanel();
 		if(!disp_cp)
 		{
@@ -736,7 +739,7 @@ public class ConfigureRA
 		}
 
 		sleep_time();
-		// 13. Admin Cert Req Panel
+		// 11. Admin Cert Req Panel
 		boolean disp_adm = AdminCertReqPanel();
 		if(!disp_adm)
 		{
@@ -745,20 +748,11 @@ public class ConfigureRA
 		}
 
 		sleep_time();
-		// 14. Admin Cert import Panel
+		// 12. Admin Cert import Panel
 		boolean disp_im = AdminCertImportPanel();
 		if(!disp_im)
 		{
 	System.out.println("ERROR: ConfigureRA: AdminCertImportPanel() failure");
-			return false;
-		}
-
-		sleep_time();
-		// 15. Update Domain Panel
-		boolean disp_ud = UpdateDomainPanel();
-		if(!disp_ud)
-		{
-	System.out.println("ERROR: ConfigureRA: UpdateDomainPanel() failure");
 			return false;
 		}
 
@@ -809,8 +803,10 @@ public class ConfigureRA
 		StringHolder x_agent_name = new StringHolder();
 
 		// ra cert subject name params
-		StringHolder x_ra_subsystem_cert_subject_name = new StringHolder();
 		StringHolder x_ra_server_cert_subject_name = new StringHolder();
+		StringHolder x_ra_server_cert_nickname = new StringHolder();
+		StringHolder x_ra_subsystem_cert_subject_name = new StringHolder();
+		StringHolder x_ra_subsystem_cert_nickname = new StringHolder();
 
 		// subsystemName
 		StringHolder x_subsystem_name = new StringHolder();
@@ -882,11 +878,17 @@ public class ConfigureRA
 							x_agent_cert_subject); 
 
 		parser.addOption (
+		"-ra_server_cert_subject_name %s #RA server cert subject name",
+							x_ra_server_cert_subject_name); 
+		parser.addOption (
+		"-ra_server_cert_nickname %s #RA server cert nickname",
+							x_ra_server_cert_nickname); 
+		parser.addOption (
 		"-ra_subsystem_cert_subject_name %s #RA subsystem cert subject name",
 							x_ra_subsystem_cert_subject_name); 
 		parser.addOption (
-		"-ra_server_cert_subject_name %s #RA server cert subject name",
-							x_ra_server_cert_subject_name); 
+		"-ra_subsystem_cert_nickname %s #RA subsystem cert nickname",
+							x_ra_subsystem_cert_nickname); 
 
 		parser.addOption (
 		"-subsystem_name %s #RA subsystem name",
@@ -938,10 +940,14 @@ public class ConfigureRA
 		agent_key_type = x_agent_key_type.value;
 		agent_cert_subject = x_agent_cert_subject.value;
 
-		ra_subsystem_cert_subject_name = 
-			x_ra_subsystem_cert_subject_name.value;
 		ra_server_cert_subject_name = 
 			x_ra_server_cert_subject_name.value ;
+		ra_server_cert_nickname = 
+			x_ra_server_cert_nickname.value ;
+		ra_subsystem_cert_subject_name = 
+			x_ra_subsystem_cert_subject_name.value;
+		ra_subsystem_cert_nickname = 
+			x_ra_subsystem_cert_nickname.value;
 		
 		subsystem_name = x_subsystem_name.value ;
 
@@ -955,7 +961,7 @@ public class ConfigureRA
 			System.exit(-1);
 		}
 	
-		System.out.println("Certficate System - RA Instance Configured");
+		System.out.println("Certificate System - RA Instance Configured");
 		System.exit(0);
 		
 	}

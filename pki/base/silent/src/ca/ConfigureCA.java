@@ -1597,7 +1597,7 @@ public class ConfigureCA {
             System.exit(-1);
         }
 	
-        System.out.println("Certficate System - CA Instance Configured.");
+        System.out.println("Certificate System - CA Instance Configured.");
         System.exit(0);
 		
     }

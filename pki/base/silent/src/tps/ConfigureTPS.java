@@ -138,18 +138,21 @@ public class ConfigureTPS
 	public static String tps_subsystem_cert_pp = null;
 	public static String tps_subsystem_cert_cert = null;
 
-        public static String tps_audit_signing_cert_name = null;
-        public static String tps_audit_signing_cert_req = null;
-        public static String tps_audit_signing_cert_pp = null;
-        public static String tps_audit_signing_cert_cert = null;
+	public static String tps_audit_signing_cert_name = null;
+	public static String tps_audit_signing_cert_req = null;
+	public static String tps_audit_signing_cert_pp = null;
+	public static String tps_audit_signing_cert_cert = null;
 
 	public static String ss_keygen = null;
 
 	// names 
-	public static String tps_subsystem_cert_subject_name = null;
 	public static String tps_server_cert_subject_name = null;
-	public static String subsystem_name = null;
+	public static String tps_server_cert_nickname = null;
+	public static String tps_subsystem_cert_subject_name = null;
+	public static String tps_subsystem_cert_nickname = null;
 	public static String tps_audit_signing_cert_subject_name = null;
+	public static String tps_audit_signing_cert_nickname = null;
+	public static String subsystem_name = null;
 
 	// Security Domain Login Panel
 	public static String tps_session_id = null;
@@ -183,7 +186,7 @@ public class ConfigureTPS
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
 
-		String query_string = "pin=" + pin + "&xml=true"; 
+		String query_string = "pin=" + pin + "&xml=true";
 	
 		hr = hc.sslConnect(cs_hostname,cs_port,login_uri,query_string);
 		System.out.println("xml returned: " + hr.getHTML());
@@ -226,12 +229,12 @@ public class ConfigureTPS
 
 		String domain_url = "https://" + sd_hostname + ":" + sd_admin_port ;
 
-		String query_string = "sdomainURL=" +
+		String query_string = "p=1" +
+							"&choice=existingdomain" +
+							"&sdomainURL=" +
 							URLEncoder.encode(domain_url) +
-							"&choice=existingdomain"+ 
-							"&p=1" +
 							"&op=next" +
-							"&xml=true"; 
+							"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -252,7 +255,7 @@ public class ConfigureTPS
 		ParseXML px = new ParseXML();
 		String query_string = null;
 
-		query_string = "p=2" + "&op=next" + "&xml=true"; 
+		query_string = "p=2" + "&op=next" + "&xml=true";
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		return true;
@@ -271,13 +274,14 @@ public class ConfigureTPS
 							"/tps/admin/console/config/wizard" +
 							"?p=3&subsystem=TPS" ;
 
-		String query_string = "url=" + URLEncoder.encode(tps_url); 
+		String query_string = "url=" + URLEncoder.encode(tps_url) + "";
 
 		hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_login_uri,query_string);
 
 		String query_string_1 = "uid=" + sd_admin_name +
 								"&pwd=" + sd_admin_password +
-								"&url=" + URLEncoder.encode(tps_url) ;
+								"&url=" + URLEncoder.encode(tps_url) +
+								"" ;
 
 		hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_get_cookie_uri,
 						query_string_1);
@@ -294,8 +298,8 @@ public class ConfigureTPS
 		// use session id to connect back to TPS
 
 		String query_string_2 = "p=3" +
-								"&session_id=" + tps_session_id +
 								"&subsystem=TPS" +
+								"&session_id=" + tps_session_id +
 								"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,
@@ -315,10 +319,12 @@ public class ConfigureTPS
 		ParseXML px = new ParseXML();
 
 		sleep_time();
-		String query_string = "p=3" + "&op=next" + "&xml=true" + 
+		String query_string = "p=3" +
+						"&choice=newsubsystem" +
 						"&subsystemName=" +
-						URLEncoder.encode(subsystem_name) + 
-						"&choice=newsubsystem" ; 
+						URLEncoder.encode(subsystem_name) +
+						"&op=next" +
+						"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 		// parse xml
@@ -330,9 +336,10 @@ public class ConfigureTPS
 		String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port ;
 
 		// CA choice panel
-		query_string = "p=4" + "&op=next" + "&xml=true" + 
-							"&urls=" +
-							URLEncoder.encode(ca_url) ;
+		query_string = "p=4" +
+						"&urls=0" +
+						"&op=next" +
+						"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 		// parse xml
@@ -343,10 +350,10 @@ public class ConfigureTPS
 		sleep_time();
 		// TKS choice panel
 		String tks_url = "https://" + tks_hostname + ":" + tks_ssl_port ;
-		query_string = "p=5" + "&op=next" + "&xml=true" + 
-							"&urls=" +
-							URLEncoder.encode(tks_url) ;
-						
+		query_string = "p=5" +
+						"&urls=0" +
+						"&op=next" +
+						"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 		// parse xml
@@ -364,10 +371,11 @@ public class ConfigureTPS
 
 		String drm_url = "https://" + drm_hostname + ":" + drm_ssl_port ;
 
-		query_string = "p=6" + "&op=next" + "&xml=true" + 
-							"&urls=" +
-							URLEncoder.encode(drm_url) +
-							"&choice=" + ss_keygen ;
+		query_string = "p=6" +
+						"&choice=" + ss_keygen +
+						"&urls=0" +
+						"&op=next" +
+						"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 		// parse xml
@@ -387,11 +395,15 @@ public class ConfigureTPS
 		ParseXML px = new ParseXML();
 
 
-		String query_string = "p=7" + "&op=next" + "&xml=true" +
-						"&host=" + URLEncoder.encode(ldap_auth_host) + 
-						"&port=" + URLEncoder.encode(ldap_auth_port) +
-						"&basedn=" + URLEncoder.encode(ldap_auth_base_dn) +
-						""; 
+		String query_string = "p=7" +
+						"&host=" +
+						URLEncoder.encode(ldap_auth_host) +
+						"&port=" +
+						URLEncoder.encode(ldap_auth_port) +
+						"&basedn=" +
+						URLEncoder.encode(ldap_auth_base_dn) +
+						"&op=next" +
+						"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -411,15 +423,23 @@ public class ConfigureTPS
 		ParseXML px = new ParseXML();
 
 
-		String query_string = "p=8" + "&op=next" + "&xml=true" +
-						"&host=" + URLEncoder.encode(ldap_host) + 
-						"&port=" + URLEncoder.encode(ldap_port) +
-						"&binddn=" + URLEncoder.encode(bind_dn) +
-						"&__bindpwd=" + URLEncoder.encode(bind_password) +
-						"&basedn=" + URLEncoder.encode(base_dn) +
-						"&database=" + URLEncoder.encode(db_name) +
-						"&display=" + URLEncoder.encode("") +
-						""; 
+		String query_string = "p=8" +
+						"&host=" +
+						URLEncoder.encode(ldap_host) +
+						"&port=" +
+						URLEncoder.encode(ldap_port) +
+						"&binddn=" +
+						URLEncoder.encode(bind_dn) +
+						"&__bindpwd=" +
+						URLEncoder.encode(bind_password) +
+						"&basedn=" +
+						URLEncoder.encode(base_dn) +
+						"&database=" +
+						URLEncoder.encode(db_name) +
+						"&display=" +
+						URLEncoder.encode("") +
+						"&op=next" +
+						"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -444,10 +464,12 @@ public class ConfigureTPS
 		// Software Token
 		if(token_name.equalsIgnoreCase("internal"))
 		{
-			query_string = "p=9" + "&op=next" + "&xml=true" +
-							"&choice=" + 
-					URLEncoder.encode("NSS Certificate DB") +
-								""; 
+			query_string =	"p=9" +
+							"&choice=" +
+							URLEncoder.encode("NSS Certificate DB") +
+							"&op=next" +
+							"&xml=true" ;
+
 			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 			// parse xml
 			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -458,12 +480,14 @@ public class ConfigureTPS
 		else
 		{
 			// login to hsm first
-			query_string = "p=10" + "&op=next" + "&xml=true" +
-							"&uTokName=" + 
+			query_string =	"p=10" +
+							"&uTokName=" +
 							URLEncoder.encode(token_name) +
-							"&__uPasswd=" + 
+							"&__uPasswd=" +
 							URLEncoder.encode(token_pwd) +
-							""; 
+							"&op=next" +
+							"&xml=true" ;
+
 			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 			// parse xml
 			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -471,10 +495,12 @@ public class ConfigureTPS
 			px.prettyprintxml();
 		
 			// choice with token name now
-			query_string = "p=9" + "&op=next" + "&xml=true" +
-							"&choice=" + 
+			query_string =	"p=9" +
+							"&choice=" +
 							URLEncoder.encode(token_name) +
-							""; 
+							"&op=next" +
+							"&xml=true" ;
+
 			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 			// parse xml
 			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -497,20 +523,21 @@ public class ConfigureTPS
 		ArrayList dn_list = null;
 
 
-		String query_string = "p=11" + "&op=next" + "&xml=true" +
-							"&subsystem_custom_size=" + key_size +
-							"&sslserver_custom_size=" + key_size +
+		String query_string = "p=11" +
+							"&keytype=" + key_type +
+							"&choice=default" +
 							"&custom_size=" + key_size +
-                                                        "&audit_signing_custom_size=" + key_size +
-							"&subsystem_keytype=" + key_type + 
-							"&sslserver_keytype=" + key_type + 
-                                                        "&audit_signing_keytype=" + key_type +
-							"&keytype=" + key_type + 
+							"&sslserver_keytype=" + key_type +
+							"&sslserver_choice=custom" +
+							"&sslserver_custom_size=" + key_size +
+							"&subsystem_keytype=" + key_type +
 							"&subsystem_choice=custom"+
-							"&sslserver_choice=custom"+
-                                                        "&audit_signing_choice=default" +
-							"&choice=custom"+
-							""; 
+							"&subsystem_custom_size=" + key_size +
+							"&audit_signing_keytype=" + key_type +
+							"&audit_signing_choice=default" +
+							"&audit_signing_custom_size=" + key_size +
+							"&op=next" +
+							"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -535,16 +562,22 @@ public class ConfigureTPS
 
 		String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port ;
 
-		String query_string = "p=12" + "&op=next" + "&xml=true" +
-					"&subsystem=" + 
+		String query_string = "p=12" +
+					"&sslserver=" +
+					URLEncoder.encode(tps_server_cert_subject_name) +
+					"&sslserver_nick=" +
+					URLEncoder.encode(tps_server_cert_nickname) +
+					"&subsystem=" +
 					URLEncoder.encode(tps_subsystem_cert_subject_name) +
-					"&sslserver=" + 
-					URLEncoder.encode(tps_server_cert_subject_name) + 
-                                        "&audit_signing=" +
-                                        URLEncoder.encode(tps_audit_signing_cert_subject_name) +
-					"&urls=" +
-					URLEncoder.encode(ca_url) +
-					""; 
+					"&subsystem_nick=" +
+					URLEncoder.encode(tps_subsystem_cert_nickname) +
+					"&audit_signing=" +
+					URLEncoder.encode(tps_audit_signing_cert_subject_name) +
+					"&audit_signing_nick=" +
+					URLEncoder.encode(tps_audit_signing_cert_nickname) +
+					"&urls=0" +
+					"&op=next" +
+					"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -570,14 +603,15 @@ public class ConfigureTPS
 		ArrayList pp_list = null;
 
 
-		String query_string = "p=13" + "&op=next" + "&xml=true" +
-							"&subsystem=" + 
-							"&subsystem_cc=" + 
-							"&sslserver=" + 
-							"&sslserver_cc=" + 
-                                                        "&audit_signing=" +
-                                                        "&audit_signing_cc=" +
-							""; 
+		String query_string = "p=13" +
+							"&sslserver=" +
+							"&sslserver_cc=" +
+							"&subsystem=" +
+							"&subsystem_cc=" +
+							"&audit_signing=" +
+							"&audit_signing_cc=" +
+							"&op=next" +
+							"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -620,28 +654,33 @@ public class ConfigureTPS
 
 		admin_cert_request = crmf_request;
 
-		String query_string = "p=14" + "&op=next" + "&xml=true" +
-							"&cert_request_type=" + "crmf" +
+		String query_string = "p=14" +
 							"&uid=" + admin_user +
-							"&name=" + admin_user +
+							"&name=" +
+							URLEncoder.encode("TPS Administrator") +
+							"&email=" +
+							URLEncoder.encode(admin_email) +
 							"&__pwd=" + admin_password +
 							"&__admin_password_again=" + admin_password +
-							"&profileId=" + "caAdminCert" +
-							"&requestor_name=" + requestor_name +
-							"&email=" + 
-							URLEncoder.encode(admin_email) +
-							"&cert_request=" + 
+							"&cert_request=" +
 							URLEncoder.encode(admin_cert_request) +
-							"&subject=" +
-							URLEncoder.encode(agent_cert_subject) +
-							"&clone=new" +
+							"&display=0" +
+							"&profileId=" + "caAdminCert" +
+							"&cert_request_type=" + "crmf" +
 							"&import=true" +
+							"&uid=" + admin_user +
+							"&clone=0" +
 							"&securitydomain=" +
 							URLEncoder.encode(domain_name) +
+							"&subject=" +
+							URLEncoder.encode(agent_cert_subject) +
+							"&requestor_name=" +
+							URLEncoder.encode( requestor_name ) +
 							"&sessionID=" + tps_session_id +
 							"&auth_hostname=" + ca_hostname +
 							"&auth_port=" + ca_ssl_port +
-							""; 
+							"&op=next" +
+							"&xml=true" ;
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -665,7 +704,7 @@ public class ConfigureTPS
 
 		String query_string = "serialNumber=" + admin_serial_number +
 							"&importCert=" + "true" +
-							""; 
+							"" ;
 
 		// NOTE:  CA, DRM, OCSP, and TKS use the Security Domain Admin Port;
 		//        whereas RA and TPS use the CA Admin Port associated with
@@ -707,32 +746,21 @@ public class ConfigureTPS
 		}
 
 		System.out.println("SUCCESS: imported admin user cert");
-		return true;
-	}
 
-	public boolean UpdateDomainPanel()
-	{
-		boolean st = false;
-		HTTPResponse hr = null;
-		ByteArrayInputStream bais = null;
-		ParseXML px = new ParseXML();
+		String query_string_1 = "p=15" +
+							"&serialNumber=" + admin_serial_number +
+							"&caHost=" +
+							URLEncoder.encode( ca_hostname ) +
+							"&caPort=" + ca_admin_port +
+							"&op=next" +
+							"&xml=true" ;
 
-		String query_string = "p=15" + "&op=next" + "&xml=true" +
-							"&list=" + "TPSList" +
-							"&type=" + "TPS" +
-							"&host=" + URLEncoder.encode(cs_hostname) +
-							"&name=" + URLEncoder.encode(subsystem_name) + 
-							"&sport=" + URLEncoder.encode(cs_clientauth_port) +
-							"&dm=false" +
-							"";
-
-		hr = hc.sslConnect( sd_hostname, sd_agent_port,
-                            sd_update_domain_uri, query_string );
+		hr = hc.sslConnect( cs_hostname, cs_port, wizard_uri ,query_string_1 );
 
 		// parse xml
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-		// px.parse(bais);
-		// px.prettyprintxml();
+		px.parse(bais);
+		px.prettyprintxml();
 		
 		return true;
 	}
@@ -790,7 +818,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// subsystem panel
+		// 4. subsystem panel
 		boolean disp_ss = SubsystemPanel();
 		if(!disp_ss)
 		{
@@ -799,7 +827,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// ldap auth connection panel
+		// 7. ldap auth connection panel
 		boolean disp_ldap_auth = LdapAuthConnectionPanel();
 		if(!disp_ldap_auth)
 		{
@@ -808,7 +836,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// 7. ldap connection panel
+		// 8. ldap connection panel
 		boolean disp_ldap = LdapConnectionPanel();
 		if(!disp_ldap)
 		{
@@ -817,7 +845,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// 8. Token Choice Panel
+		// 9. Token Choice Panel
 		boolean disp_token = TokenChoicePanel();
 		if(!disp_token)
 		{
@@ -826,7 +854,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// 9. Key Panel
+		// 11. Key Panel
 		boolean disp_key = KeyPanel();
 		if(!disp_key)
 		{
@@ -835,7 +863,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// 10. Cert Subject Panel
+		// 12. Cert Subject Panel
 		boolean disp_csubj = CertSubjectPanel();
 		if(!disp_csubj)
 		{
@@ -844,7 +872,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// 11. Certificate Panel
+		// 13. Certificate Panel
 		boolean disp_cp = CertificatePanel();
 		if(!disp_cp)
 		{
@@ -853,7 +881,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// 13. Admin Cert Req Panel
+		// 14. Admin Cert Req Panel
 		boolean disp_adm = AdminCertReqPanel();
 		if(!disp_adm)
 		{
@@ -862,20 +890,11 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// 14. Admin Cert import Panel
+		// 15. Admin Cert import Panel
 		boolean disp_im = AdminCertImportPanel();
 		if(!disp_im)
 		{
 	System.out.println("ERROR: ConfigureTPS: AdminCertImportPanel() failure");
-			return false;
-		}
-
-		sleep_time();
-		// 15. Update Domain Panel
-		boolean disp_ud = UpdateDomainPanel();
-		if(!disp_ud)
-		{
-	System.out.println("ERROR: ConfigureTPS: UpdateDomainPanel() failure");
 			return false;
 		}
 
@@ -947,10 +966,12 @@ public class ConfigureTPS
 		StringHolder x_ss_keygen = new StringHolder();
 
 		// tps cert subject name params
-		StringHolder x_tps_subsystem_cert_subject_name = new StringHolder();
 		StringHolder x_tps_server_cert_subject_name = new StringHolder();
-                StringHolder x_tps_audit_signing_cert_subject_name = new StringHolder();
-
+		StringHolder x_tps_server_cert_nickname = new StringHolder();
+		StringHolder x_tps_subsystem_cert_subject_name = new StringHolder();
+		StringHolder x_tps_subsystem_cert_nickname = new StringHolder();
+		StringHolder x_tps_audit_signing_cert_subject_name = new StringHolder();
+		StringHolder x_tps_audit_signing_cert_nickname = new StringHolder();
 
 		// subsystemName
 		StringHolder x_subsystem_name = new StringHolder();
@@ -1055,18 +1076,27 @@ public class ConfigureTPS
 							x_ldap_auth_base_dn); 
 
 		parser.addOption (
+		"-tps_server_cert_subject_name %s #TPS server cert subject name",
+							x_tps_server_cert_subject_name); 
+		parser.addOption (
+		"-tps_server_cert_nickname %s #TPS server cert nickname",
+							x_tps_server_cert_nickname); 
+		parser.addOption (
 		"-tps_subsystem_cert_subject_name %s #TPS subsystem cert subject name",
 							x_tps_subsystem_cert_subject_name); 
 		parser.addOption (
-		"-tps_server_cert_subject_name %s #TPS server cert subject name",
-							x_tps_server_cert_subject_name); 
+		"-tps_subsystem_cert_nickname %s #TPS subsystem cert nickname",
+							x_tps_subsystem_cert_nickname); 
+		parser.addOption(
+		"-tps_audit_signing_cert_subject_name %s #TPS audit signing cert subject name",
+							x_tps_audit_signing_cert_subject_name);
+		parser.addOption(
+		"-tps_audit_signing_cert_nickname %s #TPS audit signing cert nickname",
+							x_tps_audit_signing_cert_nickname);
 
 		parser.addOption (
 		"-subsystem_name %s #CA subsystem name",
 							x_subsystem_name); 
-                parser.addOption(
-                "-tps_audit_signing_cert_subject_name %s #TPS audit signing cert subject name",
-                                                        x_tps_audit_signing_cert_subject_name);
 
 
 		// and then match the arguments
@@ -1134,14 +1164,19 @@ public class ConfigureTPS
 
 		ss_keygen = x_ss_keygen.value;
 
-		tps_subsystem_cert_subject_name = 
-			x_tps_subsystem_cert_subject_name.value;
 		tps_server_cert_subject_name = 
 			x_tps_server_cert_subject_name.value ;
-                tps_audit_signing_cert_subject_name = 
-                        x_tps_audit_signing_cert_subject_name.value;
+		tps_server_cert_nickname = 
+			x_tps_server_cert_nickname.value ;
+		tps_subsystem_cert_subject_name = 
+			x_tps_subsystem_cert_subject_name.value;
+		tps_subsystem_cert_nickname = 
+			x_tps_subsystem_cert_nickname.value;
+		tps_audit_signing_cert_subject_name = 
+			x_tps_audit_signing_cert_subject_name.value;
+		tps_audit_signing_cert_nickname = 
+			x_tps_audit_signing_cert_nickname.value;
 
-		
 		subsystem_name = x_subsystem_name.value ;
 
 
@@ -1154,7 +1189,7 @@ public class ConfigureTPS
 			System.exit(-1);
 		}
 	
-		System.out.println("Certficate System - TPS Instance Configured");
+		System.out.println("Certificate System - TPS Instance Configured");
 		System.exit(0);
 		
 	}
