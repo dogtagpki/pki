@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      11
+%define base_release      12
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon May 25 2009 Ade Lee <alee@redhat.com> 1.1.0-12
+- Bugzilla Bug #495157 -  SELinux prevents CA from using nethsm pkcs11 module
 * Thu May 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-11
 - Bugzilla Bug #500498 -  CA installation wizard doesn't install
   administrator cert into browser on Firefox 3
