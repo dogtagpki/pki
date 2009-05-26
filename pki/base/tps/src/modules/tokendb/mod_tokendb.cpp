@@ -4116,7 +4116,7 @@ mod_tokendb_handler( request_rec *rq )
                     one_time =0;
                 }
                 // skip values not within the page range
-                if (entryNum == (end_entry_val + 1)) {
+                if (entryNum == end_entry_val) {
                     PL_strcat( injection, "var has_more_entries = 1;\n"); 
                 } 
                 continue;

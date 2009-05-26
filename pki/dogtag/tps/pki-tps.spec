@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      20
+%define base_release      21
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon May 25 2009 Ade Lee <alee@redhat.com> 1.1.0-21
+- Bugzilla Bug #499439 -  Show certificates in the tps agent page does not show all the certs
 * Mon May 25 2009 Ade Lee <alee@redhat.com> 1.1.0-20
 - Bugzilla Bug #495157 -  SELinux prevents CA from using nethsm pkcs11 module
 * Sun May 24 2009 Ade Lee <alee@redhat.com> 1.1.0-19
