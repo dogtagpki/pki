@@ -1,8 +1,3 @@
-// --- BEGIN COPYRIGHT BLOCK ---
-// Copyright (C) 2006 Red Hat, Inc.
-// All rights reserved.
-// --- END COPYRIGHT BLOCK ---
-
 // ============================================================================
 // catalina.corepolicy - Security Policy Permissions for Tomcat 5
 //
@@ -13,7 +8,7 @@
 //
 // * Read access to the document root directory
 //
-// $Id: catalina.policy,v 1.13 2005/03/03 23:41:14 remm Exp $
+// $Id: catalina.policy 393732 2006-04-13 06:32:25Z pero $
 // ============================================================================
 
 
@@ -72,7 +67,19 @@ grant codeBase "file:${catalina.home}/bin/jmx.jar" {
 
 // These permissions apply to JULI
 grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
-        permission java.security.AllPermission;
+        permission java.util.PropertyPermission "java.util.logging.config.class", "read";
+        permission java.util.PropertyPermission "java.util.logging.config.file", "read";
+        permission java.lang.RuntimePermission "shutdownHooks";
+        permission java.io.FilePermission "${catalina.base}${file.separator}conf${file.separator}logging.properties", "read";
+        permission java.util.PropertyPermission "catalina.base", "read";
+        permission java.util.logging.LoggingPermission "control";
+        permission java.io.FilePermission "${catalina.base}${file.separator}logs", "read, write";
+        permission java.io.FilePermission "${catalina.base}${file.separator}logs${file.separator}*", "read, write";
+        permission java.lang.RuntimePermission "getClassLoader";
+        // To enable per context logging configuration, permit read access to the appropriate file.
+        // Be sure that the logging configuration is secure before enabling such access
+        // eg for the examples web application:
+        // permission java.io.FilePermission "${catalina.base}${file.separator}webapps${file.separator}examples${file.separator}WEB-INF${file.separator}classes${file.separator}logging.properties", "read";
 };
 
 // These permissions apply to the servlet API classes
@@ -88,8 +95,8 @@ grant codeBase "file:${catalina.home}/server/-" {
         permission java.security.AllPermission;
 };
 
-// The permissions granted to the balancer WEB-INF/classes directory
-grant codeBase "file:${catalina.home}/webapps/balancer/WEB-INF/classes/-" {
+// The permissions granted to the balancer WEB-INF/classes and WEB-INF/lib directory
+grant codeBase "file:${catalina.home}/webapps/balancer/-" {
         permission java.lang.RuntimePermission "accessClassInPackage.org.apache.tomcat.util.digester";
         permission java.lang.RuntimePermission "accessClassInPackage.org.apache.tomcat.util.digester.*";
 };
@@ -174,4 +181,59 @@ grant {
 // grant codeBase "jar:file:${catalina.home}/webapps/examples/WEB-INF/lib/scrape.jar!/-" {
 //      permission java.net.SocketPermission "*.noaa.gov:80", "connect";
 // };
+
+
+
+// These permissions apply to Tomcat5 java
+grant codeBase "file:/usr/share/java/tomcat5/-" {
+        permission java.security.AllPermission;
+};
+grant codeBase "file:/usr/share/java/jakarta-commons-modeler.jar" {
+        permission java.security.AllPermission;
+};
+grant codeBase "file:/usr/share/java/jasper5-compiler.jar" {
+        permission java.security.AllPermission;
+};
+grant codeBase "file:/usr/share/java/jasper5-runtime.jar" {
+        permission java.security.AllPermission;
+};
+
+
+
+// These permissions apply to PKI configuration
+grant codeBase "file:/usr/share/java/velocity.jar" {
+        permission java.security.AllPermission;
+};
+grant codeBase "file:/usr/share/java/tomcat5-servlet-2.4-api.jar" {
+        permission java.security.AllPermission;
+};
+
+
+
+
+// These permissions apply to PKI support
+grant codeBase "file:/usr/share/java/ldapjdk.jar" {
+        permission java.security.AllPermission;
+};
+
+
+
+// These permissions apply to PKI
+grant codeBase "file:/usr/lib/java/jss4.jar" {
+        permission java.security.AllPermission;
+};
+grant codeBase "file:/usr/share/java/tomcatjss.jar" {
+        permission java.security.AllPermission;
+};
+grant codeBase "file:/usr/lib/java/osutil.jar" {
+        permission java.security.AllPermission;
+};
+grant codeBase "file:/usr/lib/java/symkey.jar" {
+        permission java.security.AllPermission;
+};
+grant codeBase "file:/usr/share/java/pki/-" {
+        permission java.security.AllPermission;
+};
+
+
 
