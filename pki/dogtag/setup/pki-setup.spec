@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      7
+%define base_release      8
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -217,6 +217,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue May 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-8
+- Bugzilla Bug #502398 -  Restore Configuration Logging Capabilities to
+  RA and TPS
 * Fri May 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-7
 - Bugzilla Bug #492735 -  Configuration wizard stores certain incorrect
   port values within TPS "CS.cfg" . . .
