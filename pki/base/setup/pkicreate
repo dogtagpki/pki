@@ -1902,6 +1902,15 @@ sub process_pki_directories()
 
     # Check for an optionally redirected "logs" directory path ...
     if( $redirected_logs_path eq "" ) {
+        if( $subsystem_type eq $RA || $subsystem_type eq $TPS ) {
+            # create instance directory
+            $result = create_directory( $logs_instance_path );
+            if( !$result ) {
+                emit( "Failed to create directory $logs_instance_path ...\n" );
+                return 0;
+            }
+        }
+
         $result = copy_directory( $logs_subsystem_path,
                                   $logs_instance_path );
         if( !$result ) {
@@ -1923,6 +1932,15 @@ sub process_pki_directories()
                    "$logs_instance_path/$signed_audit_base_instance_dir" );
         }
     } else {
+        if( $subsystem_type eq $RA || $subsystem_type eq $TPS ) {
+            # create redirected instance directory
+            $result = create_directory( $redirected_logs_path );
+            if( !$result ) {
+                emit( "Failed to create directory $redirected_logs_path ...\n" );
+                return 0;
+            }
+        }
+
         # Populate optionally redirected instance directory path
         # and setup a symlink in the standard area
         $result = copy_directory( $logs_subsystem_path,

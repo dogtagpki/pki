@@ -398,11 +398,25 @@ start()
 
 		# Set permissions of log files
 		pki_logs_directory=`dirname ${pidfile}`
-		for file in ${pki_logs_directory}; do
-			if [ "${file}" != "${pidfile}" ]; then
-				chmod -R 00660 ${file}
+		pki_signedAudit="${pki_logs_directory}/signedAudit"
+		for file in ${pki_logs_directory}/*; do
+			if	[ "${file}" != "${pidfile}" ] &&
+				[ "${file}" != "${pki_signedAudit}" ]; then
+				chmod 00660 ${file}
+				chgrp [GROUPID] ${file}
+				chown [USERID] ${file}
 			fi
 		done
+
+		# Set permissions of signedAudit log files
+		pki_signedAudit_files=`ls -1A ${pki_signedAudit} | wc -l`
+		if	[ ${pki_signedAudit_files} -gt 0 ]; then
+			for file in ${pki_signedAudit}/*; do
+				chmod 00660 ${file}
+				chgrp [GROUPID] ${file}
+				chown [USERID] ${file}
+			done
+		fi
 	else
 		if [ -x /etc/init.d/functions ]; then
 			echo_failure
