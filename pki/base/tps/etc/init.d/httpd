@@ -344,6 +344,9 @@ start()
 		fi
 	fi
 
+        # restore context for ncipher hsm
+        [ -x /sbin/restorecon ] && [ -d /dev/nfast ] && /sbin/restorecon -R /dev/nfast
+
 	if [ -x /etc/init.d/functions ]; then
 		/usr/sbin/selinuxenabled
 		RETVAL=$?

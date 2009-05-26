@@ -453,6 +453,9 @@ start()
 	chown $TOMCAT_USER:$TOMCAT_GROUP $CATALINA_PID
   	[ -x /sbin/restorecon ] && /sbin/restorecon  $CATALINA_PID
 
+        # restore context for ncipher hsm
+        [ -x /sbin/restorecon ] && [ -d /dev/nfast ] && /sbin/restorecon -R /dev/nfast
+
 	# Always initialize CLASSPATH to start looking
 	# in the local PKI classes directory . . .
 	CLASSPATH=/usr/share/[PKI_FLAVOR]/classes
