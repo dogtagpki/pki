@@ -270,58 +270,58 @@ pki_silent_tps_log=/tmp/tps.log
 ##
 ##                Nickname:  "Certificate Authority - "
 ##                        +  "${pki_security_domain_name}"
-##            Subject Name:  "CN=Certificate Authority,"
-##                        +  "O=${pki_security_domain_name}"
+##            Subject Name:  "cn=Certificate Authority,"
+##                        +  "o=${pki_security_domain_name}"
 ##
 ##                Nickname:  "CA Administrator of Instance "
 ##                        +  "${ca_instance_name}'s "
 ##                        +  "${pki_security_domain_name} ID"
-##            Subject Name:  "CN=CA Administrator of Instance "
+##            Subject Name:  "cn=CA Administrator of Instance "
 ##                        +  "${ca_instance_name},"
-##                        +  "UID=admin,"
-##                        +  "E=${pki_silent_admin_email},"
-##                        +  "O=${pki_security_domain_name}"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
 ##
 ##                Nickname:  "KRA Administrator of Instance "
 ##                        +  "${kra_instance_name}'s "
 ##                        +  "${pki_security_domain_name} ID"
-##            Subject Name:  "CN=KRA Administrator of Instance "
+##            Subject Name:  "cn=KRA Administrator of Instance "
 ##                        +  "${kra_instance_name},"
-##                        +  "UID=admin,"
-##                        +  "E=${pki_silent_admin_email},"
-##                        +  "O=${pki_security_domain_name}"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
 ##
 ##                Nickname:  "OCSP Administrator of Instance "
 ##                        +  "${ocsp_instance_name}'s "
 ##                        +  "${pki_security_domain_name} ID"
-##            Subject Name:  "CN=OCSP Administrator of Instance "
+##            Subject Name:  "cn=OCSP Administrator of Instance "
 ##                        +  "${ocsp_instance_name},"
-##                        +  "UID=admin,"
-##                        +  "E=${pki_silent_admin_email},"
-##                        +  "O=${pki_security_domain_name}"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
 ##
 ##                Nickname:  "TKS Administrator of Instance "
 ##                        +  "${tks_instance_name}'s "
 ##                        +  "${pki_security_domain_name} ID"
-##            Subject Name:  "CN=TKS Administrator of Instance "
+##            Subject Name:  "cn=TKS Administrator of Instance "
 ##                        +  "${tks_instance_name},"
-##                        +  "UID=admin,"
-##                        +  "E=${pki_silent_admin_email},"
-##                        +  "O=${pki_security_domain_name}"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
 ##
 ##                Nickname:  "RA Administrator's "
 ##                        +  "${pki_security_domain_name} ID"
-##            Subject Name:  "CN=RA Administrator,"
-##                        +  "UID=admin,"
-##                        +  "E=${pki_silent_admin_email},"
-##                        +  "O=${pki_security_domain_name}"
+##            Subject Name:  "cn=RA Administrator,"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
 ##
 ##                Nickname:  "TPS Administrator's "
 ##                        +  "${pki_security_domain_name} ID"
-##            Subject Name:  "CN=TPS Administrator,"
-##                        +  "UID=admin,"
-##                        +  "E=${pki_silent_admin_email},"
-##                        +  "O=${pki_security_domain_name}"
+##            Subject Name:  "cn=TPS Administrator,"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
 ##
 
 
@@ -346,40 +346,40 @@ pki_silent_tps_log=/tmp/tps.log
 ##         where:
 ##
 ##                 Nickname:  "caSigningCert cert-${ca_instance_name}"
-##             Subject Name:  "CN=Certificate Authority,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "subsystemCert cert-${ca_instance_name}"
-##             Subject Name:  "CN=CA Subsystem Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=CA Subsystem Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "ocspSigningCert cert-${ca_instance_name}"
-##             Subject Name:  "CN=OCSP Signing Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=OCSP Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "Server-Cert cert-${ca_instance_name}"
-##             Subject Name:  "CN=${pki_host},"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "auditSigningCert cert-${ca_instance_name}"
-##             Subject Name:  "CN=CA Audit Signing Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=CA Audit Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 
 ca_agent_name="CA\ Administrator\ of\ Instance\ ${ca_instance_name}\'s\ ${pki_security_domain_name}\ ID"
 ca_agent_key_size=2048
 ca_agent_key_type=rsa
-ca_agent_cert_subject="CN=CA\ Administrator\ of\ Instance\ ${ca_instance_name},UID=admin,E=${pki_silent_admin_email},O=${pki_security_domain_name}"
+ca_agent_cert_subject="cn=CA\ Administrator\ of\ Instance\ ${ca_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
 ca_base_dn="dc=${pki_host}-${ca_instance_name}"
 ca_db_name="${pki_host}-${ca_instance_name}"
 ca_key_size=2048
 ca_key_type=rsa
 ca_save_p12=false
-ca_sign_cert_subject_name="CN=Certificate\ Authority,O=${pki_security_domain_name}"
-ca_subsystem_cert_subject_name="CN=CA\ Subsystem\ Certificate,O=${pki_security_domain_name}"
-ca_ocsp_cert_subject_name="CN=OCSP\ Signing\ Certificate,O=${pki_security_domain_name}"
-ca_server_cert_subject_name="CN=${pki_host},O=${pki_security_domain_name}"
-ca_audit_signing_cert_subject_name="CN=CA\ Audit\ Signing\ Certificate,O=${pki_security_domain_name}"
+ca_sign_cert_subject_name="cn=Certificate\ Authority,o=${pki_security_domain_name}"
+ca_subsystem_cert_subject_name="cn=CA\ Subsystem\ Certificate,o=${pki_security_domain_name}"
+ca_ocsp_cert_subject_name="cn=OCSP\ Signing\ Certificate,o=${pki_security_domain_name}"
+ca_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
+ca_audit_signing_cert_subject_name="cn=CA\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
 
 
 ##  Miscellaneous DRM Variables
@@ -404,44 +404,44 @@ ca_audit_signing_cert_subject_name="CN=CA\ Audit\ Signing\ Certificate,O=${pki_s
 ##         where:
 ##
 ##                 Nickname:  "transportCert cert-${kra_instance_name}"
-##             Subject Name:  "CN=DRM Transport Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=DRM Transport Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "Server-Cert cert-${kra_instance_name}"
-##             Subject Name:  "CN=${pki_host},"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "auditSigningCert cert-${kra_instance_name}"
-##             Subject Name:  "CN=DRM Audit Signing Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=DRM Audit Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "Certificate Authority - "
 ##                         +  "${pki_security_domain_name}"
-##             Subject Name:  "CN=Certificate Authority,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "storageCert cert-${kra_instance_name}"
-##             Subject Name:  "CN=DRM Storage Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=DRM Storage Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "subsystemCert cert-${kra_instance_name}"
-##             Subject Name:  "CN=DRM Subsystem Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=DRM Subsystem Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 
 kra_agent_name="KRA\ Administrator\ of\ Instance\ ${kra_instance_name}\'s\ ${pki_security_domain_name}\ ID"
 kra_agent_key_size=2048
 kra_agent_key_type=rsa
-kra_agent_cert_subject="CN=KRA\ Administrator\ of\ Instance\ ${kra_instance_name},UID=admin,E=${pki_silent_admin_email},O=${pki_security_domain_name}"
+kra_agent_cert_subject="cn=KRA\ Administrator\ of\ Instance\ ${kra_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
 kra_base_dn="dc=${pki_host}-${kra_instance_name}"
 kra_db_name="${pki_host}-${kra_instance_name}"
 kra_key_size=2048
 kra_key_type=rsa
-kra_transport_cert_subject_name="CN=DRM\ Transport\ Certificate,O=${pki_security_domain_name}"
-kra_subsystem_cert_subject_name="CN=DRM\ Subsystem\ Certificate,O=${pki_security_domain_name}"
-kra_storage_cert_subject_name="CN=DRM\ Storage\ Certificate,O=${pki_security_domain_name}"
-kra_server_cert_subject_name="CN=${pki_host},O=${pki_security_domain_name}"
-kra_audit_signing_cert_subject_name="CN=DRM\ Audit\ Signing\ Certificate,O=${pki_security_domain_name}"
+kra_transport_cert_subject_name="cn=DRM\ Transport\ Certificate,o=${pki_security_domain_name}"
+kra_subsystem_cert_subject_name="cn=DRM\ Subsystem\ Certificate,o=${pki_security_domain_name}"
+kra_storage_cert_subject_name="cn=DRM\ Storage\ Certificate,o=${pki_security_domain_name}"
+kra_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
+kra_audit_signing_cert_subject_name="cn=DRM\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
 
 
 ##  Miscellaneous OCSP Variables
@@ -465,39 +465,39 @@ kra_audit_signing_cert_subject_name="CN=DRM\ Audit\ Signing\ Certificate,O=${pki
 ##         where:
 ##
 ##                 Nickname:  "ocspSigningCert cert-${ocsp_instance_name}"
-##             Subject Name:  "CN=OCSP Signing Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=OCSP Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "subsystemCert cert-${ocsp_instance_name}"
-##             Subject Name:  "CN=OCSP Subsystem Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=OCSP Subsystem Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "Certificate Authority - "
 ##                         +  "${pki_security_domain_name}"
-##             Subject Name:  "CN=Certificate Authority,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "Server-Cert cert-${ocsp_instance_name}"
-##             Subject Name:  "CN=${pki_host},"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "auditSigningCert cert-${ocsp_instance_name}"
-##             Subject Name:  "CN=OCSP Audit Signing Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=OCSP Audit Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 
 ocsp_agent_name="OCSP\ Administrator\ of\ Instance\ ${ocsp_instance_name}\'s\ ${pki_security_domain_name}\ ID"
 ocsp_agent_key_size=2048
 ocsp_agent_key_type=rsa
-ocsp_agent_cert_subject="CN=OCSP\ Administrator\ of\ Instance\ ${ocsp_instance_name},UID=admin,E=${pki_silent_admin_email},O=${pki_security_domain_name}"
+ocsp_agent_cert_subject="cn=OCSP\ Administrator\ of\ Instance\ ${ocsp_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
 ocsp_base_dn="dc=${pki_host}-${ocsp_instance_name}"
 ocsp_db_name="${pki_host}-${ocsp_instance_name}"
 ocsp_key_size=2048
 ocsp_key_type=rsa
-ocsp_sign_cert_subject_name="CN=OCSP\ Signing\ Certificate,O=${pki_security_domain_name}"
-ocsp_subsystem_cert_subject_name="CN=OCSP\ Subsystem\ Certificate,O=${pki_security_domain_name}"
-ocsp_server_cert_subject_name="CN=${pki_host},O=${pki_security_domain_name}"
-ocsp_audit_signing_cert_subject_name="CN=OCSP\ Audit\ Signing\ Certificate,O=${pki_security_domain_name}"
+ocsp_sign_cert_subject_name="cn=OCSP\ Signing\ Certificate,o=${pki_security_domain_name}"
+ocsp_subsystem_cert_subject_name="cn=OCSP\ Subsystem\ Certificate,o=${pki_security_domain_name}"
+ocsp_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
+ocsp_audit_signing_cert_subject_name="cn=OCSP\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
 
 
 ##  Miscellaneous TKS Variables
@@ -521,39 +521,39 @@ ocsp_audit_signing_cert_subject_name="CN=OCSP\ Audit\ Signing\ Certificate,O=${p
 ##         where:
 ##
 ##                 Nickname:  "subsystemCert cert-${tks_instance_name}"
-##             Subject Name:  "CN=TKS Subsystem Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=TKS Subsystem Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "DRM Transport Certificate - "
 ##                         +  "${pki_security_domain_name}"
-##             Subject Name:  "CN=DRM Transport Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=DRM Transport Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "Certificate Authority - "
 ##                         +  "${pki_security_domain_name}"
-##             Subject Name:  "CN=Certificate Authority,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "Server-Cert cert-${tks_instance_name}"
-##             Subject Name:  "CN=${pki_host},"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "auditSigningCert cert-${tks_instance_name}"
-##             Subject Name:  "CN=TKS Audit Signing Certificate,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=TKS Audit Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 
 tks_agent_name="TKS\ Administrator\ of\ Instance\ ${tks_instance_name}\'s\ ${pki_security_domain_name}\ ID"
 tks_agent_key_size=2048
 tks_agent_key_type=rsa
-tks_agent_cert_subject="CN=TKS\ Administrator\ of\ Instance\ ${tks_instance_name},UID=admin,E=${pki_silent_admin_email},O=${pki_security_domain_name}"
+tks_agent_cert_subject="cn=TKS\ Administrator\ of\ Instance\ ${tks_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
 tks_base_dn="dc=${pki_host}-${tks_instance_name}"
 tks_db_name="${pki_host}-${tks_instance_name}"
 tks_key_size=2048
 tks_key_type=rsa
-tks_subsystem_cert_subject_name="CN=TKS\ Subsystem\ Certificate,O=${pki_security_domain_name}"
-tks_server_cert_subject_name="CN=${pki_host},O=${pki_security_domain_name}"
-tks_audit_signing_cert_subject_name="CN=TKS\ Audit\ Signing\ Certificate,O=${pki_security_domain_name}"
+tks_subsystem_cert_subject_name="cn=TKS\ Subsystem\ Certificate,o=${pki_security_domain_name}"
+tks_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
+tks_audit_signing_cert_subject_name="cn=TKS\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
 
 
 ##  Miscellaneous RA Variables
@@ -575,18 +575,18 @@ tks_audit_signing_cert_subject_name="CN=TKS\ Audit\ Signing\ Certificate,O=${pki
 ##         where:
 ##
 ##                 Nickname:  "subsystemCert cert-${ra_instance_name}"
-##             Subject Name:  "CN=RA Subsystem Certificate,"
-##                         +  "OU=${ra_instance_name},"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=RA Subsystem Certificate,"
+##                         +  "ou=${ra_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "caCert"
-##             Subject Name:  "CN=Certificate Authority,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "Server-Cert cert-${ra_instance_name}"
-##             Subject Name:  "CN=${pki_host},"
-##                         +  "OU=${ra_instance_name},"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "ou=${ra_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
 ##
 
 ra_chosen_ca_hostname=${pki_security_domain_host}
@@ -596,11 +596,13 @@ ra_chosen_ca_admin_port=${ca_admin_port}
 ra_agent_name="RA\ Administrator\'s\ ${pki_security_domain_name}\ ID"
 ra_agent_key_size=2048
 ra_agent_key_type=rsa
-ra_agent_cert_subject="CN=RA\ Administrator,UID=admin,E=${pki_silent_admin_email},O=${pki_security_domain_name}"
+ra_agent_cert_subject="cn=RA\ Administrator,uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
 ra_key_size=2048
 ra_key_type=rsa
-ra_subsystem_cert_subject_name="CN=RA\ Subsystem\ Certificate,OU=${ra_instance_name},O=${pki_security_domain_name}"
-ra_server_cert_subject_name="CN=${pki_host},OU=${ra_instance_name},O=${pki_security_domain_name}"
+ra_server_cert_nickname="Server-Cert\ cert-${ra_instance_name}"
+ra_server_cert_subject_name="cn=${pki_host},ou=${ra_instance_name},o=${pki_security_domain_name}"
+ra_subsystem_cert_nickname="subsystemCert\ cert-${ra_instance_name}"
+ra_subsystem_cert_subject_name="cn=RA\ Subsystem\ Certificate,ou=${ra_instance_name},o=${pki_security_domain_name}"
 
 
 ##  Miscellaneous TPS Variables
@@ -623,23 +625,23 @@ ra_server_cert_subject_name="CN=${pki_host},OU=${ra_instance_name},O=${pki_secur
 ##         where:
 ##
 ##                 Nickname:  "subsystemCert cert-${tps_instance_name}"
-##             Subject Name:  "CN=TPS Subsystem Certificate,"
-##                         +  "OU=${tps_instance_name},"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=TPS Subsystem Certificate,"
+##                         +  "ou=${tps_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "caCert"
-##             Subject Name:  "CN=Certificate Authority,"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "Server-Cert cert-${tps_instance_name}"
-##             Subject Name:  "CN=${pki_host},"
-##                         +  "OU=${tps_instance_name},"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "ou=${tps_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
 ##
 ##                 Nickname:  "auditSigningCert cert-${tps_instance_name}"
-##             Subject Name:  "CN=TPS Audit Signing Certificate,"
-##                         +  "OU=${tps_instance_name},"
-##                         +  "O=${pki_security_domain_name}"
+##             Subject Name:  "cn=TPS Audit Signing Certificate,"
+##                         +  "ou=${tps_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
 ##
 
 tps_chosen_ca_hostname=${pki_security_domain_host}
@@ -653,7 +655,7 @@ tps_chosen_drm_ssl_port=${kra_ee_port}
 tps_agent_name="TPS\ Administrator\'s\ ${pki_security_domain_name}\ ID"
 tps_agent_key_size=2048
 tps_agent_key_type=rsa
-tps_agent_cert_subject="CN=TPS\ Administrator,UID=admin,E=${pki_silent_admin_email},O=${pki_security_domain_name}"
+tps_agent_cert_subject="cn=TPS\ Administrator,uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
 tps_ldap_auth_host=localhost
 tps_ldap_auth_port=389
 tps_ldap_auth_base_dn="dc=${pki_email_company},dc=${pki_email_domain}"
@@ -662,9 +664,12 @@ tps_db_name="${pki_host}-${tps_instance_name}"
 tps_key_size=2048
 tps_key_type=rsa
 tps_ss_keygen=true
-tps_subsystem_cert_subject_name="CN=TPS\ Subsystem\ Certificate,OU=${tps_instance_name},O=${pki_security_domain_name}"
-tps_server_cert_subject_name="CN=${pki_host},OU=${tps_instance_name},O=${pki_security_domain_name}"
-tps_audit_signing_cert_subject_name="CN=TPS\ Audit\ Signing\ Certificate,OU=${tps_instance_name},O=${pki_security_domain_name}"
+tps_server_cert_subject_name="cn=${pki_host},ou=${tps_instance_name},o=${pki_security_domain_name}"
+tps_server_cert_nickname="Server-Cert\ cert-${tps_instance_name}"
+tps_subsystem_cert_subject_name="cn=TPS\ Subsystem\ Certificate,ou=${tps_instance_name},o=${pki_security_domain_name}"
+tps_subsystem_cert_nickname="subsystemCert\ cert-${tps_instance_name}"
+tps_audit_signing_cert_subject_name="cn=TPS\ Audit\ Signing\ Certificate,ou=${tps_instance_name},o=${pki_security_domain_name}"
+tps_audit_signing_cert_nickname="auditSigningCert\ cert-${tps_instance_name}"
 
 
 
@@ -1233,8 +1238,10 @@ pkisilent ConfigureRA \
 	-agent_key_type ${ra_agent_key_type} \
 	-agent_cert_subject "${ra_agent_cert_subject}" \
 	-subsystem_name ${ra_subsystem_name} \
-	-ra_subsystem_cert_subject_name "${ra_subsystem_cert_subject_name}" \
+	-ra_server_cert_nickname "${ra_server_cert_nickname}" \
 	-ra_server_cert_subject_name "${ra_server_cert_subject_name}" \
+	-ra_subsystem_cert_nickname "${ra_subsystem_cert_nickname}" \
+	-ra_subsystem_cert_subject_name "${ra_subsystem_cert_subject_name}" \
 	| tee ${pki_silent_ra_log}
 
 ##  Restart RA
@@ -1311,10 +1318,14 @@ pkisilent ConfigureTPS \
 	-ldap_auth_host ${tps_ldap_auth_host} \
 	-ldap_auth_port ${tps_ldap_auth_port} \
 	-ldap_auth_base_dn ${tps_ldap_auth_base_dn} \
-	-tps_subsystem_cert_subject_name "${tps_subsystem_cert_subject_name}" \
 	-tps_server_cert_subject_name "${tps_server_cert_subject_name}" \
+	-tps_server_cert_nickname "${tps_server_cert_nickname}" \
+	-tps_subsystem_cert_subject_name "${tps_subsystem_cert_subject_name}" \
+	-tps_subsystem_cert_nickname "${tps_subsystem_cert_nickname}" \
 	-tps_audit_signing_cert_subject_name \
 	"${tps_audit_signing_cert_subject_name}" \
+	-tps_audit_signing_cert_nickname \
+	"${tps_audit_signing_cert_nickname}" \
 	| tee ${pki_silent_tps_log}
 
 ##  Restart TPS

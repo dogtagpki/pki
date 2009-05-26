@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -234,6 +234,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed May 20 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-5
+- Bugzilla Bug #491517 -  pkisilent Configure RA and TPS fail
 * Sat May 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
 - Bugzilla Bug #491517 -  pkisilent Configure RA and TPS fail
   (port separation changes only)
