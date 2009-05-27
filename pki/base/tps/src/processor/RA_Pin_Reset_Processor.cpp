@@ -232,6 +232,10 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
 		  "%x.%x.%s", app_major_version, app_minor_version,
 		  buildid);
       appletVersion = strdup(version);
+      if (buildid != NULL) {
+          PR_Free(buildid);
+          buildid = NULL;
+      }
     }
 
     final_applet_version = strdup(appletVersion);
@@ -454,6 +458,28 @@ locale),
                                                                                 
                    RA::Debug("RA_Enroll_Processor::RequestUserId",
     "Extended Login Request detected calling RequestExtendedLogin() login=%x", login);
+
+                    if (params != NULL) {
+                       for (int nn=0; nn < n; nn++) {
+                           if (params[nn] != NULL) {
+                               PL_strfree(params[nn]);
+                               params[nn] = NULL;
+                           }
+                       }
+                       free(params);
+                       params = NULL;
+                   }
+
+                   if (title != NULL) {
+                       PL_strfree(title);
+                       title = NULL;
+                   }
+
+                   if (description != NULL) {
+                       PL_strfree(description);
+                       description = NULL;
+                   }
+
         } else {
       login = RequestLogin(session, 0 /* invalid_pw */, 0 /* blocked */);
         }
@@ -751,12 +777,10 @@ loser:
         PR_Free( (char *) appletVersion );
         appletVersion = NULL;
     }
-    /*
     if( final_applet_version != NULL ) {
         PR_Free( (char *) final_applet_version );
         final_applet_version = NULL;
     }
-    */
     if( keyVersion != NULL ) {
         PR_Free( (char *) keyVersion );
         keyVersion = NULL;

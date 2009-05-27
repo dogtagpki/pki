@@ -172,6 +172,14 @@ RA::RA ()
  */
 RA::~RA ()
 {
+    do_free(m_signedAuditSelectedEvents);
+    do_free(m_signedAuditSelectableEvents);
+    do_free(m_signedAuditNonSelectableEvents);
+
+    if (m_cfg != NULL) {
+        delete m_cfg;
+        m_cfg = NULL;
+    }
 }
 
 TPS_PUBLIC ConfigStore *RA::GetConfigStore()
@@ -182,6 +190,14 @@ TPS_PUBLIC ConfigStore *RA::GetConfigStore()
 PRLock *RA::GetVerifyLock()
 {
   return m_verify_lock;
+}
+
+void RA::do_free(char *p)
+{
+    if (p != NULL) {
+        PR_Free(p);
+        p = NULL;
+    }
 }
 
 int RA::InitializeSignedAudit()
@@ -502,18 +518,21 @@ loser:
 }
 
 int RA::testTokendb() {
-	// try to see if we can talk to the database
-	int st = 0;
-	LDAPMessage  *ldapResult = NULL;
-	const char * filter = "(cn=0000000000080000*)";
+    // try to see if we can talk to the database
+    int st = 0;
+    LDAPMessage  *ldapResult = NULL;
+    const char * filter = "(cn=0000000000080000*)";
 
-	if ((st = find_tus_db_entries(filter, 0, &ldapResult)) != LDAP_SUCCESS) {
-	  RA::Debug("RA::testing", "response from token DB failed");
-	} else {
-	  RA::Debug("RA::testing", "response from token DB succeeded");
-	}
+    if ((st = find_tus_db_entries(filter, 0, &ldapResult)) != LDAP_SUCCESS) {
+        RA::Debug("RA::testing", "response from token DB failed");
+    } else {
+        RA::Debug("RA::testing", "response from token DB succeeded");
+    }
+    if (ldapResult != NULL) {
+        ldap_msgfree(ldapResult);
+    }
 
-	return st;
+    return st;
 }
 
 /*
@@ -939,6 +958,9 @@ void RA::RecoverKey(RA_Session *session, const char* cuid,
       else {
 	status_s = status_b->string();
 	status = atoi(status_s);
+        if (status_s != NULL) {
+            PR_Free(status_s);
+        }
       }
 
 
@@ -1151,6 +1173,9 @@ void RA::ServerSideKeyGen(RA_Session *session, const char* cuid,
 	  } else {
 	    status_s = status_b->string();
 	    status = atoi(status_s);
+            if (status_s != NULL) {
+                PR_Free(status_s);
+            }
 	  }
 
 	  char * tmp = NULL;
@@ -1349,6 +1374,9 @@ PK11SymKey *RA::ComputeSessionKey(RA_Session *session,
 	else {
 	  status_s = status_b->string();
 	  status = atoi(status_s);
+          if (status_s != NULL) {
+              PR_Free(status_s);
+          }
 	}
 
 	sessionKey_s = ra_pb->find_val_s(TKS_RESPONSE_SessionKey);
@@ -1776,11 +1804,11 @@ void RA::AuditThis (RA_Log_Level level, const char *func_name, const char *fmt, 
         }
 
 loser:
+        if (audit_msg)
+            PR_Free(audit_msg);
         if (m_audit_signed==true) {
             if (sign_ctxt)
                 SGN_DestroyContext(sign_ctxt, PR_TRUE);
-            if (audit_msg)
-                PR_Free(audit_msg);
             if (sig_b64)
                 PR_Free(sig_b64);
             if (out_sig_b64)
@@ -2401,7 +2429,7 @@ int RA::tdb_update_certificates(char* cuid, char **tokentypes, char *userid, CER
     int i = 0;
 
     if ((rc = find_tus_db_entry(cuid, 0, &ldapResult)) != LDAP_SUCCESS) {
-	return rc;
+	goto loser;
     }
 
     /* update certificates */
@@ -2448,7 +2476,10 @@ int RA::tdb_update_certificates(char* cuid, char **tokentypes, char *userid, CER
                   ktypes[i], "active");
         }
     }
-
+loser: 
+    if (ldapResult != NULL) {
+        ldap_msgfree(ldapResult);
+    }
     return rc;
 }
 

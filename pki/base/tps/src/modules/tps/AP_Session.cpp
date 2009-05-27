@@ -53,6 +53,7 @@ extern "C"
 #include "msg/RA_Status_Update_Response_Msg.h"
 #include "modules/tps/AP_Session.h"
 #include "main/Memory.h"
+#include "apr_strings.h"
 
 /**
  * http parameters used in the protocol 
@@ -247,7 +248,7 @@ char *stripEmptyArgs( char *data )
 }
 
 
-int pblock_str2pblock( char *n_data, apr_array_header_t *tm_pblock )
+int pblock_str2pblock( char *n_data, apr_array_header_t *tm_pblock , request_rec *rec)
 {
     int element = 0;
 
@@ -275,9 +276,9 @@ int pblock_str2pblock( char *n_data, apr_array_header_t *tm_pblock )
 
             /* store the name/value pair as an entry in the pblock array */
             ( ( apr_table_entry_t * ) tm_pblock->elts )[element].key =
-              PL_strdup(name);
+              apr_pstrdup(rec->pool, name);
             ( ( apr_table_entry_t * ) tm_pblock->elts )[element].val =
-              PL_strdup(value);
+              apr_pstrdup(rec->pool, value);
 
             /* increment the entry to the pblock array */
             element++;
@@ -362,7 +363,7 @@ RA_pblock *AP_Session::create_pblock( char *data )
         return NULL;
     }
 
-    int tm_nargs = pblock_str2pblock( n_data, tm_pblock );
+    int tm_nargs = pblock_str2pblock( n_data, tm_pblock , m_rq);
     apr_table_entry_t *pe = NULL;
 
     RA::Debug( LL_PER_PDU,
@@ -605,6 +606,7 @@ RA_Msg *AP_Session::ReadMsg()
         {
             char *name = NULL;
             Buffer* value = NULL;
+            char *bufferStr = NULL;
             AuthParams *params = new AuthParams();
             int i;
 
@@ -618,8 +620,13 @@ RA_Msg *AP_Session::ReadMsg()
                 name = ra_pb->get_name( i );
                 if( name != NULL ) {
                     value = ra_pb->find_val( ( const char * ) name );
+                    bufferStr = value->string();
                     if( value != NULL ) {
-                        params->Add( name, value->string() );
+                        params->Add( name, bufferStr );
+                    }
+                    if (bufferStr != NULL) {
+                        PR_Free(bufferStr);
+                        bufferStr = NULL;
                     }
                 }
             }
@@ -947,18 +954,34 @@ void AP_Session::WriteMsg( RA_Msg *msg )
             int invalid_password = login_request_msg->IsInvalidPassword();
             int is_blocked = login_request_msg->IsBlocked();
 
+            char *title = Util::URLEncode( login_request_msg->GetTitle() );
+            char *desc = Util::URLEncode( login_request_msg->GetDescription() );
+
             sprintf( msgbuf, "%s=%d&%s=%d&%s=%d&%s=%s&%s=%s", 
                      PARAM_MSG_TYPE, MSG_EXTENDED_LOGIN_REQUEST,
                      "invalid_login", invalid_password,
                      PARAM_BLOCKED, is_blocked,
-                     "title", Util::URLEncode( login_request_msg->GetTitle() ),
-                     "description", 
-                     Util::URLEncode( login_request_msg->GetDescription() ) );
+                     "title", title, 
+                     "description", desc);  
+            if (title != NULL) {
+                PR_Free(title);
+                title = NULL;
+            }
+
+            if (desc != NULL) {
+                PR_Free(desc);
+                desc = NULL;
+            }
 
             for( int i = 0; i < login_request_msg->GetLen(); i++ ) {
                 char *p = login_request_msg->GetParam( i );
+                char *encp = Util::URLEncode1( p );
                 sprintf( msgbuf, "%s&required_parameter%d=%s", 
-                         msgbuf, i, Util::URLEncode1( p ) );
+                         msgbuf, i, encp );
+                if (encp != NULL) {
+                    PR_Free(encp);
+                    encp = NULL;
+                }
             }
 
             CreateChunk( msgbuf, buf, MAX_RA_MSG_SIZE );

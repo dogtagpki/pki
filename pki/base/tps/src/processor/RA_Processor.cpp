@@ -851,12 +851,18 @@ bool RA_Processor::GetTokenType(const char *prefix, int major_version, int minor
 int RA_Processor::SelectCardManager(RA_Session *session, char *prefix, char *tokenType)
 {
     char configname[256];
+    int rc;
     PR_snprintf((char *)configname, 256, "%s.%s.cardmgr_instance", prefix, tokenType);
     const char *cardmgr_instance = 
           RA::GetConfigStore()->GetConfigAsString(configname);
     Buffer *CardManagerAID = RA::GetConfigStore()->GetConfigAsBuffer(
            cardmgr_instance, RA::CFG_DEF_CARDMGR_INSTANCE_AID);
-    return SelectApplet(session, 0x04, 0x00, CardManagerAID);
+    rc = SelectApplet(session, 0x04, 0x00, CardManagerAID);
+    if( CardManagerAID != NULL ) {
+        delete CardManagerAID;
+        CardManagerAID = NULL;
+    }
+    return rc;
 }
 
 /**
@@ -2098,6 +2104,11 @@ int RA_Processor::EncryptData(Buffer &CUID, Buffer &version, Buffer &in, Buffer 
           data = Util::SpecialURLEncode(in);
         else
           RA::Debug(LL_PER_PDU, "RA_Processor::EncryptData","Challenge to be generated on TKS");
+
+        if (zerob != NULL) {
+            delete zerob;
+        }
+
         char *cuid = Util::SpecialURLEncode(CUID);
         char *versionID = Util::SpecialURLEncode(version);
 

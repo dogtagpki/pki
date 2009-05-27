@@ -227,10 +227,15 @@ RA::Debug("LDAP_Authentication::Authenticate", "User bind required '%s' '(sensit
                              v = ldap_get_values(ld, e, token);
                              if (v != NULL) {
                                  RA::Debug("LDAP_Authentication::Authenticate", "Exposed %s=%s", token, v[0]);
-                                 params->Add(token, v[0]);
+                                 params->Add(token, PL_strdup(v[0]));
                                  RA::Debug("LDAP_Authentication::Authenticate", "Size %d", params->Size());
                              }
                              token = strtok( NULL, "," ); 
+                             if( v != NULL ) {
+                                 ldap_value_free( v );
+                                 v = NULL;
+                             }
+
                          }
 						 free(m_dup_attributes);
                     }

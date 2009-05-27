@@ -148,6 +148,7 @@ class RA
 	  static void AuditThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void ErrorThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
+          static void do_free(char *s);
   public:
           static int InitializeTokendb(char *cfg_path);
           static int InitializeSignedAudit();
