@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      5
+%define base_release      6
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -249,6 +249,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri May 29 2009 Ade Lee <alee@redhat.com> 1.1.0-6
+- Bugzilla Bug 495212 - selinux messages from startup/ install
 * Mon May 25 2009 Ade Lee <alee@redhat.com> 1.1.0-5
 - Bugzilla Bug 499242 -  selinux policy updates needed to ensure that CS works with lunasa hsm
 * Fri May 1 2009 Ade Lee <alee@redhat.com> 1.1.0-4
