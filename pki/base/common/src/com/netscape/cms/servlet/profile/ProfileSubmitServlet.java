@@ -684,8 +684,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     return;
                 } else {
                     CMS.debug("ProfileSubmitServlet: renewal cert record found for serial number:"+ certSerial.toString());
-                    // check to see if the cert is revoked
-                    if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                    // check to see if the cert is revoked or revoked_expired
+                    if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) || (rec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED))) {
                       CMS.debug("ProfileSubmitServlet: renewal cert found to be revoked. Serial number = "+ certSerial.toString());
                       args.set(ARG_ERROR_CODE, "1");
                       args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
