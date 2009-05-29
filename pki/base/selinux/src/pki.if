@@ -177,6 +177,9 @@ template(`pki_ca_template',`
 	allow $1_t self:unix_dgram_socket { write create connect };
 	allow $1_t syslogd_t:unix_dgram_socket sendto;
 
+       #allow sending mail
+       corenet_tcp_connect_smtp_port($1_t)
+
 ')
 
 ########################################
@@ -487,7 +490,8 @@ template(`pki_tps_template',`
 
         allow pki_tps_t lib_t:file execute_no_trans;
 
-        allow pki_tps_t self:capability { setuid sys_nice setgid dac_override };
+        #fowner needed for chmod
+        allow pki_tps_t self:capability { setuid sys_nice setgid dac_override fowner};
         allow pki_tps_t self:process { setsched signal getsched  signull execstack execmem};
         allow pki_tps_t self:sem all_sem_perms;
         allow pki_tps_t self:tcp_socket create_stream_socket_perms;
