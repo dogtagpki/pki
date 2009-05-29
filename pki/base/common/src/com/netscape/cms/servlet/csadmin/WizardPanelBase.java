@@ -627,6 +627,8 @@ public class WizardPanelBase implements IWizardPanel {
                         } else if  (name.equals("cloning.audit_signing.nickname")) {
                             config.putString("preop.master.audit_signing.nickname", v);
                             config.putString(name, v);
+                        } else if (name.startsWith("cloning.ca")) {
+                            config.putString(name.replaceFirst("cloning", "preop"), v);
                         } else if (name.startsWith("cloning")) {
                             config.putString(name.replaceFirst("cloning", "preop.cert"), v);
                         }
@@ -1229,11 +1231,11 @@ public class WizardPanelBase implements IWizardPanel {
                         } else if (name.equals("cloning.subsystem.nickname")) {
                             config.putString("preop.master.subsystem.nickname", v);
                             config.putString(name, v);
-                        } else if (name.equals("cloning.cert.transport.nickname")) {
+                        } else if (name.equals("cloning.transport.nickname")) {
                             config.putString("preop.master.transport.nickname", v);
                             config.putString("kra.transportUnit.nickName", v);
                             config.putString(name, v);
-                        } else if (name.equals("cloning.cert.storage.nickname")) {
+                        } else if (name.equals("cloning.storage.nickname")) {
                             config.putString("preop.master.storage.nickname", v);
                             config.putString("kra.storageUnit.nickName", v);
                             config.putString(name, v);
@@ -1242,6 +1244,10 @@ public class WizardPanelBase implements IWizardPanel {
                             config.putString(name, v);
                         } else if (name.equals("cloning.module.token")) {
                             config.putString("preop.module.token", v);
+                        } else if (name.startsWith("cloning.ca")) {
+                            config.putString(name.replaceFirst("cloning", "preop"), v);
+                        } else if (name.startsWith("cloning")) {
+                            config.putString(name.replaceFirst("cloning", "preop.cert"), v);
                         } else {
                             config.putString(name, v);
                         }

@@ -43,6 +43,7 @@ import com.netscape.cms.servlet.wizard.*;
 public class DatabasePanel extends WizardPanelBase {
 
     private static final String HOST = "localhost";
+    private static final String CLONE_HOST="Enter FQDN here";
     private static final String PORT = "389";
     private static final String BASEDN = "o=netscapeCertificateServer";
     private static final String BINDDN = "cn=Directory Manager";
@@ -170,7 +171,7 @@ public class DatabasePanel extends WizardPanelBase {
                 CMS.debug("DatabasePanel display: " + e.toString());
             }
         } else if (select.equals("clone")) {
-            hostname = HOST;
+            hostname = CLONE_HOST;
             portStr = PORT;
             try {
                 basedn = cs.getString("internaldb.basedn", "");

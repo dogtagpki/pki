@@ -516,6 +516,27 @@ public class DonePanel extends WizardPanelBase {
             cs.putString("cloning.module.token", cs.getString("preop.module.token", ""));
             cs.putString("cloning.list", list);
 
+            // more cloning variables needed for non-ca clones
+
+            if (! type.equals("CA")) {
+                String val = cs.getString("preop.ca.hostname", "");
+                if (val.compareTo("") != 0) cs.putString("cloning.ca.hostname", val);
+
+                val = cs.getString("preop.ca.httpport", "");
+                if (val.compareTo("") != 0) cs.putString("cloning.ca.httpport", val);
+
+                val =  cs.getString("preop.ca.httpsport", "");
+                if (val.compareTo("") != 0) cs.putString("cloning.ca.httpsport", val);
+
+                val = cs.getString("preop.ca.list", "");
+                if (val.compareTo("") != 0) cs.putString("cloning.ca.list", val);
+
+                val = cs.getString("preop.ca.pkcs7", "");
+                if (val.compareTo("") != 0) cs.putString("cloning.ca.pkcs7", val);
+
+                val = cs.getString("preop.ca.type", "");
+                if (val.compareTo("") != 0) cs.putString("cloning.ca.type", val);
+            }
             cs.removeSubStore("preop");
             cs.commit(false);
 
@@ -530,6 +551,7 @@ public class DonePanel extends WizardPanelBase {
             }
 
         } catch (Exception e) {
+            CMS.debug("Caught exception saving preop variables: " + e);
         }
 
         context.put("csstate", "1");
