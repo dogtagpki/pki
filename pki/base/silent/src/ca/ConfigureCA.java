@@ -353,7 +353,7 @@ public class ConfigureCA {
             ParseXML px = new ParseXML();
 
             String query_string = "p=5" + "&op=next" + "&xml=true" 
-                + "&password=" + URLEncoder.encode(clone_p12_passwd)
+                + "&__password=" + URLEncoder.encode(clone_p12_passwd)
                 + "&path=" + URLEncoder.encode(clone_p12_file) + "";
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
