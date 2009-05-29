@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      17
+%define base_release      18
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Thu May 28 2009 Ade Lee <alee@redhat.com> 1.1.0-18
+- Bugzilla Bug #502257 - KRA cloning: during configuration throws "Clone is not ready" error message
 * Fri May 22 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-17
 - Bugzilla Bug #488303
 * Wed May 20 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-16
