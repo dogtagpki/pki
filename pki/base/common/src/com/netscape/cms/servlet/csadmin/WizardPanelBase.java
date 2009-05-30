@@ -1058,6 +1058,57 @@ public class WizardPanelBase implements IWizardPanel {
         return v;
     }
 
+    // Given an HTTPS Hostname and EE port,
+    // retrieve the associated HTTPS Admin port
+    public String getSecurityDomainAdminPort( IConfigStore config,
+                                              String hostname,
+                                              String https_ee_port ) {
+        String https_admin_port = new String();
+
+        try {
+            String sd_hostname = config.getString( "securitydomain.host" );
+            int sd_httpsadminport =
+                config.getInteger( "securitydomain.httpsadminport" );
+
+            CMS.debug( "Getting domain.xml from CA ..." );
+            String c = getDomainXML( sd_hostname, sd_httpsadminport, true );
+
+            CMS.debug( "Getting associated HTTPS Admin port from " +
+                       "HTTPS Hostname '" + hostname +
+                       "' and EE port '" + https_ee_port + "'" );
+            ByteArrayInputStream bis = new ByteArrayInputStream( c.getBytes() );
+            XMLObject parser = new XMLObject( bis );
+            Document doc = parser.getDocument();
+            NodeList nodeList = doc.getElementsByTagName( "CA" );
+
+            int len = nodeList.getLength();
+            for( int i = 0; i < len; i++ ) {
+                Vector v_hostname =
+                       parser.getValuesFromContainer( nodeList.item(i),
+                                                      "Host" );
+
+                Vector v_https_ee_port =
+                       parser.getValuesFromContainer( nodeList.item(i),
+                                                      "SecurePort" );
+
+                Vector v_https_admin_port =
+                       parser.getValuesFromContainer( nodeList.item(i),
+                                                      "SecureAdminPort" );
+
+                if( v_hostname.elementAt( 0 ).equals( hostname ) &&
+                    v_https_ee_port.elementAt( 0 ).equals( https_ee_port ) ) {
+                    https_admin_port =
+                                v_https_admin_port.elementAt( 0 ).toString();
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            CMS.debug( e.toString() );
+        }
+
+        return( https_admin_port );
+    }
+
     public String getSecurityDomainPort( IConfigStore config,
                                          String portType ) {
         String port = new String();

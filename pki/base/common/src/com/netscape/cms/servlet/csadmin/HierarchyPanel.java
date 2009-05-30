@@ -77,6 +77,7 @@ public class HierarchyPanel extends WizardPanelBase {
             if (s != null && s.equals("clone")) {
                 // mark this panel as done
                 c.putString("preop.hierarchy.select","root");
+                c.putString("hierarchy.select","Clone");
                 return true;
             }
         } catch (EBaseException e) {
@@ -88,6 +89,7 @@ public class HierarchyPanel extends WizardPanelBase {
     public void cleanUp() throws IOException {
         IConfigStore cs = CMS.getConfigStore();
         cs.putString("preop.hierarchy.select", "");
+        cs.putString("hierarchy.select", "");
     }
 
     public boolean isPanelDone() {
@@ -171,6 +173,7 @@ public class HierarchyPanel extends WizardPanelBase {
 
         if (select.equals("root")) {
             config.putString("preop.hierarchy.select", "root"); 
+            config.putString("hierarchy.select", "Root"); 
             config.putString("preop.ca.type", "sdca");
             try {
                 config.commit(false);
@@ -178,6 +181,7 @@ public class HierarchyPanel extends WizardPanelBase {
         } else if (select.equals("join")) {
             config.putString(PCERT_PREFIX + "signing.type", "remote");
             config.putString("preop.hierarchy.select", "join");
+            config.putString("hierarchy.select", "Subordinate"); 
         } else {
             config.putString(PCERT_PREFIX + "signing.type", "remote");
             CMS.debug("HierarchyPanel: invalid choice " + select);

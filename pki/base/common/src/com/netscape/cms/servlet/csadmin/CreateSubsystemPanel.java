@@ -63,6 +63,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
     public void cleanUp() throws IOException {
         IConfigStore cs = CMS.getConfigStore();
         cs.putString("preop.subsystem.select", "");
+        cs.putString("subsystem.select", "");
     }
 
     public boolean isPanelDone() {
@@ -199,9 +200,10 @@ public class CreateSubsystemPanel extends WizardPanelBase {
 
         config.putString("preop.subsystem.name", 
               HttpInput.getName(request, "subsystemName"));
-        if (select.equals("newsubsystem"))
+        if (select.equals("newsubsystem")) {
             config.putString("preop.subsystem.select", "new");
-        else if (select.equals("clonesubsystem")) {
+            config.putString("subsystem.select", "New");
+        } else if (select.equals("clonesubsystem")) {
             String cstype = "";
             try {
                 cstype = config.getString("cs.type", "");
@@ -211,6 +213,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             cstype = toLowerCaseSubsystemType(cstype);
       
             config.putString("preop.subsystem.select", "clone");
+            config.putString("subsystem.select", "Clone");
 
             String lists = "";
             try {

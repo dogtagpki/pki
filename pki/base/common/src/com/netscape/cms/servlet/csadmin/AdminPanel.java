@@ -140,9 +140,10 @@ public class AdminPanel extends WizardPanelBase {
         String info = "";
         context.put("import", "true");
 
+        String subsystemtype = "";
         try {
             type = cs.getString("preop.ca.type", "");
-            String subsystemtype = cs.getString("cs.type", "");
+            subsystemtype = cs.getString("cs.type", "");
         } catch (Exception e) {}
 
         if (isPanelDone()) {
@@ -233,9 +234,14 @@ public class AdminPanel extends WizardPanelBase {
         context.put("import", "true");
 
         String type = "";
+        String subsystemtype = "";
+        String security_domain_type = "";
+        String selected_hierarchy = "";
         try {
             type = config.getString(PRE_CA_TYPE, "");
-            String subsystemtype = config.getString("cs.type", "");
+            subsystemtype = config.getString("cs.type", "");
+            security_domain_type = config.getString("securitydomain.select","");
+            selected_hierarchy = config.getString("preop.hierarchy.select", "");
         } catch (Exception e) {}
 
         ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
@@ -263,8 +269,17 @@ public class AdminPanel extends WizardPanelBase {
             throw e;
         }
 
-        if (ca != null) { 
-            CMS.debug("AdminPanel update: this is CA subsystem");
+        // REMINDER:  This panel is NOT used by "clones"
+        if( ( ca != null ) && ( security_domain_type.equals( "new" ) ) ) {
+            if( selected_hierarchy.equals( "root" ) ) {
+                CMS.debug( "AdminPanel update:  "
+                         + "Root CA subsystem - "
+                         + "(new Security Domain)" );
+            } else {
+                CMS.debug( "AdminPanel update:  "
+                         + "Subordinate CA subsystem - "
+                         + "(new Security Domain)" );
+            }
 
             try {
                 createAdminCertificate(request, response, context);
@@ -277,6 +292,23 @@ public class AdminPanel extends WizardPanelBase {
         } else {
             String ca_hostname = null;
             int ca_port = -1;
+
+            // REMINDER:  This panel is NOT used by "clones"
+            if( subsystemtype.equals( "CA" ) ) {
+                if( selected_hierarchy.equals( "root" ) ) {
+                    CMS.debug( "AdminPanel update:  "
+                             + "Root CA subsystem - "
+                             + "(existing Security Domain)" );
+                } else {
+                    CMS.debug( "AdminPanel update:  "
+                             + "Subordinate CA subsystem - "
+                             + "(existing Security Domain)" );
+                }
+            } else {
+                CMS.debug( "AdminPanel update:  "
+                         + subsystemtype
+                         + " subsystem" );
+            }
 
             if (type.equals("sdca")) {
                 try {

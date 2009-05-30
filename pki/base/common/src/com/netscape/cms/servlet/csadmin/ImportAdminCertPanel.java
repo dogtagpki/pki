@@ -138,8 +138,12 @@ public class ImportAdminCertPanel extends WizardPanelBase {
                 } catch (Exception e) {}
             } else if (type.equals("sdca")) {
                 try {
+                    // If this code is selected (e. g. - Subordinate CAs
+                    // that are NOT their own Security Domain), it MUST
+                    // still pass the "httpsadminport" associated with the
+                    // Security Domain CA as defined via the NamePanel.
                     caHost = cs.getString("preop.ca.hostname", "");
-                    caPort = cs.getString("preop.ca.httpsport", "");
+                    caPort = cs.getString("preop.ca.httpsadminport", "");
                 } catch (Exception e) {}
             }
         } else {
@@ -180,10 +184,14 @@ public class ImportAdminCertPanel extends WizardPanelBase {
 
         String type = "";
         String subsystemtype = "";
+        String security_domain_type = "";
+        String selected_hierarchy = "";
 
         try {
             type = cs.getString("preop.ca.type", "");
             subsystemtype = cs.getString("cs.type", "");
+            security_domain_type = cs.getString("securitydomain.select", "");
+            selected_hierarchy = cs.getString("preop.hierarchy.select", "");
         } catch (Exception e) {}
 
         ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(
@@ -198,8 +206,19 @@ public class ImportAdminCertPanel extends WizardPanelBase {
 
         X509CertImpl certs[] = new X509CertImpl[1];
 
-        if (ca != null) {
+        // REMINDER:  This panel is NOT used by "clones"
+        if( ( ca != null ) && ( security_domain_type.equals( "new" ) ) ) {
             String serialno = null;
+
+            if( selected_hierarchy.equals( "root" ) ) {
+                CMS.debug( "ImportAdminCertPanel update:  "
+                         + "Root CA subsystem - "
+                         + "(new Security Domain)" );
+            } else {
+                CMS.debug( "ImportAdminCertPanel update:  "
+                         + "Subordinate CA subsystem - "
+                         + "(new Security Domain)" );
+            }
 
             try {
                 serialno = cs.getString("preop.admincert.serialno.0");
@@ -217,6 +236,23 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             } catch (Exception ee) {}
         } else {
             String dir = null;
+
+            // REMINDER:  This panel is NOT used by "clones"
+            if( subsystemtype.equals( "CA" ) ) {
+                if( selected_hierarchy.equals( "root" ) ) {
+                    CMS.debug( "ImportAdminCertPanel update:  "
+                             + "Root CA subsystem - "
+                             + "(existing Security Domain)" );
+                } else {
+                    CMS.debug( "ImportAdminCertPanel update:  "
+                             + "Subordinate CA subsystem - "
+                             + "(existing Security Domain)" );
+                }
+            } else {
+                CMS.debug( "ImportAdminCertPanel update:  "
+                         + subsystemtype
+                         + " subsystem" );
+            }
 
             try {
                 dir = cs.getString("preop.admincert.b64", ""); 

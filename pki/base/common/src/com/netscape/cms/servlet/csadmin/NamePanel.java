@@ -808,6 +808,7 @@ public class NamePanel extends WizardPanelBase {
     private void sdca(HttpServletRequest request, Context context, String hostname, String httpsPortStr) throws IOException {
         CMS.debug("NamePanel update: this is the CA in the security domain.");
         CMS.debug("NamePanel update: selected CA hostname=" + hostname + " port=" + httpsPortStr);
+        String https_admin_port = "";
         IConfigStore config = CMS.getConfigStore();
 
         context.put("sdcaHostname", hostname);
@@ -818,19 +819,26 @@ public class NamePanel extends WizardPanelBase {
             throw new IOException("Hostname is null");
         }
 
+        // Retrieve the associated HTTPS Admin port so that it
+        // may be stored for use with ImportAdminCertPanel
+        https_admin_port = getSecurityDomainAdminPort( config,
+                                                       hostname,
+                                                       httpsPortStr );
+
         int httpsport = -1;
 
         try {
              httpsport = Integer.parseInt(httpsPortStr);
         } catch (Exception e) {
             CMS.debug(
-                    "NamePanel update: Http port is not valid. Exception: "
+                    "NamePanel update: Https port is not valid. Exception: "
                             + e.toString());
-            throw new IOException("Http Port is not valid.");
+            throw new IOException("Https Port is not valid.");
         }
 
         config.putString("preop.ca.hostname", hostname);
         config.putString("preop.ca.httpsport", httpsPortStr);
+        config.putString("preop.ca.httpsadminport", https_admin_port);
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
         updateCertChainUsingSecureEEPort( config, "ca", hostname,
                                           httpsport, true, context,
