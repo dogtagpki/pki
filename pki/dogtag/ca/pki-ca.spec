@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      14
+%define base_release      15
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,9 @@ fi
 ###############################################################################
 
 %changelog
+* Fri May 29 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-15
+- Bugzilla Bug #500733 -  Subordinate CA - administrator certificate import
+  fails (install wizard)
 * Tue May 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-14
 - Bugzilla Bug #502267 -  Allow CA, DRM, OCSP, and TKS to be started using
   the Security Manager
