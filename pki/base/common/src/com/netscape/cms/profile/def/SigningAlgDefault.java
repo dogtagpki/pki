@@ -78,8 +78,7 @@ public class SigningAlgDefault extends EnrollDefault {
         // best pick for the user
         ICertificateAuthority ca = (ICertificateAuthority)
                 CMS.getSubsystem(CMS.SUBSYSTEM_CA);
-        String algos[] = ca.getCASigningAlgorithms();
-        return algos[0];
+        return ca.getDefaultAlgorithm();
       } else {
         return signingAlg;
       }
