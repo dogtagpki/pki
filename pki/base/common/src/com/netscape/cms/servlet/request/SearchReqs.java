@@ -69,6 +69,7 @@ public class SearchReqs extends CMSServlet {
     private IReqParser mParser = null;
     private String mFormPath = null;
     private int mMaxReturns = 100;
+    private int mTimeLimits = 30; /* in seconds */
 
     /**
      * Constructs query key servlet.
@@ -105,6 +106,20 @@ public class SearchReqs extends CMSServlet {
         }
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+
+        /* Server-Side time limit */
+        try {
+            int maxResults = Integer.parseInt(sc.getInitParameter("maxResults"));
+            if (maxResults < mMaxReturns)
+                mMaxReturns = maxResults;
+        } catch (Exception e) {
+            /* do nothing, just use the default if integer parsing failed */
+        }
+        try {
+            mTimeLimits = Integer.parseInt(sc.getInitParameter("timeLimits"));
+        } catch (Exception e) {
+            /* do nothing, just use the default if integer parsing failed */
+        }
 
         String tmp = sc.getInitParameter(PROP_PARSER);
 
@@ -249,10 +264,17 @@ public class SearchReqs extends CMSServlet {
             }
             String newfilter = "(&"+requestowner_filter+filter.substring(2);
             // xxx the filter includes serial number range???
-            int mr = (maxResults > 0) ? maxResults : mMaxReturns;
+            if (maxResults == -1 || maxResults > mMaxReturns) {
+                CMS.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
+                maxResults = mMaxReturns;
+            }
+            if (timeLimit == -1 || timeLimit > mTimeLimits) {
+                CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
+                timeLimit = mTimeLimits;
+            }
             IRequestList list = (timeLimit > 0) ?
-                mQueue.listRequestsByFilter(newfilter, mr, timeLimit) :
-                mQueue.listRequestsByFilter(newfilter, mr);
+                mQueue.listRequestsByFilter(newfilter, maxResults, timeLimit) :
+                mQueue.listRequestsByFilter(newfilter, maxResults);
 
             int count = 0;
 
