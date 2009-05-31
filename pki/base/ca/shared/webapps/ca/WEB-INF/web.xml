@@ -814,6 +814,8 @@
                          <param-value> certServer.ca.requests </param-value> </init-param>
              <init-param><param-name>  AuthMgr     </param-name>
                          <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  timeLimits  </param-name>
+                         <param-value> 10 </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -921,6 +923,8 @@
                          <param-value> certUserDBAuthMgr </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
                          <param-value> certServer.ca.certificates </param-value> </init-param>
+             <init-param><param-name>  timeLimits  </param-name>
+                         <param-value> 15 </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -979,6 +983,8 @@
                          <param-value> certUserDBAuthMgr </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
                          <param-value> certServer.ca.certificates </param-value> </init-param>
+             <init-param><param-name>  maxResults  </param-name>
+                         <param-value> 1000 </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -1002,6 +1008,8 @@
                          <param-value> certServer.ca.requests </param-value> </init-param>
              <init-param><param-name>  AuthMgr     </param-name>
                          <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  maxResults  </param-name>
+                         <param-value> 1000 </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -1608,6 +1616,8 @@
                          <param-value> caSrchCerts </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
                          <param-value> certServer.ee.certificates </param-value> </init-param>
+             <init-param><param-name>  timeLimits  </param-name>
+                         <param-value> 10 </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -1703,6 +1713,8 @@
                          <param-value> certServer.ee.certificates </param-value> </init-param>
              <init-param><param-name>  interface   </param-name>
                          <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  maxResults  </param-name>
+                         <param-value> 1000 </param-value> </init-param>
    </servlet>
 
    <servlet>
