@@ -105,6 +105,13 @@ public class SrchCerts extends CMSServlet {
 
         /* Server-Side time limit */
         try {
+            int maxResults = Integer.parseInt(sc.getInitParameter("maxResults"));
+            if (maxResults < mMaxReturns)
+                mMaxReturns = maxResults;
+        } catch (Exception e) {
+            /* do nothing, just use the default if integer parsing failed */
+        }
+        try {
             mTimeLimits = Integer.parseInt(sc.getInitParameter("timeLimits"));
         } catch (Exception e) {
             /* do nothing, just use the default if integer parsing failed */
@@ -590,13 +597,16 @@ public class SrchCerts extends CMSServlet {
             }
 
             // xxx the filter includes serial number range???
-            int mr = (maxResults > 0) ? maxResults : mMaxReturns;
+            if (maxResults == -1 || maxResults > mMaxReturns) {
+                CMS.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
+                maxResults = mMaxReturns;
+            }
             if (timeLimit == -1 || timeLimit > mTimeLimits) {
                 CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
-            CMS.debug("Start searching ... " + "filter=" + filter + " maxreturns=" + mr + " timelimit=" + timeLimit);
-            Enumeration e = mCertDB.searchCertificates(filter, mr, timeLimit);
+            CMS.debug("Start searching ... " + "filter=" + filter + " maxreturns=" + maxResults + " timelimit=" + timeLimit);
+            Enumeration e = mCertDB.searchCertificates(filter, maxResults, timeLimit);
 
             int count = 0;
 
@@ -623,7 +633,7 @@ public class SrchCerts extends CMSServlet {
             if (revokeAll != null)
                 header.addStringValue("revokeAll", revokeAll);
             header.addIntegerValue("totalRecordCount", count);
-            header.addIntegerValue("maxSize", mr);
+            header.addIntegerValue("maxSize", maxResults);
         } catch (EBaseException e) {
             CMS.getLogMessage("CMSGW_ERROR_LISTCERTS", e.toString());
             throw e;
