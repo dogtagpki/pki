@@ -67,6 +67,7 @@ public class ListCerts extends CMSServlet {
     private String mDirection = null;
     private boolean mUseClientFilter = false;
     private Vector mAllowedClientFilters = new Vector();
+    private int mMaxReturns = 2000;
 
     /**
      * Constructs query key servlet.
@@ -96,6 +97,12 @@ public class ListCerts extends CMSServlet {
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
+
+        try {
+            mMaxReturns = Integer.parseInt(sc.getInitParameter("maxResults"));
+        } catch (Exception e) {
+            /* do nothing, just use the default if integer parsing failed */
+        }
 
         /* useClientFilter should be off by default. We keep
            this parameter around so that we do not break
@@ -230,6 +237,10 @@ public class ListCerts extends CMSServlet {
 
             if (req.getParameter("maxCount") != null) {
                 maxCount = Integer.parseInt(req.getParameter("maxCount"));
+            }
+            if (maxCount == -1 || maxCount > mMaxReturns) {
+                com.netscape.certsrv.apps.CMS.debug("Resetting page size from " + maxCount + " to " + mMaxReturns);
+                maxCount = mMaxReturns;
             }
 
 	    String sentinelStr = "";
