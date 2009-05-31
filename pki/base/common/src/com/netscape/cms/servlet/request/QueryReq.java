@@ -92,6 +92,7 @@ public class QueryReq extends CMSServlet {
     private IReqParser mParser = null;
     private IRequestQueue mQueue = null;
     private String mFormPath = null;
+    private int mMaxReturns = 2000;
 
     public CMSRequest newCMSRequest() {
         return new CMSRequest();
@@ -114,6 +115,12 @@ public class QueryReq extends CMSServlet {
         super.init(sc);
         mQueue = mAuthority.getRequestQueue();
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+
+        try {
+            mMaxReturns = Integer.parseInt(sc.getInitParameter("maxResults"));
+        } catch (Exception e) {
+            /* do nothing, just use the default if integer parsing failed */
+        }
 
         String tmp = sc.getInitParameter(PROP_PARSER);
 
@@ -302,6 +309,10 @@ public class QueryReq extends CMSServlet {
     		maxCount = Integer.parseInt(req.getParameter(IN_MAXCOUNT));
     	} catch (Exception e) {
     	}
+        if (maxCount > mMaxReturns) {
+            CMS.debug("Resetting page size from " + maxCount + " to " + mMaxReturns);
+            maxCount = mMaxReturns;
+        }
 
     	HttpServletResponse resp = cmsReq.getHttpResp(); 
     	CMSTemplateParams argset = doSearch(locale[0],filter, maxCount, direction, top, bottom );
