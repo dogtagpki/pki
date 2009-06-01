@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      23
+%define base_release      24
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,9 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Jun 1 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-24
+- Bugzilla Bug #503255 -  Fix confusing "Security Domain" message when using 
+  "status"
 * Wed May 27 2009 Ade Lee <alee@redhat.com> 1.1.0-23
 - Bugzilla Bug #499493 - run tps under valgrind
 * Tue May 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-22

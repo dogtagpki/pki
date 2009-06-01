@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      8
+%define base_release      9
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -288,6 +288,9 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Jun 1 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-9
+- Bugzilla Bug #503255 -  Fix confusing "Security Domain" message when using 
+  "status"
 * Tue May 26 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-8
 - Bugzilla Bug #502267 -  Allow CA, DRM, OCSP, and TKS to be started using
   the Security Manager
