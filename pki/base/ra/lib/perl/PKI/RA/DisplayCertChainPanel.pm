@@ -231,6 +231,7 @@ sub get_domain_xml
     &PKI::RA::Wizard::debug_log("DisplayCertChainPanel: security domain '" . 
                 $xml->{'Name'}[0] . "'");
     $::config->put("preop.securitydomain.name", $xml->{'Name'}[0]);
+    $::config->put("securitydomain.name", $xml->{'Name'}[0]);
 
     # parse xml and store information in CS.cfg
     my $count = 0;

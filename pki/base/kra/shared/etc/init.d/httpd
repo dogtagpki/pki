@@ -208,6 +208,7 @@ fi
 
 pidfile=${PIDFILE:-/var/run/[PKI_INSTANCE_ID].pid}
 lockfile=${LOCKFILE:-/var/lock/subsys/[PKI_INSTANCE_ID]}
+pki_instance_configuration_file=[PKI_INSTANCE_PATH]/conf/CS.cfg
 RESTART_SERVER=[PKI_INSTANCE_PATH]/conf/restart_server_after_configuration
 RETVAL=0
 
@@ -215,7 +216,7 @@ check_pki_configuration_status()
 {
 	rv=0
 
-	rv=`grep -c ^preop [PKI_INSTANCE_PATH]/conf/CS.cfg`
+	rv=`grep -c ^preop ${pki_instance_configuration_file}`
 
 	rv=`expr ${rv} + 0`
 
@@ -291,6 +292,193 @@ get_pki_status_definitions()
 	else
 		return 255
 	fi
+}
+
+get_pki_configuration_definitions()
+{
+	# Obtain the PKI Subsystem Type
+	line=`grep ^cs.type= ${pki_instance_configuration_file}`
+	pki_subsystem=`echo "${line}" | cut -b9-`
+	if [ "${line}" != "" ] ; then
+		if	[ "${pki_subsystem}" != "CA"   ]  &&
+			[ "${pki_subsystem}" != "KRA"  ]  &&
+			[ "${pki_subsystem}" != "OCSP" ]  &&
+			[ "${pki_subsystem}" != "TKS"  ]  &&
+			[ "${pki_subsystem}" != "RA"   ]  &&
+			[ "${pki_subsystem}" != "TPS"  ]
+		then
+			return 255
+		fi
+		if	[ "${pki_subsystem}" == "KRA"   ] ; then
+			# Rename "KRA" to "DRM"
+			pki_subsystem="DRM"
+		fi
+	else
+		return 255
+	fi
+
+	# If "${pki_subsystem}" is a CA, DRM, OCSP, or TKS,
+	# check to see if "${pki_subsystem}" is a "Clone"
+	pki_clone=""
+	if	[ "${pki_subsystem}" == "CA"   ]  ||
+		[ "${pki_subsystem}" == "DRM"  ]  ||
+		[ "${pki_subsystem}" == "OCSP" ]  ||
+		[ "${pki_subsystem}" == "TKS"  ]
+	then
+		line=`grep ^subsystem.select= ${pki_instance_configuration_file}`
+		if [ "${line}" != "" ] ; then
+			pki_clone=`echo "${line}" | cut -b18-`
+			if [ "${pki_clone}" != "Clone" ] ; then
+				# Reset "${pki_clone}" to be empty
+				pki_clone=""
+			fi
+		else
+			return 255
+		fi
+	fi
+
+	# If "${pki_subsystem}" is a CA, and is NOT a "Clone", check to
+	# see "${pki_subsystem}" is a "Root" or a "Subordinate" CA
+	pki_hierarchy=""
+	if	[ "${pki_subsystem}" == "CA" ]  &&
+		[ "${pki_clone}" != "Clone"  ]
+	then
+		line=`grep ^hierarchy.select= ${pki_instance_configuration_file}`
+		if [ "${line}" != "" ] ; then
+			pki_hierarchy=`echo "${line}" | cut -b18-`
+		else
+			return 255
+		fi
+	fi
+
+	# If ${pki_subsystem} is a CA, check to
+	# see if it is also a Security Domain
+	pki_security_domain=""
+	if	[ "${pki_subsystem}" == "CA" ] ; then
+		line=`grep ^securitydomain.select= ${pki_instance_configuration_file}`
+		if [ "${line}" != "" ] ; then
+			pki_security_domain=`echo "${line}" | cut -b23-`
+			if [ "${pki_security_domain}" == "new" ] ; then
+				# Set a fixed value for "${pki_security_domain}"
+				pki_security_domain="(Security Domain)"
+			else
+				# Reset "${pki_security_domain}" to be empty
+				pki_security_domain=""
+			fi
+		else
+			return 255
+		fi
+	fi
+
+	# Always obtain this PKI instance's "registered"
+	# security domain information
+	pki_security_domain_name=""
+	pki_security_domain_hostname=""
+	pki_security_domain_https_admin_port=""
+
+	line=`grep ^securitydomain.name= ${pki_instance_configuration_file}`
+	if [ "${line}" != "" ] ; then
+		pki_security_domain_name=`echo "${line}" | cut -b21-`
+	else
+		return 255
+	fi
+
+	line=`grep ^securitydomain.host= ${pki_instance_configuration_file}`
+	if [ "${line}" != "" ] ; then
+		pki_security_domain_hostname=`echo "${line}" | cut -b21-`
+	else
+		return 255
+	fi
+
+	line=`grep ^securitydomain.httpsadminport= ${pki_instance_configuration_file}`
+	if [ "${line}" != "" ] ; then
+		pki_security_domain_https_admin_port=`echo "${line}" | cut -b31-`
+	else
+		return 255
+	fi
+
+	# Compose the "PKI Instance Name" Status Line
+	pki_instance_name="PKI Instance Name:   [PKI_INSTANCE_ID]"
+
+	# Compose the "PKI Subsystem Type" Status Line
+	header="PKI Subsystem Type: "
+	if   [ "${pki_clone}" != "" ] ; then
+		if [ "${pki_security_domain}" != "" ]; then
+			# Possible Values:
+			#
+			#     "CA Clone (Security Domain)"
+			#
+			data="${pki_subsystem} ${pki_clone} ${pki_security_domain}"
+		else
+			# Possible Values:
+			#
+			#     "CA Clone"
+			#     "DRM Clone"
+			#     "OCSP Clone"
+			#     "TKS Clone"
+			#
+			data="${pki_subsystem} ${pki_clone}"
+		fi
+	elif [ "${pki_hierarchy}" != "" ] ; then
+		if [ "${pki_security_domain}" != "" ]; then
+			# Possible Values:
+			#
+			#     "Root CA (Security Domain)"
+			#     "Subordinate CA (Security Domain)"
+			#
+			data="${pki_hierarchy} ${pki_subsystem} ${pki_security_domain}"
+		else
+			# Possible Values:
+			#
+			#     "Root CA"
+			#     "Subordinate CA"
+			#
+			data="${pki_hierarchy} ${pki_subsystem}"
+		fi
+	else
+		# Possible Values:
+		#
+		#     "DRM"
+		#     "OCSP"
+		#     "RA"
+		#     "TKS"
+		#     "TPS"
+		#
+		data="${pki_subsystem}"
+	fi
+	pki_subsystem_type="${header} ${data}"
+
+	# Compose the "Registered PKI Security Domain Information" Status Line
+	header="Name: "
+	registered_pki_security_domain_name="${header} ${pki_security_domain_name}"
+
+	header="URL:  "
+	if	[ "${pki_security_domain_hostname}" != ""         ] &&
+		[ "${pki_security_domain_https_admin_port}" != "" ]
+	then
+		data="https://${pki_security_domain_hostname}:${pki_security_domain_https_admin_port}"
+	else
+		return 255
+	fi
+	registered_pki_security_domain_url="${header} ${data}"
+
+	# Print the "PKI Subsystem Type" Status Line
+	echo
+	echo "    ${pki_instance_name}"
+
+	# Print the "PKI Subsystem Type" Status Line
+	echo
+	echo "    ${pki_subsystem_type}"
+
+	# Print the "Registered PKI Security Domain Information" Status Line
+	echo
+	echo "    Registered PKI Security Domain Information:"
+	echo "    =========================================================================="
+	echo "    ${registered_pki_security_domain_name}"
+	echo "    ${registered_pki_security_domain_url}"
+	echo "    =========================================================================="
+
+	return 0
 }
 
 get_pki_secure_port()
@@ -1001,7 +1189,13 @@ status()
 			if [ $? -eq 0 ] ; then
 				get_pki_status_definitions
 				if [ $? -ne 0 ] ; then
+					echo
 					echo "[PKI_INSTANCE_ID] Status Definitions not found"
+				fi
+				get_pki_configuration_definitions
+				if [ $? -ne 0 ] ; then
+					echo
+					echo "[PKI_INSTANCE_ID] Configuration Definitions not found"
 				fi
 			fi
 			echo
