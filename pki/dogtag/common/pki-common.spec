@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      22
+%define base_release      23
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Tue Jun 2 2009 Christina Fu <cfu@redhat.com> 1.1.0-23
+- Buzilla Bug # 500738 - (nethsm2k): KRA/TKS : Installation wizard fails
 * Sat May 30 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-22
 - Bugzilla Bug #482935 - Adding search limits
 * Sat May 30 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-21
