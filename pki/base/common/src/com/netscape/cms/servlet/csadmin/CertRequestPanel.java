@@ -123,8 +123,8 @@ public class CertRequestPanel extends WizardPanelBase {
                 return true;
             } catch (Exception ee) {
                 if (hardware) {
-                    CMS.debug("CertRequestPanel findCertificate: The certificate with the same nickname has been found on HSM. Please remove it before proceeding.");
-                    throw new IOException("The certificate with the same nickname has been found on HSM. Please remove it before proceeding.");
+                    CMS.debug("CertRequestPanel findCertificate: The certificate with the same nickname: "+ fullnickname +" has been found on HSM. Please remove it before proceeding.");
+                    throw new IOException("The certificate with the same nickname: "+ fullnickname +" has been found on HSM. Please remove it before proceeding.");
                 }
                 return true;
             }
@@ -563,10 +563,11 @@ public class CertRequestPanel extends WizardPanelBase {
                                             + certTag);
                         } catch (Exception ee) {
                             CMS.debug(
-                                    "CertRequestPanel configCert: Failed to import certificate "
+                                    "CertRequestPanel configCert: import certificate for certTag="
                                             + certTag + " Exception: "
                                             + ee.toString());
-                            hasErr = true;
+                            CMS.debug("ok");
+//                            hasErr = true;
                         }
                     }
                 } else if (cert.getType().equals("remote")) {
@@ -639,10 +640,11 @@ public class CertRequestPanel extends WizardPanelBase {
                                                 + certTag);
                             } catch (Exception ee) {
                                 CMS.debug(
-                                        "CertRequestPanel configCert: Failed to import certificate "
+                                        "CertRequestPanel configCert: import certificate for certTag="
                                                 + certTag + " Exception: "
                                                 + ee.toString());
-                                hasErr=true;
+                                CMS.debug("ok");
+//                                hasErr=true;
                             }
                         } else {
                             CMS.debug("CertRequestPanel: in update() input null");

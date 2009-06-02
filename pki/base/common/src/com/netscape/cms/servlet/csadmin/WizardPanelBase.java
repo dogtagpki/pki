@@ -244,8 +244,10 @@ public class WizardPanelBase implements IWizardPanel {
             tokenname = cs.getString("preop.module.token", "");
         } catch (Exception e) {}
 
-        if (!tokenname.equals("Internal Key Storage Token") && !tokenname.equals("internal")) {
-            nickname = tokenname+":"+nickname;
+        if (!tokenname.equals("") &&
+            !tokenname.equals("Internal Key Storage Token") &&
+            !tokenname.equals("internal")) {
+              nickname = tokenname+":"+nickname;
         }
 
         CMS.debug("WizardPanelBase updateDomainXML nickname=" + nickname);
@@ -1440,9 +1442,10 @@ public class WizardPanelBase implements IWizardPanel {
             CryptoToken tok = cm.getTokenByName(tokenname);
             CryptoStore store = tok.getCryptoStore();
             String fullnickname = nickname;
-            if (tokenname.equals("Internal Key Storage Token") &&
-              tokenname.equals("internal"))
-                fullnickname = tokenname+":"+nickname;
+            if (!tokenname.equals("") &&
+                !tokenname.equals("Internal Key Storage Token") &&
+                !tokenname.equals("internal"))
+                  fullnickname = tokenname+":"+nickname;
 
             CMS.debug("WizardPanelBase deleteCert: nickname="+fullnickname);
             org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(fullnickname);
@@ -1451,6 +1454,7 @@ public class WizardPanelBase implements IWizardPanel {
                 CMS.debug("WizardPanelBase deleteCert: this is pk11store");
                 PK11Store pk11store = (PK11Store)store;
                 pk11store.deleteCertOnly(cert);
+                CMS.debug("WizardPanelBase deleteCert: cert deleted successfully");
             }
         } catch (Exception e) {
             CMS.debug("WizardPanelBase deleteCert: Exception="+e.toString());
