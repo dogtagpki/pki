@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# This script may ONLY be run on Linux!
+PKI_OS=`uname`
+if [ "${PKI_OS}" != "Linux" ]; then
+    printf "The '$0' script is ONLY executable\n"
+    printf "on a 'Linux' machine!\n"
+    exit 255
+fi
+
+# Always switch into the base directory three levels
+# above this shell script prior to executing it so
+# that all of its output is written to this directory
+cd `dirname $0`/../../..
+
+# Retrieve the name of this base directory
+PKI_PWD=`pwd`
+
+# Establish the release directory
+PKI_RELEASE_ROOT="${PKI_PWD}/release"
+
+# This script is only executable from the directory
+# containing the "./release" directory!
+if [ ! -d ./release ]; then
+    printf "The '$0' script is ONLY executable\n"
+    printf "from the directory containing './release'!\n"
+    exit 255
+fi
+
+printf "Removing any 'RPMS/' and 'SRPMS/' directories . . . "
+if [ -d RPMS ]; then
+    rm -rf RPMS
+fi
+if [ -d SRPMS ]; then
+    rm -rf SRPMS
+fi
+printf "done.\n\n"
+
+printf "Creating new 'RPMS/' and 'SRPMS/' directories . . . "
+mkdir RPMS SRPMS
+printf "done.\n\n"
+
+printf "Copying all 'RPMS' and 'SRPMS' into the 'RPMS/' directory . . . "
+cd ./release
+find . -name "*.rpm" | xargs -n1 -I{} cp -p {} ../RPMS
+cd ..
+printf "done.\n\n"
+
+printf "Moving all 'SRPMS' into the 'SRPMS/' directory . . . "
+mv ./RPMS/*.src.rpm ./SRPMS
+printf "done.\n\n"
+
+printf "Counting all 'RPMS' . . . "
+RPM_COUNT=`ls -1 ./RPMS/*.rpm | wc -l`
+printf "done.\n\n"
+
+printf "Counting all 'SRPMS' . . . "
+SRPM_COUNT=`ls -1 ./SRPMS/*.rpm | wc -l`
+printf "done.\n\n"
+
+printf "TOTAL:  RPMS  = ${RPM_COUNT}\n"
+printf "        SRPMS = ${SRPM_COUNT}\n\n"
+
