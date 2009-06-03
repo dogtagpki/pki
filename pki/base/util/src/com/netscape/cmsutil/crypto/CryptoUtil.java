@@ -43,6 +43,7 @@ import org.mozilla.jss.pkix.crmf.*;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.*;
 import org.mozilla.jss.pkcs11.*;
+import org.mozilla.jss.pkcs11.PK11KeyPairGenerator;
 import org.mozilla.jss.crypto.*;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -146,10 +147,21 @@ public class CryptoUtil {
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
+        return generateECCKeyPair(token, keysize, null, null);
+    }
+
+    public static KeyPair generateECCKeyPair(String token, int keysize,
+           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
+           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
+        throws CryptoManager.NotInitializedException,
+                NoSuchTokenException,
+                NoSuchAlgorithmException,
+                TokenException {
         CryptoToken t = getTokenByName(token);
         KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
         KeyPairGenerator g = t.getKeyPairGenerator(alg);
 
+        g.setKeyPairUsages(usage_ops, usage_mask);
         g.initialize(keysize);
         KeyPair pair = g.genKeyPair();
 

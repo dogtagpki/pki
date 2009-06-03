@@ -38,6 +38,7 @@ import java.security.*;
 import org.mozilla.jss.*;
 import org.mozilla.jss.crypto.*;
 import org.mozilla.jss.crypto.KeyPairGenerator;
+import org.mozilla.jss.pkcs11.PK11KeyPairGenerator;
 
 import com.netscape.cms.servlet.wizard.*;
 
@@ -377,9 +378,52 @@ public class SizePanel extends WizardPanelBase {
     {
         CMS.debug("Generating ECC key pair");
         KeyPair pair = null;
+        /*
+         * default ssl server cert to ECDHE unless stated otherwise
+         * note: IE only supports "ECDHE", but "ECDH" is more efficient
+         *
+         * for "ECDHE", server.xml should have the following for ciphers:
+         * +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+         * -TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+         *
+         * for "ECDH", server.xml should have the following for ciphers:
+         * -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+         * +TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+         */
+        String sslType = "ECDHE";
+        try {
+            sslType = config.getString(PCERT_PREFIX + ct + "ec.type", "ECDHE");
+        } catch (Exception e) {
+            CMS.debug("SizePanel: createECCKeyPair() Exception caught at config.getString for ec type");
+        }
+
+        // ECDHE needs "SIGN" but no "DERIVE"
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[] = {
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
+        };
+
+        // ECDH needs "DERIVE" but no any kind of "SIGN"
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage ECDH_usages_mask[] = {
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER,
+        };
+
         do {
-          pair = CryptoUtil.generateECCKeyPair(token, keysize);
-                    // XXX - store curve , w
+          if (ct.equals("sslserver") && sslType.equalsIgnoreCase("ECDH")) {
+              CMS.debug("SizePanel: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set properly with -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+              pair = CryptoUtil.generateECCKeyPair(token, keysize,
+                    null,
+                    ECDH_usages_mask);
+          } else {
+              if (ct.equals("sslserver")) {
+                CMS.debug("SizePanel: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set properly with +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+              }
+              pair = CryptoUtil.generateECCKeyPair(token, keysize,
+                    null,
+                    usages_mask);
+          }
+
+          // XXX - store curve , w
           byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
           String kid = CryptoUtil.byte2string(id);
           config.putString(PCERT_PREFIX + ct + ".privkey.id", kid);
