@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -204,6 +204,11 @@ unzip %{name}-%{version}.zip -d ${RPM_BUILD_ROOT}
 cd ${RPM_BUILD_ROOT}/usr/share/java/%{base_prefix}
 mv cstools.jar cstools-%{version}.jar
 ln -s cstools-%{version}.jar cstools.jar
+cd ${RPM_BUILD_ROOT}/usr/share/pki
+mkdir templates
+mv pki_java_command_wrapper templates
+mv pretty_print_cert_command_wrapper templates
+mv pretty_print_crl_command_wrapper templates
 
 
 
@@ -260,6 +265,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Jun 3 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-2
+- Fixed packaging issue.
 * Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
 - Version update to Dogtag 1.1.0.
 * Fri Apr 3 2009 Andrew Wnuk <awnuk@redhat.com> 1.0.0-10
