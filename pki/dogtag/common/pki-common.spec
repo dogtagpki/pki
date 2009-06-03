@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      23
+%define base_release      24
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -122,7 +122,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{base_prefix}-util >= 1.0.0, %{base_flavor}-%{base_name}-ui >= 1.0.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.5, ldapjdk >= 4.17, osutil >= 1.0.0, symkey >= 1.0.0, velocity >= 1.4, xalan-j2, xerces-j2
+BuildRequires:  ant >= 1.6.2, %{base_prefix}-util >= 1.0.0, %{base_flavor}-%{base_name}-ui >= 1.0.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.6, ldapjdk >= 4.17, osutil >= 1.0.0, symkey >= 1.0.0, velocity >= 1.4, xalan-j2, xerces-j2
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       %{base_name}-ui, %{base_prefix}-java-tools >= 1.0.0, %{base_prefix}-setup >= 1.0.0, %{pki_jre}, osutil >= 1.0.0, rhgb >= 0.14.1, symkey >= 1.0.0, tomcatjss >= 1.1.0, velocity >= 1.4
@@ -285,6 +285,10 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Wed Jun 3 2009 Christina Fu <cfu@redhat.com> 1.1.0-24
+- Bugzilla Bug #455305 - CA ECC signing Key Failure
+  Bugzilla Bug #223279 - ECC: Ca: unable to perform agent auth on a machine with
+ nCipher ECC HSM
 * Tue Jun 2 2009 Christina Fu <cfu@redhat.com> 1.1.0-23
 - Buzilla Bug # 500738 - (nethsm2k): KRA/TKS : Installation wizard fails
 * Sat May 30 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-22

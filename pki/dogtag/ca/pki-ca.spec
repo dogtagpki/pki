@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      17
+%define base_release      18
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -131,7 +131,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0, %{base_prefix}-common >= 1.0.0, %{base_prefix}-util >= 1.0.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.5, tomcatjss >= 1.1.0
+BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0, %{base_prefix}-common >= 1.0.0, %{base_prefix}-util >= 1.0.0, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.6, tomcatjss >= 1.1.0
 
 ## Without Requires something, rpmbuild will abort!
 Requires:       %{base_name}-ui, %{base_prefix}-common >= 1.0.0, %{base_prefix}-selinux >= 1.0.0
@@ -281,6 +281,10 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Jun 3 2009 Christina Fu <cfu@redhat.com> 1.1.0-18
+- Bugzilla Bug #455305 - CA ECC signing Key Failure
+  Bugzilla Bug #223279 - ECC: Ca: unable to perform agent auth on a machine with
+ nCipher ECC HSM
 * Mon Jun 1 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-17
 - Bugzilla Bug #503255 -  Fix confusing "Security Domain" message when using 
   "status"

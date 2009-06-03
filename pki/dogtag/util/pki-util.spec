@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -126,10 +126,10 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.5, ldapjdk >= 4.17, osutil >= 1.0.0, xerces-j2
+BuildRequires:  ant >= 1.6.2, %{pki_jdk}, jpackage-utils >= 1.6.0, jss >= 4.2.6, ldapjdk >= 4.17, osutil >= 1.0.0, xerces-j2
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       jpackage-utils >= 1.6.0, jss >= 4.2.5, ldapjdk >= 4.17
+Requires:       jpackage-utils >= 1.6.0, jss >= 4.2.6, ldapjdk >= 4.17
 
 
 ## This package is non-relocatable!
@@ -270,6 +270,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Jun 3 2009 Christina Fu <cfu@redhat.com> 1.1.0-5
+- Bugzilla Bug #455305 - CA ECC signing Key Failure
+  Bugzilla Bug #223279 - ECC: Ca: unable to perform agent auth on a machine with nCipher ECC HSM
 * Wed May 20 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-4
 - Bugzilla Bug #491185 - added new revocation reasons to comply with RFC 5280
 * Tue May 19 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-3
