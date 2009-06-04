@@ -101,21 +101,28 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
             // should define "uid" at a common place
             String uid = null;
 
-            uid = authToken.getInString("uid");
+            uid = authToken.getInString("userid");
             if (uid == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_NULL"));
-                return false;
+                uid = authToken.getInString("uid");
+                if (uid == null) {
+                  CMS.debug("GroupAccessEvaluator: evaluate: uid null");
+                  log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_NULL"));
+                  return false;
+                }
             }
+            CMS.debug("GroupAccessEvaluator: evaluate: uid="+uid +" value="+value);
 
             String groupname = authToken.getInString("gid");
 
             if (groupname != null) {
+                CMS.debug("GroupAccessEvaluator: evaluate: authToken gid="+groupname);
                 if (op.equals("=")) {
                     return groupname.equals(Utils.stripQuotes(value));
                 } else if (op.equals("!=")) {
                     return !groupname.equals(Utils.stripQuotes(value));
                 }
             } else {
+                CMS.debug("GroupAccessEvaluator: evaluate: no gid in authToken");
                 IUser id = null;
                 try { 
                     id = mUG.getUser(uid); 
