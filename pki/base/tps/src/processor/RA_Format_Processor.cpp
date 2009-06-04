@@ -104,7 +104,7 @@ TPS_PUBLIC RA_Status RA_Format_Processor::Process(RA_Session *session, NameValue
     LDAPMessage *e = NULL;
     LDAPMessage  *result = NULL;
     char serial[100];
-    char *statusString;
+    char *statusString = NULL;
     char filter[512];
     int statusNum;
     Buffer curKeyInfo;
