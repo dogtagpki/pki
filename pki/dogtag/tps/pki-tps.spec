@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      24
+%define base_release      25
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Jun 3 2009 Jack Magne <jmagne@redhat.com> 1.1.0-25
+* Bugzilla Bug #504058 - Fix Format crash when revoking a cert.
 * Mon Jun 1 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-24
 - Bugzilla Bug #503255 -  Fix confusing "Security Domain" message when using 
   "status"
