@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      18
+%define base_release      19
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,8 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Jun 5 2009 Jack Magne <jmagne@redhat.com> 1.1.0-19
+- Bugzilla Bug #498123 - Unable to formated token with tks clone.
 * Wed Jun 3 2009 Christina Fu <cfu@redhat.com> 1.1.0-18
 - Bugzilla Bug #455305 - CA ECC signing Key Failure
   Bugzilla Bug #223279 - ECC: Ca: unable to perform agent auth on a machine with

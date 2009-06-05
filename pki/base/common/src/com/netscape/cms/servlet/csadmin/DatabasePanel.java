@@ -684,13 +684,19 @@ public class DatabasePanel extends WizardPanelBase {
         } catch (Exception e) {
         }
 
-        importLDIFS("preop.internaldb.ldif", conn);
         if (select.equals("clone")) {
           // if this is clone, add index before replication
+          // don't put in the schema or bad things will happen
+          
+          importLDIFS("preop.internaldb.ldif", conn);
           importLDIFS("preop.internaldb.index_ldif", conn);
         } else {
           // data will be replicated from the master to the clone
           // so clone does not need the data
+          //
+
+          importLDIFS("preop.internaldb.schema.ldif", conn);         
+          importLDIFS("preop.internaldb.ldif", conn); 
           importLDIFS("preop.internaldb.data_ldif", conn);
           importLDIFS("preop.internaldb.index_ldif", conn);
         }

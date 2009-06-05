@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      25
+%define base_release      26
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Fri Jun 5 2009 Jack Magne <jmagne@redhat.com> 1.1.0-26
+- Bugzilla Bug #498123 - Unable to format a token with tks clone.
 * Thu Jun 4 2009 Christina Fu <cfu@redhat.com> 1.1.0-25
 - Bugzilla Bug#502861 - "Signed CMC-Authenticated User Certificate Enrollment" fails with Authorization
 * Wed Jun 3 2009 Christina Fu <cfu@redhat.com> 1.1.0-24
