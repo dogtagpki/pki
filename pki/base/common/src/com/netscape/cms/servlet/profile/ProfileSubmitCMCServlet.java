@@ -266,17 +266,17 @@ profile, IRequest req) {
             CMS.debug("End of ProfileSubmitCMCServlet Input Parameters");
         }
 
-        CMS.debug("ProfileSubmitServlet: start serving");
+        CMS.debug("ProfileSubmitCMCServlet: start serving");
 
         if (mProfileSubId == null || mProfileSubId.equals("")) {
             mProfileSubId = IProfileSubsystem.ID;
         }
-        CMS.debug("ProfileSubmitServlet: SubId=" + mProfileSubId);
+        CMS.debug("ProfileSubmitCMCServlet: SubId=" + mProfileSubId);
         IProfileSubsystem ps = (IProfileSubsystem) 
             CMS.getSubsystem(mProfileSubId); 
 
         if (ps == null) {
-            CMS.debug("ProfileSubmitServlet: ProfileSubsystem not found");
+            CMS.debug("ProfileSubmitCMCServlet: ProfileSubsystem not found");
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -303,10 +303,10 @@ profile, IRequest req) {
         IProfile profile = null; 
 
         try { 
-            CMS.debug("ProfileSubmitServlet: profileId " + profileId);
+            CMS.debug("ProfileSubmitCMCServlet: profileId " + profileId);
             profile = ps.getProfile(profileId); 
         } catch (EProfileException e) { 
-            CMS.debug("ProfileSubmitServlet: profile not found profileId " + 
+            CMS.debug("ProfileSubmitCMCServlet: profile not found profileId " + 
                 profileId + " " + e.toString());
         }
         if (profile == null) {
@@ -324,7 +324,7 @@ profile, IRequest req) {
         }
 
         if (!ps.isProfileEnable(profileId)) {
-            CMS.debug("ProfileSubmitServlet: Profile " + profileId + 
+            CMS.debug("ProfileSubmitCMCServlet: Profile " + profileId + 
                 " not enabled");
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
@@ -353,9 +353,9 @@ profile, IRequest req) {
             // authenticator not installed correctly
         }
         if (authenticator == null) {
-            CMS.debug("ProfileSubmitServlet: authenticator not found");
+            CMS.debug("ProfileSubmitCMCServlet: authenticator not found");
         } else {
-            CMS.debug("ProfileSubmitServlet: authenticator " + 
+            CMS.debug("ProfileSubmitCMCServlet: authenticator " + 
                 authenticator.getName() + " found");
             setCredentialsIntoContext(request, authenticator, ctx);
         }
@@ -375,7 +375,7 @@ profile, IRequest req) {
         context.put("profileContext", ctx); 
         context.put("sslClientCertProvider", 
             new SSLClientCertProvider(request));
-        CMS.debug("ProfileSubmitServlet: set sslClientCertProvider");
+        CMS.debug("ProfileSubmitCMCServlet: set sslClientCertProvider");
         if (authenticator != null) { 
             try {
                 authToken = authenticate(authenticator, request);
@@ -391,7 +391,7 @@ profile, IRequest req) {
                 }
                 template.createFullResponseWithFailedStatus(response, seq, 
                   OtherInfo.BAD_REQUEST, s); 
-                CMS.debug("ProfileSubmitServlet: authentication error " + 
+                CMS.debug("ProfileSubmitCMCServlet: authentication error " + 
                     e.toString());
                 return;
             }
@@ -405,7 +405,7 @@ profile, IRequest req) {
         try {
             reqs = profile.createRequests(ctx, locale);
         } catch (EProfileException e) {
-            CMS.debug("ProfileSubmitServlet: createRequests " + e.toString());
+            CMS.debug("ProfileSubmitCMCServlet: createRequests " + e.toString());
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -418,7 +418,7 @@ profile, IRequest req) {
               OtherInfo.INTERNAL_CA_ERROR, s);
             return;
         } catch (Throwable e) {
-            CMS.debug("ProfileSubmitServlet: createRequests " + e.toString());
+            CMS.debug("ProfileSubmitCMCServlet: createRequests " + e.toString());
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -535,16 +535,16 @@ profile, IRequest req) {
                 return;
             }
 
-            CMS.debug("ProfileSubmitServlet profileSetid=" + setId);
+            CMS.debug("ProfileSubmitCMCServlet profileSetid=" + setId);
             reqs[k].setExtData(ARG_PROFILE_SET_ID, setId);
             reqs[k].setExtData(ARG_PROFILE_REMOTE_HOST, request.getRemoteHost());
             reqs[k].setExtData(ARG_PROFILE_REMOTE_ADDR, request.getRemoteAddr());
 
-            CMS.debug("ProfileSubmitServlet: request " + 
+            CMS.debug("ProfileSubmitCMCServlet: request " + 
                 reqs[k].getRequestId().toString());
 
             try {
-                CMS.debug("ProfileSubmitServlet: populating request inputs");
+                CMS.debug("ProfileSubmitCMCServlet: populating request inputs");
                 // give authenticator a chance to populate the request
                 if (authenticator != null) { 
                     authenticator.populate(authToken, reqs[k]);
@@ -552,7 +552,7 @@ profile, IRequest req) {
                 profile.populateInput(ctx, reqs[k]);
                 profile.populate(reqs[k]);
             } catch (EProfileException e) {
-                CMS.debug("ProfileSubmitServlet: populate " + e.toString());
+                CMS.debug("ProfileSubmitCMCServlet: populate " + e.toString());
                 CMCOutputTemplate template = new CMCOutputTemplate();
                 SEQUENCE seq = new SEQUENCE();
                 seq.addElement(new INTEGER(0));
@@ -565,7 +565,7 @@ profile, IRequest req) {
                   OtherInfo.BAD_REQUEST, s);
                 return;
             } catch (Throwable e) {
-                CMS.debug("ProfileSubmitServlet: populate " + e.toString());
+                CMS.debug("ProfileSubmitCMCServlet: populate " + e.toString());
                 //  throw new IOException("Profile " + profileId + 
                 //          " cannot populate");
                 CMCOutputTemplate template = new CMCOutputTemplate();
@@ -608,7 +608,7 @@ profile, IRequest req) {
                         String reqKey = (String)reqKeys.nextElement();
                         String reqVal = reqs[k].getExtDataInString(reqKey);
                         if (reqVal != null) {
-                           CMS.debug("ProfileSubmitServlet: key=$request." + reqKey + "$ value=" + reqVal);
+                           CMS.debug("ProfileSubmitCMCServlet: key=$request." + reqKey + "$ value=" + reqVal);
                         }
                       }
                     }
@@ -643,7 +643,7 @@ profile, IRequest req) {
                        notify.notify(reqs[k]);
                     }
                 
-                    CMS.debug("ProfileSubmitServlet: submit " + e.toString());
+                    CMS.debug("ProfileSubmitCMCServlet: submit " + e.toString());
                     errorCode = "2";
                     errorReason = CMS.getUserMessage(locale,
                                 "CMS_PROFILE_DEFERRED",
@@ -651,14 +651,14 @@ profile, IRequest req) {
                 } catch (ERejectException e) {
                     // return error to the user 
                     reqs[k].setRequestStatus(RequestStatus.REJECTED);
-                    CMS.debug("ProfileSubmitServlet: submit " + e.toString());
+                    CMS.debug("ProfileSubmitCMCServlet: submit " + e.toString());
                     errorCode = "3";
                     errorReason = CMS.getUserMessage(locale,
                                 "CMS_PROFILE_REJECTED",
                                 e.toString());
                 } catch (Throwable e) {
                     // return error to the user
-                    CMS.debug("ProfileSubmitServlet: submit " + e.toString());
+                    CMS.debug("ProfileSubmitCMCServlet: submit " + e.toString());
                     errorCode = "1";
                     errorReason = CMS.getUserMessage(locale,
                                 "CMS_INTERNAL_ERROR");
@@ -667,7 +667,7 @@ profile, IRequest req) {
                 try { 
                     profile.getRequestQueue().updateRequest(reqs[k]);
                 } catch (EBaseException e) {
-                    CMS.debug("ProfileSubmitServlet: updateRequest " +
+                    CMS.debug("ProfileSubmitCMCServlet: updateRequest " +
                         e.toString());
                 }
 
@@ -716,7 +716,7 @@ profile, IRequest req) {
             // output output list 
             ///////////////////////////////////////////////
 
-           CMS.debug("ProfileSubmitServlet: done serving");
+           CMS.debug("ProfileSubmitCMCServlet: done serving");
            CMCOutputTemplate template = new CMCOutputTemplate();
            if (cert_request_type.equals("pkcs10") || cert_request_type.equals("crmf")) {
 
