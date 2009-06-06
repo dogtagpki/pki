@@ -178,6 +178,7 @@ public class PolicySet implements IPolicySet {
             try {
                 if (Debug.ON)
                     Debug.trace("evaluating predicate for rule " + rule.getName());
+                CMS.debug("PolicySet: apply()- evaluating predicate for rule " + rule.getName());
                 if (exp != null && !exp.evaluate(req))
                     continue;
             } catch (Exception e) {
@@ -190,7 +191,9 @@ public class PolicySet implements IPolicySet {
             try {
                 if (Debug.ON)
                     Debug.trace("Policy " + name + " selected");
+                CMS.debug("Policy " + name + " selected");
                 PolicyResult result = rule.apply(req);
+                CMS.debug("Policy applied");
 
                 if (Debug.ON)
                     Debug.trace("Policy " + name + " returned " + result);

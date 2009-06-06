@@ -107,6 +107,11 @@ public class RevocationConstraints extends APolicyRule
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
+        CMS.debug("RevocationConstraints: apply begins");
+        if (req.getExtDataInInteger(IRequest.REVOKED_REASON) == null) {
+            CMS.debug("RevocationConstraints: apply: no revocationReason found in request");
+            return PolicyResult.REJECTED;
+        }
         RevocationReason rr = RevocationReason.fromInt(
                 req.getExtDataInInteger(IRequest.REVOKED_REASON).intValue());
 
@@ -120,7 +125,7 @@ public class RevocationConstraints extends APolicyRule
                 return PolicyResult.REJECTED;
             }                
         }
-			        
+
         if (mAllowExpiredCerts)
             // nothing to check.
             return PolicyResult.ACCEPTED;

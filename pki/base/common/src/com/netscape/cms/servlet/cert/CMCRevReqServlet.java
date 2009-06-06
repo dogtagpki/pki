@@ -165,7 +165,7 @@ CMS.debug("**** mFormPath = "+mFormPath);
 
         AuthzToken authzToken = null;
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, "submit");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, "revoke");
         } catch (Exception e) {
             // do nothing for now
         }
@@ -625,7 +625,7 @@ CMS.debug("**** mFormPath = "+mFormPath);
             revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
             revReq.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
             revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
-
+            revReq.setExtData(IRequest.REVOKED_REASON, reason);
             revReq.setExtData(IRequest.OLD_CERTS, oldCerts);
             if (comments != null) {
                 revReq.setExtData(IRequest.REQUESTOR_COMMENTS, comments);

@@ -1813,7 +1813,7 @@
              <init-param><param-name>  AuthMgr     </param-name>
                          <param-value> CMCAuth     </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.request.revocation </param-value> </init-param>
+                         <param-value> certServer.ca.certificates </param-value> </init-param>
              <init-param><param-name>  interface   </param-name>
                          <param-value> ee          </param-value> </init-param>
    </servlet>

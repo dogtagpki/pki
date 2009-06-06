@@ -131,6 +131,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     public synchronized void init(ISubsystem owner, IConfigStore config)
         throws EBaseException {
         // Debug.trace("GenericPolicyProcessor::init");
+        CMS.debug("GenericPolicyProcessor::init begins");
         mAuthority = (IAuthority) owner;
         mConfig = config;
         mGlobalStore = 
@@ -321,7 +322,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         IPolicySet rules = null;
         String op = (String) req.getRequestType();
 
+        CMS.debug("GenericPolicyProcessor: apply begins");
         if (op == null) {
+            CMS.debug("GenericPolicyProcessor: apply op null");
             // throw new AssertionException("Missing operation type in request. Can't happen!");
             // Return ACCEPTED for now. Looks like even get CA chain 
             // is being passed in here with request type set elsewhere 
@@ -333,6 +336,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 req.getRequestId().toString());
             return PolicyResult.ACCEPTED;
         }
+        CMS.debug("GenericPolicyProcessor: apply not ProfileRequest. op="+op);
 
         if (op.equalsIgnoreCase(IRequest.ENROLLMENT_REQUEST))
             rules = mEnrollmentRules;
@@ -353,6 +357,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // ((PolicySet)rules).printPolicies();
         // If there are no rules, then it is a serious error.
         if (rules.count() == 0) {
+            CMS.debug("GenericPolicyProcessor: apply: rule count 0");
             // if no policy is specified, just accept the request.
             // KRA has no policy configured by default
             return PolicyResult.ACCEPTED;
@@ -362,6 +367,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
              return PolicyResult.REJECTED;
              **/
         }
+        CMS.debug("GenericPolicyProcessor: apply: rules.count="+ rules.count());
 
         // request must be up to date or can't process it.
         PolicyResult res = PolicyResult.ACCEPTED;
@@ -377,7 +383,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         if (res == PolicyResult.REJECTED)
             return res;
 
-            // Apply the policy rules.
+        CMS.debug("GenericPolicyProcessor: apply: calling rules.apply()");
+        // Apply the policy rules.
         return rules.apply(req);
     }
 
