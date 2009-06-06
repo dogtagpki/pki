@@ -74,6 +74,9 @@ public class CRSEnrollment extends HttpServlet
 
   private   String                mAuthManagerName;
   private   String                mSubstoreName;
+  private   String                mHashAlgorithm = "SHA1";
+  private   String                mmEncryptionAlgorithm = "DES3";
+  private   String                mEncryptionAlgorithm = "DES3";
   protected ILogger mLogger =      CMS.getLogger();
   private ICertificateAuthority ca;
 		/* for hashing challenge password */
@@ -139,6 +142,17 @@ public class CRSEnrollment extends HttpServlet
 	  }
 
       try {
+          if (mAuthority instanceof ISubsystem) {
+              IConfigStore authorityConfig = ((ISubsystem)mAuthority).getConfigStore();
+              IConfigStore scepConfig = authorityConfig.getSubStore("scep");
+              mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
+              mEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
+          }
+      } catch (EBaseException e) {
+      } 
+      mmEncryptionAlgorithm = mEncryptionAlgorithm;
+
+      try {
 	      mProfileSubsystem = (IProfileSubsystem)CMS.getSubsystem("profile");
           mProfileId  = sc.getInitParameter("profileId");
 
@@ -198,6 +212,7 @@ public class CRSEnrollment extends HttpServlet
 
         String operation = null;
         String message   = null;
+        mEncryptionAlgorithm = mmEncryptionAlgorithm;
         
       
         // Parse the URL from the HTTP Request. Split it up into
@@ -434,7 +449,11 @@ public class CRSEnrollment extends HttpServlet
 				decodedPKIMessage.length+" bytes)");
 			}
 		  try {
-          	req     = new CRSPKIMessage(is);
+          	req     = new CRSPKIMessage();
+          	String ea = req.decodeCRSPKIMessage(is);
+          	if (ea != null) {
+          	    mEncryptionAlgorithm = ea;
+          	}
 		  }
 		  catch (Exception e) {
             CMS.debug(e);
@@ -442,7 +461,7 @@ public class CRSEnrollment extends HttpServlet
 		  }
                 
           // Create a new crypto context for doing all the crypto operations
-          cx = new CryptoContext();
+          cx = new CryptoContext(mEncryptionAlgorithm);
 
           // Verify Signature on message (throws exception if sig bad)
           verifyRequest(req,cx);
@@ -610,7 +629,11 @@ public class CRSEnrollment extends HttpServlet
 				decodedPKIMessage.length+" bytes)");
 			}
 		  try {
-          	req     = new CRSPKIMessage(is);
+          	req     = new CRSPKIMessage();
+          	String ea = req.decodeCRSPKIMessage(is);
+          	if (ea != null) {
+          	    mEncryptionAlgorithm = ea;
+          	}
           	crsResp = new CRSPKIMessage();
 		  }
 		  catch (Exception e) {
@@ -620,7 +643,7 @@ public class CRSEnrollment extends HttpServlet
 		  crsResp.setMessageType(crsResp.mType_CertRep);
                 
           // Create a new crypto context for doing all the crypto operations
-          cx = new CryptoContext();
+          cx = new CryptoContext(mEncryptionAlgorithm);
 
           // Verify Signature on message (throws exception if sig bad)
           verifyRequest(req,cx);
@@ -709,7 +732,7 @@ public class CRSEnrollment extends HttpServlet
           httpResp.getOutputStream().flush();
 
           CMS.debug("Output PKIOperation response:");
-          CMS.debug(response);
+          CMS.debug(CMS.BtoA(response));
       }
       catch (Exception e) {
           throw new ServletException("Failed to create response for CEP message"+e.getMessage());
@@ -868,8 +891,10 @@ public class CRSEnrollment extends HttpServlet
       byte[] decryptedP10bytes = null;
       SymmetricKey sk;
       SymmetricKey skinternal;
+      SymmetricKey.Type skt;
       KeyWrapper kw;
       Cipher cip;
+      EncryptionAlgorithm ea;
       boolean errorInRequest = false;
 
       // Unwrap the session key with the Cert server key
@@ -877,15 +902,22 @@ public class CRSEnrollment extends HttpServlet
       kw = cx.getKeyWrapper();
 
       kw.initUnwrap(cx.getPrivateKey(),null);
-          
+
+      skt = SymmetricKey.Type.DES;
+      ea = EncryptionAlgorithm.DES_CBC;
+      if (mEncryptionAlgorithm != null && mEncryptionAlgorithm.equals("DES3")) {
+          skt = SymmetricKey.Type.DES3;
+          ea = EncryptionAlgorithm.DES3_CBC;
+      }
+
       sk = kw.unwrapSymmetric(req.getWrappedKey(),
-                              SymmetricKey.Type.DES,
+                              skt,
                               SymmetricKey.Usage.DECRYPT,
                               0);  // keylength is ignored
           
      skinternal = cx.getDESKeyGenerator().clone(sk);
           
-     cip = skinternal.getOwningToken().getCipherContext(EncryptionAlgorithm.DES_CBC);
+     cip = skinternal.getOwningToken().getCipherContext(ea);
           
      cip.initDecrypt(skinternal,(new IVParameterSpec(req.getIV())));
         
@@ -1596,6 +1628,13 @@ throws EBaseException {
               SymmetricKey sk;
               SymmetricKey skinternal;
 
+              KeyGenAlgorithm kga = KeyGenAlgorithm.DES;
+              EncryptionAlgorithm ea = EncryptionAlgorithm.DES_CBC;
+              if (mEncryptionAlgorithm != null && mEncryptionAlgorithm.equals("DES3")) {
+                  kga = KeyGenAlgorithm.DES3;
+                  ea = EncryptionAlgorithm.DES3_CBC;
+              }
+
               // 1. Make the Degenerated PKCS7 with the recipient's certificate in it
                 
               byte toBeEncrypted[] =
@@ -1607,15 +1646,14 @@ throws EBaseException {
                 
               sk = cx.getDESKeyGenerator().generate();
                 
-              skinternal = cx.getInternalToken().getKeyGenerator(KeyGenAlgorithm.DES).clone(sk);
+              skinternal = cx.getInternalToken().getKeyGenerator(kga).clone(sk);
                 
-              byte[] padded = Cipher.pad(toBeEncrypted,
-                                         EncryptionAlgorithm.DES_CBC.getBlockSize());
+              byte[] padded = Cipher.pad(toBeEncrypted, ea.getBlockSize());
 
 
               // This should be changed to generate proper DES IV.
 
-              Cipher cipher = cx.getInternalToken().getCipherContext(EncryptionAlgorithm.DES_CBC);
+              Cipher cipher = cx.getInternalToken().getCipherContext(ea);
               IVParameterSpec desIV =
                 new IVParameterSpec(new byte[]{
                     (byte)0xff, (byte)0x00,
@@ -1626,7 +1664,7 @@ throws EBaseException {
               cipher.initEncrypt(sk,desIV);
               byte[] encryptedData = cipher.doFinal(padded);
                 
-              crsResp.makeEncryptedContentInfo(desIV.getIV(),encryptedData);
+              crsResp.makeEncryptedContentInfo(desIV.getIV(),encryptedData, mEncryptionAlgorithm);
                 
               // 3. Extract the recipient's public key
                 
@@ -1652,7 +1690,7 @@ throws EBaseException {
           byte[] ed = crsResp.makeEnvelopedData(0);
 
           // 7. Make Digest of SignedData Content 
-          MessageDigest md = MessageDigest.getInstance("MD5");
+          MessageDigest md = MessageDigest.getInstance(mHashAlgorithm);
           msgdigest = md.digest(ed);
 
           crsResp.setMsgDigest(msgdigest);
@@ -1704,10 +1742,10 @@ throws EBaseException {
               crsResp.setSgnIssuerAndSerialNumber(sgniasn);
                 
               // 10. Make SignerInfo
-              crsResp.makeSignerInfo(1, cx.getPrivateKey());
+              crsResp.makeSignerInfo(1, cx.getPrivateKey(), mHashAlgorithm);
 
               // 11. Make SignedData
-              crsResp.makeSignedData(1, signingcertbytes);
+              crsResp.makeSignedData(1, signingcertbytes, mHashAlgorithm);
 
               crsResp.debug();
           }
@@ -1739,14 +1777,18 @@ throws EBaseException {
       public CryptoContextException(String s) { super(s); }
     }
 
-    public CryptoContext() 
+    public CryptoContext(String encryptionAlgorithm)
       throws CryptoContextException
       {
           try {
+              KeyGenAlgorithm kga = KeyGenAlgorithm.DES;
+              if (encryptionAlgorithm != null && encryptionAlgorithm.equals("DES3")) {
+                  kga = KeyGenAlgorithm.DES3;
+              }
               cm = CryptoManager.getInstance();
               internalToken = cm.getInternalCryptoToken();
               internalKeyStorageToken = cm.getInternalKeyStorageToken();
-              DESkg = internalToken.getKeyGenerator(KeyGenAlgorithm.DES);
+              DESkg = internalToken.getKeyGenerator(kga);
               signingCert = cm.findCertByNickname(ca.getNickname());
               signingCertPrivKey = cm.findPrivKeyByCert(signingCert);
 			  byte[] encPubKeyInfo = signingCert.getPublicKey().getEncoded();
