@@ -76,9 +76,25 @@ public class CRSPKIMessage {
     public static OBJECT_IDENTIFIER DES_CBC_ENCRYPTION =
         new OBJECT_IDENTIFIER(new long[] {1, 3, 14, 3, 2, 7}
         );
-    
+
+    public static OBJECT_IDENTIFIER DES_EDE3_CBC_ENCRYPTION =
+        new OBJECT_IDENTIFIER(new long[] {1, 2, 840, 113549, 3, 7}
+        );
+
     public static OBJECT_IDENTIFIER MD5_DIGEST = 
         new OBJECT_IDENTIFIER(new long[] {1, 2, 840, 113549, 2, 5}
+        );
+
+    public static OBJECT_IDENTIFIER SHA1_DIGEST = 
+        new OBJECT_IDENTIFIER(new long[] {1, 3, 14, 3, 2, 26}
+        );
+
+    public static OBJECT_IDENTIFIER SHA256_DIGEST = 
+        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 101, 3, 4, 2, 1}
+        );
+
+    public static OBJECT_IDENTIFIER SHA512_DIGEST = 
+        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 101, 3, 4, 2, 3}
         );
 
     // Strings given in 'messageType' authenticated attribute
@@ -176,15 +192,45 @@ public class CRSPKIMessage {
         return attrs.get(a);
     }
 
+    private SignatureAlgorithm getSignatureAlgorithm (String hashAlgorithm)
+    {
+        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.RSASignatureWithMD5Digest;
+        if (hashAlgorithm != null) {
+            if (hashAlgorithm.equals("SHA1")) {
+                signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA1Digest;
+            } else if (hashAlgorithm.equals("SHA256")) {
+                signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA256Digest;
+            } else  if (hashAlgorithm.equals("SHA512")) {
+                signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA512Digest;
+            }
+        }
+        return signatureAlgorithm;
+    }
+
+    private OBJECT_IDENTIFIER getAlgorithmOID (String hashAlgorithm)
+    {
+        OBJECT_IDENTIFIER oid = MD5_DIGEST;
+        if (hashAlgorithm != null) {
+            if (hashAlgorithm.equals("SHA1")) {
+                oid = SHA1_DIGEST;
+            } else if (hashAlgorithm.equals("SHA256")) {
+                oid = SHA256_DIGEST;
+            } else  if (hashAlgorithm.equals("SHA512")) {
+                oid = SHA512_DIGEST;
+            }
+        }
+        return oid;
+    }
+
     // These functions are used to initialize the various blobs
 
     public void makeSignedData(int version,
-        byte[] certificate) {
+        byte[] certificate, String hashAlgorithm) {
 
         try {
             SET digest_algs = new SET();
 
-            digest_algs.addElement(new AlgorithmIdentifier(MD5_DIGEST, new NULL()));
+            digest_algs.addElement(new AlgorithmIdentifier(getAlgorithmOID(hashAlgorithm), new NULL()));
             
             //      SET certs = new SET();
             //      certs.addElement(new ANY(certificate));
@@ -235,7 +281,7 @@ public class CRSPKIMessage {
 
     public void makeSignerInfo(int version,
         // issuer and serialnumber
-        org.mozilla.jss.crypto.PrivateKey pk)
+        org.mozilla.jss.crypto.PrivateKey pk, String hashAlgorithm)
         throws java.security.NoSuchAlgorithmException,
             TokenException,
             java.security.InvalidKeyException,
@@ -247,9 +293,8 @@ public class CRSPKIMessage {
                     null,          // Unauthenticated Attrs
                     ContentInfo.ENVELOPED_DATA,          // content type
                     msg_digest.toByteArray(),    // digest
-                    SignatureAlgorithm.RSASignatureWithMD5Digest,
+                    getSignatureAlgorithm(hashAlgorithm),
                     pk);
-        
     }
     
     public void makeAuthenticatedAttributes() {
@@ -352,13 +397,16 @@ public class CRSPKIMessage {
                 );
     }
 
-    public void makeEncryptedContentInfo(byte[] iv, byte[] ec) {
+    public void makeEncryptedContentInfo(byte[] iv, byte[] ec, String algorithm) {
         this.iv = iv;
         this.ec = ec;
 
         try {
+            OBJECT_IDENTIFIER oid = DES_CBC_ENCRYPTION;
+            if (algorithm != null && algorithm.equals("DES3"))
+                oid = DES_EDE3_CBC_ENCRYPTION;
 
-            AlgorithmIdentifier aid = new AlgorithmIdentifier(DES_CBC_ENCRYPTION, new OCTET_STRING(iv));
+            AlgorithmIdentifier aid = new AlgorithmIdentifier(oid, new OCTET_STRING(iv));
 
             //eci =  EncryptedContentInfo.createCRSCompatibleEncryptedContentInfo(
             eci = new EncryptedContentInfo(ContentInfo.DATA,
@@ -597,13 +645,8 @@ public class CRSPKIMessage {
         return new byte[1];  // blagh
     }
             
-    public CRSPKIMessage() {
-        attrs = new Hashtable();
 
-    }
-        
-    public CRSPKIMessage (ByteArrayInputStream bais) throws InvalidBERException, Exception {
-        attrs = new Hashtable();
+    public String decodeCRSPKIMessage (ByteArrayInputStream bais) throws InvalidBERException, Exception {
 
         org.mozilla.jss.pkcs7.ContentInfo.Template crscit;
 
@@ -621,12 +664,19 @@ public class CRSPKIMessage {
                     new ByteArrayInputStream(
                         ((ANY) crsci.getContent()).getEncoded()
                     ));
-
-        this.decodeSD();
-        
+        return this.decodeSD();
     }
-    
-    private void decodeSD() throws Exception {
+
+    public CRSPKIMessage() {
+        attrs = new Hashtable();
+    }
+        
+    public CRSPKIMessage (ByteArrayInputStream bais) throws InvalidBERException, Exception {
+        attrs = new Hashtable();
+        decodeCRSPKIMessage(bais);
+    }
+
+    private String decodeSD() throws Exception {
         ContentInfo  sdci;
 
         sis = sd.getSignerInfos();
@@ -658,7 +708,7 @@ public class CRSPKIMessage {
         sgnIASN = new IssuerAndSerialNumber(firstCertInfo.getIssuer(),
                     firstCertInfo.getSerialNumber());
         
-        decodeED();
+        return decodeED();
             
     }
             
@@ -672,7 +722,8 @@ public class CRSPKIMessage {
         aa_digest = new OCTET_STRING(si.getEncryptedDigest());
     }
         
-    private void decodeED() throws Exception {
+    private String decodeED() throws Exception {
+        String encAlgorithm = null;
         SET ris;
 
         ris = (SET) sded.getRecipientInfos();
@@ -682,9 +733,13 @@ public class CRSPKIMessage {
         }
         ri = (RecipientInfo) ris.elementAt(0);
         eci = sded.getEncryptedContentInfo();
-        
-        if (!eci.getContentEncryptionAlgorithm().getOID().equals(DES_CBC_ENCRYPTION)) {
-            throw new Exception("P10 encrypted alg is not supported (not DES)");
+
+        if (eci.getContentEncryptionAlgorithm().getOID().equals(DES_EDE3_CBC_ENCRYPTION)) {
+            encAlgorithm = "DES3";
+        } else if (eci.getContentEncryptionAlgorithm().getOID().equals(DES_CBC_ENCRYPTION)) {
+            encAlgorithm = "DES";
+        } else {
+            throw new Exception("P10 encrypted alg is not supported (not DES): " + eci.getContentEncryptionAlgorithm().getOID());
         }
         
         ec = eci.getEncryptedContent().toByteArray();
@@ -700,7 +755,8 @@ public class CRSPKIMessage {
         iv = os.toByteArray();
 
         decodeRI();
-            
+
+        return encAlgorithm;
     }
         
     /**
