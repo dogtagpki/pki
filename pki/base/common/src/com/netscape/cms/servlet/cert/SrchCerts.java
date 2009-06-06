@@ -57,11 +57,12 @@ public class SrchCerts extends CMSServlet {
     private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReturns";
 
     private final static String CURRENT_TIME = "currentTime";
+    private final static int MAX_RESULTS = 1000;
 
     private ICertificateRepository mCertDB = null;
     private X500Name mAuthName = null;
     private String mFormPath = null;
-    private int mMaxReturns = 100;
+    private int mMaxReturns = MAX_RESULTS;
     private int mTimeLimits = 30; /* in seconds */
     private boolean mUseClientFilter = false;
 
@@ -88,7 +89,7 @@ public class SrchCerts extends CMSServlet {
 
             if (authConfig != null) {
                 try {
-                    mMaxReturns = authConfig.getInteger(PROP_MAX_SEARCH_RETURNS, 100);
+                    mMaxReturns = authConfig.getInteger(PROP_MAX_SEARCH_RETURNS, MAX_RESULTS);
                 } catch (EBaseException e) {
                     // do nothing
                 }
