@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      5
+%define base_release      6
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -270,6 +270,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Fri Jun 5 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-6
+- Bugzilla Bug #471318 - adding triple DES and SHA1, SHA256, SHA512
 * Wed Jun 3 2009 Christina Fu <cfu@redhat.com> 1.1.0-5
 - Bugzilla Bug #455305 - CA ECC signing Key Failure
   Bugzilla Bug #223279 - ECC: Ca: unable to perform agent auth on a machine with nCipher ECC HSM
