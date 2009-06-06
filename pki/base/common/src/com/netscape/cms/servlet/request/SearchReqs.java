@@ -64,11 +64,12 @@ public class SearchReqs extends CMSServlet {
     private final static String OUT_CURRENTCOUNT = "currentRecordCount";
     private final static String OUT_SENTINEL = "querySentinel";
     private final static String OUT_ERROR = "error";
+    private final static int MAX_RESULTS = 1000;
 
     private IRequestQueue mQueue = null;
     private IReqParser mParser = null;
     private String mFormPath = null;
-    private int mMaxReturns = 100;
+    private int mMaxReturns = MAX_RESULTS;
     private int mTimeLimits = 30; /* in seconds */
 
     /**
@@ -94,7 +95,7 @@ public class SearchReqs extends CMSServlet {
 
             if (authConfig != null) {
                 try {
-                    mMaxReturns = authConfig.getInteger(PROP_MAX_SEARCH_RETURNS, 100);
+                    mMaxReturns = authConfig.getInteger(PROP_MAX_SEARCH_RETURNS, MAX_RESULTS);
                 } catch (EBaseException e) {
                     // do nothing
                 }
