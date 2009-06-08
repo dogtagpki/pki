@@ -54,8 +54,8 @@
 
 
 <font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
-<a href="/ee/index.cgi">RA Services</a> :
-<a href="/ee/user/index.cgi">User Enrollment</a><br />
+<a href="https://$host:$port/ee/index.cgi">RA Services</a> :
+<a href="https://$host:$port/ee/user/index.cgi">User Enrollment</a><br />
 Renewal Interface
 </font><br>
 <p> 
@@ -65,7 +65,7 @@ Your certificate has been successfully renewed.
 <table border="0" cellspacing="1" cellpadding="1">
 <tr>
   <td width=20%>Request ID:</td>
-  <td><a href="/ee/request/status.cgi?id=$request_id">$request_id</a></td>
+  <td><a href="https://$host:$port/ee/request/status.cgi?id=$request_id">$request_id</a></td>
 <tr valign="TOP">
 <td><b>Data</b></td>
 <td>$data</td>

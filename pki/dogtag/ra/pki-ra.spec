@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      14
+%define base_release      15
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Jun 8 2009 Ade Lee <alee@redhat.com> 1.1.0-15
+- Bugzilla Bug #501699 - Renewal request in RA throws error - certificate not found in database
 * Mon Jun 1 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-14
 - Bugzilla Bug #503255 -  Fix confusing "Security Domain" message when using 
   "status"
