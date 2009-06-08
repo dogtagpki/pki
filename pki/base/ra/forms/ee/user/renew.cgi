@@ -55,6 +55,9 @@ sub process()
   my $util = PKI::Base::Util->new();
   my $error = "";
 
+  my $host = $cfg->get("service.machineName");
+  my $port = $cfg->get("service.non_clientauth_securePort");
+
   $self->debug_params($cfg, $q);
 
   my $cert = $self->get_cert_record($cfg);
@@ -141,8 +144,10 @@ sub process()
   $context{data} = $util->breakline($ref->{'data'}, 40);
   $context{output} = $util->breakline($ref->{'output'}, 40);
   $context{serialno} = $ref->{'serialno'};
+  $context{host} = $host;
+  $context{port} = $port;
 
-  print $q->redirect("/ee/request/getcert.cgi?id=$new_request");
+  #print $q->redirect("/ee/request/getcert.cgi?id=$new_request");
   my $result = $parser->execute_file_with_context("ee/user/renew.vm",
                      \%context);
 
