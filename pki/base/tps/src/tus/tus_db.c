@@ -96,7 +96,8 @@ static char *tokenCertificateAttributes[] = { TOKEN_ID,
                                               NULL };
 
 static char *userAttributes[] = {USER_ID,
-                                 USER_SN, 
+                                 USER_SN,
+                                 USER_GIVENNAME, 
                                  USER_CN, 
                                  USER_CERT, 
                                  C_TIME, 
@@ -868,7 +869,7 @@ static int tus_check_conn()
     int  version = LDAP_VERSION3;
     int  status  = -1;
 
-/*#define DEBUG_TOKENDB*/
+#define DEBUG_TOKENDB
 #ifdef DEBUG_TOKENDB
     debug_fd = PR_Open("/tmp/debugTUSdb.log",
            PR_RDWR | PR_CREATE_FILE | PR_APPEND,
@@ -1253,16 +1254,17 @@ int update_tus_general_db_entry(const char *agentid, const char *dn, LDAPMod **m
  * update_user_db_entry
  * summary: modifies an existing user entry
  * params : agentid - agent that is performing this action (for audit log purposes)
- *          uid, lastName, userCN, userCert - for entry to be added
+ *          uid, lastName, firstName, userCN, userCert - for entry to be added
  * returns: ldap return code 
  * */         
-TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastName, char *userCN, char *userCert)
+TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastName, char *firstName, char *userCN, char *userCert)
 {
     char dn[256];
     LDAPMod a01;
     LDAPMod a02;
     LDAPMod a03;
-    LDAPMod *mods[4];
+    LDAPMod a04;
+    LDAPMod *mods[5];
     int rc = -1;
     int certlen=0;
     int i,j;
@@ -1270,6 +1272,7 @@ TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastNa
     char *dst = NULL;
 
     char *sn_values[] = {lastName, NULL};
+    char *givenName_values[] = {firstName, NULL};
     char *cn_values[] = {userCN, NULL};
     struct berval berval;
     struct berval *cert_values[2];
@@ -1282,8 +1285,13 @@ TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastNa
     a02.mod_type = USER_CN;
     a02.mod_values = cn_values;
 
+    a03.mod_op = LDAP_MOD_REPLACE;
+    a03.mod_type = USER_GIVENNAME;
+    a03.mod_values = givenName_values;
+
     mods[0] = &a01;
     mods[1] = &a02;
+    mods[2] = &a03;
 
     certlen = strlen(userCert);
 
@@ -1305,15 +1313,16 @@ TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastNa
         cert_values[0] = &berval;
         cert_values[1] = NULL;
 
-        a03.mod_op =LDAP_MOD_REPLACE |LDAP_MOD_BVALUES;
-        a03.mod_type = "userCertificate";
-        a03.mod_values = cert_values;
+        a04.mod_op =LDAP_MOD_REPLACE |LDAP_MOD_BVALUES;
+        a04.mod_type = "userCertificate";
+        a04.mod_values = cert_values;
 
-        mods[2] = &a03;
+        mods[3] = &a04;
     } else {
-        mods[2] = NULL;
+        mods[3] = NULL;
     }
-    mods[3] = NULL;
+
+    mods[4] = NULL;
 
     if (PR_snprintf(dn, 255, "uid=%s, ou=People, %s", uid, userBaseDN) < 0 ) 
        return -1;
@@ -2146,10 +2155,10 @@ TPS_PUBLIC int add_default_tus_db_entry (const char *uid, const char *agentid, c
  * add_user_db_entry
  * summary: adds a new user entry
  * params: agentid - user who is performing this change (for audit log)
- *       :userid, userPassword, sn, cn, userCert - details for user to be added
+ *       :userid, userPassword, sn, givenName, cn, userCert - details for user to be added
  * returns: ldap return code
  */
-TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPassword, char *sn, char *cn, char *userCert)
+TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPassword, char *sn, char *givenName, char *cn, char *userCert)
 {
     LDAPMod  a01;
     LDAPMod  a02;
@@ -2157,7 +2166,8 @@ TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPa
     LDAPMod  a04;
     LDAPMod  a05;
     LDAPMod  a06;
-    LDAPMod  *mods[7];
+    LDAPMod  a07;
+    LDAPMod  *mods[8];
     int  rc = 0;
     char dn[256];
     int i,j, certlen;
@@ -2168,6 +2178,7 @@ TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPa
     char *userPassword_values[] = { userPassword, NULL };
     char *sn_values[] = {sn, NULL};
     char *cn_values[] = {cn, NULL};
+    char *givenName_values[] = {givenName, NULL};
     struct berval berval;
     struct berval *userCert_values[2];
 
@@ -2191,11 +2202,16 @@ TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPa
     a05.mod_type = USER_CN;
     a05.mod_values = cn_values;
 
+    a06.mod_op =0;
+    a06.mod_type = USER_GIVENNAME;
+    a06.mod_values = givenName_values;
+
     mods[0]  = &a01;
     mods[1]  = &a02;
     mods[2]  = &a03;
     mods[3]  = &a04;
     mods[4]  = &a05;
+    mods[5]  = &a06;
 
     // now handle certificate
     certlen = strlen(userCert);
@@ -2218,16 +2234,16 @@ TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPa
         userCert_values[0] = &berval;
         userCert_values[1] = NULL;
 
-        a06.mod_op = LDAP_MOD_BVALUES;
-        a06.mod_type = USER_CERT;
-        a06.mod_values = userCert_values;
+        a07.mod_op = LDAP_MOD_BVALUES;
+        a07.mod_type = USER_CERT;
+        a07.mod_values = userCert_values;
         
-        mods[5]  = &a06;
+        mods[6]  = &a07;
     } else {
-        mods[5] = NULL;
+        mods[6] = NULL;
     }
 
-    mods[6]  = NULL;
+    mods[7] = NULL;
 
     if (PR_snprintf(dn, 255, "uid=%s,ou=People, %s", userid, userBaseDN) < 0)
         return -1;

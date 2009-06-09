@@ -167,7 +167,7 @@ if (typeof(results) == "undefined" || results.length == 0) {
                    "First Name:&nbsp;</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
-    document.write("<input TYPE=TEXT NAME=firstName SIZE=20 VALUE="+results[0].cn.substring(0, results[0].cn.indexOf(" "))+">\n");
+    document.write("<input TYPE=TEXT NAME=firstName SIZE=20 VALUE=\""+results[0].givenName+"\">\n");
     document.write("</td>\n");
     document.write("</tr>\n");
 
@@ -177,7 +177,7 @@ if (typeof(results) == "undefined" || results.length == 0) {
                    "Last Name:&nbsp;</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
-    document.write("<input TYPE=TEXT NAME=lastName SIZE=20 VALUE="+results[0].sn+">\n");
+    document.write("<input TYPE=TEXT NAME=lastName SIZE=20 VALUE=\""+results[0].sn+"\">\n");
     document.write("</td>\n");
     document.write("</tr>\n");
 

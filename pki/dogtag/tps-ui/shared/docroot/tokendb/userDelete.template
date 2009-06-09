@@ -111,7 +111,7 @@ if (typeof(results) == "undefined" || results.length == 0) {
                    "First Name:&nbsp;</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
-    document.write(results[0].cn.substring(0, results[0].cn.indexOf(" ")));
+    document.write(results[0].givenName);
     document.write("</td>\n");
     document.write("</tr>\n");
 

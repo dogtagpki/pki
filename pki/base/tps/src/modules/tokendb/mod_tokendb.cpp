@@ -324,6 +324,8 @@ char *unencode(const char *src)
 char *get_field( char *s, char* fname, int len)
 {
     char *end = NULL;
+    char *tmp = NULL;
+    char *ret = NULL;
     int  n;
 
     if( ( s = PL_strstr( s, fname ) ) == NULL ) {
@@ -345,7 +347,10 @@ char *get_field( char *s, char* fname, int len)
         /* string too long */
         return NULL; 
     } else {
-        return PL_strndup( s, n );
+        tmp = (char *) PL_strndup(s,n);
+        ret = unencode(tmp);
+        do_free(tmp);
+        return ret;
     }
 }
 
@@ -774,9 +779,9 @@ void getUserFilter (char *filter, char *query) {
     }
 
     if (firstName != NULL) {
-        PL_strcat(filter, "(cn=");
+        PL_strcat(filter, "(givenName=");
         PL_strcat(filter, firstName);
-        PL_strcat(filter,"*)");
+        PL_strcat(filter,")");
     }
 
     PL_strcat(filter, ")");
@@ -4502,7 +4507,7 @@ mod_tokendb_handler( request_rec *rq )
         PR_snprintf((char *)userCN, 256,
             "%s %s", firstName, lastName);
 
-        status = update_user_db_entry(userid, uid, lastName, userCN, userCert);
+        status = update_user_db_entry(userid, uid, lastName, firstName, userCN, userCert);
 
         do_free(firstName);
         do_free(lastName);
@@ -4783,7 +4788,7 @@ mod_tokendb_handler( request_rec *rq )
         PR_snprintf((char *)userCN, 256, 
             "%s %s", firstName, lastName);
 
-        status = add_user_db_entry(userid, uid, "", lastName, userCN, userCert);
+        status = add_user_db_entry(userid, uid, "", lastName, firstName, userCN, userCert);
         if (status != LDAP_SUCCESS) {
             PR_snprintf((char *)msg, 512, "LDAP Error in adding new user %s", uid);   
             ldap_error_out(msg, msg);

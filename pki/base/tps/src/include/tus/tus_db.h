@@ -123,6 +123,7 @@
 #define USER_PASSWORD       "userPassword"
 #define USER_SN             "sn"
 #define USER_CN             "cn"
+#define USER_GIVENNAME      "givenName"
 #define USER_CERT           "userCertificate"
 #define PROFILE_ID          "profileID"
 #define GROUP_MEMBER        "member"
@@ -252,9 +253,9 @@ TPS_PUBLIC int update_token_status_reason(char *userid, char *cuid,
 TPS_PUBLIC int update_token_status_reason_userid(const char *userid, char *cuid,
   const char *tokenStatus, const char *reason, int modifyDateOfCreate);
 
-TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPassword, char *sn, char *cn, char * userCert);
+TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPassword, char *sn, char *givenName, char *cn, char * userCert);
 TPS_PUBLIC int find_tus_user_entries_no_vlv(char *filter, LDAPMessage **result, int order);
-TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastName, char *userCN, char *userCert);
+TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastName, char *givenName, char *userCN, char *userCert);
 TPS_PUBLIC int add_profile_to_user(const char *agentid, char *userid, const char *profile);
 TPS_PUBLIC int delete_profile_from_user(const char *agentid, char *userid, const char *profile);
 TPS_PUBLIC int add_user_to_role_db_entry(const char *agentid, char *userid, const char *role);
