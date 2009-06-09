@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      25
+%define base_release      26
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -150,7 +150,7 @@ BuildRoot:      %{_builddir}/%{name}-root
 BuildRequires:  apr-devel >= 0.9.4, apr-util-devel >= 0.9.4, %{base_flavor}-%{base_name}-ui >= 1.0.0, bash >= 3.0, cyrus-sasl-devel >= 2.1.19, httpd-devel >= 2.0.52, mozldap-devel >= 6.0.2, nspr-devel >= 4.6.99, nss-devel >= 3.12.0, pcre-devel >= 6.6, svrcore-devel >= 4.0.3.01, zlib >= 1.2.3, zlib-devel >= 1.2.3
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_prefix}-setup >= 1.0.0, %{base_name}-ui, mod_nss >= 1.0.7, mod_perl >= 1.99_16, mod_revocator >= 1.0.2, mozldap >= 6.0.2, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, %{base_prefix}-selinux >= 1.0.0, perl-XML-Simple
+Requires:       %{base_prefix}-setup >= 1.0.0, %{base_name}-ui, mod_nss >= 1.0.7, mod_perl >= 1.99_16, mozldap >= 6.0.2, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, %{base_prefix}-selinux >= 1.0.0, perl-XML-Simple
 
 
 ## This package is non-relocatable!
@@ -313,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Jun 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-26
+- Bugzilla Bug #501081 -  remove mod_revocator rpm as a dependency
 * Wed Jun 3 2009 Jack Magne <jmagne@redhat.com> 1.1.0-25
 * Bugzilla Bug #504058 - Fix Format crash when revoking a cert.
 * Mon Jun 1 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-24

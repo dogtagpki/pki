@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      15
+%define base_release      16
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -128,7 +128,7 @@ BuildRoot:      %{_builddir}/%{base_name}-root
 BuildRequires:  ant >= 1.6.2, %{base_flavor}-%{base_name}-ui >= 1.0.0
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       %{base_name}-ui, %{base_prefix}-setup >= 1.0.0, mod_nss >= 1.0.7, mod_perl >= 1.99_16, mod_revocator >= 1.0.2, mozldap >= 6.0.2, perl-DBD-SQLite >= 1.11, perl-DBI >= 1.52, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, sendmail >= 8.13.1, sqlite >= 3.3.3, %{base_prefix}-selinux >= 1.0.0, perl-XML-Simple
+Requires:       %{base_name}-ui, %{base_prefix}-setup >= 1.0.0, mod_nss >= 1.0.7, mod_perl >= 1.99_16, mozldap >= 6.0.2, perl-DBD-SQLite >= 1.11, perl-DBI >= 1.52, perl-HTML-Parser >= 3.35, perl-HTML-Tagset >= 3.03, perl-Parse-RecDescent >= 1.94, perl-URI >= 1.30, perl-XML-NamespaceSupport >= 1.08, perl-XML-Parser >= 2.34, sendmail >= 8.13.1, sqlite >= 3.3.3, %{base_prefix}-selinux >= 1.0.0, perl-XML-Simple
 
 
 ## This package is non-relocatable!
@@ -266,6 +266,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Jun 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-16
+- Bugzilla Bug #501081 -  remove mod_revocator rpm as a dependency
 * Mon Jun 8 2009 Ade Lee <alee@redhat.com> 1.1.0-15
 - Bugzilla Bug #501699 - Renewal request in RA throws error - certificate not found in database
 * Mon Jun 1 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-14
