@@ -114,6 +114,7 @@ template(`pki_ca_template',`
 	manage_files_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
 	read_lnk_files_pattern($1_t, $1_var_lib_t, $1_var_lib_t)
 	files_var_lib_filetrans($1_t, $1_var_lib_t, { file dir } )
+        allow $1_t rpm_var_lib_t:lnk_file { read getattr };
 
 	manage_dirs_pattern($1_t, $1_log_t,  $1_log_t)
 	manage_files_pattern($1_t, $1_log_t,  $1_log_t)
@@ -660,7 +661,7 @@ template(`pki_ra_template',`
 
         allow pki_ra_t lib_t:file execute_no_trans;
 
-        allow pki_ra_t self:capability { setuid sys_nice setgid dac_override };
+        allow pki_ra_t self:capability { setuid sys_nice setgid dac_override fowner};
         allow pki_ra_t self:process { setsched getsched signal signull execstack execmem};
         allow pki_ra_t self:sem all_sem_perms;
         allow pki_ra_t self:tcp_socket create_stream_socket_perms;
