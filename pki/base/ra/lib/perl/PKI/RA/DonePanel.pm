@@ -333,44 +333,6 @@ sub display
       system( "rm $instDir/conf/nss.conf.tmp" );
     }
 
-    # Rewrite "revocator.conf", activating the CRLEngine, and appending
-    # the security domain getCRL URL to end of the file
-    open( TMP_REVOCATOR_CONF, ">$instDir/conf/revocator.conf.tmp" );
-    system( "chmod 00660 $instDir/conf/revocator.conf.tmp" );
-    open( REVOCATOR_CONF, "<$instDir/conf/revocator.conf" );
-    while( <REVOCATOR_CONF> ) {
-        if( /^CRLEngine/ ) {
-            # Bugzilla Bug #493122:  Activate CRLEngine on RHEL,
-            #                        but NOT on Fedora!
-            if( -e "/etc/fedora-release" ) {
-                print TMP_REVOCATOR_CONF "CRLEngine off\n";
-            } else {
-                # Bugzilla Bug #498528  Disable mod_revocator on RHEL
-                #                       since it will no longer work
-                #                       with the updated mod_nss which
-                #                       is required for HSMs
-                print TMP_REVOCATOR_CONF "CRLEngine off\n";
-            }
-        } else {
-            print TMP_REVOCATOR_CONF $_;
-        }
-    }
-    # Append security domain getCRL URL to end of "revocator.conf.tmp"
-    print TMP_REVOCATOR_CONF "CRLFile \"" . $sdom
-          . "/ca/ee/ca/getCRL?op=getCRL&crlIssuingPoint=MasterCRL;60;60\"\n";
-    close( REVOCATOR_CONF );
-    close( TMP_REVOCATOR_CONF );
-
-    # Create a copy of the original file which
-    # preserves the original file permissions
-    system( "cp -p $instDir/conf/revocator.conf.tmp "
-          . "$instDir/conf/revocator.conf" );
-
-    # Remove the original file only if the backup copy was successful
-    if( -e "$instDir/conf/revocator.conf" ) {
-      system( "rm $instDir/conf/revocator.conf.tmp" );
-    }
-
     &PKI::RA::Wizard::debug_log("DonePanel: Connecting to Security Domain");
 
     my $machineName = $::config->get("service.machineName");

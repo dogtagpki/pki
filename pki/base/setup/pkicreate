@@ -262,7 +262,6 @@ my $noise_base_name              = "noise";                # CA, KRA, OCSP, TKS,
                                                            # RA, TPS
 my $nss_conf_base_name           = "nss.conf";             # RA, TPS
 my $perl_conf_base_name          = "perl.conf";            # RA, TPS
-my $revocator_conf_base_name     = "revocator.conf";       # RA, TPS
 my $osutil_jar_base_name         = "osutil.jar";           # CA, KRA, OCSP, TKS
 my $password_conf_base_name      = "password.conf";        # CA, KRA, OCSP, TKS,
                                                            # RA, TPS
@@ -315,7 +314,6 @@ my $NSS_CONF               = "NSS_CONF";
 my $OBJ_EXT                = "OBJ_EXT";
 my $PORT                   = "PORT";
 my $PROCESS_ID             = "PROCESS_ID";
-my $REVOCATOR_CONF         = "REVOCATOR_CONF";
 my $SECURE_PORT            = "SECURE_PORT";
 my $NON_CLIENTAUTH_SECURE_PORT = "NON_CLIENTAUTH_SECURE_PORT";
 my $SECURITY_LIBRARIES     = "SECURITY_LIBRARIES";
@@ -333,7 +331,6 @@ my $FORTITUDE_MODULE       = "FORTITUDE_MODULE";
 my $FORTITUDE_LIB_DIR      = "FORTITUDE_LIB_DIR";
 my $FORTITUDE_AUTH_MODULES = "FORTITUDE_AUTH_MODULES";
 my $FORTITUDE_NSS_MODULES  = "FORTITUDE_NSS_MODULES";
-my $FORTITUDE_REVOCATOR_MODULES  = "FORTITUDE_REVOCATOR_MODULES";
 
 # Template slot constants (CA, KRA, OCSP, TKS)
 my $INSTALL_TIME              = "INSTALL_TIME";
@@ -528,8 +525,6 @@ my $nss_conf_instance_file_path               = "";  # RA, TPS
 my $nss_conf_subsystem_file_path              = "";  # RA, TPS
 my $perl_conf_instance_file_path              = "";  # RA, TPS
 my $perl_conf_subsystem_file_path             = "";  # RA, TPS
-my $revocator_conf_instance_file_path         = "";  # RA, TPS
-my $revocator_conf_subsystem_file_path        = "";  # RA, TPS
 my $osutil_jar_file_path                      = "";  # CA, KRA, OCSP, TKS
 my $osutil_jar_symlink_path                   = "";  # CA, KRA, OCSP, TKS
 my $password_conf_instance_file_path          = "";  # CA, KRA, OCSP, TKS,
@@ -1593,9 +1588,6 @@ sub initialize_subdirectory_paths()
                                                 . "/" . $nss_conf_base_name;
         $perl_conf_subsystem_file_path          = $conf_subsystem_path
                                                 . "/" . $perl_conf_base_name;
-        $revocator_conf_subsystem_file_path     = $conf_subsystem_path
-                                                . "/"
-                                                . $revocator_conf_base_name;
         $perl_instance_symlink_path             = $lib_instance_path
                                                 . "/"
                                                 . $perl_base_instance_symlink;
@@ -1753,9 +1745,6 @@ sub process_pki_directories()
                                            . "/" . $perl_conf_base_name;
             $pwcache_conf_instance_file_path = $conf_instance_path
                                              . "/" . $pwcache_conf_base_name;
-            $revocator_conf_instance_file_path = "$conf_instance_path"
-                                               . "/"
-                                               . $revocator_conf_base_name;
 
             # create instance directory
             $result = create_directory( $conf_instance_path );
@@ -1826,9 +1815,6 @@ sub process_pki_directories()
                                            . "/" . $perl_conf_base_name;
             $pwcache_conf_instance_file_path = $redirected_conf_path
                                              . "/" . $pwcache_conf_base_name;
-            $revocator_conf_instance_file_path = "$redirected_conf_path"
-                                               . "/"
-                                               . $revocator_conf_base_name;
 
             # create redirected instance directory
             $result = create_directory( $redirected_conf_path );
@@ -2256,7 +2242,6 @@ sub process_pki_templates()
         $slot_hash{$PROCESS_ID}            = $$;
         $slot_hash{$SECURE_PORT}           = $secure_port;
         $slot_hash{$NON_CLIENTAUTH_SECURE_PORT} = $non_clientauth_secure_port;
-        $slot_hash{$REVOCATOR_CONF}        = $revocator_conf_instance_file_path;
         $slot_hash{$SECURITY_LIBRARIES}    = $default_security_libraries;
         $slot_hash{$SERVER_NAME}           = $host;
         $slot_hash{$SERVER_ROOT}           = $pki_instance_path;
@@ -2285,10 +2270,6 @@ LoadModule authz_host_module /etc/httpd/modules/mod_authz_host.so
 "
 LoadModule nss_module  /etc/httpd/modules/libmodnss.so
 ";
-            $slot_hash{$FORTITUDE_REVOCATOR_MODULES} =
-"
-LoadModule rev_module  /etc/httpd/modules/mod_rev.so
-";
         }
         else {
             $slot_hash{$FORTITUDE_APACHE}  = "Apache";
@@ -2303,10 +2284,6 @@ LoadModule access_module /opt/fortitude/modules/mod_access.so
             $slot_hash{$FORTITUDE_NSS_MODULES} =
 "
 LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
-";
-            $slot_hash{$FORTITUDE_REVOCATOR_MODULES} =
-"
-LoadModule nss_module  /opt/fortitude/modules.local/mod_rev.so
 ";
         }
     } else {
@@ -2621,29 +2598,6 @@ LoadModule nss_module  /opt/fortitude/modules.local/mod_rev.so
 
         chmod( $default_file_permissions,
                $perl_conf_instance_file_path );
-
-
-        # process "revocator.conf" template
-        $result = process_file_template( $revocator_conf_subsystem_file_path,
-                                         $revocator_conf_instance_file_path,
-                                         \%slot_hash );
-        if( !$result ) {
-            return 0;
-        }
-
-        # fix ownership for revocator.conf
-        $result = give_file_to( $revocator_conf_instance_file_path,
-                                $pki_user,
-                                $pki_group );
-        if( !$result ) {
-            emit( "Can't change ownership of "
-                . "$revocator_conf_instance_file_path.\n",
-                  "error" );
-            return 0;
-        }
-
-        chmod( $default_file_permissions,
-               $revocator_conf_instance_file_path );
 
 
         # process "nss_pcache" template
