@@ -163,7 +163,7 @@ function validate()
               crmfObject = crypto.generateCRMFRequest(
                 "CN=x",
                 "regToken", "authenticator",
-        	keyTransportCert,
+        	null,
                 "setCRMFRequest();",
                 parseInt(keyLength.value), null, "rsa-dual-use");
             }
