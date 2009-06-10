@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -288,6 +288,27 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Jun 9 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
+- Bugzilla Bug #504420 -  Make certain that Array Types are processed prior
+  to non-Array types . . .
+- Bugzilla Bug #483519 -  rhcs73 migration tool misses iplanet case ERROR
+  type - iplanet.security.x509.X509CertImpl[1,0] 
+- Bugzilla Bug #483373 -  rhpki-migrate-7.3.0-9.el4 - TxtTo73/run.sh
+  CLASSPATH uses TxtTo72 classes path
+- Bugzilla Bug #451304 -  42ToTxt - Need to add i18n.jar to classpath for
+  KRA LDIF conversion
+- Bugzilla Bug #225031 -  migrate/47ToTxt/run.sh against this sample ldif
+  gives AuthToken=certSerialNo:[Ljava.math.BigInteger.... error.
+- Bugzilla Bug #224972 -  Migration / Upgrade script problems....
+- Bugzilla Bug #224801 -  Upgrade script needs to change to drop those cert
+  request which were created by old jars (iplanet) files
+- Bugzilla Bug #224800 -  txt to cms 62 upgrade script fails on some of the
+  request.
+- Bugzilla Bug #224763 -  Migration scripts do not currently handle array
+  of strings properly
+- Bugzilla Bug #223360 -  Upgrade tools does not currently handle some of
+  the parameters.
+
 * Tue May 12 2009 Ade Lee <alee@redhat.com> 1.1.0-3
 - Bugzilla Bug #493717 -  Migration scripts needed for TPS groups
 * Tue May 5 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-2
