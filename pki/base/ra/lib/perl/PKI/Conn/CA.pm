@@ -163,7 +163,7 @@ sub revoke {
     $db_password =~ s/\n$//g;
 
   my $nickname = $cfg->get("conn." . $con_id . ".clientNickname");
-  my $cahostport = $cfg->get("conn." . $con_id . ".hostport");
+  my $cahostport = $cfg->get("conn." . $con_id . ".hostagentport");
 
   my $tmpfile = "/tmp/tmp-revoke-$serialno-$$";
   my ($host, $port) = split(/:/, $cahostport);

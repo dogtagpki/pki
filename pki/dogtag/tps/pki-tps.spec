@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      27
+%define base_release      28
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,12 +313,14 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Jun 10 2009 Ade Lee <alee@redhat.com> 1.1.0-28
+- Bugzilla Bug #504898 - RA: agent unable to revoke a cert
 * Tue Jun 9 2009 Ade Lee <alee@redhat.com> 1.1.0-27
-* Bugzilla Bug #504042 - unable to list users that where created with a space in the name
+- Bugzilla Bug #504042 - unable to list users that where created with a space in the name
 * Mon Jun 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-26
 - Bugzilla Bug #501081 -  remove mod_revocator rpm as a dependency
 * Wed Jun 3 2009 Jack Magne <jmagne@redhat.com> 1.1.0-25
-* Bugzilla Bug #504058 - Fix Format crash when revoking a cert.
+- Bugzilla Bug #504058 - Fix Format crash when revoking a cert.
 * Mon Jun 1 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-24
 - Bugzilla Bug #503255 -  Fix confusing "Security Domain" message when using 
   "status"

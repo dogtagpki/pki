@@ -84,25 +84,35 @@ sub update
     my $instanceID = $::config->get("service.instanceID");
     my $host = "";
     my $https_ee_port = "";
+    my $https_agent_port = "";
     my $https_admin_port = "";
+    my $domain_xml = "";
 
     if ($count =~ /http/) {
       my $info = new URI::URL($count);
       $host = $info->host;
       $https_ee_port = $info->port;
-      $https_admin_port = get_secure_admin_port_from_domain_xml($host,
-                                                                $https_ee_port);
-      if( $https_admin_port eq "" ) {
-          $::symbol{errorString} = "missing secure CA admin port.  CA, TKS and optionally DRM must be installed prior to TPS installation";
+      $domain_xml = get_domain_xml($host, $https_ee_port);
+      if ($domain_xml eq "") {
+          $::symbol{errorString} = "missing security domain.  CA, TKS and optionally DRM must be installed prior to TPS installation";
+          return 0;
+      }
+
+      $https_agent_port = get_secure_agent_port_from_domain_xml($domain_xml, $host, $https_ee_port);
+      $https_admin_port = get_secure_admin_port_from_domain_xml($domain_xml, $host, $https_ee_port);
+
+      if(($https_admin_port eq "") || ($https_agent_port eq "")) {
+          $::symbol{errorString} = "missing secure CA admin or agent port.  CA, TKS and optionally DRM must be installed prior to TPS installation";
           return 0;
       }
     } else {
       $host = $::config->get("preop.securitydomain.ca$count.host");
       $https_ee_port = $::config->get("preop.securitydomain.ca$count.secureport");
+      $https_agent_port = $::config->get("preop.securitydomain.ca$count.secureagentport");
       $https_admin_port = $::config->get("preop.securitydomain.ca$count.secureadminport");
     }
 
-    if (($host eq "") || ($https_ee_port eq "") || ($https_admin_port eq "")) {
+    if (($host eq "") || ($https_ee_port eq "") || ($https_admin_port eq "") || ($https_agent_port eq "")) {
       $::symbol{errorString} = "no CA found.  CA, TKS and optionally DRM must be installed prior to TPS installation";
       return 0;
     }
@@ -115,6 +125,7 @@ sub update
     my $subsystemCertNickName = $::config->get("preop.cert.subsystem.nickname");
     $::config->put("conn.ca1.clientNickname", $subsystemCertNickName);
     $::config->put("conn.ca1.hostport", $host . ":" . $https_ee_port);
+    $::config->put("conn.ca1.hostagentport", $host . ":" . $https_agent_port);
     $::config->put("conn.ca1.hostadminport", $host . ":" . $https_admin_port);
 
     $::config->commit();
@@ -202,7 +213,7 @@ DONE:
     return 1;
 }
 
-sub get_secure_admin_port_from_domain_xml
+sub get_domain_xml
 {
     my $host = $1;
     my $https_ee_port = $2;
@@ -222,6 +233,14 @@ sub get_secure_admin_port_from_domain_xml
 
     $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;
     $content = $1;
+    return $content;
+}
+
+sub get_secure_admin_port_from_domain_xml
+{
+    my $content = $1;
+    my $host = $2;
+    my $https_ee_port = $3;
 
     # Retrieve the secure admin port corresponding
     # to the selected host and secure ee port.
@@ -241,6 +260,32 @@ sub get_secure_admin_port_from_domain_xml
     }
 
     return $https_admin_port;
+}
+
+sub get_secure_agent_port_from_domain_xml
+{
+    my $content = $1;
+    my $host = $2;
+    my $https_ee_port = $3;
+
+    # Retrieve the secure agent port corresponding
+    # to the selected host and secure ee port.
+    my $parser = XML::Simple->new();
+    my $response = $parser->XMLin($content);
+    my $xml = $parser->XMLin( $response->{'DomainInfo'},
+                              ForceArray => 1 );
+    my $https_agent_port = "";
+    my $count = 0;
+    foreach my $c (@{$xml->{'CAList'}[0]->{'CA'}}) {
+      if( ( $host eq $c->{'Host'}[0] ) &&
+          ( $https_ee_port eq $c->{'SecurePort'}[0] ) ) {
+          $https_agent_port = https_$c->{'SecureAgentPort'}[0];
+      }
+
+      $count++;
+    }
+
+    return $https_agent_port;
 }
 
 sub is_panel_done
