@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      17
+%define base_release      18
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Jun 10 2009 Ade Lee <alee@redhat.com> 1.1.0-18
+- Bugzilla Bug #471916 - RA: input validation
 * Wed Jun 10 2009 Ade Lee <alee@redhat.com> 1.1.0-17
 - Bugzilla Bug #504898 - RA: agent unable to revoke a cert
 * Mon Jun 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-16
