@@ -6,7 +6,7 @@
 #####################################################################
 ###                                                               ###
 ###  This script creates the "45ToTxt/classes/Main.class" and     ###
-###  "41ToTxt/classes/CMS45LdifParser.class" which are            ###
+###  "45ToTxt/classes/CMS45LdifParser.class" which are            ###
 ###  used to create a normalized CMS 4.5 ldif text file.          ###
 ###                                                               ###
 #####################################################################

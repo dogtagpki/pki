@@ -188,6 +188,9 @@ fi
 ###  Convert the specified ${CS} ldif data file
 ###  into a normalized ${CS} ldif text file.
 ###
+###  NOTE:  As of SunOS JDK 1.4.0, the required "Unicode" classes
+###         have been moved from "i18n.jar" to "rt.jar".
+###
 
 ${SERVER_ROOT}/bin/cert/jre/bin/java -classpath ./classes:${SERVER_ROOT}/cert-${INSTANCE}/classes:${SERVER_ROOT}/bin/cert/classes:${SERVER_ROOT}/bin/cert/jars/certsrv.jar:${SERVER_ROOT}/bin/cert/jars/cmscore.jar:${SERVER_ROOT}/bin/cert/jars/nsutil.jar:${SERVER_ROOT}/bin/cert/jars/jss3.jar:${SERVER_ROOT}/bin/cert/jre/lib/rt.jar Main $1 $2
 

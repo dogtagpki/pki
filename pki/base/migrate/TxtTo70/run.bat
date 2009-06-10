@@ -20,10 +20,10 @@ REM  --- END COPYRIGHT BLOCK ---
 REM
 REM  This script converts a normalized <Source CMS Version> ldif
 REM  text file (e. g. - created via a <Source CMS Version>ToTxt
-REM  script) into a CMS 7.0/7.01 ldif data file.
+REM  script) into a CMS 7.0 ldif data file.
 REM
-REM  This CMS 7.0/7.01 ldif data file can then be imported into the
-REM  internal database of the desired CMS 7.0/7.01 server using a
+REM  This CMS 7.0 ldif data file can then be imported into the
+REM  internal database of the desired CMS 7.0 server using a
 REM  utility such as ldif2db.
 REM
 
@@ -35,7 +35,7 @@ REM
 REM  SERVER_ROOT - fully qualified path of the location of the server
 REM
 
-REM SET SERVER_ROOT=C:\cms701
+REM SET SERVER_ROOT=C:\cms70
 
 
 REM

@@ -21,10 +21,10 @@
 ###                                                               ###
 ###  This script converts a normalized <Source CMS Version> ldif  ###
 ###  text file (e. g. - created via a <Source CMS Version>ToTxt   ###
-###  script) into a CMS 7.0/7.01 ldif data file.                  ###
+###  script) into a CMS 7.0 ldif data file.                       ###
 ###                                                               ###
-###  This CMS 7.0/7.01 ldif data file can then be imported into   ###
-###  the internal database of the desired CMS 7.0/7.01 server     ###
+###  This CMS 7.0 ldif data file can then be imported into        ###
+###  the internal database of the desired CMS 7.0 server          ###
 ###  using a utility such as ldif2db.                             ###
 ###                                                               ###
 #####################################################################
@@ -34,7 +34,7 @@
 ###  SERVER_ROOT - fully qualified path of the location of the server
 ###
 
-#SERVER_ROOT=/export/home/migrate/cms701
+#SERVER_ROOT=/export/home/migrate/cms70
 #export SERVER_ROOT
 
 
@@ -187,6 +187,9 @@ fi
 ###
 ###  Convert the specified ${CMS} ldif data file
 ###  into a normalized ${CMS} ldif text file.
+###
+###  NOTE:  As of SunOS JDK 1.4.0, the required "Unicode" classes
+###         have been moved from "i18n.jar" to "rt.jar".
 ###
 
 ${SERVER_ROOT}/bin/cert/jre/bin/java -classpath ./classes:${SERVER_ROOT}/cert-${INSTANCE}/classes:${SERVER_ROOT}/bin/cert/classes:${SERVER_ROOT}/bin/cert/jars/certsrv.jar:${SERVER_ROOT}/bin/cert/jars/cmscore.jar:${SERVER_ROOT}/bin/cert/jars/nsutil.jar:${SERVER_ROOT}/bin/cert/jars/jss3.jar:${SERVER_ROOT}/bin/cert/jre/lib/rt.jar Main $1 $2

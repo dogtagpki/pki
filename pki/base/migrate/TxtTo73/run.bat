@@ -35,7 +35,7 @@ REM
 REM  SERVER_ROOT - fully qualified path of the location of the server
 REM
 
-REM SET SERVER_ROOT=C:\cs71
+REM SET SERVER_ROOT=C:\cs73
 
 
 REM

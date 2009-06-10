@@ -391,63 +391,63 @@ class CS80LdifParser
 			return;
 		}
 
-		if( type.startsWith( "java.lang.String" ) ) {
-			// Examples:
-			//
-			//     key.equals( "publickey" )
-			//     key.equals( "cert_request" )
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-									formatData( data ) );
-		} else if( type.startsWith( "org.mozilla.jss.asn1.INTEGER" ) ) {
-			// CS 7.1 stores bodyPartId as INTEGER
-			// CS 7.2 fixed the problem by storing it as String
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
-		} else if( type.startsWith( "byte[]" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
-		} else if( type.startsWith( "java.lang.Integer" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
-		} else if( type.startsWith( "java.math.BigInteger" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
-		} else if( type.startsWith( "java.util.Locale" ) ) {
-			// CMS 6.2:  begin checking for new type
-			//           "java.util.Locale"
+		// To account for '47ToTxt' data files that have previously
+		// been generated, ALWAYS convert 'iplanet' to 'netscape'.
+		//
+		//     Bugzilla Bug #224801 (a.k.a - Raidzilla Bug #56981)
+		//     Bugzilla Bug #483519
+		//
+		String translation = null;
+		if( type.startsWith( "iplanet" ) ) {
+			translation = "netscape"
+                        + type.substring( 7 );
+			type = translation;
+		} else if( type.startsWith( "com.iplanet" ) ) {
+			translation = "com.netscape"
+                        + type.substring( 11 );
+			type = translation;
+		}
+
+		if( type.startsWith( "com.netscape.certsrv.request.AgentApprovals" ) ) {
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
-		} else if( type.startsWith( "java.util.Vector" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
-		} else if( type.startsWith( "com.netscape.certsrv.base.ArgBlock" ) || type.startsWith( "com.netscape.cmscore.base.ArgBlock" ) ) {
+		} else if( type.startsWith( "com.netscape.certsrv.base.ArgBlock" )
+               ||  type.startsWith( "com.netscape.cmscore.base.ArgBlock" ) ) {
 			// CMS 6.1:  created new "com.netscape.certsrv.base.IArgBlock" and
 			//           moved old "com.netscape.certsrv.base.ArgBlock"
 			//           to "com.netscape.cmscore.base.ArgBlock"
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
-		} else if( type.startsWith( "com.netscape.certsrv.request.AgentApprovals" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
 		} else if( type.startsWith( "com.netscape.certsrv.authentication.AuthToken" ) ) {
+            // Processes 'java.math.BigInteger[]':
+            // 
+            //     Bugzilla Bug #225031 (a.k.a - Raidzilla Bug #58356)
+            // 
+            // Processes 'java.lang.String[]':
+            // 
+            //     Bugzilla Bug #224763 (a.k.a - Raidzilla Bug #57949)
+            //     Bugzilla Bug #252240
+            // 
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
-		} else if( type.startsWith( "netscape.security.x509.X509CertInfo[" ) || type.startsWith( "netscape.security.extensions.CertInfo[" ) ) {
-			// CMS 6.2:  begin checking for additional new type
-			//           "netscape.security.extensions.CertInfo["
-			//
-			// CMS 6.1:  "netscape.security.x509.X509CertInfo"
-			//           now always utilizes arrays such as
-			//           "netscape.security.x509.X509CertInfo["
+		} else if( type.startsWith( "java.math.BigInteger[" ) ) {
+            // Bugzilla Bug #238779
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
-		} else if( type.startsWith( "com.netscape.certsrv.cert.CertInfo" ) ) {
+		} else if( type.startsWith( "java.math.BigInteger" ) ) {
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
-		} else if( type.equals( "netscape.security.x509.CertificateX509Key" ) ) {
+		} else if( type.startsWith( "byte[]" ) ) {
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
-		} else if( type.equals( "netscape.security.x509.X509CertInfo" ) ) {
+		} else if( type.startsWith( "byte[" ) ) {
+			// byte array
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.startsWith( "netscape.security.x509.CertificateAlgorithmId" ) ) {
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.equals( "netscape.security.x509.CertificateChain" ) ) {
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
 		} else if( type.equals( "netscape.security.x509.CertificateExtensions" ) ) {
@@ -457,49 +457,89 @@ class CS80LdifParser
 			//           "netscape.security.x509.CertificateExtensions"
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
-		} else if( type.equals( "netscape.security.x509.CertificateChain" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
 		} else if( type.equals( "netscape.security.x509.CertificateSubjectName" ) ) {
 			// CMS 6.2:  revised method of decoding objects of type
 			//           "netscape.security.x509.CertificateSubjectName"
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
-		} else if( type.equals( "netscape.security.x509.X509CertImpl" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
-		} else if( type.startsWith( "netscape.security.x509.X509CertImpl[" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
-		} else if( type.startsWith( "netscape.security.x509.RevokedCertImpl" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
-		} else if( type.startsWith( "com.netscape.certsrv.dbs.keydb.KeyRecord" ) || type.startsWith( "com.netscape.cmscore.dbs.KeyRecord" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
-		} else if( type.startsWith( "com.netscape.certsrv.kra.ProofOfArchival" ) || type.startsWith( "com.netscape.cmscore.kra.ProofOfArchival" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
-		} else if( type.startsWith( "netscape.security.x509.CertificateAlgorithmId" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
 		} else if( type.startsWith( "netscape.security.x509.CertificateValidity" ) ) {
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.equals( "netscape.security.x509.CertificateX509Key" ) ) {
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.startsWith( "com.netscape.certsrv.cert.CertInfo" ) ) {
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+        } else if (type.startsWith("java.util.Hashtable")) {
+			// Bugzilla Bug #224800 (a.k.a - Raidzilla Bug #56953)
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
 		} else if( type.startsWith( "Integer[" ) ) {
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
-		} else if( type.startsWith( "java.math.BigInteger[" ) ) {
+		} else if( type.startsWith( "java.lang.Integer" ) ) {
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
-		} else if( type.startsWith( "byte[" ) ) {
+		} else if( type.startsWith( "org.mozilla.jss.asn1.INTEGER" ) ) {
+			// CS 7.1 stores bodyPartId as INTEGER
+			// CS 7.2 fixed the problem by storing it as String
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.startsWith( "com.netscape.certsrv.dbs.keydb.KeyRecord" )
+               ||  type.startsWith( "com.netscape.cmscore.dbs.KeyRecord" ) ) {
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.startsWith( "java.util.Locale" ) ) {
+			// CMS 6.2:  begin checking for new type
+			//           "java.util.Locale"
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.startsWith( "com.netscape.certsrv.kra.ProofOfArchival" )
+               ||  type.startsWith( "com.netscape.cmscore.kra.ProofOfArchival" ) ) {
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.startsWith( "netscape.security.x509.RevokedCertImpl" ) ) {
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.startsWith( "java.lang.String[" ) ) {
+            // Bugzilla Bug #223360 (a.k.a - Raidzilla Bug #58086)
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+        } else if (type.startsWith("java.lang.String")) {
+			// Examples:
+			//
+			//     key.equals( "publickey" )
+			//     key.equals( "cert_request" )
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+									formatData( data ) );
+		} else if( type.startsWith( "java.util.Vector" ) ) {
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.startsWith( "netscape.security.x509.X509CertImpl[" ) ) {
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.equals( "netscape.security.x509.X509CertImpl" ) ) {
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.startsWith( "netscape.security.x509.X509CertInfo[" )
+               ||  type.startsWith( "netscape.security.extensions.CertInfo[" ) )
+        {
+			// CMS 6.2:  begin checking for additional new type
+			//           "netscape.security.extensions.CertInfo["
+			//
+			// CMS 6.1:  "netscape.security.x509.X509CertInfo"
+			//           now always utilizes arrays such as
+			//           "netscape.security.x509.X509CertInfo["
+			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
+								formatData( data ) );
+		} else if( type.equals( "netscape.security.x509.X509CertInfo" ) ) {
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
 		} else if( type.endsWith( "Exception" ) ) {
 			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
 								formatData( data ) );
 		} else {
-			//
 			System.err.println( "ERROR type - " + type + " - "+ attr );
 			System.exit( 0 );
 		}

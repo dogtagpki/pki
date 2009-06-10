@@ -119,6 +119,9 @@ fi
 ###  Setup the appropriate library path environment variable
 ###  based upon the platform
 ###
+###  NOTE:  As of SunOS JDK 1.4.0, the required "Unicode" classes
+###         have been moved from "i18n.jar" to "rt.jar".
+###
 
 CLASSPATH=/usr/share/rhpki/migrate/TxtTo72/classes:/usr/share/java/rhpki/certsrv.jar:/usr/share/java/rhpki/cmscore.jar:/usr/share/java/rhpki/nsutil.jar:/usr/lib/java/dirsec/jss4.jar:${JRE_ROOT}/lib/rt.jar
 export CLASSPATH

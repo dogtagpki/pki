@@ -133,9 +133,9 @@ fi
 
 
 ###
-###  Compile TxtTo70 - create "CMS73LdifParser.class", "DummyAuthManager.class",
+###  Compile TxtTo73 - create "CMS73LdifParser.class", "DummyAuthManager.class",
 ###                    and "Main.class"
 ###
 
-${JAVA_HOME}/bin/javac -d ${TARGET} -classpath ${JAVA_HOME}/jre/lib/rt.jar:/usr/share/java/rhpki/nsutil.jar:/usr/share/java/rhpki/certsrv.jar:/usr/share/java/rhpki/cmscore.jar:/usr/lib/java/dirsec/jss4.jar Main.java
+${JAVA_HOME}/bin/javac -d ${TARGET} -classpath ${JAVA_HOME}/jre/lib/rt.jar:/usr/share/java/rhpki/nsutil.jar:/usr/share/java/rhpki/certsrv.jar:/usr/share/java/rhpki/cmscore.jar:/usr/lib/java/rhpki/ca/ca.jar:/usr/lib/java/rhpki/tks/tks.jar:/usr/lib/java/rhpki/ocsp/ocsp.jar:/usr/lib/java/rhpki/kra/kra.jar:/usr/lib/java/dirsec/jss4.jar Main.java
 

@@ -16,7 +16,7 @@
 ###  Set SERVER_ROOT - identify the CMS <server_root> used to compile 42SP2ToTxt
 ###
 
-#SERVER_ROOT=/export/home/migrate/cms43
+#SERVER_ROOT=/export/home/migrate/cms42sp2
 #export SERVER_ROOT
 
 

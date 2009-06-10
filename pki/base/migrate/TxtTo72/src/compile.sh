@@ -110,7 +110,7 @@ elif [ ${OS_NAME} = "Linux" ] ; then
 	LD_LIBRARY_PATH=/usr/lib:/usr/lib/dirsec:${JAVA_HOME}/lib:${JAVA_HOME}/lib/i386/native_threads
 	export LD_LIBRARY_PATH
 else # SunOS
-	LD_LIBRARY_PATH=/usr/lib:/usr/lib/dirsec:${JAVA_HOME}/lib:${JAVA_HOME}/lib/sparc/native_threads
+	LD_LIBRARY_PATH=/usr/lib:/usr/lib/dirsec:${JAVA_HOME}/lib:${JAVA_HOME}/lib/native_threads
 	export LD_LIBRARY_PATH
 fi
 
@@ -133,9 +133,9 @@ fi
 
 
 ###
-###  Compile TxtTo70 - create "CMS72LdifParser.class", "DummyAuthManager.class",
+###  Compile TxtTo72 - create "CMS72LdifParser.class", "DummyAuthManager.class",
 ###                    and "Main.class"
 ###
 
-${JAVA_HOME}/bin/javac -d ${TARGET} -classpath ${JAVA_HOME}/jre/lib/rt.jar:/usr/share/java/rhpki/nsutil.jar:/usr/share/java/rhpki/certsrv.jar:/usr/share/java/rhpki/cmscore.jar:/usr/lib/java/dirsec/jss4.jar Main.java
+${JAVA_HOME}/bin/javac -d ${TARGET} -classpath ${JAVA_HOME}/jre/lib/rt.jar:/usr/share/java/rhpki/nsutil.jar:/usr/share/java/rhpki/certsrv.jar:/usr/share/java/rhpki/cmscore.jar:/usr/lib/java/rhpki/ca/ca.jar:/usr/lib/java/rhpki/tks/tks.jar:/usr/lib/java/rhpki/ocsp/ocsp.jar:/usr/lib/java/rhpki/kra/kra.jar:/usr/lib/java/dirsec/jss4.jar Main.java
 

@@ -235,9 +235,22 @@ class CMS70LdifParser
 			}
 			return;
 		}
-		String name = attr.substring(0, colon);
-		String type = attr.substring(colon+1, equal);
-		String value = attr.substring(equal+1);
+		String name = null;
+		String type = null;
+		String value = null;
+		try {
+			name = attr.substring(0, colon);
+			type = attr.substring(colon+1, equal);
+			value = attr.substring(equal+1);
+		} catch (Exception e) {
+			if (mErrorPrintWriter != null) {
+			    if (dn != null) {
+			        mErrorPrintWriter.println(dn);
+			    }
+			    mErrorPrintWriter.println("Skipped " + attr);
+			}
+			return;
+		}
 
 		if (name.startsWith("serviceErrors")) {
 			// #56953 - skip serviceErrors
@@ -259,28 +272,34 @@ class CMS70LdifParser
 			}
 			return;
 		}
-		if (type.startsWith("java.lang.String")) {
-			table.put(name, value);
-        } else if (type.startsWith("byte[]")) {
-            BASE64Decoder decoder = new BASE64Decoder();
-            table.put(name, decoder.decodeBuffer(value));
-		} else if (type.startsWith("java.lang.Integer")) {
-			table.put(name, new Integer(value));
-		} else if (type.startsWith("java.math.BigInteger")) {
-			table.put(name, new java.math.BigInteger(value));
-		} else if (type.startsWith("java.util.Locale")) {
-			// CMS 6.2:  begin checking for new type
-			//           "java.util.Locale"
-			table.put(name, Locale.getDefault());
-		} else if (type.startsWith("java.util.Vector")) {
-			Vector obj =
-				(Vector)table.get(name);
+
+		// To account for '47ToTxt' data files that have previously
+		// been generated, ALWAYS convert 'iplanet' to 'netscape'.
+		//
+		//     Bugzilla Bug #224801 (a.k.a - Raidzilla Bug #56981)
+		//     Bugzilla Bug #483519
+		//
+		String translation = null;
+		if( type.startsWith( "iplanet" ) ) {
+			translation = "netscape"
+                        + type.substring( 7 );
+			type = translation;
+		} else if( type.startsWith( "com.iplanet" ) ) {
+			translation = "com.netscape"
+                        + type.substring( 11 );
+			type = translation;
+		}
+
+		if (type.startsWith("com.netscape.certsrv.request.AgentApprovals")) {
+			com.netscape.certsrv.request.AgentApprovals obj =
+				(com.netscape.certsrv.request.AgentApprovals)table.get(name);
 			if (obj == null) {
-				obj = new Vector();
+				obj = new com.netscape.certsrv.request.AgentApprovals();
 				table.put(name, obj);
 			}
-			obj.addElement(value);
-		} else if (type.startsWith("com.netscape.certsrv.base.ArgBlock") || type.startsWith("com.netscape.cmscore.base.ArgBlock")) {
+			obj.addApproval(value.substring(0,value.indexOf(';')));
+		} else if (type.startsWith("com.netscape.certsrv.base.ArgBlock")
+               ||  type.startsWith("com.netscape.cmscore.base.ArgBlock")) {
 			// CMS 6.1:  created new "com.netscape.certsrv.base.IArgBlock" and
 			//           moved old "com.netscape.certsrv.base.ArgBlock"
 			//           to "com.netscape.cmscore.base.ArgBlock"
@@ -296,14 +315,6 @@ class CMS70LdifParser
 			String valuekey = value.substring(0, value.indexOf('='));
 			String valuevalue = value.substring(value.indexOf('=')+1);
 			obj.set(valuekey, valuevalue);
-		} else if (type.startsWith("com.netscape.certsrv.request.AgentApprovals")) {
-			com.netscape.certsrv.request.AgentApprovals obj =
-				(com.netscape.certsrv.request.AgentApprovals)table.get(name);
-			if (obj == null) {
-				obj = new com.netscape.certsrv.request.AgentApprovals();
-				table.put(name, obj);
-			}
-			obj.addApproval(value.substring(0,value.indexOf(';')));
 		} else if (type.startsWith("com.netscape.certsrv.authentication.AuthToken")) {
 			com.netscape.certsrv.authentication.AuthToken obj =
 				(com.netscape.certsrv.authentication.AuthToken)table.get(name);
@@ -317,6 +328,15 @@ class CMS70LdifParser
 			String valuetype = value.substring(value.indexOf(':')+1, value.indexOf('='));
 			String valuevalue = value.substring(value.indexOf('=')+1);
 			if (valuetype.equals("java.lang.String")) {
+                // Processes 'java.math.BigInteger[]':
+                // 
+                //     Bugzilla Bug #225031 (a.k.a - Raidzilla Bug #58356)
+                // 
+                // Processes 'java.lang.String[]':
+                // 
+                //     Bugzilla Bug #224763 (a.k.a - Raidzilla Bug #57949)
+                //     Bugzilla Bug #252240
+                // 
 				obj.set(valuekey, valuevalue);
 			} else if (valuetype.equals("java.util.Date")) {
 				obj.set(valuekey, new Date(Long.parseLong(valuevalue)));
@@ -324,25 +344,66 @@ class CMS70LdifParser
 				System.err.println("ERROR AuthToken type - " + attr);
 				System.exit(0);
 			}
-		} else if (type.startsWith("netscape.security.x509.X509CertInfo[") || type.startsWith("netscape.security.extensions.CertInfo[")) {
-			// CMS 6.2:  begin checking for additional new type
-			//           "netscape.security.extensions.CertInfo["
-			//
-			// CMS 6.1:  "netscape.security.x509.X509CertInfo"
-			//           now always utilizes arrays such as
-			//           "netscape.security.x509.X509CertInfo["
-			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
-			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
-			netscape.security.x509.X509CertInfo objs[] = (netscape.security.x509.X509CertInfo[])table.get(name);	
+        } else if (type.startsWith("java.math.BigInteger[")) {
+            // Bugzilla Bug #238779
+            int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
+            int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
+            java.math.BigInteger objs[] = (java.math.BigInteger[])table.get(name);
+            if (objs == null) {
+               objs = new java.math.BigInteger[size];
+               table.put(name, objs);
+            }
+            objs[index] = new java.math.BigInteger(value);
+		} else if (type.startsWith("java.math.BigInteger")) {
+			table.put(name, new java.math.BigInteger(value));
+        } else if (type.startsWith("byte[]")) {
+            BASE64Decoder decoder = new BASE64Decoder();
+            table.put(name, decoder.decodeBuffer(value));
+		} else if (type.startsWith("byte[")) {
+			// byte array
 			BASE64Decoder decoder = new BASE64Decoder();
-			if (objs == null) {
-				objs = new netscape.security.x509.X509CertInfo[size];
-				table.put(name, objs);
-			}
-				objs[index] = new netscape.security.x509.X509CertInfo();
-				objs[index].decode(new ByteArrayInputStream(decoder.decodeBuffer(value)));
+			table.put(name, decoder.decodeBuffer(value));
+		} else if (type.startsWith("netscape.security.x509.CertificateAlgorithmId")) {
+			BASE64Decoder decoder = new BASE64Decoder();
+			netscape.security.x509.CertificateAlgorithmId obj = 
+				new netscape.security.x509.CertificateAlgorithmId(new ByteArrayInputStream(decoder.decodeBuffer(value)));
+			table.put(name, obj);
+		} else if (type.equals("netscape.security.x509.CertificateChain")) {
+			BASE64Decoder decoder = new BASE64Decoder();
+			netscape.security.x509.CertificateChain obj = 
+				new netscape.security.x509.CertificateChain();
+			ByteArrayInputStream bis = new ByteArrayInputStream(decoder.decodeBuffer(value));
+			obj.decode(bis);
+			table.put(name, obj);
+		} else if (type.equals("netscape.security.x509.CertificateExtensions")) {
+			BASE64Decoder decoder = new BASE64Decoder();
+			netscape.security.x509.CertificateExtensions obj = 
+				new netscape.security.x509.CertificateExtensions();
+			obj.decodeEx(new ByteArrayInputStream(decoder.decodeBuffer(value)));
+			// CMS 6.2:  revised method of decoding objects of type
+			//           "netscape.security.x509.CertificateExtensions"
+			table.put(name, obj);
+		} else if (type.equals("netscape.security.x509.CertificateSubjectName")) {
+			BASE64Decoder decoder = new BASE64Decoder();
+			netscape.security.x509.CertificateSubjectName obj = 
+				new netscape.security.x509.CertificateSubjectName(new DerInputStream(decoder.decodeBuffer(value)));
+			// CMS 6.2:  revised method of decoding objects of type
+			//           "netscape.security.x509.CertificateSubjectName"
+			table.put(name, obj);
+		} else if (type.startsWith("netscape.security.x509.CertificateValidity")) {
+			BASE64Decoder decoder = new BASE64Decoder();
+			netscape.security.x509.CertificateValidity obj = 
+				new netscape.security.x509.CertificateValidity();
+			ByteArrayInputStream bis = new ByteArrayInputStream(decoder.decodeBuffer(value));
+			obj.decode(bis);
+			table.put(name, obj);
+		} else if (type.equals("netscape.security.x509.CertificateX509Key")) {
+			BASE64Decoder decoder = new BASE64Decoder();
+			netscape.security.x509.CertificateX509Key obj = 
+				new netscape.security.x509.CertificateX509Key(
+					new ByteArrayInputStream(decoder.decodeBuffer(value)));
+			table.put(name, obj);
 		} else if (type.startsWith("com.netscape.certsrv.cert.CertInfo")) {
-			//
 			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
 			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
 			netscape.security.extensions.CertInfo objs[] = (netscape.security.extensions.CertInfo[])table.get(name);	
@@ -353,68 +414,30 @@ class CMS70LdifParser
 			}
 				objs[index] = new netscape.security.extensions.CertInfo();
 				objs[index].decode(new ByteArrayInputStream(decoder.decodeBuffer(value)));
-		} else if (type.equals("netscape.security.x509.CertificateX509Key")) {
-			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateX509Key obj = 
-				new netscape.security.x509.CertificateX509Key(
-					new ByteArrayInputStream(decoder.decodeBuffer(value)));
-			table.put(name, obj);
-		} else if (type.equals("netscape.security.x509.X509CertInfo")) {
-			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.X509CertInfo obj = 
-				new netscape.security.x509.X509CertInfo(
-					decoder.decodeBuffer(value));
-			table.put(name, obj);
-		} else if (type.equals("netscape.security.x509.CertificateExtensions")) {
-			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateExtensions obj = 
-				new netscape.security.x509.CertificateExtensions();
-			obj.decodeEx(new ByteArrayInputStream(decoder.decodeBuffer(value)));
-			// CMS 6.2:  revised method of decoding objects of type
-			//           "netscape.security.x509.CertificateExtensions"
-			table.put(name, obj);
-		} else if (type.equals("netscape.security.x509.CertificateChain")) {
-			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateChain obj = 
-				new netscape.security.x509.CertificateChain();
-			ByteArrayInputStream bis = new ByteArrayInputStream(decoder.decodeBuffer(value));
-			obj.decode(bis);
-			table.put(name, obj);
-		} else if (type.equals("netscape.security.x509.CertificateSubjectName")) {
-			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateSubjectName obj = 
-				new netscape.security.x509.CertificateSubjectName(new DerInputStream(decoder.decodeBuffer(value)));
-			// CMS 6.2:  revised method of decoding objects of type
-			//           "netscape.security.x509.CertificateSubjectName"
-			table.put(name, obj);
-		} else if (type.equals("netscape.security.x509.X509CertImpl")) {
-			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.X509CertImpl obj = 
-				new netscape.security.x509.X509CertImpl(
-					decoder.decodeBuffer(value));
-			table.put(name, obj);
-		} else if (type.startsWith("netscape.security.x509.X509CertImpl[")) {
-			//
+        } else if (type.startsWith("java.util.Hashtable")) {
+            // Bugzilla Bug #224800 (a.k.a - Raidzilla Bug #56953)
+            java.util.Hashtable obj = (java.util.Hashtable)table.get(name);
+            if (obj == null) {
+                obj = new java.util.Hashtable();
+                table.put(name, obj);
+            }
+            BASE64Decoder decoder = new BASE64Decoder();
+            String valuekey = value.substring(0, value.indexOf('='));
+            String valuevalue = value.substring(value.indexOf('=')+1);
+            obj.put(valuekey, decoder.decodeBuffer(valuevalue));
+		} else if (type.startsWith("Integer[")) {
 			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
 			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
-			netscape.security.x509.X509CertImpl objs[] = (netscape.security.x509.X509CertImpl[])table.get(name);	
-			BASE64Decoder decoder = new BASE64Decoder();
+			Integer objs[] = (Integer[])table.get(name);	
 			if (objs == null) {
-				objs = new netscape.security.x509.X509CertImpl[size];
-				table.put(name, objs);
+			   objs = new Integer[size];
+			   table.put(name, objs);
 			}
-			objs[index] = new netscape.security.x509.X509CertImpl(decoder.decodeBuffer(value));
-		} else if (type.startsWith("netscape.security.x509.RevokedCertImpl")) {
-			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
-			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
-			netscape.security.x509.RevokedCertImpl objs[] = (netscape.security.x509.RevokedCertImpl[])table.get(name);	
-			BASE64Decoder decoder = new BASE64Decoder();
-			if (objs == null) {
-				objs = new netscape.security.x509.RevokedCertImpl[size];
-				table.put(name, objs);
-			}
-			objs[index] = new netscape.security.x509.RevokedCertImpl(decoder.decodeBuffer(value));
-		} else if (type.startsWith("com.netscape.certsrv.dbs.keydb.KeyRecord") || type.startsWith("com.netscape.cmscore.dbs.KeyRecord")) {
+			objs[index] = new Integer(value);
+		} else if (type.startsWith("java.lang.Integer")) {
+			table.put(name, new Integer(value));
+		} else if (type.startsWith("com.netscape.certsrv.dbs.keydb.KeyRecord")
+               ||  type.startsWith("com.netscape.cmscore.dbs.KeyRecord")) {
 			com.netscape.cmscore.dbs.KeyRecord obj =
 				(com.netscape.cmscore.dbs.KeyRecord)table.get(name);
 			if (obj == null) {
@@ -440,41 +463,91 @@ class CMS70LdifParser
 				BASE64Decoder decoder = new BASE64Decoder();
 				obj.set(valuekey, decoder.decodeBuffer(valuevalue));
 			} else {
-				System.err.println("ERROR AuthToken type - " + attr);
+				System.err.println("ERROR KeyRecord type - " + attr);
 				System.exit(0);
 			}
-		} else if (type.startsWith("com.netscape.certsrv.kra.ProofOfArchival") || type.startsWith("com.netscape.cmscore.kra.ProofOfArchival")) {
+		} else if (type.startsWith("java.util.Locale")) {
+			// CMS 6.2:  begin checking for new type
+			//           "java.util.Locale"
+			table.put(name, Locale.getDefault());
+		} else if (type.startsWith("com.netscape.certsrv.kra.ProofOfArchival")
+               ||  type.startsWith("com.netscape.cmscore.kra.ProofOfArchival"))         {
 			BASE64Decoder decoder = new BASE64Decoder();
 			
 			ByteArrayInputStream bis = new ByteArrayInputStream(decoder.decodeBuffer(value));
 			com.netscape.cmscore.kra.ProofOfArchival obj = 
 				buildPOA(decoder.decodeBuffer(value));
 			table.put(name, obj);
-		} else if (type.startsWith("netscape.security.x509.CertificateAlgorithmId")) {
-			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateAlgorithmId obj = 
-				new netscape.security.x509.CertificateAlgorithmId(new ByteArrayInputStream(decoder.decodeBuffer(value)));
-			table.put(name, obj);
-		} else if (type.startsWith("netscape.security.x509.CertificateValidity")) {
-			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateValidity obj = 
-				new netscape.security.x509.CertificateValidity();
-			ByteArrayInputStream bis = new ByteArrayInputStream(decoder.decodeBuffer(value));
-			obj.decode(bis);
-			table.put(name, obj);
-		} else if (type.startsWith("Integer[")) {
+		} else if (type.startsWith("netscape.security.x509.RevokedCertImpl")) {
 			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
 			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
-			Integer objs[] = (Integer[])table.get(name);	
-			if (objs == null) {
-			   objs = new Integer[size];
-			   table.put(name, objs);
-			}
-			objs[index] = new Integer(value);
-		} else if (type.startsWith("byte[")) {
-				// byte array
+			netscape.security.x509.RevokedCertImpl objs[] = (netscape.security.x509.RevokedCertImpl[])table.get(name);	
 			BASE64Decoder decoder = new BASE64Decoder();
-			table.put(name, decoder.decodeBuffer(value));
+			if (objs == null) {
+				objs = new netscape.security.x509.RevokedCertImpl[size];
+				table.put(name, objs);
+			}
+			objs[index] = new netscape.security.x509.RevokedCertImpl(decoder.decodeBuffer(value));
+		} else if (type.startsWith("java.lang.String[")) {
+            // Bugzilla Bug #223360 (a.k.a - Raidzilla Bug #58086)
+            int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
+            int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
+            java.lang.String objs[] = (java.lang.String[])table.get(name);
+            if (objs == null) {
+               objs = new java.lang.String[size];
+               table.put(name, objs);
+            }
+            objs[index] = new java.lang.String(value);
+        } else if (type.startsWith("java.lang.String")) {
+			table.put(name, value);
+		} else if (type.startsWith("java.util.Vector")) {
+			Vector obj =
+				(Vector)table.get(name);
+			if (obj == null) {
+				obj = new Vector();
+				table.put(name, obj);
+			}
+			obj.addElement(value);
+		} else if (type.startsWith("netscape.security.x509.X509CertImpl[")) {
+			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
+			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
+			netscape.security.x509.X509CertImpl objs[] = (netscape.security.x509.X509CertImpl[])table.get(name);	
+			BASE64Decoder decoder = new BASE64Decoder();
+			if (objs == null) {
+				objs = new netscape.security.x509.X509CertImpl[size];
+				table.put(name, objs);
+			}
+			objs[index] = new netscape.security.x509.X509CertImpl(decoder.decodeBuffer(value));
+		} else if (type.equals("netscape.security.x509.X509CertImpl")) {
+			BASE64Decoder decoder = new BASE64Decoder();
+			netscape.security.x509.X509CertImpl obj = 
+				new netscape.security.x509.X509CertImpl(
+					decoder.decodeBuffer(value));
+			table.put(name, obj);
+		} else if (type.startsWith("netscape.security.x509.X509CertInfo[")
+               ||  type.startsWith("netscape.security.extensions.CertInfo[")) {
+			// CMS 6.2:  begin checking for additional new type
+			//           "netscape.security.extensions.CertInfo["
+			//
+			// CMS 6.1:  "netscape.security.x509.X509CertInfo"
+			//           now always utilizes arrays such as
+			//           "netscape.security.x509.X509CertInfo["
+			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
+			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
+			netscape.security.x509.X509CertInfo objs[] = (netscape.security.x509.X509CertInfo[])table.get(name);	
+			BASE64Decoder decoder = new BASE64Decoder();
+			if (objs == null) {
+				objs = new netscape.security.x509.X509CertInfo[size];
+				table.put(name, objs);
+			}
+				objs[index] = new netscape.security.x509.X509CertInfo();
+				objs[index].decode(new ByteArrayInputStream(decoder.decodeBuffer(value)));
+		} else if (type.equals("netscape.security.x509.X509CertInfo")) {
+			BASE64Decoder decoder = new BASE64Decoder();
+			netscape.security.x509.X509CertInfo obj = 
+				new netscape.security.x509.X509CertInfo(
+					decoder.decodeBuffer(value));
+			table.put(name, obj);
 		} else if( type.endsWith( "Exception" ) ) {
 			Class[] argClass = { String.class };   // the argument's class
 			Object[] argValue = { value };         // the argument's value
@@ -483,7 +556,6 @@ class CMS70LdifParser
 			Constructor ctr = x.getConstructor( argClass );
 			Exception e = ( Exception ) ctr.newInstance( argValue );
 		} else {
-			//
 			System.err.println("ERROR type - " + type + " - "+ attr);
 			System.exit(0);
 		}

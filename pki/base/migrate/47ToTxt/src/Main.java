@@ -197,9 +197,21 @@ class CMS47LdifParser
 
 	public void output(String key, Object obj) throws Exception
 	{
+        String data_type = null;
+        String translation = null;
 		if (obj instanceof String) {
+            data_type = obj.getClass().getName();
+            if( data_type.startsWith( "iplanet" ) ) {
+                translation = "netscape"
+                            + data_type.substring( 7 );
+            } else if( data_type.startsWith( "com.iplanet" ) ) {
+                translation = "com.netscape"
+                            + data_type.substring( 11 );
+            } else {
+                translation = data_type;
+            }
 			System.out.println(" " +
-				key + ":" + obj.getClass().getName() + "=" + 
+				key + ":" + translation + "=" + 
 				obj);
 		} else if (obj instanceof iplanet.security.x509.CertificateX509Key) {
 			iplanet.security.x509.CertificateX509Key o =
@@ -301,11 +313,21 @@ class CMS47LdifParser
 			java.security.cert.Certificate o[] =
 				(java.security.cert.Certificate[])obj;
 			for (int i = 0; i < o.length; i++) {
+                data_type = o[i].getClass().getName();
+                if( data_type.startsWith( "iplanet" ) ) {
+                    translation = "netscape"
+                                + data_type.substring( 7 );
+                } else if( data_type.startsWith( "com.iplanet" ) ) {
+                    translation = "com.netscape"
+                                + data_type.substring( 11 );
+                } else {
+                    translation = data_type;
+                }
 				ByteArrayOutputStream bos = 
 					new ByteArrayOutputStream();
 				BASE64Encoder encoder = new BASE64Encoder();
 				System.out.println(" " +
-				key + ":" + o[i].getClass().getName() +"["+o.length+","+i+"]" + "=" + 
+				key + ":" + translation +"["+o.length+","+i+"]" + "=" + 
 				encoder.encode(o[i].getEncoded()));
 			}
 		} else if (obj instanceof com.iplanet.certsrv.base.ArgBlock) {
@@ -327,19 +349,49 @@ class CMS47LdifParser
 				Object ob = o.get(k);
 				if (ob != null) {
 				if (ob instanceof java.util.Date) {
+                    data_type = ob.getClass().getName();
+                    if( data_type.startsWith( "iplanet" ) ) {
+                        translation = "netscape"
+                                    + data_type.substring( 7 );
+                    } else if( data_type.startsWith( "com.iplanet" ) ) {
+                        translation = "com.netscape"
+                                    + data_type.substring( 11 );
+                    } else {
+                        translation = data_type;
+                    }
 					System.out.println(" " +
 					key + ":" + "com.netscape.certsrv.dbs.keydb.KeyRecord" + "=" +
-					k + ":" + ob.getClass().getName() + "=" + ((java.util.Date)ob).getTime());
+					k + ":" + translation + "=" + ((java.util.Date)ob).getTime());
 				} else if (ob instanceof byte[]) {
+                    data_type = ob.getClass().getName();
+                    if( data_type.startsWith( "iplanet" ) ) {
+                        translation = "netscape"
+                                    + data_type.substring( 7 );
+                    } else if( data_type.startsWith( "com.iplanet" ) ) {
+                        translation = "com.netscape"
+                                    + data_type.substring( 11 );
+                    } else {
+                        translation = data_type;
+                    }
 					BASE64Encoder encoder = new BASE64Encoder();
 					System.out.println(" " +
 					key + ":" + "com.netscape.certsrv.dbs.keydb.KeyRecord" + "=" +
-					k + ":" + ob.getClass().getName() + "=" + encoder.encode((byte[])ob));
+					k + ":" + translation + "=" + encoder.encode((byte[])ob));
 
 				} else {
+                    data_type = ob.getClass().getName();
+                    if( data_type.startsWith( "iplanet" ) ) {
+                        translation = "netscape"
+                                    + data_type.substring( 7 );
+                    } else if( data_type.startsWith( "com.iplanet" ) ) {
+                        translation = "com.netscape"
+                                    + data_type.substring( 11 );
+                    } else {
+                        translation = data_type;
+                    }
 					System.out.println(" " +
 					key + ":" + "com.netscape.certsrv.dbs.keydb.KeyRecord" + "=" +
-					k + ":" + ob.getClass().getName() + "=" + ob);
+					k + ":" + translation + "=" + ob);
 				}
 				}
 			}
@@ -371,10 +423,46 @@ class CMS47LdifParser
 				String k = (String)e.nextElement();
 				Object ob = o.get(k);
 				if (ob instanceof java.util.Date) {
+                    data_type = ob.getClass().getName();
+                    if( data_type.startsWith( "iplanet" ) ) {
+                        translation = "netscape"
+                                    + data_type.substring( 7 );
+                    } else if( data_type.startsWith( "com.iplanet" ) ) {
+                        translation = "com.netscape"
+                                    + data_type.substring( 11 );
+                    } else {
+                        translation = data_type;
+                    }
 					System.out.println(" " +
 					key + ":" + "com.netscape.certsrv.authentication.AuthToken" + "=" +
-					k + ":" + ob.getClass().getName() + "=" + ((java.util.Date)ob).getTime());
+					k + ":" + translation + "=" + ((java.util.Date)ob).getTime());
+                } else if (ob instanceof java.math.BigInteger[]) {
+                    // Bugzilla Bug #225031 (a.k.a. - Raidzilla Bug #58356)
+                    java.math.BigInteger in[] = (java.math.BigInteger[])ob;
+                    String numbers = "";
+                    for (int i = 0; i < in.length; i++) {
+                      if (numbers.equals("")) {
+                        numbers = in[i].toString();
+                      } else {
+                        numbers = numbers + "," + in[i].toString();
+                      }
+                    }
+                    System.out.println(" " +
+                    key + ":" + "com.netscape.certsrv.authentication.AuthToken" + "=" +
+                    k + ":java.lang.String=" + numbers);
                } else if (ob instanceof String[]) {
+                    // Bugzilla Bug #224763 (a.k.a. - Raidzilla Bug #57949)
+                    // Bugzilla Bug #252240
+                    data_type = o.getClass().getName();
+                    if( data_type.startsWith( "iplanet" ) ) {
+                        translation = "netscape"
+                                    + data_type.substring( 7 );
+                    } else if( data_type.startsWith( "com.iplanet" ) ) {
+                        translation = "com.netscape"
+                                    + data_type.substring( 11 );
+                    } else {
+                        translation = data_type;
+                    }
                     String str[] = (String[])ob;
                     String v = "";
                     if (str != null) {
@@ -386,12 +474,22 @@ class CMS47LdifParser
                       }
                     }
                     System.out.println(" " +
-                    key + ":" + o.getClass().getName() + "=" +
+                    key + ":" + translation + "=" +
                     k + ":" + "java.lang.String" + "=" + v);
 				} else {
+                    data_type = ob.getClass().getName();
+                    if( data_type.startsWith( "iplanet" ) ) {
+                        translation = "netscape"
+                                    + data_type.substring( 7 );
+                    } else if( data_type.startsWith( "com.iplanet" ) ) {
+                        translation = "com.netscape"
+                                    + data_type.substring( 11 );
+                    } else {
+                        translation = data_type;
+                    }
 					System.out.println(" " +
 					key + ":" + "com.netscape.certsrv.authentication.AuthToken" + "=" +
-					k + ":" + ob.getClass().getName() + "=" + ob);
+					k + ":" + translation + "=" + ob);
 				}
 			}
 		} else if (obj instanceof byte[]) {
@@ -404,9 +502,16 @@ class CMS47LdifParser
 				System.out.println(" " + key + ":Integer[" + in.length + "," + i + "]="+ in[i]);
 			}
         } else if (obj instanceof BigInteger[]) {
+            // Bugzilla Bug #238779
             BigInteger in[] = (BigInteger[])obj;
             for (int i = 0; i < in.length; i++) {
                 System.out.println(" " + key + ":java.math.BigInteger[" + in.length + "," + i + "]="+ in[i]);
+            }
+        } else if (obj instanceof String[]) {
+            // Bugzilla Bug #223360 (a.k.a - Raidzilla Bug #58086)
+            String str[] = (String[])obj;
+            for (int i = 0; i < str.length; i++) {
+                System.out.println(" " + key + ":java.lang.String[" + str.length + "," + i + "]="+ str[i]);
             }
 		} else if (obj instanceof iplanet.security.x509.CertificateAlgorithmId) {
 			iplanet.security.x509.CertificateAlgorithmId o =
@@ -428,9 +533,44 @@ class CMS47LdifParser
 			System.out.println(" " + key + 
 			":netscape.security.x509.CertificateValidity="+ 
 			encoder.encode(bos.toByteArray()));
+        } else if (obj instanceof java.util.Hashtable) {
+            // Bugzilla Bug #224800 (a.k.a - Raidzilla Bug #56953)
+            //
+            // Example:  fingerprints:java.util.Hashtable=
+            //           {SHA1=[B@52513a, MD5=[B@52c4d9, MD2=[B@799ff5}
+            //
+            java.util.Hashtable o = (java.util.Hashtable)obj;
+            data_type = o.getClass().getName();
+            if( data_type.startsWith( "iplanet" ) ) {
+                translation = "netscape"
+                            + data_type.substring( 7 );
+            } else if( data_type.startsWith( "com.iplanet" ) ) {
+                translation = "com.netscape"
+                            + data_type.substring( 11 );
+            } else {
+                translation = data_type;
+            }
+            BASE64Encoder encoder = new BASE64Encoder();
+            Enumeration e = o.elements();
+            while (e.hasMoreElements()) {
+                String k = (String)e.nextElement();
+                System.out.println(" " +
+                key + ":" + translation + "=" +
+                k + "=" + encoder.encode((byte[])o.get(k)));
+            }
 		} else {
+            data_type = obj.getClass().getName();
+            if( data_type.startsWith( "iplanet" ) ) {
+                translation = "netscape"
+                            + data_type.substring( 7 );
+            } else if( data_type.startsWith( "com.iplanet" ) ) {
+                translation = "com.netscape"
+                            + data_type.substring( 11 );
+            } else {
+                translation = data_type;
+            }
 			System.out.println(" " +
-				key + ":" + obj.getClass().getName() + "=" + 
+				key + ":" + translation + "=" + 
 				obj);
 		}
 	}

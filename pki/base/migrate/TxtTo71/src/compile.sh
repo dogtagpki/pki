@@ -154,7 +154,7 @@ fi
 
 
 ###
-###  Compile TxtTo70 - create "CMS71LdifParser.class", "DummyAuthManager.class",
+###  Compile TxtTo71 - create "CMS71LdifParser.class", "DummyAuthManager.class",
 ###                    and "Main.class"
 ###
 

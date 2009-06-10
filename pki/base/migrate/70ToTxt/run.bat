@@ -18,14 +18,14 @@ REM  All rights reserved.
 REM  --- END COPYRIGHT BLOCK ---
 
 REM
-REM  This script converts a pre-existing CMS 7.0/7.01 ldif data
+REM  This script converts a pre-existing CMS 7.0 ldif data
 REM  file (e. g. - created via a utility such as db2ldif)
-REM  into a normalized CMS 7.0/7.01 ldif text file.
+REM  into a normalized CMS 7.0 ldif text file.
 REM
-REM  This subsequent normalized CMS 7.0/7.01 ldif text file
-REM  can be migrated into CMS 7.0/7.01 or later utilizing
+REM  This subsequent normalized CMS 7.0 ldif text file
+REM  can be migrated into CMS 7.0 or later utilizing
 REM  the corresponding TxtTo<Target CMS Version> script which
-REM  converts this normalized CMS 7.0/7.01 ldif text file into
+REM  converts this normalized CMS 7.0 ldif text file into
 REM  a <Target CMS Version> ldif data file.
 REM
 REM  This <Target CMS Version> ldif data file can then be
@@ -41,7 +41,7 @@ REM
 REM  SERVER_ROOT - fully qualified path of the location of the server
 REM
 
-REM SET SERVER_ROOT=C:\cms701
+REM SET SERVER_ROOT=C:\cms70
 
 
 REM

@@ -201,5 +201,5 @@ fi
 ###  into a normalized ${CMS} ldif text file.
 ###
 
-${SERVER_ROOT}/bin/cert/jre/bin/jre -classpath ./classes:${SERVER_ROOT}/cert-${INSTANCE}/classes:${SERVER_ROOT}/bin/cert/classes:${SERVER_ROOT}/bin/cert/jars/certsrv.jar:${SERVER_ROOT}/bin/cert/jars/jss.jar:${SERVER_ROOT}/bin/cert/jars/jssjdk12.jar:${SERVER_ROOT}/bin/cert/jre/lib/rt.jar Main $1 $2
+${SERVER_ROOT}/bin/cert/jre/bin/jre -classpath ./classes:${SERVER_ROOT}/cert-${INSTANCE}/classes:${SERVER_ROOT}/bin/cert/classes:${SERVER_ROOT}/bin/cert/jars/certsrv.jar:${SERVER_ROOT}/bin/cert/jars/jss.jar:${SERVER_ROOT}/bin/cert/jars/jssjdk12.jar:${SERVER_ROOT}/bin/cert/jre/lib/rt.jar:${SERVER_ROOT}/bin/cert/jre/lib/i18n.jar Main $1 $2
 

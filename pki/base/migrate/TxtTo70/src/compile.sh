@@ -8,7 +8,7 @@
 ###  This script creates the "TxtTo70/classes/Main.class",        ###
 ###  "TxtTo70/classes/CMS70LdifParser.class", and                 ###
 ###  "TxtTo70/classes/DummyAuthManager.class" which are           ###
-###  used to create a CMS 7.0/7.01 ldif data file.                ###
+###  used to create a CMS 7.0 ldif data file.                     ###
 ###                                                               ###
 #####################################################################
 
@@ -17,7 +17,7 @@
 ###  Set SERVER_ROOT - identify the CMS <server_root> used to compile TxtTo70
 ###
 
-#SERVER_ROOT=/export/home/migrate/cms701
+#SERVER_ROOT=/export/home/migrate/cms70
 #export SERVER_ROOT
 
 
@@ -36,12 +36,8 @@
 ###                                    "Linux" - 1.4.2
 ###                                    "SunOS" - 1.4.2
 ###
-###                    CMS 7.01 NOTE:  "HP-UX" - 1.4.0.00
-###                                    "Linux" - 1.4.2
-###                                    "SunOS" - 1.4.2
-###
 
-#JDK_VERSION=CMS_7.01
+#JDK_VERSION=CMS_7.0
 #export JDK_VERSION
 
 

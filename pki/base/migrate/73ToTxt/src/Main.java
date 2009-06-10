@@ -376,7 +376,23 @@ class CMS73LdifParser
 					System.out.println(" " +
 					key + ":" + o.getClass().getName() + "=" +
 					k + ":" + ob.getClass().getName() + "=" + ((java.util.Date)ob).getTime());
+                } else if (ob instanceof java.math.BigInteger[]) {
+                    // Bugzilla Bug #225031 (a.k.a. - Raidzilla Bug #58356)
+                    java.math.BigInteger in[] = (java.math.BigInteger[])ob;
+                    String numbers = "";
+                    for (int i = 0; i < in.length; i++) {
+                      if (numbers.equals("")) {
+                        numbers = in[i].toString();
+                      } else {
+                        numbers = numbers + "," + in[i].toString();
+                      }
+                    }
+                    System.out.println(" " +
+                    key + ":" + "com.netscape.certsrv.authentication.AuthToken" + "=" +
+                    k + ":java.lang.String=" + numbers);
                 } else if (ob instanceof String[]) {
+                    // Bugzilla Bug #224763 (a.k.a. - Raidzilla Bug #57949)
+                    // Bugzilla Bug #252240
                     String str[] = (String[])ob;
                     String v = "";
                     if (str != null) {
@@ -406,9 +422,16 @@ class CMS73LdifParser
 				System.out.println(" " + key + ":Integer[" + in.length + "," + i + "]="+ in[i]);
 			}
         } else if (obj instanceof BigInteger[]) {
+            // Bugzilla Bug #238779
             BigInteger in[] = (BigInteger[])obj;
             for (int i = 0; i < in.length; i++) {
                 System.out.println(" " + key + ":java.math.BigInteger[" + in.length + "," + i + "]="+ in[i]);
+            }
+        } else if (obj instanceof String[]) {
+            // Bugzilla Bug #223360 (a.k.a - Raidzilla Bug #58086)
+            String str[] = (String[])obj;
+            for (int i = 0; i < str.length; i++) {
+                System.out.println(" " + key + ":java.lang.String[" + str.length + "," + i + "]="+ str[i]);
             }
 		} else if (obj instanceof netscape.security.x509.CertificateAlgorithmId) {
 			netscape.security.x509.CertificateAlgorithmId o =
@@ -437,6 +460,21 @@ class CMS73LdifParser
             System.out.println(" " + key +
             ":byte[]="+
             encoder.encode((byte[])obj));
+        } else if (obj instanceof java.util.Hashtable) {
+            // Bugzilla Bug #224800 (a.k.a - Raidzilla Bug #56953)
+            //
+            // Example:  fingerprints:java.util.Hashtable=
+            //           {SHA1=[B@52513a, MD5=[B@52c4d9, MD2=[B@799ff5}
+            //
+            java.util.Hashtable o = (java.util.Hashtable)obj;
+            BASE64Encoder encoder = new BASE64Encoder();
+            Enumeration e = o.elements();
+            while (e.hasMoreElements()) {
+                String k = (String)e.nextElement();
+                System.out.println(" " +
+                key + ":" + o.getClass().getName() + "=" +
+                k + "=" + encoder.encode((byte[])o.get(k)));
+            }
 		} else {
 			System.out.println(" " +
 				key + ":" + obj.getClass().getName() + "=" + 

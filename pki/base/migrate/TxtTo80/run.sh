@@ -309,6 +309,9 @@ fi
 ###  Setup the appropriate CLASSPATH and LD_LIBRARY_PATH
 ###  environment variables based upon the platform
 ###
+###  NOTE:  As of SunOS JDK 1.4.0, the required "Unicode" classes
+###         have been moved from "i18n.jar" to "rt.jar".
+###
 
 if	[ ! -f "/usr/share/java/pki/cmscore.jar" ] &&
 	[ ! -f "/usr/share/java/pki/certsrv.jar" ]; then

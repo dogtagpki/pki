@@ -20,10 +20,10 @@ REM  --- END COPYRIGHT BLOCK ---
 REM
 REM  This script converts a normalized <Source CS Version> ldif
 REM  text file (e. g. - created via a <Source CS Version>ToTxt
-REM  script) into a CS 7.1 ldif data file.
+REM  script) into a CS 7.2 ldif data file.
 REM
-REM  This CS 7.1 ldif data file can then be imported into the
-REM  internal database of the desired CS 7.1 server using a
+REM  This CS 7.2 ldif data file can then be imported into the
+REM  internal database of the desired CS 7.2 server using a
 REM  utility such as ldif2db.
 REM
 
@@ -35,7 +35,7 @@ REM
 REM  SERVER_ROOT - fully qualified path of the location of the server
 REM
 
-REM SET SERVER_ROOT=C:\cs71
+REM SET SERVER_ROOT=C:\cs72
 
 
 REM
@@ -60,7 +60,7 @@ REM
 REM  Script-defined constants
 REM
 
-SET CS="CS 7.1"
+SET CS="CS 7.2"
 
 
 REM
