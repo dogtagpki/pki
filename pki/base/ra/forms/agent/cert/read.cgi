@@ -62,9 +62,9 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
-  my $serialno = $util->get_val($q->param('serialno'));
+  my $serialno = $util->get_alphanum_val($q->param('serialno'));
 
   my $cs = PKI::Base::CertStore->new();
   $cs->open($cfg);
@@ -77,14 +77,14 @@ sub process()
   $ca->close();
 
 
-  $context{certificate} = $util->breakline($ref->{'certificate'}, 40);
+  $context{certificate} = $util->breakline($util->html_encode($ref->{'certificate'}), 40);
 
-  $context{serialno} = $ref->{'serialno'};
-  $context{subject_dn} = $ref->{'subject_dn'};
-  $context{created_at} = $ref->{'created_at'};
-  $context{approved_by} = $ref->{'approved_by'};
-  $context{rid} = $ref->{'rid'};
-  $context{certStatus} = $certStatus;
+  $context{serialno} = $util->html_encode($ref->{'serialno'});
+  $context{subject_dn} = $util->html_encode($ref->{'subject_dn'});
+  $context{created_at} = $util->html_encode($ref->{'created_at'});
+  $context{approved_by} = $util->html_encode($ref->{'approved_by'});
+  $context{rid} = $util->html_encode($ref->{'rid'});
+  $context{certStatus} = $util->html_encode($certStatus);
 
   my $result = $parser->execute_file_with_context("agent/cert/read.vm",
                    \%context);

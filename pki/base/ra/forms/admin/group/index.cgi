@@ -66,14 +66,14 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
-  my $sp = $util->get_val($q->param('sp'));
+  my $sp = $util->get_alphanum_val($q->param('sp'));
   if ($sp eq "") {
     $sp = "0";
   }
   $context{sp} = $sp;
-  my $mc = $util->get_val($q->param('mc'));
+  my $mc = $util->get_alphanum_val($q->param('mc'));
   if ($mc eq "") {
     $mc = "20";
   }
@@ -90,8 +90,8 @@ sub process()
   my $i = 0;
   foreach my $group (@groups) {
     $r[$i] = new PKI::RA::GlobalVar(
-                    getGID => sub { return $group->{'gid'} },
-                    getName => sub { return $group->{'name'} },
+                    getGID => sub { return $util->html_encode($group->{'gid'}) },
+                    getName => sub { return $util->html_encode($group->{'name'}) },
                    );
     $i++;
   }

@@ -66,24 +66,24 @@ sub process()
   $self->debug_log( $cfg, "in request/index.cgi, uid == $uid");
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
   my @roles = $self->get_current_roles($cfg);
 #  my $r = join(",",@roles);
 
-  my $status = $util->get_val($q->param('status'));
+  my $status = $util->get_alphanum_val($q->param('status'));
   if ($status eq "") {
     $context{status} = "";
   } else {
-    $context{status} = $status;
+    $context{status} = $util->html_encode($status);
   }
 
-  my $sp = $util->get_val($q->param('sp'));
+  my $sp = $util->get_alphanum_val($q->param('sp'));
   if ($sp eq "") {
     $sp = "0";
   }
   $context{sp} = $sp;
-  my $mc = $util->get_val($q->param('mc'));
+  my $mc = $util->get_alphanum_val($q->param('mc'));
   if ($mc eq "") {
     $mc = "20";
   }
@@ -94,7 +94,7 @@ sub process()
   my $queue = PKI::Request::Queue->new();
   $queue->open($cfg);
   my $total = $queue->count_requests_by_roles(\@roles, $status);
-  $context{total} = $total;
+  $context{total} = $util->html_encode($total);
 
   my @reqs = $queue->list_requests_by_roles(\@roles, $status, $sp, $mc);
 #  my @reqs = $queue->list_requests_by_roles($r, $status, $sp, $mc);
@@ -104,14 +104,14 @@ sub process()
   my $i = 0;
   foreach my $req (@reqs) {
     $r[$i] = new PKI::RA::GlobalVar(
-                    getId => sub { return $req->{'rowid'} },
-                    getType => sub { return $req->{'type'} },
-                    getStatus => sub { return $req->{'status'} },
-                    getError => sub { return $req->{'errorString'} },
-                    getAssignedTo => sub { return $req->{'assigned_to'} },
-                    getData => sub { return $req->{'data'}; },
-                    getCreatedBy => sub { return $req->{'created_by'}; },
-                    getCreatedAt => sub { return $req->{'created_at'}; },
+                    getId => sub { return $util->html_encode($req->{'rowid'}) },
+                    getType => sub { return $util->html_encode($req->{'type'}) },
+                    getStatus => sub { return $util->html_encode($req->{'status'}) },
+                    getError => sub { return $util->html_encode($req->{'errorString'}) },
+                    getAssignedTo => sub { return $util->html_encode($req->{'assigned_to'}) },
+                    getData => sub { return $util->html_encode($req->{'data'}); },
+                    getCreatedBy => sub { return $util->html_encode($req->{'created_by'}); },
+                    getCreatedAt => sub { return $util->html_encode($req->{'created_at'}); },
                    );
     $i++;
   }

@@ -136,16 +136,16 @@ sub process()
   }
 
   my %context;
-  $context{request_id} = $new_request;
+  $context{request_id} = $util->html_encode($new_request);
   $self->debug_log($cfg, "request $new_request created");
   $queue->close();
   $self->debug_log( $cfg, "after renewl read/create request $new_request"); 
 
-  $context{data} = $util->breakline($ref->{'data'}, 40);
-  $context{output} = $util->breakline($ref->{'output'}, 40);
-  $context{serialno} = $ref->{'serialno'};
-  $context{host} = $host;
-  $context{port} = $port;
+  $context{data} = $util->breakline($util->html_encode($ref->{'data'}), 40);
+  $context{output} = $util->breakline($util->html_encode($ref->{'output'}), 40);
+  $context{serialno} = $util->html_encode($ref->{'serialno'});
+  $context{host} = $util->html_encode($host);
+  $context{port} = $util->html_encode($port);
 
   #print $q->redirect("/ee/request/getcert.cgi?id=$new_request");
   my $result = $parser->execute_file_with_context("ee/user/renew.vm",

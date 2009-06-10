@@ -62,7 +62,7 @@ sub process()
 
   $self->debug_params($cfg, $q);
 
-  my $operation = $util->get_val($q->param('operation'));
+  my $operation = $util->get_alphanum_val($q->param('operation'));
   my $message = $util->get_val($q->param('message'));
   $message = uri_escape($message);
 

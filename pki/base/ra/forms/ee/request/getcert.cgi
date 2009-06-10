@@ -53,7 +53,7 @@ sub process()
 
   my $util = PKI::Base::Util->new();
 
-  my $id = $util->get_val($q->param('id'));
+  my $id = $util->get_alphanum_val($q->param('id'));
 
   my $docroot = PKI::Base::Registry->get_docroot();
   my $parser = PKI::Base::Registry->get_parser();
@@ -67,13 +67,13 @@ sub process()
   $queue->close();
 
   my %context;
-  $context{id} = $req->{'rowid'};
-  $context{serialno} = $req->{'serialno'};
-  $context{subject_dn} = $req->{'subject_dn'};
+  $context{id} = $util->html_encode($req->{'rowid'});
+  $context{serialno} = $util->html_encode($req->{'serialno'});
+  $context{subject_dn} = $util->html_encode($req->{'subject_dn'});
   if ($req->{'serialno'} eq "unavailable") {
     $context{output} = "";
   } else {
-    $context{output} = "-----BEGIN CERTIFICATE-----\n".$util->breakline($req->{'output'}, 40)."\n-----END CERTIFICATE-----";
+    $context{output} = "-----BEGIN CERTIFICATE-----\n".$util->breakline($util->html_encode($req->{'output'}), 40)."\n-----END CERTIFICATE-----";
   }
   my $result = $parser->execute_file_with_context("ee/request/getcert.vm",
                  \%context);

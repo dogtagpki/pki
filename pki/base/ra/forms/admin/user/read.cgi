@@ -74,10 +74,10 @@ sub process()
   my $ref = $store->read_user($userid);
   $store->close();
 
-  $context{userid} = $ref->{'uid'};
-  $context{name} = $ref->{'name'};
-  $context{email} = $ref->{'email'};
-  $context{certificate} = $util->breakline($ref->{'certificate'},40);
+  $context{userid} = $util->html_encode($ref->{'uid'});
+  $context{name} = $util->html_encode($ref->{'name'});
+  $context{email} = $util=>html_encode($ref->{'email'});
+  $context{certificate} = $util->breakline($util->html_encode($ref->{'certificate'}),40);
 
   my $result = $parser->execute_file_with_context("admin/user/read.vm",
                      \%context);

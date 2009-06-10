@@ -67,7 +67,7 @@ sub process()
                             "0",
                             $email);
   my %context;
-  $context{request_id} = $request_id;
+  $context{request_id} = $util->html_encode($request_id);
   $self->debug_log($cfg, "request $request_id created");
   $queue->close();
 

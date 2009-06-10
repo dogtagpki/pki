@@ -26,6 +26,7 @@ package PKI::Base::Util;
 use Time::Local;
 
 use DBI;
+use HTML::Entities;
 
 #######################################
 # Constructs a util
@@ -51,6 +52,13 @@ sub get_integer_val()
 sub get_string_val()
 {
   my ($self, $s) = @_;
+  return $s;
+}
+
+sub get_alphanum_val()
+{ 
+  my ($self, $s) = @_;
+  $s =~ s/[^A-Za-z0-9 ]*//g;
   return $s;
 }
 
@@ -119,5 +127,12 @@ sub test()
   print $o->to_str(\%h) . "\n";
   print $o->to_str($o->to_hash("5=1;c=2")) . "\n";
 }
+
+sub html_encode()
+{
+  my ($self, $s) = @_;
+  return HTML::Entities::encode($s);
+}
+
 
 1;

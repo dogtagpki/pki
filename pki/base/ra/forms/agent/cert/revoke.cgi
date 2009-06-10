@@ -61,15 +61,15 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
-  my $serialno = $util->get_val($q->param('serialno'));
+  my $serialno = $util->get_alphanum_val($q->param('serialno'));
   my $subject_dn = $util->get_val($q->param('subject_dn'));
-  my $rid = $util->get_val($q->param('rid'));
+  my $rid = $util->get_alphanum_val($q->param('rid'));
 
-  $context{serialno} = $serialno;
-  $context{subject_dn} = $subject_dn;
-  $context{rid} = $rid;
+  $context{serialno} = $util->html_encode($serialno);
+  $context{subject_dn} = $util->html_encode($subject_dn);
+  $context{rid} = $util->html_encode($rid);
  
   my $result = $parser->execute_file_with_context("agent/cert/revoke.vm",
                    \%context);

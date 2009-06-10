@@ -60,7 +60,7 @@ sub process()
   $self->debug_params($cfg, $q);
 
   my $uid = $util->get_val($q->param('uid'));
-  my $pin = $util->get_val($q->param('pin'));
+  my $pin = $util->get_alphanum_val($q->param('pin'));
   my $csr = $util->get_val($q->param('csr'));
   $csr = $util->normalize_csr($csr);
 
@@ -106,8 +106,8 @@ sub process()
 
   my %context;
   $context{cert} = $encoded;
-  $context{rid} = $rid;
-  $context{subject_dn} = $req->{'subject_dn'};
+  $context{rid} = $util->html_encode($rid);
+  $context{subject_dn} = $util->html_encode($req->{'subject_dn'});
   $queue->close();
 
   my $result = $parser->execute_file_with_context("ee/agent/enroll.vm", 

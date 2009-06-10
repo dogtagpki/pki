@@ -67,15 +67,15 @@ sub process()
   my %context;
   $context{uid} = $uid;
 
-  my $status = $util->get_val($q->param('status'));
+  my $status = $util->get_alphanum_val($q->param('status'));
   $context{status} = $status;
 
-  my $sp = $util->get_val($q->param('sp'));
+  my $sp = $util->get_alphanum_val($q->param('sp'));
   if ($sp eq "") {
     $sp = "0";
   }
   $context{sp} = $sp;
-  my $mc = $util->get_val($q->param('mc'));
+  my $mc = $util->get_alphanum_val($q->param('mc'));
   if ($mc eq "") {
     $mc = "20";
   }
@@ -92,9 +92,9 @@ sub process()
   my $i = 0;
   foreach my $user (@users) {
     $r[$i] = new PKI::RA::GlobalVar(
-                    getUID => sub { return $user->{'uid'} },
-                    getName => sub { return $user->{'name'} },
-                    getEmail => sub { return $user->{'email'} },
+                    getUID => sub { return $util->html_encode($user->{'uid'}) },
+                    getName => sub { return $util->html_encode($user->{'name'}) },
+                    getEmail => sub { return $util->html_encode($user->{'email'}) },
                    );
     $i++;
   }

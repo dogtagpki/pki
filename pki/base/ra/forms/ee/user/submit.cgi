@@ -58,7 +58,7 @@ sub process()
   my $fullname = $util->get_val($q->param('cn'));
   my $site_id = $util->get_val($q->param('site_id'));
   my $email = $util->get_val($q->param('email'));
-  my $csr_type = $util->get_val($q->param('csr_type'));
+  my $csr_type = $util->get_alphanum_val($q->param('csr_type'));
   my $csr = $util->get_val($q->param('csr'));
 
   $csr = $util->normalize_csr($csr);
@@ -81,7 +81,7 @@ sub process()
                             "0",
                             $email);
   my %context;
-  $context{request_id} = $request_id;
+  $context{request_id} = $util->html_encode($request_id);
   $self->debug_log($cfg, "request $request_id created");
   $queue->close();
   my $db_et = new Benchmark;

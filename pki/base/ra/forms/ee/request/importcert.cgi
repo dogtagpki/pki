@@ -53,7 +53,7 @@ sub process()
 
   my $util = PKI::Base::Util->new();
 
-  my $id = $util->get_val($q->param('id'));
+  my $id = $util->get_alphanum_val($q->param('id'));
 
   my $docroot = PKI::Base::Registry->get_docroot();
   my $parser = PKI::Base::Registry->get_parser();

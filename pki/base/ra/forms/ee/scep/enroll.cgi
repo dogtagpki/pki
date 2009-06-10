@@ -64,7 +64,7 @@ sub process()
 
   my $client_id = $util->get_val($q->param('client_id'));
   my $site_id = $util->get_val($q->param('site_id'));
-  my $pin = $util->get_val($q->param('pin'));
+  my $pin = $util->get_alphanum_val($q->param('pin'));
   my $csr = $util->get_val($q->param('csr'));
 
   my $key = $client_id . "/" . $site_id;

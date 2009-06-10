@@ -66,10 +66,10 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
-  my $type = $util->get_val($q->param('type'));
-  my $id = $util->get_val($q->param('id'));
+  my $type = $util->get_alphanum_val($q->param('type'));
+  my $id = $util->get_alphanum_val($q->param('id'));
 
   my $db_st = new Benchmark;
   my $queue = PKI::Request::Queue->new();
@@ -109,21 +109,21 @@ sub process()
   $queue->close();
   my $db_et = new Benchmark;
  
-  $context{data} = $util->breakline($ref->{'data'}, 40);
-  $context{output} = $util->breakline($ref->{'output'}, 40);
-  $context{serialno} = $ref->{'serialno'};
-  $context{type} = $ref->{'type'};
-  $context{ip} = $ref->{'ip'};
-  $context{note} = $ref->{'note'};
+  $context{data} = $util->breakline($util->html_encode($ref->{'data'}), 40);
+  $context{output} = $util->breakline($util->html_encode($ref->{'output'}), 40);
+  $context{serialno} = $util->html_encode($ref->{'serialno'});
+  $context{type} = $util->html_encode($ref->{'type'});
+  $context{ip} = $util->html_encode($ref->{'ip'});
+  $context{note} = $util->html_encode($ref->{'note'});
   $context{note} =~ s/\n/<br\/>/g;
-  $context{created_at} = $ref->{'created_at'};
-  $context{updated_at} = $ref->{'updated_at'};
-  $context{assigned_to} = $ref->{'assigned_to'};
-  $context{processed_by} = $ref->{'processed_by'};
-  $context{created_by} = $ref->{'created_by'};
-  $context{status} = $ref->{'status'};
-  $context{errorString} = $ref->{'errorString'};
-  $context{id} = $ref->{'rowid'};
+  $context{created_at} = $util->html_encode($ref->{'created_at'});
+  $context{updated_at} = $util->html_encode($ref->{'updated_at'});
+  $context{assigned_to} = $util->html_encode($ref->{'assigned_to'});
+  $context{processed_by} = $util->html_encode($ref->{'processed_by'});
+  $context{created_by} = $util->html_encode($ref->{'created_by'});
+  $context{status} = $util->html_encode($ref->{'status'});
+  $context{errorString} = $util->html_encode($ref->{'errorString'});
+  $context{id} = $util->html_encode($ref->{'rowid'});
 
   my $t_st = new Benchmark;
   my $result = $parser->execute_file_with_context("agent/request/op.vm",

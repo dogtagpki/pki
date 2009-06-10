@@ -64,17 +64,17 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
   my @roles = $self->get_current_roles($cfg);
   my $r = join(",",@roles);
 
-  my $sp = $util->get_val($q->param('sp'));
+  my $sp = $util->get_alphanum_val($q->param('sp'));
   if ($sp eq "") {
     $sp = "0";
   }
   $context{sp} = $sp;
-  my $mc = $util->get_val($q->param('mc'));
+  my $mc = $util->get_alphanum_val($q->param('mc'));
   if ($mc eq "") {
     $mc = "20";
   }
@@ -91,12 +91,12 @@ sub process()
   my $i = 0;
   foreach my $cert (@certs) {
     $r[$i] = new PKI::RA::GlobalVar(
-                    getReqId => sub { return $cert->{'rid'} },
-                    getSerialno => sub { return $cert->{'serialno'} },
-                    getSubjectDN => sub { return $cert->{'subject_dn'} },
-                    getCertificate => sub { return $cert->{'certificate'} },
-                    getApprovedBy => sub { return $cert->{'approved_by'} },
-                    getCreatedAt => sub { return $cert->{'created_at'}; },
+                    getReqId => sub { return $util->html_encode($cert->{'rid'}) },
+                    getSerialno => sub { return $util->html_encode($cert->{'serialno'}) },
+                    getSubjectDN => sub { return $util->html_encode($cert->{'subject_dn'}) },
+                    getCertificate => sub { return $util->html_encode($cert->{'certificate'}) },
+                    getApprovedBy => sub { return $util->html_encode($cert->{'approved_by'}) },
+                    getCreatedAt => sub { return $util->html_encode($cert->{'created_at'}); },
                    );
     $i++;
   }

@@ -64,9 +64,9 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
-  my $id = $util->get_val($q->param('id'));
+  my $id = $util->get_alphanum_val($q->param('id'));
   my $note = $util->get_val($q->param('note'));
 
   if ($note eq "") {

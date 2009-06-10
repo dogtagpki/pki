@@ -63,7 +63,7 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
   my $gid = $util->get_val($q->param('gid'));
 

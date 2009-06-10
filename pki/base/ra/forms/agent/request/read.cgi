@@ -63,43 +63,43 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
 
   my @roles = $self->get_current_roles($cfg);
 #  my $r = join(",",@roles);
 
-  my $id = $util->get_val($q->param('id'));
+  my $id = $util->get_alphanum_val($q->param('id'));
 
   my $queue = PKI::Request::Queue->new();
   $queue->open($cfg);
   my $ref = $queue->read_request_by_roles(\@roles, $id);
   $queue->close();
 
-  $context{data} = $util->breakline($ref->{'data'}, 40);
-  $context{output} = $util->breakline($ref->{'output'}, 40);
-  $context{meta_info} = $util->breakline($ref->{'meta_info'}, 40);
+  $context{data} = $util->breakline($util->html_encode($ref->{'data'}), 40);
+  $context{output} = $util->breakline($util->html_encode($ref->{'output'}), 40);
+  $context{meta_info} = $util->breakline($util->html_encode($ref->{'meta_info'}), 40);
 
-  $context{serialno} = $ref->{'serialno'};
-  $context{subject_dn} = $ref->{'subject_dn'};
-  $context{type} = $ref->{'type'};
-  $context{created_at} = $ref->{'created_at'};
-  $context{created_by} = $ref->{'created_by'};
-  $context{updated_at} = $ref->{'updated_at'};
-  $context{ip} = $ref->{'ip'};
-  $context{processed_by} = $ref->{'processed_by'};
-  $context{note} = $ref->{'note'};
+  $context{serialno} = $util->html_encode($ref->{'serialno'});
+  $context{subject_dn} = $util->html_encode($ref->{'subject_dn'});
+  $context{type} = $util->html_encode($ref->{'type'});
+  $context{created_at} = $util->html_encode($ref->{'created_at'});
+  $context{created_by} = $util->html_encode($ref->{'created_by'});
+  $context{updated_at} = $util->html_encode($ref->{'updated_at'});
+  $context{ip} = $util->html_encode($ref->{'ip'});
+  $context{processed_by} = $util->html_encode($ref->{'processed_by'});
+  $context{note} = $util->html_encode($ref->{'note'});
   $context{note} =~ s/\n/<br\/>/g;
-  $context{assigned_to} = $ref->{'assigned_to'};
-  $context{status} = $ref->{'status'};
+  $context{assigned_to} = $util->html_encode($ref->{'assigned_to'});
+  $context{status} = $util->html_encode($ref->{'status'});
   if ($ref->{'status'} eq "OPEN") {
     $context{is_open} = 1;
   }
   if ($ref->{'status'} eq "ERROR") {
     $context{is_error} = 1;
   }
-  $context{errorString} = $ref->{'errorString'};
-  $context{id} = $ref->{'rowid'};
+  $context{errorString} = $util->html_encode($ref->{'errorString'});
+  $context{id} = $util->html_encode($ref->{'rowid'});
 
   my $result = $parser->execute_file_with_context("agent/request/read.vm",
                     \%context);

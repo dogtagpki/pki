@@ -53,7 +53,7 @@ sub process()
 
   my $util = PKI::Base::Util->new();
 
-  my $id = $util->get_val($q->param('id'));
+  my $id = $util->get_alphanum_val($q->param('id'));
 
   my $docroot = PKI::Base::Registry->get_docroot();
   my $parser = PKI::Base::Registry->get_parser();
@@ -71,11 +71,11 @@ sub process()
   }
 
   my %context;
-  $context{id} = $req->{'rowid'};
-  $context{type} = $req->{'type'};
-  $context{status} = $req->{'status'};
-  $context{serialno} = $req->{'serialno'};
-  $context{errorString} = $req->{'errorString'};
+  $context{id} = $util->html_encode($req->{'rowid'});
+  $context{type} =$util->html_encode($req->{'type'});
+  $context{status} = $util->html_encode($req->{'status'});
+  $context{serialno} = $util->html_encode($req->{'serialno'});
+  $context{errorString} = $util->html_encode($req->{'errorString'});
 
   my $result = $parser->execute_file_with_context("ee/request/status.vm",
                     \%context);

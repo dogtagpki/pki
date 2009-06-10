@@ -65,7 +65,7 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
   my $gid = $util->get_val($q->param('gid'));
 
@@ -73,8 +73,8 @@ sub process()
   $store->open($cfg);
   my $ref = $store->read_group($gid);
 
-  $context{gid} = $ref->{'gid'};
-  $context{name} = $ref->{'name'};
+  $context{gid} = $util->html_encode($ref->{'gid'});
+  $context{name} = $util->html_encode($ref->{'name'});
 
   my @members = $store->list_all_members($gid);
   my @users = $store->list_all_non_members($gid);
@@ -85,7 +85,7 @@ sub process()
   my $i = 0;
   foreach my $member (@members) {
     $r[$i] = new PKI::RA::GlobalVar(
-                    getUID => sub { return $member->{'uid'} },
+                    getUID => sub { return $util->html_encode($member->{'uid'}) },
                    );
     $i++;
   }
@@ -96,7 +96,7 @@ sub process()
   $i = 0;
   foreach my $user (@users) {
     $u[$i] = new PKI::RA::GlobalVar(
-                    getUID => sub { return $user->{'uid'} },
+                    getUID => sub { return $util->html_encode($user->{'uid'}) },
                    );
     $i++;
   }

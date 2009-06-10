@@ -31,6 +31,7 @@ use Template::Velocity;
 use PKI::Base::Conf;
 use PKI::Base::UserStore;
 use PKI::Base::Registry;
+use PKI::Base::Util;
 
 use vars qw (@ISA);
 use PKI::Service::Op;
@@ -48,6 +49,8 @@ sub process()
 
   my $q = CGI->new();
 
+  my $util = PKI::Base::Util->new();
+
   my $docroot = PKI::Base::Registry->get_docroot();
   my $parser = PKI::Base::Registry->get_parser();
   my $cfg = PKI::Base::Registry->get_config();
@@ -61,7 +64,7 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
   my $result = $parser->execute_file_with_context("agent/index.vm", 
                     \%context);

@@ -77,9 +77,11 @@ sub enroll {
 
   my $tmpfile = "/tmp/tmp-$rid-$$";
   my $params = "profileId=" . $profile_id . "&" .
-                  "requestor_name=" . $requestor_name . "&" .
+                  "requestor_name=" . 
+                      URI::Escape::uri_escape("$requestor_name") . "&" .
                   "cert_request_type=" . $cert_request_type . "&" .
-                  "subject=" . $subject . "&" .
+                  "subject=" . 
+                      URI::Escape::uri_escape("$subject") . "&" .
                   "cert_request=" .
                       URI::Escape::uri_escape("$cert_request") . "&" .
                   "xmlOutput=true";

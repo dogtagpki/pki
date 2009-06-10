@@ -65,9 +65,9 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
   my $error = $q->param('error');
-  $context{error} = $error;
+  $context{error} = $util->html_encode($error);
 
   my $result = $parser->execute_file_with_context("admin/group/add_new.vm",
                    \%context);

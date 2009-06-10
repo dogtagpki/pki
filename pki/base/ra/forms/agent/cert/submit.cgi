@@ -63,12 +63,12 @@ sub process()
   my $uid = $self->get_current_uid($cfg);
 
   my %context;
-  $context{uid} = $uid;
+  $context{uid} = $util->html_encode($uid);
 
-  my $serialno = $util->get_val($q->param('serialno'));
+  my $serialno = $util->get_alphanum_val($q->param('serialno'));
   my $subject_dn = $util->get_val($q->param('subject_dn'));
-  my $reason = $util->get_val($q->param('reason'));
-  my $rid = $util->get_val($q->param('rid'));
+  my $reason = $util->get_alphanum_val($q->param('reason'));
+  my $rid = $util->get_alphanum_val($q->param('rid'));
 
   my $ca = PKI::Conn::CA->new();
   $ca->open($cfg);
@@ -79,12 +79,12 @@ sub process()
   $queue->open($cfg);
 
   my $ref = $queue->read_request($rid);
-  $context{errorString} = $ref->{'errorString'};
+  $context{errorString} = $util->html_encode($ref->{'errorString'});
   $queue->close();
 
-  $context{rid} = $rid;
-  $context{serialno} = $serialno;
-  $context{subject_dn} = $subject_dn;
+  $context{rid} = $util->html_encode($rid);
+  $context{serialno} = $util->html_encode($serialno);
+  $context{subject_dn} = $util->html_encode($subject_dn);
 
   my $result = $parser->execute_file_with_context("agent/cert/submit.vm",
                    \%context);

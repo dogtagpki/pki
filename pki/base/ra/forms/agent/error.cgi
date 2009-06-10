@@ -62,7 +62,7 @@ sub process()
   my %context;
   if ($error ne "") {
     $context{has_error} = 1;
-    $context{'error'} = $error;
+    $context{'error'} = $util->html_encode($error);
   }
 
   my $result = $parser->execute_file_with_context("agent/error.vm", \%context);
