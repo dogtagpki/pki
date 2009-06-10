@@ -98,6 +98,9 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
            String renew_grace_after_s = getConfig(CONFIG_RENEW_GRACE_AFTER);
            int renew_grace_before = 0;
            int renew_grace_after = 0;
+           long renew_grace_before_l = 0;
+           long renew_grace_after_l= 0;
+
            // -1 means no limit
            if (renew_grace_before_s == "")
                renew_grace_before = -1;
@@ -109,13 +112,14 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
            else
                renew_grace_after = Integer.parseInt(renew_grace_after_s);
 
+           if (renew_grace_before > 0)
+               renew_grace_before_l = renew_grace_before * 1000 * 86400;
+           if (renew_grace_after > 0)
+               renew_grace_after_l = renew_grace_after * 1000 * 86400;
+
            Date current = CMS.getCurrentDate();
            long millisDiff = origExpDate.getTime() - current.getTime();
            CMS.debug("validateRenewGracePeriod: millisDiff=" + millisDiff + " origExpDate=" + origExpDate.getTime() + " current=" + current.getTime());
-           long long_days = (millisDiff / 1000 ) / 86400;
-           CMS.debug("validateRenewGracePeriod: long_days: "+long_days);
-           int days = (int)long_days;
-           CMS.debug("validateRenewGracePeriod: days: "+days);
 
            /*
             * "days", if positive, has to be less than renew_grace_before
@@ -124,15 +128,15 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
             * if renew_grace_before or renew_grace_after are negative
             *    the one with negative value is ignored
             */
-           if (days >= 0) {
-               if ((renew_grace_before>0) && (days > renew_grace_before)) {
+           if (millisDiff >= 0) {
+               if ((renew_grace_before>0) && (millisDiff > renew_grace_before_l)) {
                    throw new ERejectException(CMS.getUserMessage(getLocale(req),
                         "CMS_PROFILE_RENEW_OUTSIDE_GRACE_PERIOD", 
                         renew_grace_before+" days before and "+
                         renew_grace_after+" days after original cert expiration date"));
                }
            } else {
-               if ((renew_grace_after > 0) && ((0-days) > renew_grace_after)) {
+               if ((renew_grace_after > 0) && ((0-millisDiff) > renew_grace_after_l)) {
                    throw new ERejectException(CMS.getUserMessage(getLocale(req),
                         "CMS_PROFILE_RENEW_OUTSIDE_GRACE_PERIOD", 
                         renew_grace_before+" days before and "+
