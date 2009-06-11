@@ -869,7 +869,10 @@ static int tus_check_conn()
     int  version = LDAP_VERSION3;
     int  status  = -1;
 
-#define DEBUG_TOKENDB
+/* for production, make sure this variable is not defined.
+ * Leaving it defined results in weird Apache SSL timeout errors */
+/*#define DEBUG_TOKENDB*/
+
 #ifdef DEBUG_TOKENDB
     debug_fd = PR_Open("/tmp/debugTUSdb.log",
            PR_RDWR | PR_CREATE_FILE | PR_APPEND,
