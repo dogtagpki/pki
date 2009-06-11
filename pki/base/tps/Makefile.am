@@ -151,7 +151,9 @@ cgibin_sow_SCRIPTS =	$(srcdir)/forms/esc/cgi-bin/sow/ajax-list.cgi   \
 						$(srcdir)/forms/esc/cgi-bin/sow/search.cgi      \
 						$(srcdir)/forms/esc/cgi-bin/sow/search_temp.cgi \
 						$(srcdir)/forms/esc/cgi-bin/sow/seturl.cgi      \
-						$(srcdir)/forms/esc/cgi-bin/sow/welcome.cgi
+						$(srcdir)/forms/esc/cgi-bin/sow/welcome.cgi     \
+						$(srcdir)/forms/esc/cgi-bin/sow/is_agent.cgi    \
+						$(srcdir)/forms/esc/cgi-bin/sow/is_user.cgi
 
 conf_DATA =	$(srcdir)/apache/conf/httpd.conf      \
 			$(srcdir)/apache/conf/magic           \
