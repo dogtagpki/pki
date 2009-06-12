@@ -451,6 +451,10 @@ function revokeCert(serialNumber)
             document.writeln("<INPUT TYPE=hidden name=b64eCertificate value=\"" +
                              result.header.b64eCertificate +"\">");
         }
+        if (typeof(result.header.nonce) != "undefined") {
+            document.writeln("<INPUT TYPE=hidden name=nonce value=\"" +
+                              result.header.nonce +"\">");
+        }
 //-->
 </SCRIPT>
       </td>
