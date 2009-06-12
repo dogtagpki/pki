@@ -53,6 +53,7 @@ public class DoRevoke extends CMSServlet {
     private String mFormPath = null;
     private IRequestQueue mQueue = null;
     private IPublisherProcessor mPublisherProcessor = null;
+    private Nonces mNonces = null;
     private int mTimeLimits = 30; /* in seconds */
 
     private final static String REVOKE = "revoke";
@@ -80,6 +81,9 @@ public class DoRevoke extends CMSServlet {
 
         if (mAuthority instanceof ICertificateAuthority) {
             mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();
+            if (((ICertificateAuthority) mAuthority).noncesEnabled()) {
+                mNonces = ((ICertificateAuthority) mAuthority).getNonces();
+            }
         }
         if (mAuthority instanceof ICertAuthority) {
             mPublisherProcessor = ((ICertAuthority) mAuthority).getPublisherProcessor();
@@ -169,6 +173,30 @@ public class DoRevoke extends CMSServlet {
                 }
             }
             revokeAll = req.getParameter("revokeAll");
+
+            if (mNonces != null) {
+                boolean nonceVerified = false;
+                String nonceStr = req.getParameter("nonce");
+                if (nonceStr != null) {
+                    long nonce = Long.parseLong(nonceStr.trim());
+                    X509Certificate cert1 = mNonces.getCertificate(nonce);
+                    X509Certificate cert2 = getSSLClientCertificate(req);
+                    if (cert1 == null) {
+                        CMS.debug("DoRevoke:  Unknown nonce");
+                    } else if (cert1 != null && cert2 != null && cert1.equals(cert2)) {
+                        nonceVerified = true;
+                        mNonces.removeNonce(nonce);
+                    }
+                } else {
+                    CMS.debug("DoRevoke:  Missing nonce");
+                }
+                CMS.debug("DoRevoke:  nonceVerified="+nonceVerified);
+                if (!nonceVerified) {
+                    cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+                    return;
+                }
+            }
+
             String comments = req.getParameter(IRequest.REQUESTOR_COMMENTS);
             String eeSubjectDN = null;
             String eeSerialNumber = null;
