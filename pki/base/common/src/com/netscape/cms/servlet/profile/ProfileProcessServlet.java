@@ -33,6 +33,7 @@ import com.netscape.certsrv.request.*;
 import com.netscape.certsrv.authentication.*;
 import com.netscape.certsrv.authorization.*;
 import com.netscape.certsrv.logging.*;
+import com.netscape.certsrv.ca.*;
 import com.netscape.cms.servlet.common.*;
 
 import java.security.cert.*;
@@ -47,6 +48,7 @@ import netscape.security.x509.*;
 public class ProfileProcessServlet extends ProfileServlet {
     private static final String PROP_AUTHORITY_ID = "authorityId";
     private String mAuthorityId = null;
+    private Nonces mNonces = null;
 
     private final static byte EOL[] = { Character.LINE_SEPARATOR };
     private final static String SIGNED_AUDIT_CERT_REQUEST_REASON =
@@ -60,6 +62,14 @@ public class ProfileProcessServlet extends ProfileServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
+
+        ICertificateAuthority authority = null;
+        if (mAuthorityId != null)
+            authority = (ICertificateAuthority) CMS.getSubsystem(mAuthorityId);
+
+        if (authority != null && authority.noncesEnabled()) {
+            mNonces = authority.getNonces();
+        }
     }
 
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -116,6 +126,35 @@ public class ProfileProcessServlet extends ProfileServlet {
               statsSub.endTiming("approval");
             }
             return;
+        }
+
+        if (mNonces != null) {
+            String requestNonce = request.getParameter(ARG_REQUEST_NONCE);
+            boolean nonceVerified = false;
+            if (requestNonce != null) {
+                long nonce = Long.parseLong(requestNonce.trim());
+                X509Certificate cert1 = mNonces.getCertificate(nonce);
+                X509Certificate cert2 = getSSLClientCertificate(request);
+                if (cert1 == null) {
+                    CMS.debug("ProfileProcessServlet:  Unknown nonce");
+                } else if (cert1 != null && cert2 != null && cert1.equals(cert2)) {
+                    nonceVerified = true;
+                    mNonces.removeNonce(nonce);
+                }
+            } else {
+                CMS.debug("ProfileProcessServlet:  Missing nonce");
+            }
+            CMS.debug("ProfileProcessServlet:  nonceVerified="+nonceVerified);
+            if (!nonceVerified) {
+                args.set(ARG_ERROR_CODE, "1");
+                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                        "CMS_AUTHORIZATION_ERROR"));
+                outputTemplate(request, response, args);
+                if (statsSub != null) {
+                    statsSub.endTiming("approval");
+                }
+                return;
+            }
         }
 
         CMS.debug("ProfileProcessServlet: start serving");
