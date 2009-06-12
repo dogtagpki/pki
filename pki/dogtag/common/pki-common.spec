@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      29
+%define base_release      30
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Fri Jun 12 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-30
+- Bugzilla Bug #502694 - adding random nonces
 * Wed Jun 10 2009 Christina Fu <cfu@redhat.com> 1.1.0-29
 - Bugzilla Bug #480255 - User Certificate gets renewed when cert is not in grace period.
 * Sat Jun 6 2009 Christina Fu <cfu@redhat.com> 1.1.0-28
