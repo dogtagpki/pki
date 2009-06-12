@@ -124,6 +124,9 @@ public interface ICertificateAuthority extends ISubsystem {
      */
     public IPolicyProcessor getPolicyProcessor();
 
+    public boolean noncesEnabled();
+    public Nonces  getNonces();
+
     /**
      * Retrieves the publishing processor of this certificate authority.
      *
