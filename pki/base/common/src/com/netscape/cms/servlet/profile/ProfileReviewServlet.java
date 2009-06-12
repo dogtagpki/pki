@@ -33,6 +33,7 @@ import com.netscape.certsrv.profile.*;
 import com.netscape.certsrv.authentication.*;
 import com.netscape.certsrv.authorization.*;
 import com.netscape.certsrv.logging.*;
+import com.netscape.certsrv.ca.*;
 import com.netscape.cms.servlet.common.*;
 
 
@@ -46,6 +47,8 @@ public class ProfileReviewServlet extends ProfileServlet {
     private static final String PROP_AUTHORITY_ID = "authorityId";
 
     private String mAuthorityId = null; 
+    private Random mRandom = null;
+    private Nonces mNonces = null;
 
     public ProfileReviewServlet() {
     }
@@ -59,6 +62,15 @@ public class ProfileReviewServlet extends ProfileServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
+
+        ICertificateAuthority authority = null;
+        if (mAuthorityId != null)
+            authority = (ICertificateAuthority) CMS.getSubsystem(mAuthorityId);
+
+        if (authority != null && authority.noncesEnabled()) {
+            mNonces = authority.getNonces();
+            mRandom = new Random();
+        }
     }
 
     /**
@@ -220,6 +232,15 @@ public class ProfileReviewServlet extends ProfileServlet {
                 count++;
             }
         }
+
+        if (mNonces != null) {
+            long n = mRandom.nextLong();
+            long m = mNonces.addNonce(n, getSSLClientCertificate(request));
+            if ((n + m) != 0) {
+                args.set(ARG_REQUEST_NONCE, Long.toString(m));
+            }
+        }
+
         args.set(ARG_REQUEST_ID, req.getRequestId().toString());
         args.set(ARG_REQUEST_TYPE, req.getRequestType());
         args.set(ARG_REQUEST_STATUS, req.getRequestStatus().toString());
