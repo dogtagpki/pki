@@ -64,6 +64,7 @@ public class ProfileServlet extends CMSServlet {
         "requestCreationTime";
     public final static String ARG_REQUEST_MODIFICATION_TIME = 
         "requestModificationTime";
+    public final static String ARG_REQUEST_NONCE = "nonce";
 
     public final static String ARG_AUTH_ID = "authId";
     public final static String ARG_AUTH_SYNTAX = "authSyntax";
