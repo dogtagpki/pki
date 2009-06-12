@@ -325,7 +325,7 @@ public class ConfigureOCSP
 							"&__bindpwd=" + URLEncoder.encode(bind_password) +
 								"&basedn=" + URLEncoder.encode(base_dn) +
 								"&database=" + URLEncoder.encode(db_name) +
-								"&display=" + URLEncoder.encode("displayStr") +
+								"&display=" + URLEncoder.encode("$displayStr") +
 								""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
