@@ -56,6 +56,8 @@ public class ReasonToRevoke extends CMSServlet {
     private ICertificateRepository mCertDB = null;
     private String mFormPath = null;
     private ICertificateAuthority mCA = null;
+    private Random mRandom = null;
+    private Nonces mNonces = null;
     private int mTimeLimits = 30; /* in seconds */
 
     public ReasonToRevoke() {
@@ -75,6 +77,12 @@ public class ReasonToRevoke extends CMSServlet {
             mCA = (ICertificateAuthority) mAuthority;
             mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();
         }
+
+        if (mCA != null && mCA.noncesEnabled()) {
+            mRandom = new Random();
+            mNonces = mCA.getNonces();
+        }
+
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
@@ -205,6 +213,14 @@ public class ReasonToRevoke extends CMSServlet {
 
         header.addStringValue("revokeAll", revokeAll);
         header.addIntegerValue("totalRecordCount", totalRecordCount);
+
+        if (mNonces != null) {
+            long n = mRandom.nextLong();
+            long m = mNonces.addNonce(n, getSSLClientCertificate(req));
+            if ((n + m) != 0) {
+                header.addStringValue("nonce", Long.toString(m));
+            }
+        }
 
         try {
             if (mCA != null) {
