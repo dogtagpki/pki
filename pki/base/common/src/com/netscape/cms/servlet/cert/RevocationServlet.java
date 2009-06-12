@@ -23,6 +23,7 @@ import com.netscape.cms.servlet.base.*;
 
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Random;
 import java.io.IOException;
 import java.math.BigInteger;
 
@@ -71,6 +72,10 @@ public class RevocationServlet extends CMSServlet {
     private String mFormPath = null;
     private boolean mRevokeByDN = true;
 
+    private Random mRandom = null;
+    private Nonces mNonces = null;
+
+
     public RevocationServlet() {
         super();
     }
@@ -92,6 +97,13 @@ public class RevocationServlet extends CMSServlet {
                         PROP_SUCCESS_TEMPLATE);
             if (mFormPath == null)
                 mFormPath = "/" + TPL_FILE;
+
+            if (mAuthority instanceof ICertificateAuthority) {
+                if (((ICertificateAuthority) mAuthority).noncesEnabled()) {
+                    mNonces = ((ICertificateAuthority) mAuthority).getNonces();
+                    mRandom = new Random();
+                }
+            }
 
                 // set to false by revokeByDN=false in web.xml
             mRevokeByDN = false;
@@ -187,6 +199,14 @@ public class RevocationServlet extends CMSServlet {
         //		header.addStringValue("subject", old_cert.getSubjectDN().toString());
         //		header.addLongValue("validNotBefore", old_cert.getNotBefore().getTime()/1000);
         //		header.addLongValue("validNotAfter", old_cert.getNotAfter().getTime()/1000);
+
+        if (mNonces != null) {
+            long n = mRandom.nextLong();
+            long m = mNonces.addNonce(n, (X509Certificate)old_cert);
+            if ((n + m) != 0) {
+                header.addStringValue("nonce", Long.toString(m));
+            }
+        }
 
         boolean noInfo = false;
         X509CertImpl[] certsToRevoke = null;
