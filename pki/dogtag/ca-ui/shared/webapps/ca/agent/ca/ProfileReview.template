@@ -394,6 +394,9 @@ document.writeln('<p>');
      document.writeln('<OPTION VALUE="assign">Assign request</OPTION>');
      document.writeln('<OPTION VALUE="unassign">Unassign request</OPTION>');
      document.writeln('</SELECT>');
+if (typeof(nonce) != "undefined") {
+     document.writeln("<INPUT TYPE=hidden name=nonce value=\"" + nonce +"\">");
+}
 document.writeln('<input type=submit name=submit value=submit>');
 document.writeln('</form>');
 } // if
