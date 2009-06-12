@@ -173,6 +173,10 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
     private boolean mByName = true;
 
+    private boolean mUseNonces = true;
+    private int mMaxNonces = 100;
+    private Nonces mNonces = null;
+
     /**
      * Constructs a CA subsystem.
      */
@@ -245,6 +249,15 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
        return maxNumberOfPublishingThreads;
     }
 
+
+    public boolean noncesEnabled() {
+        return mUseNonces;
+    }
+
+    public Nonces getNonces() {
+        return mNonces;
+    }
+
     /**
      * Initializes this CA subsystem.
      * <P>
@@ -278,6 +291,13 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
         // init web gateway.
         initWebGateway();
+
+        mUseNonces = mConfig.getBoolean("enableNonces", true);
+        mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
+        if (mUseNonces) {
+            mNonces = new Nonces(mMaxNonces);
+            CMS.debug("CertificateAuthority init: Nonces enabled. ("+mNonces.size()+")");
+        }
 
         // init request queue and related modules.
         CMS.debug("CertificateAuthority init: initRequestQueue");
