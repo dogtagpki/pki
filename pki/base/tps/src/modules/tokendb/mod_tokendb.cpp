@@ -84,6 +84,7 @@ extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
 
 #define MAX_INJECTION_SIZE 5120
 #define MAX_OVERLOAD       20
+#define LOW_INJECTION_SIZE 2048
 #define SHORT_LEN          256
 
 #define BASE64_HEADER "-----BEGIN CERTIFICATE-----\n"
@@ -2513,7 +2514,48 @@ void add_authorization_data(const char *userid, int is_admin, int is_operator, i
         PL_strcat(injection, "var adminAuth = \"true\";\n");
     }
 }
-    
+
+/** 
+ * check_injection_size
+ * Used when the injection size can become large - as in the case where lists of tokens, certs or activities are being returned.
+ * If the free space in injection drops below a threshold, more space is allocated.  Fails if injection exceeds a certain size.
+ * This should not happen because the number of entries to return per page is limited.
+ *
+ * returns 0 on success,1 on failure
+ */
+int check_injection_size(char **injection, int *psize, char *fixed_injection)
+{
+   char *new_ptr = NULL;
+   if (((*psize) - PL_strlen(*injection)) <= LOW_INJECTION_SIZE) {
+       if ((*psize) > MAX_OVERLOAD * MAX_INJECTION_SIZE) {
+           tokendbDebug("Error: Injection exceeds maximum size.  Output will be truncated");
+           return 1;
+       }
+       if (*injection == fixed_injection) {
+            *injection = (char *) PR_Malloc(MAX_INJECTION_SIZE + (*psize));
+            if (*injection != NULL) {
+                PL_strcpy(*injection, fixed_injection);
+                (*psize) += MAX_INJECTION_SIZE;
+            } else {
+                tokendbDebug("Error: Unable to allocate memory for injection. Output will be truncated");
+                *injection = fixed_injection;
+                return 1;
+            }
+       } else {
+            new_ptr = (char *) PR_Realloc(*injection, (*psize) + MAX_INJECTION_SIZE);
+            if (new_ptr != NULL) {
+                //allocation successful
+                *injection = new_ptr;
+                (*psize) += MAX_INJECTION_SIZE;
+            } else {
+                tokendbDebug("Error: Failed to reallocate memory for injection.  Output will be truncated");
+                return 1;
+            }
+       }
+   }
+   return 0;
+}
+ 
 
 /**
  * mod_tokendb_handler handles the protocol between the tokendb and the RA
@@ -2556,7 +2598,7 @@ mod_tokendb_handler( request_rec *rq )
     char **vals         = NULL;
     int maxReturns;
     int q;
-    int i, n, len, maxEntries, nEntries, entryNum;
+    int i, n, len, nEntries, entryNum;
     int status = LDAP_SUCCESS;
     int size, tagOffset, statusNum;
     char fixed_injection[MAX_INJECTION_SIZE];
@@ -3991,7 +4033,6 @@ mod_tokendb_handler( request_rec *rq )
         do_free(complete_filter);
         nEntries = get_number_of_entries( result );
         entryNum = 0;
-        maxEntries = 0;
         size = 0;
 
         PL_strcpy( injection, JS_START );
@@ -4123,6 +4164,7 @@ mod_tokendb_handler( request_rec *rq )
            PL_strcat(injection, msg);
         }
 
+        int injection_size = MAX_INJECTION_SIZE;
         /* start_entry_val is used for pagination of entries on all other pages */
         int start_entry_val;
         int end_entry_val;
@@ -4136,6 +4178,11 @@ mod_tokendb_handler( request_rec *rq )
             start_entry_val = 1;
         }
         end_entry_val = start_entry_val + NUM_ENTRIES_PER_PAGE;
+
+        if( (maxReturns > 0) && (maxReturns < nEntries)) {
+            PR_snprintf(msg, 256, "var limited = %d ;\n", maxReturns);
+            PL_strcat( injection, msg);
+        }
 
         for( e = get_first_entry( result );
              ( maxReturns > 0 ) && ( e != NULL );
@@ -4153,6 +4200,7 @@ mod_tokendb_handler( request_rec *rq )
                 // skip values not within the page range
                 if (entryNum == end_entry_val) {
                     PL_strcat( injection, "var has_more_entries = 1;\n"); 
+                    break;
                 } 
                 continue;
             }
@@ -4215,30 +4263,12 @@ mod_tokendb_handler( request_rec *rq )
 
             PL_strcat( injection, "results[item++] = o;\n" );
 
-            len = PL_strlen( injection );
+            if (check_injection_size(&injection, &injection_size, fixed_injection) != 0) {
+                // failed to allocate more space to injection, truncating output
+                break;
+            }
 
             if( first_pass == 1 && nEntries > 1 && sendPieces == 0 ) {
-                if( ( nEntries * len ) > MAX_INJECTION_SIZE ) {
-                    size = nEntries;
-                    if( ( nEntries * len ) >
-                        ( MAX_OVERLOAD * MAX_INJECTION_SIZE ) ) {
-                        maxEntries = ( MAX_OVERLOAD * MAX_INJECTION_SIZE ) /
-                                     len;
-                        size = maxEntries;
-                    }
-
-                    size *= len;
-
-                    injection = ( char* ) PR_Malloc( size );
-
-                    if( injection != NULL ) {
-                        PL_strcpy( injection, fixed_injection );
-                    } else {
-                        injection = fixed_injection;
-                        maxEntries = MAX_INJECTION_SIZE / len;
-                        size = MAX_INJECTION_SIZE;
-                    }
-                }
                 first_pass=0;
 
 		PR_snprintf(msg, 256, "var start_entry_val = %d ; \nvar num_entries_per_page= %d ; \n", 
@@ -4252,24 +4282,11 @@ mod_tokendb_handler( request_rec *rq )
                 injection[0] = '\0';
             }
 
-            if( maxEntries > 0 && entryNum >= maxEntries ) {
-                break;
-            }
         }
 
         if( result != NULL ) {
             free_results( result );
             result = NULL;
-        }
-
-        if( maxEntries > 0 && nEntries > 1 ) {
-            PL_strcat( injection, "var limited = \"" );
-
-            len = PL_strlen( injection );
-
-            PR_snprintf( &injection[len], ( size-len ), "%d", entryNum );
-
-            PL_strcat( injection, "\";\n" );
         }
 
         /* populate the user roles */
