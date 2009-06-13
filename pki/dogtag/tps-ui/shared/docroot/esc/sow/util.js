@@ -1760,7 +1760,7 @@ function GetCoolKeyIssuedTo(keyType,keyID)
 
   try {
       netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-      issuedTo = netkey.GetCoolKeyIssuedTo(keyType,keyID);
+      issuedTo = netkey.GetCoolKeyUID(keyType,keyID);
 
   } catch (e)
   {

@@ -73,9 +73,7 @@ function UserOnDoneInitializeBindingTable()
   {
     var keyType = arr[i][0];
     var keyID = arr[i][1];
-    var keyStatus = GetStatusForKeyID(keyType, keyID);
-    updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
-    UserSelectRowByKeyID(keyType, keyID);
+    UserOnCOOLKeyInserted(keyType,keyID);
   }
 }
 
@@ -88,7 +86,6 @@ function UserOnCOOLKeyInserted(keyType, keyID)
     updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
   }
   UserSelectRowByKeyID(keyType, keyID);
-
    var uid = null;
   var isUser = false;
 
