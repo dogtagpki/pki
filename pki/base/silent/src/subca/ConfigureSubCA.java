@@ -56,6 +56,7 @@ public class ConfigureSubCA
 	public static String login_uri = "/ca/admin/console/config/login";
 	public static String wizard_uri = "/ca/admin/console/config/wizard";
 	public static String admin_uri = "/ca/admin/ca/getBySerial";
+
 	public static String sd_login_uri = "/ca/admin/ca/securityDomainLogin";
 	public static String sd_get_cookie_uri = "/ca/admin/ca/getCookie";
 	public static String pkcs12_uri = "/ca/admin/console/config/savepkcs12";
@@ -124,10 +125,10 @@ public class ConfigureSubCA
 	public static String ca_subsystem_cert_pp = null;
 	public static String ca_subsystem_cert_cert = null;
 
-        public static String ca_audit_signing_cert_name = null;
-        public static String ca_audit_signing_cert_req = null;
-        public static String ca_audit_signing_cert_pp = null;
-        public static String ca_audit_signing_cert_cert = null;
+	public static String ca_audit_signing_cert_name = null;
+	public static String ca_audit_signing_cert_req = null;
+	public static String ca_audit_signing_cert_pp = null;
+	public static String ca_audit_signing_cert_cert = null;
 
 	public static String backup_pwd = null;
 
@@ -138,7 +139,7 @@ public class ConfigureSubCA
 	public static String subca_subsystem_cert_subject_name = null;
 	public static String subca_ocsp_cert_subject_name = null;
 	public static String subca_server_cert_subject_name = null;
-        public static String subca_audit_signing_cert_subject_name = null;
+	public static String subca_audit_signing_cert_subject_name = null;
 
 	public ConfigureSubCA ()
 	{
@@ -210,6 +211,7 @@ public class ConfigureSubCA
 		String query_string = "sdomainURL=" +
 							URLEncoder.encode(domain_url) +
 							"&sdomainName="+
+							URLEncoder.encode(domain_name) +
 							"&choice=existingdomain"+ 
 							"&p=1" +
 							"&op=next" +
@@ -283,20 +285,20 @@ public class ConfigureSubCA
 		HTTPResponse hr = null;
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
+		String query_string = null;
 
-		String query_string;
-
-		hr = null;
 		query_string = "p=3" + "&op=next" + "&xml=true" +
 						"&choice=newsubsystem" +
+						"&subsystemName=" +
+						URLEncoder.encode(subsystem_name) +
 						"&subsystemName=" +
 						URLEncoder.encode(subsystem_name) +
 						"&urls=0" ; 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 		// parse xml
-		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-		px.parse(bais);
-		px.prettyprintxml();
+		// bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+		// px.parse(bais);
+		// px.prettyprintxml();
 
 		return true;
 	}
@@ -335,11 +337,11 @@ public class ConfigureSubCA
 		String query_string = "p=7" + "&op=next" + "&xml=true" +
 								"&host=" + URLEncoder.encode(ldap_host) + 
 								"&port=" + URLEncoder.encode(ldap_port) +
-								"&binddn=" + URLEncoder.encode(bind_dn) +
-							"&__bindpwd=" + URLEncoder.encode(bind_password) +
 								"&basedn=" + URLEncoder.encode(base_dn) +
 								"&database=" + URLEncoder.encode(db_name) +
-								"&display=" + URLEncoder.encode("displayStr") +
+								"&binddn=" + URLEncoder.encode(bind_dn) +
+							"&__bindpwd=" + URLEncoder.encode(bind_password) +
+								"&display=" + URLEncoder.encode("$displayStr") +
 								""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -417,25 +419,24 @@ public class ConfigureSubCA
 
 
 		String query_string = "p=10" + "&op=next" + "&xml=true" +
-							"&subsystem_custom_size=" + key_size +
-							"&sslserver_custom_size=" + key_size +
-							"&signing_keytype=" + key_type + 
 							"&keytype=" + key_type + 
 							"&choice=default"+
-							"&op=next"+
 							"&custom_size=" + key_size +
-							"&ocsp_signing_keytype=" + key_type + 
-							"&subsystem_keytype=" + key_type + 
-							"&ocsp_signing_custom_size=" + key_size +
-							"&signing_custom_size=" + key_size +
-							"&ocsp_signing_choice=default"+
+							"&signing_keytype=" + key_type + 
 							"&signing_choice=default"+
-							"&subsystem_choice=default"+
+							"&signing_custom_size=" + key_size +
+							"&ocsp_signing_keytype=" + key_type + 
+							"&ocsp_signing_choice=default"+
+							"&ocsp_signing_custom_size=" + key_size +
 							"&sslserver_keytype=" + key_type + 
 							"&sslserver_choice=default"+
-                                                        "&audit_signing_choice=default" + 
-                                                        "&audit_signing_keytype=" + key_type +
-                                                        "&audit_signing_custom_size=" + key_size + 
+							"&sslserver_custom_size=" + key_size +
+							"&subsystem_keytype=" + key_type + 
+							"&subsystem_choice=default"+
+							"&subsystem_custom_size=" + key_size +
+                            "&audit_signing_keytype=" + key_type +
+                            "&audit_signing_choice=default" + 
+                            "&audit_signing_custom_size=" + key_size + 
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -447,29 +448,18 @@ public class ConfigureSubCA
 		
 		al = px.constructvaluelist("CertReqPair","DN");
 		// get ca cert subject name
-		if(al != null)
-		{
-			for (int i=0; i < al.size(); i++)
-			{
+		if(al != null) {
+			for (int i=0; i < al.size(); i++) {
 				String temp = (String) al.get(i);
-				if(temp.indexOf("Certificate Authority") > 0 )
-				{
+				if(temp.indexOf("Certificate Authority") > 0 ) {
 					ca_cert_name = temp;
-				}
-				else if(temp.indexOf("OCSP Signing Certificate") > 0 )
-				{
+				} else if(temp.indexOf("OCSP Signing Certificate") > 0 ) {
 					ocsp_cert_name = temp;
-				}
-				else if(temp.indexOf("Subsystem Certificate") > 0 )
-				{
+				} else if(temp.indexOf("Subsystem Certificate") > 0 ) {
 					ca_subsystem_cert_name = temp;
-                                } 
-                                else if (temp.indexOf("Audit Signing Certificate") > 0) 
-                                {
-                                        ca_audit_signing_cert_name = temp;
-                                }
-				else 
-				{
+				} else if (temp.indexOf("Audit Signing Certificate") > 0) {
+					ca_audit_signing_cert_name = temp;
+				} else {
 					server_cert_name = temp;
 				}
 			}
@@ -480,8 +470,8 @@ public class ConfigureSubCA
 		System.out.println("default: ca_subsystem_cert_name=" + 
 						ca_subsystem_cert_name);
 		System.out.println("default: server_cert_name=" + server_cert_name);
-                System.out.println("default: ca_audit_signing_cert_name=" + 
-                    ca_audit_signing_cert_name);
+		System.out.println("default: ca_audit_signing_cert_name=" + 
+						ca_audit_signing_cert_name);
 		return true;
 	}
 
@@ -499,18 +489,17 @@ public class ConfigureSubCA
 
 
 		String query_string = "p=11" + "&op=next" + "&xml=true" +
-			"&subsystem=" + 
-			URLEncoder.encode(subca_subsystem_cert_subject_name) +
-			"&ocsp_signing=" + 
-			URLEncoder.encode(subca_ocsp_cert_subject_name) +
 			"&signing=" + 
 			URLEncoder.encode(subca_sign_cert_subject_name) + 
+			"&ocsp_signing=" + 
+			URLEncoder.encode(subca_ocsp_cert_subject_name) +
 			"&sslserver=" + 
 			URLEncoder.encode(subca_server_cert_subject_name) + 
-                        "&audit_signing=" +
-                        URLEncoder.encode(subca_audit_signing_cert_subject_name) + 
-			"&urls=" + 
-			URLEncoder.encode(domain_url) + 
+			"&subsystem=" + 
+			URLEncoder.encode(subca_subsystem_cert_subject_name) +
+			"&audit_signing=" +
+			URLEncoder.encode(subca_audit_signing_cert_subject_name) + 
+			"&urls=0" + 
 			""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -528,33 +517,23 @@ public class ConfigureSubCA
 		System.out.println("cert_list_size=" + cert_list.size());
 		System.out.println("dn_list_size=" + dn_list.size());
 
-		if(req_list != null && cert_list != null && dn_list != null)
-		{
-			for (int i=0; i < dn_list.size(); i++)
-			{
+		if(req_list != null && cert_list != null && dn_list != null) {
+			for (int i=0; i < dn_list.size(); i++) {
 				String temp = (String) dn_list.get(i);
 
-				if(temp.indexOf("caSigningCert") >= 0 )
-				{
+				if(temp.indexOf("caSigningCert") >= 0 ) {
 					ca_cert_req = (String) req_list.get(i);
 					ca_cert_cert = (String) cert_list.get(i);
-				}
-				else if(temp.indexOf("ocspSigningCert") >= 0 )
-				{
+				} else if(temp.indexOf("ocspSigningCert") >= 0 ) {
 					ocsp_cert_req = (String) req_list.get(i);
 					ocsp_cert_cert = (String) cert_list.get(i);
-				}
-				else if(temp.indexOf("subsystemCert") >= 0 )
-				{
+				} else if(temp.indexOf("subsystemCert") >= 0 ) {
 					ca_subsystem_cert_req = (String) req_list.get(i);
 					ca_subsystem_cert_cert = (String) cert_list.get(i);
-				}
-                                else if (temp.indexOf("auditSigningCert") >=0) {
-                                    ca_audit_signing_cert_req = (String) req_list.get(i);
-                                    ca_audit_signing_cert_cert = (String) cert_list.get(i);
-                                }
-				else 
-				{
+				} else if (temp.indexOf("auditSigningCert") >=0) {
+					ca_audit_signing_cert_req = (String) req_list.get(i);
+					ca_audit_signing_cert_cert = (String) cert_list.get(i);
+				} else {
 					server_cert_req = (String) req_list.get(i);
 					server_cert_cert = (String) cert_list.get(i);
 				}
@@ -567,19 +546,22 @@ public class ConfigureSubCA
 						subca_subsystem_cert_subject_name);
 		System.out.println("server_cert_name=" + 
 						subca_server_cert_subject_name);
-                System.out.println("audit_signing_cert_name=" + subca_audit_signing_cert_subject_name);
+		System.out.println("audit_signing_cert_name=" +
+						subca_audit_signing_cert_subject_name);
 
 		System.out.println("ca_cert_req=" + ca_cert_req);
 		System.out.println("ocsp_cert_req=" + ocsp_cert_req);
 		System.out.println("ca_subsystem_cert_req=" + ca_subsystem_cert_req);
 		System.out.println("server_cert_req=" + server_cert_req);
-                System.out.println("ca_audit_siging_cert_req=" + ca_audit_signing_cert_req);
+		System.out.println("ca_audit_siging_cert_req=" +
+						ca_audit_signing_cert_req);
 
 		System.out.println("ca_cert_cert=" + ca_cert_cert);
 		System.out.println("ocsp_cert_cert=" + ocsp_cert_cert);
 		System.out.println("ca_subsystem_cert_cert=" + ca_subsystem_cert_cert);
 		System.out.println("server_cert_cert=" + server_cert_cert);
-                System.out.println("ca_audit_signing_cert_cert=" + ca_audit_signing_cert_cert);
+		System.out.println("ca_audit_signing_cert_cert=" +
+						ca_audit_signing_cert_cert);
 
 		return true;
 	}
@@ -597,21 +579,21 @@ public class ConfigureSubCA
 
 
 		String query_string = "p=12" + "&op=next" + "&xml=true" +
-							"&subsystem=" + 
-							URLEncoder.encode(ca_subsystem_cert_cert) +
-							"&subsystem_cc=" + 
-							"&ocsp_signing=" + 
-							URLEncoder.encode(ocsp_cert_cert) +
-							"&ocsp_signing_cc=" + 
 							"&signing=" + 
 							URLEncoder.encode(ca_cert_cert) + 
 							"&signing_cc=" + 
+							"&ocsp_signing=" + 
+							URLEncoder.encode(ocsp_cert_cert) +
+							"&ocsp_signing_cc=" + 
 							"&sslserver=" + 
 							URLEncoder.encode(server_cert_cert) + 
 							"&sslserver_cc=" + 
-                                                        "&audit_signing=" + 
-                                                        URLEncoder.encode(ca_audit_signing_cert_cert) +
-                                                        "&audit_signing_cc=" +
+							"&subsystem=" + 
+							URLEncoder.encode(ca_subsystem_cert_cert) +
+							"&subsystem_cc=" + 
+							"&audit_signing=" + 
+							URLEncoder.encode(ca_audit_signing_cert_cert) +
+							"&audit_signing_cc=" +
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -648,51 +630,26 @@ public class ConfigureSubCA
 		return true;
 	}
 
-	public boolean SavePKCS12Panel()
-	{
-		boolean st = false;
-		HTTPResponse hr = null;
-		ByteArrayInputStream bais = null;
-		ParseXML px = new ParseXML();
+    public boolean ImportCACertPanel() {
+        try {
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
 
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
+                "p=15&op=next&xml=true");
 
-		String query_string = ""; 
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
 
-		hr = hc.sslConnect(cs_hostname,cs_port,pkcs12_uri,query_string);
-
-		// dump hr.getResponseData() to file
-
-		try
-		{
-			FileOutputStream fos = new FileOutputStream("/tmp/tmp-subca.p12");
-			fos.write(hr.getResponseData());
-			fos.close();
-
-			
-		// verify p12 file
-		
-		// Decode the P12 file
-		FileInputStream fis = new FileInputStream("/tmp/tmp-subca.p12");
-		PFX.Template pfxt = new PFX.Template();
-		PFX pfx = (PFX) pfxt.decode(new BufferedInputStream(fis, 2048));
-		System.out.println("Decoded PFX");
-
-		// now peruse it for interesting info
-		System.out.println("Version: "+pfx.getVersion());
-		AuthenticatedSafes authSafes = pfx.getAuthSafes();
-		SEQUENCE asSeq = authSafes.getSequence();
-		System.out.println("AuthSafes has "+
-			asSeq.size()+" SafeContents");
-
-		fis.close();
-		}
-		catch(Exception e)
-		{
-			return false;
-		}
-
-		return true;
-	}
+	    return true;
+        } catch (Exception e) {
+            System.out.println("Exception in ImportCACertPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 	public boolean AdminCertReqPanel()
 	{
@@ -727,21 +684,23 @@ public class ConfigureSubCA
 		admin_cert_request = crmf_request;
 
 		String query_string = "p=16" + "&op=next" + "&xml=true" +
-							"&cert_request_type=" + "crmf" +
 							"&uid=" + admin_user +
-							"&name=" + admin_user +
-							"&__pwd=" + admin_password +
-							"&__admin_password_again=" + admin_password +
-							"&profileId=" + "caAdminCert" +
+							"&name=" + URLEncoder.encode( agent_name ) +
 							"&email=" + 
 							URLEncoder.encode(admin_email) +
+							"&__pwd=" + admin_password +
+							"&__admin_password_again=" + admin_password +
 							"&cert_request=" + 
 							URLEncoder.encode(admin_cert_request) +
+							"&display=" + URLEncoder.encode("$displayStr") +
+							"&profileId=" + "caAdminCert" +
+							"&cert_request_type=" + "crmf" +
+							"&import=true" +
+							"&uid=" + admin_user +
+							"&securitydomain=" +
+							URLEncoder.encode( domain_name ) +
 							"&subject=" +
 							URLEncoder.encode(agent_cert_subject) +
-							"&clone=new" +
-							"&import=true" +
-							"&securitydomain=" + domain_name +
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -767,12 +726,11 @@ public class ConfigureSubCA
 							"&importCert=" + "true" +
 							""; 
 
-		hr = hc.sslConnect(cs_hostname,cs_port,admin_uri,query_string);
+		hr = hc.sslConnect(sd_hostname,sd_admin_port,admin_uri,query_string);
 		
 		// get response data
 		String cert_to_import = 
 				new sun.misc.BASE64Encoder().encode(hr.getResponseData());
-
 		System.out.println("Imported Cert=" + cert_to_import);
 
 		ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
@@ -794,7 +752,8 @@ public class ConfigureSubCA
 			return false;
 		}
 
-		System.out.println("SUCCESS: imported admin user cert:" + agent_name);
+		System.out.println("SUCCESS: imported admin user cert: " + agent_name);
+
 		return true;
 	}
 
@@ -805,9 +764,12 @@ public class ConfigureSubCA
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
 
-		String query_string = "p=17" + "&op=next" + "&xml=true" +
-							"&caHost=" + URLEncoder.encode("/") +
-							"&caPort=" + URLEncoder.encode("/") +
+		String query_string = "p=17" +
+							"&serialNumber=" + admin_serial_number +
+							"&caHost=" + URLEncoder.encode(sd_hostname) +
+							"&caPort=" + URLEncoder.encode(sd_admin_port) +
+							"&importCert=" + "true" +
+							"&op=next" + "&xml=true" +
 							""; 
 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
@@ -828,7 +790,7 @@ public class ConfigureSubCA
 		return true;
 	}
 
-	public boolean ConfigureCAInstance()
+	public boolean ConfigureSubCAInstance()
 	{
 		// 0. login to cert db
 		ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
@@ -844,25 +806,25 @@ public class ConfigureSubCA
 		hc = new HTTPClient();
 
 		sleep_time();
-		// 1. Login panel
+		// 0. Login panel
 		boolean log_st = LoginPanel();
 		if(!log_st)
 		{
-			System.out.println("ERROR: ConfigureCA: LoginPanel() failure");
+			System.out.println("ERROR: ConfigureSubCA: LoginPanel() failure");
+			return false;
+		}
+
+		sleep_time();
+		// 1. domain panel
+		boolean dom_st = DomainPanel();
+		if(!dom_st)
+		{
+			System.out.println("ERROR: ConfigureSubCA: DomainPanel() failure");
 			return false;
 		}
 
 		sleep_time();
 		// 2. domain panel
-		boolean dom_st = DomainPanel();
-		if(!dom_st)
-		{
-			System.out.println("ERROR: ConfigureCA: DomainPanel() failure");
-			return false;
-		}
-
-		sleep_time();
-		// 2a. domain panel
 		boolean sd_st = SecurityDomainLoginPanel();
 		if(!sd_st)
 		{
@@ -875,16 +837,16 @@ public class ConfigureSubCA
 		boolean disp_st = DisplayChainPanel();
 		if(!disp_st)
 		{
-		System.out.println("ERROR: ConfigureCA: DisplayChainPanel() failure");
+		System.out.println("ERROR: ConfigureSubCA: DisplayChainPanel() failure");
 			return false;
 		}
 
 		sleep_time();
-		// 5. hierarchy panel
+		// 6. hierarchy panel
 		boolean disp_h = HierarchyPanel();
 		if(!disp_h)
 		{
-		System.out.println("ERROR: ConfigureCA: HierarchyPanel() failure");
+		System.out.println("ERROR: ConfigureSubCA: HierarchyPanel() failure");
 			return false;
 		}
 
@@ -893,7 +855,7 @@ public class ConfigureSubCA
 		boolean disp_ldap = LdapConnectionPanel();
 		if(!disp_ldap)
 		{
-		System.out.println("ERROR: ConfigureCA: LdapConnectionPanel() failure");
+		System.out.println("ERROR: ConfigureSubCA: LdapConnectionPanel() failure");
 			return false;
 		}
 
@@ -902,80 +864,80 @@ public class ConfigureSubCA
 		boolean disp_token = TokenChoicePanel();
 		if(!disp_token)
 		{
-		System.out.println("ERROR: ConfigureCA: TokenChoicePanel() failure");
+		System.out.println("ERROR: ConfigureSubCA: TokenChoicePanel() failure");
 			return false;
 		}
 
 		sleep_time();
-		// 9. Key Panel
+		// 10. Key Panel
 		boolean disp_key = KeyPanel();
 		if(!disp_key)
 		{
-		System.out.println("ERROR: ConfigureCA: KeyPanel() failure");
+		System.out.println("ERROR: ConfigureSubCA: KeyPanel() failure");
 			return false;
 		}
 
 		sleep_time();
-		// 10. Cert Subject Panel
+		// 11. Cert Subject Panel
 		boolean disp_csubj = CertSubjectPanel();
 		if(!disp_csubj)
 		{
-		System.out.println("ERROR: ConfigureCA: CertSubjectPanel() failure");
+		System.out.println("ERROR: ConfigureSubCA: CertSubjectPanel() failure");
 			return false;
 		}
 
 		sleep_time();
-		// 11. Certificate Panel
+		// 12. Certificate Panel
 		boolean disp_cp = CertificatePanel();
 		if(!disp_cp)
 		{
-		System.out.println("ERROR: ConfigureCA: CertificatePanel() failure");
+		System.out.println("ERROR: ConfigureSubCA: CertificatePanel() failure");
 			return false;
 		}
 
 		sleep_time();
+		// 13. Backup Panel
 		boolean disp_back = BackupPanel();
 		if(!disp_back)
 		{
-		System.out.println("ERROR: ConfigureCA: BackupPanel() failure");
+		System.out.println("ERROR: ConfigureSubCA: BackupPanel() failure");
 			return false;
 		}
 
 		sleep_time();
-		boolean disp_save = SavePKCS12Panel();
-		if(!disp_save)
+		// 15. Import CA Certificate Panel
+		boolean disp_cert = ImportCACertPanel();
+		if(!disp_cert)
 		{
-		System.out.println("ERROR: ConfigureCA: SavePKCS12Panel() failure");
+		System.out.println("ERROR: ConfigureSubCA: ImportCACertPanel() failure");
 			return false;
 		}
 
 		sleep_time();
-		// 13. Admin Cert Req Panel
+		// 16. Admin Cert Req Panel
 		boolean disp_adm = AdminCertReqPanel();
 		if(!disp_adm)
 		{
-		System.out.println("ERROR: ConfigureCA: AdminCertReqPanel() failure");
+		System.out.println("ERROR: ConfigureSubCA: AdminCertReqPanel() failure");
 			return false;
 		}
 
 		sleep_time();
-		// 14. Admin Cert import Panel
 		boolean disp_im = AdminCertImportPanel();
 		if(!disp_im)
 		{
-	System.out.println("ERROR: ConfigureCA: AdminCertImportPanel() failure");
+	System.out.println("ERROR: ConfigureSubCA: AdminCertImportPanel() failure");
 			return false;
 		}
 
 		sleep_time();
-		// 15. Update Domain Panel
+		// 17. Update Domain Panel
 		boolean disp_ud = UpdateDomainPanel();
 		if(!disp_ud)
 		{
-	System.out.println("ERROR: ConfigureCA: UpdateDomainPanel() failure");
+	System.out.println("ERROR: ConfigureSubCA: UpdateDomainPanel() failure");
 			return false;
 		}
-
 
 		return true;
 	}
@@ -1196,15 +1158,15 @@ public class ConfigureSubCA
 		subca_server_cert_subject_name = x_subca_server_cert_subject_name.value ;
                 subca_audit_signing_cert_subject_name = x_subca_audit_signing_cert_subject_name.value;
 
-		boolean st = ca.ConfigureCAInstance();
+		boolean st = ca.ConfigureSubCAInstance();
 	
 		if (!st)
 		{
-			System.out.println("ERROR: unable to create CA");
+			System.out.println("ERROR: unable to create Subordinate CA");
 			System.exit(-1);
 		}
 	
-		System.out.println("Certificate System - CA Instance Configured.");
+		System.out.println("Certificate System - Subordinate CA Instance Configured.");
 		System.exit(0);
 		
 	}
