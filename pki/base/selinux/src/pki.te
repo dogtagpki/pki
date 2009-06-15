@@ -1,4 +1,4 @@
-policy_module(pki,1.0.9)
+policy_module(pki,1.0.10)
 
 attribute pki_ca_config;
 attribute pki_ca_executable;

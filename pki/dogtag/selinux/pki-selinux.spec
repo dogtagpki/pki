@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      7
+%define base_release      8
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -249,6 +249,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Jun 15 2009 Ade Lee <alee@redhat.com> 1.1.0-8
+- Bugzilla Bug 504765 - more selinux messages when restarting RA
 * Tue Jun 9 2009 Ade Lee <alee@redhat.com> 1.1.0-7
 - Bugzilla Bug 504765 - selinux messages when restarting RA
 * Fri May 29 2009 Ade Lee <alee@redhat.com> 1.1.0-6
