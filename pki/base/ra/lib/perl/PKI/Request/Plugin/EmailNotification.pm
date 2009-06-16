@@ -53,6 +53,7 @@ sub substitute {
   my $machineName = $cfg->get("service.machineName");
   my $securePort = $cfg->get("service.securePort");
   my $unsecurePort = $cfg->get("service.unsecurePort");
+  my $nonClientAuthSecurePort = $cfg->get("service.non_clientauth_securePort");
   my $subject_dn = $req->{'subject_dn'};
 
   $line =~ s/\$mail_to/$mail_to/g;
@@ -61,6 +62,7 @@ sub substitute {
   $line =~ s/\$securePort/$securePort/g;
   $line =~ s/\$unsecurePort/$unsecurePort/g;
   $line =~ s/\$subject_dn/$subject_dn/g;
+  $line =~ s/\$nonClientAuthSecurePort/$nonClientAuthSecurePort/g;
   return $line;
 }
 

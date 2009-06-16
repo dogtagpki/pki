@@ -7,5 +7,5 @@ for
 Subject DN: $subject_dn
 
 Import certificate at:
-https://$machineName:$securePort/ee/request/getcert.cgi?id=$request_id
+https://$machineName:$nonClientAuthSecurePort/ee/request/getcert.cgi?id=$request_id
 
