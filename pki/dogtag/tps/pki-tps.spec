@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      29
+%define base_release      30
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -313,6 +313,8 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Jun 16 2009 Ade Lee <alee@redhat.com> 1.1.0-30
+- Bugzilla Bug #484275 - TPS Role Definition - fix typo on adding token
 * Fri Jun 12 2009 Ade Lee <alee@redhat.com> 1.1.0-29
 - Bugzilla Bug #489318 - TPS List Activites - does not list activities after 20 entries - fix pagination
 * Wed Jun 10 2009 Ade Lee <alee@redhat.com> 1.1.0-28

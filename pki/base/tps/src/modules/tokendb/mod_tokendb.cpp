@@ -4892,7 +4892,7 @@ mod_tokendb_handler( request_rec *rq )
     } else if( PL_strstr( query, "op=add" ) ) {
         tokendbDebug( "authorization for op=add\n" );
         RA_Status token_type_status;
-        if( ! is_agent ) {
+        if( ! is_admin ) {
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
             do_free(uri);
