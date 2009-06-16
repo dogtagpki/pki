@@ -61,12 +61,18 @@ sub enroll {
 
   my $cfg = $self->{cfg};
   my $instdir = $cfg->get("service.instanceDir");
-  my $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
-    $db_password =~ s/\n$//g;
+  my $db_password;
 
   my $nickname = $cfg->get("conn." . $con_id . ".clientNickname");
   my $cahostport = $cfg->get("conn." . $con_id . ".hostport");
   my ($host, $port) = split(/:/, $cahostport);
+ 
+  if ($nickname =~ /(.*):(.*)/) {
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  } else {
+    $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  }
+  $db_password =~ s/\n$//g;
 
   my $queue = PKI::Request::Queue->new();
   $queue->open($cfg);
@@ -85,6 +91,7 @@ sub enroll {
                   "cert_request=" .
                       URI::Escape::uri_escape("$cert_request") . "&" .
                   "xmlOutput=true";
+  
   system("/usr/bin/sslget -e \"$params\" -d \"$instdir/alias\" -p \"$db_password\" -v -n \"$nickname\" -r \"/ca/ee/ca/profileSubmit\" $host:$port > $tmpfile");
 
   my $content = `cat $tmpfile`;
@@ -161,11 +168,17 @@ sub revoke {
 
   my $cfg = $self->{cfg};
   my $instdir = $cfg->get("service.instanceDir");
-  my $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
-    $db_password =~ s/\n$//g;
+  my $db_password;
 
   my $nickname = $cfg->get("conn." . $con_id . ".clientNickname");
   my $cahostport = $cfg->get("conn." . $con_id . ".hostagentport");
+
+  if ($nickname =~ /(.*):(.*)/) {
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  } else {
+    $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  }
+  $db_password =~ s/\n$//g;
 
   my $tmpfile = "/tmp/tmp-revoke-$serialno-$$";
   my ($host, $port) = split(/:/, $cahostport);
@@ -218,12 +231,19 @@ sub getCertStatus {
 
   my $cfg = $self->{cfg};
   my $instdir = $cfg->get("service.instanceDir");
-  my $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
-    $db_password =~ s/\n$//g;
+  my $db_password;
 
   my $nickname = $cfg->get("conn." . $con_id . ".clientNickname");
   my $cahostport = $cfg->get("conn." . $con_id . ".hostport");
   my ($host, $port) = split(/:/, $cahostport);
+
+  if ($nickname =~ /(.*):(.*)/) {
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  } else {
+    $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  }
+  $db_password =~ s/\n$//g;
+
 
   my $tmpfile = "/tmp/tmp-$serialno-$$";
   my $params = "serialNumber=" . "0x".$serialno . "&" .
@@ -265,12 +285,18 @@ sub scep_get_ca_cert {
 
   my $cfg = $self->{cfg};
   my $instdir = $cfg->get("service.instanceDir");
-  my $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
-    $db_password =~ s/\n$//g;
+  my $db_password;
 
   my $nickname = $cfg->get("conn." . $con_id . ".clientNickname");
   my $cahostport = $cfg->get("conn." . $con_id . ".hostport");
   my ($host, $port) = split(/:/, $cahostport);
+
+  if ($nickname =~ /(.*):(.*)/) {
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  } else {
+    $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  }
+  $db_password =~ s/\n$//g;
 
   my $tmpfile = "/tmp/tmp-$$";
   my $params = "operation=" . $operation . "&" .
@@ -291,12 +317,18 @@ sub scep_decode {
 
   my $cfg = $self->{cfg};
   my $instdir = $cfg->get("service.instanceDir");
-  my $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
-    $db_password =~ s/\n$//g;
+  my $db_password;
 
   my $nickname = $cfg->get("conn." . $con_id . ".clientNickname");
   my $cahostport = $cfg->get("conn." . $con_id . ".hostport");
   my ($host, $port) = split(/:/, $cahostport);
+
+  if ($nickname =~ /(.*):(.*)/) {
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  } else {
+    $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  }
+  $db_password =~ s/\n$//g;
 
   my $tmpfile = "/tmp/tmp-$$";
   my $params = "operation=" . $operation . "&" .
@@ -317,12 +349,18 @@ sub scep_pki_message {
 
   my $cfg = $self->{cfg};
   my $instdir = $cfg->get("service.instanceDir");
-  my $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
-    $db_password =~ s/\n$//g;
+  my $db_password;
 
   my $nickname = $cfg->get("conn." . $con_id . ".clientNickname");
   my $cahostport = $cfg->get("conn." . $con_id . ".hostport");
   my ($host, $port) = split(/:/, $cahostport);
+
+  if ($nickname =~ /(.*):(.*)/) {
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  } else {
+    $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+  }
+  $db_password =~ s/\n$//g;
 
   my $tmpfile = "/tmp/tmp-$$";
   my $params = "operation=" . $operation . "&" .
