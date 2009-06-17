@@ -298,6 +298,7 @@ fi
 %attr(00660,root,root) %{_datadir}/%{base_prefix}/%{base_component}/conf/CS.cfg
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/conf/[a-z]*
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/docroot
+%attr(00755,root,root) %{_datadir}/%{base_prefix}/%{base_component}/docroot/index.cgi
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/etc
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/lib
 %attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/logs
