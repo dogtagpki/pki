@@ -90,7 +90,9 @@ docroot_tps_jsdir = $(prefix)@docroot_tps_jsdir@
 initddir = $(sysconfdir)@initddir@
 licensedir = $(prefix)@licensedir@
 logsdir = $(prefix)@logsdir@
+perl_basedir = $(prefix)@perl_basedir@
 perl_modulesdir = $(prefix)@perl_modulesdir@
+perl_servicedir = $(prefix)@perl_servicedir@
 perl_templatesdir = $(prefix)@perl_templatesdir@
 samplesdir = $(prefix)@samplesdir@
 scriptsdir = $(prefix)@scriptsdir@
@@ -162,7 +164,8 @@ conf_DATA =	$(srcdir)/apache/conf/httpd.conf      \
 			$(srcdir)/apache/conf/perl.conf       \
 			$(srcdir)/doc/CS.cfg
 
-docroot_DATA =	$(srcdir)/forms/index.html
+docroot_DATA =	$(srcdir)/forms/index.cgi  \
+				$(srcdir)/forms/index.html
 
 docroot_demo_DATA =
 
@@ -188,6 +191,9 @@ libexec_SCRIPTS =	$(srcdir)/apache/apachectl
 
 # create an empty 'logs' directory
 logs_DATA =
+
+perl_base_SCRIPTS =	$(srcdir)/lib/perl/PKI/Base/Conf.pm \
+					$(srcdir)/lib/perl/PKI/Base/Registry.pm
 
 perl_modules_SCRIPTS =	$(srcdir)/lib/perl/PKI/TPS/AdminAuthPanel.pm         \
 						$(srcdir)/lib/perl/PKI/TPS/AdminPanel.pm             \
@@ -221,6 +227,8 @@ perl_modules_SCRIPTS =	$(srcdir)/lib/perl/PKI/TPS/AdminAuthPanel.pm         \
 						$(srcdir)/lib/perl/PKI/TPS/TKSInfoPanel.pm           \
 						$(srcdir)/lib/perl/PKI/TPS/WelcomePanel.pm           \
 						$(srcdir)/lib/perl/PKI/TPS/wizard.pm
+
+perl_service_SCRIPTS =	$(srcdir)/lib/perl/PKI/Service/Op.pm
 
 perl_templates_SCRIPTS =	$(srcdir)/lib/perl/Template/Velocity.pm
 

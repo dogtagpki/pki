@@ -74,7 +74,10 @@ sub update
     &PKI::TPS::Wizard::debug_log("TKSInfoPanel: update");
 
     my $count = $q->param('urls');
+    &PKI::TPS::Wizard::debug_log("TKSInfoPanel: update - got urls = $count");
 
+    &PKI::TPS::Wizard::debug_log("TKSInfoPanel: update - selected ca= $count");
+    
     my $instanceID = $::config->get("service.instanceID");
 
     my $host = "";

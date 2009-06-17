@@ -136,7 +136,9 @@ initddir=/init.d
 # relative to prefix
 licensedir=/doc
 logsdir=/logs/signedAudit
+perl_basedir=/perl/base
 perl_modulesdir=/perl/modules
+perl_servicedir=/perl/service
 perl_templatesdir=/perl/templates
 samplesdir=/samples
 scriptsdir=/scripts
@@ -166,7 +168,9 @@ AC_SUBST(docroot_tps_jsdir)
 AC_SUBST(initddir)
 AC_SUBST(licensedir)
 AC_SUBST(logsdir)
+AC_SUBST(perl_basedir)
 AC_SUBST(perl_modulesdir)
+AC_SUBST(perl_servicedir)
 AC_SUBST(perl_templatesdir)
 AC_SUBST(samplesdir)
 AC_SUBST(scriptsdir)

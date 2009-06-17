@@ -310,6 +310,29 @@ sub display
     $::config->put("preop.done.status", "done");
     $::config->commit();
 
+    # update httpd.conf
+    open(TMP_HTTPD_CONF, ">$instDir/conf/httpd.conf.tmp");
+    system( "chmod 00660 $instDir/conf/httpd.conf.tmp" );
+    open(HTTPD_CONF, "<$instDir/conf/httpd.conf");
+    while (<HTTPD_CONF>) {
+        if (/^#\[ErrorDocument_404\]/) {
+            print TMP_HTTPD_CONF "ErrorDocument 404 /404.html\n";
+        } else {
+          print TMP_HTTPD_CONF $_;
+        }
+    }
+    close(HTTPD_CONF);
+    close(TMP_HTTPD_CONF);
+
+    # Create a copy of the original file which
+    # preserves the original file permissions
+    system( "cp -p $instDir/conf/httpd.conf.tmp $instDir/conf/httpd.conf" );
+
+    # Remove the original file only if the backup copy was successful
+    if( -e "$instDir/conf/httpd.conf" ) {
+      system( "rm $instDir/conf/httpd.conf.tmp" );
+    }
+
     # update nss.conf
     open(TMP_NSS_CONF, ">$instDir/conf/nss.conf.tmp");
     system( "chmod 00660 $instDir/conf/nss.conf.tmp" );
