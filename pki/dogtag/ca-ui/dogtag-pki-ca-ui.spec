@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      10
+%define base_release      11
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Mon Jun 15 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-11
+- Bugzilla Bug #502908 -  Current page not found handling is a Cat 2 finding
+  with the Tomcat STIG
 * Fri Jun 12 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-10
 - Bugzilla Bug #502694 - adding random nonces
 * Sat May 30 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-9

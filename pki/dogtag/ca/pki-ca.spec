@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      22
+%define base_release      23
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,9 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Jun 15 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-23
+- Bugzilla Bug #502908 -  Current page not found handling is a Cat 2 finding
+  with the Tomcat STIG
 * Fri Jun 12 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-22
 - Bugzilla Bug #502694 - adding random nonces
 * Sat Jun 6 2009 Christina Fu <cfu@redhat.com> 1.1.0-21

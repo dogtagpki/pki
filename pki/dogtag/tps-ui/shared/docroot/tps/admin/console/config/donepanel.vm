@@ -41,7 +41,7 @@ As 'root', restart the server on the command line by typing "$initCommand restar
 As 'root', restart the server on the command line by typing "$initCommand
  restart". After performing this restart, the server should become operational.
 <br/>
-Please go to the <A href="https://$host:$port">agent interface</A> page to access all of the available agent interfaces.
+Please go to the <A href="https://$host:$non_clientauth_port">services page</A> to access all of the available interfaces.
 <br/>
 Each Enterprise Security Client (ESC) talks to a TPS config URL for token management functions located at <A href="http://$host:$unsecurePort/cgi-bin/home/index.cgi">http://$host:$unsecurePort/cgi-bin/home/index.cgi</A>.
 <br/>

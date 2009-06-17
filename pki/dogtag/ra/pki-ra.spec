@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      20
+%define base_release      21
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,9 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Jun 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-21
+- Bugzilla Bug #502908 -  Current page not found handling is a Cat 2 finding
+  with the Tomcat STIG
 * Tue Jun 16 2009 Ade Lee <alee@redhat.com> 1.1.0-20
 - Bugzilla Bug #504240  RA (nethsm) : unable to approve server cert
 * Tue Jun 16 2009 Ade Lee <alee@redhat.com> 1.1.0-19
