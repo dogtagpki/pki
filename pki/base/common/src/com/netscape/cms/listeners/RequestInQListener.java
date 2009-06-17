@@ -187,6 +187,7 @@ public class RequestInQListener implements IRequestListener {
     }
 
     private void buildContentParams(IRequest r) {
+        mContentParams.clear();
         mContentParams.put(IEmailFormProcessor.TOKEN_ID,
             mConfig.getName());
         Object val = null;
