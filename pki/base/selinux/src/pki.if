@@ -492,8 +492,8 @@ template(`pki_tps_template',`
         allow pki_tps_t lib_t:file execute_no_trans;
 
         #fowner needed for chmod
-        allow pki_tps_t self:capability { setuid sys_nice setgid dac_override fowner fsetid};
-        allow pki_tps_t self:process { setsched signal getsched  signull execstack execmem};
+        allow pki_tps_t self:capability { setuid sys_nice setgid dac_override fowner fsetid kill};
+        allow pki_tps_t self:process { setsched signal getsched  signull execstack execmem sigkill};
         allow pki_tps_t self:sem all_sem_perms;
         allow pki_tps_t self:tcp_socket create_stream_socket_perms;
 

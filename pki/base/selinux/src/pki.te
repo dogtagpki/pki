@@ -1,4 +1,4 @@
-policy_module(pki,1.0.10)
+policy_module(pki,1.0.11)
 
 attribute pki_ca_config;
 attribute pki_ca_executable;
@@ -24,6 +24,9 @@ corenet_tcp_connect_pki_ocsp_port(pki_ca_t)
 
 # for crl publishing
 allow pki_ca_t pki_ca_var_lib_t:lnk_file { rename create unlink };
+
+# for ECC
+auth_getattr_shadow(pki_ca_t)
 
 attribute pki_kra_config;
 attribute pki_kra_executable;
