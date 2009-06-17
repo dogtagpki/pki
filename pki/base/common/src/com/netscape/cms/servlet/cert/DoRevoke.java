@@ -29,6 +29,7 @@ import netscape.security.x509.*;
 import com.netscape.certsrv.authority.*;
 import com.netscape.certsrv.authentication.*;
 import com.netscape.certsrv.authorization.*;
+import com.netscape.certsrv.usrgrp.*;
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.ca.*;
 import com.netscape.certsrv.ra.*;
@@ -55,6 +56,8 @@ public class DoRevoke extends CMSServlet {
     private IPublisherProcessor mPublisherProcessor = null;
     private Nonces mNonces = null;
     private int mTimeLimits = 30; /* in seconds */
+    private IUGSubsystem mUG = null;
+    private ICertUserLocator mUL = null;
 
     private final static String REVOKE = "revoke";
     private final static String ON_HOLD = "on-hold";
@@ -78,6 +81,9 @@ public class DoRevoke extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+
+        mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        mUL = mUG.getCertUserLocator();
 
         if (mAuthority instanceof ICertificateAuthority) {
             mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();
@@ -176,11 +182,28 @@ public class DoRevoke extends CMSServlet {
 
             if (mNonces != null) {
                 boolean nonceVerified = false;
+                boolean skipNonceVerification = false;
+
+                X509Certificate cert2 = getSSLClientCertificate(req);
+                if (cert2 != null) {
+                    X509Certificate certChain[] = new X509Certificate[1];
+                    certChain[0] = cert2;
+                    IUser user = null;
+                    try {
+                        user = (IUser) mUL.locateUser(new Certificates(certChain));
+                    } catch (Exception e) {
+                        CMS.debug("DoRevoke:  Failed to map certificate '"+
+                                   cert2.getSubjectDN().getName()+"' to user.");
+                    }
+                    if (mUG.isMemberOf(user, "Subsystem Group")) {
+                        skipNonceVerification = true;
+                    }
+                }
+
                 String nonceStr = req.getParameter("nonce");
                 if (nonceStr != null) {
                     long nonce = Long.parseLong(nonceStr.trim());
                     X509Certificate cert1 = mNonces.getCertificate(nonce);
-                    X509Certificate cert2 = getSSLClientCertificate(req);
                     if (cert1 == null) {
                         CMS.debug("DoRevoke:  Unknown nonce");
                     } else if (cert1 != null && cert2 != null && cert1.equals(cert2)) {
@@ -191,7 +214,8 @@ public class DoRevoke extends CMSServlet {
                     CMS.debug("DoRevoke:  Missing nonce");
                 }
                 CMS.debug("DoRevoke:  nonceVerified="+nonceVerified);
-                if (!nonceVerified) {
+                CMS.debug("DoRevoke:  skipNonceVerification="+skipNonceVerification);
+                if ((!nonceVerified) && (!skipNonceVerification)) {
                     cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
                     return;
                 }
