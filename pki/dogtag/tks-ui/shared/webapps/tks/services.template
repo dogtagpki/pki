@@ -19,7 +19,7 @@
 <html>
 <CMS_TEMPLATE>
 <title>Certificate System</title>
-    <link rel="shortcut icon" href="img/favicon.ico" />
+    <link rel="shortcut icon" href="admin/console/img/favicon.ico" />
     <link rel="stylesheet" href="admin/console/css/pki-base.css" type="text/css" />
     <META http-equiv=Content-Type content="text/html; charset=UTF-8">
 
