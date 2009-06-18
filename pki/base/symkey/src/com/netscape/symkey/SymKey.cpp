@@ -440,6 +440,12 @@ PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotI
         keyData[i] = 0x0;
     }
 
+    if (masterKey == NULL)
+    {
+        printf("ComputeCardKey: master key is null\n");
+        goto done;
+    }
+
     context = PK11_CreateContextBySymKey(CKM_DES3_ECB, CKA_ENCRYPT,
         masterKey,
         &noParams);
@@ -482,9 +488,19 @@ PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotI
         (CKF_WRAP | CKF_UNWRAP | CKF_ENCRYPT | CKF_DECRYPT) & CKF_KEY_OPERATION_FLAGS,
         PR_FALSE, &pwdata);
 
+    if (tmpkey == NULL) {
+        printf("failed to keygen \n");
+        goto done;
+    }
+  
     context = PK11_CreateContextBySymKey(CKM_DES3_ECB, CKA_ENCRYPT,
         tmpkey,
         &noParams);
+
+    if (context == NULL) {
+        printf("failed to set context \n");
+        goto done;
+    }
 
     /* encrypt the key with the master key */
     s = PK11_CipherOp(context, wrappedkey, &len, 24, keyData, 24);
@@ -512,6 +528,11 @@ done:
         PK11_DestroyContext(context, PR_TRUE);
         context = NULL;
     }
+    if (tmpkey != NULL)
+    {
+        PK11_FreeSymKey(tmpkey);
+        tmpkey = NULL;
+    }
     return key;
 }
 
@@ -535,6 +556,11 @@ PRStatus EncryptDataWithCardKey(PK11SymKey *card_key, Buffer &input, Buffer &out
     int len;
     static SECItem noParams = { siBuffer, 0, 0 };
     unsigned char result[8];
+
+    if (card_key == NULL) {
+        printf("EncryptDataWithCardKey: card_key is null\n");
+        goto done;
+    }
 
     context = PK11_CreateContextBySymKey(CKM_DES3_ECB, CKA_ENCRYPT, card_key,
         &noParams);
@@ -603,6 +629,7 @@ PRStatus EncryptData(Buffer &kek_key, Buffer &input, Buffer &output)
         CKF_ENCRYPT, PR_FALSE, 0);
     if( master == NULL)
     {
+        printf("EncryptData: master is null\n"); 
         goto done;
     }
 

@@ -27,7 +27,7 @@
 ## Package Header Definitions
 %define base_name         %{base_component}
 %define base_version      1.1.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Libraries
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -239,6 +239,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Jun 18 2009 Ade Lee <alee@redhat.com> 1.1.0-2
+- Bugzilla Bug 500698 -  TPS/CA/TKS : segmentation fault after many(30000) enrollments
 * Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
 - Version update to Dogtag 1.1.0.
 * Thu Mar 12 2009 Jack Magne <jmagne@redhat.com> 1.0.0-6
