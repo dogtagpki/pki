@@ -122,6 +122,9 @@ my $ROOTUID = 0;
 my $MIN_ARGS = 1;
 my $MAX_ARGS = 2;
 
+my $PACKAGE_CLEANUP = "/usr/bin/package-cleanup";
+my $DOGTAG_WIKI = "http://pki.fedoraproject.org";
+
 
 ##############################################################
 # Local Data Structures
@@ -848,6 +851,64 @@ sub is_Windows()
 
 
 # no args
+# return 1 - true, or
+# return 0 - false
+sub is_Linux()
+{
+    if( $^O eq "linux" ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_Fedora()
+{
+    if( is_Linux() && (-e "/etc/fedora-release") ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_RHEL() {
+    if( (! is_Fedora()) && (-e "/etc/redhat-release") ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_RHEL4() {
+    if( is_RHEL() ) {
+        my $releasefd = new FileHandle;
+        if( $releasefd->open("< /etc/redhat-release")) {
+            my $line = "";
+            while( defined($line = <$releasefd>) ) {
+                if($line =~ /Nahant/i) {
+                    return 1;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+
+# no args
 # return 1 - success, or
 # return 0 - failure
 sub check_for_root_UID()
@@ -1476,6 +1537,46 @@ ASK_AGAIN:
 sub main()
 {
     my $result = 0;
+
+    # On Linux, "yum-utils" basically renders this utility obsolete!
+    if( is_Linux ) {
+        if( is_Fedora() ) {
+            print( STDOUT
+                   "\nTHIS PROGRAM IS DEPRECATED!\n\n" );
+            if( -x $PACKAGE_CLEANUP ) {
+                print( STDOUT
+                       "Please use '$PACKAGE_CLEANUP' instead.\n\n" );
+            } else {
+                print( STDOUT
+                       "Please download and install the latest 'yum-utils'\n"
+                     . "RPM, and use '$PACKAGE_CLEANUP' instead.\n\n" );
+            }
+            print( STDOUT
+                   "For details regarding the PKI yum repo, please see:\n\n"
+                 . "    '$DOGTAG_WIKI'\n\n" );
+            print( STDOUT
+                   "===============================================================================\n\n" );
+            usage();
+        } elsif( ( is_RHEL() ) && (! is_RHEL4() ) ) {
+            print( STDOUT
+                   "\nTHIS PROGRAM IS DEPRECATED!\n\n" );
+            if( -x $PACKAGE_CLEANUP ) {
+                print( STDOUT
+                       "Please use '$PACKAGE_CLEANUP' instead.\n\n" );
+            } else {
+                print( STDOUT
+                       "Please download and install the latest 'yum-utils'\n"
+                     . "RPM, and use '$PACKAGE_CLEANUP' instead.\n\n" );
+            }
+            print( STDOUT
+                   "===============================================================================\n\n" );
+            usage();
+        } else {
+            print( STDERR
+                   "\nERROR:  Unsupported Linux distro!\n\n" );
+        }
+        exit 255;
+    }
 
     # On Linux/UNIX, insure that this script is being run as "root".
     $result = check_for_root_UID();
