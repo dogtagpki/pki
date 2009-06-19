@@ -330,6 +330,8 @@ sub display
     while (<HTTPD_CONF>) {
         if (/^#\[ErrorDocument_404\]/) {
             print TMP_HTTPD_CONF "ErrorDocument 404 /404.html\n";
+        } elsif (/^#\[ErrorDocument_500\]/) {
+            print TMP_HTTPD_CONF "ErrorDocument 500 /500.html\n";
         } else {
           print TMP_HTTPD_CONF $_;
         }
