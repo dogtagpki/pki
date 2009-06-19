@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      31
+%define base_release      32
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -314,6 +314,8 @@ fi
 ###############################################################################
 
 %changelog
+* Fri Jun 19 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-32
+- Bugzilla Bug #506867 -  Provide custom error page for HTTP STATUS 500
 * Tue Jun 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-31
 - Bugzilla Bug #502908 -  Current page not found handling is a Cat 2 finding
   with the Tomcat STIG
