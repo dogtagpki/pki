@@ -50,6 +50,16 @@ printf "Moving all 'SRPMS' into the 'SRPMS/' directory . . . "
 mv ./RPMS/*.src.rpm ./SRPMS
 printf "done.\n\n"
 
+if [ -x /usr/bin/createrepo ]; then
+	printf "Attempting to create a yum repo in the 'RPMS/' directory . . .\n"
+	/usr/bin/createrepo ./RPMS
+	printf "done.\n\n"
+
+	printf "Attempting to create a yum repo in the 'SRPMS/' directory . . .\n"
+	/usr/bin/createrepo ./SRPMS
+	printf "done.\n\n"
+fi
+
 printf "Counting all 'RPMS' . . . "
 RPM_COUNT=`ls -1 ./RPMS/*.rpm | wc -l`
 printf "done.\n\n"
