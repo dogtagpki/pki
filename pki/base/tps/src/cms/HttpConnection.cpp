@@ -133,7 +133,66 @@ TPS_PUBLIC PSHttpResponse *HttpConnection::getResponse(int index, const char *se
     RA::Debug(LL_PER_PDU, "HttpConnection::getResponse", "uri=%s", uri);
     RA::Debug(LL_PER_PDU, "HttpConnection::getResponse", "host_port=%s", host_port);
 
-    PSHttpServer httpserver(host_port, PR_AF_INET);
+    char *pPort = NULL;
+    char *pPortActual = NULL;
+
+
+    char hostName[512];
+
+    /*
+     * Isolate the host name, account for IPV6 numeric addresses.
+     *
+     */
+
+    if(host_port)
+        strncpy(hostName,host_port,512);
+
+    pPort = hostName;
+    while(1)  {
+        pPort = strchr(pPort, ':');
+        if (pPort) {
+            pPortActual = pPort;
+            pPort++;
+        } else
+            break;
+    }
+
+    if(pPortActual)
+        *pPortActual = '\0';
+
+
+    /*
+    *  Rifle through the values for the host
+    */
+
+    PRAddrInfo *ai;
+    void *iter;
+    PRNetAddr addr;
+    int family = PR_AF_INET;
+
+    ai = PR_GetAddrInfoByName(hostName, PR_AF_UNSPEC, PR_AI_ADDRCONFIG);
+    if (ai) {
+        printf("%s\n", PR_GetCanonNameFromAddrInfo(ai));
+        iter = NULL;
+        while ((iter = PR_EnumerateAddrInfo(iter, ai, 0, &addr)) != NULL) {
+            char buf[512];
+            PR_NetAddrToString(&addr, buf, sizeof buf);
+            RA::Debug( LL_PER_PDU,
+                       "HttpConnection::getResponse: ",
+                           "Sending addr -- Msg='%s'\n",
+                           buf );
+            family = PR_NetAddrFamily(&addr);
+            RA::Debug( LL_PER_PDU,
+                       "HttpConnection::getResponse: ",
+                           "Sending family -- Msg='%d'\n",
+                           family );
+            break;
+        }
+        PR_FreeAddrInfo(ai);
+        
+    }
+
+    PSHttpServer httpserver(host_port, family);
     nickname = GetClientNickname();
     if (IsSSL())
        httpserver.setSSL(PR_TRUE);
