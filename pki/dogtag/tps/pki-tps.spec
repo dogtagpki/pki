@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      33
+%define base_release      34
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -314,6 +314,8 @@ fi
 ###############################################################################
 
 %changelog
+* Mon Jun 22 2009 Jack Magne <jmagne@redhat.com> 1.1.0-34
+- Bugzilla Bug #476734 -  Make TPS httpClient IPv6 enabled.
 * Sat Jun 20 2009 Jack Magne <jmagne@redhat.com> 1.1.0-33
 - Bugzilla Bug #476734 -  Make TPS httpClient IPv6 enabled.
 * Fri Jun 19 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-32
