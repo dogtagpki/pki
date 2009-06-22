@@ -209,8 +209,6 @@ int
 RA_Conn::Connect ()
 {
   PRStatus rc;
-  PRNetAddr addr;
-  PRUint32 ip_addr;
   char header[4096];
 
   sprintf (header, "POST %s HTTP/1.1\r\n"
@@ -219,11 +217,31 @@ RA_Conn::Connect ()
 
   m_fd = PR_NewTCPSocket ();
 
-  ip_addr = GetIPAddress (m_host);
+  /*
+   *  Rifle through the values for the host
+   */
 
-  addr.inet.family = PR_AF_INET;
-  addr.inet.port = PR_htons (m_port);
-  addr.inet.ip = PR_htonl (ip_addr);
+  PRAddrInfo *ai;
+  void *iter;
+  PRNetAddr addr;
+  int family = PR_AF_INET;
+
+  ai = PR_GetAddrInfoByName(m_host, PR_AF_UNSPEC, PR_AI_ADDRCONFIG);
+  if (ai) {
+      iter = NULL;
+      while ((iter = PR_EnumerateAddrInfo(iter, ai, 0, &addr)) != NULL) {
+          family = PR_NetAddrFamily(&addr);
+          break;
+      }
+      PR_FreeAddrInfo(ai);
+  }
+
+  PR_SetNetAddr( PR_IpAddrNull, family, m_port, &addr );
+
+  m_fd = PR_OpenTCPSocket( family );
+  if( !m_fd ) {
+      return 0;
+  }
 
   rc = PR_Connect (m_fd, &addr, PR_INTERVAL_NO_TIMEOUT /* timeout */ );
   if (rc != PR_SUCCESS)
