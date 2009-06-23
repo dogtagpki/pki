@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      22
+%define base_release      23
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,8 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Jun 23 2009 Ade Lee <alee@redhat.com> 1.1.0-23
+- Bugzilla Bug #483302 - UTF-8 enrollments not working when initiated from RA 
 * Fri Jun 19 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-22
 - Bugzilla Bug #506867 -  Provide custom error page for HTTP STATUS 500
 * Tue Jun 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-21

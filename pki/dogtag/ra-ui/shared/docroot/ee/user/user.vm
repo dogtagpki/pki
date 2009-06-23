@@ -63,6 +63,15 @@
 </div>
 
 <SCRIPT LANGUAGE="JavaScript">
+function encode_utf8( s )
+{
+  return unescape( encodeURIComponent( s ) );
+}
+ 
+function decode_utf8( s )
+{
+   return decodeURIComponent( escape( s ) );
+}
 
 function validate()
 {
@@ -81,7 +90,7 @@ function validate()
       alert("Full name is empty");
       return false;
     }
-    var dn = "uid="+x+",e="+e+",cn="+cn;
+    var dn = encode_utf8("uid="+x+",e="+e+",cn="+cn);
     with (document.forms[0]) {
         crmfObject = crypto.generateCRMFRequest(
                 dn,
