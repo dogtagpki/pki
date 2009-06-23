@@ -2367,11 +2367,13 @@ loser:
         tokenTypes = NULL;
     }
     if (certificates != NULL) {
-        RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process", "before CERT_DestroyCertificate");
+        RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process", "before CERT_DestroyCertificate.  certNums=%d", o_certNums);
         for (int i=0;i < o_certNums; i++) {
+        RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process", "CERT_DestroyCertificate:  i=%d", i);
             if (certificates[i] != NULL) {
                    CERT_DestroyCertificate(certificates[i]);
             }
+        RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process", "CERT_DestroyCertificate:  i=%i done", i);
         }
         free(certificates);
         RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process", "after CERT_DestroyCertificate");
@@ -2406,34 +2408,42 @@ loser:
         delete CardManagerAID;
         CardManagerAID = NULL;
     }
+
     if( NetKeyAID != NULL ) {
         delete NetKeyAID;
         NetKeyAID = NULL;
     }
+
     if( login != NULL ) {
         delete login;
         login = NULL;
     }
+
     if( channel != NULL ) {
         delete channel;
         channel = NULL;
     }
+
     if( new_pin != NULL ) {
         PL_strfree( new_pin );
         new_pin = NULL;
     }
+
     if( key_check != NULL ) {
         delete key_check;
         key_check = NULL;
     }
+
     if( wrapped_challenge != NULL ) {
         delete wrapped_challenge;
         wrapped_challenge = NULL;
     }
+
     if( plaintext_challenge != NULL ) {
         delete plaintext_challenge;
         plaintext_challenge = NULL;
     }
+
     if( token_status != NULL ) {
         delete token_status;
         token_status = NULL;
@@ -2773,7 +2783,8 @@ bool RA_Enroll_Processor::GenerateCertsAfterRecoveryPolicy(AuthParams *login, RA
                                   tokenTypes); 
                         if (r == true) {
                             RA::Debug(LL_PER_CONNECTION,FN, "ProcessRenewal returns true");
-                        }
+                        } else
+                            goto loser;
                     }
                     break;
                 } else if (strcmp(tokenStatus, "terminated") == 0) {
@@ -2896,9 +2907,11 @@ CERTCertificate **o_cert)
 
     certRenewal = new CertEnroll();
     cert = certRenewal->RenewCertificate(snum, connid, profileId);
+
     if (cert == NULL) {
         r = false;
         RA::Debug("RA_Enroll_Processor::DoRenewal", "Renewal failed for serial number %d", snum);
+        status = STATUS_ERROR_MAC_ENROLL_PDU;
         goto loser;
     }
     RA::Debug("RA_Enroll_Processor::DoRenewal", "Renewal suceeded for serial number %d", snum);
@@ -2967,7 +2980,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 
     RA::Debug("RA_Enroll_Processor::ProcessRenewal", "keyType.num=%d", keyTypeNum);
 
-    o_certNums = keyTypeNum;
+    o_certNums = 0 /*keyTypeNum*/;
     certificates = (CERTCertificate **) malloc (sizeof(CERTCertificate *) * keyTypeNum);
     ktypes = (char **) malloc (sizeof(char *) * keyTypeNum);
     origins = (char **) malloc (sizeof(char *) * keyTypeNum);
@@ -3136,6 +3149,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                         r = DoRenewal(caconnid, profileId, certs[0], &o_cert);
                         if (r == false) {
 			    RA::Debug("RA_Enroll_Processor::ProcessRenewal", "after DoRenewal");
+                            o_status = STATUS_ERROR_MAC_ENROLL_PDU;
                             goto rloser;
                         }
 
@@ -3161,6 +3175,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                         ktypes[i] = PL_strdup(keyTypeValue);
                         origins[i] = PL_strdup(cuid);
                         certificates[i] = o_cert;
+                        o_certNums++;
 
                         // write certificate to token
 			certbuf = new Buffer(o_cert->derCert.data, o_cert->derCert.len);
