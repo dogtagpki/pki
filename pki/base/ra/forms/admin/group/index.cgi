@@ -34,6 +34,7 @@ use PKI::Base::Conf;
 use PKI::Base::Util;
 use PKI::Request::Queue;
 use PKI::Base::Registry;
+use Encode;
 
 use vars qw (@ISA);
 use PKI::Service::Op;
@@ -90,8 +91,8 @@ sub process()
   my $i = 0;
   foreach my $group (@groups) {
     $r[$i] = new PKI::RA::GlobalVar(
-                    getGID => sub { return $util->html_encode($group->{'gid'}) },
-                    getName => sub { return $util->html_encode($group->{'name'}) },
+                    getGID => sub { return $util->html_encode(Encode::decode('UTF-8', $group->{'gid'})) },
+                    getName => sub { return $util->html_encode(Encode::decode('UTF-8', $group->{'name'})) },
                    );
     $i++;
   }

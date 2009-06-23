@@ -34,6 +34,7 @@ use PKI::Base::Conf;
 use PKI::Base::Util;
 use PKI::Request::Queue;
 use PKI::Base::Registry;
+use Encode;
 
 use vars qw (@ISA);
 use PKI::Service::Op;
@@ -73,8 +74,8 @@ sub process()
   $store->open($cfg);
   my $ref = $store->read_group($gid);
 
-  $context{gid} = $util->html_encode($ref->{'gid'});
-  $context{name} = $util->html_encode($ref->{'name'});
+  $context{gid} = $util->html_encode(Encode::decode('UTF-8', $ref->{'gid'}));
+  $context{name} = $util->html_encode(Encode::decode('UTF-8', $ref->{'name'}));
 
   my @members = $store->list_all_members($gid);
   my @users = $store->list_all_non_members($gid);

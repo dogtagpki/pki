@@ -33,6 +33,7 @@ use PKI::Base::Conf;
 use PKI::Base::Registry;
 use PKI::Request::Queue;
 use PKI::Base::Util;
+use Encode;
 
 use vars qw (@ISA);
 use PKI::Service::Op;
@@ -109,7 +110,7 @@ sub process()
   $queue->close();
   my $db_et = new Benchmark;
  
-  $context{data} = $util->breakline($util->html_encode($ref->{'data'}), 40);
+  $context{data} = $util->breakline($util->html_encode(Encode::decode('UTF-8', $ref->{'data'})), 40);
   $context{output} = $util->breakline($util->html_encode($ref->{'output'}), 40);
   $context{serialno} = $util->html_encode($ref->{'serialno'});
   $context{type} = $util->html_encode($ref->{'type'});

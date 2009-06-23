@@ -34,6 +34,7 @@ use PKI::Base::Conf;
 use PKI::Base::Util;
 use PKI::Request::Queue;
 use PKI::Base::Registry;
+use Encode;
 
 use vars qw (@ISA);
 use PKI::Service::Op;
@@ -93,7 +94,7 @@ sub process()
   foreach my $user (@users) {
     $r[$i] = new PKI::RA::GlobalVar(
                     getUID => sub { return $util->html_encode($user->{'uid'}) },
-                    getName => sub { return $util->html_encode($user->{'name'}) },
+                    getName => sub { return $util->html_encode(Encode::decode('UTF-8',$user->{'name'})) },
                     getEmail => sub { return $util->html_encode($user->{'email'}) },
                    );
     $i++;

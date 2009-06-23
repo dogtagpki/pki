@@ -32,6 +32,7 @@ use Template::Velocity;
 use PKI::Base::Conf;
 use PKI::Base::Registry;
 use PKI::Base::Util;
+use Encode;
 
 use vars qw (@ISA);
 use PKI::Service::Op;
@@ -68,7 +69,7 @@ sub process()
   my $rid = $util->get_alphanum_val($q->param('rid'));
 
   $context{serialno} = $util->html_encode($serialno);
-  $context{subject_dn} = $util->html_encode($subject_dn);
+  $context{subject_dn} = $util->html_encode(Encode::decode('UTF-8',$subject_dn));
   $context{rid} = $util->html_encode($rid);
  
   my $result = $parser->execute_file_with_context("agent/cert/revoke.vm",

@@ -134,5 +134,22 @@ sub html_encode()
   return HTML::Entities::encode($s);
 }
 
+sub html_encode_and_break()
+{
+  my ($self, $s, $maxlen) = @_;
+  my $new_s = '';
+  my $i = 0;
+  foreach my $c (split(//, $s)) {
+    if ($i == $maxlen) {
+       $i = 0;
+       $new_s = $new_s . '***';
+    }
+    $new_s = $new_s . $c;
+    $i++;
+  }
+  $s = HTML::Entities::encode($new_s);
+  $s =~ s/\*\*\*/<br\/>/g;
+  return $s;
+}
 
 1;

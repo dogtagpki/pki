@@ -33,6 +33,7 @@ use PKI::Base::Conf;
 use PKI::Base::Registry;
 use PKI::Base::Util;
 use PKI::Request::Queue;
+use Encode;
 
 use vars qw (@ISA);
 use PKI::Service::Op;
@@ -76,7 +77,7 @@ sub process()
   my $ref = $queue->read_request_by_roles(\@roles, $id);
   $queue->close();
 
-  $context{data} = $util->breakline($util->html_encode($ref->{'data'}), 40);
+  $context{data} = $util->breakline($util->html_encode(Encode::decode('UTF-8',$ref->{'data'})), 40);
   $context{output} = $util->breakline($util->html_encode($ref->{'output'}), 40);
   $context{meta_info} = $util->breakline($util->html_encode($ref->{'meta_info'}), 40);
 

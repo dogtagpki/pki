@@ -33,9 +33,10 @@ use PKI::Base::Conf;
 use PKI::Base::Util;
 use PKI::Base::Registry;
 use PKI::Conn::CA;
-
+use Encode;
 use vars qw (@ISA);
 use PKI::Service::Op;
+
 @ISA = qw(PKI::Service::Op);
 
 sub new {
@@ -80,7 +81,7 @@ sub process()
   $context{certificate} = $util->breakline($util->html_encode($ref->{'certificate'}), 40);
 
   $context{serialno} = $util->html_encode($ref->{'serialno'});
-  $context{subject_dn} = $util->html_encode($ref->{'subject_dn'});
+  $context{subject_dn} = $util->html_encode(Encode::decode('UTF-8', $ref->{'subject_dn'}));
   $context{created_at} = $util->html_encode($ref->{'created_at'});
   $context{approved_by} = $util->html_encode($ref->{'approved_by'});
   $context{rid} = $util->html_encode($ref->{'rid'});

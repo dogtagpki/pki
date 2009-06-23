@@ -35,6 +35,7 @@ use PKI::Base::Registry;
 use PKI::Request::Queue;
 use Template::Velocity;
 use MIME::Base64;
+use Encode;
 
 use vars qw (@ISA);
 use PKI::Service::Op;
@@ -69,7 +70,7 @@ sub process()
   my %context;
   $context{id} = $util->html_encode($req->{'rowid'});
   $context{serialno} = $util->html_encode($req->{'serialno'});
-  $context{subject_dn} = $util->html_encode($req->{'subject_dn'});
+  $context{subject_dn} = $util->html_encode(Encode::decode('UTF-8', $req->{'subject_dn'}));
   if ($req->{'serialno'} eq "unavailable") {
     $context{output} = "";
   } else {

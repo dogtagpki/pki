@@ -34,6 +34,7 @@ use PKI::Base::Conf;
 use PKI::Base::Util;
 use PKI::Base::Registry;
 use PKI::Request::Queue;
+use Encode;
 
 use vars qw (@ISA);
 use PKI::Service::Op;
@@ -75,8 +76,8 @@ sub process()
   $store->close();
 
   $context{userid} = $util->html_encode($ref->{'uid'});
-  $context{name} = $util->html_encode($ref->{'name'});
-  $context{email} = $util=>html_encode($ref->{'email'});
+  $context{name} = $util->html_encode(Encode::decode('UTF-8', $ref->{'name'}));
+  $context{email} = $util->html_encode($ref->{'email'});
   $context{certificate} = $util->breakline($util->html_encode($ref->{'certificate'}),40);
 
   my $result = $parser->execute_file_with_context("admin/user/read.vm",

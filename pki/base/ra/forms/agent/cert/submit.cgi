@@ -33,6 +33,7 @@ use PKI::Base::Conf;
 use PKI::Base::Util;
 use PKI::Base::Registry;
 use PKI::Conn::CA;
+use Encode;
 
 use vars qw (@ISA);
 use PKI::Service::Op;
@@ -84,7 +85,7 @@ sub process()
 
   $context{rid} = $util->html_encode($rid);
   $context{serialno} = $util->html_encode($serialno);
-  $context{subject_dn} = $util->html_encode($subject_dn);
+  $context{subject_dn} = $util->html_encode(Encode::decode('UTF-8', $subject_dn));
 
   my $result = $parser->execute_file_with_context("agent/cert/submit.vm",
                    \%context);
