@@ -314,7 +314,7 @@ fi
 ###############################################################################
 
 %changelog
-* Tue June 23 2009 Christina Fu <cfu@redhat.com> 1.1.0-35
+* Tue Jun 23 2009 Christina Fu <cfu@redhat.com> 1.1.0-35
 - Bugzilla Bug #504896 - TPS crash: renewal outside of grace period
 * Mon Jun 22 2009 Jack Magne <jmagne@redhat.com> 1.1.0-34
 - Bugzilla Bug #476734 -  Make TPS httpClient IPv6 enabled.
