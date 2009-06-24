@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      24
+%define base_release      25
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,7 +266,9 @@ fi
 ###############################################################################
 
 %changelog
-* Tue Jun 24 2009 Ade Lee <alee@redhat.com> 1.1.0-24
+* Wed Jun 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-25
+- Bugzilla Bug #507746 -  Configure TPS/RA to listen on Ipv4 and Ipv6
+* Wed Jun 24 2009 Ade Lee <alee@redhat.com> 1.1.0-24
 - Bugzilla Bug #505788 - RA agent list certificates and view a user certificate throws 500 internal server error 
 * Tue Jun 23 2009 Ade Lee <alee@redhat.com> 1.1.0-23
 - Bugzilla Bug #483302 - UTF-8 enrollments not working when initiated from RA 

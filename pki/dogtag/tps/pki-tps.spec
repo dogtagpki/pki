@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      35
+%define base_release      36
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -314,6 +314,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Jun 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-36
+- Bugzilla Bug #507746 -  Configure TPS/RA to listen on Ipv4 and Ipv6
 * Tue Jun 23 2009 Christina Fu <cfu@redhat.com> 1.1.0-35
 - Bugzilla Bug #504896 - TPS crash: renewal outside of grace period
 * Mon Jun 22 2009 Jack Magne <jmagne@redhat.com> 1.1.0-34
