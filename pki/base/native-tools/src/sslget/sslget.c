@@ -382,7 +382,6 @@ do_io( PRFileDesc *ssl_sock, int connection)
 		connection, rv, countRead );
 	FPRINTF(stderr, "these bytes read:\n");
 	PR_Write(PR_STDOUT,buf,rv);
-    PR_fprintf(PR_STDOUT, "\n");
 
         if (first) {
              first=0;
@@ -396,6 +395,8 @@ do_io( PRFileDesc *ssl_sock, int connection)
              }
 	}
     }
+    PR_fprintf(PR_STDOUT, "\n");
+
     PR_Free(buf);
     buf = 0;
 

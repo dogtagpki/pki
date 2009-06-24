@@ -106,6 +106,7 @@ sub enroll {
 
   $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;
   $content = $1;
+  $content =~ s/\n//g;
 
   my $xmlparser = XML::Simple->new();
   my $response = $xmlparser->XMLin($content);
@@ -203,6 +204,7 @@ sub revoke {
   $content =~ s/\000//;
   $content =~ /(\<xml\>.*\<\/xml\>)/s;
   $content = $1;
+  $content =~ s/\n//g;
 
   my $req = $queue->read_request($rid);
 
@@ -259,6 +261,7 @@ sub getCertStatus {
 
   $content =~ /(\<xml\>.*\<\/xml\>)/s;
   $content = $1;
+  $content =~ s/\n//g;
 
   my $xmlparser = XML::Simple->new(NormalizeSpace => 2);
   my $response = $xmlparser->XMLin($content);
