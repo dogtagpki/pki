@@ -97,6 +97,9 @@ $default_certutil_command      = "";
 $default_ldapmodify_command    = "";
 $default_modutil_command       = "";
 
+# Use a local variable to denote IPv6
+my $is_IPv6 = 0;
+
 # Compute "hardware platform" of Operating System
 $default_hardware_platform = `pkiarch`;
 $default_hardware_platform =~ s/\s+$//g;
@@ -123,6 +126,16 @@ if( $^O eq "linux" ) {
         print( "\n" );
         exit 255;
     }
+
+    # Retrieve hostname
+    if( defined( $ENV{ 'PKI_HOSTNAME' } ) ) {
+        # IPv6: Retrieve hostname from environment variable
+        $hostname = $ENV{ 'PKI_HOSTNAME' };
+        $is_IPv6 = 1;
+    } else {
+        # IPv4: Retrieve hostname using Sys::Hostname
+        $hostname = hostname;
+    }
 } elsif( $^O eq "solaris" ) {
     if( $default_hardware_platform eq "sparc" ) {
         # 32-bit Solaris
@@ -144,6 +157,17 @@ if( $^O eq "linux" ) {
              . "'$default_hardware_platform'!\n" );
         print( "\n" );
         exit 255;
+    }
+
+    # Retrieve hostname
+    # (unfortunately, pkgadd doesn't process all environment variables)
+    if( -f "/tmp/PKI_HOSTNAME" ) {
+        # IPv6: Retrieve hostname from file
+        $hostname = `cat /tmp/PKI_HOSTNAME`;
+        $is_IPv6 = 1;
+    } else {
+        # IPv4: Retrieve hostname using Sys::Hostname
+        $hostname = hostname;
     }
 } else {
     print( STDERR
@@ -194,9 +218,6 @@ $lib_prefix = "";
 $obj_ext    = "";
 $path_sep   = "";
 $tmp_dir    = "";
-
-# Retrieve hostname using Sys::Hostname
-$hostname = hostname;
 
 # "logging" parameters
 $logfile = "";
@@ -496,12 +517,17 @@ sub get_UID_from_username
 # return fully-qualified domain name (FQDN)
 sub get_FQDN
 {
-    if( $_[0] !~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/ ) {
-        # Retrieve FQDN via a "mnemonic" hostname
-        ( $fqdn ) = gethostbyname( $_[0] );
+    if( !$is_IPv6 ) {
+        if( $_[0] !~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/ ) {
+            # Retrieve FQDN via a "mnemonic" hostname
+            ( $fqdn ) = gethostbyname( $_[0] );
+        } else {
+            # Retrieve FQDN via a "4-tuple" IP address
+            $fqdn = gethostbyaddr( pack( 'C4', $1, $2, $3, $4 ), 2 );
+        }
     } else {
-        # Retrieve FQDN via a "4-tuple" IP address
-        $fqdn = gethostbyaddr( pack( 'C4', $1, $2, $3, $4 ), 2 );
+        # IPv6:  Don't rely upon "Socket6.pm" being present!
+        $fqdn = $_[0];
     }
 
     return( $fqdn );
