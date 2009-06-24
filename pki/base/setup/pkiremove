@@ -213,6 +213,7 @@ sub update_domain()
     my $seceeport;
     my $secagentport;
     my $secadminport;
+    my $adminsport;
     my $secselect;
     my $typeval;
     my $machinename;
@@ -235,6 +236,7 @@ sub update_domain()
         if ($varname eq "securitydomain.httpsadminport") { $secadminport = $valname; }
         if ($varname eq "securitydomain.select") { $secselect = $valname; }
         if ($varname eq "pkiremove.cert.subsystem.nickname") { $subsystemnick = $valname; }
+        if ($varname eq "pkicreate.admin_secure_port") { $adminsport = $valname; }
     }
     close(DAT);
 
@@ -312,6 +314,7 @@ sub update_domain()
                 'host' => $machinename,
                 'sport' => $sport,
                 'ncsport' => $ncsport,
+                'adminsport' => $adminsport,
                 'operation' => 'remove'
             ],
         );
