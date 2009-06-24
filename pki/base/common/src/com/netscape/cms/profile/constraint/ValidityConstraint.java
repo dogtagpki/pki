@@ -41,8 +41,10 @@ import netscape.security.x509.*;
 public class ValidityConstraint extends EnrollConstraint {
 
     public static final String CONFIG_RANGE = "range";
+    public static final String CONFIG_NOT_BEFORE_GRACE_PERIOD = "notBeforeGracePeriod";
     public static final String CONFIG_CHECK_NOT_BEFORE = "notBeforeCheck";
     public static final String CONFIG_CHECK_NOT_AFTER = "notAfterCheck";
+    public final static long SECS_IN_MS = 1000L;
 
     private Date mDefNotBefore = null;
     private Date mDefNotAfter = null;
@@ -50,6 +52,7 @@ public class ValidityConstraint extends EnrollConstraint {
     public ValidityConstraint() {
         super();
         addConfigName(CONFIG_RANGE);
+        addConfigName(CONFIG_NOT_BEFORE_GRACE_PERIOD);
         addConfigName(CONFIG_CHECK_NOT_BEFORE);
         addConfigName(CONFIG_CHECK_NOT_AFTER);
     }
@@ -61,12 +64,13 @@ public class ValidityConstraint extends EnrollConstraint {
 
     public void setConfig(String name, String value)
         throws EPropertyException {
-        if (name.equals(CONFIG_RANGE)) {
+        if (name.equals(CONFIG_RANGE) ||
+            name.equals(CONFIG_NOT_BEFORE_GRACE_PERIOD)) {
           try {
             Integer.parseInt(value);
           } catch (Exception e) {
                 throw new EPropertyException(CMS.getUserMessage(
-                            "CMS_INVALID_PROPERTY", CONFIG_RANGE));
+                            "CMS_INVALID_PROPERTY", name));
           }
         }
         super.setConfig(name, value);
@@ -76,6 +80,9 @@ public class ValidityConstraint extends EnrollConstraint {
         if (name.equals(CONFIG_RANGE)) {
             return new Descriptor(IDescriptor.INTEGER, null, "365",
                     CMS.getUserMessage(locale, "CMS_PROFILE_VALIDITY_RANGE"));
+        } else if (name.equals(CONFIG_NOT_BEFORE_GRACE_PERIOD)) {
+            return new Descriptor(IDescriptor.INTEGER, null, "0",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_VALIDITY_NOT_BEFORE_GRACE_PERIOD"));
         } else if (name.equals(CONFIG_CHECK_NOT_BEFORE)) {
             return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_VALIDITY_CHECK_NOT_BEFORE"));
@@ -153,11 +160,17 @@ public class ValidityConstraint extends EnrollConstraint {
             notAfterCheckStr = "false";
         }
         notAfterCheck = Boolean.valueOf(notAfterCheckStr).booleanValue(); 
-       
+
+        String notBeforeGracePeriodStr = getConfig(CONFIG_NOT_BEFORE_GRACE_PERIOD);
+        if (notBeforeGracePeriodStr == null || notBeforeGracePeriodStr.equals("")) {
+            notBeforeGracePeriodStr = "0";
+        }
+        long notBeforeGracePeriod = Long.parseLong(notBeforeGracePeriodStr) * SECS_IN_MS;
+
         if (notBeforeCheck) {
             Date current = CMS.getCurrentDate();
 
-            if (notBefore.getTime() < current.getTime()) {
+            if (notBefore.getTime() > (current.getTime() + notBeforeGracePeriod)) {
                 CMS.debug("ValidityConstraint: notBefore (" + notBefore + ") < current (" + current + ")");
                 throw new ERejectException(CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_NOT_BEFORE_BEFORE_CURRENT"));
