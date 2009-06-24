@@ -141,8 +141,7 @@ public class UserValidityDefault extends EnrollDefault {
                 certValidity.decode(
                         new ByteArrayInputStream(certValidityData));
             }
-            info.set(X509CertInfo.VALIDITY,
-                    certValidityData);
+            info.set(X509CertInfo.VALIDITY, certValidity);
         } catch (Exception e) {
             CMS.debug("UserValidityDefault: populate " + e.toString());
         }
