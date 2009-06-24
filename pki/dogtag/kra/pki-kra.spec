@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      12
+%define base_release      13
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -288,6 +288,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Jun 24 2009 Christina Fu <cfu@redhat.com> 1.1.0-13
+- Bugzilla Bug #233394 - Use depreciated field in PKIArchiveOption
 * Fri Jun 19 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-12
 - Bugzilla Bug #506867 -  Provide custom error page for HTTP STATUS 500
 * Mon Jun 15 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-11
