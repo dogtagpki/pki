@@ -47,6 +47,7 @@
 
 #include <ldap.h>
 #include <ldap_ssl.h>
+#include <ldappr.h>
 
 #define USE_NSS_RANDOM
 
@@ -610,7 +611,7 @@ void doLDAPBind() {
   	/* ld = ldapssl_init(o_host,port,LDAPSSL_AUTH_CNCHECK); */
   }
   else {
-  	ld = ldap_init(o_host,port);
+  	ld = prldap_init(o_host,port,1);
   }
   if (ld == NULL) {
     errcode=4;
@@ -618,7 +619,7 @@ void doLDAPBind() {
   }
 
   if (o_debug) {
-    fprintf(stderr,"# ldap_init completed\n");
+    fprintf(stderr,"# prldap_init completed\n");
   }
     
   r = ldap_simple_bind_s(ld,o_binddn,o_bindpw);

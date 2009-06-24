@@ -884,7 +884,9 @@ static int tus_check_conn()
           /* enabling SSL */
           ld = ldapssl_init(host, port, 1);
         } else {
-          ld = ldap_init(host, port);
+          /* NOTE:  ldapssl_init() already utilizes */
+          /*        prldap (IPv6) functionality.    */
+          ld = prldap_init(host, port, 1);
         }
         if (ld == NULL) {
             return status;

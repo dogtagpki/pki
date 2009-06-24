@@ -36,6 +36,7 @@
 
 #include <stdio.h>
 #include "ldap.h"
+#include "ldappr.h"
 
 /* Specify the search criteria here. */
 #define HOSTNAME "localhost"
@@ -57,8 +58,8 @@ main( int argc, char **argv )
 
   /* STEP 1: Get a handle to an LDAP connection and
     set any session preferences. */
-  if ( (ld = ldap_init( HOSTNAME, PORTNUMBER )) == NULL ) {
-    perror( "ldap_init" );
+  if ( (ld = prldap_init( HOSTNAME, PORTNUMBER, 1 )) == NULL ) {
+    perror( "prldap_init" );
     return( 1 );
   }
 

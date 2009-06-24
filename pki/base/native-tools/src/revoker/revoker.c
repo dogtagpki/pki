@@ -427,47 +427,62 @@ do_connect(
 {
     PRFileDesc *        ssl_sock;
     PRFileDesc *        tcp_sock;
-    PRStatus	        prStatus;
-    SECStatus   	result;
-    int                 rv 		= SECSuccess;
+    PRStatus            prStatus;
+    SECStatus           result;
+    int                 rv = SECSuccess;
     PRSocketOptionData  opt;
 
-    tcp_sock = PR_NewTCPSocket();
+    int family = PR_NetAddrFamily( addr );
+
+    tcp_sock = PR_OpenTCPSocket( family );
     if (tcp_sock == NULL) {
-	errExit("PR_NewTCPSocket");
+        errExit("PR_OpenTCPSocket on tcp socket");
     }
 
     opt.option             = PR_SockOpt_Nonblocking;
     opt.value.non_blocking = PR_FALSE;
     prStatus = PR_SetSocketOption(tcp_sock, &opt);
     if (prStatus != PR_SUCCESS) {
-    	PR_Close(tcp_sock);
-	return SECSuccess;
+        if( tcp_sock != NULL ) {
+            PR_Close(tcp_sock);
+            tcp_sock = NULL;
+        }
+        /* Don't return SECFailure? */
+        return SECSuccess;
     } 
 
     prStatus = PR_Connect(tcp_sock, addr, PR_SecondsToInterval(3));
     if (prStatus != PR_SUCCESS) {
-	errWarn("PR_Connect");
+        errWarn("PR_Connect");
+        if( tcp_sock != NULL ) {
+            PR_Close(tcp_sock);
+            tcp_sock = NULL;
+        }
         exit(6);
     }
 
     ssl_sock = SSL_ImportFD(model_sock, tcp_sock);
     /* XXX if this import fails, close tcp_sock and return. */
     if (!ssl_sock) {
-    	PR_Close(tcp_sock);
-		exit(7);
-	return SECFailure;
+        if( tcp_sock != NULL ) {
+            PR_Close(tcp_sock);
+            tcp_sock = NULL;
+        }
+        exit(7);
     }
 
     rv = SSL_ResetHandshake(ssl_sock, /* asServer */ 0);
     if (rv != SECSuccess) {
-	errWarn("SSL_ResetHandshake");
-		exit(8);
+        errWarn("SSL_ResetHandshake");
+        exit(8);
     }
 
     result = do_io( ssl_sock, connection);
 
-    PR_Close(ssl_sock);
+    if( ssl_sock != NULL ) {
+        PR_Close(ssl_sock);
+        ssl_sock = NULL;
+    }
     return SECSuccess;
 }
 
@@ -503,57 +518,81 @@ client_main(
     int                 connections, 
     SECKEYPrivateKey ** privKey,
     CERTCertificate **  cert, 
-    const char *	hostName,
-    char *		nickName)
+    const char *        hostName,
+    char *              nickName)
 {
-    PRFileDesc *model_sock	= NULL;
+    PRFileDesc *model_sock = NULL;
     int         rv;
-    PRUint32	ipAddress;	/* in host byte order */
-    PRNetAddr   addr;
 
 
-    /* Assemble NetAddr struct for connections. */
-    ipAddress = getIPAddress(hostName);
     FPRINTF(stderr, "port: %d\n", port);
-
-    addr.inet.family = PR_AF_INET;
-    addr.inet.port   = PR_htons(port);
-    addr.inet.ip     = PR_htonl(ipAddress);
 
     /* all suites except RSA_NULL_MD5 are enabled by Domestic Policy */
     NSS_SetDomesticPolicy();
 
     /* all the SSL2 and SSL3 cipher suites are enabled by default. */
+    /* SSL_CipherPrefSetDefault(0xC005 /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA */, PR_TRUE); */
 
-    /* configure model SSL socket. */
+    /*
+     *  Rifle through the values for the host
+     */
 
-    model_sock = PR_NewTCPSocket();
-    if (model_sock == NULL) {
-	errExit("PR_NewTCPSocket on model socket");
+    PRAddrInfo *ai;
+    void *iter;
+    PRNetAddr addr;
+    int family = PR_AF_INET;
+
+    ai = PR_GetAddrInfoByName(hostName, PR_AF_UNSPEC, PR_AI_ADDRCONFIG);
+    if (ai) {
+        FPRINTF( stderr, "addr='%s'\n", PR_GetCanonNameFromAddrInfo( ai ) );
+        iter = NULL;
+        while ((iter = PR_EnumerateAddrInfo(iter, ai, 0, &addr)) != NULL) {
+            family = PR_NetAddrFamily(&addr);
+            FPRINTF( stderr, "family='%d'\n", family );
+            break;
+        }
+        PR_FreeAddrInfo(ai);
     }
 
+    PR_SetNetAddr( PR_IpAddrNull, family, port, &addr );
+
+    model_sock = PR_OpenTCPSocket( family );
+    if (model_sock == NULL) {
+        errExit("PR_OpenTCPSocket on tcp socket");
+    }
+
+    /* Should we really be re-using the same socket? */
     model_sock = SSL_ImportFD(NULL, model_sock);
+
+
+    /* check on success of call to SSL_ImportFD() */
     if (model_sock == NULL) {
-	errExit("SSL_ImportFD");
+        errExit("SSL_ImportFD");
     }
+
+    /* enable ECC cipher also */
 
     /* do SSL configuration. */
 
     rv = SSL_OptionSet(model_sock, SSL_SECURITY, 1);
     if (rv < 0) {
-	errExit("SSL_OptionSet SSL_SECURITY");
+        if( model_sock != NULL ) {
+            PR_Close( model_sock );
+            model_sock = NULL;
+        }
+        errExit("SSL_OptionSet SSL_SECURITY");
     }
 
     SSL_SetURL(model_sock, hostName);
 
     SSL_AuthCertificateHook(model_sock, mySSLAuthCertificate, 
-			    (void *)CERT_GetDefaultCertDB());
+                            (void *)CERT_GetDefaultCertDB());
 
     SSL_BadCertHook(model_sock, myBadCertHandler, NULL);
 
     SSL_GetClientAuthDataHook(model_sock, 
-	                      (SSLGetClientAuthData)my_GetClientAuthData, 
-			      nickName);
+                              (SSLGetClientAuthData)my_GetClientAuthData, 
+                              nickName);
 
     /* I'm not going to set the HandshakeCallback function. */
 
@@ -561,7 +600,10 @@ client_main(
 
     rv = do_connect(&addr, model_sock, 1);
 
-    PR_Close(model_sock);
+    if( model_sock != NULL ) {
+        PR_Close( model_sock );
+        model_sock = NULL;
+    }
 }
 
 

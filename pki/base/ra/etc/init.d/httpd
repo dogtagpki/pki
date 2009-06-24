@@ -231,7 +231,7 @@ get_pki_status_definitions()
 		if [ "$head" == "$listen_statement" ] ; then
 			# once the 'unsecure' listen statement has been found,
 			# extract the numeric port information
-			port=`echo $line | cut -d: -f2`
+			port=`echo $line | cut -b8-`
 			UNSECURE_PORT=$port
 			echo "    Unsecure Port              = http://[SERVER_NAME]:${UNSECURE_PORT}"
 			total_ports=`expr ${total_ports} + 1`
@@ -251,7 +251,7 @@ get_pki_status_definitions()
 			[ ${total_ports} -eq 2           ] ; then
 			# once the 'non-clientauth' listen statement has been found,
 			# extract the numeric port information
-			non_clientauth_port=`echo $line | cut -d: -f2`
+			non_clientauth_port=`echo $line | cut -b8-`
 			NON_CLIENTAUTH_PORT=$non_clientauth_port
 			echo "    Secure Non-Clientauth Port = https://[SERVER_NAME]:${NON_CLIENTAUTH_PORT}"
 			total_ports=`expr ${total_ports} + 1`
@@ -261,7 +261,7 @@ get_pki_status_definitions()
 			[ ${total_ports} -eq 1           ] ; then
 			# once the 'clientauth' listen statement has been found,
 			# extract the numeric port information
-			clientauth_port=`echo $line | cut -d: -f2`
+			clientauth_port=`echo $line | cut -b8-`
 			CLIENTAUTH_PORT=$clientauth_port
 			echo "    Secure Clientauth Port     = https://[SERVER_NAME]:${CLIENTAUTH_PORT}"
 			total_ports=`expr ${total_ports} + 1`
@@ -483,7 +483,7 @@ get_pki_secure_port()
 		if [ "$head" == "$listen_statement" ] ; then
 			# once the 'clientauth' listen statement has been found,
 			# extract the numeric port information
-			port=`echo $line | cut -d: -f2`
+			port=`echo $line | cut -b8-`
 			SECURE_PORT=$port
 			return 0
 		fi

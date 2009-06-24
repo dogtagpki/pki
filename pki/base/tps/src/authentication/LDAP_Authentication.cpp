@@ -25,6 +25,7 @@
 #include "engine/RA.h"
 #include "ldap.h"
 #include "ldap_ssl.h"
+#include "ldappr.h"
 #include "authentication/LDAP_Authentication.h"
 #include "authentication/Authentication.h"
 #include "main/Memory.h"
@@ -181,13 +182,15 @@ int LDAP_Authentication::Authenticate(AuthParams *params)
       /* handling of SSL */
       ld = ldapssl_init(host, port, 1); 
     } else {
-      ld = ldap_init(host, port); 
+      /* NOTE:  ldapssl_init() already utilizes */
+      /*        prldap (IPv6) functionality.    */
+      ld = prldap_init(host, port, 1); 
     }
     while (ld == NULL && retries < m_connectRetries) {
         RA::IncrementAuthCurrentIndex(m_connInfo->GetHostPortListLen());
         GetHostPort(&host, &portStr);
         port = atoi(portStr);
-        ld = ldap_init(host, port); 
+        ld = prldap_init(host, port, 1); 
         retries++;    
     }
 

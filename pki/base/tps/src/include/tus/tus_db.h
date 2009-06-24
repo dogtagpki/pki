@@ -45,6 +45,7 @@
 
 #include "ldap.h"
 #include "ldap_ssl.h"
+#include "ldappr.h"
 #include "pk11func.h"
 #include "cryptohi.h"
 #include "keyhi.h"
