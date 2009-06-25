@@ -52,7 +52,7 @@ document.writeln('<body vlink="0000ff" alink="ff0000" link="0000ff" bgcolor="whi
 document.writeln(
 	'<font face="PrimaSans BT, Verdana, sans-serif"><font size=+1>'+
 	'Request ' +
-	'<a href="/agent/kra/processReq?op=processReq&seqNum=' + 
+	'<a href="/kra/agent/kra/processReq?op=processReq&seqNum=' + 
 	result.header.seqNum + '"' + 
 	'onMouseOver=" return helpstatus(\'Click to redisplay this ' +
 	'request \')" onMouseOut="return helpstatus(\'\')">' +
