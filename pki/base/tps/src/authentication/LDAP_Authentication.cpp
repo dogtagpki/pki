@@ -190,8 +190,15 @@ int LDAP_Authentication::Authenticate(AuthParams *params)
         RA::IncrementAuthCurrentIndex(m_connInfo->GetHostPortListLen());
         GetHostPort(&host, &portStr);
         port = atoi(portStr);
-        ld = prldap_init(host, port, 1); 
-        retries++;    
+        if (m_ssl != NULL & strcmp(m_ssl, "true")==0) {
+          /* handling of SSL */
+          ld = ldapssl_init(host, port, 1); 
+        } else {
+          /* NOTE:  ldapssl_init() already utilizes */
+          /*        prldap (IPv6) functionality.    */
+          ld = prldap_init(host, port, 1); 
+        }
+            retries++;    
     }
 
     if (ld == NULL) {
@@ -210,50 +217,79 @@ int LDAP_Authentication::Authenticate(AuthParams *params)
     }
 
     PR_snprintf((char *)buffer, 500, "(uid=%s)", uid);
-    if (ldap_search_s(ld, m_baseDN, LDAP_SCOPE_SUBTREE, buffer, NULL, 0, &result) != LDAP_SUCCESS) {
-        status = TPS_AUTH_ERROR_USERNOTFOUND;
-        goto loser; 
-    } else {
-        for (e = ldap_first_entry(ld, result); e != NULL; e = ldap_next_entry(ld, e)) {
-            if ((dn = ldap_get_dn(ld, e)) != NULL) {
-RA::Debug("LDAP_Authentication::Authenticate", "User bind required '%s' '(sensitive)'", dn );
-                if (ldap_simple_bind_s(ld, dn, password) == LDAP_SUCCESS) {
-                    /* retrieve attributes and, */
-                    /* put them into the auth parameters */
-                    if (m_attributes != NULL) { 
-                         RA::Debug("LDAP_Authentication::Authenticate", "Attributes %s", m_attributes);
-                         char *m_dup_attributes = strdup(m_attributes);
-                         char *token = NULL; 
-                         token = strtok(m_dup_attributes, ","); 
-                         while( token != NULL ) { 
-                             char **v = NULL;
-                             v = ldap_get_values(ld, e, token);
-                             if (v != NULL) {
-                                 RA::Debug("LDAP_Authentication::Authenticate", "Exposed %s=%s", token, v[0]);
-                                 params->Add(token, PL_strdup(v[0]));
-                                 RA::Debug("LDAP_Authentication::Authenticate", "Size %d", params->Size());
-                             }
-                             token = strtok( NULL, "," ); 
-                             if( v != NULL ) {
-                                 ldap_value_free( v );
-                                 v = NULL;
-                             }
 
-                         }
-						 free(m_dup_attributes);
-                    }
-					status = TPS_AUTH_OK;   // SUCCESS - PASSWORD VERIFIED
-				} else {
-                    status = TPS_AUTH_ERROR_PASSWORDINCORRECT;
+    while (retries < m_connectRetries) {
+        RA::IncrementAuthCurrentIndex(m_connInfo->GetHostPortListLen());
+        GetHostPort(&host, &portStr);
+        port = atoi(portStr);
+        RA::Debug("ldap auth:"," host=%s, portstr=%s, port=%d", host, portStr, port);
+        if (m_ssl != NULL & strcmp(m_ssl, "true")==0) {
+          /* handling of SSL */
+          ld = ldapssl_init(host, port, 1); 
+        } else {
+          /* NOTE:  ldapssl_init() already utilizes */
+          /*        prldap (IPv6) functionality.    */
+          ld = prldap_init(host, port, 1); 
+        }
+
+        if (ld == NULL) {
+            RA::Debug("LDAP_Authentication::Authenticate:", "ld null.  Trying failover...");
+            retries++;
+            continue;
+        }
+
+        int ldap_status = LDAP_OTHER;
+        if ((ldap_status = ldap_search_s(ld, m_baseDN, LDAP_SCOPE_SUBTREE, buffer, NULL, 0, &result)) != LDAP_SUCCESS) {
+            if (ldap_status != LDAP_NO_SUCH_OBJECT) {
+              RA::Debug("LDAP_Authentication::Authenticate:", "LDAP_UNAVAILABLE.  Trying failover...");
+              retries++;
+              continue; // do failover
+            }
+            status = TPS_AUTH_ERROR_USERNOTFOUND;
+        } else {
+            for (e = ldap_first_entry(ld, result); e != NULL; e = ldap_next_entry(ld, e)) {
+                if ((dn = ldap_get_dn(ld, e)) != NULL) {
+                    RA::Debug("LDAP_Authentication::Authenticate", "User bind required '%s' '(sensitive)'", dn );
+                    if (ldap_simple_bind_s(ld, dn, password) == LDAP_SUCCESS) {
+                        /* retrieve attributes and, */
+                        /* put them into the auth parameters */
+                        if (m_attributes != NULL) { 
+                             RA::Debug("LDAP_Authentication::Authenticate", "Attributes %s", m_attributes);
+                             char *m_dup_attributes = strdup(m_attributes);
+                             char *token = NULL; 
+                             token = strtok(m_dup_attributes, ","); 
+                             while( token != NULL ) { 
+                                 char **v = NULL;
+                                 v = ldap_get_values(ld, e, token);
+                                 if (v != NULL) {
+                                     RA::Debug("LDAP_Authentication::Authenticate", "Exposed %s=%s", token, v[0]);
+                                     params->Add(token, PL_strdup(v[0]));
+                                     RA::Debug("LDAP_Authentication::Authenticate", "Size %d", params->Size());
+                                 }
+                                 token = strtok( NULL, "," ); 
+                                 if( v != NULL ) {
+                                     ldap_value_free( v );
+                                     v = NULL;
+                                 }
+
+                             }
+						     free(m_dup_attributes);
+                        }
+				    	status = TPS_AUTH_OK;   // SUCCESS - PASSWORD VERIFIED
+			    	} else {
+                        status = TPS_AUTH_ERROR_PASSWORDINCORRECT;
+                        goto loser;
+                    } 
+                } else {
+                    status = TPS_AUTH_ERROR_USERNOTFOUND;
                     goto loser;
                 } 
-            } else {
-                status = TPS_AUTH_ERROR_USERNOTFOUND;
-                goto loser;
-            } 
+            }
+            RA::Debug("LDAP_Authentication::Authenticate:", " authentication completed for %s",uid);
+            break;
         }
-    }
-
+    } //while
+    
     if (dn == NULL) {
         status = TPS_AUTH_ERROR_USERNOTFOUND;
         goto loser;
