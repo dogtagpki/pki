@@ -531,7 +531,9 @@ client_main(
     NSS_SetDomesticPolicy();
 
     /* all the SSL2 and SSL3 cipher suites are enabled by default. */
-    /* SSL_CipherPrefSetDefault(0xC005 /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA */, PR_TRUE); */
+    /* SSL_CipherPrefSetDefault(0xC005 */
+    /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA */
+    /*, PR_TRUE); */
 
     /*
      *  Rifle through the values for the host
