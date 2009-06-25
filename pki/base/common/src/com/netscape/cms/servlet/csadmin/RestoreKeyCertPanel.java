@@ -409,6 +409,13 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
                 if (!cstype.equals("ca")) {
                     c1.append(",cloning.ca.hostname,cloning.ca.httpport,cloning.ca.httpsport,cloning.ca.list,cloning.ca.pkcs7,cloning.ca.type");
+                } 
+
+                if (cstype.equals("ca")) {
+                    /* get ca connector details */
+                    if (s1.length()!=0)
+                        s1.append(",");
+                    s1.append("ca.connector.KRA");
                 }
 
                 content = "op=get&names=cloning.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN"+c1.toString()+"&substores="+s1.toString()+"&xmlOutput=true&sessionID="+session_id;
