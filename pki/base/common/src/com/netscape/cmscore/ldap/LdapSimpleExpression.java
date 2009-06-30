@@ -157,8 +157,14 @@ public class LdapSimpleExpression implements ILdapExpression {
 
     public boolean evaluate(IRequest req)
         throws ELdapException {
+        boolean result = false;
         // mPfx and mVar are looked up case-indendently
-        return matchValue(req.getExtDataInString(mPfx, mVar));
+        if (mPfx != null) {
+            result = matchValue(req.getExtDataInString(mPfx, mVar));
+        } else {
+            result = matchValue(req.getExtDataInString(mVar));
+        }
+        return result;
     }
 
     private boolean matchVector(Vector value)
