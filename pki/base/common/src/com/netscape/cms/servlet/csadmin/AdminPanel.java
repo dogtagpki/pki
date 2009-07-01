@@ -292,6 +292,7 @@ public class AdminPanel extends WizardPanelBase {
         } else {
             String ca_hostname = null;
             int ca_port = -1;
+            boolean caRoot = false;
 
             // REMINDER:  This panel is NOT used by "clones"
             if( subsystemtype.equals( "CA" ) ) {
@@ -299,6 +300,7 @@ public class AdminPanel extends WizardPanelBase {
                     CMS.debug( "AdminPanel update:  "
                              + "Root CA subsystem - "
                              + "(existing Security Domain)" );
+                    caRoot = true;
                 } else {
                     CMS.debug( "AdminPanel update:  "
                              + "Subordinate CA subsystem - "
@@ -310,7 +312,7 @@ public class AdminPanel extends WizardPanelBase {
                          + " subsystem" );
             }
 
-            if (type.equals("sdca")) {
+            if ((type.equals("sdca")) && (!caRoot)) {
                 try {
                     ca_hostname = config.getString("preop.ca.hostname");
                     ca_port = config.getInteger("preop.ca.httpsport");
