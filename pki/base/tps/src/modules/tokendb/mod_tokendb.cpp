@@ -3981,11 +3981,17 @@ mod_tokendb_handler( request_rec *rq )
             }
         }
 
-        if (( PL_strstr( query, "op=view_activity_admin" )) ||
+        if (( PL_strstr( query, "op=view_activity_admin_all" )) ||
+            ( PL_strstr( query, "op=view_activity_all") )) {
+            // TODO: error check to confirm that search filter is non-empty
+            status = find_tus_activity_entries_no_vlv( complete_filter, &result, 1 ); 
+        } else if (( PL_strstr( query, "op=view_activity_admin" )) ||
             ( PL_strstr( query, "op=view_activity" ) )) {
-            status = find_tus_activity_entries_no_vlv( complete_filter, &result, 1 );
-        } else if( PL_strstr( query, "op=view_certificate" ) ) {
+            status = find_tus_activity_entries( complete_filter, maxReturns, &result);
+        } else if(( PL_strstr( query, "op=view_certificate_all" ) ) ||
+            ( PL_strstr( query, "op=show_certificate") )) {
 
+            // TODO: error check to confirm that search filter is non-empty
             ap_log_error( ( const char * ) "tus", __LINE__,
                           APLOG_ERR, 0, rq->server,
                           ( const char * ) "LDAP filter: %s", complete_filter);
@@ -3993,19 +3999,15 @@ mod_tokendb_handler( request_rec *rq )
             status = find_tus_certificate_entries_by_order_no_vlv( complete_filter,
                                                                    &result,
                                                                    0 );
-        } else if( PL_strstr( query, "op=show_certificate" ) ||
-                   PL_strstr( query, "op=view_certificate" ) ) {
-            /* status = find_tus_certificate_entries( filter,
-                                                      maxReturns,
-                                                      &result ); */
-
+        } else if( PL_strstr( query, "op=view_certificate" )) {
             ap_log_error( ( const char * ) "tus", __LINE__,
                           APLOG_ERR, 0, rq->server,
                           ( const char * ) "LDAP filter: %s", complete_filter);
 
-            status = find_tus_certificate_entries_by_order_no_vlv( complete_filter,
-                                                                   &result,
-                                                                   0 );
+            status = find_tus_certificate_entries_by_order( complete_filter,
+                                                            maxReturns,
+                                                            &result,
+                                                            0 );
         } else if( PL_strstr( query, "op=show_admin" ) ||
                    PL_strstr( query, "op=show" )       ||
                    PL_strstr( query, "op=edit_admin" ) ||
@@ -5116,7 +5118,9 @@ mod_tokendb_handler( request_rec *rq )
         }
         do_free(logSigning);
 
-        int nEvents = atoi (get_post_field(post, "nEvents", SHORT_LEN));
+        char *nEvents_str = get_post_field(post, "nEvents", SHORT_LEN);
+        int nEvents = atoi(nEvents_str);
+        do_free(nEvents_str);
 
         char new_selected[MAX_INJECTION_SIZE];
 
