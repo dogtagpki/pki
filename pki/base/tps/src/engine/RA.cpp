@@ -254,6 +254,10 @@ int RA::InitializeSignedAudit()
         }
 
         RA::getLastSignature();
+        if (cert != NULL) {
+            CERT_DestroyCertificate(cert);
+            cert = NULL;
+        }
     } // if (m_audit_signed == true)
 
     RA::Audit(EV_AUDIT_LOG_STARTUP, AUDIT_MSG_FORMAT, "System", "Success",
@@ -1815,6 +1819,8 @@ loser:
                 PR_Free(out_sig_b64);
             if (audit_sig_msg)
                 PR_Free(audit_sig_msg);
+            if (&signedResult)
+                SECITEM_FreeItem(&signedResult, PR_TRUE);
         }
 
 	PR_Unlock(m_audit_log_lock);

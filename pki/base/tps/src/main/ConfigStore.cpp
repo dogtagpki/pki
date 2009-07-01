@@ -674,6 +674,9 @@ TPS_PUBLIC int ConfigStore::Commit(const bool backup)
 
         next = PR_NEXT_LINK(current);
         PR_REMOVE_AND_INIT_LINK(current);
+        if (current != NULL) {
+            PR_Free(current);
+        }
         current = next;
     }
 

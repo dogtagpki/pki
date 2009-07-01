@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      38
+%define base_release      39
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -314,6 +314,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Jul 1 2009 Ade Lee <alee@redhat.com> 1.1.0-39
+- Bugzilla Bug #499493 - Run TPS under valgrind
 * Wed Jul 1 2009 Ade Lee <alee@redhat.com> 1.1.0-38
 - Bugzilla Bug #508421 -   Remove Token/Cert/ Activity List page
 * Thu Jun 25 2009 Christina Fu <cfu@redhat.com> 1.1.0-37
