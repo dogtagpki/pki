@@ -219,9 +219,9 @@ if (typeof(results) == "undefined" || results.length == 0) {
         document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-2\">");
         if (typeof(results) != "undefined" || results.length == 0) {
             if (typeof(limited) != "undefined" && typeof(total) != "undefined") {
-                document.write("<br>" + limited + " of " + total + "\n");
+                document.write("<br>" + limited + " of " + total + " Search Results Returned\n");
             } else if (typeof(total) != "undefined") {
-                document.write("<br>Total: " + total + "\n");
+                document.write("<br>Total Search Results Returned: " + total + "\n");
             }
         }
         document.write("</font>");

@@ -301,10 +301,10 @@ if (rc == "0") {
     document.write("<form method='get' action='tus'><input type=hidden name=op value=revoke><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Revoke\"></form>");
     document.write("</td>\n");
     document.write("<td width=10%>\n");
-    document.write("<form method='get' action='tus'><input type=hidden name=op value=view_certificate><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Certificates\"></form>");
+    document.write("<form method='get' action='tus'><input type=hidden name=op value=view_certificate_all><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Certificates\"></form>");
     document.write("</td>\n");
     document.write("<td width=10%>\n");
-    document.write("<form method='get' action='tus'><input type=hidden name=op value=view_activity><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Activities\"></form>");
+    document.write("<form method='get' action='tus'><input type=hidden name=op value=view_activity_all><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Activities\"></form>");
     document.write("</td>\n");
     document.write("<td width=10%>\n");
     document.write("<form method='get' action='tus'><input type=hidden name=op value=edit><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Edit\"></form>");

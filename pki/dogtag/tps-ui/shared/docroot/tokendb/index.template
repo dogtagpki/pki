@@ -104,28 +104,19 @@ document.write("</tr></table>");
     <td><i>Tokens</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=view?tid=&uid=">List Tokens</a></td>
-  </tr>
-  <tr>
-    <td><li><a href="tus?op=search">Search Tokens</a></td>
+    <td><li><a href="tus?op=search">List/Search Tokens</a></td>
   </tr>
   <tr>
     <td><i>Certificates</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=view_certificate?tid=&uid=">List Certificates</a></td>
-  </tr>
-  <tr>
-    <td><li><a href="tus?op=search_certificate">Search Certificates</a></td>
+    <td><li><a href="tus?op=search_certificate">List/Search Certificates</a></td>
   </tr>
   <tr>
     <td><i>Activities</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=view_activity">List Activities</a></td>
-  </tr>
-  <tr>
-    <td><li><a href="tus?op=search_activity">Search Activities</a></td>
+    <td><li><a href="tus?op=search_activity">List/Search Activities</a></td>
   </tr>
   <tr>
     <td></td>

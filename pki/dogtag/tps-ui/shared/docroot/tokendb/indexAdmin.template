@@ -106,10 +106,7 @@ document.write("</tr></table>");
     <td><i>Tokens</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=view_admin?tid=&uid=">List Tokens</a></td>
-  </tr>
-  <tr>
-    <td><li><a href="tus?op=search_admin">Search Tokens</a></td>
+    <td><li><a href="tus?op=search_admin">List/Search Tokens</a></td>
   </tr>
    <tr>
     <td><li><a href="tus?op=new">Add New Token</a></td>
@@ -130,10 +127,7 @@ document.write("</tr></table>");
     <td><i>Activities</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=view_activity_admin">List Activities</a></td>
-  </tr>
-  <tr>
-    <td><li><a href="tus?op=search_activity_admin">Search Activities</a></td>
+    <td><li><a href="tus?op=search_activity_admin">List/Search Activities</a></td>
   </tr>
    <tr>
     <td><i>Auditing</i></td>
