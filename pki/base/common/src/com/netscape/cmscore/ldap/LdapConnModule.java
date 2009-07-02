@@ -92,7 +92,7 @@ public class LdapConnModule implements ILdapConnModule {
                 CMS.getLdapConnInfo(ldapconn);
         LdapAuthInfo authInfo =
             new LdapAuthInfo(authinfo, ldapconn.getString("host"),
-                ldapconn.getInteger("port"), false);
+                ldapconn.getInteger("port"), connInfo.getSecure());
 
         int minConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MINCONNS, 3);
         int maxConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MAXCONNS, 15);
