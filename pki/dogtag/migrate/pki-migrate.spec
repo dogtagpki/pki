@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -288,6 +288,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Jul 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-5
+- Bugzilla Bug #508191 -  Migration: CS 8.0 KRA agent unable to show
+  migrated data from 7.3.
 * Tue Jun 9 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
 - Bugzilla Bug #504420 -  Make certain that Array Types are processed prior
   to non-Array types . . .
