@@ -488,8 +488,19 @@ class CS80LdifParser
 								formatData( data ) );
 		} else if( type.startsWith( "com.netscape.certsrv.dbs.keydb.KeyRecord" )
                ||  type.startsWith( "com.netscape.cmscore.dbs.KeyRecord" ) ) {
-			System.out.println( extAttrPrefix + encodeKey( key ) + ": " +
-								formatData( data ) );
+			// Bugzilla Bug #508191 - These only apply to KRA; and in CS 8.0,
+			//                        since KRA requests only need to refer
+			//                        to the actual "keyRecord" referenced
+			//                        by the "keySerialNumber" data,
+			//                        all other "KeyRecord" request data is 
+			//                        ignored, since it is already stored
+			//                        in the actual "keyRecord".
+			if( data.startsWith( "keySerialNumber" ) ) {
+				String keySerialNumber = data.substring( data.indexOf( "=" ) + 1 );
+				System.out.println( extAttrPrefix +
+									encodeKey( key.toLowerCase() ) + ": " +
+									formatData( keySerialNumber ) );
+			}
 		} else if( type.startsWith( "java.util.Locale" ) ) {
 			// CMS 6.2:  begin checking for new type
 			//           "java.util.Locale"
