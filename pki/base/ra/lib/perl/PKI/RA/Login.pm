@@ -325,6 +325,7 @@ sub handler {
           $pn =~ /passwd$/               ||
           $pn =~ /pwd$/                  ||
           $pn =~ /admin_password_again/i ||
+          $pn =~ /directoryManagerPwd/i  ||
           $pn =~ /bindpassword/i         ||
           $pn =~ /bindpwd/i              ||
           $pn =~ /passwd/i               ||

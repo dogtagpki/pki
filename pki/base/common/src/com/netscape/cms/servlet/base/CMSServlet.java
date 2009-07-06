@@ -413,6 +413,7 @@ public abstract class CMSServlet extends HttpServlet {
                 pn.endsWith("passwd")                       ||
                 pn.endsWith("pwd")                          ||
                 pn.equalsIgnoreCase("admin_password_again") ||
+                pn.equalsIgnoreCase("directoryManagerPwd")  ||
                 pn.equalsIgnoreCase("bindpassword")         ||
                 pn.equalsIgnoreCase("bindpwd")              ||
                 pn.equalsIgnoreCase("passwd")               ||

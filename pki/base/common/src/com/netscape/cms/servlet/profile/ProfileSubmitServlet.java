@@ -457,6 +457,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     paramName.endsWith("passwd")                       ||
                     paramName.endsWith("pwd")                          ||
                     paramName.equalsIgnoreCase("admin_password_again") ||
+                    paramName.equalsIgnoreCase("directoryManagerPwd")  ||
                     paramName.equalsIgnoreCase("bindpassword")         ||
                     paramName.equalsIgnoreCase("bindpwd")              ||
                     paramName.equalsIgnoreCase("passwd")               ||
