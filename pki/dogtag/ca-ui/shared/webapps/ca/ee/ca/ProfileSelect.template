@@ -196,7 +196,7 @@ function setCRMFRequest()
     } else {
       document.writeln("<OBJECT classid='clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1' CODEBASE='/xenroll.dll' id='Enroll'></OBJECT>");
     }
-    document.writeln('<form name="ReqForm" method="post" action="' + uri + '">');
+    document.writeln('<form name="ReqForm" onSubmit="if (checkRequest()) {return true;} else {window.location.reload(); return false;}" method="post" action="' + uri + '">');
   } else if (typeof(crypto.version) != "undefined") {
     document.writeln('<form name="ReqForm" onSubmit="return validate();" method="post" action="' + uri + '">');
   } else {
@@ -231,7 +231,7 @@ Function GetOSVersion
   GetOSVersion = 5
 End Function
 
-Sub Send_OnClick
+Function checkRequest
   Dim TheForm
   Dim szName
   Dim options
@@ -240,6 +240,8 @@ Sub Send_OnClick
   Dim keyLen
   Dim keyIndex
   Set TheForm = Document.ReqForm
+
+  checkRequest = False
 
   keyIndex = TheForm.all.keyLength.options.selectedIndex
   keyLen = CInt (TheForm.all.keyLength.options(keyIndex).value)
@@ -276,7 +278,7 @@ Sub Send_OnClick
   ' they were doing ... need to think what should be done here
   '
   If (szCertReq = Empty AND theError = 0) Then
-    Exit Sub
+    Exit Function
   End If
 
   If (szCertReq = Empty OR theError <> 0) Then
@@ -287,7 +289,7 @@ Sub Send_OnClick
     '
     sz = "The error '" & Hex(theError) & "' occurred." & chr(13) & chr(10) & "Your credentials could not be generated."
     result = MsgBox(sz, 0, "Credentials Enrollment")
-    Exit Sub
+    Exit Function
   End If
 
   TheForm.cert_request.Value = szCertReq
@@ -308,28 +310,28 @@ Sub Send_OnClick
 
     If IsObject(g_objClassFactory) = False Then
       result = MsgBox("Can't create Factory Object "  & " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Sub
+      Exit Function
     End If
 
     Set enrollment = g_objClassFactory.CreateObject("X509Enrollment.CX509Enrollment")
 
     If IsObject(enrollment) = False Then
       result = MsgBox("Can't create enroll Object! "  & " Error: " & Err.number & " :" & Err.description,"")
-      Exit Sub
+      Exit Function
     End If
 
     Set privateKey = g_objClassFactory.CreateObject("X509Enrollment.CX509PrivateKey")
 
     If IsObject(privateKey) = False Then
       result = MsgBox("Can't create Key Object! " & " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Sub
+      Exit Function
     End If
 
     Set request = g_objClassFactory.CreateObject("X509Enrollment.CX509CertificateRequestPkcs10")
 
     If IsObject(request) = False Then
       result = MsgBox("Can't create Request Object. ! " & " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Sub
+      Exit Function
     End If
 
     privateKey.KeySpec= "1" 
@@ -347,7 +349,7 @@ Sub Send_OnClick
 
     If IsObject(objDN) = False Then
       result = MsgBox("Can't create DN Object. ! " & " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Sub
+      Exit Function
     End If
 
     objDN.Encode szName,0
@@ -360,14 +362,14 @@ Sub Send_OnClick
 
     If len(csr) = 0 Then
       result = MsgBox("Error Creating Request! "& " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Sub
+      Exit Function
     End If
 
     TheForm.cert_request.Value = csr 
  
   End If
-  Exit Sub
-End Sub
+  checkRequest = True
+End Function
 
 -->
 </SCRIPT>
@@ -528,7 +530,7 @@ document.writeln('<input type=hidden name=xmlOutput value="' +
 if (errorCode == 0) {
   if (navigator.appName == "Microsoft Internet Explorer") {
     if (typeof(keygen_request) != "undefined") {
-      document.writeln('<input type=submit Name="Send" value="Submit">');
+      document.writeln('<input type=submit value="Submit">');
     } else {
       document.writeln('<input type=submit value="Submit">');
     }
