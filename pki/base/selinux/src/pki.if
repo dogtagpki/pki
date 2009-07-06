@@ -688,6 +688,7 @@ template(`pki_ra_template',`
         corenet_tcp_sendrecv_all_nodes(pki_ra_t)
         corenet_tcp_sendrecv_all_ports(pki_ra_t)
         corenet_non_ipsec_sendrecv(pki_ra_t)
+        corenet_tcp_connect_generic_port(pki_ra_t)
 
         # talk to other subsystems
         corenet_tcp_connect_pki_ca_port(pki_ra_t)

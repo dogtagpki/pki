@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      9
+%define base_release      10
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -249,6 +249,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Jul 6 2009 Ade Lee <alee@redhat.com> 1.1.0-10
+- Bugzilla Bug 509917 - RA fails to start with SElinux enforcing (lunasa)
 * Wed Jun 17 2009 Ade Lee <alee@redhat.com> 1.1.0-9
 - Bugzilla Bug 506387 and 506133 - ECC and messages for tps
 * Mon Jun 15 2009 Ade Lee <alee@redhat.com> 1.1.0-8
