@@ -381,6 +381,63 @@ ca_ocsp_cert_subject_name="cn=OCSP\ Signing\ Certificate,o=${pki_security_domain
 ca_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
 ca_audit_signing_cert_subject_name="cn=CA\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
 
+##  Optional CA Variables for creating a clone CA
+##
+##  It is possible for pkisilent to create a CA that is a clone of a previously
+##  installed CA (the master CA).  To do so, the keys of the master CA must 
+##  first be backed up in a pk12 file, and this file should be copied to the  
+##  alias directory of the clone CA.  This file should have read permission for  
+##  the PKI user (pkisuer).
+##  
+##  An example file would be /var/lib/ca-clone/alias/ca-master.p12.
+##
+##  The following variables should then be uncommented and defined for the clone CA.
+##  ca_clone=true	
+##  ca_clone_p12_file=		
+##  ca_clone_p12_password=
+##  sd_hostname=
+##  sd_admin_port=
+##  sd_admin_name=
+##  sd_admin_password=
+##
+##  NOTES: 
+##  1. ca_clone_p12_file must be just the filename relative to the alias directory.
+##     So in the example above, ca_clone_p12_file="ca-master.p12"
+##  2. sd_* refer to the CA where the security domain is hosted. 
+##
+##  ADDITIONAL NOTES:
+##  1. The clone CA and master CA cannot share the same database instance.  A new 
+##     instance should be created for the clone CA.
+##  2. The variables ca_base_dn and ca_db_name defined above MUST be identical to the
+##     ca_base_dn and ca_db_name of the master CA. The following assignments attempt
+##     to ensure this is correct.
+##
+##  ca_master_instance_name=
+##  ca_base_dn="dc=${pki_host}-${ca_master_instance_name}"
+##  ca_db_name="${pki_host}-${ca_master_instance_name}"
+         
+## Optional CA variables for creating a CA using an external CA 
+##
+## It is possible to configure a CA that has its certificates signed by an external CA. 
+## This is a two step process.  
+##
+## In the first step, pkisilent will create a CSR to be signed by the external CA
+## and write it to the file specified.  If this file is not specified, the default
+## location /tmp/ext_ca.csr is used.
+##
+## The following parameters are required:
+## ca_external=true
+## ca_ext_csr_file=
+##
+## Once the CSR is approved by the external CA, the resulting certificate and CA 
+## cert chain are copied into files on the system.
+##
+## pkisilent is then rerun for the second step, providing the cert and cert chain files as
+## parameters.  For the second step, the following parameters are then required:
+##  
+## ca_external=true
+## ca_ext_cert_file=
+## ca_ext_cert_chain_file=
 
 ##  Miscellaneous DRM Variables
 ##
@@ -994,6 +1051,196 @@ pkisilent ConfigureCA \
 /sbin/service ${ca_instance_name} restart
 
 
+##############################################################################
+##  C E R T I F I C A T E   A U T H O R I T Y  (Clone)                      ##
+##############################################################################
+##
+##  Use this to create a clone CA ..
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${ca_instance_name} status':
+##
+##      ${ca_instance_name} (pid 7843) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:9180/ca/ee/ca
+##          Secure Agent Port = https://${pki_host}:9443/ca/agent/ca
+##          Secure EE Port    = https://${pki_host}:9444/ca/ee/ca
+##          Secure Admin Port = https://${pki_host}:9445/ca/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:9445/ca
+##          Tomcat Port       = 9701 (for shutdown)
+##
+##
+##          Security Domain URL:
+##          ==================================================================
+##          https://${pki_host}:9445
+##          ==================================================================
+##
+
+##  Configure clone CA
+# printf "'${pki_silent_script}':  Configuring '${ca_instance_name}' . . .\n"
+# pkisilent ConfigureCA \
+#	-cs_hostname "${pki_host}" \
+#	-cs_port ${ca_admin_port} \
+#	-client_certdb_dir ${pki_silent_security_database_repository} \
+#	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-preop_pin ${ca_preop_pin} \
+#	-domain_name "${pki_security_domain_name}" \
+#	-admin_user ${pki_silent_admin_user} \
+#	-admin_password ${pki_silent_admin_password} \
+#	-admin_email "${pki_silent_admin_email}" \
+#	-agent_name ${ca_agent_name} \
+#	-agent_key_size ${ca_agent_key_size} \
+#	-agent_key_type ${ca_agent_key_type} \
+#	-agent_cert_subject "${ca_agent_cert_subject}" \
+#	-ldap_host ${pki_ldap_host} \
+#	-ldap_port ${pki_ldap_port} \
+#	-bind_dn "${pki_bind_dn}" \
+#	-bind_password ${pki_bind_password} \
+#	-base_dn "${ca_base_dn}" \
+#	-db_name "${ca_db_name}" \
+#	-key_size ${ca_key_size} \
+#	-key_type ${ca_key_type} \
+#	-save_p12 ${ca_save_p12} \
+#	-subsystem_name ${ca_subsystem_name} \
+#	-token_name ${ca_token_name} \
+#	-token_pwd ${ca_token_password} \
+#	-ca_sign_cert_subject_name "${ca_sign_cert_subject_name}" \
+#	-ca_subsystem_cert_subject_name "${ca_subsystem_cert_subject_name}" \
+#	-ca_ocsp_cert_subject_name "${ca_ocsp_cert_subject_name}" \
+#	-ca_server_cert_subject_name "${ca_server_cert_subject_name}" \
+#	-ca_audit_signing_cert_subject_name \
+#	"${ca_audit_signing_cert_subject_name}" \
+#       -clone ${ca_clone} \
+#       -clone_p12_file ${ca_clone_p12_file} \
+#       -clone_p12_password ${ca_clone_p12_password} \
+#       -sd_hostname ${sd_hostname} \
+#       -sd_admin_port ${sd_admin_port} \
+#       -sd_admin_name ${sd_admin_name} \
+#       -sd_admin_password ${sd_admin_password} \
+#	| tee ${pki_silent_ca_log}
+
+##  Restart CA
+#/sbin/service ${ca_instance_name} restart
+
+##############################################################################
+##  C E R T I F I C A T E   A U T H O R I T Y  (External CA - step 1)       ##
+##############################################################################
+##
+##  Use this invocation for the first step in creating a CA signed by 
+##  and external CA ..
+##
+##  For example, upon completion,
+##
+##  A Certificate Request has been generated and stored in /tmp/ext_ca_csr.csr
+##  Please submit this CSR to your external CA and obtain the CA Cert and CA Cert Chain"
+
+##  Configure CA signed by external CA (step 1)
+# printf "'${pki_silent_script}':  First step in configuring '${ca_instance_name}' . . .\n"
+# pkisilent ConfigureCA \
+#	-cs_hostname "${pki_host}" \
+#	-cs_port ${ca_admin_port} \
+#	-client_certdb_dir ${pki_silent_security_database_repository} \
+#	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-preop_pin ${ca_preop_pin} \
+#	-domain_name "${pki_security_domain_name}" \
+#	-admin_user ${pki_silent_admin_user} \
+#	-admin_password ${pki_silent_admin_password} \
+#	-admin_email "${pki_silent_admin_email}" \
+#	-agent_name ${ca_agent_name} \
+#	-agent_key_size ${ca_agent_key_size} \
+#	-agent_key_type ${ca_agent_key_type} \
+#	-agent_cert_subject "${ca_agent_cert_subject}" \
+#	-ldap_host ${pki_ldap_host} \
+#	-ldap_port ${pki_ldap_port} \
+#	-bind_dn "${pki_bind_dn}" \
+#	-bind_password ${pki_bind_password} \
+#	-base_dn "${ca_base_dn}" \
+#	-db_name "${ca_db_name}" \
+#	-key_size ${ca_key_size} \
+#	-key_type ${ca_key_type} \
+#	-save_p12 ${ca_save_p12} \
+#	-subsystem_name ${ca_subsystem_name} \
+#	-token_name ${ca_token_name} \
+#	-token_pwd ${ca_token_password} \
+#	-ca_sign_cert_subject_name "${ca_sign_cert_subject_name}" \
+#	-ca_subsystem_cert_subject_name "${ca_subsystem_cert_subject_name}" \
+#	-ca_ocsp_cert_subject_name "${ca_ocsp_cert_subject_name}" \
+#	-ca_server_cert_subject_name "${ca_server_cert_subject_name}" \
+#	-ca_audit_signing_cert_subject_name \
+#	"${ca_audit_signing_cert_subject_name}" \
+#       -external=${ca_external} \
+#       -ext_csr_file= ${ca_ext_csr_file} \
+#	| tee ${pki_silent_ca_log}
+
+##  Restart CA
+#/sbin/service ${ca_instance_name} restart
+
+##############################################################################
+##  C E R T I F I C A T E   A U T H O R I T Y  (External CA step 2)         ##
+##############################################################################
+##
+##  Use this to create a CA signed by an external CA (step 2)
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${ca_instance_name} status':
+##
+##      ${ca_instance_name} (pid 7843) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:9180/ca/ee/ca
+##          Secure Agent Port = https://${pki_host}:9443/ca/agent/ca
+##          Secure EE Port    = https://${pki_host}:9444/ca/ee/ca
+##          Secure Admin Port = https://${pki_host}:9445/ca/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:9445/ca
+##          Tomcat Port       = 9701 (for shutdown)
+##
+##
+##          Security Domain URL:
+##          ==================================================================
+##          https://${pki_host}:9445
+##          ==================================================================
+##
+
+##  Configure an externally signed CA (step 2)
+# printf "'${pki_silent_script}':  Step 2 in configuring external signed '${ca_instance_name}' . . .\n"
+# pkisilent ConfigureCA \
+#	-cs_hostname "${pki_host}" \
+#	-cs_port ${ca_admin_port} \
+#	-client_certdb_dir ${pki_silent_security_database_repository} \
+#	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-preop_pin ${ca_preop_pin} \
+#	-domain_name "${pki_security_domain_name}" \
+#	-admin_user ${pki_silent_admin_user} \
+#	-admin_password ${pki_silent_admin_password} \
+#	-admin_email "${pki_silent_admin_email}" \
+#	-agent_name ${ca_agent_name} \
+#	-agent_key_size ${ca_agent_key_size} \
+#	-agent_key_type ${ca_agent_key_type} \
+#	-agent_cert_subject "${ca_agent_cert_subject}" \
+#	-ldap_host ${pki_ldap_host} \
+#	-ldap_port ${pki_ldap_port} \
+#	-bind_dn "${pki_bind_dn}" \
+#	-bind_password ${pki_bind_password} \
+#	-base_dn "${ca_base_dn}" \
+#	-db_name "${ca_db_name}" \
+#	-key_size ${ca_key_size} \
+#	-key_type ${ca_key_type} \
+#	-save_p12 ${ca_save_p12} \
+#	-subsystem_name ${ca_subsystem_name} \
+#	-token_name ${ca_token_name} \
+#	-token_pwd ${ca_token_password} \
+#	-ca_sign_cert_subject_name "${ca_sign_cert_subject_name}" \
+#	-ca_subsystem_cert_subject_name "${ca_subsystem_cert_subject_name}" \
+#	-ca_ocsp_cert_subject_name "${ca_ocsp_cert_subject_name}" \
+#	-ca_server_cert_subject_name "${ca_server_cert_subject_name}" \
+#	-ca_audit_signing_cert_subject_name \
+#	"${ca_audit_signing_cert_subject_name}" \
+#       -external=$ca_external} \
+#       -ext_ca_cert_file=${ca_ext_cert_file} \
+#       -ext_ca_cert_chain_file=${ca_ext_cert_chain_file} \
+#	| tee ${pki_silent_ca_log}
+
+##  Restart CA
+#/sbin/service ${ca_instance_name} restart
 
 ##############################################################################
 ##  D A T A   R E C O V E R Y   M A N A G E R                               ##
