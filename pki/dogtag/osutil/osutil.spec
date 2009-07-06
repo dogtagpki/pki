@@ -27,7 +27,7 @@
 ## Package Header Definitions
 %define base_name         %{base_component}
 %define base_version      1.1.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Libraries
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -123,10 +123,10 @@ BuildRoot:      %{_builddir}/%{name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  ant >= 1.6.2, bash >= 3.0, %{pki_jdk}, jpackage-utils >= 1.6.0, nspr-devel >= 4.6.99, nss-devel >= 3.12.0, pkgconfig
+BuildRequires:  ant >= 1.6.2, bash >= 3.0, %{pki_jdk}, jpackage-utils >= 1.6.0, nspr-devel >= 4.6.99, nss-devel >= 3.12.3.99, pkgconfig
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       jpackage-utils >= 1.6.0, nss >= 3.12.0
+Requires:       jpackage-utils >= 1.6.0, nss >= 3.12.3.99
 
 
 ## This package is non-relocatable!
@@ -239,6 +239,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Mon Jul 6 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-2
+- bugzilla Bug #509183 -  update nss dependency >= 3.12.3.99
 * Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
 - Version update to Dogtag 1.1.0.
 * Thu Feb 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.0.0-6

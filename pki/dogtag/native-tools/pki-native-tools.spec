@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      3
+%define base_release      4
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -131,10 +131,10 @@ BuildRoot:      %{_builddir}/%{name}-root
 ##        Technically, "ant" should not need to be in "BuildRequires" since
 ##        it is the Java equivalent of "make" (and/or "Autotools").
 ##
-BuildRequires:  bash >= 3.0, cyrus-sasl-devel >= 2.1.19, mozldap-devel >= 6.0.2, nspr-devel >= 4.6.99, nss-devel >= 3.12.0, svrcore-devel >= 4.0.3.01
+BuildRequires:  bash >= 3.0, cyrus-sasl-devel >= 2.1.19, mozldap-devel >= 6.0.2, nspr-devel >= 4.6.99, nss-devel >= 3.12.3.99, svrcore-devel >= 4.0.3.01
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       mozldap-tools >= 6.0.2, nss >= 3.12.0, nss-tools >= 3.12.0
+Requires:       mozldap-tools >= 6.0.2, nss >= 3.12.3.99, nss-tools >= 3.12.3.99
 
 
 ## This package is non-relocatable!
@@ -250,6 +250,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Mon Jul 6 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
+- bugzilla Bug #509183 -  update nss dependency >= 3.12.3.99
 * Wed Jun 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-3
 - Bugzilla Bug #507746 -  Configure TPS/RA to listen on Ipv4 and Ipv6
   on Ipv4 and Ipv6
