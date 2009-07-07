@@ -206,16 +206,6 @@ int LDAP_Authentication::Authenticate(AuthParams *params)
         goto loser;
     }
 
-    if (ldap_set_option (ld, LDAP_OPT_PROTOCOL_VERSION, &version) != LDAP_SUCCESS) {
-        status = TPS_AUTH_ERROR_LDAP;
-        goto loser;    
-    }
-        
-    if (m_bindDN != NULL && strlen(m_bindDN) > 0) {
-      RA::Debug("LDAP_Authentication::Authenticate", "Simple bind required '%s'", m_bindDN);
-      ldap_simple_bind_s(ld, m_bindDN, m_bindPwd);
-    }
-
     PR_snprintf((char *)buffer, 500, "(uid=%s)", uid);
 
     while (retries < m_connectRetries) {
@@ -236,6 +226,16 @@ int LDAP_Authentication::Authenticate(AuthParams *params)
             RA::Debug("LDAP_Authentication::Authenticate:", "ld null.  Trying failover...");
             retries++;
             continue;
+        }
+
+        if (ldap_set_option (ld, LDAP_OPT_PROTOCOL_VERSION, &version) != LDAP_SUCCESS) {
+            status = TPS_AUTH_ERROR_LDAP;
+            goto loser;
+        }
+
+        if (m_bindDN != NULL && strlen(m_bindDN) > 0) {
+            RA::Debug("LDAP_Authentication::Authenticate", "Simple bind required '%s'", m_bindDN);
+            ldap_simple_bind_s(ld, m_bindDN, m_bindPwd);
         }
 
         int ldap_status = LDAP_OTHER;
