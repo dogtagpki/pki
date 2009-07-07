@@ -177,7 +177,7 @@ public class CertRequestPanel extends WizardPanelBase {
                 }
       
                 try {
-                    cr.resetSerialNumber(new BigInteger(beginNum));
+                    cr.resetSerialNumber(new BigInteger(beginNum,16));
                 } catch (Exception e) {
                     CMS.debug("CertRequestPanel cleanUp exception in resetting serial number: "+e.toString());
                 }

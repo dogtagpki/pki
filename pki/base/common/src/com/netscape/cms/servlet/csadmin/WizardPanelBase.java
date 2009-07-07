@@ -628,6 +628,7 @@ public class WizardPanelBase implements IWizardPanel {
                             config.putString("preop.cert.storage.nickname", v);
                         } else if  (name.equals("cloning.audit_signing.nickname")) {
                             config.putString("preop.master.audit_signing.nickname", v);
+                            config.putString("preop.cert.audit_signing.nickname", v);
                             config.putString(name, v);
                         } else if (name.startsWith("cloning.ca")) {
                             config.putString(name.replaceFirst("cloning", "preop"), v);
