@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      14
+%define base_release      15
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Jul 8 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-15
+- Bugzilla Bug #510165 - request search displays 'undefined' page size
 * Mon Jul 6 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-14
 - Bugzilla Bug #492952 - handling 2K keys with MBCP
 * Thu Jul 2 2009 Christina Fu <cfu@redhat.com> 1.1.0-13
