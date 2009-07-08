@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      40
+%define base_release      41
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Tue Jul 7 2009 Ade lee <alee@redhat.com> 1.1.0-41
+- Bugzilla Bug #510232 - clone ca server cert - wizard ignores SubjectName and Nickname customization
 * Tue Jul 7 2009 Ade lee <alee@redhat.com> 1.1.0-40
 - Bugzilla Bug #509797 - attempt to backup clone-CA subsystem keys and certificates fail with ObjectNotFoundException
 * Mon Jul 6 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-39

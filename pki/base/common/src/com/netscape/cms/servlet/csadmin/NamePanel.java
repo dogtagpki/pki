@@ -578,6 +578,11 @@ public class NamePanel extends WizardPanelBase {
                             cert.setNickname(nickname);
                             config.commit(false);
 			}
+                        String dn = HttpInput.getDN(request, ct);
+                        if (dn != null) {
+                            config.putString(PCERT_PREFIX + ct + ".dn", dn);
+                            config.commit(false);
+                        }
                     } catch (Exception e) {
                         CMS.debug("NamePanel: configCertWithTag: Exception in setting nickname for " + ct + ": " + e.toString());
                     }
