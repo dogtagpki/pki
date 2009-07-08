@@ -390,6 +390,7 @@ function doNext(element)
 
 function displayNextForm()
 {
+if (typeof(result.fixed.maxCount) != "undefined") {
 var seqNum=parseInt(result.recordSet[result.recordSet.length-1].seqNum) + 1;
 //alert("in displayNextForm seqNum="+seqNum);
 	document.write(
@@ -431,6 +432,7 @@ result.fixed.maxCount+ "'>\n"+
 "<button "+disabled+" NAME='next' onClick='doNext(this)' VALUE='>' width='72'>&gt;</button>\n"+
 "<button "+disabled+" NAME='end' onClick='doNext(this)' VALUE='>>|' width='72'>&gt;&gt;|</button>\n"+
 "</FORM>\n");
+}
 }
 
 
