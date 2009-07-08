@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      7
+%define base_release      8
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -226,7 +226,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(-,root,root)     %{_datadir}/doc/%{base_name}-%{base_version}/*
 %attr(00755,root,root) %{_bindir}/*
 %attr(-,root,root)     %{_datadir}/java
-
+%attr(-,root,root)     %{_datadir}/%{base_prefix}/%{base_component}/*
 
 
 ###############################################################################
@@ -234,6 +234,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Wed Jul 8 2009 Ade Lee <alee@redhat.com> 1.1.0-8
+- Bugzilla Bug #510175 - add template files to pkisilent rpm 
 * Fri Jun 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-7
 - Bugzilla Bug #503829 -  pkisilent ConfigureSubca fails to import admin cert
 * Fri May 29 2009 Ade Lee <alee@redhat.com> 1.1.0-6

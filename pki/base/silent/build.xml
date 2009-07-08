@@ -178,6 +178,11 @@
                         prefix="usr/bin">
                 <include name="**"/>
             </zipfileset>
+            <zipfileset dir="./templates"
+                        filemode="755"
+                        prefix="usr/share/pki/silent">
+                <include name="**"/>
+            </zipfileset>
             <zipfileset dir="."
                         filemode="755"
                         prefix="usr/share/doc/${dist.name}">
@@ -197,6 +202,11 @@
             <tarfileset dir="./scripts"
                         mode="755"
                         prefix="${dist.name}/usr/bin">
+                <include name="**"/>
+            </tarfileset>
+            <tarfileset dir="./templates"
+                        mode="755"
+                        prefix="${dist.name}/usr/share/pkisilent">
                 <include name="**"/>
             </tarfileset>
             <tarfileset dir="."
@@ -251,6 +261,7 @@
                 <include name="config/release*.xml"/>
                 <include name="release"/>
                 <include name="scripts/**"/>
+                <include name="templates/**"/>
                 <include name="src/**"/>
             </zipfileset>
         </zip>
@@ -269,6 +280,7 @@
                 <include name="config/release*.xml"/>
                 <include name="release"/>
                 <include name="scripts/**"/>
+                <include name="templates/**"/>
                 <include name="src/**"/>
             </tarfileset>
         </tar>
