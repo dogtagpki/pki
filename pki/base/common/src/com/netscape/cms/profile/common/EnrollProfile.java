@@ -791,12 +791,16 @@ public abstract class EnrollProfile extends BasicProfile
             // parse validity
             if (certTemplate.getNotBefore() != null ||
                 certTemplate.getNotAfter() != null) {
+                CMS.debug("EnrollProfile:  notBefore: " + certTemplate.getNotBefore());
+                CMS.debug("EnrollProfile:  notAfter:  " + certTemplate.getNotAfter());
                 CertificateValidity certValidity = new CertificateValidity(
                         certTemplate.getNotBefore(), certTemplate.getNotAfter());
                 ByteArrayOutputStream certValidityOut =
                         new ByteArrayOutputStream();
                 certValidity.encode(certValidityOut);
                 req.setExtData(REQUEST_VALIDITY, certValidityOut.toByteArray());
+            } else {
+                CMS.debug("EnrollProfile:  validity not supplied");
             }
 
             // parse subject
