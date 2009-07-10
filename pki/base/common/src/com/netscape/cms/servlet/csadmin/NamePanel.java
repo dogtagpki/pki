@@ -325,6 +325,31 @@ public class NamePanel extends WizardPanelBase {
         } // while
     }
 
+    /* 
+     * update some parameters for clones
+     */
+    public void updateCloneConfig(IConfigStore config)
+        throws EBaseException, IOException {
+        String cstype = config.getString("cs.type", null);
+        cstype = toLowerCaseSubsystemType(cstype);
+        if (cstype.equals("kra")) {
+            String token = config.getString(PRE_CONF_CA_TOKEN);
+            if (!token.equals("Internal Key Storage Token")) {
+                CMS.debug("NamePanel: updating configuration for KRA clone with hardware token");        
+                String subsystem = config.getString(PCERT_PREFIX + "storage.subsystem");
+                String storageNickname = getNickname(config, "storage");
+                String transportNickname = getNickname(config, "transport");
+
+                config.putString(subsystem + ".storageUnit.hardware", token);
+                config.putString(subsystem + ".storageUnit.nickName", token+":"+storageNickname);
+                config.putString(subsystem + ".transportUnit.nickName", token+":"+transportNickname);
+                config.commit(false);
+            } else { // software token
+                // parameters already set
+            }
+        }
+    }
+
     /*
      * get some of the "preop" parameters to persisting parameters
      */
@@ -691,6 +716,7 @@ public class NamePanel extends WizardPanelBase {
                    url = url.substring(url.indexOf("https"));
                    config.putString("preop.ca.url", url);
                 }
+                updateCloneConfig(config);
                 CMS.debug("NamePanel: clone configuration done");
                 return;
             }
