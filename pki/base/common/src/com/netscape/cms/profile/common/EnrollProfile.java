@@ -791,8 +791,9 @@ public abstract class EnrollProfile extends BasicProfile
             // parse validity
             if (certTemplate.getNotBefore() != null ||
                 certTemplate.getNotAfter() != null) {
-                CMS.debug("EnrollProfile:  notBefore: " + certTemplate.getNotBefore());
-                CMS.debug("EnrollProfile:  notAfter:  " + certTemplate.getNotAfter());
+                CMS.debug("EnrollProfile:  requested notBefore: " + certTemplate.getNotBefore());
+                CMS.debug("EnrollProfile:  requested notAfter:  " + certTemplate.getNotAfter());
+                CMS.debug("EnrollProfile:  current CA time:     " + new Date());
                 CertificateValidity certValidity = new CertificateValidity(
                         certTemplate.getNotBefore(), certTemplate.getNotAfter());
                 ByteArrayOutputStream certValidityOut =
