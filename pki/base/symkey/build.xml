@@ -220,6 +220,7 @@
                         filemode="755"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
+                <include name="EULA"/>
                 <include name="LICENSE"/>
                 <include name="Makefile.*"/>
                 <include name="aclocal.m4"/>
@@ -252,6 +253,7 @@
                         mode="755"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
+                <include name="EULA"/>
                 <include name="LICENSE"/>
                 <include name="Makefile.*"/>
                 <include name="aclocal.m4"/>

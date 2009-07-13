@@ -166,6 +166,7 @@
             <zipfileset dir="."
                         filemode="755"
                         prefix="usr/share/doc/${dist.name}">
+                <include name="EULA"/>
                 <include name="LICENSE"/>
             </zipfileset>
         </zip>
@@ -204,6 +205,7 @@
             <tarfileset dir="."
                         mode="755"
                         prefix="${dist.name}/usr/share/doc/${dist.name}">
+                <include name="EULA"/>
                 <include name="LICENSE"/>
             </tarfileset>
         </tar>
@@ -247,6 +249,7 @@
                         filemode="755"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
+                <include name="EULA"/>
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
                 <include name="config/product*.xml"/>
@@ -286,6 +289,7 @@
                         mode="755"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
+                <include name="EULA"/>
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
                 <include name="config/product*.xml"/>

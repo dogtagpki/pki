@@ -161,6 +161,7 @@
                         filemode="755"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
+                <include name="EULA"/>
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
                 <include name="config/product*.xml"/>
@@ -177,6 +178,7 @@
                         mode="755"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
+                <include name="EULA"/>
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
                 <include name="config/product*.xml"/>
