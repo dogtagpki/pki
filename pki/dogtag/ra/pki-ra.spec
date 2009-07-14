@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      26
+%define base_release      27
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -266,6 +266,8 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Jul 14 2009 Ade Lee <alee@redhat.com> 1.1.0-27
+- Bugzilla Bug #511337 - sscep getca fails with define CA identifier 
 * Mon Jul 6 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-26
 - Bugzilla Bug #509833 - cleaning debug log
 * Wed Jun 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-25

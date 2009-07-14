@@ -148,7 +148,7 @@ sub get_http_content
 {
   my ($self, $filename) = @_;
   my $data = "";
-  my $count = `grep Content-Length $filename | cut -d' ' -f2`;
+  my $count = `grep -a Content-Length $filename | cut -d' ' -f2`;
   chomp($count);
   my $file_size = -s $filename;
   my $offset = $file_size - $count;
