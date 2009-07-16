@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      42
+%define base_release      43
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -314,6 +314,9 @@ fi
 ###############################################################################
 
 %changelog
+* Thu Jul 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-43
+- Bugzilla Bug #512134 -  strip symbols from libraries, modules,
+  and executables
 * Tue Jul 7 2009 Jack Magne <jmagne@redhat.com> 1.1.0-42
 - Bugzilla Bug #309941 - TPS LDAP auth with bind dn broken.
 * Mon Jul 6 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-41

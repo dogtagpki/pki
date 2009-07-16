@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.1.0
-%define base_release      4
+%define base_release      5
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -134,7 +134,7 @@ BuildRoot:      %{_builddir}/%{name}-root
 BuildRequires:  bash >= 3.0, cyrus-sasl-devel >= 2.1.19, mozldap-devel >= 6.0.2, nspr-devel >= 4.6.99, nss-devel >= 3.12.3.99, svrcore-devel >= 4.0.3.01
 
 ## Without Requires something, rpmbuild will abort!
-Requires:       mozldap-tools >= 6.0.2, nss >= 3.12.3.99, nss-tools >= 3.12.3.99
+Requires:       mozldap-tools >= 6.0.2, nss >= 3.12.3.99, nss-tools >= 3.12.3.99, perl >= 5.8.0
 
 
 ## This package is non-relocatable!
@@ -250,6 +250,9 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Jul 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-5
+- Bugzilla Bug #512134 -  strip symbols from libraries, modules,
+  and executables
 * Mon Jul 6 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-4
 - bugzilla Bug #509183 -  update nss dependency >= 3.12.3.99
 * Wed Jun 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-3
