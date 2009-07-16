@@ -243,6 +243,15 @@ cp -p ${NATIVE_TOOLS_STAGING_PATH}/templates/* ${NATIVE_TOOLS_TEMPLATES}
 
 # comply with standard JPackage 1.6.0 jar naming conventions
 
+# strip symbolic information from executables
+cd ${NATIVE_TOOLS_EXECUTABLES} ;
+strip bulkissuance ;
+strip p7tool ;
+strip revoker ;
+strip setpin ;
+strip tkstool ;
+strip sslget
+
 
 ###############################################################################
 ##  (7)  Create a command wrapper for each specified command.                ##

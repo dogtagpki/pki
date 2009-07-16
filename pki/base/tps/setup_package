@@ -302,6 +302,21 @@ mv libtps.so libtps.so.${VERSION}
 
 # comply with standard JPackage 1.6.0 jar naming conventions
 
+# strip symbolic information from libraries
+cd ${SYSTEM_LIBRARIES}          ;
+strip libldapauth.so.${VERSION} ;
+strip libtokendb.so.${VERSION}  ;
+strip libtps.so.${VERSION}
+
+# strip symbolic information from modules
+cd ${APACHE_MODULES} ;
+strip mod_tokendb.so ;
+strip mod_tps.so
+
+# strip symbolic information from executables
+cd ${PKI_EXECUTABLES} ;
+strip tpsclient
+
 
 ###############################################################################
 ##  (7)  Create a command wrapper for each specified command.                ##

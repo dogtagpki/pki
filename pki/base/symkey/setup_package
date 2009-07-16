@@ -203,6 +203,9 @@ cd ${SYMKEY_LIB_DIR} ; mv libsymkey.${DLL_SUFFIX} libsymkey.${DLL_SUFFIX}.${VERS
 # comply with standard JPackage 1.6.0 jar naming conventions
 cd ${SYMKEY_JAR_DIR} ; mv symkey.jar symkey-${VERSION}.jar
 
+# strip symbolic information from libraries
+cd ${SYMKEY_LIB_DIR} ; strip libsymkey.${DLL_SUFFIX}.${VERSION}
+
 
 ###############################################################################
 ##  (7)  Create a command wrapper for each specified command.                ##

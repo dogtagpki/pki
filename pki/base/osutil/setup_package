@@ -203,6 +203,9 @@ cd ${OSUTIL_LIB_DIR} ; mv libosutil.${DLL_SUFFIX} libosutil.${DLL_SUFFIX}.${VERS
 # comply with standard JPackage 1.6.0 jar naming conventions
 cd ${OSUTIL_JAR_DIR} ; mv osutil.jar osutil-${VERSION}.jar
 
+# strip symbolic information from libraries
+cd ${OSUTIL_LIB_DIR} ; strip libosutil.${DLL_SUFFIX}.${VERSION}
+
 
 ###############################################################################
 ##  (7)  Create a command wrapper for each specified command.                ##
