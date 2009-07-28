@@ -32,8 +32,8 @@
 
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
-%define base_version      1.1.0
-%define base_release      7
+%define base_version      1.2.0
+%define base_release      1
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -270,6 +270,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Jul 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-1
+- Version update to Dogtag 1.2.0.
 * Wed Jul 8 2009 Christina Fu <cfu@redhat.com> 1.1.0-7
 - Bugzilla Bug #467200 -  (ECC Certicom) added mapping of SHA1withEC
 * Fri Jun 5 2009 Andrew Wnuk <awnuk@redhat.com> 1.1.0-6

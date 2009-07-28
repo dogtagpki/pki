@@ -33,8 +33,8 @@
 
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
-%define base_version      1.1.0
-%define base_release      43
+%define base_version      1.2.0
+%define base_release      1
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -314,6 +314,8 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Jul 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-1
+- Version update to Dogtag 1.2.0.
 * Thu Jul 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-43
 - Bugzilla Bug #512134 -  strip symbols from libraries, modules,
   and executables

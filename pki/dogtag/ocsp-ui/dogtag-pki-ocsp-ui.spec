@@ -33,8 +33,8 @@
 
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
-%define base_version      1.1.0
-%define base_release      3
+%define base_version      1.2.0
+%define base_release      1
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Jul 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-1
+- Version update to Dogtag 1.2.0.
 * Fri Jun 19 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-3
 - Bugzilla Bug #506867 -  Provide custom error page for HTTP STATUS 500
 * Mon Jun 15 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-2

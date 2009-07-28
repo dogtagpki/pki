@@ -32,8 +32,8 @@
 
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
-%define base_version      1.1.0
-%define base_release      2
+%define base_version      1.2.0
+%define base_release      1
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -265,6 +265,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Jul 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-1
+- Version update to Dogtag 1.2.0.
 * Wed Jun 3 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-2
 - Fixed packaging issue.
 * Sat Apr 4 2009 Matthew Harmsen <mharmsen@redhat.com> 1.1.0-1
