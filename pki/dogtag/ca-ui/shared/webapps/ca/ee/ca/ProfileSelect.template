@@ -43,15 +43,48 @@ key.type = "RSA";
 key.size = [512, 1024, 2048, 3072, 4096, 5120, 6144, 7168, 8192];
 keyList[0] = key;
 var key = new Object();
-key.type = "DSA";
-key.size = new Array();
-keyList[1] = key;
-var key = new Object();
 key.type = "EC";
-key.size = new Array();
-keyList[2] = key;
+key.size = [1024, 2048];
+keyList[1] = key;
 
-function keyOptions (keyPurpose)
+function keyTypeOptions (keyPurpose)
+{
+  var keyType = "RSA";
+
+  for (var i = 0; i < policySetListSet.length; i++) {
+    for (var j = 0; j < policySetListSet[i].policySet.length; j++) {
+      if (typeof(policySetListSet[i].policySet[j].constraintSet) != "undefined") {
+        for (var k = 0; k < policySetListSet[i].policySet[j].constraintSet.length; k++) {
+          if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyType") {
+            if (policySetListSet[i].policySet[j].constraintSet[k].value != "-") {
+              if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
+                keyType = policySetListSet[i].policySet[j].constraintSet[k].value;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  var keyFound = 0;
+  for (var i = 0; i < keyList.length; i++) {
+    if (keyList[i].type == keyType) {
+      if (keyList[i].size.length > 0) {
+        keyFound = 1;
+      }
+    }
+  }
+  if (keyFound == 0) {
+    keyType = "RSA";
+  }
+  if (navigator.appName == "Microsoft Internet Explorer") {
+    keyType = "RSA";
+  }
+
+  return keyType;
+}
+
+function keySizeOptions (keyPurpose)
 {
   var maxKeyLen = 8192;
   var minKeyLen = 512;
@@ -82,6 +115,9 @@ function keyOptions (keyPurpose)
         }
       }
     }
+  }
+  if (navigator.appName == "Microsoft Internet Explorer") {
+    keyType = "RSA";
   }
   for (var i = 0; i < keyList.length; i++) {
     if (keyList[i].type == keyType) {
@@ -151,21 +187,32 @@ function validate()
         }
         // generate keys for nsm.
         if (typeof(crypto.version) != "undefined") {
-            if (dual == 'true') {
-              crmfObject = crypto.generateCRMFRequest(
-                "CN=x",
-                "regToken", "authenticator",
-        	keyTransportCert,
-                "setCRMFRequest();",
-                parseInt(encKeyLength.value), null, "rsa-ex",
-                parseInt(signKeyLength.value), null, "rsa-sign");
-            } else {
-              crmfObject = crypto.generateCRMFRequest(
-                "CN=x",
-                "regToken", "authenticator",
-        	null,
-                "setCRMFRequest();",
-                parseInt(keyLength.value), null, "rsa-dual-use");
+            var encKeyType = "rsa-ex";
+            var signKeyType = "rsa-sign";
+            var dualKeyType = "rsa-dual-use";
+            try {
+                if (dual == 'true') {
+                    if (keyTypeOptions("encryption") == "EC")
+                        encKeyType = "ec-ex";
+                    if (keyTypeOptions("signing") == "EC")
+                        signKeyType = "ec-sign";
+                    crmfObject = crypto.generateCRMFRequest(
+                        "CN=x", "regToken", "authenticator",
+        	        keyTransportCert, "setCRMFRequest();",
+                        parseInt(encKeyLength.value), null, encKeyType,
+                        parseInt(signKeyLength.value), null, signKeyType);
+                } else {
+                    if (keyTypeOptions("") == "EC")
+                        dualKeyType = "ec-dual-use";
+                    crmfObject = crypto.generateCRMFRequest(
+                        "CN=x", "regToken", "authenticator",
+        	        null, "setCRMFRequest();",
+                        parseInt(keyLength.value), null, dualKeyType);
+                }
+            } catch (e) {
+                if (typeof(crmfObject) == "undefined" || crmfObject == null) {
+                    alert("Error generating CRMF request.");
+                }
             }
         }
         return false;
@@ -472,8 +519,12 @@ for (var j = 0; j < inputPluginListSet.length; j++) {
       if (navigator.appName == "Microsoft Internet Explorer") { 
         document.writeln('<input type=hidden name=' + inputListSet[i].inputId + '>');
       } else if (typeof(crypto.version) != "undefined") {
-        document.write('<SELECT NAME="encKeyLength">'+keyOptions("encryption")+'</SELECT> (Encryption),&nbsp;&nbsp;');
-        document.write('<SELECT NAME="signKeyLength">'+keyOptions("signing")+'</SELECT> (Signing)');
+        document.write('<SELECT NAME="encKeyLength">'+keySizeOptions("encryption")+'</SELECT>');
+        document.write('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;&nbsp;');
+        document.write(keyTypeOptions("encryption")+'&nbsp;&nbsp;(Encryption),&nbsp;&nbsp;</FONT>');
+        document.write('<SELECT NAME="signKeyLength">'+keySizeOptions("signing")+'</SELECT>');
+        document.write('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;&nbsp;');
+        document.write(keyTypeOptions("signing")+'&nbsp;&nbsp;(Signing)</FONT>');
         document.writeln('<input type=hidden name=cert_request value="">');
         dual = 'true';
       } else {
@@ -482,9 +533,11 @@ for (var j = 0; j < inputPluginListSet.length; j++) {
     } else if (inputListSet[i].inputSyntax == 'keygen_request') {
       if (navigator.appName == "Microsoft Internet Explorer") { 
         document.writeln('<input type=hidden name=' + inputListSet[i].inputId + '>');
-        document.writeln('<SELECT NAME="keyLength">'+keyOptions("")+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
+        document.writeln('<SELECT NAME="keyLength">'+keySizeOptions("")+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
       } else if (typeof(crypto.version) != "undefined") {
-        document.write('<SELECT NAME="keyLength">'+keyOptions("")+'</SELECT> (Encryption and Signing)');
+        document.write('<SELECT NAME="keyLength">'+keySizeOptions("")+'</SELECT>');
+        document.write('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        document.write('&nbsp;&nbsp;&nbsp;'+keyTypeOptions("")+'&nbsp;&nbsp;(Encryption and Signing)</FONT>');
         document.writeln('<input type=hidden name=cert_request value="">');
       } else {
         document.writeln('<KEYGEN name=' + inputListSet[i].inputId + '>');
@@ -494,16 +547,16 @@ for (var j = 0; j < inputPluginListSet.length; j++) {
       if (navigator.appName == "Microsoft Internet Explorer") {
         document.writeln('Not Supported<input type=hidden name=' + inputListSet[i].inputId + ' value=>');
       } else if (typeof(crypto.version) != "undefined") {
-        document.writeln('crmf<input type=hidden name=' + inputListSet[i].inputId + ' value=crmf>');
+        document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">crmf</FONT><input type=hidden name=' + inputListSet[i].inputId + ' value=crmf>');
       } else {
         document.writeln('Not Supported<input type=hidden name=' + inputListSet[i].inputId + ' value=>');
       }
     } else if (inputListSet[i].inputSyntax == 'keygen_request_type') {
       keygen_request = 'true';
       if (navigator.appName == "Microsoft Internet Explorer") {
-        document.writeln('pkcs10<input type=hidden name=' + inputListSet[i].inputId + ' value=pkcs10>');
+        document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">pkcs10</FONT><input type=hidden name=' + inputListSet[i].inputId + ' value=pkcs10>');
       } else if (typeof(crypto.version) != "undefined") {
-        document.writeln('crmf<input type=hidden name=' + inputListSet[i].inputId + ' value=crmf>');
+        document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">crmf</FONT><input type=hidden name=' + inputListSet[i].inputId + ' value=crmf>');
       } else {
         document.writeln('keygen<input type=hidden name=' + inputListSet[i].inputId + ' value=keygen>');
       }
