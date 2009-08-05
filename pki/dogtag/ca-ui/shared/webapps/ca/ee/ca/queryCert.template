@@ -176,7 +176,13 @@ function getRevocationReason(revocationReason)
                             "Affiliation changed",
                             "Certificate superceded",
                             "Cessation of operation",
-                            "Certificate is on hold");
+                            "Certificate is on hold",
+                            "Unspecified", // value 7 is not used
+                            "Remove from CRL",
+                            "Privilege withdrawn",
+                            "AA key compromise");
+    if (revocationReason < 0 || revocationReason >= reasons.length)
+        revocationReason = 0;
     return reasons[revocationReason];
 }
 
