@@ -58,7 +58,11 @@ function getReason(reasonId)
                                   "affiliation changed",
                                   "certificate superceded",
                                   "cessation of operation",
-                                  "certificate is on hold");
+                                  "certificate is on hold",
+                                  "unspecified",
+                                  "remove from CRL",
+                                  "privilege withdrawn",
+                                  "AA key compromised");
 
     if (reasonId >= 0 && reasonId < reasonDescription.length) {
         reason = reasonDescription[reasonId];
