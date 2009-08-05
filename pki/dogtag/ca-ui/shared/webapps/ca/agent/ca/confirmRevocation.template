@@ -163,6 +163,12 @@ document.write('not before: '+ renderDateFromSecs(result.header.validNotBefore) 
 		  </td>
 		  <td width="99%"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Certificate is on hold</font></td>
 	    </tr>
+		<tr>
+		  <td width="1%">
+            <input type="RADIO" name="revocationReason" value="9">
+		  </td>
+		  <td width="99%"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Privilege withdrawn</font></td>
+	    </tr>
         </table>
       </td>
     </tr>
