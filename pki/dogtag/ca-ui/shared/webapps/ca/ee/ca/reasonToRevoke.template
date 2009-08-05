@@ -202,10 +202,14 @@ function renderReason()
                            "Key compromised",
                            "CA key compromised",
                            "Affiliation changed",
-                           "Certificate superseded",
+                           "Certificate superceded",
                            "Cessation of operation",
-                           "Certificate is on hold");
-    var activeChoice = new Array(1, 1, 0, 1, 1, 1, 0);
+                           "Certificate is on hold",
+                           "Unspecified", // value 7 is not used
+                           "Remove from CRL",
+                           "Privilege withdrawn",
+                           "AA key compromise");
+    var activeChoice = new Array(1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0);
     document.write("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">\n");
     for (var i = 0; i < reason.length; i++) {
         if (activeChoice[i] > 0) {
