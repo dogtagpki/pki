@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_ui_prefix}-%{base_prefix}-%{base_component}
 %define base_version      1.2.0
-%define base_release      2
+%define base_release      3
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -222,6 +222,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Tue Aug 4 2009 Andrew Wnuk <awnuk@redhat.com> 1.2.0-3
+- Bugzilla Bug #514093 - UI ignores higher revocation reasons
 * Thu Jul 30 2009 Andrew Wnuk <awnuk@redhat.com> 1.2.0-2
 - Bugzilla Bug #514094 - enable ECC enrollment for FF through key constraints
 * Tue Jul 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-1
