@@ -21,6 +21,8 @@ package com.netscape.cms.profile.input;
 import java.util.*;
 
 import org.mozilla.jss.pkix.crmf.*;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.profile.*;
 import com.netscape.certsrv.request.*;
@@ -172,26 +174,41 @@ public abstract class EnrollInput implements IProfileInput {
 
     public void verifyPOP(Locale locale, CertReqMsg certReqMsg) 
         throws EProfileException {
-        CMS.debug("EnrollInput ::verifyPOP"); 
+        CMS.debug("EnrollInput ::in verifyPOP"); 
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
         if (!certReqMsg.hasPop()) { 
+            CMS.debug("CertReqMsg has not POP, return");
             return; 
         }
         ProofOfPossession pop = certReqMsg.getPop();
         ProofOfPossession.Type popType = pop.getType();
 
         if (popType != ProofOfPossession.SIGNATURE) {
+            CMS.debug("not POP SIGNATURE, return");
             return;
         }
 
         try {
             if (CMS.getConfigStore().getBoolean("cms.skipPOPVerify", false)) {
+              CMS.debug("skipPOPVerify on, return");
               return;
             }
-            certReqMsg.verify();
+            CMS.debug("POP verification begins:");
+            CryptoManager cm = CryptoManager.getInstance();
+            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token",
+                   "Internal Key Storage Token");
+            CryptoToken verifyToken = cm.getTokenByName(tokenName);
+            if (tokenName.equals("Internal Key Storage Token")) {
+                //use internal token
+                CMS.debug("POP verification using internal token");
+                certReqMsg.verify();
+            } else {
+                CMS.debug("POP verification using token:"+ tokenName);
+                certReqMsg.verify(verifyToken);
+            }
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -201,7 +218,7 @@ public abstract class EnrollInput implements IProfileInput {
             audit( auditMessage );
         } catch (Exception e) {
 
-            CMS.debug("Failed POP verify!");
+            CMS.debug("Failed POP verify! "+e.toString());
             CMS.debug(e);
 
             // store a message in the signed audit log file

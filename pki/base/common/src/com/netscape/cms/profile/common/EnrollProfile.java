@@ -739,7 +739,7 @@ public abstract class EnrollProfile extends BasicProfile
             archOpts = (PKIArchiveOptions) 
                     (new PKIArchiveOptions.Template()).decode(bis);
         } catch (Exception e) {
-            CMS.debug("EnrollProfile: getPKIArchiveOptions " + e.toString());
+            CMS.debug("EnrollProfile: toPKIArchiveOptions " + e.toString());
         }
         return archOpts;
     }
@@ -1312,7 +1312,7 @@ public abstract class EnrollProfile extends BasicProfile
 
     public void verifyPOP(Locale locale, CertReqMsg certReqMsg)
         throws EProfileException {
-        CMS.debug("EnrollInput ::verifyPOP");
+        CMS.debug("EnrollProfile ::in verifyPOP");
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -1328,7 +1328,18 @@ public abstract class EnrollProfile extends BasicProfile
         }
 
         try {
-            certReqMsg.verify();
+            CryptoManager cm = CryptoManager.getInstance();
+            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token",
+                   "Internal Key Storage Token");
+            CryptoToken verifyToken = cm.getTokenByName(tokenName);
+            if (tokenName.equals("Internal Key Storage Token")) {
+                //use internal token
+                CMS.debug("POP verification using internal token");
+                certReqMsg.verify();
+            } else {
+                CMS.debug("POP verification using token:"+ tokenName);
+                certReqMsg.verify(verifyToken);
+            }
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -1338,7 +1349,7 @@ public abstract class EnrollProfile extends BasicProfile
             audit( auditMessage );
         } catch (Exception e) {
 
-            CMS.debug("Failed POP verify!");
+            CMS.debug("Failed POP verify! "+e.toString());
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
