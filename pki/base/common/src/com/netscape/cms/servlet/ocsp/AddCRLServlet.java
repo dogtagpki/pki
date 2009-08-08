@@ -438,6 +438,27 @@ public class AddCRLServlet extends CMSServlet {
                 }
             }
 
+            if (crl.isDeltaCRL()) {
+                CMS.debug("AddCRLServlet: no update, Delta CRLs are not supported.");
+                log(ILogger.LL_INFO, "AddCRLServlet: no update, "+
+                    CMS.getUserMessage("CMS_GW_DELTA_CRL_NOT_SUPPORTED"));
+                if (noUI) {
+                    try {
+                        resp.setContentType("application/text");
+                        resp.getOutputStream().write("status=1\n".getBytes()); 
+                        resp.getOutputStream().write(
+                            "error=Delta CRLs are not supported.\n".getBytes()); 
+                        resp.getOutputStream().flush();
+                        cmsReq.setStatus(CMSRequest.SUCCESS);
+
+                        return;
+                    } catch (Exception e) {
+                    }
+                } else {
+                    throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DELTA_CRL_NOT_SUPPORTED"));
+                }
+            }
+
             CMS.debug("AddCRLServlet: strt committing CRL");
             log(ILogger.LL_INFO, "AddCRLServlet: Start Committing CRL");
 
