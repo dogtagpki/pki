@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.2.0
-%define base_release      2
+%define base_release      3
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -285,6 +285,8 @@ chmod 00755 %{_datadir}/%{base_prefix}/setup/postinstall
 ###############################################################################
 
 %changelog
+* Fri Aug 7 2009 Andrew Wnuk <awnuk@redhat.com> 1.2.0-3
+- Bugzilla Bug #514270 - OCSM should not accept delta CRLs as full CRLs.
 * Tue Aug 4 2009 Ade Lee <alee@redhat.com> 1.2.0-2
 - Bugzilla Bug #224688 - Support ECC POP on the server    
 
