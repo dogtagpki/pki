@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.2.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -281,6 +281,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Aug 12 2009 Andrew Wnuk <awnuk@redhat.com> 1.2.0-2
+- Bugzilla Bug #513450 - adding configuration for AIA CRL extension
 * Tue Jul 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-1
 - Version update to Dogtag 1.2.0.
 * Thu Jul 2 2009 Christina Fu <cfu@redhat.com> 1.1.0-25
