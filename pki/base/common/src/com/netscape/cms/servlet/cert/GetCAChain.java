@@ -165,7 +165,7 @@
 		 * the whole chain.
 		 */
 
-		if (clientIsMSIE(httpReq) && op.equals("download")) {
+		if (clientIsMSIE(httpReq) && (op.equals("download") || op.equals("downloadBIN"))) {
 		    X509Certificate[] caCerts = 
 			((ICertAuthority) mAuthority).getCACertChain().getChain();
 
@@ -202,7 +202,7 @@
 
 		String mimeType = null;
 
-		if (op.equals("downloadBIN")) {
+		if (op.equals("download") || op.equals("downloadBIN")) {
 		    mimeType = "application/octet-stream";
 		} else {
 		    try {
@@ -213,11 +213,16 @@
 		}
 
 		try {
-		    if (clientIsMSIE(httpReq)) {
-			if (op.equals("downloadBIN")) { 
-			    httpResp.setHeader("Content-disposition",
-				"attachment; filename=getCAChain.cacert");
-			}
+		    if (op.equals("download") || op.equals("downloadBIN")) {
+		        // file suffixes changed to comply with RFC 5280
+		        // requirements for AIA extensions
+		        if (clientIsMSIE(httpReq)) {
+		            httpResp.setHeader("Content-disposition",
+		                "attachment; filename=ca.cer");
+		        } else {
+		            httpResp.setHeader("Content-disposition",
+		                "attachment; filename=ca.p7c");
+		        }
 		    }
 		    httpResp.setContentType(mimeType);
 		    httpResp.getOutputStream().write(bytes);
