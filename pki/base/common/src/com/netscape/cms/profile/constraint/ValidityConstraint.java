@@ -126,6 +126,12 @@ public class ValidityConstraint extends EnrollConstraint {
                         "CMS_PROFILE_VALIDITY_NOT_FOUND"));
         }
 
+        if (notAfter.getTime() < notBefore.getTime()) {
+            CMS.debug("ValidityConstraint: notAfter (" + notAfter + ") < notBefore (" + notBefore + ")");
+            throw new ERejectException(CMS.getUserMessage(getLocale(request),
+                        "CMS_PROFILE_NOT_AFTER_BEFORE_NOT_BEFORE"));
+        }
+
         long millisDiff = notAfter.getTime() - notBefore.getTime();
         CMS.debug("ValidityConstraint: millisDiff=" + millisDiff + " notAfter=" + notAfter.getTime() + " notBefore=" + notBefore.getTime());
         long long_days = (millisDiff / 1000 ) / 86400;
@@ -167,21 +173,20 @@ public class ValidityConstraint extends EnrollConstraint {
         }
         long notBeforeGracePeriod = Long.parseLong(notBeforeGracePeriodStr) * SECS_IN_MS;
 
+        Date current = CMS.getCurrentDate();
         if (notBeforeCheck) {
-            Date current = CMS.getCurrentDate();
-
             if (notBefore.getTime() > (current.getTime() + notBeforeGracePeriod)) {
-                CMS.debug("ValidityConstraint: notBefore (" + notBefore + ") < current (" + current + ")");
+                CMS.debug("ValidityConstraint: notBefore (" + notBefore + ") > current + "+
+                          "gracePeriod (" + new Date(current.getTime() + notBeforeGracePeriod) + ")");
                 throw new ERejectException(CMS.getUserMessage(getLocale(request),
-                            "CMS_PROFILE_NOT_BEFORE_BEFORE_CURRENT"));
+                            "CMS_PROFILE_NOT_BEFORE_AFTER_CURRENT"));
             }
         }
-
         if (notAfterCheck) {
-            if (notAfter.getTime() < notBefore.getTime()) {
-                CMS.debug("ValidityConstraint: notAfter (" + notAfter + ") < notBefore (" + notBefore + ")");
+            if (notAfter.getTime() < current.getTime()) {
+                CMS.debug("ValidityConstraint: notAfter (" + notAfter + ") <  current + (" + current + ")");
                 throw new ERejectException(CMS.getUserMessage(getLocale(request),
-                            "CMS_PROFILE_NOT_AFTER_BEFORE_NOT_BEFORE"));
+                            "CMS_PROFILE_NOT_AFTER_BEFORE_CURRENT"));
             }
         }
     }
