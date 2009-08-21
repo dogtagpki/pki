@@ -139,7 +139,7 @@ public class CMSAuthInfoAccessExtension
                     String hostname = CMS.getEENonSSLHost();
                     String port = CMS.getEENonSSLPort();
                     if (hostname != null && port != null) {
-                        accessLocation = "http://"+hostname+":"+port+"/ca/ee/ca/getCAChain?op=download";
+                        accessLocation = "http://"+hostname+":"+port+"/ca/ee/ca/getCAChain?op=downloadBIN";
                     }
                     URIName uriName = new URIName(accessLocation);
                     authInfoAccessExt.addAccessDescription(AuthInfoAccessExtension.METHOD_CA_ISSUERS, new GeneralName(uriName));
@@ -212,7 +212,7 @@ public class CMSAuthInfoAccessExtension
                 String hostname = CMS.getEENonSSLHost();
                 String port = CMS.getEENonSSLPort();
                 if (hostname != null && port != null) {
-                    accessLocation = "http://"+hostname+":"+port+"/ca/ee/ca/getCAChain?op=download";
+                    accessLocation = "http://"+hostname+":"+port+"/ca/ee/ca/getCAChain?op=downloadBIN";
                 }
                 nvp.add(PROP_ACCESS_LOCATION + i, accessLocation);
             }
