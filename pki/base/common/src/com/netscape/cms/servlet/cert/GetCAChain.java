@@ -202,7 +202,7 @@
 
 		String mimeType = null;
 
-		if (op.equals("download") || op.equals("downloadBIN")) {
+		if (op.equals("downloadBIN")) {
 		    mimeType = "application/octet-stream";
 		} else {
 		    try {
@@ -213,7 +213,7 @@
 		}
 
 		try {
-		    if (op.equals("download") || op.equals("downloadBIN")) {
+		    if (op.equals("downloadBIN")) {
 		        // file suffixes changed to comply with RFC 5280
 		        // requirements for AIA extensions
 		        if (clientIsMSIE(httpReq)) {
