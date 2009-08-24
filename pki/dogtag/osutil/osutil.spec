@@ -27,7 +27,7 @@
 ## Package Header Definitions
 %define base_name         %{base_component}
 %define base_version      1.2.0
-%define base_release      1
+%define base_release      2
 %define base_group        System Environment/Libraries
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
