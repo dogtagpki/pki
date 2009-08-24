@@ -511,7 +511,7 @@ template(`pki_tps_template',`
         corecmd_search_sbin(pki_tps_t)
 
         corenet_sendrecv_unlabeled_packets(pki_tps_t)
-        corenet_tcp_bind_inaddr_any_node(pki_tps_t)
+        corenet_tcp_bind_all_nodes(pki_tps_t)
         corenet_tcp_bind_pki_tps_port(pki_tps_t)
         corenet_tcp_connect_generic_port(pki_tps_t)
 
@@ -681,7 +681,7 @@ template(`pki_ra_template',`
         corecmd_search_sbin(pki_ra_t)
 
         corenet_sendrecv_unlabeled_packets(pki_ra_t)
-        corenet_tcp_bind_inaddr_any_node(pki_ra_t)
+        corenet_tcp_bind_all_nodes(pki_ra_t)
         corenet_tcp_bind_pki_ra_port(pki_ra_t)
 
         corenet_tcp_sendrecv_all_if(pki_ra_t)
