@@ -547,12 +547,13 @@ template(`pki_tps_template',`
         sysnet_read_config(pki_tps_t)
 
         allow httpd_t pki_tps_etc_rw_t:dir search;
-        allow httpd_t pki_tps_etc_rw_t:file { read getattr };
-        allow httpd_t pki_tps_log_t:dir search;
-        allow httpd_t pki_tps_log_t:file read;
+        allow httpd_t pki_tps_etc_rw_t:file rw_file_perms;
+        allow httpd_t pki_tps_log_t:dir rw_dir_perms;
+        allow httpd_t pki_tps_log_t:file manage_file_perms;
         allow httpd_t pki_tps_t:process { signal signull };
         allow httpd_t pki_tps_var_lib_t:dir { getattr search };
         allow httpd_t pki_tps_var_lib_t:lnk_file read;
+        allow httpd_t pki_tps_var_lib_t:file read_file_perms;
 
         # why do I need to add this?
         allow httpd_t httpd_config_t:file execute;
@@ -719,12 +720,13 @@ template(`pki_ra_template',`
         sysnet_read_config(pki_ra_t)
 
         allow httpd_t pki_ra_etc_rw_t:dir search;
-        allow httpd_t pki_ra_etc_rw_t:file { read getattr };
-        allow httpd_t pki_ra_log_t:dir search;
-        allow httpd_t pki_ra_log_t:file read;
+        allow httpd_t pki_ra_etc_rw_t:file rw_file_perms;
+        allow httpd_t pki_ra_log_t:dir rw_dir_perms;
+        allow httpd_t pki_ra_log_t:file manage_file_perms;
         allow httpd_t pki_ra_t:process { signal signull };
         allow httpd_t pki_ra_var_lib_t:dir { getattr search };
         allow httpd_t pki_ra_var_lib_t:lnk_file read;
+        allow httpd_t pki_ra_var_lib_t:file read_file_perms;
 
         # talk to the hsm
         allow pki_ra_t pki_common_dev_t:sock_file write;
