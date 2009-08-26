@@ -109,7 +109,7 @@ else
 fi
 
 # Source function library.
-if [ -x /etc/init.d/functions ]; then
+if [ -f /etc/init.d/functions ]; then
 	. /etc/init.d/functions
 else
 	# The checkpid() function is provided for platforms that do not
@@ -551,7 +551,7 @@ start()
 			if checkpid $kpid 2>&1; then
 				echo
 				echo "process already running"
-				return -1
+				return 255
 			else
 				echo
 				echo -n "lock file found but no process "
@@ -1077,7 +1077,7 @@ start()
 			let count=$count+1;
 		done
 
-		if [ -x /etc/init.d/functions ]; then
+		if [ -f /etc/init.d/functions ]; then
 			if [ "$CONSOLETYPE" = "serial" ]; then
 				echo -n "         "
 			fi
@@ -1095,7 +1095,7 @@ start()
 		echo
 		status
 	else
-		if [ -x /etc/init.d/functions ]; then
+		if [ -f /etc/init.d/functions ]; then
 			if [ "$CONSOLETYPE" = "serial" ]; then
 				echo -n "         "
 			fi
@@ -1150,7 +1150,7 @@ stop()
 			rm -f ${lockfile}
 			rm -f ${pidfile}
 
-			if [ -x /etc/init.d/functions ]; then
+			if [ -f /etc/init.d/functions ]; then
 				if [ "$CONSOLETYPE" = "serial" ]; then
 					echo -n "         "
 				fi
@@ -1160,7 +1160,7 @@ stop()
 				echo "         [  OK  ]"
 			fi
 		else
-			if [ -x /etc/init.d/functions ]; then
+			if [ -f /etc/init.d/functions ]; then
 				if [ "$CONSOLETYPE" = "serial" ]; then
 					echo -n "         "
 				fi

@@ -92,7 +92,7 @@ LD_LIBRARY_PATH=[SECURITY_LIBRARIES]:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
 
 # Source function library.
-if [ -x /etc/init.d/functions ]; then
+if [ -f /etc/init.d/functions ]; then
 	. /etc/init.d/functions
 else
 	# The checkpid() function is provided for platforms that do not
@@ -521,7 +521,7 @@ start()
 			if checkpid $kpid 2>&1; then
 				echo
 				echo "process already running"
-				return -1
+				return 255
 			else
 				echo
 				echo -n "lock file found but no process "
@@ -535,7 +535,7 @@ start()
         # restore context for ncipher hsm
         [ -x /sbin/restorecon ] && [ -d /dev/nfast ] && /sbin/restorecon -R /dev/nfast
 
-	if [ -x /etc/init.d/functions ]; then
+	if [ -f /etc/init.d/functions ]; then
 		/usr/sbin/selinuxenabled
 		RETVAL=$?
 		if [ $RETVAL = 0 ] ; then	
@@ -572,7 +572,7 @@ start()
 			let count=$count+1;
 		done
 
-		if [ -x /etc/init.d/functions ]; then
+		if [ -f /etc/init.d/functions ]; then
 			echo_success
 			echo
 		else
@@ -606,7 +606,7 @@ start()
 			done
 		fi
 	else
-		if [ -x /etc/init.d/functions ]; then
+		if [ -f /etc/init.d/functions ]; then
 			echo_failure
 			echo
 		else
@@ -656,14 +656,14 @@ stop()
 			rm -f ${lockfile}
 			rm -f ${pidfile}
 
-			if [ -x /etc/init.d/functions ]; then
+			if [ -f /etc/init.d/functions ]; then
 				echo_success
 				echo
 			else
 				echo "                                       [  OK  ]"
 			fi
 		else
-			if [ -x /etc/init.d/functions ]; then
+			if [ -f /etc/init.d/functions ]; then
 				echo_failure
 				echo
 			else
@@ -683,13 +683,13 @@ reload()
 	if ! LANG=$HTTPD_LANG $httpd $OPTIONS -t >&/dev/null; then
 		RETVAL=$?
 		echo $"not reloading due to configuration syntax error"
-		if [ -x /etc/init.d/functions ]; then
+		if [ -f /etc/init.d/functions ]; then
 			failure $"not reloading $httpd due to configuration syntax error"
 		else
 			echo $"not reloading $httpd due to configuration syntax error"
 		fi
 	else
-		if [ -x /etc/init.d/functions ]; then
+		if [ -f /etc/init.d/functions ]; then
 			killproc $httpd -HUP
 			# overwrite output from "killproc"
 			echo -n $"Stopping $prog:                                        "
