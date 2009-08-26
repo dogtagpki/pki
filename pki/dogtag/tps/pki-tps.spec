@@ -34,7 +34,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.2.0
-%define base_release      2
+%define base_release      3
 %define base_group        System Environment/Daemons
 %define base_vendor       Red Hat, Inc.
 %define base_license      LGPLv2 with exceptions
@@ -314,6 +314,9 @@ fi
 ###############################################################################
 
 %changelog
+* Tue Aug 25 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-3
+- Bugzilla Bug #519259 -  Change "[ -x /etc/init.d/functions]" to
+  "[ -f /etc/init.d/functions]" . . .  
 * Fri Aug 21 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-2
 - Bugzilla Bug #518736 -  Port Dogtag 1.2.0 to 32-bit and 64-bit Fedora 11 . . .
 * Tue Jul 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-1
