@@ -340,9 +340,9 @@ public final class SigningUnit implements ISigningUnit {
         }
 
         if (key.getAlgorithmId().getOID().equals(AlgorithmId.DSA_oid)) {
-            return new String[] { "SHA1withDSA"};
+            return AlgorithmId.DSA_SIGNING_ALGORITHMS;
         } else {
-            return new String[] { "MD5withRSA", "MD2withRSA", "SHA1withRSA"};
+            return AlgorithmId.ALL_SIGNING_ALGORITHMS;
         }
     }
 

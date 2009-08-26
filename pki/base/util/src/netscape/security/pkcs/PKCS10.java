@@ -186,6 +186,12 @@ public class PKCS10
             idName = "SHA1/DSA";
         else        if(idName.equals("SHA1withEC"))
             idName = "SHA1/EC";
+        else        if(idName.equals("SHA256withEC"))
+            idName = "SHA256/EC";
+        else        if(idName.equals("SHA384withEC"))
+            idName = "SHA384/EC";
+        else        if(idName.equals("SHA512withEC"))
+            idName = "SHA512/EC";
 
         if (sigver) {
             sig = Signature.getInstance(idName,"Mozilla-JSS");

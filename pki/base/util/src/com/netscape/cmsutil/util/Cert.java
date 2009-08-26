@@ -46,6 +46,12 @@ public class Cert {
             return SignatureAlgorithm.RSASignatureWithSHA512Digest;
         else if (algname.equals("SHA1withEC"))
             return SignatureAlgorithm.ECSignatureWithSHA1Digest;
+        else if (algname.equals("SHA256withEC"))
+            return SignatureAlgorithm.ECSignatureWithSHA256Digest;
+        else if (algname.equals("SHA384withEC"))
+            return SignatureAlgorithm.ECSignatureWithSHA384Digest;
+        else if (algname.equals("SHA512withEC"))
+            return SignatureAlgorithm.ECSignatureWithSHA512Digest;
         return null;
     }
 

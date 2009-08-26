@@ -2018,6 +2018,16 @@ private void 	createMasterKey(HttpServletRequest req,
             if (messageDigest.equals("SHA1")) {
                 return "SHA1withDSA";
             }
+        } else /* EC */ {
+            if (messageDigest.equals("SHA1")) {
+                return "SHA1withEC";
+            } else if (messageDigest.equals("SHA256")) {
+                return "SHA256withEC";
+            } else if (messageDigest.equals("SHA384")) {
+                return "SHA384withEC";
+            } else if (messageDigest.equals("SHA512")) {
+                return "SHA512withEC";
+            }
         }
         return null;
     }

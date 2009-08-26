@@ -311,6 +311,15 @@ public class AlgorithmId implements Serializable, DerEncoder {
 	if (name.equals ("SHA1withEC") || name.equals("SHA1/EC")
 	   || name.equals("1.2.840.10045.4.1"))
 	    return AlgorithmId.sha1WithEC_oid;
+	if (name.equals ("SHA256withEC") || name.equals("SHA256/EC")
+	   || name.equals("1.2.840.10045.4.3.2"))
+	    return AlgorithmId.sha256WithEC_oid;
+	if (name.equals ("SHA384withEC") || name.equals("SHA384/EC")
+	   || name.equals("1.2.840.10045.4.3.3"))
+	    return AlgorithmId.sha384WithEC_oid;
+	if (name.equals ("SHA512withEC") || name.equals("SHA512/EC")
+	   || name.equals("1.2.840.10045.4.3.4"))
+	    return AlgorithmId.sha512WithEC_oid;
 	if (name.equals ("SHA1withRSA") || name.equals("SHA1/RSA")
 	   || name.equals("1.2.840.113549.1.1.5"))
 	    return AlgorithmId.sha1WithRSAEncryption_oid;
@@ -374,6 +383,12 @@ public class AlgorithmId implements Serializable, DerEncoder {
 
     if (algid.equals (AlgorithmId.sha1WithEC_oid))
 	    return "SHA1withEC";
+    if (algid.equals (AlgorithmId.sha256WithEC_oid))
+	    return "SHA256withEC";
+    if (algid.equals (AlgorithmId.sha384WithEC_oid))
+	    return "SHA384withEC";
+    if (algid.equals (AlgorithmId.sha512WithEC_oid))
+	    return "SHA512withEC";
 	if (algid.equals (AlgorithmId.md5WithRSAEncryption_oid))
 	    return "MD5withRSA";
 	if (algid.equals (AlgorithmId.md2WithRSAEncryption_oid))
@@ -630,6 +645,12 @@ public class AlgorithmId implements Serializable, DerEncoder {
      */
     private static final int sha1WithEC_data[] = 
 	                               { 1, 2, 840, 10045, 4, 1 };
+    private static final int sha256WithEC_data[] = 
+	                               { 1, 2, 840, 10045, 4, 3, 2 };
+    private static final int sha384WithEC_data[] = 
+	                               { 1, 2, 840, 10045, 4, 3, 3 };
+    private static final int sha512WithEC_data[] = 
+	                               { 1, 2, 840, 10045, 4, 3, 4 };
     private static final int md2WithRSAEncryption_data[] = 
 	                               { 1, 2, 840, 113549, 1, 1, 2 };
     private static final int md5WithRSAEncryption_data[] = 
@@ -652,6 +673,18 @@ public class AlgorithmId implements Serializable, DerEncoder {
     public static final ObjectIdentifier
 	sha1WithEC_oid = new
 		ObjectIdentifier(sha1WithEC_data);
+
+    public static final ObjectIdentifier
+	sha256WithEC_oid = new
+		ObjectIdentifier(sha256WithEC_data);
+
+    public static final ObjectIdentifier
+	sha384WithEC_oid = new
+		ObjectIdentifier(sha384WithEC_data);
+
+    public static final ObjectIdentifier
+	sha512WithEC_oid = new
+		ObjectIdentifier(sha512WithEC_data);
 
     /**
      * Identifies a signing algorithm where an MD2 digest is encrypted
@@ -740,12 +773,12 @@ public class AlgorithmId implements Serializable, DerEncoder {
 	{ "SHA1withRSA", "SHA256withRSA", "SHA512withRSA", "MD5withRSA", "MD2withRSA" };
 
     public static final String[] EC_SIGNING_ALGORITHMS = new String[] 
-	{ "SHA1withEC" };
+	{ "SHA1withEC", "SHA256withEC", "SHA384withEC", "SHA512withEC" };
 
     /** 
      * All supported signing algorithms.
      */
     public static final String[] ALL_SIGNING_ALGORITHMS = new String[] 
-	{ "SHA1withRSA", "MD5withRSA", "MD2withRSA", "SHA1withDSA", "SHA256withRSA", "SHA512withRSA", "SHA1withEC" };
+	{ "SHA1withRSA", "MD5withRSA", "MD2withRSA", "SHA1withDSA", "SHA256withRSA", "SHA512withRSA", "SHA1withEC", "SHA256withEC", "SHA384withEC", "SHA512withEC" };
 
 }
