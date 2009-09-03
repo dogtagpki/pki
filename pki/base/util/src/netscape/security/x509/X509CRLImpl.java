@@ -1019,18 +1019,21 @@ public class X509CRLImpl extends X509CRL {
 
         // revokedCertificates (optional)
         nextByte = (byte)derStrm.peekByte();
-        if (includeEntries && (nextByte == DerValue.tag_SequenceOf)
+        if ((nextByte == DerValue.tag_SequenceOf)
             && (! ((nextByte & 0x0c0) == 0x080))) {
-            DerValue[] badCerts = derStrm.getSequence(4);
-            for (int i = 0; i < badCerts.length; i++) {
-                RevokedCertImpl entry = new RevokedCertImpl(badCerts[i]);
-                if (entry.hasExtensions() && (version == 0))
-                    throw new CRLException("Invalid encoding, extensions" +
-                        " not supported in CRL v1 entries.");
+            if (includeEntries) {
+                DerValue[] badCerts = derStrm.getSequence(4);
+                for (int i = 0; i < badCerts.length; i++) {
+                    RevokedCertImpl entry = new RevokedCertImpl(badCerts[i]);
+                    if (entry.hasExtensions() && (version == 0))
+                        throw new CRLException("Invalid encoding, extensions" +
+                            " not supported in CRL v1 entries.");
 
-
-                revokedCerts.put(entry.getSerialNumber(),
-                                 (RevokedCertificate)entry);
+                    revokedCerts.put(entry.getSerialNumber(),
+                                     (RevokedCertificate)entry);
+                }
+            } else {
+                derStrm.skipSequence(4);
             }
         }
 
