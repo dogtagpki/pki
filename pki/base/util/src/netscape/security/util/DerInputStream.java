@@ -245,6 +245,14 @@ public class DerInputStream {
 	return readVector(startLen);
     }
 
+    public void skipSequence(int startLen) throws IOException {
+	int b = buffer.read();
+	if (b != DerValue.tag_Sequence)
+	    throw new IOException("Sequence tag error " + b);
+	int	len = getLength(buffer);
+	buffer.skip(len);
+    }
+
     /**
      * Return a set of encoded entities.  ASN.1 sets are unordered,
      * though DER may specify an order for some kinds of sets (such
