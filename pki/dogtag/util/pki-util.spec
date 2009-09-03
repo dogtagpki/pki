@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.2.0
-%define base_release      2
+%define base_release      3
 %define base_group        System Environment/Base
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -270,6 +270,8 @@ rm -rf ${RPM_BUILD_ROOT}
 ###############################################################################
 
 %changelog
+* Thu Sep 3 2009 Andrew Wnuk <awnuk@redhat.com> 1.2.0-3
+- Bugzilla Bug #514270 - improved skipping sequence for quick CRL parsing
 * Tue Aug 25 2009 Christina Fu <cfu@redhat.com> 1.2.0-2
 - Bugzilla Bug #465507 - Enhancement: Support SHA2 + EC signature algorithms
 * Tue Jul 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-1
