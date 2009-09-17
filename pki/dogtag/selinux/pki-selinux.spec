@@ -33,7 +33,7 @@
 ## Package Header Definitions
 %define base_name         %{base_prefix}-%{base_component}
 %define base_version      1.2.0
-%define base_release      2
+%define base_release      3
 %define base_group        System Environment/Shells
 %define base_vendor       Red Hat, Inc.
 %define base_license      GPLv2 with exceptions
@@ -249,6 +249,8 @@ fi
 ###############################################################################
 
 %changelog
+* Wed Sep 16 2009 Ade Lee <alee@redhat.com> 1.2.0-3
+- Bugzilla Bug 524068 - rules needed for pki-tps and pki-ra startup on fc11 
 * Mon Aug 24 2009 Ade Lee <alee@redhat.com> 1.2.0-2
 - Bugzilla Bug 514520 -  Build of pki-selinux 1.2.0 component fails on fc11
 * Tue Jul 28 2009 Matthew Harmsen <mharmsen@redhat.com> 1.2.0-1

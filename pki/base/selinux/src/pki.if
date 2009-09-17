@@ -482,7 +482,7 @@ template(`pki_tps_template',`
         allow pki_tps_t httpd_config_t:file { read getattr execute };
         allow pki_tps_t httpd_exec_t:file entrypoint;
         allow pki_tps_t httpd_modules_t:lnk_file read;
-        allow pki_tps_t httpd_suexec_exec_t:file getattr;
+	allow pki_tps_t httpd_suexec_exec_t:file { getattr read execute };
 
         # apache permissions
         apache_exec_modules(pki_tps_t)
@@ -653,7 +653,7 @@ template(`pki_ra_template',`
         allow pki_ra_t httpd_config_t:file { read getattr execute };
         allow pki_ra_t httpd_exec_t:file entrypoint;
         allow pki_ra_t httpd_modules_t:lnk_file read;
-        allow pki_ra_t httpd_suexec_exec_t:file getattr;
+        allow pki_ra_t httpd_suexec_exec_t:file { getattr read execute };
 
         #apache permissions
         apache_read_config(pki_ra_t)
