@@ -819,6 +819,20 @@ public abstract class EnrollProfile extends BasicProfile
 
                 req.setExtData(REQUEST_SUBJECT_NAME,
                         new CertificateSubjectName(subject));
+                try {
+                    String subjectCN  = subject.getCommonName();
+                    if (subjectCN  == null) subjectCN  = "";
+                    req.setExtData(REQUEST_SUBJECT_NAME+".cn",  subjectCN);
+                } catch (Exception ee) {
+                    req.setExtData(REQUEST_SUBJECT_NAME+".cn", "");
+                }
+                try {
+                    String subjectUID = subject.getUserID();
+                    if (subjectUID == null) subjectUID = "";
+                    req.setExtData(REQUEST_SUBJECT_NAME+".uid", subjectUID);
+                } catch (Exception ee) {
+                    req.setExtData(REQUEST_SUBJECT_NAME+".uid", "");
+                }
             }
 
             // parse extensions
@@ -939,6 +953,20 @@ public abstract class EnrollProfile extends BasicProfile
 
             req.setExtData(EnrollProfile.REQUEST_SUBJECT_NAME,
                     new CertificateSubjectName(pkcs10.getSubjectName()));
+            try {
+                String subjectCN  = pkcs10.getSubjectName().getCommonName();
+                if (subjectCN  == null) subjectCN  = "";
+                req.setExtData(REQUEST_SUBJECT_NAME+".cn",  subjectCN);
+            } catch (Exception ee) {
+                req.setExtData(REQUEST_SUBJECT_NAME+".cn", "");
+            }
+            try {
+                String subjectUID = pkcs10.getSubjectName().getUserID();
+                if (subjectUID == null) subjectUID = "";
+                req.setExtData(REQUEST_SUBJECT_NAME+".uid", subjectUID);
+            } catch (Exception ee) {
+                req.setExtData(REQUEST_SUBJECT_NAME+".uid", "");
+            }
 
             info.set(X509CertInfo.KEY, certKey);
 
