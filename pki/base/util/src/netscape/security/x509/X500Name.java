@@ -406,6 +406,20 @@ public class X500Name implements Principal, GeneralNameInterface {
 
 
     /**
+     * Returns a "UID" component.  If more than one such
+     * attribute exists, the topmost one is returned.
+     *
+     * @return "UID=" component of the name, if any.
+     */
+    public String getUserID () throws IOException
+    {
+	DerValue attr = findAttribute (uidName_oid);
+
+	return getString (attr);
+    }
+
+
+    /**
      * Returns a "Locality" name component.  If more than one
      * such component exists, the topmost one is returned.
      *
@@ -690,6 +704,10 @@ public class X500Name implements Principal, GeneralNameInterface {
     /** OID for the "CN=" attribute, denoting a person's common name. */
     public static final ObjectIdentifier
 	commonName_oid = X500NameAttrMap.getDefault().getOid("CN");
+
+    /** OID for the "UID=" attribute, denoting a person's ID. */
+    public static final ObjectIdentifier
+	uidName_oid = X500NameAttrMap.getDefault().getOid("UID");
 
     /** OID for the "C=" attribute, denoting a country. */
     public static final ObjectIdentifier
