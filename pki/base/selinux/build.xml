@@ -158,7 +158,7 @@
         <echo message="${begin.source.zip.log.message}"/>
         <zip destfile="${dist.base.source}/${src.dist.name}.zip">
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
@@ -175,7 +175,7 @@
         <tar longfile="gnu"
              destfile="${dist.base.source}/${src.dist.name}.tar">
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>

@@ -36,6 +36,8 @@ usage() {
 	echo "        OSUTIL_staging_path"
 	echo
 	echo "        where architecture MUST be 'intel',"
+	echo "                                   'ppc',
+	echo "                                   'ppc64',
 	echo "                                   'sparc', or"
 	echo "                                   'sparcv9'."
 	echo
@@ -59,6 +61,11 @@ if  [ ${ARCHITECTURE} = "intel" ] ; then
 		usage "ERROR:  Unsupported intel architecture '${ARCHITECTURE}'!"
 		exit 255
 	fi
+elif [ ${ARCHITECTURE} = "ppc" ] ; then
+	# Note that "pkgbuild" successfully processes "%ifarch" macros
+	# inside the "%install" section of a spec file.
+	LIB_DIR="lib"
+    DLL_SUFFIX="so"
 elif [ ${ARCHITECTURE} = "sparc" ] ; then
 	# Note that "pkgbuild" successfully processes "%ifarch" macros
 	# inside the "%install" section of a spec file.
@@ -197,14 +204,11 @@ cp -rp ${OSUTIL_STAGING_PATH}/doc/LICENSE         ${OSUTIL_DOCUMENTATION}
 ##  (6)  Rename the extracted contents following appropriate naming rules.   ##
 ###############################################################################
 
-# comply with standard Linux/UNIX shared library naming conventions
-cd ${OSUTIL_LIB_DIR} ; mv libosutil.${DLL_SUFFIX} libosutil.${DLL_SUFFIX}.${VERSION}
-
 # comply with standard JPackage 1.6.0 jar naming conventions
 cd ${OSUTIL_JAR_DIR} ; mv osutil.jar osutil-${VERSION}.jar
 
 # strip symbolic information from libraries
-cd ${OSUTIL_LIB_DIR} ; strip libosutil.${DLL_SUFFIX}.${VERSION}
+cd ${OSUTIL_LIB_DIR} ; strip libosutil.${DLL_SUFFIX}
 
 
 ###############################################################################
@@ -216,12 +220,6 @@ cd ${OSUTIL_LIB_DIR} ; strip libosutil.${DLL_SUFFIX}.${VERSION}
 ###############################################################################
 ##  (8)  Create useful symbolic links as appropriate.                        ##
 ###############################################################################
-
-# create shared library sans version "linker-name" to protect this namespace
-cd ${OSUTIL_LIB_DIR}                                                ;
-ln -s libosutil.${DLL_SUFFIX}.${VERSION} libosutil.${DLL_SUFFIX}.${PRODUCT_VERSION}       ;
-ln -s libosutil.${DLL_SUFFIX}.${PRODUCT_VERSION} libosutil.${DLL_SUFFIX}.${MAJOR_VERSION} ;
-ln -s libosutil.${DLL_SUFFIX}.${MAJOR_VERSION} libosutil.${DLL_SUFFIX}
 
 # create jar sans version to be used by classpath
 cd ${OSUTIL_JAR_DIR} ; ln -s osutil-${VERSION}.jar osutil.jar

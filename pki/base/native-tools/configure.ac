@@ -93,13 +93,13 @@ AC_ARG_ENABLE(debug, [  --enable-debug         Enable debug features],
 ])
 AC_SUBST([debug_defs])
 
-AC_PREFIX_DEFAULT([/opt/native-tools])
+AC_PREFIX_DEFAULT([/opt])
 
 # installation paths - by default, configure will just
 # use /usr as the prefix for everything, which means
 # /usr/etc, /usr/opt, and /usr/var.  FHS sez to use
 # /etc, /opt, and /var.
-ac_default_prefix=/opt/native-tools
+ac_default_prefix=/opt
 prefix=$ac_default_prefix
 exec_prefix=$prefix
 # relative to prefix

@@ -21,19 +21,22 @@
 ##  (1)  Check command line arguments to see how many were passed in.        ##
 ###############################################################################
 
-if [ $# -eq 7 ]
+if [ $# -eq 6 ]
 then
 	NATIVE_TOOLS_BUILD_PREFIX=$1
 	NATIVE_TOOLS_PRODUCT_NAME=$2
 	NATIVE_TOOLS_SUBSYSTEM_NAME=$3
 	VERSION=$4
 	RELEASE=$5
-	ARCHITECTURE=$6
-	NATIVE_TOOLS_STAGING_PATH=$7
+	NATIVE_TOOLS_STAGING_PATH=$6
 else
 	echo
-	echo "Usage:  $0 NATIVE_TOOLS_build_prefix NATIVE_TOOLS_product_name"
-	echo "        NATIVE_TOOLS_subsystem_name version release architecture"
+	echo "Usage:  $0"
+	echo "        NATIVE_TOOLS_build_prefix"
+	echo "        NATIVE_TOOLS_product_name"
+	echo "        NATIVE_TOOLS_subsystem_name"
+	echo "        version"
+	echo "        release"
 	echo "        NATIVE_TOOLS_staging_path"
 	echo
 
@@ -52,48 +55,80 @@ usage() {
 		echo "$1"
 	fi
 	echo
-	echo "Usage:  $0 NATIVE_TOOLS_build_prefix NATIVE_TOOLS_product_name"
-	echo "        NATIVE_TOOLS_subsystem_name version release architecture"
-	echo
-	echo "        where architecture MUST be 'intel',"
-	echo "                                   'sparc', or"
-	echo "                                   'sparcv9'."
-	echo
-	echo "        NOTE:  For 'intel' architectures, only the 'i386' and"
-	echo "               the 'x86_64' architectures are currently supported."
+	echo "Usage:  $0"
+	echo "        NATIVE_TOOLS_build_prefix"
+	echo "        NATIVE_TOOLS_product_name"
+	echo "        NATIVE_TOOLS_subsystem_name"
+	echo "        version"
+	echo "        release"
+	echo "        NATIVE_TOOLS_staging_path"
 	echo
 }
 
 # specify generic helper variables
-if  [ ${ARCHITECTURE} = "intel" ] ; then
-	# Since "rpmbuild" fails to process "%ifarch" macros inside the
-	# "%install" section of a spec file, the actual hardware
-	# architecture will be determined at this point in time.
-	ARCHITECTURE=`uname -i`
-	if   [ ${ARCHITECTURE} = "i386" ] ; then
-		LIB_DIR="lib"
-		PERL_DIR="/usr/bin/perl"
-		SCRIPTS_DIR="bin"
-		WRAPPER_DIR="bin"
-	elif [ ${ARCHITECTURE} = "x86_64" ] ; then
-		LIB_DIR="lib64"
-		PERL_DIR="/usr/bin/perl"
-		SCRIPTS_DIR="bin"
-		WRAPPER_DIR="bin"
+OS=`uname`
+if [ ${OS} = "Linux" ] ; then
+	if   [ -e /etc/fedora-release ] ; then
+		USE_OPT_FORTITUDE="FALSE"
+	elif [ -e /etc/redhat-release ] ; then
+		RHEL_VERSION=`cat /etc/redhat-release | tr -d [:alpha:][:blank:] | cut -d \( -f 1 | awk -F. '{ print $1 }'`
+		if [ ${RHEL_VERSION} = "4" ]; then
+			USE_OPT_FORTITUDE="TRUE"
+		else
+			USE_OPT_FORTITUDE="FALSE"
+		fi
 	else
-		usage "ERROR:  Unsupported intel architecture '${ARCHITECTURE}'!"
+		usage "ERROR:  Only Fedora and Red Hat '${OS}' are supported!"
 		exit 255
 	fi
-elif [ ${ARCHITECTURE} = "sparc" ] ; then
-	# Note that "pkgbuild" successfully processes "%ifarch" macros
-	# inside the "%install" section of a spec file.
+elif [ ${OS} = "SunOS" ] ; then
+	USE_OPT_FORTITUDE="TRUE"
+else
+	usage "ERROR:  Unsupported operating system '${OS}'!"
+	exit 255
+fi
+
+# Since "rpmbuild" fails to process "%ifarch" macros inside the
+# "%install" section of a spec file, the actual hardware
+# architecture will be determined at this point in time.
+ARCHITECTURE=`uname -i`
+if   [ ${ARCHITECTURE} = "i386" ] ; then
 	LIB_DIR="lib"
-	PERL_DIR="/opt/perl5/bin/perl"
+	PERL_DIR="/usr/bin/perl"
 	SCRIPTS_DIR="bin"
 	WRAPPER_DIR="bin"
-elif [ ${ARCHITECTURE} = "sparcv9" ] ; then
+elif [ ${ARCHITECTURE} = "x86_64" ] ; then
+	LIB_DIR="lib64"
+	PERL_DIR="/usr/bin/perl"
+	SCRIPTS_DIR="bin"
+	WRAPPER_DIR="bin"
+elif [ ${ARCHITECTURE} = "ppc" ] ; then
+	LIB_DIR="lib"
+	PERL_DIR="/usr/bin/perl"
+	SCRIPTS_DIR="bin"
+	WRAPPER_DIR="bin"
+elif [ ${ARCHITECTURE} = "ppc64" ] ; then
+	LIB_DIR="lib64"
+	PERL_DIR="/usr/bin/perl"
+	SCRIPTS_DIR="bin"
+	WRAPPER_DIR="bin"
+elif [ ${ARCHITECTURE} = "s390x" ] ; then
+	LIB_DIR="lib"
+	PERL_DIR="/usr/bin/perl"
+	SCRIPTS_DIR="bin"
+	WRAPPER_DIR="bin"
+elif	[ ${OS} = "SunOS" ] &&
+		[ ${ARCHITECTURE} = "sparc" ] ; then
 	# Note that "pkgbuild" successfully processes "%ifarch" macros
 	# inside the "%install" section of a spec file.
+	#
+	# LIB_DIR="lib"
+	# PERL_DIR="/opt/perl5/bin/perl"
+	# SCRIPTS_DIR="bin"
+	# WRAPPER_DIR="bin"
+	#
+	# NOTE:  ONLY support 64-bit sparcv9 on this architecture!
+	#
 	LIB_DIR="lib/sparcv9"
 	PERL_DIR="/opt/perl5x/bin/perl"
 	SCRIPTS_DIR="bin"
@@ -122,7 +157,6 @@ NATIVE_TOOLS_EXECUTABLES=${NATIVE_TOOLS_BUILD_PREFIX}/usr/${LIB_DIR}/${NATIVE_TO
 # comply with standard FHS 2.3 binary locations (wrappers)
 NATIVE_TOOLS_SCRIPTS=${NATIVE_TOOLS_BUILD_PREFIX}/usr/${SCRIPTS_DIR}
 NATIVE_TOOLS_WRAPPERS=${NATIVE_TOOLS_BUILD_PREFIX}/usr/${WRAPPER_DIR}
-NATIVE_TOOLS_PERL=${NATIVE_TOOLS_BUILD_PREFIX}/usr/${SCRIPTS_DIR}/pkiperl
 
 # comply with standard FHS 2.3 shared data locations (templates)
 NATIVE_TOOLS_SHARED_DATA=${NATIVE_TOOLS_BUILD_PREFIX}/usr/share/${NATIVE_TOOLS_PRODUCT_NAME}
@@ -180,11 +214,11 @@ mkdir -p ${NATIVE_TOOLS_TEMPLATES}
 ## Executables
 ##
 
-cp -p ${NATIVE_TOOLS_STAGING_PATH}/conf/*      ${NATIVE_TOOLS_EXECUTABLES}
+cp -p ${NATIVE_TOOLS_STAGING_PATH}/conf/*         ${NATIVE_TOOLS_EXECUTABLES}
 
-cp -p ${NATIVE_TOOLS_STAGING_PATH}/libexec/*   ${NATIVE_TOOLS_EXECUTABLES}
+cp -p ${NATIVE_TOOLS_BUILD_PREFIX}/usr/libexec/*  ${NATIVE_TOOLS_EXECUTABLES}
 
-cp -p ${NATIVE_TOOLS_STAGING_PATH}/samples/*   ${NATIVE_TOOLS_EXECUTABLES}
+cp -p ${NATIVE_TOOLS_STAGING_PATH}/samples/*      ${NATIVE_TOOLS_EXECUTABLES}
 
 
 ##
@@ -206,9 +240,9 @@ cp -p ${NATIVE_TOOLS_STAGING_PATH}/samples/*   ${NATIVE_TOOLS_EXECUTABLES}
 ## Shared Data
 ##
 
-cp -rp ${NATIVE_TOOLS_STAGING_PATH}/doc/*      ${NATIVE_TOOLS_DOCUMENTATION}
+cp -p ${NATIVE_TOOLS_STAGING_PATH}/doc/*          ${NATIVE_TOOLS_DOCUMENTATION}
 
-cp -p ${NATIVE_TOOLS_STAGING_PATH}/templates/* ${NATIVE_TOOLS_TEMPLATES}
+cp -p ${NATIVE_TOOLS_STAGING_PATH}/templates/*    ${NATIVE_TOOLS_TEMPLATES}
 
 
 ###############################################################################
@@ -286,18 +320,29 @@ done
 echo "#!/bin/sh"    >  ${NATIVE_TOOLS_SCRIPTS}/pkiname
 echo                >> ${NATIVE_TOOLS_SCRIPTS}/pkiname
 echo "echo `uname`" >> ${NATIVE_TOOLS_SCRIPTS}/pkiname
+chmod 00755 ${NATIVE_TOOLS_SCRIPTS}/pkiname
 
 
 # replace "uname -i" and "uname -p" within various PKI scripts with "pkiarch"
 echo "#!/bin/sh"            >  ${NATIVE_TOOLS_SCRIPTS}/pkiarch
 echo                        >> ${NATIVE_TOOLS_SCRIPTS}/pkiarch
 echo "echo ${ARCHITECTURE}" >> ${NATIVE_TOOLS_SCRIPTS}/pkiarch
+chmod 00755 ${NATIVE_TOOLS_SCRIPTS}/pkiarch
 
 
 # use "pkiflavor" to obtain the "pki" prefix within various PKI scripts
 echo "#!/bin/sh"                         >  ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
 echo                                     >> ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
 echo "echo ${NATIVE_TOOLS_PRODUCT_NAME}" >> ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
+chmod 00755 ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
+
+
+# use "pkiperl" to invoke the appropriate version of "Perl"
+echo "#!/bin/sh"                         >  ${NATIVE_TOOLS_SCRIPTS}/pkiperl
+echo                                     >> ${NATIVE_TOOLS_SCRIPTS}/pkiperl
+echo "${PERL_DIR} \${@}"                 >> ${NATIVE_TOOLS_SCRIPTS}/pkiperl
+chmod 00755 ${NATIVE_TOOLS_SCRIPTS}/pkiperl
+
 
 # obtain the PKI operating system distribution using "pkidist"
 echo "#!/bin/sh"                             >  ${NATIVE_TOOLS_SCRIPTS}/pkidist
@@ -322,6 +367,7 @@ echo "    printf \"\${DISTRIBUTION}\${VERSION}\n\"" >> ${NATIVE_TOOLS_SCRIPTS}/p
 echo "else"                                  >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 echo "    printf \"undefined\n\""            >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 echo "fi"                                    >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
+chmod 00755 ${NATIVE_TOOLS_SCRIPTS}/pkidist
 
 
 ###############################################################################
@@ -333,8 +379,6 @@ echo "fi"                                    >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
 # create jar sans version to be used by classpath
 
 # create assorted symbolic links to various file dependencies (Tomcat)
-cd ${NATIVE_TOOLS_SCRIPTS} ;
-ln -s ${PERL_DIR} ${NATIVE_TOOLS_PERL}
 
 
 ###############################################################################

@@ -143,7 +143,7 @@
                 <include name="${product.prefix}-uninstall"/>
             </zipfileset>
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/doc/${dist.name}">
                 <include name="EULA"/>
                 <include name="LICENSE"/>
@@ -161,7 +161,7 @@
                 <include name="${product.prefix}-uninstall"/>
             </tarfileset>
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/doc/${dist.name}">
                 <include name="EULA"/>
                 <include name="LICENSE"/>
@@ -204,7 +204,7 @@
         <echo message="${begin.source.zip.log.message}"/>
         <zip destfile="${dist.base.source}/${src.dist.name}.zip">
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
@@ -212,9 +212,15 @@
                 <include name="build.xml"/>
                 <include name="config/product*.xml"/>
                 <include name="config/release*.xml"/>
+                <exclude name="${product.prefix}-install"/>
+                <exclude name="${product.prefix}-uninstall"/>
+                <include name="release"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="${src.dist.name}">
                 <include name="${product.prefix}-install"/>
                 <include name="${product.prefix}-uninstall"/>
-                <include name="release"/>
             </zipfileset>
         </zip>
         <echo message="${end.source.zip.log.message}"/>
@@ -223,7 +229,7 @@
         <tar longfile="gnu"
              destfile="${dist.base.source}/${src.dist.name}.tar">
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
@@ -231,9 +237,15 @@
                 <include name="build.xml"/>
                 <include name="config/product*.xml"/>
                 <include name="config/release*.xml"/>
+                <exclude name="${product.prefix}-install"/>
+                <exclude name="${product.prefix}-uninstall"/>
+                <include name="release"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="${src.dist.name}">
                 <include name="${product.prefix}-install"/>
                 <include name="${product.prefix}-uninstall"/>
-                <include name="release"/>
             </tarfileset>
         </tar>
         <echo message="${end.source.tar.log.message}"/>

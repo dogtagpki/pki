@@ -263,16 +263,22 @@
             <zipfileset dir="./setup"
                         filemode="755"
                         prefix="usr/share/${product.prefix}/setup">
+                <include name="postinstall"/>
+            </zipfileset>
+            <zipfileset dir="./setup"
+                        filemode="644"
+                        prefix="usr/share/${product.prefix}/setup">
                 <include name="**"/>
+                <exclude name="postinstall"/>
             </zipfileset>
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/doc/${dist.name}">
                 <include name="EULA"/>
                 <include name="LICENSE"/>
             </zipfileset>
             <zipfileset dir="./docs"
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/javadoc/${product.name}-${version}">
                 <include name="**"/>
             </zipfileset>
@@ -294,17 +300,23 @@
             </tarfileset>
             <tarfileset dir="./setup"
                         mode="755"
-                        prefix="${dist.name}/usr/share/${product.prefix}/setup">
+                        prefix="usr/share/${product.prefix}/setup">
+                <include name="postinstall"/>
+            </tarfileset>
+            <tarfileset dir="./setup"
+                        mode="644"
+                        prefix="usr/share/${product.prefix}/setup">
                 <include name="**"/>
+                <exclude name="postinstall"/>
             </tarfileset>
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/doc/${dist.name}">
                 <include name="EULA"/>
                 <include name="LICENSE"/>
             </tarfileset>
             <tarfileset dir="./docs"
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/javadoc/${product.name}-${version}">
                 <include name="**"/>
             </tarfileset>
@@ -346,7 +358,7 @@
         <echo message="${begin.source.zip.log.message}"/>
         <zip destfile="${dist.base.source}/${src.dist.name}.zip">
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
@@ -367,7 +379,7 @@
         <tar longfile="gnu"
              destfile="${dist.base.source}/${src.dist.name}.tar">
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>

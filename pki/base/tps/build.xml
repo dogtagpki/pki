@@ -152,11 +152,96 @@
         <echo message="${end.binary.wrappers.log.message}"/>
 
         <echo message="${begin.binary.zip.log.message}"/>
-        <echo message="${empty.binary.zip.log.message}"/>
+        <zip destfile="${dist.base.binaries}/${dist.name}.zip">
+            <zipfileset dir="."
+                        filemode="644"
+                        prefix="etc/httpd/modules/">
+                <include name="**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="usr/bin/">
+                <include name="**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="644"
+                        prefix="usr/lib/">
+                <include name="**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="644"
+                        prefix="usr/share/doc/${dist.name}">
+                <include name="EULA"/>
+                <include name="LICENSE"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="644"
+                        prefix="usr/share/${product.prefix}/${product}">
+                <include name="alias/**"/>
+                <include name="applets/**"/>
+                <include name="conf/**"/>
+                <include name="docroot/**"/>
+                <include name="lib/**"/>
+                <include name="samples/**"/>
+                <include name="scripts/**"/>
+                <include name="setup/config.desktop"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="usr/share/${product.prefix}/${product}">
+                <include name="cgi-bin/**"/>
+                <include name="docroot/index.cgi"/>
+                <include name="logs/signedAudit"/>
+                <include name="setup/postinstall"/>
+            </zipfileset>
+        </zip>
         <echo message="${end.binary.zip.log.message}"/>
 
         <echo message="${begin.binary.tar.log.message}"/>
-        <echo message="${empty.binary.tar.log.message}"/>
+        <tar longfile="gnu"
+             destfile="${dist.base.binaries}/${dist.name}.tar">
+            <tarfileset dir="."
+                        mode="644"
+                        prefix="etc/httpd/modules/">
+                <include name="**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="usr/bin/">
+                <include name="**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="644"
+                        prefix="usr/lib/">
+                <include name="**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="644"
+                        prefix="usr/share/doc/${dist.name}">
+                <include name="EULA"/>
+                <include name="LICENSE"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="644"
+                        prefix="usr/share/${product.prefix}/${product}">
+                <include name="alias/**"/>
+                <include name="applets/**"/>
+                <include name="conf/**"/>
+                <include name="docroot/**"/>
+                <include name="lib/**"/>
+                <include name="samples/**"/>
+                <include name="scripts/**"/>
+                <include name="setup/config.desktop"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="usr/share/${product.prefix}/${product}">
+                <include name="cgi-bin/**"/>
+                <include name="docroot/index.cgi"/>
+                <include name="logs/signedAudit"/>
+                <include name="setup/postinstall"/>
+            </tarfileset>
+        </tar>
         <echo message="${end.binary.tar.log.message}"/>
 
         <echo message="${begin.binary.gtar.log.message}"/>
@@ -176,7 +261,7 @@
         <echo message="${begin.source.zip.log.message}"/>
         <zip destfile="${dist.base.source}/${src.dist.name}.zip">
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
@@ -186,7 +271,7 @@
                 <include name="alias/**"/>
                 <include name="apache/**"/>
                 <include name="applets/**"/>
-                <include name="autogen.sh"/>
+                <exclude name="autogen.sh"/>
                 <include name="build.xml"/>
                 <include name="compile"/>
                 <include name="config/product*.xml"/>
@@ -194,7 +279,7 @@
                 <include name="config.guess"/>
                 <include name="config.h.in"/>
                 <include name="config.sub"/>
-                <include name="configure"/>
+                <exclude name="configure"/>
                 <include name="configure.ac"/>
                 <include name="depcomp"/>
                 <include name="doc/**"/>
@@ -209,12 +294,19 @@
                 <include name="release"/>
                 <include name="scripts/**"/>
                 <include name="setup/**"/>
-                <include name="setup_package"/>
+                <exclude name="setup_package"/>
                 <include name="src/**"/>
                 <include name="stubs/**"/>
                 <include name="tools/**"/>
                 <include name="ui/**"/>
                 <include name="wrappers/**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="${src.dist.name}">
+                <include name="autogen.sh"/>
+                <include name="configure"/>
+                <include name="setup_package"/>
             </zipfileset>
         </zip>
         <echo message="${end.source.zip.log.message}"/>
@@ -223,7 +315,7 @@
         <tar longfile="gnu"
              destfile="${dist.base.source}/${src.dist.name}.tar">
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
@@ -233,7 +325,7 @@
                 <include name="alias/**"/>
                 <include name="apache/**"/>
                 <include name="applets/**"/>
-                <include name="autogen.sh"/>
+                <exclude name="autogen.sh"/>
                 <include name="build.xml"/>
                 <include name="compile"/>
                 <include name="config/product*.xml"/>
@@ -241,7 +333,7 @@
                 <include name="config.guess"/>
                 <include name="config.h.in"/>
                 <include name="config.sub"/>
-                <include name="configure"/>
+                <exclude name="configure"/>
                 <include name="configure.ac"/>
                 <include name="depcomp"/>
                 <include name="doc/**"/>
@@ -256,12 +348,19 @@
                 <include name="release"/>
                 <include name="scripts/**"/>
                 <include name="setup/**"/>
-                <include name="setup_package"/>
+                <exclude name="setup_package"/>
                 <include name="src/**"/>
                 <include name="stubs/**"/>
                 <include name="tools/**"/>
                 <include name="ui/**"/>
                 <include name="wrappers/**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="${src.dist.name}">
+                <include name="autogen.sh"/>
+                <include name="configure"/>
+                <include name="setup_package"/>
             </tarfileset>
         </tar>
         <echo message="${end.source.tar.log.message}"/>

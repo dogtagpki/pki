@@ -199,7 +199,7 @@
                 <include name="pkiconsole"/>
             </zipfileset>
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/doc/${product.name}-${version}">
                 <include name="EULA"/>
                 <include name="LICENSE"/>
@@ -221,7 +221,7 @@
                 <include name="pkiconsole"/>
             </tarfileset>
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/doc/${product.name}-${version}">
                 <include name="EULA"/>
                 <include name="LICENSE"/>
@@ -264,7 +264,7 @@
         <echo message="${begin.source.zip.log.message}"/>
         <zip destfile="${dist.base.source}/${src.dist.name}.zip">
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="${src.dist.name}">
                 <include name="${product.name}.spec"/>
                 <include name="EULA"/>
@@ -284,7 +284,7 @@
         <tar longfile="gnu"
              destfile="${dist.base.source}/${src.dist.name}.tar">
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${src.dist.name}">
                 <include name="${product.name}.spec"/>
                 <include name="EULA"/>

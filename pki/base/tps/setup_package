@@ -23,19 +23,23 @@
 ##  (1)  Check command line arguments to see how many were passed in.        ##
 ###############################################################################
 
-if [ $# -eq 7 ]
+if [ $# -eq 6 ]
 then
 	PKI_BUILD_PREFIX=$1
 	PKI_PRODUCT_NAME=$2
 	PKI_SUBSYSTEM_NAME=$3
 	VERSION=$4
 	RELEASE=$5
-	ARCHITECTURE=$6
-	PKI_STAGING_PATH=$7
+	PKI_STAGING_PATH=$6
 else
 	echo
-	echo "Usage:  $0 PKI_build_prefix PKI_product_name PKI_subsystem_name"
-	echo "        version release architecture pki_staging_path"
+	echo "Usage:  $0"
+	echo "        PKI_build_prefix"
+	echo "        PKI_product_name"
+	echo "        PKI_subsystem_name"
+	echo "        version"
+	echo "        release"
+	echo "        PKI_staging_path"
 	echo
 
 	exit 255
@@ -53,25 +57,23 @@ usage() {
 		echo "$1"
 	fi
 	echo
-	echo "Usage:  $0 PKI_build_prefix PKI_product_name PKI_subsystem_name"
-	echo "        version release architecture"
-	echo
-	echo "        where architecture MUST be 'intel',"
-	echo "                                   'sparc', or"
-	echo "                                   'sparcv9'."
-	echo
-	echo "        NOTE:  For 'intel' architectures, only the 'i386' and"
-	echo "               the 'x86_64' architectures are currently supported."
+	echo "Usage:  $0"
+	echo "        PKI_build_prefix"
+	echo "        PKI_product_name"
+	echo "        PKI_subsystem_name"
+	echo "        version"
+	echo "        release"
+	echo "        PKI_staging_path"
 	echo
 }
 
 # specify generic helper variables
 OS=`uname`
-if   [ ${OS} = "Linux" ] ; then
-	if   [ -e /etc/fedora-release ] ; then
+if [ ${OS} = "Linux" ] ; then
+	if [ -e /etc/fedora-release ] ; then
 		USE_OPT_FORTITUDE="FALSE"
 	elif [ -e /etc/redhat-release ] ; then
-		RHEL_VERSION=`rpm -qf --qf='%{VERSION}' /etc/redhat-release | tr -d [A-Za-z]`
+		RHEL_VERSION=`cat /etc/redhat-release | tr -d [:alpha:][:blank:] | cut -d \( -f 1 | awk -F. '{ print $1 }'`
 		if [ ${RHEL_VERSION} = "4" ]; then
 			USE_OPT_FORTITUDE="TRUE"
 		else
@@ -88,29 +90,41 @@ else
 	exit 255
 fi
 
-if  [ ${ARCHITECTURE} = "intel" ] ; then
-	# Since "rpmbuild" fails to process "%ifarch" macros inside the
-	# "%install" section of a spec file, the actual hardware
-	# architecture will be determined at this point in time.
-	ARCHITECTURE=`uname -i`
-	if   [ ${ARCHITECTURE} = "i386" ] ; then
-		LIB_DIR="lib"
-		WRAPPER_DIR="bin"
-	elif [ ${ARCHITECTURE} = "x86_64" ] ; then
-		LIB_DIR="lib64"
-		WRAPPER_DIR="bin"
-	else
-		usage "ERROR:  Unsupported intel architecture '${ARCHITECTURE}'!"
-		exit 255
-	fi
-elif [ ${ARCHITECTURE} = "sparc" ] ; then
-	# Note that "pkgbuild" successfully processes "%ifarch" macros
-	# inside the "%install" section of a spec file.
+# Since "rpmbuild" fails to process "%ifarch" macros inside the
+# "%install" section of a spec file, the actual hardware
+# architecture will be determined at this point in time.
+ARCHITECTURE=`uname -i`
+if   [ ${ARCHITECTURE} = "i386" ] ; then
 	LIB_DIR="lib"
 	WRAPPER_DIR="bin"
-elif [ ${ARCHITECTURE} = "sparcv9" ] ; then
+elif [ ${ARCHITECTURE} = "x86_64" ] ; then
+	LIB_DIR="lib64"
+	WRAPPER_DIR="bin"
+elif [ ${ARCHITECTURE} = "ppc" ] ; then
+	LIB_DIR="lib"
+	PERL_DIR="/usr/bin/perl"
+	SCRIPTS_DIR="bin"
+	WRAPPER_DIR="bin"
+elif [ ${ARCHITECTURE} = "ppc64" ] ; then
+	LIB_DIR="lib64"
+	PERL_DIR="/usr/bin/perl"
+	SCRIPTS_DIR="bin"
+	WRAPPER_DIR="bin"
+elif [ ${ARCHITECTURE} = "s390x" ] ; then
+	LIB_DIR="lib"
+	PERL_DIR="/usr/bin/perl"
+	SCRIPTS_DIR="bin"
+	WRAPPER_DIR="bin"
+elif	[ ${OS} = "SunOS" ] &&
+		[ ${ARCHITECTURE} = "sparc" ] ; then
 	# Note that "pkgbuild" successfully processes "%ifarch" macros
 	# inside the "%install" section of a spec file.
+	#
+	# LIB_DIR="lib"
+	# WRAPPER_DIR="bin"
+	#
+	# NOTE:  ONLY support 64-bit sparcv9 on this architecture!
+	#
 	LIB_DIR="lib/sparcv9"
 	WRAPPER_DIR="bin"
 else
@@ -192,6 +206,7 @@ mkdir -p ${PKI_DOCUMENTATION}
 mkdir -p ${PKI_EXECUTABLES}
 mkdir -p ${PKI_SHARED_DATA}
 mkdir -p ${PKI_SUBSYSTEM_SHARED_DATA}
+mkdir -p ${PKI_SUBSYSTEM_SHARED_DATA}/etc
 mkdir -p ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
 mkdir -p ${PKI_SUBSYSTEM_SHARED_PERL_BASE}
 mkdir -p ${PKI_SUBSYSTEM_SHARED_PERL_MODULES}
@@ -212,15 +227,14 @@ mkdir -p ${PKI_SUBSYSTEM_SHARED_PERL_TEMPLATES}
 ## Executables
 ##
 
-cp -p ${PKI_STAGING_PATH}/libexec/apachectl* ${PKI_EXECUTABLES}
-cp -p ${PKI_STAGING_PATH}/libexec/tpsclient* ${PKI_EXECUTABLES}
+cp -p ${PKI_BUILD_PREFIX}/usr/libexec/apachectl* ${PKI_EXECUTABLES}
+cp -p ${PKI_BUILD_PREFIX}/usr/libexec/tpsclient* ${PKI_EXECUTABLES}
 
 
 ##
 ## Libraries
 ##
 
-cp -p ${PKI_STAGING_PATH}/${LIB_DIR}/*.so     ${SYSTEM_LIBRARIES}
 cp -p ${PKI_STAGING_PATH}/apache/modules/*.so ${APACHE_MODULES}
 
 
@@ -247,6 +261,7 @@ cp -rp ${PKI_STAGING_PATH}/applets*            ${PKI_SUBSYSTEM_SHARED_DATA}
 cp -rp ${PKI_STAGING_PATH}/cgi-bin*            ${PKI_SUBSYSTEM_SHARED_DATA}
 cp -rp ${PKI_STAGING_PATH}/conf*               ${PKI_SUBSYSTEM_SHARED_DATA}
 cp -p  ${PKI_STAGING_PATH}/docroot/index.cgi   ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
+chmod 00755   ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}/index.cgi
 cp -p  ${PKI_STAGING_PATH}/docroot/index.html  ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
 cp -rp ${PKI_STAGING_PATH}/docroot/demo*       ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
 cp -rp ${PKI_STAGING_PATH}/docroot/home*       ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
@@ -254,13 +269,17 @@ cp -rp ${PKI_STAGING_PATH}/docroot/so*         ${PKI_SUBSYSTEM_SHARED_DOCROOT_DA
 cp -rp ${PKI_STAGING_PATH}/docroot/sow*        ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
 cp -rp ${PKI_STAGING_PATH}/docroot/tokendb*    ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
 cp -rp ${PKI_STAGING_PATH}/docroot/tps*        ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
-cp -rp ${PKI_STAGING_PATH}/etc*                ${PKI_SUBSYSTEM_SHARED_DATA}
+cp -rp ${PKI_BUILD_PREFIX}/etc/init.d*         ${PKI_SUBSYSTEM_SHARED_DATA}/etc
 cp -rp ${PKI_STAGING_PATH}/logs*               ${PKI_SUBSYSTEM_SHARED_DATA}
 
 cp -rp ${PKI_STAGING_PATH}/perl/base/*         ${PKI_SUBSYSTEM_SHARED_PERL_BASE}
+chmod 00644 ${PKI_SUBSYSTEM_SHARED_PERL_BASE}/*.pm
 cp -rp ${PKI_STAGING_PATH}/perl/modules/*      ${PKI_SUBSYSTEM_SHARED_PERL_MODULES}
+chmod 00644 ${PKI_SUBSYSTEM_SHARED_PERL_MODULES}/*.pm
 cp -rp ${PKI_STAGING_PATH}/perl/service/*      ${PKI_SUBSYSTEM_SHARED_PERL_SERVICE}
+chmod 00644 ${PKI_SUBSYSTEM_SHARED_PERL_SERVICE}/*.pm
 cp -rp ${PKI_STAGING_PATH}/perl/templates/*    ${PKI_SUBSYSTEM_SHARED_PERL_TEMPLATES}
+chmod 00644 ${PKI_SUBSYSTEM_SHARED_PERL_TEMPLATES}/*.pm
 cp -rp ${PKI_STAGING_PATH}/samples*            ${PKI_SUBSYSTEM_SHARED_DATA}
 cp -rp ${PKI_STAGING_PATH}/scripts*            ${PKI_SUBSYSTEM_SHARED_DATA}
 cp -rp ${PKI_STAGING_PATH}/setup*              ${PKI_SUBSYSTEM_SHARED_DATA}
@@ -295,18 +314,14 @@ cp -rp ${PKI_STAGING_PATH}/setup*              ${PKI_SUBSYSTEM_SHARED_DATA}
 ###############################################################################
 
 # comply with standard Linux/UNIX shared library naming conventions
-cd ${SYSTEM_LIBRARIES}                      ;
-mv libldapauth.so libldapauth.so.${VERSION} ;
-mv libtokendb.so libtokendb.so.${VERSION}   ;
-mv libtps.so libtps.so.${VERSION}
 
 # comply with standard JPackage 1.6.0 jar naming conventions
 
 # strip symbolic information from libraries
-cd ${SYSTEM_LIBRARIES}          ;
-strip libldapauth.so.${VERSION} ;
-strip libtokendb.so.${VERSION}  ;
-strip libtps.so.${VERSION}
+cd ${SYSTEM_LIBRARIES} ;
+strip libldapauth.so   ;
+strip libtokendb.so    ;
+strip libtps.so
 
 # strip symbolic information from modules
 cd ${APACHE_MODULES} ;
@@ -359,16 +374,6 @@ cd ${PKI_SUBSYSTEM_SHARED_DOCROOT_DATA}
 ln -s tokendb tus
 
 # create shared library sans version "linker-name" to protect this namespace
-cd ${SYSTEM_LIBRARIES}                                                  ;
-ln -s libldapauth.so.${VERSION} libldapauth.so.${PRODUCT_VERSION}       ;
-ln -s libldapauth.so.${PRODUCT_VERSION} libldapauth.so.${MAJOR_VERSION} ;
-ln -s libldapauth.so.${MAJOR_VERSION} libldapauth.so                    ;
-ln -s libtokendb.so.${VERSION} libtokendb.so.${PRODUCT_VERSION}         ;
-ln -s libtokendb.so.${PRODUCT_VERSION} libtokendb.so.${MAJOR_VERSION}   ;
-ln -s libtokendb.so.${MAJOR_VERSION} libtokendb.so                      ;
-ln -s libtps.so.${VERSION} libtps.so.${PRODUCT_VERSION}                 ;
-ln -s libtps.so.${PRODUCT_VERSION} libtps.so.${MAJOR_VERSION}           ;
-ln -s libtps.so.${MAJOR_VERSION} libtps.so
 
 # create jar sans version to be used by classpath
 

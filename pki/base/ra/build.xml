@@ -146,14 +146,20 @@
         <echo message="${begin.binary.zip.log.message}"/>
         <zip destfile="${dist.base.binaries}/${dist.name}.zip">
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/${product.prefix}/${product}">
                 <include name="alias/**"/>
-                <include name="etc/**"/>
                 <include name="lib/**"/>
                 <include name="logs/**"/>
-                <include name="scripts/**"/>
-                <include name="setup/**"/>
+                <include name="scripts/schema.sql"/>
+                <include name="setup/config.desktop"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="usr/share/${product.prefix}/${product}">
+                <include name="etc/**"/>
+                <include name="scripts/nss_pcache"/>
+                <include name="setup/postinstall"/>
             </zipfileset>
             <zipfileset dir="./forms"
                         filemode="755"
@@ -161,22 +167,22 @@
                 <include name="**"/>
             </zipfileset>
             <zipfileset dir="./doc"
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/${product.prefix}/${product}/conf">
                 <include name="**"/>
             </zipfileset>
             <zipfileset dir="./emails"
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/${product.prefix}/${product}/conf">
                 <include name="**"/>
             </zipfileset>
             <zipfileset dir="./apache/conf"
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/${product.prefix}/${product}/conf">
                 <include name="**"/>
             </zipfileset>
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/doc/${dist.name}">
                 <include name="EULA"/>
                 <include name="LICENSE"/>
@@ -188,14 +194,20 @@
         <tar longfile="gnu"
              destfile="${dist.base.binaries}/${dist.name}.tar">
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/${product.prefix}/${product}">
                 <include name="alias/**"/>
-                <include name="etc/**"/>
                 <include name="lib/**"/>
                 <include name="logs/**"/>
-                <include name="scripts/**"/>
-                <include name="setup/**"/>
+                <include name="scripts/schema.sql"/>
+                <include name="setup/config.desktop"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="${dist.name}/usr/share/${product.prefix}/${product}">
+                <include name="etc/**"/>
+                <include name="scripts/nss_pcache"/>
+                <include name="setup/postinstall"/>
             </tarfileset>
             <tarfileset dir="./forms"
                         mode="755"
@@ -203,22 +215,22 @@
                 <include name="**"/>
             </tarfileset>
             <tarfileset dir="./doc"
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/${product.prefix}/${product}/conf">
                 <include name="**"/>
             </tarfileset>
             <tarfileset dir="./emails"
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/${product.prefix}/${product}/conf">
                 <include name="**"/>
             </tarfileset>
             <tarfileset dir="./apache/conf"
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/${product.prefix}/${product}/conf">
                 <include name="**"/>
             </tarfileset>
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/doc/${dist.name}">
                 <include name="EULA"/>
                 <include name="LICENSE"/>
@@ -261,7 +273,7 @@
         <echo message="${begin.source.zip.log.message}"/>
         <zip destfile="${dist.base.source}/${src.dist.name}.zip">
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
@@ -288,7 +300,7 @@
         <tar longfile="gnu"
              destfile="${dist.base.source}/${src.dist.name}.tar">
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>

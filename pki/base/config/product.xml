@@ -24,8 +24,14 @@
 
 
     <!-- Check for required properties passed-in via the build scripts -->
-    <fail message="The '-Dspecfile=SPECFILE' property MUST always be specified!"
-          unless="specfile"/>
+    <fail message="The '-Dproduct.ui.flavor.prefix=PKI UI FLAVOR' property MUST always be specified by 'ant' (even if one does not exist)!"
+          unless="product.ui.flavor.prefix"/>
+    <fail message="The '-Dproduct.prefix=PKI PREFIX' property MUST always be specified by 'ant' (even if one does not exist)!"
+          unless="product.prefix"/>
+    <fail message="The '-Dproduct=PKI BASENAME' property MUST always be specified by 'ant'!"
+          unless="product"/>
+    <fail message="The '-Dversion=PKI VERSION' property MUST always be specified by 'ant'!"
+          unless="version"/>
 
 
     <!-- Set up optional properties passed-in via the build scripts -->
@@ -34,47 +40,14 @@
     <property name="target" value=""/>
 
 
-    <!-- Set up properties obtained from the spec file -->
-    <exec executable="perl"
-          failonerror="true"
-          outputproperty="Name">
-        <arg value="-ne"/>
-        <arg value="print $1 if /%define base_product\s+(.*)/"/>
-        <arg value="${specfile}"/>
-    </exec>
-
-    <exec executable="perl"
-          failonerror="true"
-          outputproperty="spec.product.ui.prefix">
-        <arg value="-ne"/>
-        <arg value="print $1 if /%define base_ui_prefix\s+(\S+)/"/>
-        <arg value="${specfile}"/>
-    </exec>
-
-    <exec executable="perl"
-          failonerror="true"
-          outputproperty="product.prefix">
-        <arg value="-ne"/>
-        <arg value="print $1 if /%define base_prefix\s+(\S+)/"/>
-        <arg value="${specfile}"/>
-    </exec>
-
-    <exec executable="perl"
-          failonerror="true"
-          outputproperty="product">
-        <arg value="-ne"/>
-        <arg value="print $1 if /%define base_component\s+(\S+)/"/>
-        <arg value="${specfile}"/>
-    </exec>
-
-    <!-- if "spec.product.ui.prefix" is "",                      -->
-    <!--     set "product.ui.prefix" to "";                      -->
-    <!-- otherwise,                                              -->
-    <!--     set "product.ui.prefix" to "spec.product.ui.prefix" -->
+    <!-- if "product.ui.flavor.prefix" is "",                      -->
+    <!--     set "product.ui.prefix" to "";                        -->
+    <!-- otherwise,                                                -->
+    <!--     set "product.ui.prefix" to "product.ui.flavor.prefix" -->
     <condition property="product.ui.prefix"
                value=""
-               else="${spec.product.ui.prefix}">
-        <equals arg1="${spec.product.ui.prefix}"
+               else="${product.ui.flavor.prefix}">
+        <equals arg1="${product.ui.flavor.prefix}"
                 arg2=""/>
     </condition>
 
@@ -110,14 +83,6 @@
                 arg2=""/>
         </and>
     </condition>
-
-    <exec executable="perl"
-          failonerror="true"
-          outputproperty="version">
-        <arg value="-ne"/>
-        <arg value="print $1 if /%define base_version\s+(\S+)/"/>
-        <arg value="${specfile}"/>
-    </exec>
 
 
     <!-- Set up architecture-dependent properties -->

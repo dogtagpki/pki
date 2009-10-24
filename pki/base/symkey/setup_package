@@ -197,14 +197,11 @@ cp -rp ${SYMKEY_STAGING_PATH}/doc/LICENSE         ${SYMKEY_DOCUMENTATION}
 ##  (6)  Rename the extracted contents following appropriate naming rules.   ##
 ###############################################################################
 
-# comply with standard Linux/UNIX shared library naming conventions
-cd ${SYMKEY_LIB_DIR} ; mv libsymkey.${DLL_SUFFIX} libsymkey.${DLL_SUFFIX}.${VERSION}
-
 # comply with standard JPackage 1.6.0 jar naming conventions
 cd ${SYMKEY_JAR_DIR} ; mv symkey.jar symkey-${VERSION}.jar
 
 # strip symbolic information from libraries
-cd ${SYMKEY_LIB_DIR} ; strip libsymkey.${DLL_SUFFIX}.${VERSION}
+cd ${SYMKEY_LIB_DIR} ; strip libsymkey.${DLL_SUFFIX}
 
 
 ###############################################################################
@@ -216,12 +213,6 @@ cd ${SYMKEY_LIB_DIR} ; strip libsymkey.${DLL_SUFFIX}.${VERSION}
 ###############################################################################
 ##  (8)  Create useful symbolic links as appropriate.                        ##
 ###############################################################################
-
-# create shared library sans version "linker-name" to protect this namespace
-cd ${SYMKEY_LIB_DIR}                                                ;
-ln -s libsymkey.${DLL_SUFFIX}.${VERSION} libsymkey.${DLL_SUFFIX}.${PRODUCT_VERSION}       ;
-ln -s libsymkey.${DLL_SUFFIX}.${PRODUCT_VERSION} libsymkey.${DLL_SUFFIX}.${MAJOR_VERSION} ;
-ln -s libsymkey.${DLL_SUFFIX}.${MAJOR_VERSION} libsymkey.${DLL_SUFFIX}
 
 # create jar sans version to be used by classpath
 cd ${SYMKEY_JAR_DIR} ; ln -s symkey-${VERSION}.jar symkey.jar

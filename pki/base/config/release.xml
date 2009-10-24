@@ -29,6 +29,10 @@
             description="--> Generate this target locally">
         <echo message="Generating the '${product.name}' target locally ..."/>
         <exec executable="ant" dir="${release.root}">
+            <arg value="-Dproduct.ui.flavor.prefix=${product.ui.flavor.prefix}"/>
+            <arg value="-Dproduct.prefix=${product.prefix}"/>
+            <arg value="-Dproduct=${product}"/>
+            <arg value="-Dversion=${version}"/>
             <arg value="-Dspecfile=${product.name}.spec"/>
             <arg value="-Ddirsec=${dirsec}"/>
             <arg value="${target}"/>
@@ -50,6 +54,10 @@
         <echo message="Creating the '${product.name}' source distribution ..."/>
         <exec executable="ant"
               dir="${release.root}">
+            <arg value="-Dproduct.ui.flavor.prefix=${product.ui.flavor.prefix}"/>
+            <arg value="-Dproduct.prefix=${product.prefix}"/>
+            <arg value="-Dproduct=${product}"/>
+            <arg value="-Dversion=${version}"/>
             <arg value="-Dspecfile=${product.name}.spec"/>
             <arg value="-Ddirsec=${dirsec}"/>
             <arg value="distribute_source"/>

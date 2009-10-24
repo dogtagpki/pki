@@ -158,14 +158,14 @@
         <echo message="${begin.source.zip.log.message}"/>
         <zip destfile="${dist.base.source}/${src.dist.name}.zip">
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
                 <include name="LICENSE"/>
                 <include name="Makefile.*"/>
                 <include name="aclocal.m4"/>
-                <include name="autogen.sh"/>
+                <exclude name="autogen.sh"/>
                 <include name="build.xml"/>
                 <include name="compile"/>
                 <include name="config/product*.xml"/>
@@ -173,19 +173,26 @@
                 <include name="config.guess"/>
                 <include name="config.h.in"/>
                 <include name="config.sub"/>
-                <include name="configure"/>
+                <exclude name="configure"/>
                 <include name="configure.ac"/>
                 <include name="depcomp"/>
-                <include name="doc/**"/>
+                <include name="doc/README"/>
                 <include name="install-sh"/>
                 <include name="ltmain.sh"/>
                 <include name="m4/**"/>
                 <include name="missing"/>
                 <include name="release"/>
-                <include name="setup_package"/>
+                <exclude name="setup_package"/>
                 <include name="src/**"/>
                 <include name="templates/**"/>
                 <include name="wrappers/**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="${src.dist.name}">
+                <include name="autogen.sh"/>
+                <include name="configure"/>
+                <include name="setup_package"/>
             </zipfileset>
         </zip>
         <echo message="${end.source.zip.log.message}"/>
@@ -194,14 +201,14 @@
         <tar longfile="gnu"
              destfile="${dist.base.source}/${src.dist.name}.tar">
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
                 <include name="LICENSE"/>
                 <include name="Makefile.*"/>
                 <include name="aclocal.m4"/>
-                <include name="autogen.sh"/>
+                <exclude name="autogen.sh"/>
                 <include name="build.xml"/>
                 <include name="compile"/>
                 <include name="config/product*.xml"/>
@@ -209,19 +216,26 @@
                 <include name="config.guess"/>
                 <include name="config.h.in"/>
                 <include name="config.sub"/>
-                <include name="configure"/>
+                <exclude name="configure"/>
                 <include name="configure.ac"/>
                 <include name="depcomp"/>
-                <include name="doc/**"/>
+                <include name="doc/README"/>
                 <include name="install-sh"/>
                 <include name="ltmain.sh"/>
                 <include name="m4/**"/>
                 <include name="missing"/>
                 <include name="release"/>
-                <include name="setup_package"/>
+                <exclude name="setup_package"/>
                 <include name="src/**"/>
                 <include name="templates/**"/>
                 <include name="wrappers/**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="${src.dist.name}">
+                <include name="autogen.sh"/>
+                <include name="configure"/>
+                <include name="setup_package"/>
             </tarfileset>
         </tar>
         <echo message="${end.source.tar.log.message}"/>

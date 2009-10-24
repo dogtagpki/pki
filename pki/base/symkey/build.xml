@@ -71,7 +71,7 @@
         <jar jarfile="${build.jars}/${product}.jar">
             <fileset dir="${build.classes}">
                 <include name="com/netscape/${product}/**"/>
-          </fileset>
+            </fileset>
         </jar>
         <echo message="${end.build.jars.log.message}"/>
     </target>
@@ -163,10 +163,16 @@
 
         <echo message="${begin.binary.zip.log.message}"/>
         <zip destfile="${dist.base.binaries}/${dist.name}.zip">
-            <zipfileset dir="./build/jars"
-                        filemode="755"
+            <zipfileset dir="./${build.jars}"
+                        filemode="644"
                         prefix="${jni-jar.home}">
                 <include name="**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="644"
+                        prefix="usr/share/doc/${dist.name}">
+                <include name="EULA"/>
+                <include name="LICENSE"/>
             </zipfileset>
         </zip>
         <echo message="${end.binary.zip.log.message}"/>
@@ -174,10 +180,16 @@
         <echo message="${begin.binary.tar.log.message}"/>
         <tar longfile="gnu"
              destfile="${dist.base.binaries}/${dist.name}.tar">
-            <tarfileset dir="./build/jars"
-                        mode="755"
+            <tarfileset dir="./${build.jars}"
+                        mode="644"
                         prefix="${dist.name}/${jni-jar.home}">
                 <include name="**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="644"
+                        prefix="${dist.name}/usr/share/doc/${dist.name}">
+                <include name="EULA"/>
+                <include name="LICENSE"/>
             </tarfileset>
         </tar>
         <echo message="${end.binary.tar.log.message}"/>
@@ -217,14 +229,14 @@
         <echo message="${begin.source.zip.log.message}"/>
         <zip destfile="${dist.base.source}/${src.dist.name}.zip">
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
                 <include name="LICENSE"/>
                 <include name="Makefile.*"/>
                 <include name="aclocal.m4"/>
-                <include name="autogen.sh"/>
+                <exclude name="autogen.sh"/>
                 <include name="build.xml"/>
                 <include name="compile"/>
                 <include name="config/product*.xml"/>
@@ -232,7 +244,7 @@
                 <include name="config.guess"/>
                 <include name="config.h.in"/>
                 <include name="config.sub"/>
-                <include name="configure"/>
+                <exclude name="configure"/>
                 <include name="configure.ac"/>
                 <include name="depcomp"/>
                 <include name="install-sh"/>
@@ -240,8 +252,15 @@
                 <include name="m4/**"/>
                 <include name="missing"/>
                 <include name="release"/>
-                <include name="setup_package"/>
+                <exclude name="setup_package"/>
                 <include name="src/**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="${src.dist.name}">
+                <include name="autogen.sh"/>
+                <include name="configure"/>
+                <include name="setup_package"/>
             </zipfileset>
         </zip>
         <echo message="${end.source.zip.log.message}"/>
@@ -250,14 +269,14 @@
         <tar longfile="gnu"
              destfile="${dist.base.source}/${src.dist.name}.tar">
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="EULA"/>
                 <include name="LICENSE"/>
                 <include name="Makefile.*"/>
                 <include name="aclocal.m4"/>
-                <include name="autogen.sh"/>
+                <exclude name="autogen.sh"/>
                 <include name="build.xml"/>
                 <include name="compile"/>
                 <include name="config/product*.xml"/>
@@ -265,7 +284,7 @@
                 <include name="config.guess"/>
                 <include name="config.h.in"/>
                 <include name="config.sub"/>
-                <include name="configure"/>
+                <exclude name="configure"/>
                 <include name="configure.ac"/>
                 <include name="depcomp"/>
                 <include name="install-sh"/>
@@ -273,8 +292,15 @@
                 <include name="m4/**"/>
                 <include name="missing"/>
                 <include name="release"/>
-                <include name="setup_package"/>
+                <exclude name="setup_package"/>
                 <include name="src/**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="${src.dist.name}">
+                <include name="autogen.sh"/>
+                <include name="configure"/>
+                <include name="setup_package"/>
             </tarfileset>
         </tar>
         <echo message="${end.source.tar.log.message}"/>

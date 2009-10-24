@@ -20,7 +20,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.59)
-AC_INIT([osutil], [1.1.0], [http://bugzilla.redhat.com/])
+AC_INIT([osutil], [1.3.0], [http://bugzilla.redhat.com/])
 # AC_CONFIG_HEADER must be called right after AC_INIT.
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])
@@ -95,13 +95,13 @@ AC_ARG_ENABLE(debug, [  --enable-debug         Enable debug features],
 ])
 AC_SUBST([debug_defs])
 
-AC_PREFIX_DEFAULT([/opt/osutil])
+AC_PREFIX_DEFAULT([/opt])
 
 # installation paths - by default, configure will just
 # use /usr as the prefix for everything, which means
 # /usr/etc, /usr/opt, and /usr/var.  FHS sez to use
 # /etc, /opt, and /var.
-ac_default_prefix=/opt/osutil
+ac_default_prefix=/opt
 prefix=$ac_default_prefix
 exec_prefix=$prefix
 dnl as opposed to the default $prefix/etc
@@ -111,7 +111,7 @@ dnl as opposed to the default $prefix/var
 
 # relative to prefix
 licensedir=/doc
-osutil_jardir=/jars
+osutil_jardir=/java
 AC_SUBST(licensedir)
 AC_SUBST(osutil_jardir)
 
