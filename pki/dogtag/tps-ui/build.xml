@@ -138,12 +138,18 @@
         <echo message="${begin.binary.zip.log.message}"/>
         <zip destfile="${dist.base.binaries}/${dist.name}.zip">
             <zipfileset dir="./shared"
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/${product.prefix}/${product}">
                 <include name="**"/>
+                <exclude name="cgi-bin/sow/cfg.pl"/>
+            </zipfileset>
+            <zipfileset dir="./shared"
+                        filemode="755"
+                        prefix="usr/share/${product.prefix}/${product}">
+                <include name="cgi-bin/sow/cfg.pl"/>
             </zipfileset>
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="usr/share/doc/${dist.name}">
                 <include name="LICENSE"/>
             </zipfileset>
@@ -154,12 +160,18 @@
         <tar longfile="gnu"
              destfile="${dist.base.binaries}/${dist.name}.tar">
             <tarfileset dir="./shared"
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/${product.prefix}/${product}">
                 <include name="**"/>
+                <exclude name="cgi-bin/sow/cfg.pl"/>
             </tarfileset>
+            <zipfileset dir="./shared"
+                        filemode="755"
+                        prefix="usr/share/${product.prefix}/${product}">
+                <include name="cgi-bin/sow/cfg.pl"/>
+            </zipfileset>
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${dist.name}/usr/share/doc/${dist.name}">
                 <include name="LICENSE"/>
             </tarfileset>
@@ -201,7 +213,7 @@
         <echo message="${begin.source.zip.log.message}"/>
         <zip destfile="${dist.base.source}/${src.dist.name}.zip">
             <zipfileset dir="."
-                        filemode="755"
+                        filemode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="LICENSE"/>
@@ -218,7 +230,7 @@
         <tar longfile="gnu"
              destfile="${dist.base.source}/${src.dist.name}.tar">
             <tarfileset dir="."
-                        mode="755"
+                        mode="644"
                         prefix="${src.dist.name}">
                 <include name="${specfile}"/>
                 <include name="LICENSE"/>

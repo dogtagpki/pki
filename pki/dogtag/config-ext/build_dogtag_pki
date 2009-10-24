@@ -61,12 +61,9 @@ fi
 
 # Compute remaining variables by assigning their values from the specfile
 PKI_SOURCE_CODE_URL="https://pki.fedoraproject.org/svn/pki/trunk/${PKI_DIR}/${PKI_SRC_DIR}/${DOGTAG_COMPONENT}"
-PKI_PRODUCT_UI_PREFIX=`grep " base_ui_prefix" ${DOGTAG_SPECFILE} | awk '{ print $3; }'`
-PKI_PRODUCT_PREFIX=`grep " base_prefix" ${DOGTAG_SPECFILE} | awk '{ print $3; }'`
-PKI_PRODUCT=`grep " base_component" ${DOGTAG_SPECFILE} | awk '{ print $3; }'`
-if [ "${PKI_PRODUCT_UI_PREFIX}" != "" ]; then
+if [ "${PKI_PRODUCT_UI_FLAVOR_PREFIX}" != "" ]; then
     PKI_PRODUCT_BUILD_XML="${PKI_BUILD_XML}"
-    PKI_PRODUCT_NAME="${PKI_PRODUCT_UI_PREFIX}-${PKI_PRODUCT_PREFIX}-${PKI_PRODUCT}"
+    PKI_PRODUCT_NAME="${PKI_PRODUCT_UI_FLAVOR_PREFIX}-${PKI_PRODUCT_PREFIX}-${PKI_PRODUCT}"
     PKI_PRODUCT_SOURCE_PATH="${PKI_DIR}/${PKI_DOGTAG_DIR}/${DOGTAG_COMPONENT}"
 elif [ "${PKI_PRODUCT_PREFIX}" != "" ]; then
     PKI_PRODUCT_BUILD_XML="${PKI_BASEDIR}/${PKI_DIR}/${PKI_SRC_DIR}/${DOGTAG_COMPONENT}/${PKI_BUILD_XML}"
@@ -146,6 +143,7 @@ usage() {
     echo "        where [target] is one of the optional values:"
     echo
     echo "                help --> display '${PKI_PRODUCT_NAME}' usage statement"
+    echo "             refresh --> fetch latest '${PKI_PRODUCT_NAME}.spec' file"
     awk "$display_targets" ${PKI_PRODUCT_BUILD_XML}
     echo
     exit 255
@@ -308,7 +306,7 @@ if [ "\${OS}" != "Linux" ]; then
     exit 255
 fi
 
-ant -f config/release.xml -Dbasedir=. -Dspecfile=\${SPECFILE} -Dtarget=\${BUILD_TARGET} \${RELEASE_TARGET}
+ant -f config/release.xml -Dproduct.ui.flavor.prefix=\${PKI_PRODUCT_UI_FLAVOR_PREFIX} -Dproduct.prefix=\${PKI_PRODUCT_PREFIX} -Dproduct=\${PKI_PRODUCT} -Dversion=\${PKI_VERSION} -Dbasedir=. -Dspecfile=\${SPECFILE} -Dtarget=\${BUILD_TARGET} \${RELEASE_TARGET}
 
 END_OF_SCRIPT
 chmod 00755 ${PKI_RELEASE_ROOT}/${PKI_RELEASE_SCRIPT}
