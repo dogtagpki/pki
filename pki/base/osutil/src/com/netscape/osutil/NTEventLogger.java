@@ -40,11 +40,37 @@ public class NTEventLogger {
     // loadLibrary() is idempotent, so don't worry about calling it multiple
     // times.
     static {
-        try {
-            System.loadLibrary("osutil");
-        } catch (Throwable t) {
-            // This is bad news, the program is doomed at this point
-            t.printStackTrace();
+        boolean mNativeLibrariesLoaded = false;
+        String os = System.getProperty( "os.name" );
+        if( ( os.equals( "Linux" ) ) ||
+            ( os.equals( "Solaris" ) ) ) {
+            // Check for 64-bit library availability
+            // prior to 32-bit library availability.
+            mNativeLibrariesLoaded =
+                OSUtil.tryLoad( "/usr/lib64/osutil/libosutil.so" );
+            if( mNativeLibrariesLoaded ) {
+                System.out.println( "64-bit osutil library loaded" );
+            } else {
+                // REMINDER:  May be trying to run a 32-bit app
+                //            on 64-bit platform.
+                mNativeLibrariesLoaded =
+                    OSUtil.tryLoad( "/usr/lib/osutil/libosutil.so" );
+                if( mNativeLibrariesLoaded ) {
+                    System.out.println( "32-bit osutil library loaded");
+                } else {
+                    System.out.println( "FAILED loading osutil library!");
+                    System.exit( -1 );
+                }
+            }
+        } else {
+            try {
+                System.loadLibrary( "osutil" );
+                System.out.println( "osutil library loaded" );
+                mNativeLibrariesLoaded = true;
+            } catch( Throwable t ) {
+                // This is bad news, the program is doomed at this point
+                t.printStackTrace();
+            }
         }
     }
 

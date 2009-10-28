@@ -31,9 +31,53 @@ public final class OSUtil {
 
     public static native byte[] AtoB( String data );
 
+    static boolean tryLoad( String filename )
+    {
+        try {
+            System.load( filename );
+        } catch( Exception e ) {
+            return false;
+        } catch( UnsatisfiedLinkError e ) {
+            return false;
+        }
+
+        return true;
+    }
+
     // Load native library
     static {
-        System.loadLibrary( "osutil" );
+        boolean mNativeLibrariesLoaded = false;
+        String os = System.getProperty( "os.name" );
+        if( ( os.equals( "Linux" ) ) ||
+            ( os.equals( "Solaris" ) ) ) {
+            // Check for 64-bit library availability
+            // prior to 32-bit library availability.
+            mNativeLibrariesLoaded =
+                tryLoad( "/usr/lib64/osutil/libosutil.so" );
+            if( mNativeLibrariesLoaded ) {
+                System.out.println( "64-bit osutil library loaded" );
+            } else {
+                // REMINDER:  May be trying to run a 32-bit app
+                //            on 64-bit platform.
+                mNativeLibrariesLoaded =
+                    tryLoad( "/usr/lib/osutil/libosutil.so" );
+                if( mNativeLibrariesLoaded ) {
+                    System.out.println( "32-bit osutil library loaded");
+                } else {
+                    System.out.println( "FAILED loading osutil library!");
+                    System.exit( -1 );
+                }
+            }
+        } else {
+            try {
+                System.loadLibrary( "osutil" );
+                System.out.println( "osutil library loaded" );
+                mNativeLibrariesLoaded = true;
+            } catch( Throwable t ) {
+                // This is bad news, the program is doomed at this point
+                t.printStackTrace();
+            }
+        }
     }
 
     public static native int getNTpid();

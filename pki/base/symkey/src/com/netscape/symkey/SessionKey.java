@@ -29,13 +29,52 @@ import org.mozilla.jss.pkcs11.*;
  */
 public class SessionKey
 {
-    static
+    static boolean tryLoad( String filename )
     {
         try {
-            System.loadLibrary( "symkey" );
-        } catch( Throwable t ) {
-            // This is bad news, the program is doomed at this point
-            t.printStackTrace();
+            System.load( filename );
+        } catch( Exception e ) {
+            return false;
+        } catch( UnsatisfiedLinkError e ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Load native library
+    static {
+        boolean mNativeLibrariesLoaded = false;
+        String os = System.getProperty( "os.name" );
+        if( ( os.equals( "Linux" ) ) ||
+            ( os.equals( "Solaris" ) ) ) {
+            // Check for 64-bit library availability
+            // prior to 32-bit library availability.
+            mNativeLibrariesLoaded =
+                tryLoad( "/usr/lib64/symkey/libsymkey.so" );
+            if( mNativeLibrariesLoaded ) {
+                System.out.println( "64-bit symkey library loaded" );
+            } else {
+                // REMINDER:  May be trying to run a 32-bit app
+                //            on 64-bit platform.
+                mNativeLibrariesLoaded =
+                    tryLoad( "/usr/lib/symkey/libsymkey.so" );
+                if( mNativeLibrariesLoaded ) {
+                    System.out.println( "32-bit symkey library loaded");
+                } else {
+                    System.out.println( "FAILED loading symkey library!");
+                    System.exit( -1 );
+                }
+            }
+        } else {
+            try {
+                System.loadLibrary( "symkey" );
+                System.out.println( "symkey library loaded" );
+                mNativeLibrariesLoaded = true;
+            } catch( Throwable t ) {
+                // This is bad news, the program is doomed at this point
+                t.printStackTrace();
+            }
         }
     }
 
