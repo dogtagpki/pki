@@ -1,6 +1,6 @@
 Name:           osutil
 Version:        1.3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Operating System Utilities JNI Package
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -50,9 +50,11 @@ make install DESTDIR=%{buildroot}
 ## rearrange files to be in the desired native packaging layout
 mkdir -p %{buildroot}%{_datadir}/doc/%{name}-%{version}/
 mv %{buildroot}/opt/doc/LICENSE %{buildroot}%{_datadir}/doc/%{name}-%{version}/
+mkdir -p %{buildroot}%{_libdir}/%{name}/
+mv %{buildroot}/opt/java/%{name}.jar %{buildroot}%{_libdir}/%{name}/%{name}-%{version}.jar
+mv %{buildroot}%{_libdir}/lib%{name}.so %{buildroot}%{_libdir}/%{name}/lib%{name}.so
 mkdir -p %{buildroot}%{_jnidir}/
-mv %{buildroot}/opt/java/%{name}.jar %{buildroot}%{_jnidir}/%{name}-%{version}.jar
-cd %{buildroot}%{_jnidir} ; ln -s %{name}-%{version}.jar %{name}.jar
+cd %{buildroot}%{_jnidir} ; ln -s %{_libdir}/%{name}/%{name}-%{version}.jar %{name}.jar
 
 ## remove unwanted files
 rm -rf %{buildroot}/opt
@@ -65,8 +67,11 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_jnidir}/*
-%{_libdir}/lib*
+%{_libdir}/%{name}/*
 
 %changelog
+* Tue Oct 27 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
+- Bugzilla Bug #521983 -  New package for Dogtag PKI: osutil
+- Complied with Fedora JNI packaging logic
 * Thu Oct 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
 - Bugzilla Bug #521983 -  New package for Dogtag PKI: osutil
