@@ -1,6 +1,6 @@
 Name:           symkey
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Symmetric Key JNI Package
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -50,8 +50,6 @@ rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
 ## rearrange files to be in the desired native packaging layout
-mkdir -p %{buildroot}%{_datadir}/doc/%{name}-%{version}/
-mv %{buildroot}/opt/doc/LICENSE %{buildroot}%{_datadir}/doc/%{name}-%{version}/
 mkdir -p %{buildroot}%{_libdir}/%{name}/
 mv %{buildroot}/opt/java/%{name}.jar %{buildroot}%{_libdir}/%{name}/%{name}-%{version}.jar
 mv %{buildroot}%{_libdir}/lib%{name}.so %{buildroot}%{_libdir}/%{name}/lib%{name}.so
@@ -69,9 +67,13 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_jnidir}/*
-%{_libdir}/%{name}/*
+%{_libdir}/%{name}/
 
 %changelog
+* Fri Oct 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #522272 -  New Package for Dogtag PKI: symkey
+- Removed LICENSE logic from installation section
+- Take ownership of library directory
 * Tue Oct 27 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #522272 -  New Package for Dogtag PKI: symkey
 - Complied with Fedora JNI packaging logic
