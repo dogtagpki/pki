@@ -1,6 +1,6 @@
 Name:           pki-tps
 Version:        1.3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System
 URL:            http://pki.fedoraproject.org/
 License:        LGPLv2 with exceptions
@@ -78,7 +78,7 @@ rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
 ## rearrange files to be in the desired native packaging layout
-setup_package %{buildroot} pki tps %{version} %{release} %{buildroot}/opt
+./setup_package %{buildroot} pki tps %{version} %{release} %{buildroot}/opt
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/tps/conf/CS.cfg
 
 ## remove unwanted files
@@ -127,8 +127,12 @@ fi
 /etc/httpd/modules/*
 %{_bindir}/*
 %{_libdir}/*
-%{_datadir}/pki/tps/*
+%{_datadir}/pki/tps/
 
 %changelog
+* Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
+- Bugzilla Bug #X - Packaging for Fedora Dogtag PKI
+- Prepended directory path in front of setup_package
+- Take ownership of pki tps directory.
 * Fri Oct 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
 - Bugzilla Bug #X - Packaging for Fedora Dogtag PKI
