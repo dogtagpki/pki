@@ -46,8 +46,7 @@ public class SessionKey
     static {
         boolean mNativeLibrariesLoaded = false;
         String os = System.getProperty( "os.name" );
-        if( ( os.equals( "Linux" ) ) ||
-            ( os.equals( "Solaris" ) ) ) {
+        if( ( os.equals( "Linux" ) ) ) {
             // Check for 64-bit library availability
             // prior to 32-bit library availability.
             mNativeLibrariesLoaded =
