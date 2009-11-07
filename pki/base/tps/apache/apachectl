@@ -32,7 +32,7 @@ LD_LIBRARY_PATH=[SECURITY_LIBRARIES]:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
 
 # see if httpd is linked with the openldap libraries - we need to override them
-OS=`pkiname`
+OS=`uname -s`
 if [ $OS = "Linux" ]; then
    hasopenldap=0
 

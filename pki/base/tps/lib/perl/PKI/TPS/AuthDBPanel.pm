@@ -1,4 +1,4 @@
-#!/usr/bin/pkiperl
+#!/usr/bin/perl
 #
 # --- BEGIN COPYRIGHT BLOCK ---
 # This library is free software; you can redistribute it and/or
@@ -89,12 +89,20 @@ sub update
     # try to do a ldapsearch
     my $tmp = "/tmp/file$$";
     my $mozldap_path = "/usr/lib/mozldap";
-    my $arch = `pkiarch`;
-    $arch =~ s/\n//g;
-    if ($arch eq "x86_64") {
-      $mozldap_path = "/usr/lib64/mozldap";
-    } elsif ($arch eq "sparcv9") {
-      $mozldap_path = "/usr/lib/sparcv9/mozldap6";
+    my $arch = "";
+    if ($^O eq "linux") {
+        $arch = `uname -i`;
+        $arch =~ s/\n//g;
+        if ($arch eq "x86_64") {
+          $mozldap_path = "/usr/lib64/mozldap";
+        }
+    } elsif ($^O eq "solaris") {
+        $arch=`uname -p`;
+        $arch =~ s/\n//g;
+        if( ( $arch eq "sparc" ) &&
+            ( -d "/usr/lib/sparcv9/" ) ) {
+            $mozldap_path = "/usr/lib/sparcv9/mozldap6";
+        }
     }
     &PKI::TPS::Wizard::debug_log("AuthDBPanel: invoking $mozldap_path/ldapsearch");
     my $status = system("$mozldap_path/ldapsearch -h '$host' " .

@@ -70,9 +70,9 @@ if( ( $^O ne 'Windows_NT' ) && ( $^O ne 'MSWin32' ) ) {
 # Compute "flavor" of Operating System
 my $pki_flavor = "";
 if( $^O eq "linux" ) {
-    $pki_flavor = `pkiflavor`;
+    $pki_flavor = "pki";
 } elsif( $^O eq "solaris" ) {
-    $pki_flavor = `pkiflavor`;
+    $pki_flavor = "pki";
 } else {
     print( STDERR
            "ERROR:  Unsupported platform '$^O'!\n" );

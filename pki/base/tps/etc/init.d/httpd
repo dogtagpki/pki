@@ -41,26 +41,17 @@ if [ $? -ne 0 ] ; then
 	exit 255
 fi
 
-# Check to insure that at least one PKI subsystem
-# currently resides on this system.
-if	[ ! -x /usr/bin/pkiarch   ] ||
-	[ ! -x /usr/bin/pkiflavor ] ||
-	[ ! -x /usr/bin/pkiname   ]; then
-	echo "This machine is missing all PKI subsystems!"
-	exit 255
-fi
-
 # Check to insure that this script's associated PKI
 # subsystem currently resides on this system.
 SUBSYSTEM_TYPE=[SUBSYSTEM_TYPE]
-if [ ! -d /usr/share/`pkiflavor`/${SUBSYSTEM_TYPE} ] ; then
+if [ ! -d /usr/share/pki/${SUBSYSTEM_TYPE} ] ; then
 	echo "This machine is missing the '${SUBSYSTEM_TYPE}' subsystem!"
 	exit 255
 fi
 
 # Obtain the operating system upon which this script is being executed
-OS=`pkiname`
-ARCHITECTURE=`pkiarch`
+OS=`uname -s`
+ARCHITECTURE=""
 
 # Time to wait in seconds, before killing process
 #
@@ -76,10 +67,16 @@ if [ ${OS} = "Linux" ] ; then
 		echo "Must be 'root' to execute '$0'!"
 		exit 1
 	fi
+	ARCHITECTURE=`uname -i`
 elif [ ${OS} = "SunOS" ] ; then
 	if [ `/usr/xpg4/bin/id -u` -ne 0 ] ; then
 		echo "Must be 'root' to execute '$0'!"
 		exit 1
+	fi
+	ARCHITECTURE=`uname -p`
+	if	[ "${ARCHITECTURE}" = "sparc" ] &&
+		[ -d "/usr/lib/sparcv9/" ] ; then
+		ARCHITECTURE="sparcv9"
 	fi
 else
 	echo "Unsupported OS '${OS}'!"

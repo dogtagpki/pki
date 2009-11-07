@@ -522,10 +522,15 @@ if( $^O eq "linux" ) {
         "$pki_prefix" . "dirsec-nspr" . "$pki_suffix"
     );
 } elsif( $^O eq "solaris" ) {
-    $pki_architecture  = "sparcv9";
+    $pki_architecture  = `uname -p`;
     $pki_flavor        = "pki";
     $presence_command  = "pkginfo | grep -c ";
     $uninstall_command = "yes | /usr/sbin/pkgrm ";
+
+    if( ( $pki_architecture eq "sparc" ) &&
+        ( -d "/usr/lib/sparcv9/" ) ) {
+        $pki_architecture  = "sparcv9";
+    }
 
     if( $pki_architecture eq "sparc" ) {
         $pki_prefix = "RHAT";

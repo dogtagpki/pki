@@ -1,4 +1,4 @@
-#!/usr/bin/pkiperl
+#!/usr/bin/perl
 #
 # --- BEGIN COPYRIGHT BLOCK ---
 # This library is free software; you can redistribute it and/or
@@ -89,7 +89,7 @@ sub get_nickname
     &PKI::TPS::Wizard::debug_log("CertInfo: get_nickname");
     my $nickname = $::config->get("preop.cert.$self->{tag}.nickname");
 
-    my $flavor = `pkiflavor`;
+    my $flavor = "pki";
     $flavor =~ s/\n//g;
 
     if ($nickname ne "") {

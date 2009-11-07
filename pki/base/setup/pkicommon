@@ -1,4 +1,4 @@
-#!/usr/bin/pkiperl
+#!/usr/bin/perl
 #
 # --- BEGIN COPYRIGHT BLOCK ---
 # This program is free software; you can redistribute it and/or modify
@@ -101,10 +101,10 @@ $default_modutil_command       = "";
 my $is_IPv6 = 0;
 
 # Compute "hardware platform" of Operating System
-$default_hardware_platform = `pkiarch`;
-$default_hardware_platform =~ s/\s+$//g;
-chomp( $default_hardware_platform );
 if( $^O eq "linux" ) {
+	$default_hardware_platform = `uname -i`;
+	$default_hardware_platform =~ s/\s+$//g;
+	chomp( $default_hardware_platform );
     if( $default_hardware_platform eq "i386" ) {
         # 32-bit Linux
         $default_system_binaries      = "/bin";
@@ -137,6 +137,15 @@ if( $^O eq "linux" ) {
         $hostname = hostname;
     }
 } elsif( $^O eq "solaris" ) {
+	$default_hardware_platform = `uname -p`;
+	$default_hardware_platform =~ s/\s+$//g;
+	chomp( $default_hardware_platform );
+
+    if( ( $default_hardware_platform eq "sparc" ) &&
+        ( -d "/usr/lib/sparcv9/" ) ) {
+        $default_hardware_platform  = "sparcv9";
+    }
+
     if( $default_hardware_platform eq "sparc" ) {
         # 32-bit Solaris
         $default_system_binaries      = "/bin";

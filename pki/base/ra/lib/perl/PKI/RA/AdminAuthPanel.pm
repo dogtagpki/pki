@@ -1,4 +1,4 @@
-#!/usr/bin/pkiperl
+#!/usr/bin/perl
 #
 # --- BEGIN COPYRIGHT BLOCK ---
 # This program is free software; you can redistribute it and/or modify

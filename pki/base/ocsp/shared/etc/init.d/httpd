@@ -71,25 +71,17 @@ if [ $? -ne 0 ] ; then
 	exit 255
 fi
 
-# Check to insure that at least one PKI subsystem
-# currently resides on this system.
-if	[ ! -x /usr/bin/pkiarch   ] ||
-	[ ! -x /usr/bin/pkiflavor ] ||
-	[ ! -x /usr/bin/pkiname   ]; then
-	echo "This machine is missing all PKI subsystems!"
-	exit 255
-fi
-
 # Check to insure that this script's associated PKI
 # subsystem currently resides on this system.
 PKI_SUBSYSTEM_TYPE=[PKI_SUBSYSTEM_TYPE]
-if [ ! -d /usr/share/`pkiflavor`/${PKI_SUBSYSTEM_TYPE} ] ; then
+if [ ! -d /usr/share/pki/${PKI_SUBSYSTEM_TYPE} ] ; then
 	echo "This machine is missing the '${PKI_SUBSYSTEM_TYPE}' subsystem!"
 	exit 255
 fi
 
 # Obtain the operating system upon which this script is being executed
-OS=`pkiname`
+OS=`uname -s`
+ARCHITECTURE=""
 
 # This script must be run as root!
 RV=0
@@ -98,10 +90,16 @@ if [ ${OS} = "Linux" ] ; then
 		echo "Must be 'root' to execute '$0'!"
 		exit 1
 	fi
+	ARCHITECTURE=`uname -i`
 elif [ ${OS} = "SunOS" ] ; then
 	if [ `/usr/xpg4/bin/id -u` -ne 0 ] ; then
 		echo "Must be 'root' to execute '$0'!"
 		exit 1
+	fi
+	ARCHITECTURE=`uname -p`
+	if	[ "${ARCHITECTURE}" = "sparc" ] &&
+		[ -d "/usr/lib/sparcv9/" ] ; then
+		ARCHITECTURE="sparcv9"
 	fi
 else
 	echo "Unsupported OS '${OS}'!"
@@ -639,26 +637,26 @@ start()
 		CLASSPATH="$CLASSPATH":/usr/share/java/avalon-logkit.jar
 		CLASSPATH="$CLASSPATH":/usr/share/java/cmsutil.jar
 		CLASSPATH="$CLASSPATH":/usr/share/java/commons-logging.jar
-		if [ `pkiarch` = "sparc" ] ; then
+		if [ "$ARCHITECTURE" = "sparc" ] ; then
 			CLASSPATH="$CLASSPATH":/usr/lib/java/dirsec/jss4.jar
-		elif [ `pkiarch` = "sparcv9" ] ; then
-			CLASSPATH="$CLASSPATH":/usr/lib/`pkiarch`/java/dirsec/jss4.jar
+		elif [ "$ARCHITECTURE" = "sparcv9" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/sparcv9/java/dirsec/jss4.jar
 		fi
 		CLASSPATH="$CLASSPATH":/usr/share/java/ldapjdk.jar
 		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/common/lib/naming-factory.jar
 		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/common/lib/naming-resources.jar
-		CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/nsutil.jar
-		if [ `pkiarch` = "sparc" ] ; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/pki/nsutil.jar
+		if [ "$ARCHITECTURE" = "sparc" ] ; then
 			CLASSPATH="$CLASSPATH":/usr/lib/java/osutil.jar
-		elif [ `pkiarch` = "sparcv9" ] ; then
-			CLASSPATH="$CLASSPATH":/usr/lib/`pkiarch`/java/osutil.jar
+		elif [ "$ARCHITECTURE" = "sparcv9" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/sparcv9/java/osutil.jar
 		fi
 		CLASSPATH="$CLASSPATH":/usr/share/java/rhino.jar
 		CLASSPATH="$CLASSPATH":/usr/share/java/servletapi5.jar
-		if [ `pkiarch` = "sparc" ] ; then
+		if [ "$ARCHITECTURE" = "sparc" ] ; then
 			CLASSPATH="$CLASSPATH":/usr/lib/java/symkey.jar
-		elif [ `pkiarch` = "sparcv9" ] ; then
-			CLASSPATH="$CLASSPATH":/usr/lib/`pkiarch`/java/symkey.jar
+		elif [ "$ARCHITECTURE" = "sparcv9" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/sparcv9/java/symkey.jar
 		fi
 		CLASSPATH="$CLASSPATH":/usr/share/java/velocity.jar
 		CLASSPATH="$CLASSPATH":/usr/share/java/xalan-j2.jar
@@ -847,10 +845,10 @@ start()
 		### END LINUX-SPECIFIC FILE BUT SOLARIS-SPECIFIC LINK
 
 		### if [ ! -e /var/lib/tomcat5/common/lib/jss4.jar ]; then
-		###     if [ `pkiarch` = "sparc" ] ; then
+		###     if [ "$ARCHITECTURE" = "sparc" ] ; then
 		###         ln -s /usr/lib/java/dirsec/jss4.jar jss4.jar
-		###     elif [ `pkiarch` = "sparcv9" ] ; then
-		###         ln -s /usr/lib/`pkiarch`/java/dirsec/jss4.jar jss4.jar
+		###     elif [ "$ARCHITECTURE" = "sparcv9" ] ; then
+		###         ln -s /usr/lib/sparcv9/java/dirsec/jss4.jar jss4.jar
 		###     fi
 		### fi
 		### if [ ! -e /var/lib/tomcat5/common/lib/ldapjdk.jar ]; then
@@ -861,13 +859,13 @@ start()
 		### naming-resources.jar
 
 		### if [ ! -e /var/lib/tomcat5/common/lib/nsutil.jar ]; then
-		###     ln -s /usr/share/java/`pkiflavor`/nsutil.jar nsutil.jar
+		###     ln -s /usr/share/java/pki/nsutil.jar nsutil.jar
 		### fi
 		### if [ ! -e /var/lib/tomcat5/common/lib/osutil.jar ]; then
-		###     if [ `pkiarch` = "sparc" ] ; then
+		###     if [ "$ARCHITECTURE" = "sparc" ] ; then
 		###         ln -s /usr/lib/java/osutil.jar osutil.jar
-		###     elif [ `pkiarch` = "sparcv9" ] ; then
-		###         ln -s /usr/lib/`pkiarch`/java/osutil.jar osutil.jar
+		###     elif [ "$ARCHITECTURE" = "sparcv9" ] ; then
+		###         ln -s /usr/lib/sparcv9/java/osutil.jar osutil.jar
 		###     fi
 		### fi
 		### if [ ! -e /var/lib/tomcat5/common/lib/rhino.jar ]; then
@@ -881,10 +879,10 @@ start()
 		### END SOLARIS-SPECIFIC LINKS
 
 		### if [ ! -e /var/lib/tomcat5/common/lib/symkey.jar ]; then
-		###     if [ `pkiarch` = "sparc" ] ; then
+		###     if [ "$ARCHITECTURE" = "sparc" ] ; then
 		###         ln -s /usr/lib/java/symkey.jar symkey.jar
-		###     elif [ `pkiarch` = "sparcv9" ] ; then
-		###         ln -s /usr/lib/`pkiarch`/java/symkey.jar symkey.jar
+		###     elif [ "$ARCHITECTURE" = "sparcv9" ] ; then
+		###         ln -s /usr/lib/sparcv9/java/symkey.jar symkey.jar
 		###     fi
 		### fi
 		### if [ ! -e /var/lib/tomcat5/common/lib/velocity.jar ]; then
@@ -959,10 +957,10 @@ start()
 		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/catalina-optional.jar
 		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/catalina-storeconfig.jar
 		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/catalina.jar
-		if [ `pkiarch` = "sparc" ] ; then
+		if [ "$ARCHITECTURE" = "sparc" ] ; then
 			CLASSPATH="$CLASSPATH":/usr/lib/java/dirsec/jss4.jar
-		elif [ `pkiarch` = "sparcv9" ] ; then
-			CLASSPATH="$CLASSPATH":/usr/lib/`pkiarch`/java/dirsec/jss4.jar
+		elif [ "$ARCHITECTURE" = "sparcv9" ] ; then
+			CLASSPATH="$CLASSPATH":/usr/lib/sparcv9/java/dirsec/jss4.jar
 		fi
 		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/servlets-cgi.renametojar
 		CLASSPATH="$CLASSPATH":/var/lib/tomcat5/server/lib/servlets-default.jar
@@ -1022,10 +1020,10 @@ start()
 		### catalina-storeconfig.jar
 		### catalina.jar
 		### if [ ! -e /var/lib/tomcat5/server/lib/jss4.jar ]; then
-		###     if [ `pkiarch` = "sparc" ] ; then
+		###     if [ "$ARCHITECTURE" = "sparc" ] ; then
 		###         ln -s /usr/lib/java/dirsec/jss4.jar jss4.jar
-		###     elif [ `pkiarch` = "sparcv9" ] ; then
-		###         ln -s /usr/lib/`pkiarch`/java/dirsec/jss4.jar jss4.jar
+		###     elif [ "$ARCHITECTURE" = "sparcv9" ] ; then
+		###         ln -s /usr/lib/sparcv9/java/dirsec/jss4.jar jss4.jar
 		###     fi
 		### fi
 		### servlets-cgi.renametojar

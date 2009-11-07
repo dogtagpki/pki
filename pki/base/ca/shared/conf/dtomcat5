@@ -59,25 +59,16 @@ if [ $? -ne 0 ] ; then
 	exit 255
 fi
 
-# Check to insure that at least one PKI subsystem
-# currently resides on this system.
-if	[ ! -x /usr/bin/pkiarch   ] ||
-	[ ! -x /usr/bin/pkiflavor ] ||
-	[ ! -x /usr/bin/pkiname   ]; then
-	echo "This machine is missing all PKI subsystems!"
-	exit 255
-fi
-
 # Check to insure that this script's associated PKI
 # subsystem currently resides on this system.
 PKI_SUBSYSTEM_TYPE=[PKI_SUBSYSTEM_TYPE]
-if [ ! -d /usr/share/`pkiflavor`/${PKI_SUBSYSTEM_TYPE} ] ; then
+if [ ! -d /usr/share/pki/${PKI_SUBSYSTEM_TYPE} ] ; then
 	echo "This machine is missing the '${PKI_SUBSYSTEM_TYPE}' subsystem!"
 	exit 255
 fi
 
 # OS specific support.  $var _must_ be set to either true or false.
-OS=`pkiname`
+OS=`uname -s`
 cygwin=false
 os400=false
 case "${OS}" in
@@ -231,32 +222,32 @@ elif [ ${OS} = "SunOS" ] ; then
 	CLASSPATH="$CLASSPATH":"$CATALINA_HOME"/bin/commons-logging-api.jar
 	CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-impl.jar
 	CLASSPATH="$CLASSPATH":/usr/share/java/mx4j/mx4j-jmx.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/base.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/certsrv.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/cms.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/cms72.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/cms72_en.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/cmsbundle.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/cmscore.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/cmsutil.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/cstools.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/mcc70.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/mcc70_en.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/nmclf70.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/nmclf70_en.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/nsutil.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/base.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/certsrv.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/cms.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/cms72.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/cms72_en.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/cmsbundle.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/cmscore.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/cmsutil.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/cstools.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/mcc70.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/mcc70_en.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/nmclf70.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/nmclf70_en.jar
+	CLASSPATH="$CLASSPATH":/usr/share/java/pki/nsutil.jar
 
-	if [ -d /usr/share/java/`pkiflavor`/ca ]; then
-		CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/ca/ca.jar
+	if [ -d /usr/share/java/pki/ca ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/pki/ca/ca.jar
 	fi
-	if [ -d /usr/share/java/`pkiflavor`/kra ]; then
-		CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/kra/kra.jar
+	if [ -d /usr/share/java/pki/kra ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/pki/kra/kra.jar
 	fi
-	if [ -d /usr/share/java/`pkiflavor`/ocsp ]; then
-		CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/ocsp/ocsp.jar
+	if [ -d /usr/share/java/pki/ocsp ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/pki/ocsp/ocsp.jar
 	fi
-	if [ -d /usr/share/java/`pkiflavor`/tks ]; then
-		CLASSPATH="$CLASSPATH":/usr/share/java/`pkiflavor`/tks/tks.jar
+	if [ -d /usr/share/java/pki/tks ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/pki/tks/tks.jar
 	fi
 fi
 

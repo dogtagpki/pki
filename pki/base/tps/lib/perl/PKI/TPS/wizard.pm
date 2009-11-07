@@ -1,4 +1,4 @@
-#!/usr/bin/pkiperl
+#!/usr/bin/perl
 #
 # --- BEGIN COPYRIGHT BLOCK ---
 # This library is free software; you can redistribute it and/or
@@ -90,7 +90,7 @@ package PKI::TPS::Wizard;
 $PKI::TPS::Wizard::VERSION = '1.00';
 
 # read configuration file
-my $flavor = `pkiflavor`;
+my $flavor = "pki";
 $flavor =~ s/\n//g;
 
 my $pkiroot = $ENV{PKI_ROOT};

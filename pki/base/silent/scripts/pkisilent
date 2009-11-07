@@ -53,14 +53,15 @@ sub invalid_architecture()
 ##      search order this command uses to find shared libraries.             ##
 ###############################################################################
 
-my $OS=`pkiname`;
-my $ARCHITECTURE=`pkiarch`;
+my $OS=`uname -s`;
+my $ARCHITECTURE="";
 chop($OS);
-chop($ARCHITECTURE);
 
 
 if($OS eq "Linux")
 {
+	$ARCHITECTURE=`uname -i`;
+	chop($ARCHITECTURE);
 	if($ARCHITECTURE eq "i386")
 	{
 		$libpath="/usr/lib";
@@ -95,6 +96,14 @@ if($OS eq "Linux")
 }
 elsif (${OS} eq "SunOS")
 { 
+	$ARCHITECTURE=`uname -p`;
+	chop($ARCHITECTURE);
+
+    if( ( ${ARCHITECTURE} eq "sparc" ) &&
+        ( -d "/usr/lib/sparcv9/" ) ) {
+        $ARCHITECTURE="sparcv9";
+    }
+
 	if (${ARCHITECTURE} eq "sparc") 
 	{
 		$libpath="/usr/lib";

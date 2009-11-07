@@ -544,12 +544,17 @@ if( $^O eq "linux" ) {
         "tps"  => "$pki_prefix" . "$pki_flavor-tps"  . "$pki_suffix"
     );
 } elsif( $^O eq "solaris" ) {
-    $pki_architecture  = "sparcv9";
+    $pki_architecture  = `uname -p`;
     $pki_flavor        = "pki";
     $pki_package_type  = "pkg";
     $pki_containers    = "PKGs";
     $presence_command  = "pkginfo | grep -c ";
     $install_command   = "( echo \"all\"; yes ) | /usr/sbin/pkgadd -d ./";
+
+    if( ( $pki_architecture eq "sparc" ) &&
+        ( -d "/usr/lib/sparcv9/" ) ) {
+        $pki_architecture  = "sparcv9";
+    }
 
     if( $pki_architecture eq "sparc" ) {
         $pki_prefix = "RHAT";

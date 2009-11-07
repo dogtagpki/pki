@@ -69,7 +69,8 @@ usage() {
 
 # specify generic helper variables
 OS=`uname`
-if [ ${OS} = "Linux" ] ; then
+ARCHITECTURE=""
+if [ "${OS}" = "Linux" ] ; then
 	if [ -e /etc/fedora-release ] ; then
 		USE_OPT_FORTITUDE="FALSE"
 	elif [ -e /etc/redhat-release ] ; then
@@ -83,8 +84,10 @@ if [ ${OS} = "Linux" ] ; then
 		usage "ERROR:  Only Fedora and Red Hat '${OS}' are supported!"
 		exit 255
 	fi
-elif [ ${OS} = "SunOS" ] ; then
+	ARCHITECTURE=`uname -i`
+elif [ "${OS}" = "SunOS" ] ; then
 	USE_OPT_FORTITUDE="TRUE"
+	ARCHITECTURE=`uname -p`
 else
 	usage "ERROR:  Unsupported operating system '${OS}'!"
 	exit 255
@@ -93,30 +96,29 @@ fi
 # Since "rpmbuild" fails to process "%ifarch" macros inside the
 # "%install" section of a spec file, the actual hardware
 # architecture will be determined at this point in time.
-ARCHITECTURE=`uname -i`
-if   [ ${ARCHITECTURE} = "i386" ] ; then
+if   [ "${ARCHITECTURE}" = "i386" ] ; then
 	LIB_DIR="lib"
 	WRAPPER_DIR="bin"
-elif [ ${ARCHITECTURE} = "x86_64" ] ; then
+elif [ "${ARCHITECTURE}" = "x86_64" ] ; then
 	LIB_DIR="lib64"
 	WRAPPER_DIR="bin"
-elif [ ${ARCHITECTURE} = "ppc" ] ; then
+elif [ "${ARCHITECTURE}" = "ppc" ] ; then
 	LIB_DIR="lib"
 	PERL_DIR="/usr/bin/perl"
 	SCRIPTS_DIR="bin"
 	WRAPPER_DIR="bin"
-elif [ ${ARCHITECTURE} = "ppc64" ] ; then
+elif [ "${ARCHITECTURE}" = "ppc64" ] ; then
 	LIB_DIR="lib64"
 	PERL_DIR="/usr/bin/perl"
 	SCRIPTS_DIR="bin"
 	WRAPPER_DIR="bin"
-elif [ ${ARCHITECTURE} = "s390x" ] ; then
+elif [ "${ARCHITECTURE}" = "s390x" ] ; then
 	LIB_DIR="lib"
 	PERL_DIR="/usr/bin/perl"
 	SCRIPTS_DIR="bin"
 	WRAPPER_DIR="bin"
-elif	[ ${OS} = "SunOS" ] &&
-		[ ${ARCHITECTURE} = "sparc" ] ; then
+elif	[ "${OS}" = "SunOS" ] &&
+		[ "${ARCHITECTURE}" = "sparc" ] ; then
 	# Note that "pkgbuild" successfully processes "%ifarch" macros
 	# inside the "%install" section of a spec file.
 	#

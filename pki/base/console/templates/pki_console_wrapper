@@ -32,7 +32,7 @@ fi
 ##  (1) Specify variables used by this script.                               ##
 ###############################################################################
 
-PRODUCT=`pkiflavor`
+PRODUCT="pki"
 
 
 ###############################################################################
@@ -77,10 +77,11 @@ invalid_architecture() {
 ##      search order this command wrapper uses to find shared libraries.     ##
 ###############################################################################
 
-OS=`pkiname`
-ARCHITECTURE=`pkiarch`
+OS=`uname -s`
+ARCHITECTURE=""
 
 if [ "${OS}" = "Linux" ] ; then
+    ARCHITECTURE=`uname -i`
     JAVA="java"
     JAVA_OPTIONS=""
 
@@ -102,6 +103,11 @@ if [ "${OS}" = "Linux" ] ; then
         exit 255
     fi
 elif [ "${OS}" = "SunOS" ] ; then
+    ARCHITECTURE=`uname -p`
+    if [ "${ARCHITECTURE}" = "sparc" ] &&
+       [ -d "/usr/lib/sparcv9/" ] ; then
+        ARCHITECTURE="sparcv9"
+    fi
     if [ "${ARCHITECTURE}" = "sparc" ] ; then
         JAVA="/usr/jdk/instances/jdk1.5.0/jre/bin/java"
         JAVA_OPTIONS=""

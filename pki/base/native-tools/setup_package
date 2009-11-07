@@ -66,8 +66,9 @@ usage() {
 }
 
 # specify generic helper variables
-OS=`uname`
-if [ ${OS} = "Linux" ] ; then
+OS=`uname -s`
+ARCHITECTURE=""
+if [ "${OS}" = "Linux" ] ; then
 	if   [ -e /etc/fedora-release ] ; then
 		USE_OPT_FORTITUDE="FALSE"
 	elif [ -e /etc/redhat-release ] ; then
@@ -81,8 +82,10 @@ if [ ${OS} = "Linux" ] ; then
 		usage "ERROR:  Only Fedora and Red Hat '${OS}' are supported!"
 		exit 255
 	fi
-elif [ ${OS} = "SunOS" ] ; then
+	ARCHITECTURE=`uname -i`
+elif [ "${OS}" = "SunOS" ] ; then
 	USE_OPT_FORTITUDE="TRUE"
+	ARCHITECTURE=`uname -p`
 else
 	usage "ERROR:  Unsupported operating system '${OS}'!"
 	exit 255
@@ -91,34 +94,33 @@ fi
 # Since "rpmbuild" fails to process "%ifarch" macros inside the
 # "%install" section of a spec file, the actual hardware
 # architecture will be determined at this point in time.
-ARCHITECTURE=`uname -i`
-if   [ ${ARCHITECTURE} = "i386" ] ; then
+if   [ "${ARCHITECTURE}" = "i386" ] ; then
 	LIB_DIR="lib"
 	PERL_DIR="/usr/bin/perl"
 	SCRIPTS_DIR="bin"
 	WRAPPER_DIR="bin"
-elif [ ${ARCHITECTURE} = "x86_64" ] ; then
+elif [ "${ARCHITECTURE}" = "x86_64" ] ; then
 	LIB_DIR="lib64"
 	PERL_DIR="/usr/bin/perl"
 	SCRIPTS_DIR="bin"
 	WRAPPER_DIR="bin"
-elif [ ${ARCHITECTURE} = "ppc" ] ; then
+elif [ "${ARCHITECTURE}" = "ppc" ] ; then
 	LIB_DIR="lib"
 	PERL_DIR="/usr/bin/perl"
 	SCRIPTS_DIR="bin"
 	WRAPPER_DIR="bin"
-elif [ ${ARCHITECTURE} = "ppc64" ] ; then
+elif [ "${ARCHITECTURE}" = "ppc64" ] ; then
 	LIB_DIR="lib64"
 	PERL_DIR="/usr/bin/perl"
 	SCRIPTS_DIR="bin"
 	WRAPPER_DIR="bin"
-elif [ ${ARCHITECTURE} = "s390x" ] ; then
+elif [ "${ARCHITECTURE}" = "s390x" ] ; then
 	LIB_DIR="lib"
 	PERL_DIR="/usr/bin/perl"
 	SCRIPTS_DIR="bin"
 	WRAPPER_DIR="bin"
-elif	[ ${OS} = "SunOS" ] &&
-		[ ${ARCHITECTURE} = "sparc" ] ; then
+elif	[ "${OS}" = "SunOS" ] &&
+		[ "${ARCHITECTURE}" = "sparc" ] ; then
 	# Note that "pkgbuild" successfully processes "%ifarch" macros
 	# inside the "%install" section of a spec file.
 	#
@@ -314,60 +316,6 @@ for cmd in ${COMMANDS}
 do
 	create_wrapper ${NATIVE_TOOLS_PRODUCT_NAME} ${NATIVE_TOOLS_SUBSYSTEM_NAME} ${cmd}
 done
-
-
-# replace "uname -s" within various PKI scripts with "pkiname"
-echo "#!/bin/sh"    >  ${NATIVE_TOOLS_SCRIPTS}/pkiname
-echo                >> ${NATIVE_TOOLS_SCRIPTS}/pkiname
-echo "echo `uname`" >> ${NATIVE_TOOLS_SCRIPTS}/pkiname
-chmod 00755 ${NATIVE_TOOLS_SCRIPTS}/pkiname
-
-
-# replace "uname -i" and "uname -p" within various PKI scripts with "pkiarch"
-echo "#!/bin/sh"            >  ${NATIVE_TOOLS_SCRIPTS}/pkiarch
-echo                        >> ${NATIVE_TOOLS_SCRIPTS}/pkiarch
-echo "echo ${ARCHITECTURE}" >> ${NATIVE_TOOLS_SCRIPTS}/pkiarch
-chmod 00755 ${NATIVE_TOOLS_SCRIPTS}/pkiarch
-
-
-# use "pkiflavor" to obtain the "pki" prefix within various PKI scripts
-echo "#!/bin/sh"                         >  ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
-echo                                     >> ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
-echo "echo ${NATIVE_TOOLS_PRODUCT_NAME}" >> ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
-chmod 00755 ${NATIVE_TOOLS_SCRIPTS}/pkiflavor
-
-
-# use "pkiperl" to invoke the appropriate version of "Perl"
-echo "#!/bin/sh"                         >  ${NATIVE_TOOLS_SCRIPTS}/pkiperl
-echo                                     >> ${NATIVE_TOOLS_SCRIPTS}/pkiperl
-echo "${PERL_DIR} \${@}"                 >> ${NATIVE_TOOLS_SCRIPTS}/pkiperl
-chmod 00755 ${NATIVE_TOOLS_SCRIPTS}/pkiperl
-
-
-# obtain the PKI operating system distribution using "pkidist"
-echo "#!/bin/sh"                             >  ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo                                         >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "OS=\`uname\`"                          >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "if [ \${OS} = \"Linux\" ]; then"       >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "    if [ -e /etc/fedora-release ]; then" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "        DISTRIBUTION=\"fc\""           >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "        VERSION=\`cat /etc/fedora-release |sed 's/Fedora release \\(.*\\) .*/\1/'\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist 
-echo "        printf \"\${DISTRIBUTION}\${VERSION}\n\"" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "    elif [ -e /etc/redhat-release ]; then" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "        DISTRIBUTION=\"el\""           >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "        VERSION=\`cat /etc/redhat-release |sed 's/Red Hat Enterprise Linux Server release \\(.*\\)\\..*/\1/'\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "        printf \"\${DISTRIBUTION}\${VERSION}\n\"" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "    else"                              >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "        printf \"undefined\n\""        >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "    fi"                                >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "elif [ \${OS} = \"SunOS\" ]; then"     >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "    DISTRIBUTION=\"sol\""              >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "    VERSION=\`uname -r | cut -f2 -d .\`" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "    printf \"\${DISTRIBUTION}\${VERSION}\n\"" >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "else"                                  >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "    printf \"undefined\n\""            >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-echo "fi"                                    >> ${NATIVE_TOOLS_SCRIPTS}/pkidist
-chmod 00755 ${NATIVE_TOOLS_SCRIPTS}/pkidist
 
 
 ###############################################################################

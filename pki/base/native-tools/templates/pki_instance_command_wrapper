@@ -25,15 +25,6 @@ if [ $? -ne 0 ] ; then
     exit 255
 fi
  
-# Check to insure that at least one PKI subsystem
-# currently resides on this system.
-if  [ ! -x /usr/bin/pkiarch   ] ||
-    [ ! -x /usr/bin/pkiflavor ] ||
-    [ ! -x /usr/bin/pkiname   ]; then
-    echo "This machine is missing all PKI subsystems!"
-    exit 255
-fi
- 
 
 ###############################################################################
 ##  (1) Specify variables used by this script.                               ##
@@ -82,10 +73,10 @@ invalid_architecture() {
 ##                                                                           ##
 ###############################################################################
 
-OS=`pkiname`
-ARCHITECTURE=`pkiarch`
+OS=`uname -s`
 
 if [ "${OS}" = "Linux" ] ; then
+    ARCHITECTURE=`uname -i`
     if [ "${ARCHITECTURE}" = "i386" ] ; then
         LD_LIBRARY_PATH=/usr/lib:/lib
         LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
@@ -121,6 +112,11 @@ if [ "${OS}" = "Linux" ] ; then
         exit 255
     fi
 elif [ "${OS}" = "SunOS" ] ; then
+    ARCHITECTURE=`uname -p`
+    if [ "${ARCHITECTURE}" = "sparc" ] &&
+       [ -d "/usr/lib/sparcv9/" ] ; then
+        ARCHITECTURE="sparcv9"
+    fi
     if [ "${ARCHITECTURE}" = "sparc" ] ; then
         LD_LIBRARY_PATH=/usr/lib:/lib
         LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
