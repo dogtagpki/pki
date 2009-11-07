@@ -25,15 +25,21 @@
 #
 my $default_hardware_platform="";
 my $ldapsearch="";
-$default_hardware_platform=`pkiarch`;
-chomp($default_hardware_platform);
 if( $^O eq "linux" ) {
+	$default_hardware_platform=`uname -i`;
+	chomp($default_hardware_platform);
 	if( $default_hardware_platform eq "i386" ) {
 		$ldapsearch = "/usr/lib/mozldap/ldapsearch";
 	} elsif( $default_hardware_platform eq "x86_64" ) {
 		$ldapsearch = "/usr/lib64/mozldap/ldapsearch";
 	}
 } elsif( $^O eq "solaris" ) {
+	$default_hardware_platform=`uname -p`;
+	chomp($default_hardware_platform);
+	if( ( $default_hardware_platform eq "sparc" ) &&
+		( -d "/usr/lib/sparcv9/" ) ) {
+		$default_hardware_platform="sparcv9";
+	}
 	if( $default_hardware_platform eq "sparc" ) {
 		$ldapsearch = "/usr/lib/mozldap6/ldapsearch";
 	} elsif( $default_hardware_platform eq "sparcv9" ) {

@@ -1,6 +1,6 @@
 Name:           pki-silent
 Version:        1.3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Silent Installer
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -63,9 +63,12 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_bindir}/*
-%{_datadir}/java
-%{_datadir}/pki/silent/*
+%{_datadir}/java/*
+%{_datadir}/pki/silent/
 
 %changelog
+* Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
+- Bugzilla Bug #521996 - Packaging for Fedora Dogtag PKI
+- Take ownership of directories
 * Tue Oct 13 2009 Ade Lee <alee@redhat.com> 1.3.0-1
 - Bugzilla Bug #521996 - Packaging for Fedora Dogtag PKI

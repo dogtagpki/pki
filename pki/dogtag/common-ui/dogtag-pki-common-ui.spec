@@ -1,6 +1,6 @@
 Name:           dogtag-pki-common-ui
 Version:        1.3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -49,8 +49,11 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/pki/*
+%{_datadir}/pki/
 
 %changelog
+* Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
+- Bugzilla Bug #522204 - Packaging for Fedora Dogtag PKI
+- Take ownership of directories
 * Tue Oct 13 2009 Ade Lee <alee@redhat.com> 1.3.0-1
 - Bugzilla Bug #522204 - Packaging for Fedora Dogtag PKI

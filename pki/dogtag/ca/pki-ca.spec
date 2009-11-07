@@ -1,6 +1,6 @@
 Name:           pki-ca
 Version:        1.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -97,10 +97,13 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/java/pki/ca/*
-%{_datadir}/pki/ca/*
+%{_datadir}/java/pki/ca/
+%{_datadir}/pki/ca/
 
 %changelog
+* Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
+- Bugzilla Bug #522210 - Packaging for Fedora Dogtag
+- Take ownership of directories
 * Tue Oct 13 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #522210 - Packaging for Fedora Dogtag
 * Fri Sep 18 2009 Ade Lee <alee@redhat.com> 1.3.0-2

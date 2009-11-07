@@ -1,6 +1,6 @@
 Name:           pki-setup
 Version:        1.3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -49,8 +49,11 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_bindir}/*
-%{_datadir}/pki/scripts/*
+%{_datadir}/pki/scripts/
 
 %changelog
+* Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
+- Bugzilla Bug #521993 - packaging for Fedora Dogtag
+- Take ownership of directories
 * Tue Oct 13 2009 Ade Lee <alee@redhat.com> 1.3.0-1
 - Bugzilla Bug #521993 - packaging for Fedora Dogtag
