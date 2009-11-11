@@ -1,6 +1,6 @@
 Name:           pki-native-tools
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - Native Tools
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -46,12 +46,24 @@ rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
 ## rearrange files to be in the desired native packaging layout
-./setup_package %{buildroot} pki native-tools %{version} %{release} %{buildroot}/opt
+mkdir -p %{buildroot}%{_libdir}/pki/native-tools
+cp -p %{buildroot}/opt/conf/*    %{buildroot}%{_libdir}/pki/native-tools
+cp -p %{buildroot}/opt/samples/* %{buildroot}%{_libdir}/pki/native-tools
+cp -p %{buildroot}/usr/libexec/* %{buildroot}%{_libdir}/pki/native-tools
+
+# create wrappers
+for wrapper in bulkissuance p7tool revoker setpin sslget tkstool
+do
+    sed -e "s|\[PKI_PRODUCT\]|pki|g"            \
+        -e "s|\[PKI_SUBSYSTEM\]|native_tools|g" \
+        -e "s|\[PKI_COMMAND\]|${wrapper}|g" \
+        %{buildroot}/opt/templates/pki_subsystem_command_wrapper > %{buildroot}/usr/bin/${wrapper} ;
+done
 
 ## remove unwanted files
 rm -rf %{buildroot}/opt
 rm -rf %{buildroot}/usr/libexec
-rm -rf %{buildroot}%{_datadir}/pki/templates
+rm -rf %{buildroot}%{_datadir}/pki
 
 %clean
 rm -rf %{buildroot}
@@ -61,9 +73,11 @@ rm -rf %{buildroot}
 %doc LICENSE doc/README
 %{_bindir}/*
 %{_libdir}/pki
-%{_datadir}/pki
 
 %changelog
+* Tue Nov 10 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #522895 -  New Package for Dogtag PKI: native-tools
+- Moved contents of 'setup_package' to spec file
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #522895 -  New Package for Dogtag PKI: native-tools
 - Prepended directory path in front of setup_package
