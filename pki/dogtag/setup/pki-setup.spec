@@ -1,6 +1,6 @@
 Name:           pki-setup
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -42,6 +42,9 @@ rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 
+## remove unwanted files
+rm -rf %{buildroot}%{_bindir}/pkihost
+
 %clean
 rm -rf %{buildroot}
 
@@ -52,6 +55,8 @@ rm -rf %{buildroot}
 %{_datadir}/pki/scripts/
 
 %changelog
+* Mon Nov 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #533518 -  Remove "pkihost" script from pki-setup . . .
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #521993 - packaging for Fedora Dogtag
 - Take ownership of directories
