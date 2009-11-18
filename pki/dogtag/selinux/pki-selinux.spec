@@ -1,6 +1,6 @@
 Name:           pki-selinux
 Version:        1.3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - PKI Selinux Policies
 URL:            https://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -40,8 +40,6 @@ make
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_datadir}/doc/%{name}-%{version}
-cp -p LICENSE %{buildroot}%{_datadir}/doc/%{name}-%{version}
 mkdir -p %{buildroot}%{_datadir}/selinux/modules
 cp -p src/pki.pp %{buildroot}%{_datadir}/selinux/modules
 
@@ -90,5 +88,8 @@ fi
 %{_datadir}/selinux/modules/pki.pp
 
 %changelog
+* Tue Nov 17 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
+- Bugzilla Bug #521255 - Packaging for Fedora Dogtag PKI
+- Remove un-necessary installation steps.
 * Tue Oct 13 2009 Ade Lee <alee@redhat.com> 1.3.0-1
 - Bugzilla Bug #521255 - Packaging for Fedora Dogtag PKI
