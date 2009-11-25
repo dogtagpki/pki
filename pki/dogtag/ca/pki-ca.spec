@@ -1,6 +1,6 @@
 Name:           pki-ca
 Version:        1.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -58,7 +58,7 @@ cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/ca/conf/CS.cfg
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/ca/conf/CS.cfg
-cd %{buildroot}%{_datadir}/java/pki/ca
+cd %{buildroot}%{_javadir}/pki/ca
 mv ca.jar ca-%{version}.jar
 ln -s ca-%{version}.jar ca.jar
 
@@ -97,10 +97,13 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/java/pki/ca/
+%{_javadir}/pki/ca/
 %{_datadir}/pki/ca/
 
 %changelog
+* Tue Nov 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
+- Bugzilla Bug #522210 - Packaging for Fedora Dogtag
+- Use "%{_javadir}" macro when appropriate
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #522210 - Packaging for Fedora Dogtag
 - Take ownership of directories

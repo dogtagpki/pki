@@ -1,6 +1,6 @@
 Name:           pki-util
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - PKI Utility Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -64,7 +64,7 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
-cd %{buildroot}%{_datadir}/java/pki
+cd %{buildroot}%{_javadir}/pki
 mv cmsutil.jar cmsutil-%{version}.jar
 ln -s cmsutil-%{version}.jar cmsutil.jar
 mv nsutil.jar nsutil-%{version}.jar
@@ -76,13 +76,16 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/java/pki/
+%{_javadir}/pki/
 
 %files javadoc
 %defattr(0644,root,root,0755)
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Tue Nov 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #521989 - packaging for Fedora Dogtag
+- Use "%{_javadir}" macro when appropriate
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #521989 - packaging for Fedora Dogtag
 - Take ownership of directories

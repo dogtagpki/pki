@@ -69,7 +69,7 @@ cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/tks/conf/CS.cfg
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/tks/conf/CS.cfg
-cd %{buildroot}%{_datadir}/java/pki/tks
+cd %{buildroot}%{_javadir}/pki/tks
 mv tks.jar tks-%{version}.jar
 ln -s tks-%{version}.jar tks.jar
 
@@ -110,7 +110,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/java/pki/tks/*
+%{_javadir}/pki/tks/*
 %{_datadir}/pki/tks/*
 
 %changelog

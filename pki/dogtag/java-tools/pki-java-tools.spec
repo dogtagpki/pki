@@ -1,6 +1,6 @@
 Name:           pki-java-tools
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - PKI Java-Based Tools
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -57,13 +57,10 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
-cd %{buildroot}%{_datadir}/java/pki
+cd %{buildroot}%{_javadir}/pki
 mv cstools.jar cstools-%{version}.jar
 ln -s cstools-%{version}.jar cstools.jar
-cd %{buildroot}%{_datadir}/pki
-rm pki_java_command_wrapper
-rm pretty_print_cert_command_wrapper
-rm pretty_print_crl_command_wrapper
+rm -rf %{buildroot}%{_datadir}/pki
 
 %clean
 rm -rf %{buildroot}
@@ -72,13 +69,16 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_bindir}/*
-%{_datadir}/java/pki/
+%{_javadir}/pki/
 
 %files javadoc
 %defattr(0644,root,root,0755)
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Tue Nov 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #521995 - Packaging for Fedora Dogtag PKI
+- Use "%{_javadir}" macro when appropriate
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #521995 - Packaging for Fedora Dogtag PKI
 - Take ownership of directories

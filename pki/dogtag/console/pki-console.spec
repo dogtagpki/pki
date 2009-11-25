@@ -49,7 +49,7 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
-cd %{buildroot}%{_datadir}/java/pki
+cd %{buildroot}%{_javadir}/pki
 ln -s console-cms-%{version}.jar console-cms.jar
 ln -s console-cms-%{version}_en.jar console-cms_en.jar
 
@@ -60,7 +60,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_bindir}/pkiconsole
-%{_datadir}/java/pki
+%{_javadir}/pki
 
 %changelog
 * Thu Oct 15 2009 Ade Lee <alee@redhat.com> 1.3.0-1

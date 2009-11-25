@@ -67,7 +67,7 @@ cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/kra/conf/CS.cfg
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/kra/conf/CS.cfg
-cd %{buildroot}%{_datadir}/java/pki/kra
+cd %{buildroot}%{_javadir}/pki/kra
 mv kra.jar kra-%{version}.jar
 ln -s kra-%{version}.jar kra.jar
 
@@ -106,7 +106,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/java/pki/kra/*
+%{_javadir}/pki/kra/*
 %{_datadir}/pki/kra/*
 
 %changelog

@@ -48,7 +48,7 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
-cd %{buildroot}%{_datadir}/java/pki
+cd %{buildroot}%{_javadir}/pki
 ln -s cms-theme-%{version}_en.jar cms-theme_en.jar
 
 %clean
@@ -57,7 +57,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/java/pki
+%{_javadir}/pki
 
 %changelog
 * Wed Oct 14 2009 Ade Lee <alee@redhat.com> 1.3.0-1

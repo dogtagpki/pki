@@ -76,7 +76,7 @@ cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/ocsp/conf/CS.cfg
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/ocsp/conf/CS.cfg
-cd %{buildroot}%{_datadir}/java/pki/ocsp
+cd %{buildroot}%{_javadir}/pki/ocsp
 mv ocsp.jar ocsp-%{version}.jar
 ln -s ocsp-%{version}.jar ocsp.jar
 
@@ -115,7 +115,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/java/pki/ocsp/*
+%{_javadir}/pki/ocsp/*
 %{_datadir}/pki/ocsp/*
 
 %changelog

@@ -1,6 +1,6 @@
 Name:           pki-common
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -32,12 +32,12 @@ Requires:       pki-setup
 Requires:       rhgb
 Requires:       symkey
 Requires:       tomcatjss
-Requires:       %{_datadir}/java/ldapjdk.jar
-Requires:       %{_datadir}/java/pki/cmsutil.jar
-Requires:       %{_datadir}/java/pki/nsutil.jar
-Requires:       %{_datadir}/java/velocity.jar
-Requires:       %{_datadir}/java/xalan-j2.jar
-Requires:       %{_datadir}/java/xerces-j2.jar
+Requires:       %{_javadir}/ldapjdk.jar
+Requires:       %{_javadir}/pki/cmsutil.jar
+Requires:       %{_javadir}/pki/nsutil.jar
+Requires:       %{_javadir}/velocity.jar
+Requires:       %{_javadir}/xalan-j2.jar
+Requires:       %{_javadir}/xerces-j2.jar
 Requires:       velocity
 
 Conflicts:      tomcat-native
@@ -83,7 +83,7 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
-cd %{buildroot}%{_datadir}/java/pki
+cd %{buildroot}%{_javadir}/pki
 mv certsrv.jar certsrv-%{version}.jar
 ln -s certsrv-%{version}.jar certsrv.jar
 mv cms.jar cms-%{version}.jar
@@ -94,12 +94,12 @@ mv cmscore.jar cmscore-%{version}.jar
 ln -s cmscore-%{version}.jar cmscore.jar
 mkdir -p %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
 cd %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
-ln -s %{_datadir}/java/ldapjdk.jar ldapjdk.jar
-ln -s %{_datadir}/java/pki/cmsutil.jar cmsutil.jar
-ln -s %{_datadir}/java/pki/nsutil.jar nsutil.jar
-ln -s %{_datadir}/java/velocity.jar velocity.jar
-ln -s %{_datadir}/java/xalan-j2.jar xalan-j2.jar
-ln -s %{_datadir}/java/xerces-j2.jar xerces-j2.jar
+ln -s %{_javadir}/ldapjdk.jar ldapjdk.jar
+ln -s %{_javadir}/pki/cmsutil.jar cmsutil.jar
+ln -s %{_javadir}/pki/nsutil.jar nsutil.jar
+ln -s %{_javadir}/velocity.jar velocity.jar
+ln -s %{_javadir}/xalan-j2.jar xalan-j2.jar
+ln -s %{_javadir}/xerces-j2.jar xerces-j2.jar
 
 %clean
 rm -rf %{buildroot}
@@ -110,7 +110,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/java/pki/
+%{_javadir}/pki/
 %{_datadir}/pki/
 %{_sharedstatedir}/tomcat5/common/lib/*
 
@@ -119,6 +119,9 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Tue Nov 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #522207 - packaging for Fedora Dogtag
+- Use "%{_javadir}" macro when appropriate
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #522207 - packaging for Fedora Dogtag
 - Take ownership of directories
