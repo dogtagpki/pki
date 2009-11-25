@@ -578,42 +578,47 @@ public abstract class CMSServlet extends HttpServlet {
     private static final String PRESERVED = "preserved";
     public static final String TEMPLATE_NAME = "templateName";
 			
-    protected void outputArgBlockAsXML(PrintStream ps, String name, 
-                       IArgBlock argBlock) 
+    protected void outputArgBlockAsXML(XMLObject xmlObj, Node parent,
+                                       String argBlockName, IArgBlock argBlock) 
     {
-        ps.println("<" + name + ">");
+        Node argBlockContainer = xmlObj.createContainer(parent, argBlockName);
+
         if (argBlock != null) {
-        Enumeration names = argBlock.getElements();
-          while (names.hasMoreElements()) {
-            String n = (String) names.nextElement();
-            ps.println("<" + n + ">");
-            String val = argBlock.get(n).toString();
-            val = val.trim();
-            ps.println((val != null)? val:"");
-            ps.println("</" + n + ">");
-          }
+            Enumeration names = argBlock.getElements();
+            while (names.hasMoreElements()) {
+                String name = (String) names.nextElement();
+                String val = argBlock.get(name).toString();
+                val = val.trim();
+                xmlObj.addItemToContainer(argBlockContainer, name, val);
+            }
         }
-        ps.println("</" + name + ">");
     }
 
-    protected void outputAsXML(ByteArrayOutputStream bos, CMSTemplateParams params)
+    protected void outputXML(HttpServletResponse httpResp, CMSTemplateParams params)
     {
-        PrintStream ps = new PrintStream(bos);
-        ps.println("<xml>");
-        outputArgBlockAsXML(ps, "header", params.getHeader());
-        outputArgBlockAsXML(ps, "fixed", params.getFixed());
-        ps.println("</xml>");
-        ps.flush();
-    }
-
-    protected void outputXML(HttpServletResponse resp, CMSTemplateParams params)
-    {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        resp.setContentType("text/xml");
-        outputAsXML(bos, params);
-        resp.setContentLength(bos.size());
+        XMLObject xmlObj = null;
         try {
-            bos.writeTo(resp.getOutputStream());
+            xmlObj = new XMLObject();
+
+            Node root = xmlObj.createRoot("xml");
+            outputArgBlockAsXML(xmlObj, root, "header", params.getHeader());
+            outputArgBlockAsXML(xmlObj, root, "fixed",  params.getFixed());
+
+            Enumeration records = params.queryRecords();
+            Node recordsNode = xmlObj.createContainer(root, "records");
+            if (records != null) {
+                while (records.hasMoreElements()) {
+                    IArgBlock record = (IArgBlock) records.nextElement();
+                    outputArgBlockAsXML(xmlObj, recordsNode, "record", record);
+                }
+            }
+
+            byte[] cb = xmlObj.toByteArray();
+            OutputStream os = httpResp.getOutputStream();
+            httpResp.setContentType("application/xml");
+            httpResp.setContentLength(cb.length);
+            os.write(cb);
+            os.flush();
         } catch (Exception e) {
             CMS.debug("failed in outputing XML " + e);
         }
@@ -709,6 +714,12 @@ public abstract class CMSServlet extends HttpServlet {
             ICMSTemplateFiller filler = loadTempl.mFiller;
             CMSTemplateParams templateParams = null;
 
+            // When an exception occurs the exit is non-local which probably
+            // will leave the requestStatus value set to something other
+            // than CMSRequest.EXCEPTION, so force the requestStatus to 
+            // EXCEPTION since it must be that if we're here. 
+            cmsReq.setStatus(CMSRequest.EXCEPTION);
+
             if (filler != null) {
                 templateParams = filler.getTemplateParams(
                             cmsReq, mAuthority, locale[0], e);
@@ -720,6 +731,16 @@ public abstract class CMSServlet extends HttpServlet {
                 templateParams.getFixed().set(
                     ICMSTemplateFiller.EXCEPTION, e.toString(locale[0]));
             }
+
+            // just output arg blocks as XML
+            CMS.debug("CMSServlet.java: renderTemplate");
+            String xmlOutput = cmsReq.getHttpReq().getParameter("xml");
+            if (xmlOutput != null && xmlOutput.equals("true")) {
+                CMS.debug("CMSServlet.java: xml parameter detected, returning xml");
+                outputXML(cmsReq.getHttpResp(), templateParams);
+                return;
+            }
+
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
             template.renderOutput(bos, templateParams);
