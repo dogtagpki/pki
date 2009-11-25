@@ -57,7 +57,7 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
-cd %{buildroot}%{_javadir}/pki
+cd %{buildroot}%{_javadir}
 mv cstools.jar cstools-%{version}.jar
 ln -s cstools-%{version}.jar cstools.jar
 rm -rf %{buildroot}%{_datadir}/pki
@@ -69,7 +69,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_bindir}/*
-%{_javadir}/pki/
+%{_javadir}/*
 
 %files javadoc
 %defattr(0644,root,root,0755)
@@ -79,6 +79,7 @@ rm -rf %{buildroot}
 * Tue Nov 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #521995 - Packaging for Fedora Dogtag PKI
 - Use "_javadir" macro when appropriate
+- Move jar file to top-level
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #521995 - Packaging for Fedora Dogtag PKI
 - Take ownership of directories

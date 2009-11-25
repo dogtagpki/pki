@@ -134,7 +134,7 @@ CP=/usr/lib/java/osutil.jar:${CP}
 CP=/usr/share/java/ldapjdk.jar:${CP}
 CP=/usr/share/java/${PRODUCT}/nsutil.jar:${CP}
 CP=/usr/share/java/${PRODUCT}/cmsutil.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/cstools.jar:${CP}
+CP=/usr/share/java/cstools.jar:${CP}
 CP=/usr/share/${PRODUCT}/classes:${CP}
 export CP
 

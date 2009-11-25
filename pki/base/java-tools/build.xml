@@ -414,7 +414,7 @@
         <zip destfile="${dist.base.binaries}/${dist.name}.zip">
             <zipfileset dir="./build/jars"
                         filemode="755"
-                        prefix="usr/share/java/${product.prefix}">
+                        prefix="usr/share/java">
                 <include name="**"/>
             </zipfileset>
             <zipfileset dir="./build/cmds"
