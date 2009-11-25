@@ -49,13 +49,13 @@ public class GenUnexpectedErrorTemplateFiller implements ICMSTemplateFiller {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 		
-        // request status if any.
-        if (cmsReq != null) {
-            Integer sts = cmsReq.getStatus();
-
-            if (sts != null) 
-                fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
-        }
+        // When an exception occurs the exit is non-local which probably
+        // will leave the requestStatus value set to something other
+        // than CMSRequest.EXCEPTION, so force the requestStatus to 
+        // EXCEPTION since it must be that if we're here. 
+        Integer sts = CMSRequest.EXCEPTION;
+        if (cmsReq != null) cmsReq.setStatus(sts);
+        fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
 
         // the unexpected error (exception)
         if (e == null) 
