@@ -85,7 +85,7 @@ rm -rf %{buildroot}
 %changelog
 * Tue Nov 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #521989 - packaging for Fedora Dogtag
-- Use "%{_javadir}" macro when appropriate
+- Use "_javadir" macro when appropriate
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #521989 - packaging for Fedora Dogtag
 - Take ownership of directories
