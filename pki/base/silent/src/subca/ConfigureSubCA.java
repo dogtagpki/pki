@@ -1066,7 +1066,7 @@ public class ConfigureSubCA
 							x_key_type); 
 		parser.addOption ("-token_name %s #HSM/Software Token name",
 							x_token_name); 
-		parser.addOption ("-token_pwd %s #HSM/Software Token password",
+		parser.addOption ("-token_pwd %s #HSM/Software Token password (optional - required for HSM)",
 							x_token_pwd); 
 
 		parser.addOption ("-agent_key_size %s #Agent Cert Key Size",
@@ -1107,6 +1107,8 @@ public class ConfigureSubCA
 			System.out.println("ERROR: Argument Mismatch");
 			System.exit(-1);
 		}
+
+                parser.checkRequiredArgs();
 
 		// set variables
 		cs_hostname = x_cs_hostname.value;

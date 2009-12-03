@@ -582,7 +582,7 @@ public class ConfigureCA {
                     + URLEncoder.encode(ca_ocsp_cert_subject_name) + "&signing="
                     + URLEncoder.encode(ca_sign_cert_subject_name) + "&sslserver="
                     + URLEncoder.encode(ca_server_cert_subject_name) + "&audit_signing=" 
-                    + URLEncoder.encode(ca_audit_signing_cert_name) + "&urls=0"
+                    + URLEncoder.encode(ca_audit_signing_cert_subject_name) + "&urls=0"
                     + "";
             } else {
                 query_string = "p=11" + "&op=next" + "&xml=true" + "&sslserver="
@@ -1460,13 +1460,13 @@ public class ConfigureCA {
         parser.addOption("-key_size %s #Key Size", x_key_size); 
         parser.addOption("-key_type %s #Key type [RSA,ECC]", x_key_type); 
         parser.addOption("-token_name %s #HSM/Software Token name", x_token_name); 
-        parser.addOption("-token_pwd %s #HSM/Software Token password",
+        parser.addOption("-token_pwd %s #HSM/Software Token password (optional - only required for HSM)",
                 x_token_pwd); 
 
         parser.addOption("-save_p12 %s #Enable/Disable p12 Export[true,false]",
                 x_save_p12); 
-        parser.addOption("-backup_pwd %s #Backup Password for p12", x_backup_pwd); 
-        parser.addOption("-backup_fname %s #Backup File for p12, default is /root/tmp-ca.p12", x_backup_fname);
+        parser.addOption("-backup_pwd %s #Backup Password for p12 (optional, only required if -save_p12 = true)", x_backup_pwd); 
+        parser.addOption("-backup_fname %s #Backup File for p12, (optional, default is /root/tmp-ca.p12)", x_backup_fname);
 
         parser.addOption("-ca_sign_cert_subject_name %s #CA cert subject name",
                 x_ca_sign_cert_subject_name);
@@ -1486,27 +1486,27 @@ public class ConfigureCA {
         parser.addOption("-subsystem_name %s #CA subsystem name",
                 x_subsystem_name); 
         
-        parser.addOption("-external %s #Subordinate to external CA [true,false]",
+        parser.addOption("-external %s #Subordinate to external CA [true,false] (optional, default false)",
                 x_external_ca); 
-        parser.addOption("-ext_ca_cert_file %s #File with CA cert from external CA",
+        parser.addOption("-ext_ca_cert_file %s #File with CA cert from external CA (optional)",
                 x_ext_ca_cert_file); 
-        parser.addOption("-ext_ca_cert_chain_file %s #File with CA cert from external CA",
+        parser.addOption("-ext_ca_cert_chain_file %s #File with CA cert from external CA (optional)",
                 x_ext_ca_cert_chain_file);
-        parser.addOption("-ext_csr_file %s #File to save the CSR for submission to an external CA",
+        parser.addOption("-ext_csr_file %s #File to save the CSR for submission to an external CA (optional)",
                 x_ext_csr_file);
 
-        parser.addOption("-clone %s #Clone of another CA [true, false]", x_clone);
-        parser.addOption("-clone_uri %s #URL of Master CA to clone", x_clone_uri);
-        parser.addOption("-clone_p12_file %s #File containing pk12 keys of Master CA", x_clone_p12_file);
-        parser.addOption("-clone_p12_password %s #Password for pk12 file", x_clone_p12_passwd);
+        parser.addOption("-clone %s #Clone of another CA [true, false] (optional, default false)", x_clone);
+        parser.addOption("-clone_uri %s #URL of Master CA to clone (optional)", x_clone_uri);
+        parser.addOption("-clone_p12_file %s #File containing pk12 keys of Master CA (optional, required if -clone=true)", x_clone_p12_file);
+        parser.addOption("-clone_p12_password %s #Password for pk12 file (optional, required if -clone=true)", x_clone_p12_passwd);
 
-        parser.addOption ("-sd_hostname %s #Security Domain Hostname", x_sd_hostname);
-        parser.addOption ("-sd_ssl_port %s #Security Domain SSL EE port", x_sd_ssl_port);
-        parser.addOption ("-sd_agent_port %s #Security Domain SSL Agent port", x_sd_agent_port);
-        parser.addOption ("-sd_admin_port %s #Security Domain SSL Admin port", x_sd_admin_port);
-        parser.addOption ("-sd_admin_name %s #Security Domain admin name",
+        parser.addOption ("-sd_hostname %s #Security Domain Hostname (optional, required if -clone=true)", x_sd_hostname);
+        parser.addOption ("-sd_ssl_port %s #Security Domain SSL EE port (optional, required if -clone=true)", x_sd_ssl_port);
+        parser.addOption ("-sd_agent_port %s #Security Domain SSL Agent port (optional, required if -clone=true)", x_sd_agent_port);
+        parser.addOption ("-sd_admin_port %s #Security Domain SSL Admin port (optional, required if -clone=true)", x_sd_admin_port);
+        parser.addOption ("-sd_admin_name %s #Security Domain admin name (optional, required if -clone=true)",
             x_sd_admin_name);
-        parser.addOption ("-sd_admin_password %s #Security Domain admin password",
+        parser.addOption ("-sd_admin_password %s #Security Domain admin password (optional, required if -clone=true)",
             x_sd_admin_password);
 
 
@@ -1519,6 +1519,8 @@ public class ConfigureCA {
             System.out.println("ERROR: Argument Mismatch");
             System.exit(-1);
         }
+
+        parser.checkRequiredArgs();
 
         // set variables
         cs_hostname = x_cs_hostname.value;

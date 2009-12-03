@@ -131,6 +131,7 @@ public class ConfigureDRM
         public static String drm_audit_signing_cert_cert = null;
 
 	public static String backup_pwd = null;
+	public static String backup_fname = null;
 
 	// cert subject names 
 	public static String drm_transport_cert_subject_name = null;
@@ -641,15 +642,24 @@ public class ConfigureDRM
 
 		try
 		{
-			FileOutputStream fos = new FileOutputStream("/tmp/tmp-kra.p12");
+			FileOutputStream fos = new FileOutputStream(backup_fname);
 			fos.write(hr.getResponseData());
 			fos.close();
 
+                        // set file to permissions 600
+                        String rtParams[] = { "chmod","600", backup_fname};
+                        Process proc = Runtime.getRuntime().exec(rtParams);
+
+                        BufferedReader br = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+                        String line = null;
+                        while ( (line = br.readLine()) != null)
+                            System.out.println("Error: "  + line);
+                        int exitVal = proc.waitFor();
 			
 		// verify p12 file
 		
 		// Decode the P12 file
-		FileInputStream fis = new FileInputStream("/tmp/tmp-kra.p12");
+		FileInputStream fis = new FileInputStream(backup_fname);
 		PFX.Template pfxt = new PFX.Template();
 		PFX pfx = (PFX) pfxt.decode(new BufferedInputStream(fis, 2048));
 		System.out.println("Decoded PFX");
@@ -1000,6 +1010,7 @@ public class ConfigureDRM
 
 		StringHolder x_agent_name = new StringHolder();
 		StringHolder x_backup_pwd = new StringHolder();
+		StringHolder x_backup_fname = new StringHolder();
 
 		// drm cert subject name params
 		StringHolder x_drm_subsystem_cert_subject_name = new StringHolder();
@@ -1075,7 +1086,7 @@ public class ConfigureDRM
 							x_key_type); 
 		parser.addOption ("-token_name %s #HSM/Software Token name",
 							x_token_name); 
-		parser.addOption ("-token_pwd %s #HSM/Software Token password",
+		parser.addOption ("-token_pwd %s #HSM/Software Token password (optional, required for HSM)",
 							x_token_pwd); 
 
 		parser.addOption ("-agent_key_size %s #Agent Cert Key Size",
@@ -1087,6 +1098,9 @@ public class ConfigureDRM
 
 		parser.addOption ("-backup_pwd %s #PKCS12 password",
 							x_backup_pwd); 
+
+                parser.addOption("-backup_fname %s #Backup File for p12, (optional, default /root/tmp-kra.p12)", 
+                                                        x_backup_fname);
 
 		parser.addOption (
 		"-drm_transport_cert_subject_name %s #DRM transport cert subject name",
@@ -1118,6 +1132,8 @@ public class ConfigureDRM
 			System.out.println("ERROR: Argument Mismatch");
 			System.exit(-1);
 		}
+
+                parser.checkRequiredArgs();
 
 		// set variables
 		cs_hostname = x_cs_hostname.value;
@@ -1161,6 +1177,11 @@ public class ConfigureDRM
 		agent_cert_subject = x_agent_cert_subject.value;
 
 		backup_pwd = x_backup_pwd.value;
+                if ((x_backup_fname.value == null) || (x_backup_fname.equals(""))) {
+                    backup_fname = "/root/tmp-kra.p12";
+                } else {
+                    backup_fname = x_backup_fname.value;
+                }
 		
 		drm_transport_cert_subject_name = 
 			x_drm_transport_cert_subject_name.value ;

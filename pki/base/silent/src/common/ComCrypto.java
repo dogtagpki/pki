@@ -85,14 +85,6 @@ public class ComCrypto {
     private CryptoStore store;
     private Password pass1 = null, pass2 = null;
 
-    public String C = null;
-    public String OU = null;
-    public String O = null;
-    public String CN = null;
-    public String UID = null;
-    public String L = null;
-    public String E = null;
-
     private String bstr = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     private String blob, Blob1 = null;
     private String Blob2 = null;
@@ -500,57 +492,6 @@ public class ComCrypto {
         return false;
     }
 
-    public boolean getNames() throws Exception {
-
-        X500Name name = new X500Name(certnickname);
-
-        try {
-            C = name.getCountry();
-        } catch (Exception e) {
-            System.out.println("Exception: ");
-            e.getMessage();
-        }
-        try {
-            O = name.getOrganization();
-        } catch (Exception e) {
-            System.out.println("Exception: ");
-            e.getMessage();
-        }
-        try {
-            OU = name.getOrganizationalUnit();
-        } catch (Exception e) {
-            System.out.println("Exception: ");
-            e.getMessage();
-        }
-        try {
-            CN = name.getCommonName();
-        } catch (Exception e) {
-            System.out.println("Exception: ");
-            e.getMessage();
-        }
-        try {
-            UID = name.getCommonName();
-        } catch (Exception e) {
-            System.out.println("Exception: ");
-            e.getMessage();
-        }
-        try {
-            L = name.getLocality();
-        } catch (Exception e) {
-            System.out.println("Exception: ");
-            e.getMessage();
-        }
-        try {
-            E = name.getEmail();
-        } catch (Exception e) {
-            System.out.println("Exception: ");
-            e.getMessage();
-
-        }
-
-        return true;
-    }
-
     public String generateCRMFrequest() {
         URL url = null;
         URLConnection conn = null;
@@ -616,33 +557,13 @@ public class ComCrypto {
 
             certTemplate.setVersion(new INTEGER(2));
 
-            // Call getname to split certnickname aka cert subject name
-            try {
-                getNames();
-            } catch (Exception e) {
-                System.out.println("Exception: ");
-                e.getMessage();
+            if (certnickname != null) {
+                X500Name name = new X500Name(certnickname);
+                ByteArrayInputStream cs = new ByteArrayInputStream(name.getEncoded()); 
+                Name n = (Name) Name.getTemplate().decode(cs);
+                certTemplate.setSubject(n);
             }
 
-            Name n = new Name(); 
-
-            if (CN != null) {
-                n.addCommonName(CN);
-            } 
-            if (C != null) {
-                n.addCountryName(C);
-            } 
-            if (L != null) {
-                n.addLocalityName(L);
-            } 
-            if (OU != null) {
-                n.addOrganizationalUnitName(OU);
-            }
-            if (O != null) {
-                n.addOrganizationName(O);
-            }
-
-            certTemplate.setSubject(n);
             certTemplate.setPublicKey(new SubjectPublicKeyInfo(pair.getPublic()));
 
             SEQUENCE seq = new SEQUENCE();
@@ -783,28 +704,12 @@ public class ComCrypto {
 
             certTemplate.setVersion(new INTEGER(2));
 
-            // Call getname to split certnickname aka cert subject name
-            getNames();
-
-            Name n = new Name();
-
-            if (CN != null) {
-                n.addCommonName(CN);
+            if (certnickname != null) {
+                X500Name name = new X500Name(certnickname);
+                ByteArrayInputStream cs = new ByteArrayInputStream(name.getEncoded());
+                Name n = (Name) Name.getTemplate().decode(cs);
+                certTemplate.setSubject(n);
             }
-            if (C != null) {
-                n.addCountryName(C);
-            }
-            if (L != null) {
-                n.addLocalityName(L);
-            }
-            if (OU != null) {
-                n.addOrganizationalUnitName(OU);
-            }
-            if (O != null) {
-                n.addOrganizationName(O);
-            }
-
-            certTemplate.setSubject(n);
 
             certTemplate.setPublicKey(new SubjectPublicKeyInfo(pair.getPublic()));
 

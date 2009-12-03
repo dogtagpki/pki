@@ -676,6 +676,7 @@ public class ArgParser
 	   int type;
 	   int numValues;
 	   boolean vectorResult = false;
+           boolean required = true;
 
 	   String helpMsg = null;
 	   String valueDesc = null;
@@ -1682,28 +1683,35 @@ public class ArgParser
 	   // skip white space following conversion information
 	   scanner.skipWhiteSpace();
 
-	   // get the help message, if any
+           // get the help message, if any
 
-	   if (!scanner.atEnd())
-	    { if (scanner.getc() != '#')
-	       { throw new IllegalArgumentException
-		   ("Illegal character(s), expecting '#'");
-	       }
-	      String helpInfo = scanner.substring (scanner.getIndex());
-	      // look for second '#'. If there is one, then info
-	      // between the first and second '#' is the value descriptor.
-	      int k = helpInfo.indexOf ("#");
-	      if (k != -1)
-	       { rec.valueDesc = helpInfo.substring (0, k);
-		 rec.helpMsg = helpInfo.substring (k+1);
-	       }
-	      else
-	       { rec.helpMsg = helpInfo; 
-	       }
-	    }
-	   else
-	    { rec.helpMsg = "";
-	    }
+           if (!scanner.atEnd())
+            { if (scanner.getc() != '#')
+               { throw new IllegalArgumentException
+                   ("Illegal character(s), expecting '#'");
+               }
+              String helpInfo = scanner.substring (scanner.getIndex());
+              // look for second '#'. If there is one, then info
+              // between the first and second '#' is the value descriptor.
+              int k = helpInfo.indexOf ("#");
+              if (k != -1)
+               { rec.valueDesc = helpInfo.substring (0, k);
+                 rec.helpMsg = helpInfo.substring (k+1);
+               }
+              else
+               { rec.helpMsg = helpInfo;
+               }
+            }
+           else
+            { rec.helpMsg = "";
+            }
+
+           // parse helpMsg for required/optional information if present
+           // default to required 
+           if (rec.helpMsg.indexOf("(optional") != -1) {
+               rec.required = false;
+           }
+
 	   // add option information to match list
 	   if (rec.convertCode == 'h' && firstHelpOption == defaultHelpOption)
 	    { matchList.remove (defaultHelpOption);
@@ -1742,6 +1750,17 @@ public class ArgParser
 	    }
 	   return null;
 	 }
+
+        public void checkRequiredArgs() {
+            for (int i=1; i<matchList.size(); i++) {
+                Record rec = (Record)matchList.get(i);
+                StringHolder myString = (StringHolder) rec.resHolder;
+                if (((myString.value == null) || (myString.value.equals(""))) && (rec.required)) {
+                    printErrorAndExit("Required parameter " + rec.nameList.name + " is not specified.");
+                }
+            }
+        } 
+
 
 	Object getResultHolder (String arg)
 	 {
