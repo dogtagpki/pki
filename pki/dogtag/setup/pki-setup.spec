@@ -1,6 +1,6 @@
 Name:           pki-setup
 Version:        1.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -19,6 +19,8 @@ Requires:       perl-XML-SAX
 Requires:       perl-libwww-perl
 Requires:       pki-native-tools
 Requires:       policycoreutils
+%{?fc11:Requires: policycoreutils-python}
+%{?fc12:Requires: policycoreutils-python}
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -55,6 +57,11 @@ rm -rf %{buildroot}
 %{_datadir}/pki/scripts/
 
 %changelog
+* Mon Dec 7 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
+- Bugzilla Bug #528556 -  policycoreutils-python (semanage) prerequisite
+  missing from rpm
+- Added "conditional" support for Fedora 11
+- Added "conditional" support for Fedora 12
 * Mon Nov 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #533518 -  Remove "pkihost" script from pki-setup . . .
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2

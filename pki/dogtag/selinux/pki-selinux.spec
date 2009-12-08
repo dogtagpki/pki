@@ -1,6 +1,6 @@
 Name:           pki-selinux
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - PKI Selinux Policies
 URL:            https://pki.fedoraproject.org/
 License:        GPLv2 with exceptions
@@ -15,13 +15,11 @@ BuildRequires: m4
 BuildRequires: make
 BuildRequires: policycoreutils
 BuildRequires: selinux-policy-devel
-%{?fc9:BuildRequires: selinux-policy-devel >= 3.3.1-118}
 %{?fc10:BuildRequires: selinux-policy-devel >= 3.5.13-41}
 %{?fc11:BuildRequires: selinux-policy-devel >= 3.6.3-10}
 
 Requires: policycoreutils
 Requires: selinux-policy-targeted
-%{?fc9:Requires: selinux-policy-targeted >= 3.3.1-118}
 %{?fc10:Requires: selinux-policy-targeted >= 3.5.13-41}
 %{?fc11:Requires: selinux-policy-targeted >= 3.6.3-10}
 
@@ -88,6 +86,10 @@ fi
 %{_datadir}/selinux/modules/pki.pp
 
 %changelog
+* Mon Dec 7 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #528556 -  policycoreutils-python (semanage) prerequisite
+  missing from rpm
+- Removed "conditional" support for Fedora 9
 * Tue Nov 17 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #521255 - Packaging for Fedora Dogtag PKI
 - Remove un-necessary installation steps.
