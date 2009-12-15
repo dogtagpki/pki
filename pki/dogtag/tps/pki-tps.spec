@@ -13,7 +13,6 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  apr-devel
 BuildRequires:  apr-util-devel
-BuildRequires:  bash
 BuildRequires:  cyrus-sasl-devel
 BuildRequires:  dogtag-pki-tps-ui
 BuildRequires:  httpd-devel >= 2.2.3
@@ -131,6 +130,7 @@ fi
 
 %changelog
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-3
+- Removed BuildRequires bash
 - Removed 'with exceptions' from License
 
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2

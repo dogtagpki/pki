@@ -9,7 +9,6 @@ Group:          System Environment/Libraries
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
-BuildRequires:  bash
 BuildRequires:  java-devel >= 1:1.6.0
 BuildRequires:  jpackage-utils
 BuildRequires:  jss >= 4.2.6
@@ -71,6 +70,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.1-1
+- Removed BuildRequires bash
 - Removed 'with exceptions' from License
 
 * Fri Oct 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
