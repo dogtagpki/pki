@@ -4,7 +4,7 @@ Release:        4%{?dist}
 Summary:        Dogtag Certificate System - PKI Java-Based Tools
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
-Group:          System Environment/Shells
+Group:          System Environment/Base
 
 BuildArch:      noarch
 

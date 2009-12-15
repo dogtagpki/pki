@@ -4,7 +4,7 @@ Release:        2%{?dist}
 Summary:        Dogtag Certificate System - PKI Migration Scripts
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
-Group:          System Environment/Shells
+Group:          System Environment/Base
 
 # Suppress automatic 'requires' and 'provisions' of multi-platform 'binaries'
 AutoReqProv:    no
