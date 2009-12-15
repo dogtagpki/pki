@@ -54,8 +54,10 @@ rm -rf %{buildroot}
 %changelog
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-3
 - Removed 'with exceptions' from License
+
 * Mon Nov 2 2009 Ade Lee <alee@redhat.com> 1.3.0-2
 - Bugzilla Bug #522208 - Packaging for Fedora Dogtag
 - Take ownership of directories
+
 * Tue Oct 13 2009 Ade Lee <alee@redhat.com> 1.3.0-1
 - Bugzilla Bug #522208 - Packaging for Fedora Dogtag

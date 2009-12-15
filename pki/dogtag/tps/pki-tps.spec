@@ -1,9 +1,9 @@
 Name:           pki-tps
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System
 URL:            http://pki.fedoraproject.org/
-License:        LGPLv2 with exceptions
+License:        LGPLv2
 Group:          System Environment/Daemons
 
 # Suppress '/usr/lib/rpm/perl.req' and '/usr/lib/rpm/perl.prov'
@@ -130,9 +130,13 @@ fi
 %{_datadir}/pki/tps/
 
 %changelog
+* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-3
+- Removed 'with exceptions' from License
+
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #X - Packaging for Fedora Dogtag PKI
 - Prepended directory path in front of setup_package
 - Take ownership of pki tps directory.
+
 * Fri Oct 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
 - Bugzilla Bug #X - Packaging for Fedora Dogtag PKI

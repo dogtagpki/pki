@@ -1,9 +1,9 @@
 Name:           pki-migrate
 Version:        1.3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - PKI Migration Scripts
 URL:            http://pki.fedoraproject.org/
-License:        GPLv2 with exceptions
+License:        GPLv2
 Group:          System Environment/Shells
 
 # Suppress automatic 'requires' and 'provisions' of multi-platform 'binaries'
@@ -68,5 +68,8 @@ rm -rf %{buildroot}
 %{_datadir}/pki/migrate/*
 
 %changelog
+* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
+- Removed 'with exceptions' from License
+
 * Fri Oct 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
 - Bugzilla Bug #X - Packaging for Fedora Dogtag PKI

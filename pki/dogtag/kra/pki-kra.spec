@@ -1,9 +1,9 @@
 Name:           pki-kra
 Version:        1.3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Data Recovery Manager
 URL:            http://pki.fedoraproject.org/
-License:        GPLv2 with exceptions
+License:        GPLv2
 Group:          System Environment/Daemons
 
 BuildArch:      noarch
@@ -110,5 +110,8 @@ fi
 %{_datadir}/pki/kra/*
 
 %changelog
+* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
+- Removed 'with exceptions' from License
+
 * Thu Oct 15 2009 Ade Lee <alee@redhat.com> 1.3.0-1
 - Bugzilla Bug #X - Packaging for Fedora Dogtag

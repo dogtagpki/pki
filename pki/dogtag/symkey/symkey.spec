@@ -72,12 +72,15 @@ rm -rf %{buildroot}
 %changelog
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.1-1
 - Removed 'with exceptions' from License
+
 * Fri Oct 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #522272 -  New Package for Dogtag PKI: symkey
 - Removed LICENSE logic from installation section
 - Take ownership of library directory
+
 * Tue Oct 27 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #522272 -  New Package for Dogtag PKI: symkey
 - Complied with Fedora JNI packaging logic
+
 * Mon Oct 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
 - Bugzilla Bug #522272 -  New Package for Dogtag PKI: symkey

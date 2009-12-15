@@ -70,12 +70,16 @@ rm -rf %{buildroot}
 %changelog
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.1-1
 - Removed 'with exceptions' from License
+
 * Fri Oct 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #521983 -  New package for Dogtag PKI: osutil
 - Removed LICENSE logic from installation section
 - Take ownership of library directory
+
 * Tue Oct 27 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
+
 - Bugzilla Bug #521983 -  New package for Dogtag PKI: osutil
 - Complied with Fedora JNI packaging logic
 * Thu Oct 8 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
+
 - Bugzilla Bug #521983 -  New package for Dogtag PKI: osutil

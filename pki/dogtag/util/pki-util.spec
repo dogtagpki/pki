@@ -86,10 +86,13 @@ rm -rf %{buildroot}
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-4
 - Removed 'with exceptions' from License
 * Tue Nov 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+
 - Bugzilla Bug #521989 - packaging for Fedora Dogtag
 - Use "_javadir" macro when appropriate
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
+
 - Bugzilla Bug #521989 - packaging for Fedora Dogtag
 - Take ownership of directories
 * Tue Oct 13 2009 Ade Lee <alee@redhat.com> 1.3.0-1
+
 - Bugzilla Bug #521989 - packaging for Fedora Dogtag

@@ -1,9 +1,9 @@
 Name:           dogtag-pki-console-ui
 Version:        1.3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - PKI Console User Interface
 URL:            http://pki.fedoraproject.org/
-License:        GPLv2 with exceptions
+License:        GPLv2
 Group:          System Environment/Base
 
 BuildArch:      noarch
@@ -60,5 +60,8 @@ rm -rf %{buildroot}
 %{_javadir}/pki
 
 %changelog
+* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
+- Removed 'with exceptions' from License
+
 * Wed Oct 14 2009 Ade Lee <alee@redhat.com> 1.3.0-1
 - Bugzilla Bug #X - Packaging for Fedora Dogtag
