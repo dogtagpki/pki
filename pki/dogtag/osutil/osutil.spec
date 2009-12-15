@@ -1,9 +1,9 @@
 Name:           osutil
-Version:        1.3.0
-Release:        3%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Operating System Utilities JNI Package
 URL:            http://pki.fedoraproject.org/
-License:        GPLv2 with exceptions
+License:        GPLv2
 Group:          System Environment/Libraries
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -68,6 +68,8 @@ rm -rf %{buildroot}
 %{_libdir}/%{name}/
 
 %changelog
+* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.1-1
+- Removed 'with exceptions' from License
 * Fri Oct 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #521983 -  New package for Dogtag PKI: osutil
 - Removed LICENSE logic from installation section

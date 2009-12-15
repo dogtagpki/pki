@@ -1,9 +1,9 @@
 Name:           dogtag-pki-ca-ui
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority User Interface
 URL:            http://pki.fedoraproject.org/
-License:        GPLv2 with exceptions
+License:        GPLv2
 Group:          System Environment/Base
 
 BuildArch:      noarch
@@ -52,6 +52,8 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-3
+- Removed 'with exceptions' from License
 * Mon Nov 2 2009 Ade Lee <alee@redhat.com> 1.3.0-2
 - Bugzilla Bug #522208 - Packaging for Fedora Dogtag
 - Take ownership of directories

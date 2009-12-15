@@ -1,9 +1,9 @@
 Name:           pki-java-tools
 Version:        1.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Dogtag Certificate System - PKI Java-Based Tools
 URL:            http://pki.fedoraproject.org/
-License:        GPLv2 with exceptions
+License:        GPLv2
 Group:          System Environment/Shells
 
 BuildArch:      noarch
@@ -76,6 +76,8 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-4
+- Removed 'with exceptions' from License
 * Tue Nov 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #521995 - Packaging for Fedora Dogtag PKI
 - Use "_javadir" macro when appropriate
