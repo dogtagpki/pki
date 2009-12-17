@@ -1,9 +1,9 @@
 Name:           pki-ca
 Version:        1.3.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
-License:        GPLv2 with exceptions
+License:        GPLv2
 Group:          System Environment/Daemons
 
 BuildArch:      noarch
@@ -23,6 +23,11 @@ Requires:       java >= 1:1.6.0
 Requires:       pki-ca-ui
 Requires:       pki-common
 Requires:       pki-selinux
+Requires:       pki-silent
+Requires(post):    chkconfig
+Requires(preun):   chkconfig
+Requires(preun):   initscripts
+Requires(postun):  initscripts
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -43,6 +48,7 @@ subordinate CA, where it obtains its own signing certificate from a public CA.
 
 %build
 ant \
+    -Dinit.d="rc.d/init.d" \
     -Dproduct.ui.flavor.prefix="" \
     -Dproduct.prefix="pki" \
     -Dproduct="ca" \
@@ -58,59 +64,59 @@ cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/ca/conf/CS.cfg
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/ca/conf/CS.cfg
-cd %{buildroot}%{_javadir}/pki/ca
+mkdir -p %{buildroot}%{_localstatedir}/lock/pki/ca
+mkdir -p %{buildroot}%{_localstatedir}/run/pki/ca
+cd %{buildroot}%{_javadir}
 mv ca.jar ca-%{version}.jar
 ln -s ca-%{version}.jar ca.jar
 
 %clean
 rm -rf %{buildroot}
 
-%pre
-if [ `grep -c pkiuser /etc/group` -eq 0 ] ; then
-        echo "Adding default PKI group \"pkiuser\" to /etc/group."
-        groupadd pkiuser
-fi
-if [ `grep -c pkiuser /etc/passwd` -eq 0 ] ; then
-        echo "Adding default PKI user \"pkiuser\" to /etc/passwd."
-        useradd -g pkiuser -d %{_datadir}/pki -s /sbin/nologin -c "Dogtag Certificate System" -m pkiuser
-fi
-
 %post
-%{_datadir}/pki/ca/setup/postinstall pki ca %{version} %{release}
-echo ""
-echo "Install finished."
+# This adds the proper /etc/rc*.d links for the script
+/sbin/chkconfig --add pki-cad
 
 %preun
-if [ -d /var/lib/pki-ca ] ; then
-        echo "WARNING:  The default instance \"/var/lib/pki-ca\" was NOT removed!"
-        echo ""
-        echo "NOTE:  This means that the data in the default instance called"
-        echo "       \"/var/lib/pki-ca\" will NOT be overwritten once the"
-        echo "       \"%{name}\" package is re-installed."
-        echo ""
-        echo "Shutting down the default instance \"/var/lib/pki-ca\""
-        echo "PRIOR to uninstalling the \"%{name}\" package:"
-        echo ""
-        /etc/init.d/pki-ca stop
+if [ $1 = 0 ] ; then
+    /sbin/service pki-cad stop >/dev/null 2>&1 || :
+    /sbin/chkconfig --del pki-cad
+fi
+
+%postun
+if [ "$1" -ge "1" ] ; then
+    /sbin/service pki-cad condrestart >/dev/null 2>&1 || :
 fi
 
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_javadir}/pki/ca/
-%{_datadir}/pki/ca/
+%{_initrddir}/*
+%{_javadir}/
+%{_datadir}/pki/
+%{_localstatedir}/lock/*
+%{_localstatedir}/run/*
 
 %changelog
+* Mon Dec 7 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
+- Bugzilla Bug #522210 - Packaging for Fedora Dogtag
+- Bugzilla Bug #529070 -  rpm packaging problems (cannot reinstall correctly) 
+- Removed 'with exceptions' from License
+
 * Tue Nov 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
 - Bugzilla Bug #522210 - Packaging for Fedora Dogtag
 - Use "_javadir" macro when appropriate
+
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #522210 - Packaging for Fedora Dogtag
 - Take ownership of directories
+
 * Tue Oct 13 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #522210 - Packaging for Fedora Dogtag
+
 * Fri Sep 18 2009 Ade Lee <alee@redhat.com> 1.3.0-2
 - Bugzilla Bug 522210 - addtional changes for packaging for Fedora Dogtag
   remove unused defines, unneeded attr defs, unneeded comments, autoreqprov
+
 * Wed Sep 9 2009 Ade Lee <alee@redhat.com> 1.3.0-1
 - Bugzilla Bug 522210 - Packaging for Fedora Dogtag

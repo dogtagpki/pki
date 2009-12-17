@@ -1,10 +1,10 @@
 Name:           pki-setup
 Version:        1.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
-License:        GPLv2 with exceptions
-Group:          System Environment/Shells
+License:        GPLv2
+Group:          System Environment/Base
 
 BuildArch:      noarch
 
@@ -57,15 +57,23 @@ rm -rf %{buildroot}
 %{_datadir}/pki/scripts/
 
 %changelog
+* Mon Dec 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
+- Bugzilla Bug #521993 - packaging for Fedora Dogtag
+- Bugzilla Bug #529070 -  rpm packaging problems (cannot reinstall correctly) 
+- Removed 'with exceptions' from License
+
 * Mon Dec 7 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #528556 -  policycoreutils-python (semanage) prerequisite
   missing from rpm
 - Added "conditional" support for Fedora 11
 - Added "conditional" support for Fedora 12
+
 * Mon Nov 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #533518 -  Remove "pkihost" script from pki-setup . . .
+
 * Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
 - Bugzilla Bug #521993 - packaging for Fedora Dogtag
 - Take ownership of directories
+
 * Tue Oct 13 2009 Ade Lee <alee@redhat.com> 1.3.0-1
 - Bugzilla Bug #521993 - packaging for Fedora Dogtag
