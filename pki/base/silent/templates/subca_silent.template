@@ -139,7 +139,7 @@ pki_host=`hostname`
 ca_subsystem_name="Certificate\ Authority"
 
 ##  PKI Subsystem Instance Names
-subca_instance_name="pki-ca1"
+subca_instance_name="pki-subca"
 
 ##
 ##  NOTE:  Default PKI Instance Ports
@@ -158,7 +158,7 @@ subca_instance_name="pki-ca1"
 ##      semanage port -l | grep pki
 ##
 ##      pki_ca_port_t          tcp      9180, 9701, 9443, 9444, 9445
-##      pki_ca1_port_t         tcp      9580, 9801, 9543, 9544, 9545
+##      pki_subca_port_t       tcp      9580, 9801, 9543, 9544, 9545
 ##
 
 ## CA ports

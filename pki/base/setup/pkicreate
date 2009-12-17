@@ -26,17 +26,17 @@
 # Sample Invocation (for CA):
 #
 #    ./pkicreate -pki_instance_root=/var/lib
-#                -pki_instance_name=pki-ca1
+#                -pki_instance_name=pki-ca
 #                -subsystem_type=ca
-#                -agent_secure_port=9543
-#                -ee_secure_port=9544
-#                -admin_secure_port=9545
-#                -unsecure_port=9580
-#                -tomcat_server_port=9801
+#                -agent_secure_port=9443
+#                -ee_secure_port=9444
+#                -admin_secure_port=9445
+#                -unsecure_port=9180
+#                -tomcat_server_port=9701
 #                -user=pkiuser
 #                -group=pkiuser
-#                -redirect conf=/etc/pki-ca1
-#                -redirect logs=/var/log/pki-ca1
+#                -redirect conf=/etc/pki-ca
+#                -redirect logs=/var/log/pki-ca
 #                -verbose
 #
 ##############################################################
@@ -134,7 +134,7 @@ $pki_flavor =~ s/\s+$//g;
 
 # Establish path to scripts
 my $pki_subsystem_common_area = "/usr/share/$pki_flavor";
-my $common_path = "/usr/share/pki/scripts";
+my $common_path = "/usr/share/$pki_flavor/scripts";
 
 if( ! -d "$common_path" ) {
     print( STDERR
@@ -179,14 +179,6 @@ my $pkicomplete = "$pki_subsystem_common_area/scripts/pkicomplete";
 my $jdbc_stdext_link = "/var/lib/tomcat5/common/lib/\[jdbc-stdext\].jar";
 my $jndi_link        = "/var/lib/tomcat5/common/lib/\[jndi\].jar";
 my $jaas_link        = "/var/lib/tomcat5/server/lib/\[jaas\].jar";
-
-# Subsystem names
-my $CA   = "ca";
-my $OCSP = "ocsp";
-my $KRA  = "kra";
-my $TKS  = "tks";
-my $RA   = "ra";
-my $TPS  = "tps";
 
 # Base subsystem directory names
 my $acl_base_subsystem_dir      = "acl";       # CA, KRA, OCSP, TKS
@@ -250,8 +242,10 @@ my $cmsbundle_jar_base_name      = "cmsbundle.jar";        # CA, KRA, OCSP, TKS
 my $cmscore_jar_base_name        = "cmscore.jar";          # CA, KRA, OCSP, TKS
 my $conf_base_name               = "conf";                 # CA, KRA, OCSP, TKS,
                                                            # RA, TPS
-my $httpd_base_name              = "httpd";                # CA, KRA, OCSP, TKS,
+# BEGIN Legacy Start/Stop Implementation
+my $httpd_base_name              = "httpd";                # KRA, OCSP, TKS,
                                                            # RA, TPS
+# END Legacy Start/Stop Implementation
 my $httpd_conf_base_name         = "httpd.conf";           # RA, TPS
 my $index_html_base_name         = "index.html";           # CA, KRA, OCSP, TKS
 my $logs_base_name               = "logs";                 # CA, KRA, OCSP, TKS,
@@ -278,7 +272,9 @@ my $velocity_prop_base_name      = "velocity.properties";  # CA, KRA, OCSP, TKS
 my $web_xml_base_name            = "web.xml";              # CA, KRA, OCSP, TKS
 
 # Subdirectory names
-my $initd_base_subsystem_dir        = "init.d";      # CA, KRA, OCSP, TKS, RA, TPS
+# BEGIN Legacy Start/Stop Implementation
+my $initd_base_subsystem_dir        = "init.d";      # KRA, OCSP, TKS, RA, TPS
+# END Legacy Start/Stop Implementation
 my $perl_base_instance_symlink      = "perl";        # RA, TPS
 my $perl_base_subsystem_dir         = "perl";        # RA, TPS
 my $signed_audit_base_instance_dir  = "signedAudit"; # CA, KRA, OCSP, TKS, TPS
@@ -293,7 +289,6 @@ my $default_dir_permissions        = 00770;
 my $default_exe_permissions        = 00770;
 my $default_file_permissions       = 00660;
 my $default_security_token         = "internal";
-my $default_start_stop_scripts     = "/etc/init.d";
 my $default_tomcat_common_path     = "/var/lib/tomcat5/common";
 
 # Default PKI user and group to give to PKI installed files
@@ -514,7 +509,6 @@ my $httpd_conf_subsystem_file_path            = "";  # RA, TPS
 my $index_html_instance_file_path             = "";  # CA, KRA, OCSP, TKS
 my $index_html_subsystem_file_path            = "";  # CA, KRA, OCSP, TKS
 my $java_pki_flavor_jar_path                  = "";  # CA, KRA, OCSP, TKS
-my $java_pki_flavor_subsystem_jar_path        = "";  # CA, KRA, OCSP, TKS
 my $magic_instance_file_path                  = "";  # RA, TPS
 my $magic_subsystem_file_path                 = "";  # RA, TPS
 my $mime_types_instance_file_path             = "";  # RA, TPS
@@ -538,14 +532,14 @@ my $pki_cfg_instance_file_path                = "";  # CA, KRA, OCSP, TKS,
                                                      # RA, TPS
 my $pki_cfg_subsystem_file_path               = "";  # CA, KRA, OCSP, TKS,
                                                      # RA, TPS
-my $pki_start_stop_command                    = "";  # CA, KRA, OCSP, TKS,
+# BEGIN Legacy Start/Stop Implementation
+my $pki_start_stop_script_instance_file_path  = "";  # KRA, OCSP, TKS,
                                                      # RA, TPS
-my $pki_start_stop_script_instance_file_path  = "";  # CA, KRA, OCSP, TKS,
+my $pki_start_stop_script_subsystem_file_path = "";  # KRA, OCSP, TKS,
                                                      # RA, TPS
-my $pki_start_stop_script_subsystem_file_path = "";  # CA, KRA, OCSP, TKS,
+my $pki_start_stop_script_symlink_path        = "";  # KRA, OCSP, TKS,
                                                      # RA, TPS
-my $pki_start_stop_script_symlink_path        = "";  # CA, KRA, OCSP, TKS,
-                                                     # RA, TPS
+# END Legacy Start/Stop Implementation
 my $schemaMods_ldif_instance_file_path        = "";  # RA, TPS
 my $schemaMods_ldif_subsystem_file_path       = "";  # RA, TPS
 my $server_xml_instance_file_path             = "";  # CA, KRA, OCSP, TKS
@@ -567,6 +561,26 @@ my $webinf_instance_path                      = "";  # CA, KRA, OCSP, TKS
 my $webinf_lib_instance_path                  = "";  # CA, KRA, OCSP, TKS
 my $webinf_subsystem_path                     = "";  # CA, KRA, OCSP, TKS
 
+# PKI init script variables
+my $default_init_scripts_path                 = "";  # CA, KRA, OCSP, TKS
+                                                     # RA, TPS
+my $pki_init_script                           = "";  # CA, KRA, OCSP, TKS,
+                                                     # RA, TPS
+my $pki_init_script_command                   = "";  # CA, KRA, OCSP, TKS,
+                                                     # RA, TPS
+
+# PKI registry variables
+my $default_registry_path                     = "";  # CA, KRA, OCSP, TKS
+                                                     # RA, TPS
+my $pki_registry_path                         = "";  # CA, KRA, OCSP, TKS
+                                                     # RA, TPS
+my $pki_registry_subsystem_path               = "";  # CA, KRA, OCSP, TKS
+                                                     # RA, TPS
+my $pki_instance_registry                     = "";  # CA, KRA, OCSP, TKS
+                                                     # RA, TPS
+my $pki_instance_registry_entry               = "";  # CA, KRA, OCSP, TKS
+                                                     # RA, TPS
+
 # PKI creation variables
 my $host = "";
 my $db_password = 0;
@@ -586,6 +600,12 @@ if( $^O eq "linux" ) {
     # Linux required desktop files
     $setup_config_area = "/usr/share/applications";
     $setup_config_name = "config.desktop";
+
+    # Linux init scripts
+    $default_init_scripts_path = "/etc/rc.d/init.d";
+
+    # Linux registry
+    $default_registry_path = "/etc/sysconfig";
 
     # Platform-specific directories
     @pki_static_directories = ( "temp",
@@ -607,6 +627,12 @@ if( $^O eq "linux" ) {
                                 "shared/common",
                                 "shared/lib",
                                 "work" );
+
+    # Solaris init scripts
+    $default_init_scripts_path      = "/etc/init.d";
+
+    # Solaris registry
+    $default_registry_path = "/etc/inet";
 
     # Superuser and group to give to PKI installed files
     $root_user = "root";
@@ -716,6 +742,10 @@ if( -l $jaas_link ) {
         exit 255;
     }
 }
+
+# Establish PKI-level registry
+$pki_registry_path = $default_registry_path
+                   . "/" . $pki_flavor;
 
 
 ##############################################################
@@ -875,36 +905,113 @@ sub usage()
 
     print( STDOUT
            "###############################################################################\n"
-         . "###   EXAMPLE:  PKI (Apache) subsystem instance creation of a TPS           ###\n"
+         . "###   EXAMPLES:                                                             ###\n"
+         . "###       PKI (Tomcat) subsystem instance creation of a  CA                 ###\n"
+         . "###       PKI (Tomcat) subsystem instance creation of a  Subordinate CA     ###\n"
+         . "###       PKI (Tomcat) subsystem instance creation of a  KRA                ###\n"
+         . "###       PKI (Tomcat) subsystem instance creation of an OCSP               ###\n"
+         . "###       PKI (Tomcat) subsystem instance creation of a  TKS                ###\n"
+         . "###       PKI (Apache) subsystem instance creation of an RA                 ###\n"
+         . "###       PKI (Apache) subsystem instance creation of a  TPS                ###\n"
+         . "###       PKI (Apache) subsystem instance creation of a  second TPS         ###\n"
          . "###############################################################################\n\n"
-         . "pkicreate -pki_instance_root=/var/lib      \\\n"
-         . "          -pki_instance_name=$pki_flavor-tps1      \\\n"
-         . "          -subsystem_type=tps              \\\n"
-         . "          -secure_port=7989                \\\n"
-         . "          -non_clientauth_secure_port=7990 \\\n"
-         . "          -unsecure_port=7988              \\\n"
-         . "          -user=pkiuser                    \\\n"
-         . "          -group=pkiuser                   \\\n"
-         . "          -redirect conf=/etc/$pki_flavor-tps1     \\\n"
-         . "          -redirect logs=/var/log/$pki_flavor-tps1 \\\n"
-         . "          -verbose\n\n" );
-
-    print( STDOUT
-           "###############################################################################\n"
-         . "###   EXAMPLE:  PKI (Tomcat) subsystem instance creation of a CA            ###\n"
-         . "###############################################################################\n\n"
-         . "pkicreate -pki_instance_root=/var/lib     \\\n"
-         . "          -pki_instance_name=$pki_flavor-ca1      \\\n"
-         . "          -subsystem_type=ca              \\\n"
-         . "          -agent_secure_port=9543         \\\n"
-         . "          -ee_secure_port=9544            \\\n"
-         . "          -admin_secure_port=9545         \\\n"
-         . "          -unsecure_port=9580             \\\n"
-         . "          -tomcat_server_port=9801        \\\n"
-         . "          -user=pkiuser                   \\\n"
-         . "          -group=pkiuser                  \\\n"
-         . "          -redirect conf=/etc/$pki_flavor-ca1     \\\n"
-         . "          -redirect logs=/var/log/$pki_flavor-ca1 \\\n"
+         . "pkicreate -pki_instance_root=/var/lib        \\\n"
+         . "          -pki_instance_name=pki-ca          \\\n"
+         . "          -subsystem_type=ca                 \\\n"
+         . "          -agent_secure_port=9443            \\\n"
+         . "          -ee_secure_port=9444               \\\n"
+         . "          -admin_secure_port=9445            \\\n"
+         . "          -unsecure_port=9180                \\\n"
+         . "          -tomcat_server_port=9701           \\\n"
+         . "          -user=pkiuser                      \\\n"
+         . "          -group=pkiuser                     \\\n"
+         . "          -redirect conf=/etc/pki-ca         \\\n"
+         . "          -redirect logs=/var/log/pki-ca     \\\n"
+         . "          -verbose\n\n"
+         . "pkicreate -pki_instance_root=/var/lib        \\\n"
+         . "          -pki_instance_name=pki-subca       \\\n"
+         . "          -subsystem_type=ca                 \\\n"
+         . "          -agent_secure_port=9543            \\\n"
+         . "          -ee_secure_port=9544               \\\n"
+         . "          -admin_secure_port=9545            \\\n"
+         . "          -unsecure_port=9580                \\\n"
+         . "          -tomcat_server_port=9801           \\\n"
+         . "          -user=pkiuser                      \\\n"
+         . "          -group=pkiuser                     \\\n"
+         . "          -redirect conf=/etc/pki-subca      \\\n"
+         . "          -redirect logs=/var/log/pki-subca  \\\n"
+         . "          -verbose\n\n"
+         . "pkicreate -pki_instance_root=/var/lib        \\\n"
+         . "          -pki_instance_name=pki-kra         \\\n"
+         . "          -subsystem_type=kra                \\\n"
+         . "          -agent_secure_port=10443           \\\n"
+         . "          -ee_secure_port=10444              \\\n"
+         . "          -admin_secure_port=10445           \\\n"
+         . "          -unsecure_port=10180               \\\n"
+         . "          -tomcat_server_port=10701          \\\n"
+         . "          -user=pkiuser                      \\\n"
+         . "          -group=pkiuser                     \\\n"
+         . "          -redirect conf=/etc/pki-kra        \\\n"
+         . "          -redirect logs=/var/log/pki-kra    \\\n"
+         . "          -verbose\n\n"
+         . "pkicreate -pki_instance_root=/var/lib        \\\n"
+         . "          -pki_instance_name=pki-ocsp        \\\n"
+         . "          -subsystem_type=ocsp               \\\n"
+         . "          -agent_secure_port=11443           \\\n"
+         . "          -ee_secure_port=11444              \\\n"
+         . "          -admin_secure_port=11445           \\\n"
+         . "          -unsecure_port=11180               \\\n"
+         . "          -tomcat_server_port=11701          \\\n"
+         . "          -user=pkiuser                      \\\n"
+         . "          -group=pkiuser                     \\\n"
+         . "          -redirect conf=/etc/pki-ocsp       \\\n"
+         . "          -redirect logs=/var/log/pki-ocsp   \\\n"
+         . "          -verbose\n\n"
+         . "pkicreate -pki_instance_root=/var/lib        \\\n"
+         . "          -pki_instance_name=pki-tks         \\\n"
+         . "          -subsystem_type=tks                \\\n"
+         . "          -agent_secure_port=13443           \\\n"
+         . "          -ee_secure_port=13444              \\\n"
+         . "          -admin_secure_port=13445           \\\n"
+         . "          -unsecure_port=13180               \\\n"
+         . "          -tomcat_server_port=13701          \\\n"
+         . "          -user=pkiuser                      \\\n"
+         . "          -group=pkiuser                     \\\n"
+         . "          -redirect conf=/etc/pki-tks        \\\n"
+         . "          -redirect logs=/var/log/pki-tks    \\\n"
+         . "          -verbose\n\n"
+         . "pkicreate -pki_instance_root=/var/lib        \\\n"
+         . "          -pki_instance_name=pki-ra          \\\n"
+         . "          -subsystem_type=ra                 \\\n"
+         . "          -secure_port=12889                 \\\n"
+         . "          -non_clientauth_secure_port=12890  \\\n"
+         . "          -unsecure_port=12888               \\\n"
+         . "          -user=pkiuser                      \\\n"
+         . "          -group=pkiuser                     \\\n"
+         . "          -redirect conf=/etc/pki-ra         \\\n"
+         . "          -redirect logs=/var/log/pki-ra     \\\n"
+         . "          -verbose\n\n"
+         . "pkicreate -pki_instance_root=/var/lib        \\\n"
+         . "          -pki_instance_name=pki-tps         \\\n"
+         . "          -subsystem_type=tps                \\\n"
+         . "          -secure_port=7889                  \\\n"
+         . "          -non_clientauth_secure_port=7890   \\\n"
+         . "          -unsecure_port=7888                \\\n"
+         . "          -user=pkiuser                      \\\n"
+         . "          -group=pkiuser                     \\\n"
+         . "          -redirect conf=/etc/pki-tps        \\\n"
+         . "          -redirect logs=/var/log/pki-tps    \\\n"
+         . "          -verbose\n\n"
+         . "pkicreate -pki_instance_root=/var/lib        \\\n"
+         . "          -pki_instance_name=pki-tps1        \\\n"
+         . "          -subsystem_type=tps                \\\n"
+         . "          -secure_port=7989                  \\\n"
+         . "          -non_clientauth_secure_port=7990   \\\n"
+         . "          -unsecure_port=7988                \\\n"
+         . "          -user=pkiuser                      \\\n"
+         . "          -group=pkiuser                     \\\n"
+         . "          -redirect conf=/etc/pki-tps1       \\\n"
+         . "          -redirect logs=/var/log/pki-tps1   \\\n"
          . "          -verbose\n\n" );
 
     print( STDOUT
@@ -921,8 +1028,18 @@ sub pki_instance_already_exists
 {
     my $name = $_[0];
     my $result = 0;
+    my $instance = "";
 
-    my $instance = $default_start_stop_scripts . "/" . $name;
+    if( $subsystem_type ne $CA ) {
+        # BEGIN Legacy Start/Stop Implementation
+        $instance = $default_init_scripts_path
+                  . "/" . $name;
+        # END Legacy Start/Stop Implementation
+    } else {
+        $instance = $pki_registry_path
+                  . "/" . $subsystem_type
+                  . "/" . $name;
+    }
 
     if( -e $instance ) {
         $result = 1;
@@ -995,6 +1112,33 @@ sub parse_arguments()
         return 0;
     }
 
+    ## Mandatory "-subsystem_type=s" option
+    if( $subsystem_type ne $CA   &&
+        $subsystem_type ne $KRA  &&
+        $subsystem_type ne $OCSP &&
+        $subsystem_type ne $TKS  &&
+        $subsystem_type ne $RA   &&
+        $subsystem_type ne $TPS ) {
+        usage();
+        emit( "Illegal  value => $subsystem_type :  for -subsystem_type!\n",
+              "error" );
+        return 0;
+    }
+
+    $pki_subsystem_path = $pki_subsystem_common_area
+                        . "/" . $subsystem_type;
+
+    if( !( -d "$pki_subsystem_path" ) ) {
+        usage();
+        emit( "$pki_subsystem_path not present.  "
+            . "Please install the corresponding subsystem RPM first!\n",
+              "error" );
+        return 0;
+    } else {
+        emit( "    subsystem_type      $subsystem_type\n" );
+    }
+
+
     ## Mandatory "-pki_instance_name=s" option
     if( $pki_instance_name eq "" ) {
         usage();
@@ -1027,7 +1171,6 @@ sub parse_arguments()
         return 0;
     }
 
-
     # capture installation information in a log file
     # (always overwrite this file)
     $logfile = "/var/log/$pki_instance_name-install.log";
@@ -1045,33 +1188,6 @@ sub parse_arguments()
 
     emit( "    pki_instance_root   $pki_instance_root\n" );
     emit( "    pki_instance_name   $pki_instance_name\n" );
-
-
-    ## Mandatory "-subsystem_type=s" option
-    if( $subsystem_type ne $CA   &&
-        $subsystem_type ne $KRA  &&
-        $subsystem_type ne $OCSP &&
-        $subsystem_type ne $TKS  &&
-        $subsystem_type ne $RA   &&
-        $subsystem_type ne $TPS ) {
-        usage();
-        emit( "Illegal  value => $subsystem_type :  for -subsystem_type!\n",
-              "error" );
-        return 0;
-    }
-
-    $pki_subsystem_path = $pki_subsystem_common_area
-                        . "/" . $subsystem_type;
-
-    if( !( -d "$pki_subsystem_path" ) ) {
-        usage();
-        emit( "$pki_subsystem_path not present.  "
-            . "Please install the corresponding subsystem RPM first!\n",
-              "error" );
-        return 0;
-    } else {
-        emit( "    subsystem_type      $subsystem_type\n" );
-    }
 
     ## Mandatory "-secure_port=<secure_port>" option
     if( $l_secure_port >= 0 ) {
@@ -1485,7 +1601,8 @@ sub initialize_subdirectory_paths()
     ## Initialize subdirectory paths (subsystem independent)
     $pki_cfg_subsystem_file_path               = $conf_subsystem_path
                                                . "/" . $pki_cfg_base_name;
-    $pki_start_stop_script_instance_file_path  = $default_start_stop_scripts
+    # BEGIN Legacy Start/Stop Implementation
+    $pki_start_stop_script_instance_file_path  = $default_init_scripts_path
                                                . "/" . $pki_instance_name;
     $pki_start_stop_script_subsystem_file_path = $pki_subsystem_path
                                                . "/" . $etc_base_subsystem_dir
@@ -1493,6 +1610,7 @@ sub initialize_subdirectory_paths()
                                                . "/" . $httpd_base_name;
     $pki_start_stop_script_symlink_path        = $pki_instance_path
                                                . "/" . $pki_instance_name;
+    # END Legacy Start/Stop Implementation
     if( $^O eq "linux" ) {
         $setup_config_instance_file_path  = $setup_config_area
                                           . "/" . $pki_instance_name
@@ -1501,6 +1619,19 @@ sub initialize_subdirectory_paths()
                                           . "/" . $setup_config_name;
     }
 
+    if( $subsystem_type eq $CA ) {
+        $pki_init_script = $CA_INIT_SCRIPT;
+    } elsif( $subsystem_type eq $KRA ) {
+        $pki_init_script = $KRA_INIT_SCRIPT;
+    } elsif( $subsystem_type eq $OCSP ) {
+        $pki_init_script = $OCSP_INIT_SCRIPT;
+    } elsif( $subsystem_type eq $RA ) {
+        $pki_init_script = $RA_INIT_SCRIPT;
+    } elsif( $subsystem_type eq $TKS ) {
+        $pki_init_script = $TKS_INIT_SCRIPT;
+    } elsif( $subsystem_type eq $TPS ) {
+        $pki_init_script = $TPS_INIT_SCRIPT;
+    }
 
     ## Initialize subdirectory paths (CA subsystems)
     # if( $subsystem_type eq $CA ) {
@@ -1612,12 +1743,8 @@ sub initialize_subdirectory_paths()
                                          . "/" . $webinf_base_instance_dir;
         $webinf_lib_instance_path        = $webinf_instance_path
                                          . "/" . $lib_base_instance_dir;
-
         $java_pki_flavor_jar_path           = $default_java_path
                                             . "/" . $pki_flavor;
-        $java_pki_flavor_subsystem_jar_path = $java_pki_flavor_jar_path
-                                            . "/" . $subsystem_type;
-
         $catalina_sh_instance_file_path    = $default_system_user_binaries
                                            . "/" . $catalina_sh_base_name
                                            . "-" . $pki_instance_name;
@@ -1659,8 +1786,17 @@ sub initialize_subdirectory_paths()
                                            . "/" . $server_xml_base_name;
         $servercertnick_conf_subsystem_file_path    = $conf_subsystem_path
                                            . "/" . $servercertnick_conf_base_name;
-        $subsystem_jar_file_path           = $java_pki_flavor_subsystem_jar_path
+        if( $subsystem_type eq $CA ) {
+            $subsystem_jar_file_path       = $default_java_path
                                            . "/" . $subsystem_type . ".jar";
+		} else {
+            # BEGIN Legacy Start/Stop Implementation
+            $subsystem_jar_file_path       = $default_java_path
+                                           . "/" . $pki_flavor
+                                           . "/" . $subsystem_type
+                                           . "/" . $subsystem_type . ".jar";
+            # END Legacy Start/Stop Implementation
+		}
         $subsystem_jar_symlink_path        = $webinf_lib_instance_path
                                            . "/" . $subsystem_type . ".jar";
         $tomcat5_conf_subsystem_file_path  = $conf_subsystem_path
@@ -2397,26 +2533,30 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
     chmod( $default_file_permissions,
            $pki_cfg_instance_file_path );
 
-    # process "httpd" template
-    #
-    # NOTE:  CA, KRA, OCSP, TKS instances are dependent upon the location
-    #        of the instance-specific "server.xml" file, while RA and TPS
-    #        instances are dependent upon the instance-specific location
-    #        of the "nss.conf" file.
-    #
-    $result = process_file_template(
-                  $pki_start_stop_script_subsystem_file_path,
-                  $pki_start_stop_script_instance_file_path,
-                  \%slot_hash );
-    if( !$result ) {
-        return 0;
+    # BEGIN Legacy Start/Stop Implementation
+    if( $subsystem_type ne $CA ) {
+        # process "httpd" template
+        #
+        # NOTE:  CA, KRA, OCSP, TKS instances are dependent upon the location
+        #        of the instance-specific "server.xml" file, while RA and TPS
+        #        instances are dependent upon the instance-specific location
+        #        of the "nss.conf" file.
+        #
+        $result = process_file_template(
+                      $pki_start_stop_script_subsystem_file_path,
+                      $pki_start_stop_script_instance_file_path,
+                      \%slot_hash );
+        if( !$result ) {
+            return 0;
+        }
+
+        chmod( $default_exe_permissions,
+               $pki_start_stop_script_instance_file_path );
+
+        push( @installed_files,
+              $pki_start_stop_script_instance_file_path );
     }
-
-    chmod( $default_exe_permissions,
-           $pki_start_stop_script_instance_file_path );
-
-    push( @installed_files,
-          $pki_start_stop_script_instance_file_path );
+    # END Legacy Start/Stop Implementation
 
 
     if( $^O eq "linux" ) {
@@ -2764,30 +2904,83 @@ sub process_pki_files_and_symlinks()
            $pfile_instance_file_path );
 
 
-    # create instance symlink to actual instance "start/stop" script
-    $result = create_symbolic_link( $pki_start_stop_script_symlink_path,
-                                    $pki_start_stop_script_instance_file_path );
-    if( !$result ) {
-        return 0;
-    }
-    #
-    # NOTE:  This symlink requires "$root_user:$root_group" ownership
-    #        since the destination that it refers to is owned by
-    #        "$root_user:$root_group".
-    #
-    $result = give_symbolic_link_to( $pki_start_stop_script_symlink_path,
-                                     $root_user,
-                                     $root_group );
-    if( !$result ) {
-        emit( "$pki_start_stop_script_instance_file_path ownership problems!",
-              "error" );
-        return 0;
-    }
+    if( $subsystem_type ne $CA ) {
+        # BEGIN Legacy Start/Stop Implementation
+        # create instance symlink to actual instance "start/stop" script
+        $result = create_symbolic_link( $pki_start_stop_script_symlink_path,
+                                        $pki_start_stop_script_instance_file_path );
+        if( !$result ) {
+            return 0;
+        }
+        #
+        # NOTE:  This symlink requires "$root_user:$root_group" ownership
+        #        since the destination that it refers to is owned by
+        #        "$root_user:$root_group".
+        #
+        $result = give_symbolic_link_to( $pki_start_stop_script_symlink_path,
+                                         $root_user,
+                                         $root_group );
+        if( !$result ) {
+            emit( "$pki_start_stop_script_instance_file_path ownership problems!",
+                  "error" );
+            return 0;
+        }
+        # END Legacy Start/Stop Implementation
+    } else {
+        # generate a local init script for this PKI instance
+        my $local_pki_init_script         = new FileHandle;
+        my $local_pki_init_script_name    = $pki_instance_path
+                                          . "/" . $pki_instance_name;
+        my $local_pki_init_script_command = "";
 
+        # create this PKI instance's local init script
+        $local_pki_init_script->open( ">$local_pki_init_script_name" ) or
+        die "Could not open $local_pki_init_script_name\n";
 
-    ## Populate instances (CA instances)
-    # if( $subsystem_type eq $CA ) {
-    # }
+        # publish the appropriate contents to this
+        # PKI instance's local init script
+        $local_pki_init_script->print( "#!/bin/bash\n" );
+        $local_pki_init_script->print( "if [ \$# -ne 1 ]; then\n" );
+        $local_pki_init_script->print( "    echo \"Usage: \$0 {start|stop|restart|condrestart|force-restart|try-restart|reload|status}\"\n" );
+        $local_pki_init_script->print( "    exit 3\n" );
+        $local_pki_init_script->print( "fi\n\n" );
+
+        if( $^O eq "linux" ) {
+            $local_pki_init_script_command = "/sbin/service"
+                                           . " " . $pki_init_script
+                                           . " " . "\$1"
+                                           . " " . $pki_instance_name;
+        } else {
+            # default case:  e. g. - ( $^O eq "solaris" )
+            $local_pki_init_script_command = $default_init_scripts_path
+                                           . "/" . $pki_init_script
+                                           . " " . "\$1"
+                                           . " " . $pki_instance_name;
+        }
+
+        $local_pki_init_script->print( "$local_pki_init_script_command\n\n" );
+
+        # close and save this PKI instance's local init script
+        $local_pki_init_script->close();
+
+        #
+        # NOTE:  This PKI instance's local init script requires
+        #        "$root_user:$root_group" ownership since the
+        #        destination that it refers to is owned by
+        #        "$root_user:$root_group".
+        #
+        $result = give_file_to( $local_pki_init_script_name,
+                                $root_user,
+                                $root_group );
+        if( !$result ) {
+            emit( "$local_pki_init_script_name ownership problems!",
+                  "error" );
+            return 0;
+        }
+
+        chmod( $default_exe_permissions,
+               $local_pki_init_script_name );
+    }
 
 
     ## Populate instances (RA, TPS instances)
@@ -3106,6 +3299,179 @@ sub process_pki_security_modules()
     return 1;
 }
 
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub build_pki_registry_subsystem_path()
+{
+    my $result = 0;
+
+    # Establish PKI subsystem-level registry
+    $pki_registry_subsystem_path = $pki_registry_path
+                                 . "/" . $subsystem_type;
+
+    if( !directory_exists( "$pki_registry_subsystem_path" ) ) {
+        # create pki registry for this subsystem
+        $result = create_directory( "$pki_registry_subsystem_path" );
+        if( !$result ) {
+            emit( "Failed to create directory "
+                . "$pki_registry_subsystem_path ...\n" );
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub construct_pki_instance_registry()
+{
+    my $result = 0;
+
+    # generate a registry entry for this PKI instance
+    $pki_instance_registry       = new FileHandle;
+    $pki_instance_registry_entry = $pki_registry_subsystem_path
+                                 . "/" . $pki_instance_name;
+
+    # create this PKI instance's registry entry
+    $pki_instance_registry->open( ">$pki_instance_registry_entry" ) or
+    die "Could not open $pki_instance_registry_entry\n";
+
+    # publish the appropriate contents to this PKI instance's registry entry
+    if( $subsystem_type eq $CA   ||
+        $subsystem_type eq $KRA  ||
+        $subsystem_type eq $OCSP ||
+        $subsystem_type eq $TKS ) {
+        $pki_instance_registry->print( "# Establish PKI Variable \"Slot\" "
+                                     . "Substitutions\n\n" );
+        $pki_instance_registry->print( "PKI_FLAVOR=$pki_flavor\n" );
+        $pki_instance_registry->print( "export PKI_FLAVOR\n\n" );
+        $pki_instance_registry->print( "PKI_GROUP=$pki_group\n" );
+        $pki_instance_registry->print( "export PKI_GROUP\n\n" );
+        $pki_instance_registry->print( "PKI_INSTANCE_ID=$pki_instance_name\n" );
+        $pki_instance_registry->print( "export PKI_INSTANCE_ID\n\n" );
+        $pki_instance_registry->print( "PKI_INSTANCE_PATH="
+                                     . "$pki_instance_path\n" );
+        $pki_instance_registry->print( "export PKI_INSTANCE_PATH\n\n" );
+        $pki_instance_registry->print( "PKI_SERVER_XML_CONF="
+                                     . "$server_xml_instance_file_path\n" );
+        $pki_instance_registry->print( "export PKI_SERVER_XML_CONF\n\n" );
+        $pki_instance_registry->print( "PKI_SUBSYSTEM_TYPE=$subsystem_type\n" );
+        $pki_instance_registry->print( "export PKI_SUBSYSTEM_TYPE\n\n" );
+        $pki_instance_registry->print( "PKI_USER=$pki_user\n" );
+        $pki_instance_registry->print( "export PKI_USER\n\n" );
+        $pki_instance_registry->print( "# Use CATALINA_BASE\n\n" );
+        $pki_instance_registry->print( "CATALINA_BASE="
+                                     . "\${PKI_INSTANCE_PATH}\n" );
+        $pki_instance_registry->print( "export CATALINA_BASE\n\n" );
+        $pki_instance_registry->print( "# Get Tomcat config\n\n" );
+        $pki_instance_registry->print( "TOMCAT_CFG=\"\${PKI_INSTANCE_PATH}/"
+                                     . "conf/tomcat5.conf\"\n" );
+        $pki_instance_registry->print( "export TOMCAT_CFG\n\n" );
+        $pki_instance_registry->print( "[ -r \"\$TOMCAT_CFG\" ] && "
+                                     . ". \"\${TOMCAT_CFG}\"\n\n" );
+        $pki_instance_registry->print( "# Path to the tomcat launch script "
+                                     . "(direct don't use wrapper)\n" );
+        $pki_instance_registry->print( "TOMCAT_SCRIPT=/usr/bin/"
+                                     . "dtomcat5-\${PKI_INSTANCE_ID}\n" );
+        $pki_instance_registry->print( "export TOMCAT_SCRIPT\n\n" );
+        $pki_instance_registry->print( "# Path to the script that will "
+                                     . "refresh jar symlinks on startup\n" );
+        $pki_instance_registry->print( "if [ \${OS} = \"Linux\" ] ; then\n" );
+        $pki_instance_registry->print( "    TOMCAT_RELINK_SCRIPT=\"/usr/share/"
+                                     . "tomcat5/bin/relink\"\n" );
+        $pki_instance_registry->print( "    export TOMCAT_RELINK_SCRIPT\n" );
+        $pki_instance_registry->print( "fi\n\n" );
+        $pki_instance_registry->print( "# Tomcat name :)\n" );
+        $pki_instance_registry->print( "TOMCAT_PROG=\${PKI_INSTANCE_ID}\n" );
+        $pki_instance_registry->print( "export TOMCAT_PROG\n\n" );
+        $pki_instance_registry->print( "# if TOMCAT_USER is not set, use "
+                                     . "tomcat5 like Apache HTTP server\n" );
+        $pki_instance_registry->print( "if [ -z \"\$TOMCAT_USER\" ]; then\n" );
+        $pki_instance_registry->print( "    TOMCAT_USER=\"\${PKI_USER}\"\n" );
+        $pki_instance_registry->print( "    export TOMCAT_USER\n" );
+        $pki_instance_registry->print( "fi\n\n" );
+        $pki_instance_registry->print( "# if TOMCAT_GROUP is not set, use "
+                                     . "tomcat5 like Apache HTTP server\n" );
+        $pki_instance_registry->print( "if [ -z \"\$TOMCAT_GROUP\" ]; then\n" );
+        $pki_instance_registry->print( "    TOMCAT_GROUP=\"\${PKI_GROUP}\"\n" );
+        $pki_instance_registry->print( "    export TOMCAT_GROUP\n" );
+        $pki_instance_registry->print( "fi\n\n" );
+        $pki_instance_registry->print( "# Since the daemon function will "
+                                     . "sandbox \$tomcat\n" );
+        $pki_instance_registry->print( "# no environment stuff should be "
+                                     . "defined here anymore.\n" );
+        $pki_instance_registry->print( "# Please use the "
+                                     . "\${PKI_INSTANCE_PATH}/conf/"
+                                     . "tomcat5.conf\n" );
+        $pki_instance_registry->print( "# file instead ; it will be read by "
+                                     . "the \$tomcat script\n\n" );
+        $pki_instance_registry->print( "PKI_LOCKDIR="
+                                     . "\"/var/lock/$pki_flavor/"
+                                     . "$subsystem_type\"\n" );
+        $pki_instance_registry->print( "export PKI_LOCKDIR\n" );
+        $pki_instance_registry->print( "PKI_LOCKFILE="
+                                     . "\"\${PKI_LOCKDIR}/"
+                                     . "\${PKI_INSTANCE_ID}.pid\"\n" );
+        $pki_instance_registry->print( "export PKI_LOCKFILE\n" );
+        $pki_instance_registry->print( "PKI_PIDFILE="
+                                     . "\"\${PKI_INSTANCE_ID}.pid\"\n" );
+        $pki_instance_registry->print( "export PKI_PIDFILE\n" );
+        $pki_instance_registry->print( "pki_instance_configuration_file="
+                                     . "\${PKI_INSTANCE_PATH}/conf/CS.cfg\n" );
+        $pki_instance_registry->print( "export "
+                                     . "pki_instance_configuration_file\n\n" );
+        $pki_instance_registry->print( "RESTART_SERVER=\${PKI_INSTANCE_PATH}/"
+                                     . "conf/"
+                                     . "restart_server_after_configuration\n" );
+        $pki_instance_registry->print( "export RESTART_SERVER\n\n" );
+#   } elsif( $subsystem_type eq $RA ||
+#            $subsystem_type eq $TPS ) {
+    }
+
+    # close and save this PKI instance's registry entry
+    $pki_instance_registry->close();
+
+    $result = give_file_to( $pki_instance_registry_entry,
+                            $root_user,
+                            $root_group );
+    if( !$result ) {
+        emit( "$pki_instance_registry_entry ownership problems!",
+              "error" );
+        return 0;
+    }
+
+    chmod( $default_file_permissions,
+           $pki_instance_registry_entry );
+
+    push( @installed_files,
+          $pki_instance_registry_entry );
+
+    return 1;
+}
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub register_pki_instance()
+{
+    my $result = 0;
+
+    $result = build_pki_registry_subsystem_path();
+    if( !$result ) {
+        return 0;
+    }
+
+    $result = construct_pki_instance_registry();
+    if( !$result ) {
+        return 0;
+    }
+
+    return 1;
+}
+
 sub parse_selinux_ports()
 {
     open SM, '/usr/sbin/semanage port -l |grep tcp |sed \'s/tcp/___/g\'|sed \'s/\s//g\'|';
@@ -3233,13 +3599,17 @@ sub process_pki_selinux_setup()
         system("$restorecon -F -R /usr/bin/dtomcat5-$pki_instance_name");
     }
  
-    # set file context for /etc/rc.d/init.d/$pki_instance_name"
-    if ($pki_instance_name ne $default_inst_name) {
-        &add_selinux_file_context($setype . "_script_exec_t", 
-            "/etc/rc\\.d/init\\.d/$pki_instance_name", "f");
-    } 
-    emit("Restorecon file context for /etc/rc.d/init.d/$pki_instance_name\n");
-    system("$restorecon -F -R /etc/rc.d/init.d/$pki_instance_name");
+    # BEGIN Legacy Start/Stop Implementation
+    if( $subsystem_type ne $CA ) {
+        # set file context for /etc/rc.d/init.d/$pki_instance_name"
+        if ($pki_instance_name ne $default_inst_name) {
+            &add_selinux_file_context($setype . "_script_exec_t", 
+                "/etc/rc\\.d/init\\.d/$pki_instance_name", "f");
+        } 
+        emit("Restorecon file context for /etc/rc.d/init.d/$pki_instance_name\n");
+        system("$restorecon -F -R /etc/rc.d/init.d/$pki_instance_name");
+    }
+    # END Legacy Start/Stop Implementation
 
     # set file context for $pki_instance_root/$pki_instance_name
     if (($pki_instance_name ne $default_inst_name) || ($pki_instance_root ne $default_inst_root)) {
@@ -3370,6 +3740,18 @@ sub install_pki_instance()
         return 0;
     }
 
+    if( $subsystem_type eq $CA ) {
+        $result = register_pki_instance();
+        if( !$result ) {
+            return 0;
+        }
+# BEGIN Legacy Start/Stop Implementation
+#   } else {
+#       # Instance Registration ONLY applies
+#       # to the new Start/Stop Implementation
+# END Legacy Start/Stop Implementation
+    }
+
     if (($^O eq "linux") && ( is_Fedora() || (is_RHEL() && (! is_RHEL4())))){
         $result = process_pki_selinux_setup();
         if (!result ) {
@@ -3469,6 +3851,20 @@ sub cleanup()
         }
     }
 
+    # If empty, remove the PKI subsystem-level registry
+    if( directory_exists( $pki_registry_subsystem_path ) ) {
+        if( is_directory_empty( $pki_registry_subsystem_path ) ) {
+            remove_directory( $pki_registry_subsystem_path );
+        }
+    }
+
+    # If empty, remove the PKI-level registry
+    if( directory_exists( $pki_registry_path ) ) {
+        if( is_directory_empty( $pki_registry_path ) ) {
+            remove_directory( $pki_registry_path );
+        }
+    }
+
     return;
 }
 
@@ -3559,36 +3955,61 @@ ASK_AGAIN:
         exit 255;
     }
 
-    # Register this instance with "chkconfig"
-    if( $^O eq "linux" ) {
-        my $runlevel = $DEFAULT_RUNLEVEL;
-        my $start_priority = $DEFAULT_START_PRIORITY;
-        my $stop_priority = $DEFAULT_STOP_PRIORITY;
+    # BEGIN Legacy Start/Stop Implementation
+    if( $subsystem_type ne $CA ) {
+        # Register this instance with "chkconfig"
+        if( $^O eq "linux" ) {
+            my $runlevel = $DEFAULT_RUNLEVEL;
+            my $start_priority = $DEFAULT_START_PRIORITY;
+            my $stop_priority = $DEFAULT_STOP_PRIORITY;
 
-        # Extract "chkconfig" parameters from instance start/stop script
-        ( $runlevel, $start_priority, $stop_priority ) =
-        extract_chkconfig_parameters_from_start_stop_script(
-           $pki_start_stop_script_instance_file_path );
-        emit( "Setting '$pki_instance_name' runlevel "
-            . "to '$runlevel'\n" );
-        emit( "Setting '$pki_instance_name' start priority "
-            . "to '$start_priority'\n" );
-        emit( "Setting '$pki_instance_name' stop priority "
-            . "to '$stop_priority'\n" );
+          # Extract "chkconfig" parameters from instance start/stop script
+          ( $runlevel, $start_priority, $stop_priority ) =
+          extract_chkconfig_parameters_from_start_stop_script(
+             $pki_start_stop_script_instance_file_path );
+          emit( "Setting '$pki_instance_name' runlevel "
+              . "to '$runlevel'\n" );
+          emit( "Setting '$pki_instance_name' start priority "
+              . "to '$start_priority'\n" );
+          emit( "Setting '$pki_instance_name' stop priority "
+              . "to '$stop_priority'\n" );
 
-        # Register this instance with '/sbin/chkconfig'
-        register_pki_instance_with_chkconfig( $pki_instance_name );
+          # Register this instance with '/sbin/chkconfig'
+          register_pki_instance_with_chkconfig( $pki_instance_name );
+        }
     }
+    # END Legacy Start/Stop Implementation
 
     # Activate this instance
     if( $^O eq "linux" ) {
-        $pki_start_stop_command = "/sbin/service" . " " . $pki_instance_name;
+        if( $subsystem_type ne $CA ) {
+            # BEGIN Legacy Start/Stop Implementation
+            $pki_init_script_command = "/sbin/service"
+                                     . " " . $pki_instance_name
+                                     . " " . "restart";
+            # END Legacy Start/Stop Implementation
+        } else {
+            $pki_init_script_command = "/sbin/service"
+                                     . " " . $pki_init_script
+                                     . " " . "restart"
+                                     . " " . $pki_instance_name;
+        }
     } else {
         # default case:  e. g. - ( $^O eq "solaris" )
-        $pki_start_stop_command = $pki_start_stop_script_instance_file_path;
+        if( $subsystem_type ne $CA ) {
+            # BEGIN Legacy Start/Stop Implementation
+            $pki_init_script_command = $pki_start_stop_script_instance_file_path
+                                     . " " . "restart";
+            # END Legacy Start/Stop Implementation
+        } else {
+            $pki_init_script_command = $default_init_scripts_path
+                                     . "/" . $pki_init_script
+                                     . " " . "restart"
+                                     . " " . $pki_instance_name;
+        }
     }
 
-    $command = "$pki_start_stop_command start";
+    $command = "$pki_init_script_command";
 
     system( "$command" );
 
@@ -3641,11 +4062,9 @@ ASK_AGAIN:
 
     print( STDOUT
            "After configuration, the server can be operated by the command:\n\n"
-         . "    $pki_start_stop_command "
-         . "start | stop | restart\n\n" );
+         . "    $pki_init_script_command\n\n" );
     emit( "After configuration, the server can be operated by the command:\n"
-        . "$pki_start_stop_command "
-        . "start | stop | restart\n",
+        . "$pki_init_script_command\n",
           "log" );
 
     # If it exists, close the log file

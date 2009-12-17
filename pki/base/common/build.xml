@@ -260,17 +260,6 @@
                         prefix="usr/share/${product.prefix}/scripts">
                 <include name="**"/>
             </zipfileset>
-            <zipfileset dir="./setup"
-                        filemode="755"
-                        prefix="usr/share/${product.prefix}/setup">
-                <include name="postinstall"/>
-            </zipfileset>
-            <zipfileset dir="./setup"
-                        filemode="644"
-                        prefix="usr/share/${product.prefix}/setup">
-                <include name="**"/>
-                <exclude name="postinstall"/>
-            </zipfileset>
             <zipfileset dir="."
                         filemode="644"
                         prefix="usr/share/doc/${dist.name}">
@@ -297,17 +286,6 @@
                         mode="755"
                         prefix="${dist.name}/usr/share/${product.prefix}/scripts">
                 <include name="**"/>
-            </tarfileset>
-            <tarfileset dir="./setup"
-                        mode="755"
-                        prefix="usr/share/${product.prefix}/setup">
-                <include name="postinstall"/>
-            </tarfileset>
-            <tarfileset dir="./setup"
-                        mode="644"
-                        prefix="usr/share/${product.prefix}/setup">
-                <include name="**"/>
-                <exclude name="postinstall"/>
             </tarfileset>
             <tarfileset dir="."
                         mode="644"

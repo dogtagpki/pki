@@ -37,6 +37,7 @@
     <!-- Set up optional properties passed-in via the build scripts -->
     <property name="basedir" value=""/>
     <property name="dirsec" value=""/>
+    <property name="init.d" value=""/>
     <property name="target" value=""/>
 
 

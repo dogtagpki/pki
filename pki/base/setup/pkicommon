@@ -217,6 +217,22 @@ $HTTPS_PREFIX        = "https://";
 $LDAP_PREFIX         = "ldap://";
 $LDAPS_PREFIX        = "ldaps://";
 
+# Subsystem names
+$CA   = "ca";
+$KRA  = "kra";
+$OCSP = "ocsp";
+$TKS  = "tks";
+$RA   = "ra";
+$TPS  = "tps";
+
+# Subsystem init scripts
+$CA_INIT_SCRIPT   = "pki-cad";
+$KRA_INIT_SCRIPT  = "pki-krad";
+$OCSP_INIT_SCRIPT = "pki-ocspd";
+$TKS_INIT_SCRIPT  = "pki-tksd";
+$RA_INIT_SCRIPT   = "pki-rad";
+$TPS_INIT_SCRIPT  = "pki-tpsd";
+
 
 ##############################################################
 # Global Variables

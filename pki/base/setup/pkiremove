@@ -155,16 +155,40 @@ my $force             = 0;
 my $pki_instance_path = "";
 my $subsystem_type = "";
 
+# PKI init script variables
+my $default_init_scripts_path = "";
+my $pki_init_script = "";
+my $pki_init_script_command = "";
+
+# PKI registry variables
+my $default_registry_path = "";
+my $pki_registry_path = "";
+my $pki_registry_subsystem_path = "";
 
 ##############################################################
 # Platform-Dependent Data Initialization
 ##############################################################
 
+if( $^O eq "linux" ) {
+    $default_init_scripts_path = "/etc/rc\\.d/init\\.d";
+    $default_registry_path = "/etc/sysconfig";
+} elsif( $^O eq "solaris" ) {
+    $default_init_scripts_path = "/etc/init\\.d";
+    $default_registry_path = "/etc/inet";
+} else {
+    print( STDERR
+           "ERROR:  Unsupported platform '$^O'!\n" );
+    print( STDOUT "\n" );
+    exit 255;
+}
 
 ##############################################################
 # Local Data Initialization
 ##############################################################
 
+# Establish PKI-level registry
+$pki_registry_path = $default_registry_path
+                   . "/" . $pki_flavor;
 
 ##############################################################
 # PKI Instance Removal Subroutines
@@ -196,7 +220,7 @@ sub usage()
 
     print( STDOUT
            "Example:  pkiremove -pki_instance_root=/var/lib "
-         . "-pki_instance_name=$pki_flavor-ca1\n\n " );
+         . "-pki_instance_name=pki-ca\n\n " );
 
     print( STDOUT
            "IMPORTANT:  Must be run as root!\n\n" );
@@ -377,10 +401,14 @@ sub remove_selinux_fcontexts()
             "/usr/bin/dtomcat5-$pki_instance_name", "f");
     }
 
-     # remove context for /etc/rc.d/init.d/$pki_instance_name
-    if ($pki_instance_name ne $default_inst_name) {
-        &remove_fcontext($setype . "_script_exec_t", 
-            "/etc/rc\\.d/init\\.d/$pki_instance_name", "f");
+    # For backwards compatibility, support removal of instances
+    # which use the legacy start/stop implementation
+    if( entity_exists( "$default_init_scripts_path/$pki_instance_name" ) ) {
+        # remove context for "$default_init_scripts_path/$pki_instance_name"
+        if( $pki_instance_name ne $default_inst_name ) {
+            &remove_fcontext( $setype . "_script_exec_t", 
+                              "/etc/rc\\.d/init\\.d/$pki_instance_name", "f" );
+        }
     }
 
     # remove context for $pki_instance_root/$pki_instance_name
@@ -508,9 +536,11 @@ sub remove_instance()
                          . "/" . $saved_cleanup_file_name;
     my @files;
     my @directories;
-    my $pki_start_stop_command = "";
-    my $pki_start_stop_script_instance_file_path = "";
     my $confirm = "Y";
+
+    # For backwards compatibility, support removal of instances
+    # which use the legacy start/stop implementation
+    my $pki_start_stop_script_instance_file_path = "";
 
 ASK_AGAIN:
     if( !$force ) {
@@ -570,8 +600,12 @@ ASK_AGAIN:
             @file_split = split( '/', $line );
             my $last = @file_split;
 
-            if( $file_split[$last -1] eq $pki_instance_name ) {
-                $pki_start_stop_script_instance_file_path = $line;
+            # For backwards compatibility, support removal of instances
+            # which use the legacy start/stop implementation
+            if( entity_exists( "$default_init_scripts_path/$pki_instance_name" ) ) {
+                if( $file_split[$last -1] eq $pki_instance_name ) {
+                    $pki_start_stop_script_instance_file_path = $line;
+                }
             }
         }
 
@@ -582,31 +616,75 @@ ASK_AGAIN:
 
     $cleanup->close();
 
-    if( $pki_start_stop_script_instance_file_path eq "" ) {
-        print( STDERR
-               "ERROR:  Can't locate start script of "
-             . "instance to be cleaned up!\n" );
-        return $result;
+    # For backwards compatibility, support removal of instances
+    # which use the legacy start/stop implementation
+    if( entity_exists( "$default_init_scripts_path/$pki_instance_name" ) ) {
+        if( $pki_start_stop_script_instance_file_path eq "" ) {
+            print( STDERR
+                   "ERROR:  Can't locate start script of "
+                 . "instance to be cleaned up!\n" );
+            return $result;
+        }
     }
 
     # De-register this instance with "chkconfig"
     if( $^O eq "linux" ) {
-        # De-register this instance with '/sbin/chkconfig'
-        print( STDOUT "\n" );
-        print( STDOUT
-               "De-registering '$pki_instance_name' from "
-             . "'/sbin/chkconfig'.\n" );
-        deregister_pki_instance_with_chkconfig( $pki_instance_name );
+        # For backwards compatibility, support removal of instances
+        # which use the legacy start/stop implementation
+        if( entity_exists( "$default_init_scripts_path/$pki_instance_name" ) ) {
+            # De-register this instance with '/sbin/chkconfig'
+            print( STDOUT "\n" );
+            print( STDOUT
+                   "De-registering '$pki_instance_name' from "
+                 . "'/sbin/chkconfig'.\n" );
+            deregister_pki_instance_with_chkconfig( $pki_instance_name );
+        }
     }
 
+    if( $subsystem_type eq $CA ) {
+        $pki_init_script = $CA_INIT_SCRIPT;
+    } elsif( $subsystem_type eq $KRA ) {
+        $pki_init_script = $KRA_INIT_SCRIPT;
+    } elsif( $subsystem_type eq $OCSP ) {
+        $pki_init_script = $OCSP_INIT_SCRIPT;
+    } elsif( $subsystem_type eq $RA ) {
+        $pki_init_script = $RA_INIT_SCRIPT;
+    } elsif( $subsystem_type eq $TKS ) {
+        $pki_init_script = $TKS_INIT_SCRIPT;
+    } elsif( $subsystem_type eq $TPS ) {
+        $pki_init_script = $TPS_INIT_SCRIPT;
+    }
+
+    # Shutdown this instance
     if( $^O eq "linux" ) {
-        $pki_start_stop_command = "/sbin/service" . " " . $pki_instance_name;
+        if( entity_exists( "$default_init_scripts_path/$pki_instance_name" ) ) {
+            # For backwards compatibility, support removal of instances
+            # which use the legacy start/stop implementation
+            $pki_init_script_command = "/sbin/service"
+                                     . " " . $pki_instance_name
+                                     . " " . "stop";
+        } else {
+            $pki_init_script_command = "/sbin/service"
+                                     . " " . $pki_init_script
+                                     . " " . "stop"
+                                     . " " . $pki_instance_name;
+        }
     } else {
         # default case:  e. g. - ( $^O eq "solaris" )
-        $pki_start_stop_command = $pki_start_stop_script_instance_file_path;
+        if( entity_exists( "$default_init_scripts_path/$pki_instance_name" ) ) {
+            # For backwards compatibility, support removal of instances
+            # which use the legacy start/stop implementation
+            $pki_init_script_command = $pki_start_stop_script_instance_file_path
+                                     . " " . "stop";
+        } else {
+            $pki_init_script_command = $default_init_scripts_path
+                                     . "/" . $pki_init_script
+                                     . " " . "stop"
+                                     . " " . $pki_instance_name;
+        }
     }
 
-    $command = "$pki_start_stop_command stop";
+    $command = "$pki_init_script_command";
 
     system( "$command" );
 
@@ -719,6 +797,24 @@ sub main()
     $result = remove_instance();
     if( $result != 1 ) {
         exit 255;
+    }
+
+    # Establish PKI subsystem-level registry
+    $pki_registry_subsystem_path = $pki_registry_path
+                                 . "/" . $subsystem_type;
+
+    # If empty, remove the PKI subsystem-level registry
+    if( directory_exists( $pki_registry_subsystem_path ) ) {
+        if( is_directory_empty( $pki_registry_subsystem_path ) ) {
+            remove_directory( $pki_registry_subsystem_path );
+        }
+    }
+
+    # If empty, remove the PKI-level registry
+    if( directory_exists( $pki_registry_path ) ) {
+        if( is_directory_empty( $pki_registry_path ) ) {
+            remove_directory( $pki_registry_path );
+        }
     }
 
     return $result;
