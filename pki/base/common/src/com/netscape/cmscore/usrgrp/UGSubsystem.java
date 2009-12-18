@@ -568,7 +568,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
         LDAPAttribute userTypeAttr = entry.getAttribute("usertype");
 
-        if (userTypeAttr == null)
+        if (userTypeAttr == null) 
             id.setUserType("");
         else {
             Enumeration en = userTypeAttr.getStringValues();
@@ -576,7 +576,7 @@ public final class UGSubsystem implements IUGSubsystem {
             if (en != null && en.hasMoreElements()) {
                 String userType = (String) en.nextElement();
 
-                if (userType != null)
+                if ((userType != null) && (! userType.equals("undefined")))
                     id.setUserType(userType);
                 else
                     id.setUserType("");
@@ -668,11 +668,35 @@ public final class UGSubsystem implements IUGSubsystem {
         attrs.add(new LDAPAttribute("sn", id.getFullName()));
         attrs.add(new LDAPAttribute("cn", id.getFullName()));
         attrs.add(new LDAPAttribute("mail", id.getEmail()));
-        attrs.add(new LDAPAttribute("telephonenumber", id.getPhone()));
+
+        if (id.getPhone() != null) {
+            // DS syntax checking requires a value for PrintableString syntax
+            if (! id.getPhone().equals("")) {
+                attrs.add(new LDAPAttribute("telephonenumber", id.getPhone()));
+            }
+        }
+
         attrs.add(new LDAPAttribute("userpassword", 
                 id.getPassword()));
-        attrs.add(new LDAPAttribute("usertype", id.getUserType()));
-        attrs.add(new LDAPAttribute("userstate", id.getState()));
+
+        if (id.getUserType() != null) {
+            // DS syntax checking requires a value for Directory String syntax
+            // but usertype is a MUST attribute, so we need to add something here
+            // if it is undefined.
+            
+            if (! id.getUserType().equals("")) {
+                 attrs.add(new LDAPAttribute("usertype", id.getUserType()));
+            } else {
+                 attrs.add(new LDAPAttribute("usertype", "undefined"));
+            }
+        }
+
+        if (id.getState() != null) {
+            // DS syntax checking requires a value for Directory String syntax
+            if (! id.getState().equals("")) {
+                attrs.add(new LDAPAttribute("userstate", id.getState()));
+            }
+        }
 
         LDAPEntry entry = new LDAPEntry("uid=" + id.getUserID() +
                 "," + getUserBaseDN(), attrs);
@@ -995,6 +1019,7 @@ public final class UGSubsystem implements IUGSubsystem {
         LDAPConnection ldapconn = null;
 
         try {
+            ldapconn = getConn();
             if ((st = user.getFullName()) != null) {
                 attrs.add(LDAPModification.REPLACE, 
                     new LDAPAttribute("sn", st));
@@ -1011,13 +1036,42 @@ public final class UGSubsystem implements IUGSubsystem {
                     new LDAPAttribute("userpassword", st));
             }
             if ((st = user.getPhone()) != null) {
-                attrs.add(LDAPModification.REPLACE,
-                    new LDAPAttribute("telephonenumber", st));
+                if (! st.equals("")) {
+                    attrs.add(LDAPModification.REPLACE,
+                        new LDAPAttribute("telephonenumber", st));
+                } else {
+                    try {
+                        LDAPModification singleChange = new LDAPModification(
+                            LDAPModification.DELETE, new LDAPAttribute("telephonenumber"));
+                        ldapconn.modify("uid=" + user.getUserID() +
+                            "," + getUserBaseDN(), singleChange);
+                    } catch (LDAPException e) {
+                        if (e.getLDAPResultCode() != LDAPException.NO_SUCH_ATTRIBUTE) {
+                            CMS.debug("modifyUser: Error in deleting telephonenumber");
+                            throw e;
+                        }
+                    }
+                }  
             }
+
             if ((st = user.getState()) != null) {
-                attrs.add(LDAPModification.REPLACE,
-                    new LDAPAttribute("userstate", st));
-            }
+                if (! st.equals("")) {
+                    attrs.add(LDAPModification.REPLACE,
+                        new LDAPAttribute("userstate", st));
+                } else {
+                    try {
+                        LDAPModification singleChange = new LDAPModification(
+                            LDAPModification.DELETE, new LDAPAttribute("userstate"));
+                        ldapconn.modify("uid=" + user.getUserID() +
+                            "," + getUserBaseDN(), singleChange);
+                    } catch (LDAPException e) {
+                        if (e.getLDAPResultCode() != LDAPException.NO_SUCH_ATTRIBUTE) {
+                            CMS.debug("modifyUser: Error in deleting userstate");
+                            throw e;
+                        }
+                    }
+                }
+            } 
 
             /**
              if ((certs = user.getCertificates()) != null) {
@@ -1040,7 +1094,6 @@ public final class UGSubsystem implements IUGSubsystem {
              }
              }
              **/
-            ldapconn = getConn();
             ldapconn.modify("uid=" + user.getUserID() +
                 "," + getUserBaseDN(), attrs);
             // for audit log

@@ -2217,6 +2217,11 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 user.setPhone(phone);
             }
 
+            String userState = super.getParameter(req, Constants.PR_USER_STATE);
+            if (userState != null) {
+                user.setState(userState);
+            }
+
             try {
                 mMgr.modifyUser(user);
                 NameValuePairs params = new NameValuePairs();

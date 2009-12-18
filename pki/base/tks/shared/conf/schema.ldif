@@ -431,7 +431,7 @@ objectClasses: ( crlIssuingPointRecord-oid NAME 'crlIssuingPointRecord' DESC 'CM
 dn: cn=schema
 changetype: modify
 add: objectClasses
-objectClasses: ( certificateRecord-oid NAME 'certificateRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ certStatus $ autoRenew $ issueInfo $ metaInfo $ revInfo $ version $ duration $ notAfter $ notBefore $ algorithmId $ subject $ subjectName $ signingAlgorithmId $ userCertificate $ issuedBy $ revokedBy $ revokedOn $ extension $ publicKeyData $ issuerName ) X-ORIGIN 'user defined' )
+objectClasses: ( certificateRecord-oid NAME 'certificateRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ certStatus $ autoRenew $ issueInfo $ metaInfo $ revInfo $ version $ duration $ notAfter $ notBefore $ algorithmId $ subjectName $ signingAlgorithmId $ userCertificate $ issuedBy $ revokedBy $ revokedOn $ extension $ publicKeyData $ issuerName ) X-ORIGIN 'user defined' )
 
 dn: cn=schema
 changetype: modify

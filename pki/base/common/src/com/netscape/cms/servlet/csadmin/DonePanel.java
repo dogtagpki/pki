@@ -257,7 +257,13 @@ public class DonePanel extends WizardPanelBase {
                     attrs = new LDAPAttributeSet();
                     attrs.add(new LDAPAttribute("objectclass", "top"));
                     attrs.add(new LDAPAttribute("objectclass", "pkiSecurityDomain"));
-                    attrs.add(new LDAPAttribute("name", secdomain));
+                    if (secdomain.equals("")) {
+                        // this should not happen - just in case
+                        CMS.debug("DonePanel display(): Security domain is an empty string!");
+                        throw new IOException("Security domain is an empty string!");
+                    } else {
+                        attrs.add(new LDAPAttribute("name", secdomain));
+                    }
                     attrs.add(new LDAPAttribute("ou", "Security Domain"));
                     entry = new LDAPEntry(dn, attrs);
                     conn.add(entry);

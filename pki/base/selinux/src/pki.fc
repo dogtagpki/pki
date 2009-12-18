@@ -68,3 +68,9 @@
 /opt/nfast/sbin/init.d-ncipher  gen_context(system_u:object_r:initrc_exec_t, s0)
 /opt/nfast(/.*)?                gen_context(system_u:object_r:pki_common_t, s0)
 /dev/nfast(/.*)?                gen_context(system_u:object_r:pki_common_dev_t, s0)
+
+# labeling for new CA under pki-cad
+
+/var/run/pki/ca(/.*)? 	        gen_context(system_u:object_r:pki_ca_var_run_t,s0)
+/etc/init.d/pki-cad             gen_context(system_u:object_r:pki_ca_script_exec_t,s0)
+/etc/sysconfig/pki/ca(/.*)?	gen_context(system_u:object_r:pki_ca_etc_rw_t,s0)

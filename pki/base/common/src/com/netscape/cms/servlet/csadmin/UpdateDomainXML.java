@@ -251,6 +251,40 @@ public class UpdateDomainXML extends CMSServlet {
         String clone = httpReq.getParameter("clone");
         String operation = httpReq.getParameter("operation");
 
+        // ensure required parameters are present
+        // especially important for DS schema checking
+        String missing = "";
+        if ((host == null) || host.equals("")) {
+            missing += " host ";
+        } 
+        if ((name == null) || name.equals("")) {
+            missing += " name ";
+        }
+        if ((sport == null) || sport.equals("")) {
+            missing += " sport ";
+        }
+        if ((agentsport == null) || agentsport.equals("")) {
+            missing += " agentsport ";
+        }
+        if ((adminsport == null) || adminsport.equals("")) {
+            missing += " adminsport ";
+        }
+        if ((httpport == null) || httpport.equals("")) {
+            missing += " httpport ";
+        }
+        if ((domainmgr == null) || domainmgr.equals("")) {
+            missing += " domainmgr ";
+        }
+        if ((clone == null) || clone.equals("")) {
+            clone = "false";
+        }
+
+        if (! missing.equals("")) {
+            CMS.debug("UpdateDomainXML process: required parameters:" + missing + "not provided in request");
+            outputError(httpResp, "Error: required parameters: "  + missing + "not provided in request");
+            return;
+        }
+
         String basedn = null;
         String secstore = null;
 

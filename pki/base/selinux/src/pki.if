@@ -410,6 +410,7 @@ template(`pki_tps_template',`
 		attribute pki_tps_process;
 		attribute pki_tps_config, pki_tps_var_lib;
 		attribute pki_tps_executable, pki_tps_script, pki_tps_var_log;
+		type setfiles_t;
 	')
 	########################################
 	#
@@ -450,6 +451,9 @@ template(`pki_tps_template',`
 	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
+
+        # start/ stop using pki-cad
+        allow setfiles_t $1_etc_rw_t:file read;
 
 	manage_dirs_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
 	manage_files_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
