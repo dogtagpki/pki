@@ -92,7 +92,7 @@ fi
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_initrddir}/*
-%{_javadir}/
+%{_javadir}/*
 %{_datadir}/pki/
 %{_localstatedir}/lock/*
 %{_localstatedir}/run/*

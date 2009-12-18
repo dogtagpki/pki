@@ -64,7 +64,7 @@ rm -rf %{buildroot}
 %doc LICENSE
 %{_bindir}/*
 %{_javadir}/*
-%{_datadir}/pki/silent/
+%{_datadir}/pki/
 
 %changelog
 * Mon Dec 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4

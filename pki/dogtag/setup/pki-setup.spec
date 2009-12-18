@@ -12,7 +12,6 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
 
-Requires:       perl >= 5.8.0
 Requires:       perl-Crypt-SSLeay
 Requires:       perl-XML-LibXML
 Requires:       perl-XML-SAX
@@ -54,13 +53,14 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_bindir}/*
-%{_datadir}/pki/scripts/
+%{_datadir}/pki/
 
 %changelog
 * Mon Dec 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
 - Bugzilla Bug #521993 - packaging for Fedora Dogtag
 - Bugzilla Bug #529070 -  rpm packaging problems (cannot reinstall correctly) 
 - Removed 'with exceptions' from License
+- Removed 'Requires: perl >= 5.8.0'
 
 * Mon Dec 7 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #528556 -  policycoreutils-python (semanage) prerequisite
