@@ -3,7 +3,7 @@ Version:        1.3.0
 Release:        4%{?dist}
 Summary:        Dogtag Certificate System - PKI Selinux Policies
 URL:            https://pki.fedoraproject.org/
-License:        GPLv2 with exceptions
+License:        GPLv2
 Group:          System Environment/Base
 
 BuildArch:      noarch
