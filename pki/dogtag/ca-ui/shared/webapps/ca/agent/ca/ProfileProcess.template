@@ -28,7 +28,9 @@ function addEscapes(str)
 }
 
 document.writeln('<font size="+1" face="PrimaSans BT, Verdana, sans-serif">Request ');
-document.writeln(requestId);
+if (typeof(requestId) != "undefined") {
+    document.writeln(requestId);
+}
 document.writeln('<br></font>');
 </script>
 <font size="-1" face="PrimaSans BT, Verdana, sans-serif"></font>
@@ -44,6 +46,7 @@ document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
 document.writeln('<b>Request Information:</b>');
 document.writeln('</FONT>');
 document.writeln('<table border=1 width=100%>');
+if (typeof(requestId) != "undefined") {
 document.writeln('<tr>');
 document.writeln('<td width=30%>');
 document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
@@ -58,6 +61,8 @@ document.writeln('</FONT>');
 document.writeln('</a>');
 document.writeln('</td>');
 document.writeln('</tr>');
+}
+if (typeof(requestType) != "undefined") {
 document.writeln('<tr>');
 document.writeln('<td>');
 document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
@@ -70,6 +75,8 @@ document.writeln(requestType);
 document.writeln('</FONT>');
 document.writeln('</td>');
 document.writeln('</tr>');
+}
+if (typeof(requestStatus) != "undefined") {
 document.writeln('<tr>');
 document.writeln('<td>');
 document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
@@ -82,6 +89,8 @@ document.writeln(requestStatus);
 document.writeln('</FONT>');
 document.writeln('</td>');
 document.writeln('</tr>');
+}
+if (typeof(profileId) != "undefined") {
 document.writeln('<tr>');
 document.writeln('<td>');
 document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
@@ -94,6 +103,8 @@ document.writeln(profileId);
 document.writeln('</FONT>');
 document.writeln('</td>');
 document.writeln('</tr>');
+}
+if (typeof(op) != "undefined") {
 document.writeln('<tr>');
 document.writeln('<td>');
 document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
@@ -106,6 +117,8 @@ document.writeln(op);
 document.writeln('</FONT>');
 document.writeln('</td>');
 document.writeln('</tr>');
+}
+if (typeof(errorCode) != "undefined") {
 document.writeln('<tr>');
 document.writeln('<td>');
 document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
@@ -118,6 +131,8 @@ document.writeln(errorCode);
 document.writeln('</FONT>');
 document.writeln('</td>');
 document.writeln('</tr>');
+}
+if (typeof(errorReason) != "undefined") {
 document.writeln('<tr>');
 document.writeln('<td>');
 document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
@@ -130,10 +145,11 @@ document.writeln(errorReason);
 document.writeln('</FONT>');
 document.writeln('</td>');
 document.writeln('</tr>');
+}
 document.writeln('</table>');
 document.writeln('<p>');
 document.writeln('</table>');
-if (requestStatus == 'complete') {
+if (typeof(requestStatus) != "undefined" && requestStatus == 'complete') {
   document.writeln('<table width=100%>');
 for (var i = 0; i < outputListSet.length; i++) {
     document.writeln('<tr valign=top>');
