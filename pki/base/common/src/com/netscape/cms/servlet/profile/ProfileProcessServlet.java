@@ -251,6 +251,7 @@ public class ProfileProcessServlet extends ProfileServlet {
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                     "CMS_REQUEST_NOT_PENDING", requestId));
+            args.set(ARG_REQUEST_ID, requestId);
             outputTemplate(request, response, args);
             if (statsSub != null) {
               statsSub.endTiming("approval");
