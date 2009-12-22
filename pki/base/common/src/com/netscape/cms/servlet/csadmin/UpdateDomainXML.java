@@ -252,7 +252,7 @@ public class UpdateDomainXML extends CMSServlet {
         String operation = httpReq.getParameter("operation");
 
         // ensure required parameters are present
-        // especially important for DS schema checking
+        // especially important for DS syntax checking
         String missing = "";
         if ((host == null) || host.equals("")) {
             missing += " host ";
@@ -262,18 +262,6 @@ public class UpdateDomainXML extends CMSServlet {
         }
         if ((sport == null) || sport.equals("")) {
             missing += " sport ";
-        }
-        if ((agentsport == null) || agentsport.equals("")) {
-            missing += " agentsport ";
-        }
-        if ((adminsport == null) || adminsport.equals("")) {
-            missing += " adminsport ";
-        }
-        if ((httpport == null) || httpport.equals("")) {
-            missing += " httpport ";
-        }
-        if ((domainmgr == null) || domainmgr.equals("")) {
-            missing += " domainmgr ";
         }
         if ((clone == null) || clone.equals("")) {
             clone = "false";
@@ -316,10 +304,19 @@ public class UpdateDomainXML extends CMSServlet {
             attrs.add(new LDAPAttribute("cn", cn));
             attrs.add(new LDAPAttribute("Host", host));
             attrs.add(new LDAPAttribute("SecurePort", sport));
-            attrs.add(new LDAPAttribute("SecureAgentPort", agentsport));
-            attrs.add(new LDAPAttribute("SecureAdminPort", adminsport));
-            attrs.add(new LDAPAttribute("UnSecurePort", httpport));
-            attrs.add(new LDAPAttribute("DomainManager", domainmgr));
+
+            if ((agentsport != null) && (!agentsport.equals(""))) {
+                attrs.add(new LDAPAttribute("SecureAgentPort", agentsport));
+            }
+            if ((adminsport != null) && (!adminsport.equals(""))) {
+                attrs.add(new LDAPAttribute("SecureAdminPort", adminsport));
+            }
+            if ((httpport != null) && (!httpport.equals(""))) {
+                attrs.add(new LDAPAttribute("UnSecurePort", httpport));
+            }
+            if ((domainmgr != null) && (!domainmgr.equals(""))) {
+                attrs.add(new LDAPAttribute("DomainManager", domainmgr));
+            }
             attrs.add(new LDAPAttribute("clone", clone));
             attrs.add(new LDAPAttribute("SubsystemName", name));
             entry = new LDAPEntry(dn, attrs);
