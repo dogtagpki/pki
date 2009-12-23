@@ -1,6 +1,6 @@
 Name:           pki-setup
 Version:        1.3.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -12,11 +12,6 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
 
-Requires:       perl-Crypt-SSLeay
-Requires:       perl-XML-LibXML
-Requires:       perl-XML-SAX
-Requires:       perl-libwww-perl
-Requires:       pki-native-tools
 Requires:       policycoreutils
 %{?fc11:Requires: policycoreutils-python}
 %{?fc12:Requires: policycoreutils-python}
@@ -56,6 +51,11 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Wed Dec 23 2009 Kevin Wright <kwright@redhat.com> 1.3.0-6
+- Bugzilla Bug #521993 - packaging for Fedora Dogtag
+- Removed Requires for all perl packages
+- Removed Requires for pki-native-tools
+ 
 * Mon Dec 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
 - Bugzilla Bug #521993 - packaging for Fedora Dogtag
 - Bugzilla Bug #529070 -  rpm packaging problems (cannot reinstall correctly) 
