@@ -1,6 +1,6 @@
 Name:           pki-silent
 Version:        1.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Dogtag Certificate System - Silent Installer
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -19,6 +19,11 @@ BuildRequires:  pki-util
 
 Requires:       java >= 1:1.6.0
 Requires:       pki-common
+
+%if 0%{?rhel}
+#rhel has no java on ppc
+ExcludeArch:    ppc
+%endif
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -67,6 +72,9 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Wed Jan 6 2010 Kevin Wright <kwright@redhat.com> 1.3.0-5
+- no java on rhel ppc
+
 * Mon Dec 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #521996 - Packaging for Fedora Dogtag PKI
 - Removed 'with exceptions' from License
