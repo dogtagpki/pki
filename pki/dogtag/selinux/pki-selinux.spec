@@ -1,6 +1,6 @@
 Name:           pki-selinux
 Version:        1.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Dogtag Certificate System - PKI Selinux Policies
 URL:            https://pki.fedoraproject.org/
 License:        GPLv2
@@ -15,13 +15,9 @@ BuildRequires: m4
 BuildRequires: make
 BuildRequires: policycoreutils
 BuildRequires: selinux-policy-devel
-%{?fc10:BuildRequires: selinux-policy-devel >= 3.5.13-41}
-%{?fc11:BuildRequires: selinux-policy-devel >= 3.6.3-10}
 
 Requires: policycoreutils
 Requires: selinux-policy-targeted
-%{?fc10:Requires: selinux-policy-targeted >= 3.5.13-41}
-%{?fc11:Requires: selinux-policy-targeted >= 3.6.3-10}
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -86,6 +82,9 @@ fi
 %{_datadir}/selinux/modules/pki.pp
 
 %changelog
+* Fri Jan 8 2010 Kevin Wright <kwright@redhat.com> 1.3.0-5
+- Removed fc10 and fc11-specific Requires and Build Requires
+
 * Mon Dec 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Removed 'with exceptions' from License
 
