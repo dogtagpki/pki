@@ -1,6 +1,6 @@
 Name:           dogtag-pki-kra-ui
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - Data Recovery Authority User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -49,9 +49,13 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/pki/*
+%{_datadir}/pki/
 
 %changelog
+* Wed Jan 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #553742 - New Package for Dogtag PKI: dogtag-pki-kra-ui
+- Take ownership of directories
+
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
 - Removed 'with exceptions' from License
 
