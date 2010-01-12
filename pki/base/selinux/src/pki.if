@@ -38,6 +38,7 @@ template(`pki_ca_template',`
 		type pki_ca_tomcat_exec_t;
 		type $1_port_t;
                 type rpm_var_lib_t;
+		type setfiles_t;
 	')
 	########################################
 	#
@@ -71,6 +72,7 @@ template(`pki_ca_template',`
 
 	# Execstack/execmem caused by java app.
 	allow $1_t self:process { execstack execmem getsched setsched signal};
+	allow initrc_t self:process execstack;
 
 	## internal communication is often done using fifo and unix sockets.
 	allow $1_t self:fifo_file rw_file_perms;
@@ -105,6 +107,9 @@ template(`pki_ca_template',`
 	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
+
+	# start/ stop using pki-cad, pki-krad, pki-ocspd, or pki-tksd
+	allow setfiles_t $1_etc_rw_t:file read;
 
 	manage_dirs_pattern($1_t, $1_var_run_t,  $1_var_run_t)
 	manage_files_pattern($1_t, $1_var_run_t,  $1_var_run_t)
@@ -410,7 +415,6 @@ template(`pki_tps_template',`
 		attribute pki_tps_process;
 		attribute pki_tps_config, pki_tps_var_lib;
 		attribute pki_tps_executable, pki_tps_script, pki_tps_var_log;
-		type setfiles_t;
 	')
 	########################################
 	#
@@ -451,9 +455,6 @@ template(`pki_tps_template',`
 	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
-
-        # start/ stop using pki-cad
-        allow setfiles_t $1_etc_rw_t:file read;
 
 	manage_dirs_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
 	manage_files_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)

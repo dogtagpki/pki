@@ -74,3 +74,21 @@
 /var/run/pki/ca(/.*)? 	        gen_context(system_u:object_r:pki_ca_var_run_t,s0)
 /etc/init.d/pki-cad             gen_context(system_u:object_r:pki_ca_script_exec_t,s0)
 /etc/sysconfig/pki/ca(/.*)?	gen_context(system_u:object_r:pki_ca_etc_rw_t,s0)
+
+# labeling for new KRA under pki-krad
+
+/var/run/pki/kra(/.*)? 	        gen_context(system_u:object_r:pki_kra_var_run_t,s0)
+/etc/init.d/pki-krad            gen_context(system_u:object_r:pki_kra_script_exec_t,s0)
+/etc/sysconfig/pki/kra(/.*)?	gen_context(system_u:object_r:pki_kra_etc_rw_t,s0)
+
+# labeling for new OCSP under pki-ocspd
+
+/var/run/pki/ocsp(/.*)?         gen_context(system_u:object_r:pki_ocsp_var_run_t,s0)
+/etc/init.d/pki-ocspd           gen_context(system_u:object_r:pki_ocsp_script_exec_t,s0)
+/etc/sysconfig/pki/ocsp(/.*)?	gen_context(system_u:object_r:pki_ocsp_etc_rw_t,s0)
+
+# labeling for new TKS under pki-tksd
+
+/var/run/pki/tks(/.*)? 	        gen_context(system_u:object_r:pki_tks_var_run_t,s0)
+/etc/init.d/pki-tksd            gen_context(system_u:object_r:pki_tks_script_exec_t,s0)
+/etc/sysconfig/pki/tks(/.*)?	gen_context(system_u:object_r:pki_tks_etc_rw_t,s0)

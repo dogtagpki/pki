@@ -243,8 +243,7 @@ my $cmscore_jar_base_name        = "cmscore.jar";          # CA, KRA, OCSP, TKS
 my $conf_base_name               = "conf";                 # CA, KRA, OCSP, TKS,
                                                            # RA, TPS
 # BEGIN Legacy Start/Stop Implementation
-my $httpd_base_name              = "httpd";                # KRA, OCSP, TKS,
-                                                           # RA, TPS
+my $httpd_base_name              = "httpd";                # RA, TPS
 # END Legacy Start/Stop Implementation
 my $httpd_conf_base_name         = "httpd.conf";           # RA, TPS
 my $index_html_base_name         = "index.html";           # CA, KRA, OCSP, TKS
@@ -273,7 +272,7 @@ my $web_xml_base_name            = "web.xml";              # CA, KRA, OCSP, TKS
 
 # Subdirectory names
 # BEGIN Legacy Start/Stop Implementation
-my $initd_base_subsystem_dir        = "init.d";      # KRA, OCSP, TKS, RA, TPS
+my $initd_base_subsystem_dir        = "init.d";      # RA, TPS
 # END Legacy Start/Stop Implementation
 my $perl_base_instance_symlink      = "perl";        # RA, TPS
 my $perl_base_subsystem_dir         = "perl";        # RA, TPS
@@ -533,12 +532,9 @@ my $pki_cfg_instance_file_path                = "";  # CA, KRA, OCSP, TKS,
 my $pki_cfg_subsystem_file_path               = "";  # CA, KRA, OCSP, TKS,
                                                      # RA, TPS
 # BEGIN Legacy Start/Stop Implementation
-my $pki_start_stop_script_instance_file_path  = "";  # KRA, OCSP, TKS,
-                                                     # RA, TPS
-my $pki_start_stop_script_subsystem_file_path = "";  # KRA, OCSP, TKS,
-                                                     # RA, TPS
-my $pki_start_stop_script_symlink_path        = "";  # KRA, OCSP, TKS,
-                                                     # RA, TPS
+my $pki_start_stop_script_instance_file_path  = "";  # RA, TPS
+my $pki_start_stop_script_subsystem_file_path = "";  # RA, TPS
+my $pki_start_stop_script_symlink_path        = "";  # RA, TPS
 # END Legacy Start/Stop Implementation
 my $schemaMods_ldif_instance_file_path        = "";  # RA, TPS
 my $schemaMods_ldif_subsystem_file_path       = "";  # RA, TPS
@@ -1030,7 +1026,7 @@ sub pki_instance_already_exists
     my $result = 0;
     my $instance = "";
 
-    if( $subsystem_type ne $CA ) {
+    if( ( $subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
         # BEGIN Legacy Start/Stop Implementation
         $instance = $default_init_scripts_path
                   . "/" . $name;
@@ -1335,6 +1331,16 @@ sub parse_arguments()
     }
 
 
+    # At this point in time, ALWAYS check that "$pki_user" exists!
+    if( !user_exists( $pki_user ) ) {
+        usage();
+        emit( "Please contact your system administrator "
+            . "to create '$pki_user'!\n",
+              "error" );
+        return 0;
+    }
+
+
     ## Optional "-group=<groupname>" option
     if( $groupname ne "" ) {
         if( $username eq "" ) {
@@ -1353,6 +1359,25 @@ sub parse_arguments()
 
         # Overwrite default value of $pki_group with user-specified $groupname
         $pki_group = $groupname;
+    }
+
+
+    # At this point in time, ALWAYS check that "$pki_group" exists!
+    if( !group_exists( $pki_group ) ) {
+        usage();
+        emit( "Please contact your system administrator "
+            . "to create '$pki_group'!\n",
+              "error" );
+        return 0;
+    }
+
+
+    # At this point in time, ALWAYS check that shell access for "$pki_user" is
+    # disallowed; for now, simply notify the user performing the installation
+    # and continue
+    if( !user_disallows_shell( $pki_user ) ) {
+        emit( "Please contact your system administrator "
+            . "to disallow shell access for '$pki_user'!\n" );
     }
 
 
@@ -1786,17 +1811,17 @@ sub initialize_subdirectory_paths()
                                            . "/" . $server_xml_base_name;
         $servercertnick_conf_subsystem_file_path    = $conf_subsystem_path
                                            . "/" . $servercertnick_conf_base_name;
-        if( $subsystem_type eq $CA ) {
+        if( ( $subsystem_type ne $RA && $subsystem_type ne $TPS ) ) {
             $subsystem_jar_file_path       = $default_java_path
                                            . "/" . $subsystem_type . ".jar";
-		} else {
+        } else {
             # BEGIN Legacy Start/Stop Implementation
             $subsystem_jar_file_path       = $default_java_path
                                            . "/" . $pki_flavor
                                            . "/" . $subsystem_type
                                            . "/" . $subsystem_type . ".jar";
             # END Legacy Start/Stop Implementation
-		}
+        }
         $subsystem_jar_symlink_path        = $webinf_lib_instance_path
                                            . "/" . $subsystem_type . ".jar";
         $tomcat5_conf_subsystem_file_path  = $conf_subsystem_path
@@ -2534,7 +2559,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
            $pki_cfg_instance_file_path );
 
     # BEGIN Legacy Start/Stop Implementation
-    if( $subsystem_type ne $CA ) {
+    if( ( $subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
         # process "httpd" template
         #
         # NOTE:  CA, KRA, OCSP, TKS instances are dependent upon the location
@@ -2904,7 +2929,7 @@ sub process_pki_files_and_symlinks()
            $pfile_instance_file_path );
 
 
-    if( $subsystem_type ne $CA ) {
+    if( ( $subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
         # BEGIN Legacy Start/Stop Implementation
         # create instance symlink to actual instance "start/stop" script
         $result = create_symbolic_link( $pki_start_stop_script_symlink_path,
@@ -3600,7 +3625,7 @@ sub process_pki_selinux_setup()
     }
  
     # BEGIN Legacy Start/Stop Implementation
-    if( $subsystem_type ne $CA ) {
+    if( ( $subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
         # set file context for /etc/rc.d/init.d/$pki_instance_name"
         if ($pki_instance_name ne $default_inst_name) {
             &add_selinux_file_context($setype . "_script_exec_t", 
@@ -3740,7 +3765,7 @@ sub install_pki_instance()
         return 0;
     }
 
-    if( $subsystem_type eq $CA ) {
+    if( ( $subsystem_type ne $RA && $subsystem_type ne $TPS ) ) {
         $result = register_pki_instance();
         if( !$result ) {
             return 0;
@@ -3956,7 +3981,7 @@ ASK_AGAIN:
     }
 
     # BEGIN Legacy Start/Stop Implementation
-    if( $subsystem_type ne $CA ) {
+    if( ( $subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
         # Register this instance with "chkconfig"
         if( $^O eq "linux" ) {
             my $runlevel = $DEFAULT_RUNLEVEL;
@@ -3982,7 +4007,7 @@ ASK_AGAIN:
 
     # Activate this instance
     if( $^O eq "linux" ) {
-        if( $subsystem_type ne $CA ) {
+        if( ( $subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
             # BEGIN Legacy Start/Stop Implementation
             $pki_init_script_command = "/sbin/service"
                                      . " " . $pki_instance_name
@@ -3996,7 +4021,7 @@ ASK_AGAIN:
         }
     } else {
         # default case:  e. g. - ( $^O eq "solaris" )
-        if( $subsystem_type ne $CA ) {
+        if( ( $subsystem_type eq $RA || $subsystem_type eq $TPS ) ) {
             # BEGIN Legacy Start/Stop Implementation
             $pki_init_script_command = $pki_start_stop_script_instance_file_path
                                      . " " . "restart";

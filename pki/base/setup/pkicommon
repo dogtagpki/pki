@@ -484,6 +484,49 @@ sub group_exists
 
 
 # arg0 username
+# return 1 - disallows shell, or
+# return 0 - allows shell
+sub user_disallows_shell
+{
+    my( $username ) = $_[0];
+    my( $groupname ) = $_[1];
+
+    my $result = 0;
+    my $sans_shell = "";
+
+    if( $^O eq "linux" ) {
+        $sans_shell="/sbin/nologin";
+        $result = 0;
+    } elsif( $^O eq "solaris" ) {
+        $sans_shell="";
+        $result = 0;
+    } else {
+        # Don't care
+        return 1;
+    }
+
+    if( !user_exists( $username ) ) {
+        return $result;
+    }
+
+    my( $name, $passwd, $uid, $gid, $quota,
+        $comment, $gcos, $dir, $shell, $expire ) = getpwnam( $username );
+
+    if( $shell eq $sans_shell ) {
+        $result = 1;
+    } else {
+        # issue a warning and continue
+        print( STDERR
+               "WARNING:  Potential security hole - user '$username' is\n"
+             . "          using '$shell' instead of '$sans_shell'!\n" );
+        print( "\n" );
+    }
+
+    return $result;
+}
+
+
+# arg0 username
 # arg1 groupname
 # return 1 - is a member, or
 # return 0 - is NOT a member
