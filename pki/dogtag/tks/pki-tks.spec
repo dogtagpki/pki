@@ -1,6 +1,6 @@
 Name:           pki-tks
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - Token Key Service
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -23,6 +23,11 @@ Requires:       java >= 1:1.6.0
 Requires:       pki-tks-ui
 Requires:       pki-common
 Requires:       pki-selinux
+Requires:       pki-silent
+Requires(post):    chkconfig
+Requires(preun):   chkconfig
+Requires(preun):   initscripts
+Requires(postun):  initscripts
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -54,6 +59,7 @@ restricted access.
 
 %build
 ant \
+    -Dinit.d="rc.d/init.d" \
     -Dproduct.ui.flavor.prefix="" \
     -Dproduct.prefix="pki" \
     -Dproduct="tks" \
@@ -69,51 +75,45 @@ cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/tks/conf/CS.cfg
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/tks/conf/CS.cfg
-cd %{buildroot}%{_javadir}/pki/tks
+mkdir -p %{buildroot}%{_localstatedir}/lock/pki/tks
+mkdir -p %{buildroot}%{_localstatedir}/run/pki/tks
+cd %{buildroot}%{_javadir}
 mv tks.jar tks-%{version}.jar
 ln -s tks-%{version}.jar tks.jar
 
 %clean
 rm -rf %{buildroot}
 
-%pre
-if [ `grep -c pkiuser /etc/group` -eq 0 ] ; then
-        echo "Adding default PKI group \"pkiuser\" to /etc/group."
-        groupadd pkiuser
-fi
-if [ `grep -c pkiuser /etc/passwd` -eq 0 ] ; then
-        echo "Adding default PKI user \"pkiuser\" to /etc/passwd."
-        useradd -g pkiuser -d %{_datadir}/pki -s /sbin/nologin -c "Dogtag Certificate System" -m pkiuser
-fi
-
-
 %post
-%{_datadir}/pki/tks/setup/postinstall pki tks %{version} %{release}
-echo ""
-echo "Install finished."
-
+# This adds the proper /etc/rc*.d links for the script
+/sbin/chkconfig --add pki-tksd || :
 
 %preun
-if [ -d /var/lib/pki-tks ] ; then
-        echo "WARNING:  The default instance \"/var/lib/pki-tks\" was NOT removed!"
-        echo ""
-        echo "NOTE:  This means that the data in the default instance called"
-        echo "       \"/var/lib/pki-tks\" will NOT be overwritten once the"
-        echo "       \"%{name}\" package is re-installed."
-        echo ""
-        echo "Shutting down the default instance \"/var/lib/pki-tks\""
-        echo "PRIOR to uninstalling the \"%{name}\" package:"
-        echo ""
-        /etc/init.d/pki-tks stop
+if [ $1 = 0 ] ; then
+    /sbin/service pki-tksd stop >/dev/null 2>&1
+    /sbin/chkconfig --del pki-tksd || :
+fi
+
+%postun
+if [ "$1" -ge "1" ] ; then
+    /sbin/service pki-tksd condrestart >/dev/null 2>&1 || :
 fi
 
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_javadir}/pki/tks/*
-%{_datadir}/pki/tks/*
+%{_initrddir}/*
+%{_javadir}/*
+%{_datadir}/pki/
+%{_localstatedir}/lock/*
+%{_localstatedir}/run/*
 
 %changelog
+* Fri Jan 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Corrected "|| :" scriptlet logic (see Bugzilla Bug #475895)
+- Bugzilla Bug #553075 - Apply "registry" logic to pki-tks . . .
+- Bugzilla Bug #553847 - New Package for Dogtag PKI: pki-tks
+
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
 - Removed 'with exceptions' from License
 

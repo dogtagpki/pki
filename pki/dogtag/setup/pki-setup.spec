@@ -1,6 +1,6 @@
 Name:           pki-setup
-Version:        1.3.0
-Release:        6%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -51,6 +51,14 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Thu Jan 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #475895 - Disallow creation of an initial login shell
+- Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
+  pkicreate . . .
+- Bugzilla Bug #553072 - Apply "registry" logic to pki-kra . . .
+- Bugzilla Bug #553074 - Apply "registry" logic to pki-ocsp . . .
+- Bugzilla Bug #553075 - Apply "registry" logic to pki-tks . . .
+
 * Wed Dec 23 2009 Kevin Wright <kwright@redhat.com> 1.3.0-6
 - Bugzilla Bug #521993 - packaging for Fedora Dogtag
 - Removed Requires for all perl packages

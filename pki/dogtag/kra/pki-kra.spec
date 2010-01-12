@@ -1,6 +1,6 @@
 Name:           pki-kra
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - Data Recovery Manager
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -23,6 +23,11 @@ Requires:       java >= 1:1.6.0
 Requires:       pki-common
 Requires:       pki-kra-ui
 Requires:       pki-selinux
+Requires:       pki-silent
+Requires(post):    chkconfig
+Requires(preun):   chkconfig
+Requires(preun):   initscripts
+Requires(postun):  initscripts
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -52,6 +57,7 @@ properties of signing keys.
 
 %build
 ant \
+    -Dinit.d="rc.d/init.d" \
     -Dproduct.ui.flavor.prefix="" \
     -Dproduct.prefix="pki" \
     -Dproduct="kra" \
@@ -67,49 +73,45 @@ cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/kra/conf/CS.cfg
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/kra/conf/CS.cfg
-cd %{buildroot}%{_javadir}/pki/kra
+mkdir -p %{buildroot}%{_localstatedir}/lock/pki/kra
+mkdir -p %{buildroot}%{_localstatedir}/run/pki/kra
+cd %{buildroot}%{_javadir}
 mv kra.jar kra-%{version}.jar
 ln -s kra-%{version}.jar kra.jar
 
 %clean
 rm -rf %{buildroot}
 
-%pre
-if [ `grep -c pkiuser /etc/group` -eq 0 ] ; then
-        echo "Adding default PKI group \"pkiuser\" to /etc/group."
-        groupadd pkiuser
-fi
-if [ `grep -c pkiuser /etc/passwd` -eq 0 ] ; then
-        echo "Adding default PKI user \"pkiuser\" to /etc/passwd."
-        useradd -g pkiuser -d %{_datadir}/pki -s /sbin/nologin -c "Dogtag Certificate System" -m pkiuser
-fi
-
 %post
-%{_datadir}/pki/kra/setup/postinstall pki kra %{version} %{release}
-echo ""
-echo "Install finished."
+# This adds the proper /etc/rc*.d links for the script
+/sbin/chkconfig --add pki-krad || :
 
 %preun
-if [ -d /var/lib/pki-kra ] ; then
-        echo "WARNING:  The default instance \"/var/lib/pki-kra\" was NOT removed!"
-        echo ""
-        echo "NOTE:  This means that the data in the default instance called"
-        echo "       \"/var/lib/pki-kra\" will NOT be overwritten once the"
-        echo "       \"%{name}\" package is re-installed."
-        echo ""
-        echo "Shutting down the default instance \"/var/lib/pki-kra\""
-        echo "PRIOR to uninstalling the \"%{name}\" package:"
-        echo ""
-        /etc/init.d/pki-kra stop
+if [ $1 = 0 ] ; then
+    /sbin/service pki-krad stop >/dev/null 2>&1
+    /sbin/chkconfig --del pki-krad || :
+fi
+
+%postun
+if [ "$1" -ge "1" ] ; then
+    /sbin/service pki-krad condrestart >/dev/null 2>&1 || :
 fi
 
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_javadir}/pki/kra/*
-%{_datadir}/pki/kra/*
+%{_initrddir}/*
+%{_javadir}/*
+%{_datadir}/pki/
+%{_localstatedir}/lock/*
+%{_localstatedir}/run/*
 
 %changelog
+* Fri Jan 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Corrected "|| :" scriptlet logic (see Bugzilla Bug #475895)
+- Bugzilla Bug #553072 - Apply "registry" logic to pki-kra . . .
+- Bugzilla Bug #553842 - New Package for Dogtag PKI: pki-kra
+
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
 - Removed 'with exceptions' from License
 

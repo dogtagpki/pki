@@ -1,6 +1,6 @@
 Name:           pki-ca
 Version:        1.3.0
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -75,12 +75,12 @@ rm -rf %{buildroot}
 
 %post
 # This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-cad
+/sbin/chkconfig --add pki-cad || :
 
 %preun
 if [ $1 = 0 ] ; then
-    /sbin/service pki-cad stop >/dev/null 2>&1 || :
-    /sbin/chkconfig --del pki-cad
+    /sbin/service pki-cad stop >/dev/null 2>&1
+    /sbin/chkconfig --del pki-cad || :
 fi
 
 %postun
@@ -98,6 +98,9 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Tue Jan 12 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-7
+- Corrected "|| :" scriptlet logic (see Bugzilla Bug #475895)
+
 * Mon Dec 7 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
 - Bugzilla Bug #522210 - Packaging for Fedora Dogtag
 - Bugzilla Bug #529070 -  rpm packaging problems (cannot reinstall correctly) 
