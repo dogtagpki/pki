@@ -1,6 +1,6 @@
 Name:           dogtag-pki-tks-ui
 Version:        1.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Dogtag Certificate System - Token Key Service User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -11,8 +11,6 @@ BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
-
-Requires:       bash
 
 Provides:       pki-tks-ui = %{version}-%{release}
 
@@ -52,6 +50,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
+- Bugzilla Bug #553845 - New Package for Dogtag PKI: dogtag-pki-tks-ui
+- Removed "Requires:  bash"
+
 * Wed Jan 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #553845 - New Package for Dogtag PKI: dogtag-pki-tks-ui
 - Take ownership of directories
