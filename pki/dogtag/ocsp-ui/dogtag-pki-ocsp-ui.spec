@@ -1,6 +1,6 @@
 Name:           dogtag-pki-ocsp-ui
 Version:        1.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Dogtag Certificate System - Online Certificate Status Protocol User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -11,8 +11,6 @@ BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
-
-Requires:       bash
 
 Provides:       pki-ocsp-ui = %{version}-%{release}
 
@@ -53,6 +51,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
+- Bugzilla Bug #553843 - New Package for Dogtag PKI: dogtag-pki-ocsp-ui
+- Removed "Requires:  bash"
+
 * Wed Jan 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #553843 - New Package for Dogtag PKI: dogtag-pki-ocsp-ui
 - Take ownership of directories
