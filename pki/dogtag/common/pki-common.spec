@@ -1,6 +1,6 @@
 Name:           pki-common
 Version:        1.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -39,8 +39,6 @@ Requires:       %{_javadir}/velocity.jar
 Requires:       %{_javadir}/xalan-j2.jar
 Requires:       %{_javadir}/xerces-j2.jar
 Requires:       velocity
-
-Conflicts:      tomcat-native
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -116,6 +114,10 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
+- Bugzilla Bug #441974 -  CA Setup Wizard cannot create new Security Domain.
+- Moved 'Conflicts: tomcat-native' to lower-level 'tomcatjss' package
+
 * Mon Dec 7 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #522207 - packaging for Fedora Dogtag
 - Removed 'postinstall' tasks
