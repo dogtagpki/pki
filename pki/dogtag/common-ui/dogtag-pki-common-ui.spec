@@ -1,6 +1,6 @@
 Name:           dogtag-pki-common-ui
 Version:        1.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -11,8 +11,6 @@ BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
-
-Requires:       bash
 
 Provides:       pki-common-ui = %{version}.%{release}
 
@@ -52,6 +50,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
+- Bugzilla Bug #522204 -  New Package for Dogtag PKI: dogtag-pki-common-ui
+- Removed "Requires:  bash"
+
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-3
 - Removed 'with exceptions' from License
 
