@@ -1,6 +1,6 @@
 Name:           pki-common
 Version:        1.3.0
-Release:        5%{?dist}
+Release:        7%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -11,7 +11,6 @@ BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
-BuildRequires:  dogtag-pki-common-ui
 BuildRequires:  java-devel >= 1:1.6.0
 BuildRequires:  jpackage-utils
 BuildRequires:  jss >= 4.2.6
@@ -33,8 +32,6 @@ Requires:       rhgb
 Requires:       symkey
 Requires:       tomcatjss
 Requires:       %{_javadir}/ldapjdk.jar
-Requires:       %{_javadir}/pki/cmsutil.jar
-Requires:       %{_javadir}/pki/nsutil.jar
 Requires:       %{_javadir}/velocity.jar
 Requires:       %{_javadir}/xalan-j2.jar
 Requires:       %{_javadir}/xerces-j2.jar
@@ -110,13 +107,25 @@ rm -rf %{buildroot}
 %{_sharedstatedir}/tomcat5/common/lib/*
 
 %files javadoc
-%defattr(0644,root,root,0755)
+%defattr(-,root,root,-)
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
-* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
+* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-7
 - Bugzilla Bug #441974 -  CA Setup Wizard cannot create new Security Domain.
 - Moved 'Conflicts: tomcat-native' to lower-level 'tomcatjss' package
+
+* Thu Dec 24 2009 Kevin Wright <kwright@redhat.com> 1.3.0-6
+- Bugzilla Bug #522207 - packaging for Fedora Dogtag
+- Removed Requires:       rhgb
+
+* Wed Dec 23 2009 Kevin Wright <kwright@redhat.com> 1.3.0-5
+- Bugzilla Bug #522207 - packaging for Fedora Dogtag
+- Removed Requires:       %{_javadir}/pki/cmsutil.jar
+- Removed Requires:       %{_javadir}/pki/nsutil.jar
+- Removed BuildRequires:  dogtag-pki-common-ui
+- added   Requires:       pki-util
+- changed -javadoc to: %defattr(-,root,root,-)
 
 * Mon Dec 7 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #522207 - packaging for Fedora Dogtag
