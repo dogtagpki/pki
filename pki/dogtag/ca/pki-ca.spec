@@ -1,6 +1,6 @@
 Name:           pki-ca
 Version:        1.3.0
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -11,7 +11,6 @@ BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
-BuildRequires:  dogtag-pki-ca-ui
 BuildRequires:  java-devel >= 1:1.6.0
 BuildRequires:  jpackage-utils
 BuildRequires:  jss >= 4.2.6
@@ -98,6 +97,9 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Fri Jan 15 2010 Kevin Wright <kwright@redhat.com> 1.3.0-8
+- removed BuildRequires dogtag-pki-ca-ui
+
 * Tue Jan 12 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-7
 - Corrected "|| :" scriptlet logic (see Bugzilla Bug #475895)
 
