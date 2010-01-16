@@ -1,6 +1,6 @@
 Name:           pki-console
 Version:        1.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Dogtag Certificate System - PKI Console
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -11,7 +11,6 @@ BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
-BuildRequires:  dogtag-pki-console-ui
 BuildRequires:  idm-console-framework
 BuildRequires:  java-devel >= 1:1.6.0
 BuildRequires:  jpackage-utils
@@ -63,8 +62,11 @@ rm -rf %{buildroot}
 %{_javadir}/pki/
 
 %changelog
+* Fri Jan 15 2010 Kevin Wright <kwright@redhat.com> 1.3.0-4
+- removed BuildRequires dogtag-pki-console-ui
+
 * Wed Jan 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
-- Bugzilla Bug #553487 - New Package for Dogtag PKI: pki-console
+- Bugzilla Bug #553487 - Review Request: pki-console - The Dogtag PKI Console
 - Take ownership of directories
 
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
