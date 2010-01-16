@@ -1,6 +1,6 @@
 Name:           pki-common
 Version:        1.3.0
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -28,7 +28,6 @@ Requires:       osutil
 Requires:       pki-common-ui
 Requires:       pki-java-tools
 Requires:       pki-setup
-Requires:       rhgb
 Requires:       symkey
 Requires:       tomcatjss
 Requires:       %{_javadir}/ldapjdk.jar
@@ -111,6 +110,9 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Fri Jan 15 2010 Kevin Wright <kwright@redhat.com> 1.3.0-8
+- Removed Requires:       rhgb
+
 * Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-7
 - Bugzilla Bug #441974 -  CA Setup Wizard cannot create new Security Domain.
 - Moved 'Conflicts: tomcat-native' to lower-level 'tomcatjss' package
