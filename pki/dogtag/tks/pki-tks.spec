@@ -1,6 +1,6 @@
 Name:           pki-tks
 Version:        1.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Dogtag Certificate System - Token Key Service
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -11,7 +11,6 @@ BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
-BuildRequires:  dogtag-pki-tks-ui
 BuildRequires:  java-devel >= 1:1.6.0
 BuildRequires:  jpackage-utils
 BuildRequires:  jss >= 4.2.6
@@ -109,6 +108,9 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Fri Jan 15 2010 Kevin Wright <kwright@redhat.com> 1.3.0-4
+- Removed BuildRequires:  dogtag-pki-tks-ui
+
 * Fri Jan 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Corrected "|| :" scriptlet logic (see Bugzilla Bug #475895)
 - Bugzilla Bug #553075 - Apply "registry" logic to pki-tks . . .
