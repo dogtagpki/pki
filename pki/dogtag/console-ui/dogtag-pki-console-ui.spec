@@ -1,6 +1,6 @@
 Name:           dogtag-pki-console-ui
 Version:        1.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Dogtag Certificate System - PKI Console User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -60,6 +60,10 @@ rm -rf %{buildroot}
 %{_javadir}/pki/
 
 %changelog
+* Mon Jan 18 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
+- Bugzilla Bug #553483 - New Package for Dogtag PKI: dogtag-pki-console-ui
+- Fixed various licensing headers
+
 * Wed Jan 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #553483 - New Package for Dogtag PKI: dogtag-pki-console-ui
 - Take ownership of directories

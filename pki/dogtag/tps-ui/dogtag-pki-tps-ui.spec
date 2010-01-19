@@ -1,9 +1,9 @@
 Name:           dogtag-pki-tps-ui
 Version:        1.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System User Interface
 URL:            http://pki.fedoraproject.org/
-License:        GPLv2
+License:        GPLv2 and LGPLv2
 Group:          System Environment/Base
 
 BuildArch:      noarch
@@ -50,6 +50,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Mon Jan 18 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
+- Bugzilla Bug #553851 - New Package for Dogtag PKI: dogtag-pki-tps-ui
+- Fixed various licensing headers
+
 * Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #553851 - New Package for Dogtag PKI: dogtag-pki-tps-ui
 - Removed "Requires:  bash"

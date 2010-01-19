@@ -1,6 +1,6 @@
 Name:           dogtag-pki-ra-ui
 Version:        1.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -50,6 +50,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Mon Jan 18 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
+- Bugzilla Bug #553848 - New Package for Dogtag PKI: dogtag-pki-ra-ui
+- Fixed various licensing headers
+
 * Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #553848 - New Package for Dogtag PKI: dogtag-pki-ra-ui
 - Removed "Requires:  bash"
