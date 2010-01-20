@@ -1,6 +1,6 @@
 Name:           dogtag-pki-tps-ui
 Version:        1.3.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 and LGPLv2
@@ -17,6 +17,7 @@ Provides:       pki-tps-ui =  %{version}-%{release}
 Obsoletes:      pki-tps-ui <  %{version}-%{release}
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+Patch0:         dogtag-pki-tps-ui-tarfileset.patch
 
 %description
 Dogtag Certificate System is an enterprise software system designed
@@ -28,6 +29,7 @@ user interface for the Dogtag Token Processing System.
 %prep
 
 %setup -q
+%patch0 -p1
 
 %build
 ant \
@@ -50,6 +52,9 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Wed Jan 20 2010 Dennis Gilmore <dennis@ausil.us> - 1.3.0-6
+- add patch to deal with stricter syntax in ant 1.6.5
+
 * Mon Jan 18 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
 - Bugzilla Bug #553851 - New Package for Dogtag PKI: dogtag-pki-tps-ui
 - Fixed various licensing headers
