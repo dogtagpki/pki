@@ -1,6 +1,6 @@
 Name:           pki-ra
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -11,7 +11,6 @@ BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
-BuildRequires:  dogtag-pki-ra-ui
 
 Requires:       mod_nss >= 1.0.7
 Requires:       mod_perl >= 1.99_16
@@ -28,8 +27,13 @@ Requires:       perl-XML-Simple
 Requires:       pki-ra-ui
 Requires:       pki-selinux
 Requires:       pki-setup
+Requires:       pki-silent
 Requires:       sendmail
 Requires:       sqlite
+Requires(post):    chkconfig
+Requires(preun):   chkconfig
+Requires(preun):   initscripts
+Requires(postun):  initscripts
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -50,6 +54,7 @@ Dogtag Certificate Authority to fulfill the user's requests.
 
 %build
 ant \
+    -Dinit.d="rc.d/init.d" \
     -Dproduct.ui.flavor.prefix="" \
     -Dproduct.prefix="pki" \
     -Dproduct="ra" \
@@ -60,45 +65,44 @@ rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/ra/conf/CS.cfg
+mkdir -p %{buildroot}%{_localstatedir}/lock/pki/ra
+mkdir -p %{buildroot}%{_localstatedir}/run/pki/ra
 
 %clean
 rm -rf %{buildroot}
 
-%pre
-if [ `grep -c pkiuser /etc/group` -eq 0 ] ; then
-        echo "Adding default PKI group \"pkiuser\" to /etc/group."
-        groupadd pkiuser
-fi
-if [ `grep -c pkiuser /etc/passwd` -eq 0 ] ; then
-        echo "Adding default PKI user \"pkiuser\" to /etc/passwd."
-        useradd -g pkiuser -d %{_datadir}/pki -s /sbin/nologin -c "Dogtag Certificate System" -m pkiuser
-fi
-
 %post
-%{_datadir}/pki/ra/setup/postinstall pki ra %{version} %{release}
-echo ""
-echo "Install finished."
+# This adds the proper /etc/rc*.d links for the script
+/sbin/chkconfig --add pki-rad || :
 
 %preun
-if [ -d /var/lib/pki-ra ] ; then
-        echo "WARNING:  The default instance \"/var/lib/pki-ra\" was NOT removed!"
-        echo ""
-        echo "NOTE:  This means that the data in the default instance called"
-        echo "       \"/var/lib/pki-ra\" will NOT be overwritten once the"
-        echo "       \"%{name}\" package is re-installed."
-        echo ""
-        echo "Shutting down the default instance \"/var/lib/pki-ra\""
-        echo "PRIOR to uninstalling the \"%{name}\" package:"
-        echo ""
-        /etc/init.d/pki-ra stop
+if [ $1 = 0 ] ; then
+    /sbin/service pki-rad stop >/dev/null 2>&1
+    /sbin/chkconfig --del pki-rad || :
+fi
+
+%postun
+if [ "$1" -ge "1" ] ; then
+    /sbin/service pki-rad condrestart >/dev/null 2>&1 || :
 fi
 
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_datadir}/pki/ra/*
+%{_initrddir}/*
+%{_datadir}/pki/
+%{_localstatedir}/lock/*
+%{_localstatedir}/run/*
 
 %changelog
+* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
+  pkicreate . . .
+- Bugzilla Bug #547471 - Apply PKI SELinux changes to PKI registry model
+- Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
+- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
+- Bugzilla Bug #553850 - Review Request: pki-ra - Dogtag Registration Authority
+
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
 - Removed 'with exceptions' from License
 

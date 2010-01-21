@@ -1,5 +1,5 @@
 Name:           pki-selinux
-Version:        1.3.1
+Version:        1.3.2
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Selinux Policies
 URL:            https://pki.fedoraproject.org/
@@ -82,6 +82,13 @@ fi
 %{_datadir}/selinux/modules/pki.pp
 
 %changelog
+* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
+- Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
+  pkicreate . . .
+- Bugzilla Bug #547471 - Apply PKI SELinux changes to PKI registry model
+- Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
+- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
+
 * Mon Jan 11 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
 - Bugzilla Bug #547471 - Apply PKI SELinux changes to PKI registry model
 - Bugzilla Bug #553072 - Apply "registry" logic to pki-kra . . .
