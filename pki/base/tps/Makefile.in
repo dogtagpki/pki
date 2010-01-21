@@ -108,13 +108,12 @@ am__installdirs = "$(DESTDIR)$(apache_modulesdir)" \
 	"$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(perl_basedir)" \
 	"$(DESTDIR)$(perl_modulesdir)" "$(DESTDIR)$(perl_servicedir)" \
 	"$(DESTDIR)$(perl_templatesdir)" "$(DESTDIR)$(scriptsdir)" \
-	"$(DESTDIR)$(setupdir)" "$(DESTDIR)$(aliasdir)" \
-	"$(DESTDIR)$(appletsdir)" "$(DESTDIR)$(cgibin_demodir)" \
-	"$(DESTDIR)$(cgibin_homedir)" "$(DESTDIR)$(cgibin_sodir)" \
-	"$(DESTDIR)$(cgibin_sowdir)" "$(DESTDIR)$(confdir)" \
-	"$(DESTDIR)$(docrootdir)" "$(DESTDIR)$(docroot_demodir)" \
-	"$(DESTDIR)$(docroot_homedir)" "$(DESTDIR)$(docroot_sodir)" \
-	"$(DESTDIR)$(docroot_sowdir)" \
+	"$(DESTDIR)$(aliasdir)" "$(DESTDIR)$(appletsdir)" \
+	"$(DESTDIR)$(cgibin_demodir)" "$(DESTDIR)$(cgibin_homedir)" \
+	"$(DESTDIR)$(cgibin_sodir)" "$(DESTDIR)$(cgibin_sowdir)" \
+	"$(DESTDIR)$(confdir)" "$(DESTDIR)$(docrootdir)" \
+	"$(DESTDIR)$(docroot_demodir)" "$(DESTDIR)$(docroot_homedir)" \
+	"$(DESTDIR)$(docroot_sodir)" "$(DESTDIR)$(docroot_sowdir)" \
 	"$(DESTDIR)$(docroot_tokendbdir)" \
 	"$(DESTDIR)$(docroot_tps_configdir)" \
 	"$(DESTDIR)$(docroot_tps_imgdir)" \
@@ -324,7 +323,7 @@ SCRIPTS = $(bin_SCRIPTS) $(cgibin_demo_SCRIPTS) $(cgibin_home_SCRIPTS) \
 	$(cgibin_so_SCRIPTS) $(cgibin_sow_SCRIPTS) $(initd_SCRIPTS) \
 	$(libexec_SCRIPTS) $(perl_base_SCRIPTS) \
 	$(perl_modules_SCRIPTS) $(perl_service_SCRIPTS) \
-	$(perl_templates_SCRIPTS) $(scripts_SCRIPTS) $(setup_SCRIPTS)
+	$(perl_templates_SCRIPTS) $(scripts_SCRIPTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -402,6 +401,9 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+GENERIC_LIBRARY_VERSION = @GENERIC_LIBRARY_VERSION@
+GENERIC_RELEASE = @GENERIC_RELEASE@
+GENERIC_VERSION = @GENERIC_VERSION@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -662,7 +664,7 @@ docroot_tokendb_DATA =
 docroot_tps_config_DATA = 
 docroot_tps_img_DATA = 
 docroot_tps_js_DATA = 
-initd_SCRIPTS = $(srcdir)/etc/init.d/httpd
+initd_SCRIPTS = $(srcdir)/etc/init.d/pki-tpsd
 license_DATA = $(srcdir)/LICENSE
 libexec_SCRIPTS = $(srcdir)/apache/apachectl
 
@@ -720,7 +722,6 @@ scripts_DATA = $(srcdir)/scripts/schemaMods.ldif \
 
 scripts_SCRIPTS = $(srcdir)/scripts/nss_pcache
 @LINUX_TRUE@setup_DATA = $(srcdir)/setup/config.desktop
-setup_SCRIPTS = $(srcdir)/setup/postinstall
 templates_DATA = $(srcdir)/apache/pki_instance_command_wrapper \
 					$(srcdir)/apache/pki_subsystem_command_wrapper
 
@@ -738,7 +739,7 @@ libtokendb_la_SOURCES = src/tus/tus_db.c
 libtokendb_la_CPPFLAGS = $(AM_CPPFLAGS) @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
 
-libtokendb_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
+libtokendb_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(GENERIC_LIBRARY_VERSION) --release $(VERSION)
 libtokendb_la_LIBADD = $(LDAPSDK_LINK) $(SVRCORE_LINK)                    \
 	$(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL) $(LIBSOCKET) $(LIBDL) \
 	$(LIBCSTD) $(LIBCRUN)
@@ -832,7 +833,7 @@ libtps_la_SOURCES = src/main/Buffer.cpp                        \
 libtps_la_CPPFLAGS = $(AM_CPPFLAGS) @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
 
-libtps_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
+libtps_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(GENERIC_LIBRARY_VERSION) --release $(VERSION)
 libtps_la_LIBADD = ${top_builddir}/libtokendb.la $(LDAPSDK_LINK)       \
 	$(SVRCORE_LINK) $(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL)    \
 	$(LIBSOCKET) $(LIBDL) $(LIBCSTD) $(LIBCRUN)
@@ -845,7 +846,7 @@ libldapauth_la_SOURCES = src/authentication/LDAP_Authentication.cpp
 libldapauth_la_CPPFLAGS = $(AM_CPPFLAGS) @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
 
-libldapauth_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
+libldapauth_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(GENERIC_LIBRARY_VERSION) --release $(VERSION)
 libldapauth_la_LIBADD = ${top_builddir}/libtps.la $(LDAPSDK_LINK)       \
 	$(SVRCORE_LINK) $(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL)     \
 	$(LIBSOCKET) $(LIBDL) $(LIBCSTD) $(LIBCRUN)
@@ -1918,40 +1919,6 @@ uninstall-scriptsSCRIPTS:
 	test -n "$$list" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(scriptsdir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(scriptsdir)" && rm -f $$files
-install-setupSCRIPTS: $(setup_SCRIPTS)
-	@$(NORMAL_INSTALL)
-	test -z "$(setupdir)" || $(MKDIR_P) "$(DESTDIR)$(setupdir)"
-	@list='$(setup_SCRIPTS)'; test -n "$(setupdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n' \
-	    -e 'h;s|.*|.|' \
-	    -e 'p;x;s,.*/,,;$(transform)' | sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1; } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) { files[d] = files[d] " " $$1; \
-	      if (++n[d] == $(am__install_max)) { \
-		print "f", d, files[d]; n[d] = 0; files[d] = "" } } \
-	    else { print "f", d "/" $$4, $$1 } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	     test -z "$$files" || { \
-	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(setupdir)$$dir'"; \
-	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(setupdir)$$dir" || exit $$?; \
-	     } \
-	; done
-
-uninstall-setupSCRIPTS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(setup_SCRIPTS)'; test -n "$(setupdir)" || exit 0; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	       sed -e 's,.*/,,;$(transform)'`; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(setupdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(setupdir)" && rm -f $$files
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -4374,7 +4341,7 @@ check: check-am
 all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(DATA) \
 		config.h
 installdirs:
-	for dir in "$(DESTDIR)$(apache_modulesdir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(cgibin_demodir)" "$(DESTDIR)$(cgibin_homedir)" "$(DESTDIR)$(cgibin_sodir)" "$(DESTDIR)$(cgibin_sowdir)" "$(DESTDIR)$(initddir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(perl_basedir)" "$(DESTDIR)$(perl_modulesdir)" "$(DESTDIR)$(perl_servicedir)" "$(DESTDIR)$(perl_templatesdir)" "$(DESTDIR)$(scriptsdir)" "$(DESTDIR)$(setupdir)" "$(DESTDIR)$(aliasdir)" "$(DESTDIR)$(appletsdir)" "$(DESTDIR)$(cgibin_demodir)" "$(DESTDIR)$(cgibin_homedir)" "$(DESTDIR)$(cgibin_sodir)" "$(DESTDIR)$(cgibin_sowdir)" "$(DESTDIR)$(confdir)" "$(DESTDIR)$(docrootdir)" "$(DESTDIR)$(docroot_demodir)" "$(DESTDIR)$(docroot_homedir)" "$(DESTDIR)$(docroot_sodir)" "$(DESTDIR)$(docroot_sowdir)" "$(DESTDIR)$(docroot_tokendbdir)" "$(DESTDIR)$(docroot_tps_configdir)" "$(DESTDIR)$(docroot_tps_imgdir)" "$(DESTDIR)$(docroot_tps_jsdir)" "$(DESTDIR)$(licensedir)" "$(DESTDIR)$(logsdir)" "$(DESTDIR)$(samplesdir)" "$(DESTDIR)$(scriptsdir)" "$(DESTDIR)$(setupdir)" "$(DESTDIR)$(templatesdir)"; do \
+	for dir in "$(DESTDIR)$(apache_modulesdir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(cgibin_demodir)" "$(DESTDIR)$(cgibin_homedir)" "$(DESTDIR)$(cgibin_sodir)" "$(DESTDIR)$(cgibin_sowdir)" "$(DESTDIR)$(initddir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(perl_basedir)" "$(DESTDIR)$(perl_modulesdir)" "$(DESTDIR)$(perl_servicedir)" "$(DESTDIR)$(perl_templatesdir)" "$(DESTDIR)$(scriptsdir)" "$(DESTDIR)$(aliasdir)" "$(DESTDIR)$(appletsdir)" "$(DESTDIR)$(cgibin_demodir)" "$(DESTDIR)$(cgibin_homedir)" "$(DESTDIR)$(cgibin_sodir)" "$(DESTDIR)$(cgibin_sowdir)" "$(DESTDIR)$(confdir)" "$(DESTDIR)$(docrootdir)" "$(DESTDIR)$(docroot_demodir)" "$(DESTDIR)$(docroot_homedir)" "$(DESTDIR)$(docroot_sodir)" "$(DESTDIR)$(docroot_sowdir)" "$(DESTDIR)$(docroot_tokendbdir)" "$(DESTDIR)$(docroot_tps_configdir)" "$(DESTDIR)$(docroot_tps_imgdir)" "$(DESTDIR)$(docroot_tps_jsdir)" "$(DESTDIR)$(licensedir)" "$(DESTDIR)$(logsdir)" "$(DESTDIR)$(samplesdir)" "$(DESTDIR)$(scriptsdir)" "$(DESTDIR)$(setupdir)" "$(DESTDIR)$(templatesdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -4467,7 +4434,7 @@ install-data-am: install-aliasDATA install-apache_modulesLTLIBRARIES \
 	install-perl_baseSCRIPTS install-perl_modulesSCRIPTS \
 	install-perl_serviceSCRIPTS install-perl_templatesSCRIPTS \
 	install-samplesDATA install-scriptsDATA install-scriptsSCRIPTS \
-	install-setupDATA install-setupSCRIPTS install-templatesDATA
+	install-setupDATA install-templatesDATA
 
 install-dvi: install-dvi-am
 
@@ -4534,7 +4501,7 @@ uninstall-am: uninstall-aliasDATA uninstall-apache_modulesLTLIBRARIES \
 	uninstall-perl_serviceSCRIPTS uninstall-perl_templatesSCRIPTS \
 	uninstall-samplesDATA uninstall-scriptsDATA \
 	uninstall-scriptsSCRIPTS uninstall-setupDATA \
-	uninstall-setupSCRIPTS uninstall-templatesDATA
+	uninstall-templatesDATA
 
 .MAKE: all install-am install-strip
 
@@ -4567,8 +4534,8 @@ uninstall-am: uninstall-aliasDATA uninstall-apache_modulesLTLIBRARIES \
 	install-perl_serviceSCRIPTS install-perl_templatesSCRIPTS \
 	install-ps install-ps-am install-samplesDATA \
 	install-scriptsDATA install-scriptsSCRIPTS install-setupDATA \
-	install-setupSCRIPTS install-strip install-templatesDATA \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install-strip install-templatesDATA installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-aliasDATA uninstall-am \
@@ -4589,8 +4556,7 @@ uninstall-am: uninstall-aliasDATA uninstall-apache_modulesLTLIBRARIES \
 	uninstall-perl_modulesSCRIPTS uninstall-perl_serviceSCRIPTS \
 	uninstall-perl_templatesSCRIPTS uninstall-samplesDATA \
 	uninstall-scriptsDATA uninstall-scriptsSCRIPTS \
-	uninstall-setupDATA uninstall-setupSCRIPTS \
-	uninstall-templatesDATA
+	uninstall-setupDATA uninstall-templatesDATA
 
 
 %: %.in

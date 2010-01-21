@@ -154,11 +154,6 @@
         <echo message="${begin.binary.zip.log.message}"/>
         <zip destfile="${dist.base.binaries}/${dist.name}.zip">
             <zipfileset dir="."
-                        filemode="644"
-                        prefix="etc/httpd/modules/">
-                <include name="**"/>
-            </zipfileset>
-            <zipfileset dir="."
                         filemode="755"
                         prefix="usr/bin/">
                 <include name="**"/>
@@ -166,6 +161,11 @@
             <zipfileset dir="."
                         filemode="644"
                         prefix="usr/lib/">
+                <include name="**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="644"
+                        prefix="usr/lib/httpd/modules/">
                 <include name="**"/>
             </zipfileset>
             <zipfileset dir="."
@@ -192,7 +192,6 @@
                 <include name="cgi-bin/**"/>
                 <include name="docroot/index.cgi"/>
                 <include name="logs/signedAudit"/>
-                <include name="setup/postinstall"/>
             </zipfileset>
         </zip>
         <echo message="${end.binary.zip.log.message}"/>
@@ -201,11 +200,6 @@
         <tar longfile="gnu"
              destfile="${dist.base.binaries}/${dist.name}.tar">
             <tarfileset dir="."
-                        mode="644"
-                        prefix="etc/httpd/modules/">
-                <include name="**"/>
-            </tarfileset>
-            <tarfileset dir="."
                         mode="755"
                         prefix="usr/bin/">
                 <include name="**"/>
@@ -213,6 +207,11 @@
             <tarfileset dir="."
                         mode="644"
                         prefix="usr/lib/">
+                <include name="**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="644"
+                        prefix="usr/lib/httpd/modules/">
                 <include name="**"/>
             </tarfileset>
             <tarfileset dir="."
@@ -239,7 +238,6 @@
                 <include name="cgi-bin/**"/>
                 <include name="docroot/index.cgi"/>
                 <include name="logs/signedAudit"/>
-                <include name="setup/postinstall"/>
             </tarfileset>
         </tar>
         <echo message="${end.binary.tar.log.message}"/>
@@ -301,12 +299,18 @@
                 <include name="ui/**"/>
                 <include name="wrappers/**"/>
             </zipfileset>
+            <zipfileset dir="./etc/init.d"
+                        filemode="755"
+                        prefix="etc/${init.d}">
+                <include name="pki-tpsd"/>
+            </zipfileset>
             <zipfileset dir="."
                         filemode="755"
                         prefix="${src.dist.name}">
                 <include name="autogen.sh"/>
                 <include name="configure"/>
                 <include name="setup_package"/>
+                <exclude name="etc/init.d/pki-tpsd"/>
             </zipfileset>
         </zip>
         <echo message="${end.source.zip.log.message}"/>
@@ -355,12 +359,18 @@
                 <include name="ui/**"/>
                 <include name="wrappers/**"/>
             </tarfileset>
+            <tarfileset dir="./etc/init.d"
+                        mode="755"
+                        prefix="${dist.name}/etc/${init.d}">
+                <include name="pki-tpsd"/>
+            </tarfileset>
             <tarfileset dir="."
                         mode="755"
                         prefix="${src.dist.name}">
                 <include name="autogen.sh"/>
                 <include name="configure"/>
                 <include name="setup_package"/>
+                <exclude name="etc/init.d/pki-tpsd"/>
             </tarfileset>
         </tar>
         <echo message="${end.source.tar.log.message}"/>

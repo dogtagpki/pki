@@ -108,7 +108,7 @@ template(`pki_ca_template',`
 	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
 
-	# start/ stop using pki-cad, pki-krad, pki-ocspd, or pki-tksd
+	# start/stop using pki-cad, pki-krad, pki-ocspd, or pki-tksd
 	allow setfiles_t $1_etc_rw_t:file read;
 
 	manage_dirs_pattern($1_t, $1_var_run_t,  $1_var_run_t)
@@ -413,7 +413,7 @@ interface(`pki_ra_script_domtrans',`
 template(`pki_tps_template',`
 	gen_require(`
 		attribute pki_tps_process;
-		attribute pki_tps_config, pki_tps_var_lib;
+		attribute pki_tps_config, pki_tps_var_lib, pki_tps_var_run;
 		attribute pki_tps_executable, pki_tps_script, pki_tps_var_log;
 	')
 	########################################
@@ -431,6 +431,9 @@ template(`pki_tps_template',`
 
 	type $1_etc_rw_t, pki_tps_config;
 	files_type($1_etc_rw_t)
+
+	type $1_var_run_t, pki_tps_var_run;
+	files_pid_file($1_var_run_t)
 
 	type $1_var_lib_t, pki_tps_var_lib;
 	files_type($1_var_lib_t)
@@ -455,6 +458,10 @@ template(`pki_tps_template',`
 	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
+
+	manage_dirs_pattern($1_t, $1_var_run_t,  $1_var_run_t)
+	manage_files_pattern($1_t, $1_var_run_t,  $1_var_run_t)
+	files_pid_filetrans($1_t,$1_var_run_t, { file dir })
 
 	manage_dirs_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
 	manage_files_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
@@ -482,6 +489,11 @@ template(`pki_tps_template',`
                 type httpd_exec_t;
                 type httpd_suexec_exec_t;
 	')
+
+	#============= httpd_t ==============
+	allow httpd_t $1_var_run_t:dir search;
+	allow httpd_t $1_var_run_t:file read;
+	allow httpd_t $1_var_run_t:file open;
 
         # start up httpd in pki_tps_t mode
         allow pki_tps_t httpd_config_t:file { read getattr execute };
@@ -582,7 +594,7 @@ template(`pki_tps_template',`
 template(`pki_ra_template',`
 	gen_require(`
 		attribute pki_ra_process;
-		attribute pki_ra_config, pki_ra_var_lib;
+		attribute pki_ra_config, pki_ra_var_lib, pki_ra_var_run;
 		attribute pki_ra_executable, pki_ra_script, pki_ra_var_log;
 	')
 	########################################
@@ -600,6 +612,9 @@ template(`pki_ra_template',`
 
 	type $1_etc_rw_t, pki_ra_config;
 	files_type($1_etc_rw_t)
+
+	type $1_var_run_t, pki_ra_var_run;
+	files_pid_file($1_var_run_t)
 
 	type $1_var_lib_t, pki_ra_var_lib;
 	files_type($1_var_lib_t)
@@ -624,6 +639,10 @@ template(`pki_ra_template',`
 	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
+
+	manage_dirs_pattern($1_t, $1_var_run_t,  $1_var_run_t)
+	manage_files_pattern($1_t, $1_var_run_t,  $1_var_run_t)
+	files_pid_filetrans($1_t,$1_var_run_t, { file dir })
 
 	manage_dirs_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
 	manage_files_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
@@ -653,6 +672,11 @@ template(`pki_ra_template',`
                 type httpd_exec_t;
                 type httpd_suexec_exec_t;
 	')
+
+	#============= httpd_t ==============
+	allow httpd_t $1_var_run_t:dir search;
+	allow httpd_t $1_var_run_t:file read;
+	allow httpd_t $1_var_run_t:file open;
 
          # start up httpd in pki_ra_t mode
         allow pki_ra_t httpd_config_t:file { read getattr execute };
@@ -780,6 +804,7 @@ interface(`pki_ra_admin',`
 		attribute pki_ra_executable;
 		attribute pki_ra_var_lib;
 		attribute pki_ra_var_log;
+		attribute pki_ra_var_run;
 		attribute pki_ra_script;
 	')
 
@@ -793,6 +818,7 @@ interface(`pki_ra_admin',`
 	allow $2 system_r;
 
 	manage_all_pattern($1, pki_ra_config)
+	manage_all_pattern($1, pki_ra_var_run)
 	manage_all_pattern($1, pki_ra_var_lib)
 	manage_all_pattern($1, pki_ra_var_log)
 	manage_all_pattern($1, pki_ra_config)
@@ -917,6 +943,7 @@ interface(`pki_tps_admin',`
 		attribute pki_tps_executable;
 		attribute pki_tps_var_lib;
 		attribute pki_tps_var_log;
+		attribute pki_tps_var_run;
 		attribute pki_tps_script;
 	')
 
@@ -930,6 +957,7 @@ interface(`pki_tps_admin',`
 	allow $2 system_r;
 
 	manage_all_pattern($1, pki_tps_config)
+	manage_all_pattern($1, pki_tps_var_run)
 	manage_all_pattern($1, pki_tps_var_lib)
 	manage_all_pattern($1, pki_tps_var_log)
 	manage_all_pattern($1, pki_tps_config)

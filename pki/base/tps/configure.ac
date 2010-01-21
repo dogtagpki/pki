@@ -28,6 +28,18 @@ AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CANONICAL_HOST
 
+# Library versioning.
+GENERIC_MAJOR_VERSION=1
+GENERIC_MINOR_VERSION=0
+GENERIC_MICRO_VERSION=0
+GENERIC_LIBRARY_VERSION=0:0:0
+AC_SUBST(GENERIC_LIBRARY_VERSION)
+GENERIC_VERSION=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION.$GENERIC_MICRO_VERSION
+GENERIC_RELEASE=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
+AC_SUBST(GENERIC_RELEASE)
+AC_SUBST(GENERIC_VERSION)
+VERSION=$GENERIC_VERSION
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
@@ -131,8 +143,6 @@ docroot_tps_configdir=/docroot/tps/admin/console/config
 docroot_tps_cssdir=/docroot/tps/admin/console/css
 docroot_tps_imgdir=/docroot/tps/admin/console/img
 docroot_tps_jsdir=/docroot/tps/admin/console/js
-# relative to sysconfdir
-initddir=/init.d
 # relative to prefix
 licensedir=/doc
 logsdir=/logs/signedAudit
@@ -165,7 +175,6 @@ AC_SUBST(docroot_tps_configdir)
 AC_SUBST(docroot_tps_cssdir)
 AC_SUBST(docroot_tps_imgdir)
 AC_SUBST(docroot_tps_jsdir)
-AC_SUBST(initddir)
 AC_SUBST(licensedir)
 AC_SUBST(logsdir)
 AC_SUBST(perl_basedir)
@@ -211,6 +220,9 @@ case $host in
     AC_DEFINE([SW_THREADS], [], [SW_THREADS])
     AC_DEFINE([USE_NODL_TABS], [], [USE_NODL_TABS])
     platform="linux"
+    # relative to sysconfdir
+    initddir=/rc.d/init.d
+    AC_SUBST(initddir)
     ;;
   ia64-hp-hpux*)
     AC_DEFINE([XP_UNIX], [], [UNIX])
@@ -223,6 +235,9 @@ case $host in
     AC_DEFINE([_POSIX_C_SOURCE], [199506L], [POSIX revision])
     AC_DEFINE([_HPUX_SOURCE], [], [_HPUX_SOURCE])
     platform="hpux"
+    # relative to sysconfdir
+    initddir=/init.d
+    AC_SUBST(initddir)
     ;;
   hppa*-hp-hpux*)
     AC_DEFINE([XP_UNIX], [], [UNIX])
@@ -241,6 +256,9 @@ case $host in
     AC_DEFINE([NET_SSL], [], [NET_SSL])
     AC_DEFINE([SW_THREADS], [], [SW_THREADS])
     platform="hpux"
+    # relative to sysconfdir
+    initddir=/init.d
+    AC_SUBST(initddir)
     ;;
   sparc-sun-solaris*)
     AC_DEFINE([XP_UNIX], [], [UNIX])
@@ -276,9 +294,15 @@ dnl Cstd and Crun are required to link any C++ related code
     AC_DEFINE([SOLARIS_55_OR_GREATER], [], [SOLARIS_55_OR_GREATER])
     AC_DEFINE([SYSV], [], [SYSV])
     platform="solaris"
+    # relative to sysconfdir
+    initddir=/init.d
+    AC_SUBST(initddir)
     ;;
   *)
     platform=""
+    # relative to sysconfdir
+    initddir=/init.d
+    AC_SUBST(initddir)
     ;;
 esac
 

@@ -183,7 +183,7 @@ docroot_tps_img_DATA =
 
 docroot_tps_js_DATA =
 
-initd_SCRIPTS =	$(srcdir)/etc/init.d/httpd
+initd_SCRIPTS =	$(srcdir)/etc/init.d/pki-tpsd
 
 license_DATA =	$(srcdir)/LICENSE
 
@@ -250,8 +250,6 @@ if LINUX
 setup_DATA =	$(srcdir)/setup/config.desktop
 endif
 
-setup_SCRIPTS =	$(srcdir)/setup/postinstall
-
 templates_DATA =	$(srcdir)/apache/pki_instance_command_wrapper \
 					$(srcdir)/apache/pki_subsystem_command_wrapper
 
@@ -269,7 +267,7 @@ libtokendb_la_SOURCES = src/tus/tus_db.c
 
 libtokendb_la_CPPFLAGS = $(AM_CPPFLAGS) @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
-libtokendb_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
+libtokendb_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(GENERIC_LIBRARY_VERSION) --release $(VERSION)
 libtokendb_la_LIBADD = $(LDAPSDK_LINK) $(SVRCORE_LINK)                    \
 	$(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL) $(LIBSOCKET) $(LIBDL) \
 	$(LIBCSTD) $(LIBCRUN)
@@ -362,7 +360,7 @@ libtps_la_SOURCES =	src/main/Buffer.cpp                        \
 
 libtps_la_CPPFLAGS = $(AM_CPPFLAGS) @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
-libtps_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
+libtps_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(GENERIC_LIBRARY_VERSION) --release $(VERSION)
 libtps_la_LIBADD = ${top_builddir}/libtokendb.la $(LDAPSDK_LINK)       \
 	$(SVRCORE_LINK) $(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL)    \
 	$(LIBSOCKET) $(LIBDL) $(LIBCSTD) $(LIBCRUN)
@@ -375,7 +373,7 @@ libldapauth_la_SOURCES =	src/authentication/LDAP_Authentication.cpp
 
 libldapauth_la_CPPFLAGS = $(AM_CPPFLAGS) @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
-libldapauth_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
+libldapauth_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(GENERIC_LIBRARY_VERSION) --release $(VERSION)
 libldapauth_la_LIBADD = ${top_builddir}/libtps.la $(LDAPSDK_LINK)       \
 	$(SVRCORE_LINK) $(SASL_LINK) $(NSS_LINK) $(NSPR_LINK) $(LIBNSL)     \
 	$(LIBSOCKET) $(LIBDL) $(LIBCSTD) $(LIBCRUN)

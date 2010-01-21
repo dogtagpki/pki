@@ -92,3 +92,16 @@
 /var/run/pki/tks(/.*)? 	        gen_context(system_u:object_r:pki_tks_var_run_t,s0)
 /etc/init.d/pki-tksd            gen_context(system_u:object_r:pki_tks_script_exec_t,s0)
 /etc/sysconfig/pki/tks(/.*)?	gen_context(system_u:object_r:pki_tks_etc_rw_t,s0)
+
+# labeling for new RA under pki-rad
+
+/var/run/pki/ra(/.*)? 	        gen_context(system_u:object_r:pki_ra_var_run_t,s0)
+/etc/init.d/pki-rad             gen_context(system_u:object_r:pki_ra_script_exec_t,s0)
+/etc/sysconfig/pki/ra(/.*)?	    gen_context(system_u:object_r:pki_ra_etc_rw_t,s0)
+
+# labeling for new TPS under pki-tpsd
+
+/var/run/pki/tps(/.*)? 	        gen_context(system_u:object_r:pki_tps_var_run_t,s0)
+/etc/init.d/pki-tpsd            gen_context(system_u:object_r:pki_tps_script_exec_t,s0)
+/etc/sysconfig/pki/tps(/.*)?	gen_context(system_u:object_r:pki_tps_etc_rw_t,s0)
+

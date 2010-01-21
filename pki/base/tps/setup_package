@@ -152,7 +152,7 @@ SYSTEM_LIBRARIES=${PKI_BUILD_PREFIX}/usr/${LIB_DIR}
 if [ "${USE_OPT_FORTITUDE}" = "TRUE" ] ; then
 	APACHE_MODULES=${PKI_BUILD_PREFIX}/opt/fortitude/modules.local
 else
-	APACHE_MODULES=${PKI_BUILD_PREFIX}/etc/httpd/modules
+	APACHE_MODULES=${PKI_BUILD_PREFIX}/usr/${LIB_DIR}/httpd/modules
 fi
 
 # comply with standard JPackage 1.6.0 jar locations

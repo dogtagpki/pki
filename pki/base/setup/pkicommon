@@ -102,9 +102,9 @@ my $is_IPv6 = 0;
 
 # Compute "hardware platform" of Operating System
 if( $^O eq "linux" ) {
-	$default_hardware_platform = `uname -i`;
-	$default_hardware_platform =~ s/\s+$//g;
-	chomp( $default_hardware_platform );
+    $default_hardware_platform = `uname -i`;
+    $default_hardware_platform =~ s/\s+$//g;
+    chomp( $default_hardware_platform );
     if( $default_hardware_platform eq "i386" ) {
         # 32-bit Linux
         $default_system_binaries      = "/bin";
@@ -137,9 +137,9 @@ if( $^O eq "linux" ) {
         $hostname = hostname;
     }
 } elsif( $^O eq "solaris" ) {
-	$default_hardware_platform = `uname -p`;
-	$default_hardware_platform =~ s/\s+$//g;
-	chomp( $default_hardware_platform );
+    $default_hardware_platform = `uname -p`;
+    $default_hardware_platform =~ s/\s+$//g;
+    chomp( $default_hardware_platform );
 
     if( ( $default_hardware_platform eq "sparc" ) &&
         ( -d "/usr/lib/sparcv9/" ) ) {
@@ -216,6 +216,12 @@ $HTTP_PREFIX         = "http://";
 $HTTPS_PREFIX        = "https://";
 $LDAP_PREFIX         = "ldap://";
 $LDAPS_PREFIX        = "ldaps://";
+
+# Identity values
+$PKI_USER  = "pkiuser";
+$PKI_GROUP = "pkiuser";
+$PKI_UID   = 17;
+$PKI_GID   = 17;
 
 # Subsystem names
 $CA   = "ca";
@@ -464,6 +470,90 @@ sub user_exists
 }
 
 
+# arg0 username
+# arg1 groupname
+# return 1 - success, or
+# return 0 - failure
+sub create_user
+{
+    my( $username ) = $_[0];
+    my( $groupname ) = $_[1];
+
+    my $command = "";
+    my $report = "";
+
+    my $result = 0;
+
+    if( ( $username eq $PKI_USER ) &&
+        ( $groupname eq $PKI_GROUP ) ) {
+        # Attempt to create $PKI_USER with $PKI_UID
+        emit( "create_user():  Adding default PKI user '$username' "
+            . "(uid=$PKI_UID) to '/etc/passwd'.\n", "debug" );
+        if( $^O eq "linux" ) {
+            $command = "/usr/sbin/useradd "
+                     . "-g $groupname "
+                     . "-d /usr/share/pki "
+                     . "-s /sbin/nologin "
+                     . "-c 'Certificate System' "
+                     . "-u $PKI_UID "
+                     . "-r "
+                     . "$username";
+        } elsif( $^O eq "solaris" ) {
+            $command = "/usr/sbin/useradd "
+                     . "-g $groupname "
+                     . "-d /usr/share/pki "
+                     . "-s /bin/false "
+                     . "-c 'Certificate System' "
+                     . "-u $PKI_UID "
+                     . "$username";
+        } else {
+            $command = "/usr/sbin/useradd "
+                     . "-g $groupname "
+                     . "-d /usr/share/pki "
+                     . "-s '' "
+                     . "-c 'Certificate System' "
+                     . "-u $PKI_UID "
+                     . "$username";
+        }
+    } else {
+        # Attempt to create $username with random UID
+        emit( "create_user():  Adding default PKI user '$username' "
+            . "(uid=random) to '/etc/passwd'.\n", "debug" );
+        if( $^O eq "linux" ) {
+            $command = "/usr/sbin/useradd "
+                     . "-g $groupname "
+                     . "-d /usr/share/pki "
+                     . "-s /sbin/nologin "
+                     . "-c 'Certificate System' "
+                     . "$username";
+        } elsif( $^O eq "solaris" ) {
+            $command = "/usr/sbin/useradd "
+                     . "-g $groupname "
+                     . "-d /usr/share/pki "
+                     . "-s /bin/false "
+                     . "-c 'Certificate System' "
+                     . "$username";
+        } else {
+            $command = "/usr/sbin/useradd "
+                     . "-g $groupname "
+                     . "-d /usr/share/pki "
+                     . "-s '' "
+                     . "-c 'Certificate System' "
+                     . "$username";
+        }
+    }
+
+    $report = `$command`;
+    if( $report ne "" ) {
+        emit( "$report", "error" );
+    }
+
+    $result = user_exists( $username );
+
+    return $result;
+}
+
+
 # arg0 groupname
 # return 1 - exists, or
 # return 0 - DOES NOT exist
@@ -483,7 +573,65 @@ sub group_exists
 }
 
 
+# arg0 groupname
+# return 1 - success, or
+# return 0 - failure
+sub create_group
+{
+    my( $groupname ) = $_[0];
+
+    my $command = "";
+    my $report = "";
+
+    my $result = 0;
+
+    if( $groupname eq $PKI_GROUP ) {
+        # Attempt to create $PKI_GROUP with $PKI_GID
+        emit( "Adding default PKI group '$groupname' "
+            . "(gid=$PKI_GID) to '/etc/group'.\n", "debug" );
+        if( $^O eq "linux" ) {
+            $command = "/usr/sbin/groupadd "
+                     . "-g $PKI_GID "
+                     . "-r "
+                     . "$groupname";
+        } elsif( $^O eq "solaris" ) {
+            $command = "/usr/sbin/groupadd "
+                     . "-g $PKI_GID "
+                     . "$groupname";
+        } else {
+            $command = "/usr/sbin/groupadd "
+                     . "-g $PKI_GID "
+                     . "$groupname";
+        }
+    } else {
+        # Attempt to create $groupname with random GID
+        emit( "Adding default PKI group '$groupname' "
+            . "(gid=random) to '/etc/group'.\n", "debug" );
+        if( $^O eq "linux" ) {
+            $command = "/usr/sbin/groupadd "
+                     . "$groupname";
+        } elsif( $^O eq "solaris" ) {
+            $command = "/usr/sbin/groupadd "
+                     . "$groupname";
+        } else {
+            $command = "/usr/sbin/groupadd "
+                     . "$groupname";
+        }
+    }
+
+    $report = `$command`;
+    if( $report ne "" ) {
+        emit( "$report", "error" );
+    }
+
+    $result = group_exists( $groupname );
+
+    return $result;
+}
+
+
 # arg0 username
+# arg1 groupname
 # return 1 - disallows shell, or
 # return 0 - allows shell
 sub user_disallows_shell
@@ -498,10 +646,10 @@ sub user_disallows_shell
         $sans_shell="/sbin/nologin";
         $result = 0;
     } elsif( $^O eq "solaris" ) {
-        $sans_shell="";
+        $sans_shell="/bin/false";
         $result = 0;
     } else {
-        # Don't care
+        $sans_shell="";
         return 1;
     }
 
@@ -512,7 +660,9 @@ sub user_disallows_shell
     my( $name, $passwd, $uid, $gid, $quota,
         $comment, $gcos, $dir, $shell, $expire ) = getpwnam( $username );
 
-    if( $shell eq $sans_shell ) {
+    if( $shell eq "" ) {
+        $result = 1;
+    } elsif( $shell eq $sans_shell ) {
         $result = 1;
     } else {
         # issue a warning and continue
