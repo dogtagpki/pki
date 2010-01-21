@@ -164,11 +164,11 @@
                 <include name="**"/>
                 <exclude name="cgi-bin/sow/cfg.pl"/>
             </tarfileset>
-            <zipfileset dir="./shared"
-                        filemode="755"
-                        prefix="usr/share/${product.prefix}/${product}">
+            <tarfileset dir="./shared"
+                        mode="755"
+                        prefix="${dist.name}/usr/share/${product.prefix}/${product}">
                 <include name="cgi-bin/sow/cfg.pl"/>
-            </zipfileset>
+            </tarfileset>
             <tarfileset dir="."
                         mode="644"
                         prefix="${dist.name}/usr/share/doc/${dist.name}">
