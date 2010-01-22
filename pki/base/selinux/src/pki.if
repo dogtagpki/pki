@@ -492,8 +492,7 @@ template(`pki_tps_template',`
 
 	#============= httpd_t ==============
 	allow httpd_t $1_var_run_t:dir search;
-	allow httpd_t $1_var_run_t:file read;
-	allow httpd_t $1_var_run_t:file open;
+	allow httpd_t $1_var_run_t:file read_file_perms;
 
         # start up httpd in pki_tps_t mode
         allow pki_tps_t httpd_config_t:file { read getattr execute };
@@ -675,8 +674,7 @@ template(`pki_ra_template',`
 
 	#============= httpd_t ==============
 	allow httpd_t $1_var_run_t:dir search;
-	allow httpd_t $1_var_run_t:file read;
-	allow httpd_t $1_var_run_t:file open;
+	allow httpd_t $1_var_run_t:file read_file_perms;
 
          # start up httpd in pki_ra_t mode
         allow pki_ra_t httpd_config_t:file { read getattr execute };
