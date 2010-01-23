@@ -20,7 +20,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.59)
-AC_INIT([symkey], [1.3.1], [http://bugzilla.redhat.com/])
+AC_INIT([pki-symkey], [1.3.2], [http://bugzilla.redhat.com/])
 # AC_CONFIG_HEADER must be called right after AC_INIT.
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])

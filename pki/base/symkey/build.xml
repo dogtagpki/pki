@@ -55,7 +55,7 @@
         <echo message="${begin.compile.java.log.message}"/>
         <mkdir dir="${build.classes}"/>
         <javac debug="on"
-               srcdir="${src.dir}/com/netscape/${product}"
+               srcdir="${src.dir}/com/netscape/symkey"
                destdir="${build.classes}">
             <classpath refid="classpath"/>
         </javac>
@@ -68,9 +68,9 @@
             description="--> generate jar files">
         <echo message="${begin.build.jars.log.message}"/>
         <mkdir dir="${build.jars}"/>
-        <jar jarfile="${build.jars}/${product}.jar">
+        <jar jarfile="${build.jars}/symkey.jar">
             <fileset dir="${build.classes}">
-                <include name="com/netscape/${product}/**"/>
+                <include name="com/netscape/symkey/**"/>
             </fileset>
         </jar>
         <echo message="${end.build.jars.log.message}"/>
@@ -88,7 +88,7 @@
             <arg value="-jni"/>
             <arg value="-d"/>
             <arg value="${build.dir}/include"/>
-            <arg value="com.netscape.${product}.SessionKey"/>
+            <arg value="com.netscape.symkey.SessionKey"/>
         </exec>
         <echo message="${end.build.jni.headers.log.message}"/>
     </target>
