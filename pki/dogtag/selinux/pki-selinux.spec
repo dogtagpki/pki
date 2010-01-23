@@ -1,5 +1,5 @@
 Name:           pki-selinux
-Version:        1.3.2
+Version:        1.3.3
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Selinux Policies
 URL:            https://pki.fedoraproject.org/
@@ -82,6 +82,9 @@ fi
 %{_datadir}/selinux/modules/pki.pp
 
 %changelog
+* Fri Jan 22 2010 Ade Lee <alee@redhat.com> 1.3.3-1
+- Changed 'pki.if' to use macro instead of open() to allow epel build
+
 * Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
 - Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
   pkicreate . . .
