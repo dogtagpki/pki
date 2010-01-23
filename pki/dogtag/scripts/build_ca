@@ -92,7 +92,7 @@ PKI_RELEASE_UI_DIR="${PKI_RELEASE_ROOT}/${PKI_UI_DIR}"
 
 # Establish common PKI package names
 OSUTIL=osutil${RPM_EXT}
-SYMKEY=symkey${RPM_EXT}
+PKI_SYMKEY=pki-symkey${RPM_EXT}
 PKI_NATIVE_TOOLS=pki-native-tools${RPM_EXT}
 PKI_UTIL=pki-util${RPM_EXT}
 PKI_UTIL_JAVADOC=pki-util-javadoc${RPM_EXT}
@@ -121,9 +121,9 @@ mkdir -p ${PKI_RELEASE_ROOT}
 ${PKI_BUILD_SCRIPT_DIR}/osutil/${PKI_BUILD_SCRIPT}
 ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/osutil/${RPM_DIR}/${OSUTIL}
 
-# Build and install 'symkey' packages
+# Build and install 'pki-symkey' packages
 ${PKI_BUILD_SCRIPT_DIR}/symkey/${PKI_BUILD_SCRIPT}
-${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/symkey/${RPM_DIR}/${SYMKEY}
+${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/symkey/${RPM_DIR}/${PKI_SYMKEY}
 
 # Build and install 'pki-native-tools' packages
 ${PKI_BUILD_SCRIPT_DIR}/native-tools/${PKI_BUILD_SCRIPT}

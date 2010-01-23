@@ -1,6 +1,6 @@
 Name:           pki-common
 Version:        1.3.0
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -16,8 +16,8 @@ BuildRequires:  jpackage-utils
 BuildRequires:  jss >= 4.2.6
 BuildRequires:  ldapjdk
 BuildRequires:  osutil
+BuildRequires:  pki-symkey
 BuildRequires:  pki-util
-BuildRequires:  symkey
 BuildRequires:  velocity
 BuildRequires:  xalan-j2
 Buildrequires:  xerces-j2
@@ -28,7 +28,7 @@ Requires:       osutil
 Requires:       pki-common-ui
 Requires:       pki-java-tools
 Requires:       pki-setup
-Requires:       symkey
+Requires:       pki-symkey
 Requires:       tomcatjss
 Requires:       %{_javadir}/ldapjdk.jar
 Requires:       %{_javadir}/velocity.jar
@@ -110,6 +110,9 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Thu Jan 21 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-9
+- Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
+
 * Fri Jan 15 2010 Kevin Wright <kwright@redhat.com> 1.3.0-8
 - Removed Requires:       rhgb
 

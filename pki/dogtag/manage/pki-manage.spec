@@ -1,6 +1,6 @@
 Name:           pki-manage
 Version:        1.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - PKI Uninstall Scripts
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -55,6 +55,9 @@ rm -rf %{buildroot}
 %{_bindir}/*
 
 %changelog
+* Thu Jan 21 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
+
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
 - Removed 'with exceptions' from License
 

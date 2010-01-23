@@ -30,7 +30,7 @@ DOGTAG_BUILD_SCRIPT=`basename $0`
 export DOGTAG_BUILD_SCRIPT
 DOGTAG_COMPONENT=`basename ${PWD}`
 export DOGTAG_COMPONENT
-DOGTAG_SPECFILE="symkey.spec"
+DOGTAG_SPECFILE="pki-symkey.spec"
 export DOGTAG_SPECFILE
 
 # Set PKI 'ant' environment variables (originally obtained from specfile)
@@ -38,9 +38,9 @@ PKI_PRODUCT_UI_FLAVOR_PREFIX=""
 export PKI_PRODUCT_UI_FLAVOR_PREFIX
 PKI_PRODUCT_PREFIX=""
 export PKI_PRODUCT_PREFIX
-PKI_PRODUCT="symkey"
+PKI_PRODUCT="pki-symkey"
 export PKI_PRODUCT
-PKI_VERSION="1.3.1"
+PKI_VERSION="1.3.2"
 export PKI_VERSION
 
 # Set Dogtag helper variables

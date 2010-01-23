@@ -115,7 +115,7 @@ printf "Processing PKI components present on system . . . "
         PKI_COMPONENTS="${PKI_COMPONENTS} osutil"
     fi
 
-    # (3) check for symkey
+    # (3) check for symkey (legacy package)
     `rpm -q --quiet symkey`
     SYMKEY_PRESENCE=$?
     if [ "${SYMKEY_PRESENCE}" = "0" ] ; then

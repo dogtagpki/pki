@@ -1,5 +1,5 @@
-Name:           symkey
-Version:        1.3.1
+Name:           pki-symkey
+Version:        1.3.2
 Release:        1%{?dist}
 Summary:        Symmetric Key JNI Package
 URL:            http://pki.fedoraproject.org/
@@ -20,6 +20,10 @@ Requires:       java >= 1:1.6.0
 Requires:       jpackage-utils
 Requires:       jss >= 4.2.6
 Requires:       nss >= 3.12.3.99
+
+Provides:       symkey = %{version}-%{release}
+
+Obsoletes:      symkey < %{version}-%{release}
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -49,15 +53,15 @@ rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
 ## rearrange files to be in the desired native packaging layout
-mkdir -p %{buildroot}%{_libdir}/%{name}/
-mv %{buildroot}/opt/java/%{name}.jar %{buildroot}%{_libdir}/%{name}/%{name}-%{version}.jar
-mv %{buildroot}%{_libdir}/lib%{name}.so %{buildroot}%{_libdir}/%{name}/lib%{name}.so
+mkdir -p %{buildroot}%{_libdir}/symkey/
+mv %{buildroot}/opt/java/symkey.jar %{buildroot}%{_libdir}/symkey/symkey-%{version}.jar
+mv %{buildroot}%{_libdir}/libsymkey.so %{buildroot}%{_libdir}/symkey/libsymkey.so
 mkdir -p %{buildroot}%{_jnidir}/
-cd %{buildroot}%{_jnidir} ; ln -s %{_libdir}/%{name}/%{name}-%{version}.jar %{name}.jar
+cd %{buildroot}%{_jnidir} ; ln -s %{_libdir}/symkey/symkey-%{version}.jar symkey.jar
 
 ## remove unwanted files
 rm -rf %{buildroot}/opt
-rm -rf %{buildroot}%{_libdir}/lib%{name}.la
+rm -rf %{buildroot}%{_libdir}/libsymkey.la
 
 %clean
 rm -rf %{buildroot}
@@ -66,9 +70,13 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_jnidir}/*
-%{_libdir}/%{name}/
+%{_libdir}/symkey/
 
 %changelog
+* Thu Jan 21 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
+- Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
+- Bugzilla Bug #557632 -  Re-Review Request: pki-symkey - rename from symkey
+
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.1-1
 - Removed BuildRequires bash
 - Removed 'with exceptions' from License
