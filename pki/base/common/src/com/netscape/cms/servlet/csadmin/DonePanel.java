@@ -307,10 +307,10 @@ public class DonePanel extends WizardPanelBase {
                     attrs.add(new LDAPAttribute("SecureAdminPort",
                               ownadminsport));
                     attrs.add(new LDAPAttribute("UnSecurePort", ownport));
-                    attrs.add(new LDAPAttribute("Clone", "false"));
+                    attrs.add(new LDAPAttribute("Clone", "FALSE"));
                     attrs.add(new LDAPAttribute("SubsystemName", subsystemName));
                     attrs.add(new LDAPAttribute("cn", cn));
-                    attrs.add(new LDAPAttribute("DomainManager", "true"));
+                    attrs.add(new LDAPAttribute("DomainManager", "TRUE"));
                     entry = new LDAPEntry(dn, attrs);
                     conn.add(entry);
                 } catch (Exception e) {
