@@ -1,6 +1,6 @@
 Name:           pki-ra
 Version:        1.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -15,15 +15,6 @@ BuildRequires:  ant
 Requires:       mod_nss >= 1.0.7
 Requires:       mod_perl >= 1.99_16
 Requires:       mozldap >= 6.0.2
-Requires:       perl-DBD-SQLite
-Requires:       perl-DBI
-Requires:       perl-HTML-Parser
-Requires:       perl-HTML-Tagset
-Requires:       perl-Parse-RecDescent
-Requires:       perl-URI
-Requires:       perl-XML-NamespaceSupport
-Requires:       perl-XML-Parser
-Requires:       perl-XML-Simple
 Requires:       pki-ra-ui
 Requires:       pki-selinux
 Requires:       pki-setup
@@ -95,6 +86,21 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Tue Jan 26 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
+- Bugzilla Bug #553850 - Review Request: pki-ra - Dogtag Registration Authority
+  Per direction from the Fedora community, removed the following
+  explicit "Requires":
+
+      perl-DBD-SQLite (unused)
+      perl-DBI
+      perl-HTML-Parser
+      perl-HTML-Tagset
+      perl-Parse-RecDescent
+      perl-URI
+      perl-XML-NamespaceSupport (unused)
+      perl-XML-Parser
+      perl-XML-Simple
+
 * Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
 - Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
   pkicreate . . .
