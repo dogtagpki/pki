@@ -1,6 +1,6 @@
 Name:           pki-util
 Version:        1.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Dogtag Certificate System - PKI Utility Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -69,6 +69,10 @@ mv cmsutil.jar cmsutil-%{version}.jar
 ln -s cmsutil-%{version}.jar cmsutil.jar
 mv nsutil.jar nsutil-%{version}.jar
 ln -s nsutil-%{version}.jar nsutil.jar
+mkdir -p %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
+cd %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
+ln -s %{_javadir}/pki/cmsutil.jar cmsutil.jar
+ln -s %{_javadir}/pki/nsutil.jar nsutil.jar
 
 %clean
 rm -rf %{buildroot}
@@ -77,12 +81,17 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_javadir}/pki/
+%{_sharedstatedir}/tomcat5/common/lib/*
 
 %files javadoc
 %defattr(0644,root,root,0755)
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Mon Jan 25 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
+- Created "_sharedstatedir/tomcat5/common/lib/cmsutil.jar" link
+- Created "_sharedstatedir/tomcat5/common/lib/nsutil.jar" link
+
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-4
 - Removed 'with exceptions' from License
 

@@ -89,8 +89,6 @@ ln -s cmscore-%{version}.jar cmscore.jar
 mkdir -p %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
 cd %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
 ln -s %{_javadir}/ldapjdk.jar ldapjdk.jar
-ln -s %{_javadir}/pki/cmsutil.jar cmsutil.jar
-ln -s %{_javadir}/pki/nsutil.jar nsutil.jar
 ln -s %{_javadir}/velocity.jar velocity.jar
 ln -s %{_javadir}/xalan-j2.jar xalan-j2.jar
 ln -s %{_javadir}/xerces-j2.jar xerces-j2.jar
@@ -114,6 +112,8 @@ rm -rf %{buildroot}
 - Bugzilla Bug #547527 -  dogtag does not work with latest 389 DS
 - Temporarily backed out change required for
   Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
+- Moved "_sharedstatedir/tomcat5/common/lib/cmsutil.jar" link to 'pki-util'
+- Moved "_sharedstatedir/tomcat5/common/lib/nsutil.jar" link to 'pki-util'
 
 * Thu Jan 21 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-9
 - Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
@@ -131,11 +131,11 @@ rm -rf %{buildroot}
 
 * Wed Dec 23 2009 Kevin Wright <kwright@redhat.com> 1.3.0-5
 - Bugzilla Bug #522207 - packaging for Fedora Dogtag
-- Removed Requires:       %{_javadir}/pki/cmsutil.jar
-- Removed Requires:       %{_javadir}/pki/nsutil.jar
+- Removed Requires:       _javadir/pki/cmsutil.jar
+- Removed Requires:       _javadir/pki/nsutil.jar
 - Removed BuildRequires:  dogtag-pki-common-ui
 - added   Requires:       pki-util
-- changed -javadoc to: %defattr(-,root,root,-)
+- changed -javadoc to: defattr(-,root,root,-)
 
 * Mon Dec 7 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #522207 - packaging for Fedora Dogtag
