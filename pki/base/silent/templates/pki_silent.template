@@ -166,6 +166,14 @@ tks_instance_name="pki-tks"
 ra_instance_name="pki-ra"
 tps_instance_name="pki-tps"
 
+##  PKI Subsystem Init Script Names
+ca_init_script="pki-cad"
+kra_init_script="pki-krad"
+ocsp_init_script="pki-ocspd"
+tks_init_script="pki-tksd"
+ra_init_script="pki-rad"
+tps_init_script="pki-tpsd"
+
 ##
 ##  NOTE:  Default PKI Instance Ports
 ##
@@ -993,7 +1001,7 @@ tps_preop_pin=`cat /var/lib/${tps_instance_name}/conf/CS.cfg \
 ##############################################################################
 ##
 ##  For example, upon completion,
-##  execute '/sbin/service ${ca_instance_name} status':
+##  execute '/sbin/service ${ca_init_script} status ${ca_instance_name}':
 ##
 ##      ${ca_instance_name} (pid 7843) is running ...
 ##
@@ -1048,7 +1056,7 @@ pkisilent ConfigureCA \
 	| tee ${pki_silent_ca_log}
 
 ##  Restart CA
-/sbin/service ${ca_instance_name} restart
+/sbin/service ${ca_init_script} restart ${ca_instance_name}
 
 
 ##############################################################################
@@ -1058,7 +1066,7 @@ pkisilent ConfigureCA \
 ##  Use this to create a clone CA ..
 ##
 ##  For example, upon completion,
-##  execute '/sbin/service ${ca_instance_name} status':
+##  execute '/sbin/service ${ca_init_script} status ${ca_instance_name}':
 ##
 ##      ${ca_instance_name} (pid 7843) is running ...
 ##
@@ -1120,7 +1128,7 @@ pkisilent ConfigureCA \
 #	| tee ${pki_silent_ca_log}
 
 ##  Restart CA
-#/sbin/service ${ca_instance_name} restart
+#/sbin/service ${ca_init_script} restart ${ca_instance_name}
 
 ##############################################################################
 ##  C E R T I F I C A T E   A U T H O R I T Y  (External CA - step 1)       ##
@@ -1173,7 +1181,7 @@ pkisilent ConfigureCA \
 #	| tee ${pki_silent_ca_log}
 
 ##  Restart CA
-#/sbin/service ${ca_instance_name} restart
+#/sbin/service ${ca_init_script} restart ${ca_instance_name}
 
 ##############################################################################
 ##  C E R T I F I C A T E   A U T H O R I T Y  (External CA step 2)         ##
@@ -1182,7 +1190,7 @@ pkisilent ConfigureCA \
 ##  Use this to create a CA signed by an external CA (step 2)
 ##
 ##  For example, upon completion,
-##  execute '/sbin/service ${ca_instance_name} status':
+##  execute '/sbin/service ${ca_init_script} status ${ca_instance_name}':
 ##
 ##      ${ca_instance_name} (pid 7843) is running ...
 ##
@@ -1240,14 +1248,14 @@ pkisilent ConfigureCA \
 #	| tee ${pki_silent_ca_log}
 
 ##  Restart CA
-#/sbin/service ${ca_instance_name} restart
+#/sbin/service ${ca_init_script} restart ${ca_instance_name}
 
 ##############################################################################
 ##  D A T A   R E C O V E R Y   M A N A G E R                               ##
 ##############################################################################
 ##
 ##  For example, upon completion,
-##  execute '/sbin/service ${kra_instance_name} status':
+##  execute '/sbin/service ${kra_init_script} status ${kra_instance_name}':
 ##
 ##      ${kra_instance_name} (pid 11723) is running ...
 ##
@@ -1295,6 +1303,7 @@ pkisilent ConfigureDRM \
 	-agent_key_type ${kra_agent_key_type} \
 	-agent_cert_subject "${kra_agent_cert_subject}" \
 	-subsystem_name ${kra_subsystem_name} \
+	-backup_pwd ${kra_backup_password} \
 	-drm_transport_cert_subject_name "${kra_transport_cert_subject_name}" \
 	-drm_subsystem_cert_subject_name "${kra_subsystem_cert_subject_name}" \
 	-drm_storage_cert_subject_name "${kra_storage_cert_subject_name}" \
@@ -1304,7 +1313,7 @@ pkisilent ConfigureDRM \
 	| tee ${pki_silent_kra_log}
 
 ##  Restart drm
-/sbin/service ${kra_instance_name} restart
+/sbin/service ${kra_init_script} restart ${kra_instance_name}
 
 
 
@@ -1313,7 +1322,7 @@ pkisilent ConfigureDRM \
 ##############################################################################
 ##
 ##  For example, upon completion,
-##  execute '/sbin/service ${ocsp_instance_name} status':
+##  execute '/sbin/service ${ocsp_init_script} status ${ocsp_instance_name}':
 ##
 ##      ${ocsp_instance_name} (pid 13058) is running ...
 ##
@@ -1370,7 +1379,7 @@ pkisilent ConfigureOCSP \
 	| tee ${pki_silent_ocsp_log}
 
 ##  Restart OCSP
-/sbin/service ${ocsp_instance_name} restart
+/sbin/service ${ocsp_init_script} restart ${ocsp_instance_name}
 
 
 
@@ -1379,7 +1388,7 @@ pkisilent ConfigureOCSP \
 ##############################################################################
 ##
 ##  For example, upon completion,
-##  execute '/sbin/service ${tks_instance_name} status':
+##  execute '/sbin/service ${tks_init_script} status ${tks_instance_name}':
 ##
 ##      ${tks_instance_name} (pid 14129) is running ...
 ##
@@ -1435,7 +1444,7 @@ pkisilent ConfigureTKS \
 	| tee ${pki_silent_tks_log}
 
 ## restart tks
-/sbin/service ${tks_instance_name} restart
+/sbin/service ${tks_init_script} restart ${tks_instance_name}
 
 
 
@@ -1444,7 +1453,7 @@ pkisilent ConfigureTKS \
 ##############################################################################
 ##
 ##  For example, upon completion,
-##  execute '/sbin/service ${ra_instance_name} status':
+##  execute '/sbin/service ${ra_init_script} status ${ra_instance_name}':
 ##
 ##      ${ra_instance_name} (pid 15769) is running ...
 ##
@@ -1492,7 +1501,7 @@ pkisilent ConfigureRA \
 	| tee ${pki_silent_ra_log}
 
 ##  Restart RA
-/sbin/service ${ra_instance_name} restart
+/sbin/service ${ra_init_script} restart ${ra_instance_name}
 
 
 ##############################################################################
@@ -1500,7 +1509,7 @@ pkisilent ConfigureRA \
 ##############################################################################
 ##
 ##  For example, upon completion,
-##  execute '/sbin/service ${tps_instance_name} status':
+##  execute '/sbin/service ${tps_init_script} status ${tps_instance_name}':
 ##
 ##
 ##  ${tps_instance_name} (pid 16241) is running ...
@@ -1576,7 +1585,7 @@ pkisilent ConfigureTPS \
 	| tee ${pki_silent_tps_log}
 
 ##  Restart TPS
-/sbin/service ${tps_instance_name} restart
+/sbin/service ${tps_init_script} restart ${tps_instance_name}
 
 exit 0
 
