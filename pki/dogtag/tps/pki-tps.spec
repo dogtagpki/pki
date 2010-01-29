@@ -1,13 +1,10 @@
 Name:           pki-tps
 Version:        1.3.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System
 URL:            http://pki.fedoraproject.org/
 License:        LGPLv2
 Group:          System Environment/Daemons
-
-# Suppress '/usr/lib/rpm/perl.req' and '/usr/lib/rpm/perl.prov'
-AutoReqProv:    no
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -204,19 +201,23 @@ fi
 %{_libdir}/libtps.so
 
 %changelog
+* Thu Jan 28 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
+- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
+- Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System
+  Token Processing System
+
 * Wed Jan 27 2010 Kevin Wright <kwright@redhat.com> 1.3.0-5
-- Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System Token Processing System
+- Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System
+  Token Processing System
   Per direction from the Fedora community, removed the following
   explicit "Requires":
 
-      perl-DBD-SQLite (unused)
-      perl-DBI
-      perl-HTML-Parser
-      perl-HTML-Tagset
+      perl-HTML-Parser (unused)
+      perl-HTML-Tagset (unused)
       perl-Parse-RecDescent
       perl-URI
       perl-XML-NamespaceSupport (unused)
-      perl-XML-Parser
+      perl-XML-Parser (unused)
       perl-XML-Simple
 
 * Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4

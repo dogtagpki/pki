@@ -1,5 +1,5 @@
 Name:           pki-setup
-Version:        1.3.2
+Version:        1.3.3
 Release:        1%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
@@ -51,6 +51,9 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Thu Jan 28 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.3-1
+- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
+
 * Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
 - Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
   pkicreate . . .
