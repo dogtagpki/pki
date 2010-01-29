@@ -79,9 +79,14 @@ then
         if test -f /usr/lib/java/jss4.jar
         then
           jss_jars="/usr/lib/java/jss4.jar"
-          if test -f /usr/lib64/libjss4.so
+          if test -f /usr/lib64/jss/libjss4.so
           then
             AC_MSG_RESULT([using system JSS])
+            jss_lib="-L/usr/lib64/jss"
+            jss_libdir="/usr/lib64/jss"
+          elif test -f /usr/lib64/libjss4.so
+          then
+            AC_MSG_RESULT([using system JSS, original location])
             jss_lib="-L/usr/lib64"
             jss_libdir="/usr/lib64"
           else
@@ -108,9 +113,14 @@ then
         if test -f /usr/lib/java/jss4.jar
         then
           jss_jars="/usr/lib/java/jss4.jar"
-          if test -f /usr/lib/libjss4.so
+          if test -f /usr/lib/jss/libjss4.so
           then
             AC_MSG_RESULT([using system JSS])
+            jss_lib="-L/usr/lib/jss"
+            jss_libdir="/usr/lib/jss"
+          elif test -f /usr/lib/libjss4.so
+          then
+            AC_MSG_RESULT([using system JSS, original location])
             jss_lib="-L/usr/lib"
             jss_libdir="/usr/lib"
           else

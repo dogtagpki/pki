@@ -23086,10 +23086,16 @@ then
         if test -f /usr/lib/java/jss4.jar
         then
           jss_jars="/usr/lib/java/jss4.jar"
-          if test -f /usr/lib64/libjss4.so
+          if test -f /usr/lib64/jss/libjss4.so
           then
             { $as_echo "$as_me:$LINENO: result: using system JSS" >&5
 $as_echo "using system JSS" >&6; }
+            jss_lib="-L/usr/lib64/jss"
+            jss_libdir="/usr/lib64/jss"
+          elif test -f /usr/lib64/libjss4.so
+          then
+            { $as_echo "$as_me:$LINENO: result: using system JSS, original location" >&5
+$as_echo "using system JSS, original location" >&6; }
             jss_lib="-L/usr/lib64"
             jss_libdir="/usr/lib64"
           else
@@ -23123,10 +23129,16 @@ $as_echo "$as_me: error: JSS not found, specify with --with-jss." >&2;}
         if test -f /usr/lib/java/jss4.jar
         then
           jss_jars="/usr/lib/java/jss4.jar"
-          if test -f /usr/lib/libjss4.so
+          if test -f /usr/lib/jss/libjss4.so
           then
             { $as_echo "$as_me:$LINENO: result: using system JSS" >&5
 $as_echo "using system JSS" >&6; }
+            jss_lib="-L/usr/lib/jss"
+            jss_libdir="/usr/lib/jss"
+          elif test -f /usr/lib/libjss4.so
+          then
+            { $as_echo "$as_me:$LINENO: result: using system JSS, original location" >&5
+$as_echo "using system JSS, original location" >&6; }
             jss_lib="-L/usr/lib"
             jss_libdir="/usr/lib"
           else
