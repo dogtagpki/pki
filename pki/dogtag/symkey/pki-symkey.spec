@@ -1,6 +1,6 @@
 Name:           pki-symkey
 Version:        1.3.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Symmetric Key JNI Package
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -73,6 +73,11 @@ rm -rf %{buildroot}
 %{_libdir}/symkey/
 
 %changelog
+* Thu Jan 28 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-2
+- Updated 'm4/jss.m4' file to account for new JSS library path
+- Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
+- Bugzilla Bug #557632 -  Re-Review Request: pki-symkey - rename from symkey
+
 * Thu Jan 21 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
 - Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
 - Bugzilla Bug #557632 -  Re-Review Request: pki-symkey - rename from symkey
