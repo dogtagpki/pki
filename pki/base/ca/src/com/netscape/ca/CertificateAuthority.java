@@ -228,28 +228,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         return mPolicy.getPolicyProcessor();
     }
 
-    private int getMaxNumberOfPublishingThreads() {
-       int maxNumberOfPublishingThreads = 0;
-
-       if (mPublisherProcessor != null && mPublisherProcessor.enabled()) {
-            ILdapConnModule ldapConnModule = ldapConnModule = mPublisherProcessor.getLdapConnModule();
-            if (ldapConnModule != null) {
-                ILdapConnFactory ldapConnFactory = ldapConnModule.getLdapConnFactory();
-                if (ldapConnFactory != null) {
-                    int maxNumberOfPublishingConnections = ldapConnFactory.maxConn();
-                    if (mCRLIssuePoints != null && mCRLIssuePoints.size() > 1) {
-                        maxNumberOfPublishingThreads = maxNumberOfPublishingConnections - mCRLIssuePoints.size();
-                    } else {
-                        maxNumberOfPublishingThreads = maxNumberOfPublishingConnections - 1;
-                    }
-                    CMS.debug("Maximum number of publishing threads = " + maxNumberOfPublishingThreads);
-                }
-            }
-       }
-       return maxNumberOfPublishingThreads;
-    }
-
-
     public boolean noncesEnabled() {
         return mUseNonces;
     }
@@ -354,7 +332,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         // being functional.
         initCRL();
 
-        mNotify.setMaxNumberOfPublishingThreads(getMaxNumberOfPublishingThreads());
     } catch (EBaseException e) {
         if (CMS.isPreOpMode())
             return;
@@ -1575,20 +1552,30 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
         IConfigStore pubQueueConfig = mConfig.getSubStore(PROP_PUB_QUEUE_SUBSTORE);
         boolean enablePublishingQueue = false;
-        // Publishing Queue Priority Levels:  2 - maximum, 1 - raised, 0 - normal
-        int publishingQueuePriorityLevel = 2;
+        // Publishing Queue Priority Levels:
+        //    2 - maximum, 1 - higher, 0 - normal, -1 - lower, -2 - minimum
+        int publishingQueuePriorityLevel = 0;
+        int maxNumberOfPublishingThreads = 1;
+        int publishingQueuePageSize = 100;
         if (pubQueueConfig != null) {
             try {
                 enablePublishingQueue = pubQueueConfig.getBoolean("enable", false);
-                publishingQueuePriorityLevel = pubQueueConfig.getInteger("priorityLevel", 2);
+                publishingQueuePriorityLevel = pubQueueConfig.getInteger("priorityLevel", 0);
+                maxNumberOfPublishingThreads = pubQueueConfig.getInteger("maxNumberOfThreads", 1);
+                publishingQueuePageSize = pubQueueConfig.getInteger("pageSize", 100);
             } catch (EBaseException e) {
                 CMS.debug("Error reading publishing queue parameters: "+e);
                 enablePublishingQueue = false;
-                publishingQueuePriorityLevel = 2;
             }
         }
-        CMS.debug("CA Publishing Queue Enabled: "+enablePublishingQueue+"  Priority Level: "+publishingQueuePriorityLevel);
-        mNotify = new ARequestNotifier(enablePublishingQueue, publishingQueuePriorityLevel);
+        CMS.debug("CA Publishing Queue Enabled: " + enablePublishingQueue+
+                  "  Priority Level: " + publishingQueuePriorityLevel+
+                  "  Maximum Number of Threads: " + maxNumberOfPublishingThreads+
+                  "  Page Size: "+ publishingQueuePageSize);
+        mNotify = new ARequestNotifier (this, enablePublishingQueue,
+                                        publishingQueuePriorityLevel,
+                                        maxNumberOfPublishingThreads,
+                                        publishingQueuePageSize);
         CMS.debug("CA notifier inited");
         mPNotify = new ARequestNotifier();
         CMS.debug("CA pending notifier inited");
