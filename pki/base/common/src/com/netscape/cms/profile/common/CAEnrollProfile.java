@@ -248,6 +248,21 @@ public class CAEnrollProfile extends EnrollProfile {
         else
             request.setExtData("isEncryptionCert", "false");
 
+        // Need to update request record to prevent issue 325612 and bug 516632
+        IRequestQueue queue = ((IAuthority)ca).getRequestQueue();
+        if (queue == null) {
+            CMS.debug("CAEnrollProfile: Cannot access CA's request queue");
+        } else {
+            try {
+                queue.updateRequest(request);
+                CMS.debug("CAEnrollProfile: request "+request.getRequestId().toString()+" updated");
+            } catch (EBaseException e) {
+                CMS.debug("CAEnrollProfile: Request commit error " +
+                        e.toString());
+            }
+        }
+        // End of fix for issue 325612 and bug 516632
+
         IRequestNotifier notifier = ca.getRequestNotifier();
         if (notifier != null && notifier.isPublishingQueueEnabled()) {
             CMS.debug("about to addToNotify");
