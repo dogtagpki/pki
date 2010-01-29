@@ -31,10 +31,10 @@ print "Fedora Project";   # Vendor
 print "</IssuerName>\n";
 print "<Services>";
 print "<Operation>";
-print "https://water.sfbay.redhat.com:7889/nk_service";
+print "https://[SERVER_NAME]:[SECURE_PORT]/nk_service";
 print "</Operation>";
 print "<UI>";
-print "https://water.sfbay.redhat.com:7889/cgi-bin/sow/search.cgi";
+print "https://[SERVER_NAME]:[SECURE_PORT]/cgi-bin/sow/search.cgi";
 print "</UI>";
 print "<EnrolledTokenBrowserURL>";
 print "</EnrolledTokenBrowserURL>";

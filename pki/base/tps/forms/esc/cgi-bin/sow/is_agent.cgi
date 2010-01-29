@@ -23,7 +23,7 @@
 
 use CGI;
 
-require "./cfg.pl";
+[REQUIRE_CFG_PL]
 
 
 my $ldapHost = get_ldap_host();

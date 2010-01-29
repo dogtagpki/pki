@@ -25,7 +25,7 @@ use CGI;
 
 use CGI::Carp qw(fatalsToBrowser);
 
-require "./cfg.pl";
+[REQUIRE_CFG_PL]
 
 
 my $ldapHost = get_ldap_host();

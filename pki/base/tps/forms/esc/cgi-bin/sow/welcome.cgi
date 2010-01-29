@@ -23,7 +23,7 @@
 
 use CGI;
 
-require "./cfg.pl";
+[REQUIRE_CFG_PL]
 
 
 my $host = get_host();

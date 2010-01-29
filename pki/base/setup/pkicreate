@@ -226,7 +226,9 @@ my $run_base_instance_symlink     = "run";      # RA, TPS
 my $cgi_home_base_name           = "home/index.cgi";       # TPS
 my $cgi_demo_base_name           = "demo/index.cgi";       # TPS
 my $cgi_so_base_name             = "so/index.cgi";         # TPS
-my $cgi_sow_base_name            = "sow/index.cgi";        # TPS
+my $cgi_so_enroll_name           = "so/enroll.cgi";        # TPS
+my $cgi_sow_dir_name             = "sow";                  # TPS
+my $cgi_sow_cfg_pl_name          = "sow/cfg.pl";           # TPS
 my $addAgents_ldif_base_name     = "addAgents.ldif";       # TPS
 my $addIndexes_ldif_base_name    = "addIndexes.ldif";      # TPS
 my $addTokens_ldif_base_name     = "addTokens.ldif";       # TPS
@@ -319,6 +321,7 @@ my $FORTITUDE_MODULE       = "FORTITUDE_MODULE";
 my $FORTITUDE_LIB_DIR      = "FORTITUDE_LIB_DIR";
 my $FORTITUDE_AUTH_MODULES = "FORTITUDE_AUTH_MODULES";
 my $FORTITUDE_NSS_MODULES  = "FORTITUDE_NSS_MODULES";
+my $REQUIRE_CFG_PL         = "REQUIRE_CFG_PL";
 
 # Template slot constants (CA, KRA, OCSP, TKS)
 my $INSTALL_TIME              = "INSTALL_TIME";
@@ -471,8 +474,13 @@ my $cgi_demo_instance_file_path               = "";  # TPS
 my $cgi_demo_subsystem_file_path              = "";  # TPS
 my $cgi_so_instance_file_path                 = "";  # TPS
 my $cgi_so_subsystem_file_path                = "";  # TPS
+my $cgi_so_instance_enroll_file_path          = "";  # TPS
+my $cgi_so_subsystem_enroll_file_path         = "";  # TPS
 my $cgi_sow_instance_file_path                = "";  # TPS
 my $cgi_sow_subsystem_file_path               = "";  # TPS
+my $cgi_sow_instance_cgi_file_path            = "";  # TPS
+my $cgi_sow_subsystem_cgi_file_path           = "";  # TPS
+my $cgi_sow_instance_cfg_pl_path              = "";  # TPS
 my $addAgents_ldif_instance_file_path         = "";  # TPS
 my $addAgents_ldif_subsystem_file_path        = "";  # TPS
 my $addIndexes_ldif_instance_file_path        = "";  # TPS
@@ -1668,12 +1676,21 @@ sub initialize_subdirectory_paths()
             $cgi_so_subsystem_file_path            = $cgibin_subsystem_path
                                                    . "/"
                                                    . $cgi_so_base_name;
+            $cgi_so_instance_enroll_file_path      = $cgibin_instance_path
+                                                   . "/"
+                                                   . $cgi_so_enroll_name;
+            $cgi_so_subsystem_enroll_file_path     = $cgibin_subsystem_path
+                                                   . "/"
+                                                   . $cgi_so_enroll_name;
             $cgi_sow_instance_file_path            = $cgibin_instance_path
                                                    . "/"
-                                                   . $cgi_sow_base_name;
+                                                   . $cgi_sow_dir_name;
             $cgi_sow_subsystem_file_path           = $cgibin_subsystem_path
                                                    . "/"
-                                                   . $cgi_sow_base_name;
+                                                   . $cgi_sow_dir_name;
+            $cgi_sow_instance_cfg_pl_path          = $cgibin_instance_path
+                                                   . "/"
+                                                   . $cgi_sow_cfg_pl_name;
             $addAgents_ldif_instance_file_path     = $scripts_instance_path
                                                    . "/"
                                                    . $addAgents_ldif_base_name;
@@ -2383,6 +2400,9 @@ sub process_pki_templates()
         $slot_hash{$USERID}                = $pki_user;
         $slot_hash{$PKI_FLAVOR}            = $pki_flavor;
         $slot_hash{$PKI_RANDOM_NUMBER_SLOT}    = $random;
+        $slot_hash{$REQUIRE_CFG_PL}        = "require \""
+                                           . $cgi_sow_instance_cfg_pl_path
+                                           . "\";";
         if( is_Fedora() || (is_RHEL() && (! is_RHEL4())) ) {
             $slot_hash{$FORTITUDE_APACHE}  = "Apache2";
             $slot_hash{$FORTITUDE_DIR}     = "/usr";
@@ -2585,12 +2605,35 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
               return 0;
           }
 
-          $result = process_file_template( $cgi_sow_subsystem_file_path,
-                                           $cgi_sow_instance_file_path,
+          $result = process_file_template( $cgi_so_subsystem_enroll_file_path,
+                                           $cgi_so_instance_enroll_file_path,
                                            \%slot_hash );
           if( !$result ) {
               return 0;
           }
+
+          # process each "*.cgi" file in subsystem "sow" directory
+          opendir( SUBSYSTEM_DIR, $cgi_sow_subsystem_file_path );
+          while( defined( my $entity = readdir( SUBSYSTEM_DIR ) ) ) {
+              if( $entity =~ m/.cgi$/ ) {
+                  # build complete "sow" subystem ".cgi" file name
+                  $cgi_sow_subsystem_cgi_file_path = $cgi_sow_subsystem_file_path
+                                                  . "/"
+                                                  . $entity;
+                  # build complete "sow" instance ".cgi" file name
+                  $cgi_sow_instance_cgi_file_path = $cgi_sow_instance_file_path
+                                                  . "/"
+                                                  . $entity;
+                  # process complete "sow" instance ".cgi" file name
+                  $result = process_file_template( $cgi_sow_subsystem_cgi_file_path,
+                                                   $cgi_sow_instance_cgi_file_path,
+                                                   \%slot_hash );
+                  if( !$result ) {
+                      return 0;
+                  }
+              }
+          }
+          closedir( SUBSYSTEM_DIR );
 
           # process "addAgents.ldif" template
           $result = process_file_template( $addAgents_ldif_subsystem_file_path,
