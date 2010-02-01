@@ -1,6 +1,6 @@
 Name:           pki-native-tools
 Version:        1.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Dogtag Certificate System - Native Tools
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -37,7 +37,7 @@ Dogtag Certificate System into a more complete and robust PKI solution.
     --enable-64bit \
 %endif
     --libdir=%{_libdir}
-make
+make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
@@ -73,6 +73,9 @@ rm -rf %{buildroot}
 %{_libdir}/pki
 
 %changelog
+* Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
+- Applied %%{?_smp_mflags} option to 'make'
+
 * Fri Dec 11 2009 Kevin Wright <kwright@redhat.com> 1.3.0-4
 - Bugzilla Bug #522895 -  New Package for Dogtag PKI: native-tools
 - fixed several issues with the spec file:

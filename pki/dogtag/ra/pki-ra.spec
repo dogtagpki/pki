@@ -1,6 +1,6 @@
 Name:           pki-ra
 Version:        1.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -19,6 +19,7 @@ Requires:       pki-ra-ui
 Requires:       pki-selinux
 Requires:       pki-setup
 Requires:       pki-silent
+Requires:       perl-DBD-SQLite
 Requires:       sendmail
 Requires:       sqlite
 Requires(post):    chkconfig
@@ -42,6 +43,24 @@ Dogtag Certificate Authority to fulfill the user's requests.
 %prep
 
 %setup -q
+
+cat << \EOF > %{name}-prov
+#!/bin/sh
+%{__perl_provides} $* |\
+sed -e '/perl(PKI.*)/d' -e '/perl(Template.*)/d'
+EOF
+
+%global __perl_provides %{_builddir}/%{name}-%{version}/%{name}-prov
+chmod +x %{__perl_provides}
+
+cat << \EOF > %{name}-req
+#!/bin/sh
+%{__perl_requires} $* |\
+sed -e '/perl(PKI.*)/d' -e '/perl(Template.*)/d'
+EOF
+
+%global __perl_requires %{_builddir}/%{name}-%{version}/%{name}-req
+chmod +x %{__perl_requires}
 
 %build
 ant \
@@ -86,18 +105,22 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
+- Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
+- Applied filters for unwanted perl provides and requires
+- Restored "perl-DBD-SQLite" runtime dependency
+
 * Tue Jan 26 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #553850 - Review Request: pki-ra - Dogtag Registration Authority
   Per direction from the Fedora community, removed the following
   explicit "Requires":
 
-      perl-DBD-SQLite (unused)
       perl-DBI
       perl-HTML-Parser
       perl-HTML-Tagset
       perl-Parse-RecDescent
       perl-URI
-      perl-XML-NamespaceSupport (unused)
+      perl-XML-NamespaceSupport
       perl-XML-Parser
       perl-XML-Simple
 

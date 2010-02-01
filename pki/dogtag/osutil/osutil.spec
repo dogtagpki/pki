@@ -1,6 +1,6 @@
 Name:           osutil
 Version:        1.3.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Operating System Utilities JNI Package
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -40,7 +40,7 @@ ant \
     --enable-64bit \
 %endif
     --libdir=%{_libdir}
-make
+make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
@@ -67,6 +67,9 @@ rm -rf %{buildroot}
 %{_libdir}/%{name}/
 
 %changelog
+* Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-2
+- Applied %%{?_smp_mflags} option to 'make'
+
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.1-1
 - Removed BuildRequires bash
 - Removed 'with exceptions' from License

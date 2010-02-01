@@ -1,6 +1,6 @@
 Name:           pki-setup
 Version:        1.3.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -12,6 +12,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
 
+Requires:       perl-Crypt-SSLeay
 Requires:       policycoreutils
 %{?fc11:Requires: policycoreutils-python}
 %{?fc12:Requires: policycoreutils-python}
@@ -51,6 +52,9 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Mon Feb 1 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.3-2
+- Restored "perl-Crypt-SSLeay" runtime dependency
+
 * Thu Jan 28 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.3-1
 - Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
 

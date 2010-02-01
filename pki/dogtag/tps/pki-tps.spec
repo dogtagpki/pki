@@ -1,6 +1,6 @@
 Name:           pki-tps
 Version:        1.3.0
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System
 URL:            http://pki.fedoraproject.org/
 License:        LGPLv2
@@ -68,13 +68,31 @@ Processing System library files required to link executables.
 
 %setup -q -n %{name}-%{version}
 
+cat << \EOF > %{name}-prov
+#!/bin/sh
+%{__perl_provides} $* |\
+sed -e '/perl(PKI.*)/d' -e '/perl(Template.*)/d'
+EOF
+
+%global __perl_provides %{_builddir}/%{name}-%{version}/%{name}-prov
+chmod +x %{__perl_provides}
+
+cat << \EOF > %{name}-req
+#!/bin/sh
+%{__perl_requires} $* |\
+sed -e '/perl(PKI.*)/d' -e '/perl(Template.*)/d'
+EOF
+
+%global __perl_requires %{_builddir}/%{name}-%{version}/%{name}-req
+chmod +x %{__perl_requires}
+
 %build
 %configure \
 %ifarch ppc64 s390x sparc64 x86_64
     --enable-64bit \
 %endif
     --libdir=%{_libdir}
-make
+make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
@@ -123,17 +141,6 @@ cp -rp %{buildroot}/opt/setup*               %{buildroot}%{_datadir}/pki/tps
 cp -rp %{buildroot}/opt/templates*           %{buildroot}%{_datadir}/pki/tps
 cp -p  %{buildroot}%{_libexecdir}/apachectl* %{buildroot}%{_libdir}/pki/tps
 cp -p  %{buildroot}%{_libexecdir}/tpsclient* %{buildroot}%{_libdir}/pki/tps
-
-# strip symbolic information 
-cd %{buildroot}%{_libdir} ;
-%{__strip} libldapauth.so   ;
-%{__strip} libtokendb.so    ;
-%{__strip} libtps.so
-cd %{buildroot}%{_libdir}/httpd/modules ;
-%{__strip} mod_tokendb.so ;
-%{__strip} mod_tps.so
-cd %{buildroot}%{_libdir}/pki/tps ;
-%{__strip} tpsclient
 
 # create wrappers
 for wrapper in tpsclient
@@ -201,6 +208,14 @@ fi
 %{_libdir}/libtps.so
 
 %changelog
+* Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-7
+- Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System
+  Token Processing System
+- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
+- Applied filters for unwanted perl provides and requires
+- Applied %%{?_smp_mflags} option to 'make'
+- Removed manual 'strip' commands
+
 * Thu Jan 28 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
 - Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
 - Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System
@@ -212,12 +227,12 @@ fi
   Per direction from the Fedora community, removed the following
   explicit "Requires":
 
-      perl-HTML-Parser (unused)
-      perl-HTML-Tagset (unused)
+      perl-HTML-Parser
+      perl-HTML-Tagset
       perl-Parse-RecDescent
       perl-URI
-      perl-XML-NamespaceSupport (unused)
-      perl-XML-Parser (unused)
+      perl-XML-NamespaceSupport
+      perl-XML-Parser
       perl-XML-Simple
 
 * Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4

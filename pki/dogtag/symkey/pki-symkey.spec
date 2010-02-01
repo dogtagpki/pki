@@ -1,6 +1,6 @@
 Name:           pki-symkey
 Version:        1.3.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Symmetric Key JNI Package
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -46,7 +46,7 @@ ant \
     --enable-64bit \
 %endif
     --libdir=%{_libdir}
-make
+make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
@@ -73,6 +73,9 @@ rm -rf %{buildroot}
 %{_libdir}/symkey/
 
 %changelog
+* Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-3
+- Applied %%{?_smp_mflags} option to 'make'
+
 * Thu Jan 28 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-2
 - Updated 'm4/jss.m4' file to account for new JSS library path
 - Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
