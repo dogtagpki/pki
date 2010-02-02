@@ -1,6 +1,6 @@
 Name:           pki-symkey
 Version:        1.3.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Symmetric Key JNI Package
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -26,6 +26,11 @@ Provides:       symkey = %{version}-%{release}
 Obsoletes:      symkey < %{version}-%{release}
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+
+%if 0%{?rhel}
+#rhel has no java on ppc
+ExcludeArch:    ppc
+%endif
 
 %description
 The Symmetric Key Java Native Interface (JNI) package supplies various native
@@ -73,6 +78,9 @@ rm -rf %{buildroot}
 %{_libdir}/symkey/
 
 %changelog
+* Mon Feb 01 2010 Kevin Wright <kwright@redhat.com> 1.3.2-4
+- no java on rhel ppc
+
 * Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-3
 - Applied %%{?_smp_mflags} option to 'make'
 
