@@ -1,6 +1,6 @@
 Name:           osutil
 Version:        1.3.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Operating System Utilities JNI Package
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -20,6 +20,12 @@ Requires:       jpackage-utils
 Requires:       nss >= 3.12.3.99
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+
+%if 0%{?rhel}
+#rhel has no java on ppc
+ExcludeArch:    ppc
+%endif
+
 
 %description
 The Operating System Utilities Java Native Interface (JNI) package
@@ -67,6 +73,9 @@ rm -rf %{buildroot}
 %{_libdir}/%{name}/
 
 %changelog
+* Mon Feb 01 2010 Kevin Wright <kwright@redhat.com> 1.3.1-3
+- no java on rhel ppc
+
 * Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-2
 - Applied %%{?_smp_mflags} option to 'make'
 
