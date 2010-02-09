@@ -230,23 +230,38 @@ elif [ ${OS} = "SunOS" ] ; then
 	CLASSPATH="$CLASSPATH":/usr/share/java/pki/cmsbundle.jar
 	CLASSPATH="$CLASSPATH":/usr/share/java/pki/cmscore.jar
 	CLASSPATH="$CLASSPATH":/usr/share/java/pki/cmsutil.jar
-	CLASSPATH="$CLASSPATH":/usr/share/java/cstools.jar
 	CLASSPATH="$CLASSPATH":/usr/share/java/pki/mcc70.jar
 	CLASSPATH="$CLASSPATH":/usr/share/java/pki/mcc70_en.jar
 	CLASSPATH="$CLASSPATH":/usr/share/java/pki/nmclf70.jar
 	CLASSPATH="$CLASSPATH":/usr/share/java/pki/nmclf70_en.jar
 	CLASSPATH="$CLASSPATH":/usr/share/java/pki/nsutil.jar
 
-	if [ -d /usr/share/java/pki/ca ]; then
+	if [ -f /usr/share/java/pkitools.jar ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/pkitools.jar
+	elif [ -f /usr/share/java/cstools.jar ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/cstools.jar
+	elif [ -f /usr/share/java/pki/cstools.jar ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/pki/cstools.jar
+	fi
+
+	if [ -f /usr/share/java/ca.jar ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/ca.jar
+	elif [ -f /usr/share/java/pki/ca/ca.jar ]; then
 		CLASSPATH="$CLASSPATH":/usr/share/java/pki/ca/ca.jar
 	fi
-	if [ -d /usr/share/java/pki/kra ]; then
+	if [ -f /usr/share/java/kra.jar ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/kra.jar
+	elif [ -f /usr/share/java/pki/kra/kra.jar ]; then
 		CLASSPATH="$CLASSPATH":/usr/share/java/pki/kra/kra.jar
 	fi
-	if [ -d /usr/share/java/pki/ocsp ]; then
+	if [ -f /usr/share/java/ocsp.jar ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/ocsp.jar
+	elif [ -f /usr/share/java/pki/ocsp/ocsp.jar ]; then
 		CLASSPATH="$CLASSPATH":/usr/share/java/pki/ocsp/ocsp.jar
 	fi
-	if [ -d /usr/share/java/pki/tks ]; then
+	if [ -f /usr/share/java/tks.jar ]; then
+		CLASSPATH="$CLASSPATH":/usr/share/java/tks.jar
+	elif [ -f /usr/share/java/pki/tks/tks.jar ]; then
 		CLASSPATH="$CLASSPATH":/usr/share/java/pki/tks/tks.jar
 	fi
 fi

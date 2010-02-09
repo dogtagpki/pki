@@ -152,8 +152,9 @@ CP=/usr/share/java/idm-console-mcc_en.jar:${CP}
 CP=/usr/share/java/idm-console-base.jar:${CP}
 CP=/usr/share/java/fedora-idm-console_en.jar:${CP}
 CP=/usr/share/java/${PRODUCT}/cms-theme_en.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/console-cms_en.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/console-cms.jar:${CP}
+CP=/usr/share/java/pki-console-theme_en.jar:${CP}
+CP=/usr/share/java/pki-console_en.jar:${CP}
+CP=/usr/share/java/pki-console.jar:${CP}
 CP=/usr/share/${PRODUCT}/classes:${CP}
 export CP
 

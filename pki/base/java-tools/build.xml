@@ -82,7 +82,7 @@
             description="--> generate jar files">
         <echo message="${begin.build.jars.log.message}"/>
         <mkdir dir="${build.jars}"/>
-        <jar jarfile="${build.jars}/cstools.jar">
+        <jar jarfile="${build.jars}/pkitools.jar">
             <fileset dir="${build.classes}">
                 <include name="com/netscape/**"/>
             </fileset>
