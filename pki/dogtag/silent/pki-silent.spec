@@ -1,5 +1,5 @@
 Name:           pki-silent
-Version:        1.3.1
+Version:        1.3.2
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Silent Installer
 URL:            http://pki.fedoraproject.org/
@@ -72,6 +72,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
+- Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
+  compatibility (rename jar files as appropriate)
+
 * Mon Jan 25 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
 - Bugzilla Bug #558670 -  Update pki-silent templates to work with
   pki component registries

@@ -1,6 +1,6 @@
 Name:           pki-ocsp
-Version:        1.3.0
-Release:        4%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Online Certificate Status Protocol Manager
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -87,6 +87,11 @@ cd %{buildroot}%{_javadir}
 mv ocsp.jar ocsp-%{version}.jar
 ln -s ocsp-%{version}.jar ocsp.jar
 
+# supply convenience symlink(s) for backwards compatibility
+mkdir -p %{buildroot}%{_javadir}/pki/ocsp
+cd %{buildroot}%{_javadir}/pki/ocsp
+ln -s ../../ocsp.jar ocsp.jar
+
 %clean
 rm -rf %{buildroot}
 
@@ -115,6 +120,10 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
+  compatibility (rename jar files as appropriate)
+
 * Fri Jan 15 2010 Kevin Wright <kwright@redhat.com> 1.3.0-4
 - BuildRequires:  dogtag-pki-ocsp-ui
 

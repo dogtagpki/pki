@@ -1,6 +1,6 @@
 Name:           pki-ca
-Version:        1.3.0
-Release:        8%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -69,6 +69,11 @@ cd %{buildroot}%{_javadir}
 mv ca.jar ca-%{version}.jar
 ln -s ca-%{version}.jar ca.jar
 
+# supply convenience symlink(s) for backwards compatibility
+mkdir -p %{buildroot}%{_javadir}/pki/ca
+cd %{buildroot}%{_javadir}/pki/ca
+ln -s ../../ca.jar ca.jar
+
 %clean
 rm -rf %{buildroot}
 
@@ -97,6 +102,10 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
+  compatibility (rename jar files as appropriate)
+
 * Fri Jan 15 2010 Kevin Wright <kwright@redhat.com> 1.3.0-8
 - removed BuildRequires dogtag-pki-ca-ui
 

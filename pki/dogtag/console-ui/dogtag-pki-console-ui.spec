@@ -1,6 +1,6 @@
 Name:           dogtag-pki-console-ui
-Version:        1.3.0
-Release:        4%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Console User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -48,8 +48,13 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
+cd %{buildroot}%{_javadir}
+ln -s pki-console-theme-%{version}_en.jar pki-console-theme_en.jar
+
+# supply convenience symlink(s) for backwards compatibility
+mkdir -p %{buildroot}%{_javadir}/pki
 cd %{buildroot}%{_javadir}/pki
-ln -s cms-theme-%{version}_en.jar cms-theme_en.jar
+ln -s ../pki-console-theme_en.jar cms-theme_en.jar
 
 %clean
 rm -rf %{buildroot}
@@ -57,9 +62,13 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_javadir}/pki/
+%{_javadir}/*
 
 %changelog
+* Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
+  compatibility (rename jar files as appropriate)
+
 * Mon Jan 18 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #553483 - New Package for Dogtag PKI: dogtag-pki-console-ui
 - Fixed various licensing headers

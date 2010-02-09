@@ -1,6 +1,6 @@
 Name:           pki-java-tools
-Version:        1.3.0
-Release:        4%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Java-Based Tools
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -58,9 +58,16 @@ rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 cd %{buildroot}%{_javadir}
-mv cstools.jar cstools-%{version}.jar
-ln -s cstools-%{version}.jar cstools.jar
+mv pkitools.jar pkitools-%{version}.jar
+ln -s pkitools-%{version}.jar pkitools.jar
 rm -rf %{buildroot}%{_datadir}/pki
+
+# supply convenience symlink(s) for backwards compatibility
+mkdir -p %{buildroot}%{_javadir}/pki
+cd %{buildroot}%{_javadir}/pki
+ln -s ../pkitools.jar cstools.jar
+cd %{buildroot}%{_javadir}
+ln -s pkitools.jar cstools.jar
 
 %clean
 rm -rf %{buildroot}
@@ -76,6 +83,10 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
+  compatibility (rename jar files as appropriate)
+
 * Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-4
 - Removed 'with exceptions' from License
 

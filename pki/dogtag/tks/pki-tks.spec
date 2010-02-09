@@ -1,6 +1,6 @@
 Name:           pki-tks
-Version:        1.3.0
-Release:        4%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Token Key Service
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -80,6 +80,11 @@ cd %{buildroot}%{_javadir}
 mv tks.jar tks-%{version}.jar
 ln -s tks-%{version}.jar tks.jar
 
+# supply convenience symlink(s) for backwards compatibility
+mkdir -p %{buildroot}%{_javadir}/pki/tks
+cd %{buildroot}%{_javadir}/pki/tks
+ln -s ../../tks.jar tks.jar
+
 %clean
 rm -rf %{buildroot}
 
@@ -108,6 +113,10 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
+  compatibility (rename jar files as appropriate)
+
 * Fri Jan 15 2010 Kevin Wright <kwright@redhat.com> 1.3.0-4
 - Removed BuildRequires:  dogtag-pki-tks-ui
 
