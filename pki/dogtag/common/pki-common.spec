@@ -1,6 +1,6 @@
 Name:           pki-common
-Version:        1.3.1
-Release:        2%{?dist}
+Version:        1.3.2
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -108,6 +108,10 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Wed Feb 10 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.2-1
+- Bugzilla Bug #516632 -  CS Incorrectly Issuing Multiple Certificates
+  from the Same Request
+
 * Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-2
 - Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
   Renamed 'symkey' to 'pki-symkey'

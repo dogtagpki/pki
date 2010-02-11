@@ -1,5 +1,5 @@
 Name:           pki-ca
-Version:        1.3.1
+Version:        1.3.2
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
@@ -102,6 +102,12 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Wed Feb 10 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.2-1
+- Bugzilla Bug #516632 -  CS Incorrectly Issuing Multiple Certificates
+  from the Same Request
+- Bugzilla Bug #563742 -  IPA certificate profile needs CRL distribution
+  extension.
+
 * Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
 - Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
   compatibility (rename jar files as appropriate)
