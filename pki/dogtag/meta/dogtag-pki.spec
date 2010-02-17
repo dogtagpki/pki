@@ -2,13 +2,14 @@ Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          1.0.3
 Release:          1%{?dist}
-License:          GPLv2 & LGPLv2 (pki-tps)
+# The entire source code is GPLv2 except 'pki-tps' which is LGPLv2
+License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
 Group:            System Environment/Daemons
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
-Source:           LICENSE
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/LICENSE
 
 Requires:         pki-ca
 Requires:         pki-kra
@@ -71,6 +72,6 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
-* Thu Feb 11 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
+* Thu Feb 11 2010 Matthew Harmsen <mharmsen@redhat.com> 1.0.3-1
 - Initial build.
 
