@@ -1,6 +1,6 @@
 Name:           pki-kra
 Version:        1.3.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Data Recovery Manager
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -20,6 +20,7 @@ BuildRequires:  tomcatjss
 
 Requires:       java >= 1:1.6.0
 Requires:       pki-common
+Requires:       pki-console
 Requires:       pki-kra-ui
 Requires:       pki-selinux
 Requires:       pki-silent
@@ -111,6 +112,10 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-2
+- Bugzilla Bug #566059 -  Add 'pki-console' as a runtime dependency
+  for CA, KRA, OCSP, and TKS . . .
+
 * Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
 - Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
   compatibility (rename jar files as appropriate)

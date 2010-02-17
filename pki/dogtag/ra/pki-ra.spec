@@ -1,6 +1,6 @@
 Name:           pki-ra
 Version:        1.3.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -15,6 +15,7 @@ BuildRequires:  ant
 Requires:       mod_nss >= 1.0.7
 Requires:       mod_perl >= 1.99_16
 Requires:       mozldap >= 6.0.2
+Requires:       pki-native-tools
 Requires:       pki-ra-ui
 Requires:       pki-selinux
 Requires:       pki-setup
@@ -105,6 +106,10 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
+- Bugzilla Bug #566060 -  Add 'pki-native-tools' as a runtime dependency
+  for RA, and TPS . . .
+
 * Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
 - Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
 - Applied filters for unwanted perl provides and requires

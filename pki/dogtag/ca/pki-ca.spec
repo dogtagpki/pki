@@ -1,6 +1,6 @@
 Name:           pki-ca
 Version:        1.3.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -21,6 +21,7 @@ BuildRequires:  tomcatjss
 Requires:       java >= 1:1.6.0
 Requires:       pki-ca-ui
 Requires:       pki-common
+Requires:       pki-console
 Requires:       pki-selinux
 Requires:       pki-silent
 Requires(post):    chkconfig
@@ -102,6 +103,10 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-2
+- Bugzilla Bug #566059 -  Add 'pki-console' as a runtime dependency
+  for CA, KRA, OCSP, and TKS . . .
+
 * Wed Feb 10 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.2-1
 - Bugzilla Bug #516632 -  CS Incorrectly Issuing Multiple Certificates
   from the Same Request
