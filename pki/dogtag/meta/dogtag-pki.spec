@@ -2,22 +2,32 @@ Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          1.3.0
 Release:          1%{?dist}
-# The entire source code is GPLv2 except 'pki-tps' which is LGPLv2
+# The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
 Group:            System Environment/Daemons
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/LICENSE
-
+# Make certain that this 'meta' package requires all Dogtag PKI UI packages
+Requires:         dogtag-pki-common-ui
+Requires:         dogtag-pki-console-ui
+Requires:         dogtag-pki-ca-ui
+Requires:         dogtag-pki-kra-ui
+Requires:         dogtag-pki-ocsp-ui
+Requires:         dogtag-pki-ra-ui
+Requires:         dogtag-pki-tks-ui
+Requires:         dogtag-pki-tps-ui
+# Make certain that this 'meta' package requires all Dogtag PKI subsystems
 Requires:         pki-ca
 Requires:         pki-kra
 Requires:         pki-ocsp
 Requires:         pki-ra
 Requires:         pki-tks
 Requires:         pki-tps
+# Make certain that this 'meta' package requires all Dogtag PKI clients
 Requires:         esc
+# Make certain that this 'meta' package requires all Dogtag PKI javadocs
 Requires:         pki-common-javadoc
 Requires:         pki-java-tools-javadoc
 Requires:         pki-util-javadoc
@@ -56,7 +66,7 @@ After installation of this package, use the 'pkicreate' and 'pkiremove'
 utilities to respectively create and remove PKI instances.
 
 %prep
-cp %{SOURCE0} .
+# empty
 
 %build
 # empty
@@ -69,7 +79,6 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE
 
 %changelog
 * Thu Feb 11 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1

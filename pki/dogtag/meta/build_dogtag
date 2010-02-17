@@ -51,25 +51,13 @@ create_RPM_build_directories()
 
 build_specified_meta_package()
 {
-	license=$1
-	package=$2
+	package=$1
 	spec_file="${package}.spec"
 
 	printf "BEGIN: Building 'meta' package called '${package}' . . .\n"
-	cp ${license}   ${RELEASE_ROOT}/SOURCES/LICENSE
 	cp ${spec_file} ${RELEASE_ROOT}/SPECS
 	rpmbuild --define "_topdir ${RELEASE_ROOT}" -ba --clean ${RELEASE_ROOT}/SPECS/${spec_file}
 	printf "END:   Building 'meta' package called ${package}'.\n"
-}
-
-clean_RPM_build_directories()
-{
-	printf "Cleaning 'meta' RPM build directories . . . "
-	rm     ${RELEASE_ROOT}/BUILD/*
-	rm -rf ${RELEASE_ROOT}/BUILDROOT
-	rm     ${RELEASE_ROOT}/SOURCES/LICENSE
-	rm     ${RELEASE_ROOT}/SPECS/*.spec
-	printf "done.\n"
 }
 
 destroy_RPM_build_directories()
@@ -85,6 +73,6 @@ destroy_RPM_build_directories()
 # Build the 'meta' package called 'dogtag-pki'
 clean_release_root
 create_RPM_build_directories
-build_specified_meta_package LICENSE dogtag-pki
+build_specified_meta_package dogtag-pki
 destroy_RPM_build_directories
 
