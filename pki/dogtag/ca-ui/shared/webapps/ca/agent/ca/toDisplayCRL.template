@@ -160,6 +160,7 @@ var crlNumber;
 var deltaNumber;
 var crlSize;
 var deltaSize;
+var crlTesting;
 var recentChanges;
 var crlTimeSplits;
 
@@ -196,6 +197,13 @@ if (result.header.deltaSizes != null &&
     deltaSize = result.header.deltaSizes.split('+');
 } else {
     deltaSize = null;
+}
+
+if (result.header.crlTesting != null &&
+    result.header.crlTesting.length > 0) {
+    crlTesting = result.header.crlTesting.split('+');
+} else {
+    crlTesting = null;
 }
 
 if (result.header.recentChanges != null &&
@@ -307,6 +315,11 @@ if (issuingPoint != null && issuingPoint.length > 0) {
             }
             document.writeln('</font></td>');
             document.writeln('<td align="right">');
+            if (crlTesting[i] == '1') {
+                document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif" color="gray">');
+            } else {
+                document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            }
             document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
             if (crlNumber[i] == '0' && crlSize[i] == '-1') {
                 document.writeln('CRL is not built</font>');
