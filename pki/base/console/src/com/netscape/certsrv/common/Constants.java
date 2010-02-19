@@ -215,6 +215,7 @@ public interface Constants {
     public final static String PR_ENABLE_CACHE = "enableCRLCache";
     public final static String PR_CACHE_FREQ = "cacheUpdateInterval";
     public final static String PR_CACHE_RECOVERY = "enableCacheRecovery";
+    public final static String PR_CACHE_TESTING = "enableCacheTesting";
     public final static String PR_EXTENSIONS = "allowExtensions";
     public final static String PR_INCLUDE_EXPIREDCERTS = "includeExpiredCerts";
     public final static String PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME = "includeExpiredCertsOneExtraTime";
