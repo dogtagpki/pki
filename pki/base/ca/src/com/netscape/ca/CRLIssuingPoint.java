@@ -140,6 +140,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private boolean mCRLCacheIsCleared = true;
     private boolean mEnableCacheRecovery = false;
     private String  mFirstUnsaved = null;
+    private boolean mEnableCacheTesting = false;
 
     /**
      * Last CRL cache update
@@ -551,6 +552,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mEnableCRLCache = config.getBoolean(Constants.PR_ENABLE_CACHE, true);
         mCacheUpdateInterval = MINUTE * config.getInteger(Constants.PR_CACHE_FREQ, 0);
         mEnableCacheRecovery = config.getBoolean(Constants.PR_CACHE_RECOVERY, false);
+        mEnableCacheTesting = config.getBoolean(Constants.PR_CACHE_TESTING, false);
 
         // check if CRL generation is enabled
         mEnableCRLUpdates = config.getBoolean(Constants.PR_ENABLE_CRL, true);
@@ -954,6 +956,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         mEnableCacheRecovery = false;
                     } else if (value.equals(Constants.TRUE) && (!mEnableCacheRecovery)) {
                         mEnableCacheRecovery = true;
+                    }
+                }
+
+                if (name.equals(Constants.PR_CACHE_TESTING)) {
+                    if (value.equals(Constants.FALSE) && mEnableCacheTesting) {
+                        clearCRLCache();
+                        updateCRLCacheRepository();
+                        mEnableCacheTesting = false;
+                        setManualUpdate(null);
+                    } else if (value.equals(Constants.TRUE) && (!mEnableCacheTesting)) {
+                        mEnableCacheTesting = true;
                     }
                 }
 
@@ -1946,6 +1959,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return ((mCRLCerts != null)? mCRLCerts.isEmpty(): true);
     }
 
+    public boolean isCRLCacheTestingEnabled() {
+        return mEnableCacheTesting;
+    }
+
     public Date getRevocationDateFromCache(BigInteger serialNumber,
         boolean checkDeltaCache,
         boolean includeExpiredCerts) {
@@ -2482,12 +2499,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             if (x509crl != null &&
                 mPublisherProcessor != null && mPublisherProcessor.enabled()) {
-                if (mPublishDN != null) {
-                    mPublisherProcessor.publishCRL(mPublishDN, x509crl);
-                    CMS.debug("CRL published to " + mPublishDN);
+                Enumeration rules = mPublisherProcessor.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
+                if (rules == null || !rules.hasMoreElements()) {
+                    CMS.debug("CRL publishing is not enabled.");
                 } else {
-                    mPublisherProcessor.publishCRL(x509crl,getId());
-                    CMS.debug("CRL published.");
+                    if (mPublishDN != null) {
+                        mPublisherProcessor.publishCRL(mPublishDN, x509crl);
+                        CMS.debug("CRL published to " + mPublishDN);
+                    } else {
+                        mPublisherProcessor.publishCRL(x509crl,getId());
+                        CMS.debug("CRL published.");
+                    }
                 }
             }
         } catch (Exception e) {
