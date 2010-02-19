@@ -193,6 +193,7 @@ CMS.debug("*** formFile = "+formFile);
             String crlDescriptions = "";
             StringBuffer crlSplits = new StringBuffer();
             String recentChanges = "";
+            String crlTesting = "";
             boolean isDeltaCRLEnabled = false;
 
             String masterHost = CMS.getConfigStore().getString("master.ca.agent.host", "");
@@ -247,6 +248,10 @@ CMS.debug("*** formFile = "+formFile);
                         if (recentChanges.length() > 0)
                             recentChanges += "+";
                         recentChanges += "-, -, -";
+
+                        if (crlTesting.length() > 0)
+                            crlTesting += "+";
+                        crlTesting += "0";
                     }
                 }
 
@@ -307,6 +312,10 @@ CMS.debug("*** formFile = "+formFile);
                             if (i + 1 < splits.size())
                                 crlSplits.append(",");
                         }
+
+                        if (crlTesting.length() > 0)
+                            crlTesting += "+";
+                        crlTesting += ((ip.isCRLCacheTestingEnabled())?"1":"0");
                     }
                 }
 
@@ -319,6 +328,7 @@ CMS.debug("*** formFile = "+formFile);
             header.addStringValue("crlSizes", crlSizes);
             header.addStringValue("deltaSizes", deltaSizes);
             header.addStringValue("crlSplits", crlSplits.toString());
+            header.addStringValue("crlTesting", crlTesting);
             header.addBooleanValue("isDeltaCRLEnabled", isDeltaCRLEnabled);
 
             header.addStringValue("master_host", masterHost);
