@@ -503,13 +503,13 @@ public interface ICRLIssuingPoint {
      */
     public boolean isCRLCacheEmpty();
 
-
     /**
      * Returns true if CRL cache testing is enabled.
      *
      * @return true if CRL cache testing is enabled
      */
     public boolean isCRLCacheTestingEnabled();
+
     /**
      * Returns true if supplied delta-CRL is matching current delta-CRL.
      *
