@@ -48,6 +48,9 @@ public class CMSCRLCachePanel extends CMSBaseTab {
     private JLabel mEnableCacheRecoveryLabel;
     private JCheckBox mEnableCacheRecovery;
 
+    private JLabel mEnableCacheTestingLabel;
+    private JCheckBox mEnableCacheTesting;
+
     private Color mActiveColor;
     private AdminConnection _admin;
     private CMSBaseResourceModel _model;
@@ -169,6 +172,25 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         cachePanel.add(mEnableCacheRecovery, gbc);
 
+        // enable cache testing
+        CMSAdminUtil.resetGBC(gbc);
+        mEnableCacheTestingLabel = makeJLabel("TEST");
+        gbc.anchor = gbc.EAST;
+        gbc.fill = gbc.NONE;
+        gbc.gridx = 0;
+        gbc.weightx = 0.0;
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
+        cachePanel.add(mEnableCacheTestingLabel, gbc );
+
+        mEnableCacheTesting = makeJCheckBox();
+        gbc.anchor = gbc.WEST;
+        gbc.gridx++;
+        gbc.weightx = 1.0;
+        gbc.gridwidth = gbc.REMAINDER;
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
+        cachePanel.add(mEnableCacheTesting, gbc);
+
         int nTabs = mParent.mTabbedPane.getTabCount();
         for (int i = 0; i < nTabs; i++) {
             Object p = mParent.mTabbedPane.getComponentAt(i);
@@ -186,6 +208,7 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         nvps.add(Constants.PR_ENABLE_CACHE, "");
         nvps.add(Constants.PR_CACHE_FREQ, "");
         nvps.add(Constants.PR_CACHE_RECOVERY, "");
+        nvps.add(Constants.PR_CACHE_TESTING, "");
 
         try {
             NameValuePairs val = null;
@@ -220,6 +243,8 @@ public class CMSCRLCachePanel extends CMSBaseTab {
                 mCacheFreq.setText(value);
             } else if (name.equals(Constants.PR_CACHE_RECOVERY)) {
                 mEnableCacheRecovery.setSelected(getBoolean(value));
+            } else if (name.equals(Constants.PR_CACHE_TESTING)) {
+                mEnableCacheTesting.setSelected(getBoolean(value));
             }
         }
     }
@@ -278,6 +303,10 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         else
             nvps.add(Constants.PR_CACHE_RECOVERY, Constants.FALSE);
 
+        if (mEnableCacheTesting.isSelected())
+            nvps.add(Constants.PR_CACHE_TESTING, Constants.TRUE);
+        else
+            nvps.add(Constants.PR_CACHE_TESTING, Constants.FALSE);
 
         _model.progressStart();
 
@@ -334,6 +363,12 @@ public class CMSCRLCachePanel extends CMSBaseTab {
 
         mEnableCacheRecovery.setEnabled(enable);
         CMSAdminUtil.repaintComp(mEnableCacheRecovery);
+
+        mEnableCacheTestingLabel.setEnabled(enable);
+        CMSAdminUtil.repaintComp(mEnableCacheTestingLabel);
+
+        mEnableCacheTesting.setEnabled(enable);
+        CMSAdminUtil.repaintComp(mEnableCacheTesting);
     }
 }
 
