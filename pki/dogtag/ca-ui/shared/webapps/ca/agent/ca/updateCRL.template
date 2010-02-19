@@ -47,6 +47,110 @@ if (result.header.crlPublished == 'Success') {
         document.writeln('<br>&nbsp;&nbsp;&nbsp;&nbsp;Additional information:<br>');
         document.writeln('<blockquote><b><pre>'+result.header.error+'</pre></b></blockquote>');
     }
+} else if (result.header.crlUpdate == 'Success') {
+    document.writeln('The Certificate Revocation List has been updated successfully.');
+    if (result.recordSet.length > 0) {i
+        var fontStr = '<font size=-1 face="PrimaSans BT, Verdana, sans-serif">';
+        document.writeln('<br>&nbsp;<br>&nbsp;<br>The Certificate Revocation List test statistics:<br>&nbsp;<br>');
+        document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+        document.writeln('<td align="right" bgcolor="#eeeeee">&nbsp;</td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+'CRL Numbers</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+'CRL Sizes</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+'Total Time</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+'Cache</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+'CRL</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+'Full</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+'Delta</font></td>');
+        var cols = 0;
+        if (result.recordSet[0].crlSplits != null && result.recordSet[0].crlSplits.length > 0) {
+            cols = result.recordSet[0].crlSplits.split(',').length;
+        }
+        if (cols > 0) {
+            document.writeln('<td bgcolor="#eeeeee" colspan="'+cols+'">'+fontStr+'&nbsp;&nbsp;CRL Generation Split Times</font></td>');
+            //document.writeln('<td align="right" bgcolor="#eeeeee" colspan="'+cols+'">'+fontStr+'CRL Generation Split Times</font></td>');
+        } else {
+            document.writeln('<td bgcolor="#eeeeee">'+fontStr+'&nbsp;&nbsp;CRL Generation Split Times</font></td>');
+        }
+        var t0 = 0;
+        var t1 = 0;
+        var t2 = 0;
+        var t3 = 0;
+        var t4 = 0;
+        var t5 = 0;
+        for (var i = 0; i < result.recordSet.length; i++) {
+            var crlTime;
+            if (result.recordSet[i].crlSplits != null && result.recordSet[i].crlSplits.length > 0) {
+                crlTime = result.recordSet[i].crlSplits.split(',');
+            } else {
+                crlTime = null;
+            }
+            var total = 0;
+            var crlTotal = 0;
+            var deltaCrlTotal = 0;
+            var fullCrlTotal = 0;
+            for (k = 0; crlTime != null && k < crlTime.length; k++) {
+                if (k > 0 && k < 5) {
+                    deltaCrlTotal += parseInt(crlTime[k]);
+                } else {
+                    fullCrlTotal += parseInt(crlTime[k]);
+                }
+                crlTotal += parseInt(crlTime[k]);
+            }
+            t0 = parseInt(result.recordSet[i].cacheUpdate);
+            total += t0 + crlTotal;
+            t1 += total;
+            t2 += t0;
+            t3 += crlTotal;
+            t4 += fullCrlTotal;
+            t5 += deltaCrlTotal;
+            document.writeln('<tr>');
+            document.writeln('<td align="right">'+fontStr+(i+1)+'</font></td>');
+            document.writeln('<td align="right">'+fontStr+result.recordSet[i].crlNumbers+'</font></td>');
+            document.writeln('<td align="right">'+fontStr+result.recordSet[i].crlSizes+'</font></td>');
+            document.writeln('<td align="right">'+fontStr+total+'</font></td>');
+            document.writeln('<td align="right">'+fontStr+result.recordSet[i].cacheUpdate+'</font></td>');
+            document.writeln('<td align="right">'+fontStr+crlTotal+'</font></td>');
+            document.writeln('<td align="right">'+fontStr+fullCrlTotal+'</font></td>');
+            document.writeln('<td align="right">'+fontStr+deltaCrlTotal+'</font></td>');
+            if (cols > 0) {
+                for (k = 0; crlTime != null && k < crlTime.length; k++) {
+                    document.writeln('<td align="right">'+fontStr+crlTime[k]+'</font></td>');
+                }
+            } else {
+                document.writeln('<td>'+fontStr+'&nbsp;&nbsp;'+result.recordSet[i].crlSplits+'</font></td>');
+            }
+            document.writeln('</tr>');
+        }
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+'Totals</td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+'</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+'</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+t1+'</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+t2+'</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+t3+'</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+t4+'</font></td>');
+        document.writeln('<td align="right" bgcolor="#eeeeee">'+fontStr+t5+'</font></td>');
+        if (cols > 0) {
+            for (k = 0; crlTime != null && k < crlTime.length; k++) {
+                document.writeln('<td bgcolor="#eeeeee">'+fontStr+'</font></td>');
+            }
+        } else {
+            document.writeln('<td bgcolor="#eeeeee">'+fontStr+'</font></td>');
+        }
+
+        document.writeln('</table>');
+    }
+} else if (result.header.crlUpdate == 'Failure') {
+    document.writeln('The Certificate Revocation List has not been updated successfully.<br>');
+    if (result.header.error != null) {
+        document.writeln('<br>&nbsp;&nbsp;&nbsp;&nbsp;Additional information:<br>');
+        document.writeln('<blockquote><b><pre>'+result.header.error+'</pre></b></blockquote>');
+    }
+} else if (result.header.crlUpdate == 'missingParameters') {
+    document.writeln('The Certificate Revocation List test cannot be performed because some parameters are defined.');
+} else if (result.header.crlUpdate == 'testingNotEnabled') {
+    document.writeln('The Certificate Revocation List testing is not enabled.');
+} else if (result.header.crlUpdate == 'testingInProgress') {
+    document.writeln('The Certificate Revocation List testing is in progress.');
 } else if (result.header.crlUpdate == 'Scheduled') {
     document.writeln('The Certificate Revocation List update has been scheduled.<br>');
     document.writeln('Check the CS logs to see results.');
