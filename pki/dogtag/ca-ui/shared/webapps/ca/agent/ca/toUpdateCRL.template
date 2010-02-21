@@ -344,7 +344,6 @@ if (issuingPoint != null && issuingPoint.length > 0) {
             } else {
                 document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
             }
-            document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
             if (crlNumber[i] == '0' && crlSize[i] == '-1') {
                 document.writeln('CRL is not built</font>');
             } else {
