@@ -1,6 +1,6 @@
 Name:           pki-ca
-Version:        1.3.2
-Release:        2%{?dist}
+Version:        1.3.3
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -103,6 +103,10 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Tue Mar 9 2010 Ade Lee <alee@redhat.com> 1.3.3-1
+- Bugzilla Bug #545935 -  Add new client-auth ee port to address CVE-2009-3555 
+  TLS: MITM attacks via session renegotiation
+
 * Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-2
 - Bugzilla Bug #566059 -  Add 'pki-console' as a runtime dependency
   for CA, KRA, OCSP, and TKS . . .

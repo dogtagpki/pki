@@ -1,5 +1,5 @@
 Name:           pki-selinux
-Version:        1.3.3
+Version:        1.3.4
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Selinux Policies
 URL:            https://pki.fedoraproject.org/
@@ -82,6 +82,10 @@ fi
 %{_datadir}/selinux/modules/pki.pp
 
 %changelog
+* Tue Mar 9 2010 Ade Lee <alee@redhat.com> 1.3.4-1
+- Bugzilla Bug #545935 -  Add new client-auth ee port to address CVE-2009-3555 
+  TLS: MITM attacks via session renegotiation
+
 * Fri Jan 22 2010 Ade Lee <alee@redhat.com> 1.3.3-1
 - Changed 'pki.if' to use macro instead of open() to allow epel build
 

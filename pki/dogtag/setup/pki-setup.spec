@@ -1,6 +1,6 @@
 Name:           pki-setup
-Version:        1.3.3
-Release:        2%{?dist}
+Version:        1.3.4
+Release:        1%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -52,6 +52,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Tue Mar 9 2010 Ade Lee <alee@redhat.com> 1.3.4-1
+- Bugzilla Bug #545935 -  Add new client-auth ee port to address CVE-2009-3555
+  TLS: MITM attacks via session renegotiation
+
 * Mon Feb 1 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.3-2
 - Restored "perl-Crypt-SSLeay" runtime dependency
 

@@ -1,5 +1,5 @@
 Name:           pki-common
-Version:        1.3.2
+Version:        1.3.3
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
@@ -108,6 +108,10 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Tue Mar 9 2010 Ade Lee <alee@redhat.com> 1.3.3-1
+- Bugzilla Bug #545935 -  Add new client-auth ee port to address CVE-2009-3555 
+  TLS: MITM attacks via session renegotiation
+
 * Wed Feb 10 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.2-1
 - Bugzilla Bug #516632 -  CS Incorrectly Issuing Multiple Certificates
   from the Same Request

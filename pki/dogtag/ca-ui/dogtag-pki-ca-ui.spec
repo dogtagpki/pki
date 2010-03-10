@@ -1,6 +1,6 @@
 Name:           dogtag-pki-ca-ui
-Version:        1.3.0
-Release:        4%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -50,6 +50,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Tue Mar 9 2010 Ade Lee <alee@redhat.com> 1.3.1-1
+- Bugzilla Bug #545935 -  Add new client-auth ee port to address CVE-2009-3555
+  TLS: MITM attacks via session renegotiation
+
 * Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #522208 -  New Package for Dogtag PKI: dogtag-pki-ca-ui
 - Removed "Requires:  bash"
