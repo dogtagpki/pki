@@ -246,6 +246,7 @@ public class UpdateDomainXML extends CMSServlet {
         String sport = httpReq.getParameter("sport");
         String agentsport = httpReq.getParameter("agentsport");
         String adminsport = httpReq.getParameter("adminsport");
+        String eecaport = httpReq.getParameter("eeclientauthsport");
         String httpport = httpReq.getParameter("httpport");
         String domainmgr = httpReq.getParameter("dm");
         String clone = httpReq.getParameter("clone");
@@ -314,6 +315,9 @@ public class UpdateDomainXML extends CMSServlet {
             if ((httpport != null) && (!httpport.equals(""))) {
                 attrs.add(new LDAPAttribute("UnSecurePort", httpport));
             }
+            if ((eecaport != null) && (!eecaport.equals(""))) {
+                attrs.add(new LDAPAttribute("SecureEEClientAuthPort", eecaport));
+            }
             if ((domainmgr != null) && (!domainmgr.equals(""))) {
                 attrs.add(new LDAPAttribute("DomainManager", domainmgr.toUpperCase()));
             }
@@ -381,6 +385,7 @@ public class UpdateDomainXML extends CMSServlet {
                     parser.addItemToContainer(parent, "SecurePort", sport);
                     parser.addItemToContainer(parent, "SecureAgentPort", agentsport);
                     parser.addItemToContainer(parent, "SecureAdminPort", adminsport);
+                    parser.addItemToContainer(parent, "SecureEEClientAuthPort", eecaport);
                     parser.addItemToContainer(parent, "UnSecurePort", httpport);
                     parser.addItemToContainer(parent, "DomainManager", domainmgr.toUpperCase());
                     parser.addItemToContainer(parent, "Clone", clone.toUpperCase());

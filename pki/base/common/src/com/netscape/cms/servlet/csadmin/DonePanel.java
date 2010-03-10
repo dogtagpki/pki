@@ -169,6 +169,7 @@ public class DonePanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
         String ownport = CMS.getEENonSSLPort();
         String ownsport = CMS.getEESSLPort();
+        String owneeclientauthsport = CMS.getEEClientAuthSSLPort();
         String ownhost = CMS.getEESSLHost();
         String ownagentsport = CMS.getAgentPort();
         String ownagenthost = CMS.getAgentHost();
@@ -306,6 +307,10 @@ public class DonePanel extends WizardPanelBase {
                               ownagentsport));
                     attrs.add(new LDAPAttribute("SecureAdminPort",
                               ownadminsport));
+                    if (owneeclientauthsport != null) {
+                        attrs.add(new LDAPAttribute("SecureEEClientAuthPort", 
+                              owneeclientauthsport));
+                    }
                     attrs.add(new LDAPAttribute("UnSecurePort", ownport));
                     attrs.add(new LDAPAttribute("Clone", "FALSE"));
                     attrs.add(new LDAPAttribute("SubsystemName", subsystemName));
@@ -360,6 +365,11 @@ public class DonePanel extends WizardPanelBase {
                     cloneStr = "&clone=true";
                 else
                     cloneStr = "&clone=false";
+
+                String eecaStr = "";
+                if (owneeclientauthsport != null) 
+                    eecaStr="&eeclientauthsport=" + owneeclientauthsport;
+
                 updateDomainXML( sd_host, sd_agent_port_int, true,
                                  "/ca/agent/ca/updateDomainXML", 
                                  "list=" + s
@@ -370,6 +380,7 @@ public class DonePanel extends WizardPanelBase {
                                + "&dm=false" + cloneStr
                                + "&agentsport=" + ownagentsport
                                + "&adminsport=" + ownadminsport
+                               + eecaStr 
                                + "&httpport=" + ownport );
 
                 // Fetch the "updated" security domain and display it

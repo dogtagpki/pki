@@ -395,12 +395,13 @@ get_pki_status_definitions()
 	begin_pki_status_comment="<!-- DO NOT REMOVE - Begin PKI Status Definitions -->"
 	end_pki_status_comment="<!-- DO NOT REMOVE - End PKI Status Definitions -->"
 	total_ports=0
-	unsecure_port_statement="Unsecure Port     = "
-	secure_agent_port_statement="Secure Agent Port = "
-	secure_ee_port_statement="Secure EE Port    = "
-	secure_admin_port_statement="Secure Admin Port = "
-	pki_console_port_statement="PKI Console Port  = "
-	tomcat_port_statement="Tomcat Port       = "
+        unsecure_port_statement="Unsecure Port       = "
+        secure_agent_port_statement="Secure Agent Port   = "
+        secure_ee_port_statement="Secure EE Port      = "
+        secure_ee_client_auth_port_statement="EE Client Auth Port = "
+        secure_admin_port_statement="Secure Admin Port   = "
+        pki_console_port_statement="PKI Console Port    = "
+        tomcat_port_statement="Tomcat Port         = "
 
 	# initialize looping variables
 	pki_status_comment_found=0
@@ -432,10 +433,11 @@ get_pki_status_definitions()
 		# begin processing to obtain all of the PKI Status Definitions
 		if [ $pki_status_comment_found -eq 1 ] ; then
 			# look for a PKI Status Definition and print it
-			head=`echo "$line" | cut -b1-20`
+			head=`echo "$line" | cut -b1-22`
 			if	[ "$head" == "$unsecure_port_statement"     ] ||
 				[ "$head" == "$secure_agent_port_statement" ] ||
 				[ "$head" == "$secure_ee_port_statement"    ] ||
+                                [ "$head" == "$secure_ee_client_auth_port_statement" ] ||
 				[ "$head" == "$secure_admin_port_statement" ] ||
 				[ "$head" == "$pki_console_port_statement"  ] ||
 				[ "$head" == "$tomcat_port_statement"       ] ; then
@@ -445,7 +447,7 @@ get_pki_status_definitions()
 		fi
 	done
 
-	if [ ${total_ports} -eq 6 ] ; then
+	if [ ${total_ports} -eq 7 ] ; then
 		return 0
 	else
 		return ${default_error}

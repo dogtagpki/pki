@@ -893,6 +893,15 @@ public final class CMS {
     }
 
     /**
+     * Retrieves the host name of the server's secure end entity service.
+     *
+     * @return port of end-entity secure service
+     */
+    public static String getEEClientAuthSSLPort() {
+        return _engine.getEEClientAuthSSLPort();
+    }
+
+    /**
      * Retrieves the IP address of the server's secure end entity service.
      *
      * @return ip address of end-entity secure service

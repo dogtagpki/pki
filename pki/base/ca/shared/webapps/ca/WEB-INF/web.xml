@@ -39,6 +39,15 @@
         </init-param>
     </filter>
 
+    <filter>
+        <filter-name>EEClientAuthRequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.EEClientAuthRequestFilter</filter-class>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_EE_SECURE_CLIENT_AUTH_PORT]</param-value>
+        </init-param>
+    </filter>
+
     <servlet>
         <servlet-name>csadmin-wizard</servlet-name>
         <servlet-class>com.netscape.cms.servlet.wizard.WizardServlet</servlet-class>
@@ -2084,6 +2093,11 @@
       <url-pattern>   /auths                      </url-pattern>
    </filter-mapping>
 
+   <filter-mapping> 
+      <filter-name>  EEClientAuthRequestFilter    </filter-name>
+      <url-pattern>  /eeca/*                        </url-pattern>
+   </filter-mapping>
+
    <filter-mapping>
       <filter-name>  EERequestFilter              </filter-name>
       <url-pattern>  /ee/*                        </url-pattern>
@@ -2483,6 +2497,11 @@
    <servlet-mapping>  
       <servlet-name>  caListCerts  </servlet-name>
       <url-pattern>   /ee/ca/listCerts  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitSSLClient  </servlet-name>
+      <url-pattern>   /eeca/ca/profileSubmitSSLClient  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  

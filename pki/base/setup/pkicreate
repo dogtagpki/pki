@@ -30,6 +30,7 @@
 #                -subsystem_type=ca
 #                -agent_secure_port=9443
 #                -ee_secure_port=9444
+#                -ee_secure_client_auth_port=9446
 #                -admin_secure_port=9445
 #                -unsecure_port=9180
 #                -tomcat_server_port=9701
@@ -268,6 +269,7 @@ my $servercertnick_conf_base_name         = "serverCertNick.conf";           # C
 my $tomcat5_conf_base_name       = "tomcat5.conf";         # CA, KRA, OCSP, TKS
 my $velocity_prop_base_name      = "velocity.properties";  # CA, KRA, OCSP, TKS
 my $web_xml_base_name            = "web.xml";              # CA, KRA, OCSP, TKS
+my $profile_select_base_name     = "ProfileSelect.template"; #CA
 
 # Subdirectory names
 my $perl_base_instance_symlink      = "perl";        # RA, TPS
@@ -336,6 +338,7 @@ my $PKI_MACHINE_NAME_SLOT     = "PKI_MACHINE_NAME";
 my $PKI_RANDOM_NUMBER_SLOT    = "PKI_RANDOM_NUMBER";
 my $PKI_SECURE_PORT_SLOT      = "PKI_SECURE_PORT";
 my $PKI_EE_SECURE_PORT_SLOT   = "PKI_EE_SECURE_PORT";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT   = "PKI_EE_SECURE_CLIENT_AUTH_PORT";
 my $PKI_AGENT_SECURE_PORT_SLOT = "PKI_AGENT_SECURE_PORT";
 my $PKI_ADMIN_SECURE_PORT_SLOT = "PKI_ADMIN_SECURE_PORT";
 my $PKI_SERVER_XML_CONF       = "PKI_SERVER_XML_CONF";
@@ -348,10 +351,12 @@ my $PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT     = "PKI_UNSECURE_PORT_CONNECTOR_NAM
 my $PKI_SECURE_PORT_CONNECTOR_NAME_SLOT       = "PKI_SECURE_PORT_CONNECTOR_NAME";
 my $PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT = "PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME";
 my $PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT    = "PKI_EE_SECURE_PORT_CONNECTOR_NAME";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT    = "PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME";
 my $PKI_UNSECURE_PORT_COMMENT_SERVER_SLOT     = "PKI_UNSECURE_PORT_SERVER_COMMENT";
 my $PKI_SECURE_PORT_COMMENT_SERVER_SLOT       = "PKI_SECURE_PORT_SERVER_COMMENT";
 my $PKI_ADMIN_SECURE_PORT_COMMENT_SERVER_SLOT = "PKI_ADMIN_SECURE_PORT_SERVER_COMMENT";
 my $PKI_EE_SECURE_PORT_COMMENT_SERVER_SLOT    = "PKI_EE_SECURE_PORT_SERVER_COMMENT";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_COMMENT_SERVER_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT_SERVER_COMMENT";
 my $PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT  = "PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT";
 my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT = "PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT";
 my $PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT  = "PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT";
@@ -360,12 +365,14 @@ my $PKI_UNSECURE_PORT_NAME      = "Unsecure";
 my $PKI_AGENT_SECURE_PORT_NAME  = "Agent";
 my $PKI_ADMIN_SECURE_PORT_NAME  = "Admin";
 my $PKI_EE_SECURE_PORT_NAME     = "EE";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_NAME     = "EEClientAuth";
 my $PKI_SECURE_PORT_NAME        = "Secure";
 my $PKI_UNUSED_SECURE_PORT_NAME = "Unused";
 my $PKI_UNSECURE_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  Unsecure Port Connector -->";
 my $PKI_AGENT_SECURE_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  Agent Secure Port Connector -->";
 my $PKI_ADMIN_SECURE_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  Admin Secure Port Connector -->";
 my $PKI_EE_SECURE_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  EE Secure Port Connector -->";
+my $PKI_EE_SECURE_CLIENT_AUTH_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  EE Secure Client Auth Port Connector -->";
 my $PKI_UNSECURE_SHARED_PORTS_COMMENT = "<!-- Shared Ports:  Unsecure Port Connector -->";
 my $PKI_SECURE_SHARED_PORTS_COMMENT = "<!-- Shared Ports:  Agent, EE, and Admin Secure Port Connector -->";
 my $PKI_OPEN_COMMENT          = "<!--";
@@ -413,6 +420,7 @@ my $tomcat_server_port = -1;
 # Command-line variables (optional)
 my $agent_secure_port    = -1;
 my $ee_secure_port       = -1;
+my $ee_secure_client_auth_port = -1;
 my $admin_secure_port    = -1;
 my $username             = "";
 my $groupname            = "";
@@ -553,6 +561,8 @@ my $webapps_subsystem_instance_path           = "";  # CA, KRA, OCSP, TKS
 my $webinf_instance_path                      = "";  # CA, KRA, OCSP, TKS
 my $webinf_lib_instance_path                  = "";  # CA, KRA, OCSP, TKS
 my $webinf_subsystem_path                     = "";  # CA, KRA, OCSP, TKS
+my $profile_select_template_subsystem_file_path = ""; #CA
+my $profile_select_template_instance_file_path = "";  #CA
 
 # PKI init script variables
 my $default_init_scripts_path                 = "";  # CA, KRA, OCSP, TKS
@@ -776,7 +786,12 @@ sub usage()
          . "          -admin_secure_port=<admin_secure_port>   " 
          . "# Admin secure port\n\n"
          . "          #####################################################################\n"
-         . "          ###   OR a single secure port shared by AGENT, EE, and ADMIN:     ###\n"
+         . "          ###   ... and a client auth EE port, required for CAs only        ###\n"
+         . "          #####################################################################\n\n"
+         . "          -ee_secure_client_auth_port=<ee_secure_client_auth_port>\n"
+         . "                                         # EE secure client authentication port\n\n"
+         . "          #####################################################################\n"
+         . "          ###   OR SELECT a single secure port shared by AGENT,EE and ADMIN ###\n"
          . "          #####################################################################\n\n"
          . "          -secure_port=<secure_port>               "
          . "# Secure port\n"
@@ -913,6 +928,7 @@ sub usage()
          . "          -subsystem_type=ca                 \\\n"
          . "          -agent_secure_port=9443            \\\n"
          . "          -ee_secure_port=9444               \\\n"
+         . "          -ee_secure_client_auth_port=9446   \\\n"
          . "          -admin_secure_port=9445            \\\n"
          . "          -unsecure_port=9180                \\\n"
          . "          -tomcat_server_port=9701           \\\n"
@@ -926,6 +942,7 @@ sub usage()
          . "          -subsystem_type=ca                 \\\n"
          . "          -agent_secure_port=9543            \\\n"
          . "          -ee_secure_port=9544               \\\n"
+         . "          -ee_secure_client_auth_port=9546   \\\n"
          . "          -admin_secure_port=9545            \\\n"
          . "          -unsecure_port=9580                \\\n"
          . "          -tomcat_server_port=9801           \\\n"
@@ -1046,6 +1063,7 @@ sub parse_arguments()
     my $l_tomcat_server_port = -1;
     my $l_agent_secure_port  = -1;
     my $l_ee_secure_port     = -1;
+    my $l_ee_secure_client_auth_port     = -1;
     my $l_admin_secure_port  = -1;
     my $show_help            = 0;
 
@@ -1058,6 +1076,7 @@ sub parse_arguments()
                           "unsecure_port:i" => \$l_unsecure_port,
                           "agent_secure_port:i" => \$l_agent_secure_port,
                           "ee_secure_port:i" => \$l_ee_secure_port,
+                          "ee_secure_client_auth_port:i" => \$l_ee_secure_client_auth_port,
                           "admin_secure_port:i" => \$l_admin_secure_port, 
                           "tomcat_server_port:i" => \$l_tomcat_server_port,
                           "user=s" => \$username,
@@ -1209,6 +1228,7 @@ sub parse_arguments()
 
         if( $l_agent_secure_port > 0 ||
             $l_ee_secure_port > 0    ||
+            $l_ee_secure_client_auth_port > 0    ||
             $l_admin_secure_port > 0)  {
             usage();
             emit( "Must NOT include values for any agent|admin|ee ports!\n",
@@ -1278,6 +1298,21 @@ sub parse_arguments()
         }
     }
 
+    ## Mandatory ee_secure_client_auth_port  if "-agent_secure_port" is given, and CA subsystem
+
+    if( $l_ee_secure_client_auth_port >= 0 ) {
+        $ee_secure_client_auth_port = $l_ee_secure_client_auth_port;
+     
+        emit( "    ee_secure_client_auth_port      $ee_secure_client_auth_port\n");
+
+    } else {
+        if (($agent_secure_port >= 0) && ($subsystem_type eq $CA)) {
+            usage();
+            emit( "For CAs, must include value for ee_secure_client_auth_port if agent_secure_port is given!\n");
+            return 0;
+        }
+    }
+
      ## Mandatory admin_secure_port if "-agent_secure_port" is given 
 
     if( $l_admin_secure_port >= 0 ) {
@@ -1292,7 +1327,7 @@ sub parse_arguments()
     }
 
     if (!AreConnectorPortsValid($secure_port,$unsecure_port,$agent_secure_port,
-         $ee_secure_port,$admin_secure_port ) )
+         $ee_secure_port,$ee_secure_client_auth_port, $admin_secure_port ) )
     {
         usage();
         emit( "Invalid port numbers submitted!\n","error" );
@@ -1645,9 +1680,16 @@ sub initialize_subdirectory_paths()
     }
 
     ## Initialize subdirectory paths (CA subsystems)
-    # if( $subsystem_type eq $CA ) {
-    # }
-
+    if( $subsystem_type eq $CA ) {
+        $profile_select_template_subsystem_file_path = $ui_subsystem_path 
+                                                     . "/" . $webapps_base_subsystem_dir
+                                                     . "/" . $subsystem_type
+                                                     . "/ee/" . $subsystem_type
+                                                     . "/" . $profile_select_base_name; 
+        $profile_select_template_instance_file_path = $webapps_subsystem_instance_path
+                                                     . "/ee/". $subsystem_type 
+                                                     . "/" . $profile_select_base_name;
+    }
 
     ## Initialize subdirectory paths (RA, TPS subsystems)
     if( $subsystem_type eq $RA  || $subsystem_type eq $TPS ) {
@@ -2459,11 +2501,13 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             $slot_hash{$PKI_SECURE_PORT_CONNECTOR_NAME_SLOT}       = $PKI_AGENT_SECURE_PORT_NAME;
             $slot_hash{$PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT} = $PKI_ADMIN_SECURE_PORT_NAME;
             $slot_hash{$PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT}    = $PKI_EE_SECURE_PORT_NAME;
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT}    = $PKI_EE_SECURE_CLIENT_AUTH_PORT_NAME;
 
             # Establish "Port Separation" Connector Ports
             $slot_hash{$PKI_SECURE_PORT_SLOT}       = $agent_secure_port;
             $slot_hash{$PKI_AGENT_SECURE_PORT_SLOT} = $agent_secure_port;
             $slot_hash{$PKI_EE_SECURE_PORT_SLOT}    = $ee_secure_port; 
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT}    = $ee_secure_client_auth_port; 
             $slot_hash{$PKI_ADMIN_SECURE_PORT_SLOT} = $admin_secure_port;
 
             # Comment "Port Separation" appropriately
@@ -2471,6 +2515,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             $slot_hash{$PKI_SECURE_PORT_COMMENT_SERVER_SLOT}       = $PKI_AGENT_SECURE_SEPARATE_PORTS_COMMENT;
             $slot_hash{$PKI_ADMIN_SECURE_PORT_COMMENT_SERVER_SLOT} = $PKI_ADMIN_SECURE_SEPARATE_PORTS_COMMENT;
             $slot_hash{$PKI_EE_SECURE_PORT_COMMENT_SERVER_SLOT}    = $PKI_EE_SECURE_SEPARATE_PORTS_COMMENT;
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_COMMENT_SERVER_SLOT}    = $PKI_EE_SECURE_CLIENT_AUTH_SEPARATE_PORTS_COMMENT;
 
             # Set appropriate "clientAuth" parameter for "Port Separation"
             $slot_hash{$PKI_AGENT_CLIENTAUTH_SLOT} = "true";
@@ -2489,11 +2534,13 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             $slot_hash{$PKI_SECURE_PORT_CONNECTOR_NAME_SLOT}       = $PKI_SECURE_PORT_NAME;
             $slot_hash{$PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT} = $PKI_UNUSED_SECURE_PORT_NAME;
             $slot_hash{$PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT}    = $PKI_UNUSED_SECURE_PORT_NAME;
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT}    = $PKI_UNUSED_SECURE_PORT_NAME;
 
             # Establish "Shared Ports" Connector Ports
             $slot_hash{$PKI_SECURE_PORT_SLOT}       = $secure_port;
             $slot_hash{$PKI_AGENT_SECURE_PORT_SLOT} = $secure_port;
             $slot_hash{$PKI_EE_SECURE_PORT_SLOT}    = $secure_port; 
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT}    = $secure_port; 
             $slot_hash{$PKI_ADMIN_SECURE_PORT_SLOT} = $secure_port;
 
             # Comment "Shared Ports" appropriately
@@ -2501,6 +2548,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             $slot_hash{$PKI_SECURE_PORT_COMMENT_SERVER_SLOT}       = $PKI_SECURE_SHARED_PORTS_COMMENT;
             $slot_hash{$PKI_ADMIN_SECURE_PORT_COMMENT_SERVER_SLOT} = "";
             $slot_hash{$PKI_EE_SECURE_PORT_COMMENT_SERVER_SLOT}    = "";
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_COMMENT_SERVER_SLOT}    = "";
 
             # Set appropriate "clientAuth" parameter for "Shared Ports"
             $slot_hash{$PKI_AGENT_CLIENTAUTH_SLOT} = "agent";
@@ -2562,8 +2610,16 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
 
 
     ## Process templates (CA instances)
-    # if( $subsystem_type eq $CA ) {
-    # }
+    if( $subsystem_type eq $CA ) {
+        # process ProfileSelect.template
+        $result = process_file_template( $profile_select_template_subsystem_file_path,
+                                         $profile_select_template_instance_file_path,
+                                         \%slot_hash );
+        if( ! $result ) {
+            return 0;
+        }
+ 
+     }
 
 
     ## Process templates (RA, TPS instances)
@@ -3827,6 +3883,9 @@ sub process_pki_selinux_setup()
     }
     if ($ee_secure_port != -1) {
         &add_selinux_port($setype_p, $ee_secure_port);
+    }
+    if ($ee_secure_client_auth_port != -1) {
+        &add_selinux_port($setype_p, $ee_secure_client_auth_port);
     }
     if ($admin_secure_port != -1) {
         &add_selinux_port($setype_p, $admin_secure_port);

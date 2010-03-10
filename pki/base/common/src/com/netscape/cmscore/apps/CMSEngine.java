@@ -176,11 +176,13 @@ public class CMSEngine implements ICMSEngine {
     private static final int ADMIN = 1;
     private static final int EE_SSL = 2;
     private static final int EE_NON_SSL = 3;
+    private static final int EE_CLIENT_AUTH_SSL = 4;
     private static String mServerCertNickname = null;
     private static String info[][] = { {null, null, null},//agent
             {null, null, null},//admin
             {null, null, null},//sslEE
-            {null, null, null} //non_sslEE
+            {null, null, null},//non_sslEE
+            {null, null, null} //ssl_clientauth_EE
         };
 
     /**
@@ -526,11 +528,15 @@ public class CMSEngine implements ICMSEngine {
                     } else if( name.equals( "EE" ) ) {
                         // Port Separation:  EE Secure Port
                         info[EE_SSL][PORT] = port;
+                    } else if( name.equals( "EEClientAuth" ) ) {
+                        // Port Separation: EE Client Auth Secure Port
+                        info[EE_CLIENT_AUTH_SSL][PORT] = port; 
                     } else if( name.equals( "Secure" ) ) {
                         // Shared Ports:  Agent, EE, and Admin Secure Port
                         info[AGENT][PORT] = port;
                         info[ADMIN][PORT] = port;
                         info[EE_SSL][PORT] = port;
+                        info[EE_CLIENT_AUTH_SSL][PORT] = port;
                     }
                 }   
            }
@@ -649,6 +655,10 @@ public class CMSEngine implements ICMSEngine {
 
     public String getEESSLPort() {
         return info[EE_SSL][PORT];
+    }
+
+    public String getEEClientAuthSSLPort() {
+        return info[EE_CLIENT_AUTH_SSL][PORT];
     }
 
     public String getAgentHost() {
