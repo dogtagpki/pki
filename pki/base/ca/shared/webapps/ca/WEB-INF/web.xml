@@ -2504,6 +2504,11 @@
       <url-pattern>   /eeca/ca/profileSubmitSSLClient  </url-pattern>
    </servlet-mapping>
 
+   <servlet-mapping>
+      <servlet-name>  caGetCertFromRequest  </servlet-name>
+      <url-pattern>   /eeca/ca/getCertFromRequest  </url-pattern>
+   </servlet-mapping>
+
    <servlet-mapping>  
       <servlet-name>  caProfileSubmitSSLClient  </servlet-name>
       <url-pattern>   /ee/ca/profileSubmitSSLClient  </url-pattern>
