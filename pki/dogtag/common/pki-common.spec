@@ -111,6 +111,7 @@ rm -rf %{buildroot}
 * Tue Mar 9 2010 Ade Lee <alee@redhat.com> 1.3.3-1
 - Bugzilla Bug #545935 -  Add new client-auth ee port to address CVE-2009-3555 
   TLS: MITM attacks via session renegotiation
+- Bugzilla Bug #565842 - CA Clone instance configuration throws errors
 
 * Wed Feb 10 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.2-1
 - Bugzilla Bug #516632 -  CS Incorrectly Issuing Multiple Certificates
