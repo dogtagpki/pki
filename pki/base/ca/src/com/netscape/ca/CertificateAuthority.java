@@ -283,6 +283,23 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         if (CMS.isPreOpMode())
             return;
 
+        // get SSL server nickname
+        IConfigStore serverCertStore = mConfig.getSubStore("sslserver");
+        if (serverCertStore != null && serverCertStore.size() > 0) {
+            String nickName = serverCertStore.getString("nickname");
+            String tokenName = serverCertStore.getString("tokenname");
+            if (tokenName != null && tokenName.length() > 0 &&
+                nickName != null && nickName.length() > 0) {
+                CMS.setServerCertNickname(tokenName, nickName);
+                CMS.debug("CertificateAuthority init sslserver:  tokenName:"+tokenName+"  nickName:"+nickName);
+            } else if (nickName != null && nickName.length() > 0) {
+                CMS.setServerCertNickname(nickName);
+                CMS.debug("CertificateAuthority init sslserver:  nickName:"+nickName);
+            } else {
+                CMS.debug("CertificateAuthority init error: SSL server certificate nickname is not available.");
+            }
+        }
+
         // set certificate status to 10 minutes
         mCertRepot.setCertStatusUpdateInterval(
             mRequestQueue.getRequestRepository(),
