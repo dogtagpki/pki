@@ -192,7 +192,7 @@ public class CertUtil {
         // just need a request, no need to get into a queue
 //        IRequest r = new EnrollmentRequest(rid);
         CMS.debug("CertUtil: createLocalRequest for serial: "+ serialNum);
-        IRequest req = queue.newRequest("enrollment", serialNum);
+        IRequest req = queue.newRequest("enrollment");
         CMS.debug("certUtil: newRequest called");
         req.setExtData("profile", "true");
         req.setExtData("requestversion", "1.0.0");

@@ -151,6 +151,14 @@ public class UpdateNumberRange extends CMSServlet {
                     repo = ca.getReplicaRepository();
                 }
             }
+
+            // checkRanges for replicaID - we do this each time a replica is created.
+            // This needs to be done beforehand to ensure that we always have enough 
+            // replica numbers
+            if (type.equals("replicaId")) {
+               CMS.debug("Checking replica number ranges");
+               repo.checkRanges();
+            }
                
             if (type.equals("request")) {
                 radix = 10;
@@ -222,10 +230,8 @@ public class UpdateNumberRange extends CMSServlet {
                 return;
             }
 
-            // checkRanges for replicaID - we do this each time a replica is created.
-            // Also enable serial number management in master for certs and requests
+            // Enable serial number management in master for certs and requests
             if (type.equals("replicaId")) {
-               repo.checkRanges();
                repo.setEnableSerialMgmt(true);
             }
 

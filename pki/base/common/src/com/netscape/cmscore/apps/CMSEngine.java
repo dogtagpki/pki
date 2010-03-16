@@ -64,6 +64,7 @@ import com.netscape.certsrv.dbs.crldb.*;
 import com.netscape.certsrv.dbs.repository.*;
 import com.netscape.certsrv.ca.*;
 import com.netscape.certsrv.ra.*;
+import com.netscape.certsrv.kra.*;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.*;
 import com.netscape.certsrv.apps.*;
@@ -868,6 +869,25 @@ public class CMSEngine implements ICMSEngine {
         mQueue.removeLogEventListener(mWarningListener);
         if (!mWarning.toString().equals("")) {
             System.out.println(Constants.SERVER_STARTUP_WARNING_MESSAGE + mWarning);
+        }
+
+        // check serial number ranges if a CA/KRA
+        ICertificateAuthority ca = (ICertificateAuthority) getSubsystem("ca");
+        if ((ca != null) && !isPreOpMode()) {
+            CMS.debug("CMSEngine: checking request serial number ranges for the CA");
+            ca.getRequestQueue().getRequestRepository().checkRanges();
+
+            CMS.debug("CMSEngine: checking certificate serial number ranges");
+            ca.getCertificateRepository().checkRanges();
+        } 
+
+        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem("kra");
+        if ((kra != null) && !isPreOpMode()) {
+            CMS.debug("CMSEngine: checking request serial number ranges for the KRA");
+            kra.getRequestQueue().getRequestRepository().checkRanges();
+
+            CMS.debug("CMSEngine: checking key serial number ranges");
+            kra.getKeyRepository().checkRanges();
         }
 
         /*LogDoc

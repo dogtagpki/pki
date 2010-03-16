@@ -984,8 +984,12 @@ public class DatabasePanel extends WizardPanelBase {
 
             try {
                 CMS.reinit(IDBSubsystem.SUB_ID);
+                String type = cs.getString("cs.type", "");
+                if (type.equals("CA"))
+                    CMS.reinit(ICertificateAuthority.ID);
                 CMS.reinit(IAuthSubsystem.ID);
                 CMS.reinit(IAuthzSubsystem.ID);
+                CMS.reinit(IUGSubsystem.ID);
             } catch (Exception e) {
             }
         }

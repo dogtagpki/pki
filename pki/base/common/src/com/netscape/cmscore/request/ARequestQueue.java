@@ -239,21 +239,10 @@ public abstract class ARequestQueue
      */
     public IRequest newRequest(String requestType)
         throws EBaseException {
-        return newRequest(requestType, null);
-    }
-
-    public IRequest newRequest(String requestType, String serialNum)
-        throws EBaseException {
         if (requestType == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_REQUEST_TYPE", "null"));
         }
-        RequestId rId = null;
-        if (serialNum == null) {
-            rId = newRequestId();
-        } else {
-            rId = new RequestId(serialNum);
-        }
-
+        RequestId rId = newRequestId();
         IRequest r = createRequest(rId, requestType);
 
         // Commented out the lock call because unlock is never called.
