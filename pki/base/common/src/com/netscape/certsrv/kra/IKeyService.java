@@ -43,6 +43,43 @@ public interface IKeyService {
      */
     public int getNoOfRequiredAgents() throws EBaseException;
 
+   /**
+    * is async recovery request status APPROVED -
+    *   i.e. all required # of recovery agents approved
+    * @param reqID request id
+    * @return true if  # of recovery required agents approved; false otherwise
+    */
+    public boolean isApprovedAsyncKeyRecovery(String reqID)
+        throws EBaseException;
+
+   /**
+    * get async recovery request initiating agent
+    * @param reqID request id
+    * @return agentUID
+    */
+    public String getInitAgentAsyncKeyRecovery(String reqID)
+        throws EBaseException;
+
+    /**
+     * Initiate asynchronous key recovery
+     * @param kid key identifier
+     * @param cert certificate embedded in PKCS12
+     * @return requestId
+     * @exception EBaseException failed to initiate async recovery
+     */
+    public String initAsyncKeyRecovery(BigInteger kid, X509CertImpl cert, String agent)
+         throws EBaseException;
+
+    /**
+     * add approving agent in asynchronous key recovery
+     * @param reqID request id
+     * @param agentID agent id
+     * @return requestId
+     * @exception EBaseException failed to initiate async recovery
+     */
+    public void addAgentAsyncKeyRecovery(String reqID, String agentID)
+         throws EBaseException;
+
     /**
      * Performs administrator-initiated key recovery.
      *
@@ -56,7 +93,31 @@ public interface IKeyService {
      */
     public byte[] doKeyRecovery(BigInteger kid,
         Credential creds[], String pwd, X509CertImpl cert,
-        String delivery, String nickname) throws EBaseException;
+        String delivery, String nickname, String agent) throws EBaseException;
+
+     /**
+     * Async Recovers key for administrators. This method is
+     * invoked by the agent operation of the key recovery servlet.
+     * <P>
+     *
+     * <ul>
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever
+     * a user private key recovery request is made (this is when the DRM
+     * receives the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED used whenever
+     * a user private key recovery request is processed (this is when the DRM
+     * processes the request)
+     * </ul>
+     * @param reqID  request id
+     * @param password password of the PKCS12 package
+     * subsystem
+     * @exception EBaseException failed to recover key
+     * @return a byte array containing the key
+     */
+    public byte[] doKeyRecovery(
+        String reqID,
+        String password)
+        throws EBaseException;
 
     /**
      * Retrieves recovery identifier.

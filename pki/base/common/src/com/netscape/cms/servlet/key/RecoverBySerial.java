@@ -176,14 +176,33 @@ public class RecoverBySerial extends CMSServlet {
 
         try {
             String localAgents = req.getParameter("localAgents");
+            String initAsyncRecovery = req.getParameter("initAsyncRecovery");
 
             // this information is needed within the server for
             // various signed audit log messages to report
             ctx = SessionContext.getContext();
-            ctx.put(SessionContext.RECOVERY_ID,
-                req.getParameter("recoveryID"));
 
-            byte pkcs12[] = process(form, argSet, header, 
+            /*
+               When Recovery is first initiated, if it is in asynch mode,
+               no pkcs#12 password is needed.
+               The initiating agent uid will be recorded in the recovery
+               request.
+               Later, as approving agents submit their approvals, they will
+               also be listed in the request.
+             */
+            if ((initAsyncRecovery != null) &&
+                   initAsyncRecovery.equalsIgnoreCase("ON")) {
+              process(form, argSet, header,
+                  req.getParameter(IN_SERIALNO),
+                  req.getParameter(IN_CERT),
+                  req, resp, locale[0]);
+
+              int requiredNumber = mService.getNoOfRequiredAgents();
+              header.addIntegerValue("noOfRequiredAgents", requiredNumber);
+            } else {
+              ctx.put(SessionContext.RECOVERY_ID,
+                req.getParameter("recoveryID"));
+              byte pkcs12[] = process(form, argSet, header, 
                     req.getParameter(IN_SERIALNO), 
                     req.getParameter("localAgents"),
                     req.getParameter(IN_PASSWORD),
@@ -193,13 +212,14 @@ public class RecoverBySerial extends CMSServlet {
                     req.getParameter(IN_NICKNAME),
                     req, resp, locale[0]);
 
-            if (pkcs12 != null) {
+              if (pkcs12 != null) {
                 //resp.setStatus(HttpServletResponse.SC_OK);
                 resp.setContentType("application/x-pkcs12");
                 //resp.setContentLength(pkcs12.length);
                 resp.getOutputStream().write(pkcs12);
                 mRenderResult = false;
                 return;
+              }
             }
         } catch (NumberFormatException e) {
             header.addStringValue(OUT_ERROR,
@@ -225,6 +245,61 @@ public class RecoverBySerial extends CMSServlet {
         }
 
         cmsReq.setStatus(CMSRequest.SUCCESS);
+    }
+
+    /**
+     * Async Key Recovery - request initiation
+     */
+    private void  process(CMSTemplate form, CMSTemplateParams argSet,
+        IArgBlock header, String seq, String cert,
+        HttpServletRequest req, HttpServletResponse resp,
+        Locale locale) {
+
+        // seq is the key id
+        if (seq == null) {
+            header.addStringValue(OUT_ERROR, "sequence number not found");
+            return;
+        }
+        X509CertImpl x509cert = null;
+
+        if (cert == null) {
+            header.addStringValue(OUT_ERROR, "certificate not found");
+            return;
+        } else {
+            try {
+                x509cert = Cert.mapCert(cert);
+            } catch (IOException e) {
+                header.addStringValue(OUT_ERROR, e.toString());
+            }
+        }
+        if (x509cert == null) {
+            header.addStringValue(OUT_ERROR, "invalid X.509 certificate");
+            return;
+        }
+
+        SessionContext sContext = SessionContext.getContext();
+
+        try {
+            String reqID = mService.initAsyncKeyRecovery(
+                  new BigInteger(seq), x509cert,
+                      (String) sContext.get(SessionContext.USER_ID));
+            header.addStringValue(OUT_SERIALNO, req.getParameter(IN_SERIALNO));
+            header.addStringValue("requestID", reqID);
+        } catch (EBaseException e) {
+            String error =
+                "Failed to recover key for key id " +
+                seq + ".\nException: " + e.toString();
+
+            CMS.getLogger().log(ILogger.EV_SYSTEM,
+                ILogger.S_KRA, ILogger.LL_FAILURE, error);
+            try {
+                ((IKeyRecoveryAuthority) mService).createError(seq, error);
+            } catch (EBaseException eb) {
+                CMS.getLogger().log(ILogger.EV_SYSTEM,
+                    ILogger.S_KRA, ILogger.LL_FAILURE, eb.toString());
+            }
+        }
+        return;
     }
 
     /**
@@ -269,6 +344,12 @@ public class RecoverBySerial extends CMSServlet {
         try {
             Credential creds[] = null;
 
+            SessionContext sContext = SessionContext.getContext();
+            String agent = null;
+
+            if (sContext != null) {
+                agent = (String) sContext.get(SessionContext.USER_ID);
+            }
 	   if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
             if (localAgents == null) {
                 String recoveryID = req.getParameter("recoveryID");
@@ -283,12 +364,6 @@ public class RecoverBySerial extends CMSServlet {
 
                 header.addStringValue("recoveryID", recoveryID);
 
-                SessionContext sContext = SessionContext.getContext();
-                String agent = null;
-
-                if (sContext != null) {
-                    agent = (String) sContext.get(SessionContext.USER_ID);
-                }
                 params.put("agent", agent);
 
                 // new thread to wait for pk12
@@ -330,7 +405,7 @@ public class RecoverBySerial extends CMSServlet {
             byte pkcs12[] = mService.doKeyRecovery(
                     new BigInteger(seq),
                     creds, password, x509cert,	
-                    delivery, nickname);
+                    delivery, nickname, agent);
 
             return pkcs12;
           } else {
@@ -346,12 +421,6 @@ public class RecoverBySerial extends CMSServlet {
 
                 header.addStringValue("recoveryID", recoveryID);
 
-                SessionContext sContext = SessionContext.getContext();
-                String agent = null;
-
-                if (sContext != null) {
-                    agent = (String) sContext.get(SessionContext.USER_ID);
-                }
                 params.put("agent", agent);
 
                 // new thread to wait for pk12
@@ -423,11 +492,14 @@ public class RecoverBySerial extends CMSServlet {
                 return;
             }
 
+            SessionContext sContext = SessionContext.getContext();
+
             try {
                 byte pkcs12[] = mService.doKeyRecovery(
                         new BigInteger(theSeq),
                         creds, thePassword, theCert,
-                        theDelivery, theNickname);
+                        theDelivery, theNickname,
+                        (String) sContext.get(SessionContext.USER_ID));
 
                 ((IKeyRecoveryAuthority) mService).createPk12(theRecoveryID, pkcs12);
             } catch (EBaseException e) {

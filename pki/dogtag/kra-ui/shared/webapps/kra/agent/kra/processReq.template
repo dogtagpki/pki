@@ -43,6 +43,16 @@ function renderDateFromSecs(secs)
     return dateStr;
 }
 
+function passwdValidate()
+{
+
+    if (document.forms[0].p12Password.value != document.forms[0].p12PasswordAgain.value) {
+        alert("Passwords do not match");
+        return false;
+    }
+    return true;
+}
+
 // 
 // This form is a template that gets a preamble defining the contents
 // of the request form as a JavaScript object called 'result.header'.
@@ -61,7 +71,7 @@ document.writeln(
 document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD></TD></TR></TABLE>');
 
 
-document.writeln('<form action="/agent/kra/processReq" method=POST>');
+document.writeln('<form action="/kra/agent/kra/getAsyncPk12" method=post onSubmit="return passwdValidate()">');
 document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
 document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
 document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'
@@ -71,26 +81,6 @@ document.writeln('<tr>');
 document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Status:</font></td>');
 document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.status + '</font></td>');
 document.writeln('</tr>');
-
-if (result.header.status != "complete") {
-	if (result.header.assignedTo != null) {
-	   document.write('<b> Assigned To: </b>',result.header.assignedTo);
-	} else {
-	   document.write('<b> Unassigned </b>');
-	}
-	if (result.header.assignedTo == null) {
-	  document.write('<a href="/agent/kra/processReq?op=processReq&doAssign=yes&seqNum=' +
-                     result.header.seqNum + '"' + 
-                     'onMouseOver=" return helpstatus(\'Click to assign the ' +
-                     'request to yourself\')" ' +
-                     'onMouseOut="return helpstatus(\'\')">', 
-                     ' Assign To Me','</a>');
-	} else if (result.header.assignedTo != result.header.callerName) {
-		document.write('<a href="/' +
-                     '/agent/kra/processReq?op=processReq&doAssign=yes&overrideAssignment=yes&seqNum=' + result.header.seqNum + '">',
-                 ' Re-assign To Me', '</a>');
-	}    
-}
 
 // Note these values are filtered for safety by the server.
 if (result.header.requestorName != null ||
@@ -201,6 +191,84 @@ if (result.header.requestType == "enrollment") {
 	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key identifier:</font></td>');
 	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.serialNumber + '</font></td>');
 	document.writeln('</tr>');
+
+	// Recovery agents who have approved the recovery request
+        var initAgent="";
+        var approveAgents="";
+        if (result.header.approvingAgents.indexOf(",")== -1) {
+            initAgent = result.header.approvingAgents;
+        } else {
+            initAgent = result.header.approvingAgents.substring(0,
+                result.header.approvingAgents.indexOf(","));
+            approveAgents = result.header.approvingAgents.substring(
+                      result.header.approvingAgents.indexOf(",")+1);
+        }
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Recovery Initiating Agent:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + initAgent+ '</font></td>');
+	document.writeln('</tr>');
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Recovery Approving Agents:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + approveAgents
+                 + '</font></td>');
+	document.writeln('</tr>');
+}
+
+
+if (result.header.status != "complete") {
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Action</font></td></tr>');
+    if (result.header.requestType == "recovery") {
+      if (result.header.status == "pending") {
+document.writeln('<tr>');
+document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Asynchronous Key Recovery:</font></td>');
+        document.writeln('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><a href="/kra/agent/kra/grantAsyncRecovery?op=grantRecovery&reqID=' +
+            result.header.seqNum + '">' + ' Grant</a></font></td>');
+document.writeln('</tr>');
+
+      } else if (result.header.status == "approved") {
+        var initAgent = result.header.approvingAgents.substring(0,
+             result.header.approvingAgents.indexOf(","));
+
+        // get PKCS#12 password
+        document.writeln('<tr>');
+        document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password:</font></td>');
+        document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="p12Password" value="" AutoComplete=off ></font></td>');
+        document.writeln('</tr>');
+
+        document.writeln('<tr>');
+        document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password again:</font></td>');
+        document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="p12PasswordAgain" value="" AutoComplete=off ></font></td>');
+        document.writeln('</tr>');
+
+        document.writeln('<tr>');
+        document.writeln('<input type=hidden name="op" VALUE="getAsyncPk12">');
+        document.writeln('<input type=hidden name="reqID" VALUE="' +
+                result.header.seqNum + '">\n');
+        document.writeln('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">(only allowed for initiating agent,' + initAgent+')</font></td>');
+        document.writeln('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=submit value="Retrieve PKCS#12"></font></td>');
+        document.writeln('</tr>');
+      }
+    } else {
+	if (result.header.assignedTo != null) {
+	   document.write('<b> Assigned To: </b>',result.header.assignedTo);
+	} else {
+	   document.write('<b> Unassigned </b>');
+	}
+	if (result.header.assignedTo == null) {
+	  document.write('<a href="/kra/agent/kra/processReq?op=processReq&doAssign=yes&seqNum=' +
+                     result.header.seqNum + '"' + 
+                     'onMouseOver=" return helpstatus(\'Click to assign the ' +
+                     'request to yourself\')" ' +
+                     'onMouseOut="return helpstatus(\'\')">', 
+                     ' Assign To Me','</a>');
+	} else if (result.header.assignedTo != result.header.callerName) {
+		document.write('<a href="/' +
+                     '/kra/agent/kra/processReq?op=processReq&doAssign=yes&overrideAssignment=yes&seqNum=' + result.header.seqNum + '">',
+                 ' Re-assign To Me', '</a>');
+	}    
+    }
 }
 
 document.writeln('</table>');

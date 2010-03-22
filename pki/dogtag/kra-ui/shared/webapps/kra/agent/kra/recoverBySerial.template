@@ -38,13 +38,24 @@ if (result.header.errorDetails != null) {
 		toHex(result.header.serialNumber) + 
 		' has been submitted.\n' +
 		'Waiting for recovery agents\' approval...');
-	document.write('</font>');
 
-	window.location = result.fixed.scheme + "://" + result.fixed.host +
+        if (result.header.recoveryID == null) {
+            document.writeln('<p>');
+            document.writeln(result.header.noOfRequiredAgents +
+                ' recovery agents are required for authorization.' );
+            document.writeln('<p>');
+
+            document.writeln('This is an asynchronous key recovery request.  You might want to notify authorized key recovery agents to grant this request by going to request' +
+            '<a href="/kra/agent/kra/processReq?op=processReq&seqNum=' +
+            result.header.requestID+'"> ' + result.header.requestID +'</a>.')
+	    document.write('</font>');
+        }else {
+	    document.write('</font>');
+	    window.location = result.fixed.scheme + "://" + result.fixed.host +
 	 		":" + result.fixed.port + "/kra/agent/kra/getApprovalStatus?recoveryID=" +
 	 		result.header.recoveryID;	
 
-	if (result.header.status == "complete") {
+	    if (result.header.status == "complete") {
 		document.writeln(
 			'<font face="PrimaSans BT, Verdana, sans-serif"><font size=+1>'+
 			'Click ' +
@@ -54,7 +65,8 @@ if (result.header.errorDetails != null) {
 			'\')" onMouseOut="return helpstatus(\'\')">' +
 			"here" + 
 			'</a>' + ' to get the recovered key in PKCS12 format.</font></font>');
-	}
+	    }
+        }
 
 }
 

@@ -51,6 +51,7 @@ public class QueryReq extends CMSServlet {
     private final static String IN_SHOW_ALL = "showAll";
     private final static String IN_SHOW_WAITING = "showWaiting";
     private final static String IN_SHOW_IN_SERVICE = "showInService";
+    private final static String IN_SHOW_PENDING= "showPending";
     private final static String IN_SHOW_CANCELLED = "showCancelled";
     private final static String IN_SHOW_REJECTED = "showRejected";
     private final static String IN_SHOW_COMPLETED = "showCompleted";
@@ -184,6 +185,8 @@ public class QueryReq extends CMSServlet {
             filter = "(requeststate=pending)";
         } else if (p.equals(IN_SHOW_IN_SERVICE)) {
             filter = "(requeststate=svc_pending)";
+        } else if (p.equals(IN_SHOW_PENDING)) {
+            filter = "(requeststate=pending)";
         } else if (p.equals(IN_SHOW_CANCELLED)) {
             filter = "(requeststate=canceled)";
         } else if (p.equals(IN_SHOW_REJECTED)) {

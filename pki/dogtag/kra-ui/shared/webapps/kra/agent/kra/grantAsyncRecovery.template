@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<head><title>Key Recovery Grant Result</title></head>
+<body bgcolor="white">
+
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<script language="JavaScript" src="../funcs.js"></script>
+<script language="JavaScript" src="../helpfun.js"></script>
+<script language="JavaScript">
+//<!--
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+	sign = "-";
+	number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+	absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+if (result.header.errorDetails != null) {
+        writeError(result.header.errorDetails);
+} else {
+	document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=+1>Key Recovery Result</font>');
+	document.write('<center><hr width="100%"></center>');
+	document.write("<p>");
+	document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=-1>');
+	document.write('Asynchronous Key recovery request' + 
+'<a href="/kra/agent/kra/processReq?op=processReq&seqNum=' +
+            result.header.requestID+'"> ' + result.header.requestID + '</a>' +
+		' has been granted by ' + result.header.agentID);
+	document.write('</font>');
+}
+
+//-->
+</script>
+</BODY>
+</HTML>

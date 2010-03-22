@@ -1,6 +1,6 @@
 Name:           pki-kra
-Version:        1.3.1
-Release:        2%{?dist}
+Version:        1.3.2
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Data Recovery Manager
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -112,6 +112,9 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Mon Mar 22 2010 Christina Fu <cfu@redhat.com> 1.3.2-1
+- Bugzilla Bug #522343 Add asynchronous key recovery mode
+
 * Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-2
 - Bugzilla Bug #566059 -  Add 'pki-console' as a runtime dependency
   for CA, KRA, OCSP, and TKS . . .

@@ -71,6 +71,10 @@ public class KeyReqParser extends ReqParser {
             BigInteger kid = req.getExtDataInBigInteger("serialNumber");
 
             arg.addStringValue(OUTPUT_SERIALNO, kid.toString());
+
+            // for async recovery
+            String agents = (String) req.getExtDataInString("approvingAgents");
+            arg.addStringValue("approvingAgents", agents);
         } else {
             System.out.println("Bad Request " + type);
             // invalid request

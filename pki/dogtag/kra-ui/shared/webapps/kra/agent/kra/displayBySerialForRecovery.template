@@ -7,7 +7,21 @@
 <title>Display Key</title>
 <body bgcolor="white">
 
-<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+
+function PKCS12Password()
+{
+    if (document.forms[0].initAsyncRecovery.checked) {
+       document.forms[0].p12Password.disabled= true; 
+       document.forms[0].p12PasswordAgain.disabled= true; 
+       document.forms[0].nickname.disabled= true; 
+    } else {
+       document.forms[0].p12Password.disabled= false; 
+       document.forms[0].p12PasswordAgain.disabled= false; 
+       document.forms[0].nickname.disabled= false; 
+    }
+}
+</SCRIPT>
 <script language="JavaScript" src="../funcs.js"></script>
 <script language="JavaScript" src="../helpfun.js"></script>
 <script language="JavaScript">
@@ -135,21 +149,29 @@ if (result.header.errorDetails != null) {
 	document.writeln('</tr>');
 
 	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Async Recovery:</font></td>');
+        // initiate an asynchronous recovery or not
+	document.writeln('<td>');
+        document.write('<input type="checkbox" CHECKED onClick="PKCS12Password()" name="initAsyncRecovery" value="ON">');
+	document.writeln('</td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
 	document.writeln('</tr>');
 
 	document.writeln('<tr>');
 	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password:</font></td>');
-	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="p12Password" value="" AutoComplete=off ></font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password disabled name="p12Password" value="" AutoComplete=off ></font></td>');
 	document.writeln('</tr>');
 
 	document.writeln('<tr>');
 	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password again:</font></td>');
-	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="p12PasswordAgain" value="" AutoComplete=off ></font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password disabled name="p12PasswordAgain" value="" AutoComplete=off ></font></td>');
 	document.writeln('</tr>');
 
 	document.writeln('<tr>');
 	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Nickname (Optional):</font></td>');
-	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=text name="nickname" value=""></font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=text disabled name="nickname" value=""></font></td>');
 	document.writeln('</tr>');
 
 	// certificate
@@ -178,12 +200,13 @@ if (result.header.errorDetails != null) {
 	document.writeln('</tr>');
 
 	// recovery ID
+/* recoery ID does not apply to async case
 	document.writeln('<tr>');
 	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Recovery authorization reference number:</font></td>');
 	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.recoveryID + '</font></td>');
 	document.writeln('</tr>');
-
         document.writeln('<input type=hidden name="op" value="recoverBySerial">');
+*/
 
 	if (result.header.keySplitting == 'true') { 
           document.write(renderCredentialBoxes(result.header.noOfRequiredAgents));

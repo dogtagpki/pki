@@ -1,6 +1,6 @@
 Name:           dogtag-pki-kra-ui
-Version:        1.3.0
-Release:        4%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Data Recovery Authority User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -50,6 +50,9 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Mon Mar 22 2010 Christina Fu <cfu@redhat.com> 1.3.1-1
+- Bugzilla Bug #522343 Add asynchronous key recovery mode
+
 * Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
 - Bugzilla Bug #553742 - New Package for Dogtag PKI: dogtag-pki-kra-ui
 - Removed "Requires:  bash"

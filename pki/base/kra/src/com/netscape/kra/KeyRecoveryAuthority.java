@@ -124,8 +124,12 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_PROCESSED_3";
     private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST =
         "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_4";
+    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC =
+        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC_4";
     private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED =
         "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_4";
+    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_ASYNC =
+        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_ASYNC_4";
 
     /**
      * Constructs an escrow authority.
@@ -622,6 +626,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         synchronized (lock) {
             while (dc.size() < getNoOfRequiredAgents()) { 
+	    CMS.debug("KeyRecoveryAuthority: cfu in synchronized lock for getDistributedCredentials");
                 try {
                     lock.wait();
                 } catch (InterruptedException e) {
@@ -783,6 +788,154 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
+     * async key recovery initiation
+     */
+    public String initAsyncKeyRecovery(BigInteger kid, X509CertImpl cert, String agent)
+         throws EBaseException {
+
+        String auditPublicKey = auditPublicKey(cert);
+        String auditRecoveryID = "undefined";
+        String auditMessage = null;
+        String auditSubjectID = auditSubjectID();
+
+        IRequestQueue queue = null;
+        IRequest r = null;
+
+        try {
+            queue = getRequestQueue();
+            r = queue.newRequest(KRAService.RECOVERY);
+
+            r.setExtData(RecoveryService.ATTR_SERIALNO, kid);
+            r.setExtData(RecoveryService.ATTR_USER_CERT, cert);
+            // first one in the "approvingAgents" list is the initiating agent
+            r.setExtData(RecoveryService.ATTR_APPROVE_AGENTS, agent);
+            r.setRequestStatus(RequestStatus.PENDING);
+            queue.updateRequest(r);
+            auditRecoveryID = r.getRequestId().toString();
+
+            // store a message in the signed audit log file
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC,
+                        auditSubjectID,
+                        ILogger.SUCCESS,
+                        auditRecoveryID,
+                        auditPublicKey);
+
+            audit(auditMessage);
+        } catch (EBaseException eAudit1) {
+            // store a message in the signed audit log file
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        auditPublicKey);
+
+            audit(auditMessage);
+
+            throw eAudit1;
+        }
+
+        //NO call to queue.processRequest(r) because it is only initiating
+        return r.getRequestId().toString();
+    }
+
+   /**
+    * is async recovery request status APPROVED -
+    *   i.e. all required # of recovery agents approved
+    */
+    public boolean isApprovedAsyncKeyRecovery(String reqID)
+        throws EBaseException {
+        IRequestQueue queue = null;
+        IRequest r = null;
+
+        queue = getRequestQueue();
+        r = queue.findRequest(new RequestId(reqID));
+        if ((r.getRequestStatus() == RequestStatus.APPROVED)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+   /**
+    * get async recovery request initiating agent
+    */
+    public String getInitAgentAsyncKeyRecovery(String reqID)
+        throws EBaseException {
+        IRequestQueue queue = null;
+        IRequest r = null;
+
+        queue = getRequestQueue();
+        r = queue.findRequest(new RequestId(reqID));
+
+        String agents = r.getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
+        if (agents != null) {
+            int i = agents.indexOf(",");
+            if (i == -1) {
+                return agents;
+            }
+            return agents.substring(0, i);
+        } else { // no approvingAgents existing, can't be async recovery
+            CMS.debug("getInitAgentAsyncKeyRecovery: no approvingAgents in request");
+        }
+
+        return null;
+    }
+
+   /**
+    * add async recovery agent to approving agent list of the recovery request
+    * record
+    * This method will check to see if the agent belongs to the recovery group
+    * first before adding.
+    */
+    public void addAgentAsyncKeyRecovery(String reqID, String agentID)
+        throws EBaseException {
+        IRequestQueue queue = null;
+        IRequest r = null;
+
+        // check if the uid is in the specified group
+        IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        if (!ug.isMemberOf(agentID, mConfig.getString("recoveryAgentGroup"))) {
+            // invalid group
+            throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));
+        }
+
+        queue = getRequestQueue();
+        r = queue.findRequest(new RequestId(reqID));
+
+        String agents = r.getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
+        if (agents != null) {
+            int count = 0;
+            StringTokenizer st = new StringTokenizer(agents, ",");
+            for (; st.hasMoreTokens();) {
+                String a = st.nextToken();
+                // first one is the initiating agent
+                if ((count != 0) && a.equals(agentID)) {
+                  // duplicated uid
+                  throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_EXIST"));
+                }
+                count++;
+            }
+
+            // note: if count==1 and required agents is 1, it's good to add
+            // and it'd look like "agent1,agent1" - that's the only dup allowed
+            if (count <= getNoOfRequiredAgents()) { //all good, add it
+                r.setExtData(RecoveryService.ATTR_APPROVE_AGENTS,
+                      agents+","+agentID);
+                if (count == getNoOfRequiredAgents()) {
+                    r.setRequestStatus(RequestStatus.APPROVED);
+                } else {
+                    r.setRequestStatus(RequestStatus.PENDING);
+                }
+                queue.updateRequest(r);
+            }
+        } else { // no approvingAgents existing, can't be async recovery
+            CMS.debug("addAgentAsyncKeyRecovery: no approvingAgents in request. Async recovery request not initiated?");
+        }
+    }
+
+    /**
      * Recovers key for administrators. This method is
      * invoked by the agent operation of the key recovery servlet.
      * <P>
@@ -808,7 +961,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     public byte[] doKeyRecovery(BigInteger kid,
         Credential creds[], String password, 
         X509CertImpl cert,
-        String delivery, String nickname) 
+        String delivery, String nickname,
+        String agent) 
         throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -820,7 +974,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         IRequest r = null;
         Hashtable params = null;
 
-
+        CMS.debug("KeyRecoveryAuthority: in synchronous doKeyRecovery()");
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
@@ -843,6 +997,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                     r.setExtData(RecoveryService.ATTR_NICKNAME, nickname);
                 }
             }
+            // for both sync and async recovery
+            r.setExtData(RecoveryService.ATTR_APPROVE_AGENTS, agent);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -915,6 +1071,102 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
             audit(auditMessage);
 
+            throw eAudit1;
+        }
+    }
+
+     /**
+     * Async Recovers key for administrators. This method is
+     * invoked by the agent operation of the key recovery servlet.
+     * <P>
+     *
+     * <ul>
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever
+     * a user private key recovery request is made (this is when the DRM
+     * receives the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED used whenever
+     * a user private key recovery request is processed (this is when the DRM
+     * processes the request)
+     * </ul>
+     * @param requestID  request id
+     * @param password password of the PKCS12 package
+     * subsystem
+     * @exception EBaseException failed to recover key
+     * @return a byte array containing the key
+     */
+    public byte[] doKeyRecovery(
+        String reqID, 
+        String password)
+        throws EBaseException {
+        String auditMessage = null;
+        String auditSubjectID = auditSubjectID();
+        String auditRecoveryID = reqID;
+        String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        String auditPublicKey = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+
+        IRequestQueue queue = null;
+        IRequest r = null;
+        Hashtable params = null;
+
+        CMS.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery()");
+        queue = getRequestQueue();
+        r = queue.findRequest(new RequestId(reqID));
+
+        auditAgents = 
+            r.getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
+
+        // set transient parameters
+        params = createVolatileRequest(r.getRequestId());
+        params.put(RecoveryService.ATTR_TRANSPORT_PWD, password);
+
+        // ensure that any low-level exceptions are reported
+        // to the signed audit log and stored as failures
+        try {
+            CMS.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery(), request state ="+ r.getRequestStatus().toString());
+            // can only process requests in begin state
+            r.setRequestStatus(RequestStatus.BEGIN);
+            queue.processRequest(r);
+
+            if (r.getExtDataInString(IRequest.ERROR) == null) {
+                byte pkcs12[] = (byte[]) params.get(
+                        RecoveryService.ATTR_PKCS12);
+
+                // store a message in the signed audit log file
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_ASYNC,
+                            auditSubjectID,
+                            ILogger.SUCCESS,
+                            auditRecoveryID,
+                            auditAgents);
+
+                audit(auditMessage);
+
+                destroyVolatileRequest(r.getRequestId());
+
+                return pkcs12;
+            } else {
+                // store a message in the signed audit log file
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_ASYNC,
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            auditRecoveryID,
+                            auditAgents);
+
+                audit(auditMessage);
+
+                throw new EBaseException(r.getExtDataInString(IRequest.ERROR));
+            }
+        } catch (EBaseException eAudit1) {
+            // store a message in the signed audit log file
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_ASYNC,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        auditAgents);
+
+            audit(auditMessage);
             throw eAudit1;
         }
     }

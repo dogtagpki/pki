@@ -85,6 +85,9 @@ public class RecoveryService implements IService {
     public static final String ATTR_USER_CERT = "cert"; 
     public static final String ATTR_DELIVERY = "delivery";
 
+    // for Async Key Recovery
+    public static final String ATTR_APPROVE_AGENTS = "approvingAgents";
+
     private IKeyRecoveryAuthority mKRA = null;
     private IKeyRepository mStorage = null;
     private IStorageKeyUnit mStorageUnit = null;
