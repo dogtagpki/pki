@@ -306,7 +306,13 @@ if [ "\${OS}" != "Linux" ]; then
     exit 255
 fi
 
-ant -f config/release.xml -Dproduct.ui.flavor.prefix=\${PKI_PRODUCT_UI_FLAVOR_PREFIX} -Dproduct.prefix=\${PKI_PRODUCT_PREFIX} -Dproduct=\${PKI_PRODUCT} -Dversion=\${PKI_VERSION} -Dbasedir=. -Dspecfile=\${SPECFILE} -Dtarget=\${BUILD_TARGET} \${RELEASE_TARGET}
+if [ -f /etc/fedora-release ]; then
+	# Script is being executed on Fedora
+	ant -f config/release.xml -Drhel=0 -Dproduct.ui.flavor.prefix=\${PKI_PRODUCT_UI_FLAVOR_PREFIX} -Dproduct.prefix=\${PKI_PRODUCT_PREFIX} -Dproduct=\${PKI_PRODUCT} -Dversion=\${PKI_VERSION} -Dbasedir=. -Dspecfile=\${SPECFILE} -Dtarget=\${BUILD_TARGET} \${RELEASE_TARGET}
+elif [ -f /etc/redhat-release ]; then
+	# Script is being executed on RHEL
+	ant -f config/release.xml -Drhel=1 -Dproduct.ui.flavor.prefix=\${PKI_PRODUCT_UI_FLAVOR_PREFIX} -Dproduct.prefix=\${PKI_PRODUCT_PREFIX} -Dproduct=\${PKI_PRODUCT} -Dversion=\${PKI_VERSION} -Dbasedir=. -Dspecfile=\${SPECFILE} -Dtarget=\${BUILD_TARGET} \${RELEASE_TARGET}
+fi
 
 END_OF_SCRIPT
 chmod 00755 ${PKI_RELEASE_ROOT}/${PKI_RELEASE_SCRIPT}

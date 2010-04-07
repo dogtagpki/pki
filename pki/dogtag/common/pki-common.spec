@@ -1,6 +1,6 @@
 Name:           pki-common
 Version:        1.3.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -37,6 +37,11 @@ Requires:       %{_javadir}/xerces-j2.jar
 Requires:       velocity
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+
+%if 0%{?rhel}
+# For EPEL, override the '_sharedstatedir' macro on RHEL
+%define         _sharedstatedir    /var/lib
+%endif
 
 %description
 Dogtag Certificate System is an enterprise software system designed
@@ -108,6 +113,10 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Tue Apr 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.4-2
+- Bugzilla Bug #568787 - pki-ca fails to create SSL connectors
+- Bugzilla Bug #573038 - Unable to login on Dogtag EPEL installation
+
 * Mon Mar 22 2010 Christina Fu <cfu@redhat.com> 1.3.4-1
 - Bugzilla Bug #522343 Add asynchronous key recovery mode
 

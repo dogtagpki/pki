@@ -1,6 +1,6 @@
 Name:           pki-util
 Version:        1.3.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Dogtag Certificate System - PKI Utility Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -24,6 +24,11 @@ Requires:       jss >= 4.2.6
 Requires:       ldapjdk
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+
+%if 0%{?rhel}
+# For EPEL, override the '_sharedstatedir' macro on RHEL
+%define         _sharedstatedir    /var/lib
+%endif
 
 %description
 Dogtag Certificate System is an enterprise software system designed
@@ -88,6 +93,10 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Tue Apr 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
+- Bugzilla Bug #568787 - pki-ca fails to create SSL connectors
+- Bugzilla Bug #573038 - Unable to login on Dogtag EPEL installation
+
 * Mon Jan 25 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
 - Created "_sharedstatedir/tomcat5/common/lib/cmsutil.jar" link
 - Created "_sharedstatedir/tomcat5/common/lib/nsutil.jar" link
