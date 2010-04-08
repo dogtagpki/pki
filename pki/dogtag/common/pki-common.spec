@@ -1,6 +1,6 @@
 Name:           pki-common
-Version:        1.3.4
-Release:        2%{?dist}
+Version:        1.3.5
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -113,6 +113,9 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Thu Apr 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.5-1
+- Update source tarball
+
 * Tue Apr 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.4-2
 - Bugzilla Bug #568787 - pki-ca fails to create SSL connectors
 - Bugzilla Bug #573038 - Unable to login on Dogtag EPEL installation

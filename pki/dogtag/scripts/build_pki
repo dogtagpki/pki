@@ -102,6 +102,8 @@ PKI_JAVA_TOOLS_JAVADOC=pki-java-tools-javadoc${RPM_EXT}
 PKI_COMMON_UI=${PKI_FLAVOR}-pki-common-ui${RPM_EXT}
 PKI_COMMON=pki-common${RPM_EXT}
 PKI_COMMON_JAVADOC=pki-common-javadoc${RPM_EXT}
+PKI_CONSOLE_UI=${PKI_FLAVOR}-pki-console-ui${RPM_EXT}
+PKI_CONSOLE=pki-console${RPM_EXT}
 PKI_SELINUX=pki-selinux${RPM_EXT}
 PKI_SILENT=pki-silent${RPM_EXT}
 
@@ -121,8 +123,6 @@ PKI_TPS=pki-tps${RPM_EXT}
 
 # Establish optional PKI package names
 PKI_MANAGE=pki-manage${RPM_EXT}
-PKI_CONSOLE_UI=${PKI_FLAVOR}-pki-console-ui${RPM_EXT}
-PKI_CONSOLE=pki-console${RPM_EXT}
 PKI_MIGRATE=pki-migrate${RPM_EXT}
 
 # Always start with a new release root directory
@@ -163,6 +163,14 @@ ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_UI_DIR}/common-ui/${RPM_
 ${PKI_BUILD_SCRIPT_DIR}/common/${PKI_BUILD_SCRIPT}
 ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/common/${RPM_DIR}/${PKI_COMMON}
 ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/common/${RPM_DIR}/${PKI_COMMON_JAVADOC}
+
+# Build and install 'pki-console-ui' packages
+${PKI_BUILD_SCRIPT_DIR}/console-ui/${PKI_BUILD_SCRIPT}
+${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_UI_DIR}/console-ui/${RPM_DIR}/${PKI_CONSOLE_UI}
+
+# Build and install 'pki-console' packages
+${PKI_BUILD_SCRIPT_DIR}/console/${PKI_BUILD_SCRIPT}
+${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/console/${RPM_DIR}/${PKI_CONSOLE}
 
 # Build and install 'pki-selinux' packages
 ${PKI_BUILD_SCRIPT_DIR}/selinux/${PKI_BUILD_SCRIPT}
@@ -223,14 +231,6 @@ ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/tps/${RPM_DIR}/${PK
 # Build and install 'pki-manage' packages
 ${PKI_BUILD_SCRIPT_DIR}/manage/${PKI_BUILD_SCRIPT}
 ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/manage/${RPM_DIR}/${PKI_MANAGE}
-
-# Build and install 'pki-console-ui' packages
-${PKI_BUILD_SCRIPT_DIR}/console-ui/${PKI_BUILD_SCRIPT}
-${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_UI_DIR}/console-ui/${RPM_DIR}/${PKI_CONSOLE_UI}
-
-# Build and install 'pki-console' packages
-${PKI_BUILD_SCRIPT_DIR}/console/${PKI_BUILD_SCRIPT}
-${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/console/${RPM_DIR}/${PKI_CONSOLE}
 
 # Build and install 'pki-migrate' packages
 ${PKI_BUILD_SCRIPT_DIR}/migrate/${PKI_BUILD_SCRIPT}
