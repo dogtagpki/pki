@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          1.3.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -31,6 +31,19 @@ Requires:         esc
 Requires:         pki-common-javadoc
 Requires:         pki-java-tools-javadoc
 Requires:         pki-util-javadoc
+
+# NOTE:  The 'Dogtag Certificate System' and 'Red Hat Certificate System'
+#        may NOT co-exist on the same system!
+#
+#        For example, with the advent of EPEL packages, a user may attempt to
+#        install a Dogtag Certificate System on a system which already contains
+#        a Red Hat Certificate System.  Since the 'dogtag-pki' Meta package
+#        conflicts with the 'redhat-pki' Meta package because it uses an
+#        underlying Dogtag UI rather than an underlying Red Hat UI, disallow
+#        this action by notifying the user that these two packages conflict.
+#        (see Bugzilla Bug #580274 and Bugzilla Bug #580282 for details)
+#
+Conflicts:        redhat-pki
 
 %description
 The Dogtag Public Key Infrastructure (PKI) Suite is comprised of the following
@@ -81,6 +94,10 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 
 %changelog
+* Wed Apr 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
+- Bugzilla Bug #580274 - Dogtag PKI Meta Package should "Conflict" with
+  Red Hat PKI Meta Package . . .
+
 * Thu Feb 11 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
 - Initial build.
 
