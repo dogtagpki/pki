@@ -1,6 +1,6 @@
 Name:           dogtag-pki-kra-ui
 Version:        1.3.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Data Recovery Authority User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -17,6 +17,18 @@ Provides:       pki-kra-ui = %{version}-%{release}
 Obsoletes:      pki-kra-ui < %{version}-%{release}
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+
+# NOTE:  The 'Dogtag Certificate System' and 'Red Hat Certificate System'
+#        may NOT co-exist on the same system!
+#
+#        For example, with the advent of EPEL packages, a user may attempt to
+#        install a Dogtag Certificate System on a system which already contains
+#        a Red Hat Certificate System.  Since the 'dogtag-pki-kra-ui' UI
+#        package conflicts with the 'redhat-pki-kra-ui' UI package,
+#        disallow this action by notifying the user that these two packages
+#        conflict.  (see Bugzilla Bug #580282 for details)
+#
+Conflicts:        redhat-pki-kra-ui
 
 %description
 Dogtag Certificate System is an enterprise software system designed
@@ -50,6 +62,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Wed Apr 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-2
+- Bugzilla Bug #580282 - Dogtag PKI UI Packages should "Conflict" with
+  associated Red Hat PKI UI Packages . . .
+
 * Mon Mar 22 2010 Christina Fu <cfu@redhat.com> 1.3.1-1
 - Bugzilla Bug #522343 Add asynchronous key recovery mode
 
