@@ -134,15 +134,17 @@ sub display
     $::symbol{sdomainAdminURL} = "https://" . $hostname . ":"
                                . $default_https_admin_port;
 
+    my $initDaemon = "pki-cad";
     my $initCommand = "";
     my $instanceID ="&lt;security_domain_instance_name&gt; ";
     if( $^O eq "linux" ) {
-        $initCommand = "/sbin/service $instanceID";
+        $initCommand = "/sbin/service $initDaemon";
     } else {
         ## default case:  e. g. - ( $^O eq "solaris" )
-        $initCommand  = "/etc/init.d/$instanceID";
+        $initCommand  = "/etc/init.d/$initDaemon";
     }
     $::symbol{initCommand} = $initCommand;
+    $::symbol{instanceID} = $instanceID;
     return 1;
 }
 

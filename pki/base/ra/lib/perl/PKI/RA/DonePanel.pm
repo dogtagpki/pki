@@ -366,12 +366,13 @@ sub display
     my $non_clientauth_securePort = $::config->get("service.non_clientauth_securePort");
     my $instanceID = $::config->get("service.instanceID");
 
+    my $initDaemon = "pki-rad";
     my $initCommand = "";
     if( $^O eq "linux" ) {
-        $initCommand = "/sbin/service $instanceID";
+        $initCommand = "/sbin/service $initDaemon";
     } else {
         ## default case:  e. g. - ( $^O eq "solaris" )
-        $initCommand  = "/etc/init.d/$instanceID";
+        $initCommand  = "/etc/init.d/$initDaemon";
     }
 
     $::symbol{host}  = $machineName;
@@ -379,6 +380,7 @@ sub display
     $::symbol{port}  = $securePort;
     $::symbol{non_clientauth_port}  = $non_clientauth_securePort;
     $::symbol{initCommand}  = $initCommand;
+    $::symbol{instanceID}  = $instanceID;
 
     $::config->deleteSubstore("preop.");
     $::config->commit();

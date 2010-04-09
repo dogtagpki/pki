@@ -210,13 +210,16 @@ public class SecurityDomainPanel extends WizardPanelBase {
         }
 
         // Information for "existing" Security Domain CAs
+        String initDaemon = "pki-cad";
         String instanceId = "&lt;security_domain_instance_name&gt;";
         String os = System.getProperty( "os.name" );
         if( os.equalsIgnoreCase( "Linux" ) ) {
-            context.put( "initCommand", "/sbin/service " + instanceId );
+            context.put( "initCommand", "/sbin/service " + initDaemon );
+            context.put( "instanceId", instanceId );
         } else {
             /* default case:  e. g. - ( os.equalsIgnoreCase( "SunOS" ) */
-            context.put( "initCommand", "/etc/init.d/" + instanceId );
+            context.put( "initCommand", "/etc/init.d/" + initDaemon );
+            context.put( "instanceId", instanceId );
         }
     }
 
@@ -472,13 +475,16 @@ public class SecurityDomainPanel extends WizardPanelBase {
         } catch (EBaseException e) {}
 
         // Information for "existing" Security Domain CAs
+        String initDaemon = "pki-cad";
         String instanceId = "&lt;security_domain_instance_name&gt;";
         String os = System.getProperty( "os.name" );
         if( os.equalsIgnoreCase( "Linux" ) ) {
-            context.put( "initCommand", "/sbin/service " + instanceId );
+            context.put( "initCommand", "/sbin/service " + initDaemon );
+            context.put( "instanceId", instanceId );
         } else {
             /* default case:  e. g. - ( os.equalsIgnoreCase( "SunOS" ) */
-            context.put( "initCommand", "/etc/init.d/" + instanceId );
+            context.put( "initCommand", "/etc/init.d/" + initDaemon );
+            context.put( "instanceId", instanceId );
         }
 
         context.put("title", "Security Domain");
