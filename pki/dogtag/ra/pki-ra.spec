@@ -1,6 +1,6 @@
 Name:           pki-ra
-Version:        1.3.0
-Release:        6%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -106,6 +106,10 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Thu Apr 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
+  needs correction
+
 * Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
 - Bugzilla Bug #566060 -  Add 'pki-native-tools' as a runtime dependency
   for RA, and TPS . . .

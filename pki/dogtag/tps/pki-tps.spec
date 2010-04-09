@@ -1,6 +1,6 @@
 Name:           pki-tps
-Version:        1.3.0
-Release:        8%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System
 URL:            http://pki.fedoraproject.org/
 License:        LGPLv2
@@ -209,6 +209,10 @@ fi
 %{_libdir}/libtps.so
 
 %changelog
+* Thu Apr 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
+  needs correction
+
 * Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-8
 - Bugzilla Bug #566060 -  Add 'pki-native-tools' as a runtime dependency
   for RA, and TPS . . .

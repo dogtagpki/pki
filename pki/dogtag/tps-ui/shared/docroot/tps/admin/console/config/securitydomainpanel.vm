@@ -108,7 +108,7 @@ Enter the URL to an existing security domain.
 <table>
 <tr>
 <td valign="top"><b>NOTE:&nbsp;&nbsp; </b></td>
-<td>Since a Security Domain MUST be a CA (although all CAs are NOT necessarily Security Domains), an appropriate value for this URL may be obtained by logging into the machine which hosts the desired Security Domain CA as 'root' and running the command "$initCommand status" from the command-line.</td>
+<td>Since a Security Domain MUST be a CA (although all CAs are NOT necessarily Security Domains), an appropriate value for this URL may be obtained by logging into the machine which hosts the desired Security Domain CA as 'root' and running the command "$initCommand status $instanceID" from the command-line.</td>
 </tr>
 </table>
 <br/>

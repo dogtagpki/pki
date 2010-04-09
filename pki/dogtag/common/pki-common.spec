@@ -114,6 +114,8 @@ rm -rf %{buildroot}
 
 %changelog
 * Thu Apr 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.5-1
+- Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
+  needs correction
 - Update source tarball
 
 * Tue Apr 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.4-2

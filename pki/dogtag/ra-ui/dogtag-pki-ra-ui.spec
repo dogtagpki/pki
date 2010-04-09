@@ -1,6 +1,6 @@
 Name:           dogtag-pki-ra-ui
-Version:        1.3.0
-Release:        6%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -62,6 +62,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Thu Apr 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
+  needs correction
+
 * Wed Apr 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
 - Bugzilla Bug #580282 - Dogtag PKI UI Packages should "Conflict" with
   associated Red Hat PKI UI Packages . . .
