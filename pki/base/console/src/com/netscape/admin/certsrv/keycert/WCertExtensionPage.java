@@ -82,18 +82,28 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
                 mSKICheckBox.setSelected(true);
                 mCertPathBox.setSelected(false);
                 mExtendedKeyCheckBox.setSelected(false);
+                mExtendedKeyCheckBox.setEnabled(true);
                 mKeyUsageBox.setSelected(true);
+                mOCSPNoCheck.setSelected(false);
+                mOCSPNoCheck.setEnabled(true);
+                mAIACheckBox.setSelected(true);
             } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
                 title = mResource.getString(
                   "CERTEXTENSION1WIZARD_BORDER_OCSPSIGNING_LABEL");
-                mKeyUsageBox.setSelected(false);
-                mKeyUsageBox.setEnabled(false);
-                mSKICheckBox.setSelected(true);
+                mKeyUsageBox.setSelected(true);
+                mSKICheckBox.setSelected(false);
+                mSKICheckBox.setEnabled(true);
                 mBasicCheckBox.setEnabled(false);
-                mAKICheckBox.setEnabled(false);
+                mAKICheckBox.setSelected(true);
+                mAKICheckBox.setEnabled(true);
+                mCACheckBox.setSelected(false);
                 mCACheckBox.setEnabled(false);
                 mCertPathBox.setEnabled(false);
-                mExtendedKeyCheckBox.setEnabled(false);
+                mExtendedKeyCheckBox.setSelected(true);
+                mOCSPSigning.setSelected(true);
+                mOCSPNoCheck.setSelected(false);
+                mOCSPNoCheck.setEnabled(true);
+                mAIACheckBox.setSelected(true);
             } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
                 title = mResource.getString(
                   "CERTEXTENSION1WIZARD_BORDER_RASIGNING_LABEL");
@@ -108,8 +118,13 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
                 title = mResource.getString(
                   "CERTEXTENSION1WIZARD_BORDER_SERVER_LABEL");
                 mExtendedKeyCheckBox.setSelected(true);
-                mAKICheckBox.setSelected(true);
                 mSSLServer.setSelected(true);
+                mAKICheckBox.setSelected(true);
+                mSKICheckBox.setSelected(false);
+                mSKICheckBox.setEnabled(true);
+                mOCSPNoCheck.setSelected(false);
+                mOCSPNoCheck.setEnabled(true);
+                mAIACheckBox.setSelected(true);
             } else if (certType.equals(Constants.PR_SERVER_CERT_RADM)) {
                 title = mResource.getString(
                   "CERTEXTENSION1WIZARD_BORDER_SERVER_LABEL");
@@ -159,11 +174,17 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
         if (mExtendedKeyCheckBox.isSelected())
             addExtendedKey(nvps);
 
+        if (mAIACheckBox.isSelected())
+            nvps.add(Constants.PR_AIA, Constants.TRUE);
+
         if (mAKICheckBox.isSelected())
             nvps.add(Constants.PR_AKI, Constants.TRUE);
 
         if (mSKICheckBox.isSelected())
             nvps.add(Constants.PR_SKI, Constants.TRUE);
+
+        if (mOCSPNoCheck.isSelected())
+            nvps.add(Constants.PR_OCSP_NOCHECK, Constants.TRUE);
 
         if (mKeyUsageBox.isSelected())
             nvps.add(Constants.PR_KEY_USAGE, Constants.TRUE);
@@ -215,6 +236,8 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
             nvps.add(Constants.PR_OBJECT_SIGNING_BIT, Constants.TRUE);
         if (mTimeStamping.isSelected())
             nvps.add(Constants.PR_TIMESTAMPING_BIT, Constants.TRUE);
+        if (mOCSPSigning.isSelected())
+            nvps.add(Constants.PR_OCSP_SIGNING, Constants.TRUE);
     }
 
     public void callHelp() {
