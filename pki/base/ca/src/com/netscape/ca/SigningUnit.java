@@ -150,7 +150,7 @@ public final class SigningUnit implements ISigningUnit {
             mToken.login(cb); // ONE_TIME by default.
 
             mCert = mManager.findCertByNickname(mNickname);
-            CMS.debug("Found cert by nickname");
+            CMS.debug("Found cert by nickname: '"+mNickname+"' with serial number: "+mCert.getSerialNumber());
 
             mCertImpl = new X509CertImpl(mCert.getEncoded());
             CMS.debug("converted to x509CertImpl");
