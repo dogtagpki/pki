@@ -1,5 +1,5 @@
 Name:           pki-common
-Version:        1.3.5
+Version:        1.3.6
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
@@ -113,6 +113,9 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Wed Apr 21 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.6-1
+- Bugzilla Bug #493765 - console renewal fix for ca, ocsp, and ssl certificates
+
 * Thu Apr 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.5-1
 - Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
   needs correction
