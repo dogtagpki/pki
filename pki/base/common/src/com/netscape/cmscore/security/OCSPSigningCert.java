@@ -55,6 +55,7 @@ public class OCSPSigningCert extends CertificateInfo {
 
     public OCSPSigningCert(KeyCertData properties, KeyPair pair) {
         super(properties, pair);
+        /* included in console UI
         try {
             if (mProperties.get(Constants.PR_OCSP_SIGNING) == null) {
                 mProperties.put(Constants.PR_OCSP_SIGNING, Constants.TRUE);
@@ -66,6 +67,7 @@ public class OCSPSigningCert extends CertificateInfo {
             mProperties.put(Constants.PR_OCSP_SIGNING, Constants.TRUE);
             mProperties.put(Constants.PR_OCSP_NOCHECK, Constants.TRUE);
         }
+        */
     }
 
     public String getSubjectName() {
@@ -136,7 +138,7 @@ public class OCSPSigningCert extends CertificateInfo {
         KeyUsageExtension extension = new KeyUsageExtension();
 
         extension.set(KeyUsageExtension.DIGITAL_SIGNATURE, new Boolean(true));
-        //extension.set(KeyUsageExtension.NON_REPUDIATION, new Boolean(true));
+        extension.set(KeyUsageExtension.NON_REPUDIATION, new Boolean(true));
         extension.set(KeyUsageExtension.KEY_CERTSIGN, new Boolean(true));
         extension.set(KeyUsageExtension.CRL_SIGN, new Boolean(true));
         return extension;
