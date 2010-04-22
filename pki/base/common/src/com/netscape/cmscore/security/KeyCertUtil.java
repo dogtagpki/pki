@@ -833,6 +833,13 @@ public class KeyCertUtil {
             anyExt = true;
         }
 
+        String ocspSigning = properties.getOCSPSigning();
+
+        if ((ocspSigning != null) && (ocspSigning.equals(Constants.TRUE))) {
+            ns.addOID(new ObjectIdentifier("1.3.6.1.5.5.7.3.9"));
+            anyExt = true;
+        }
+
         if (anyExt)
             ext.set(ExtendedKeyUsageExtension.NAME, ns);
     }
@@ -922,6 +929,25 @@ public class KeyCertUtil {
             ExtendedKeyUsageExtension ocspExt = 
                 new ExtendedKeyUsageExtension(false, oidSet);
             ext.set(ExtendedKeyUsageExtension.NAME, ocspExt);
+        }
+    }
+
+    public static void setAuthInfoAccess(KeyPair keypair, 
+        CertificateExtensions ext, KeyCertData properties) throws IOException,
+            NoSuchAlgorithmException, InvalidKeyException {
+        String aia = properties.getAIA();
+
+        if ((aia != null) && (aia.equals(Constants.TRUE))) {
+            String hostname = CMS.getEENonSSLHost();
+            String port = CMS.getEENonSSLPort();
+            AuthInfoAccessExtension aiaExt = new AuthInfoAccessExtension(false);
+            if (hostname != null && port != null) {
+                String location = "http://"+hostname+":"+port+"/ca/ocsp";
+                GeneralName ocspName = new GeneralName(new URIName(location));
+                aiaExt.addAccessDescription(AuthInfoAccessExtension.METHOD_OCSP, ocspName);
+            }
+
+            ext.set(AuthInfoAccessExtension.NAME, aiaExt);
         }
     }
 
