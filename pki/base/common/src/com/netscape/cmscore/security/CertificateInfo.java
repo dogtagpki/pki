@@ -199,7 +199,8 @@ public abstract class CertificateInfo {
         KeyCertUtil.setDERExtension(exts, mProperties);
         KeyCertUtil.setBasicConstraintsExtension(exts, mProperties);
         KeyCertUtil.setSubjectKeyIdentifier(mKeyPair, exts, mProperties);
-        KeyCertUtil.setOCSPSigning(mKeyPair, exts, mProperties);
+        //KeyCertUtil.setOCSPSigning(mKeyPair, exts, mProperties);
+        KeyCertUtil.setAuthInfoAccess(mKeyPair, exts, mProperties);
         KeyCertUtil.setOCSPNoCheck(mKeyPair, exts, mProperties);
         KeyPair caKeyPair = (KeyPair) mProperties.get(Constants.PR_CA_KEYPAIR);
         String aki = mProperties.getAKI();
