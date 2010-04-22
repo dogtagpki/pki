@@ -681,6 +681,24 @@ public class KeyCertData extends Properties {
     }
 
     /**
+     * Retrieves Authority Information Access flag
+     *
+     * @return Authority Information Access flag
+     */
+    public String getAIA() {
+        return (String) get(Constants.PR_AIA);
+    }
+
+    /**
+     * Sets Authority Information Access flag
+     *
+     * @param aki Authority Information Access flag
+     */
+    public void setAIA(String aia) {
+        put(Constants.PR_AIA, aia);
+    }
+
+    /**
      * Retrieves Authority Key Identifier flag
      *
      * @return Authority Key Identifier flag
