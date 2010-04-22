@@ -128,8 +128,9 @@ public class SSLCert extends CertificateInfo {
         KeyUsageExtension extension = new KeyUsageExtension();
 
         extension.set(KeyUsageExtension.DIGITAL_SIGNATURE, new Boolean(true));
-        //extension.set(KeyUsageExtension.NON_REPUDIATION, new Boolean(true));
+        extension.set(KeyUsageExtension.NON_REPUDIATION, new Boolean(true));
         extension.set(KeyUsageExtension.KEY_ENCIPHERMENT, new Boolean(true));
+        extension.set(KeyUsageExtension.DATA_ENCIPHERMENT, new Boolean(true));
         return extension;
     }
 }
