@@ -1,5 +1,5 @@
 Name:           pki-ocsp
-Version:        1.3.1
+Version:        1.3.2
 Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Online Certificate Status Protocol Manager
 URL:            http://pki.fedoraproject.org/
@@ -121,6 +121,9 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Wed Apr 21 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.2-1
+- Bugzilla Bug #493765 - console renewal fix for ca, ocsp, and ssl certificates
+
 * Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-2
 - Bugzilla Bug #566059 -  Add 'pki-console' as a runtime dependency
   for CA, KRA, OCSP, and TKS . . .
