@@ -56,6 +56,7 @@ public class CASigningCert extends CertificateInfo {
 
     public CASigningCert(KeyCertData properties, KeyPair pair) {
         super(properties, pair);
+        /* included in console UI
         try {
             if (mProperties.get(Constants.PR_AKI) == null) {
                 mProperties.put(Constants.PR_AKI, Constants.FALSE);
@@ -63,6 +64,7 @@ public class CASigningCert extends CertificateInfo {
         } catch (Exception e) {
             mProperties.put(Constants.PR_AKI, Constants.FALSE);
         }
+        */
         try {
             if (mProperties.get(Constants.PR_CERT_LEN) == null) {
                 mProperties.put(Constants.PR_CERT_LEN, "-1");
@@ -79,6 +81,7 @@ public class CASigningCert extends CertificateInfo {
             // "null" mean no BasicConstriant
             mProperties.put(Constants.PR_IS_CA, "null");
         }
+        /* included in console UI
         try {
             if (mProperties.get(Constants.PR_SKI) == null) {
                 mProperties.put(Constants.PR_SKI, Constants.FALSE);
@@ -86,6 +89,7 @@ public class CASigningCert extends CertificateInfo {
         } catch (Exception e) {
             mProperties.put(Constants.PR_SKI, Constants.FALSE);
         }
+        */
     }
 
     public String getSubjectName() {
@@ -156,7 +160,7 @@ public class CASigningCert extends CertificateInfo {
         KeyUsageExtension extension = new KeyUsageExtension();
 
         extension.set(KeyUsageExtension.DIGITAL_SIGNATURE, new Boolean(true));
-        //extension.set(KeyUsageExtension.NON_REPUDIATION, new Boolean(true));
+        extension.set(KeyUsageExtension.NON_REPUDIATION, new Boolean(true));
         extension.set(KeyUsageExtension.KEY_CERTSIGN, new Boolean(true));
         extension.set(KeyUsageExtension.CRL_SIGN, new Boolean(true));
         return extension;
