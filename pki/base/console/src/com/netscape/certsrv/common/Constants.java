@@ -411,6 +411,7 @@ public interface Constants {
     public final static String PR_SERVER_CERT_CHAIN = "serverCertChain";
     public final static String PR_TRUSTED_CA_CERT = "trustedCACert";
     public final static String PR_TRUSTED_CERT = "trustedCert";
+    public final static String PR_AUDIT_SIGNING_CERT = "auditSigningCert";
 
     /*
      * Extensions
@@ -428,6 +429,7 @@ public interface Constants {
     public final static String PR_AFTER_HOUR = "afterHour";
     public final static String PR_AFTER_MIN = "afterMin";
     public final static String PR_AFTER_SEC = "afterSec";
+    public final static String PR_AIA = "aia";
     public final static String PR_AKI = "aki";
     public final static String PR_OCSP_SIGNING = "ocspSigning";
     public final static String PR_OCSP_NOCHECK = "ocspNoCheck";
