@@ -44,6 +44,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
     protected byte[] mDerByte;
     protected Color mActiveColor;
     protected JCheckBox mSSLClient, mSSLServer, mSSLMail, mObjectSigning, mTimeStamping;
+    protected JCheckBox mOCSPSigning, mOCSPNoCheck, mAIACheckBox;
     protected static final String DEFAULT_CERT_LEN = "100";
     protected String mPanelName;
     protected boolean mModified=false;
@@ -163,12 +164,14 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
         mSSLMail.setEnabled(enable);
         mObjectSigning.setEnabled(enable);
         mTimeStamping.setEnabled(enable);
+        mOCSPSigning.setEnabled(enable);
 
         CMSAdminUtil.repaintComp(mSSLClient);
         CMSAdminUtil.repaintComp(mSSLServer);
         CMSAdminUtil.repaintComp(mSSLMail);
         CMSAdminUtil.repaintComp(mObjectSigning);
         CMSAdminUtil.repaintComp(mTimeStamping);
+        CMSAdminUtil.repaintComp(mOCSPSigning);
     }
 
     protected void enableMIMEExt(boolean enable, Color color) {
@@ -241,7 +244,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
         gbc.fill = gbc.NONE;
         gbc.insets = new Insets(0,4*COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE);
         add(panel, gbc);
-        
+
 /*
         JTextArea dummy = createTextArea(" ", 1, 5);
         CMSAdminUtil.resetGBC(gbc);
@@ -265,7 +268,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
         mSSLClient = makeJCheckBox("SSLCLIENT");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
-        gbc.weightx = 2.0;
+        gbc.weightx = 1.0;
         gbc.fill = gbc.NONE;
         gbc.insets = new Insets(0,4*COMPONENT_SPACE, 0, COMPONENT_SPACE);
         add(mSSLClient, gbc);
@@ -291,19 +294,36 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.fill = gbc.NONE;
-        gbc.weightx = 2.0;
+        gbc.weightx = 1.0;
         gbc.insets = new Insets(0,4*COMPONENT_SPACE, 0, COMPONENT_SPACE);
         add(mObjectSigning, gbc);
 
         mTimeStamping = makeJCheckBox("TIMESTAMPING");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.gridwidth = gbc.REMAINDER;
         gbc.anchor = gbc.NORTHWEST;
         gbc.fill = gbc.NONE;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mTimeStamping, gbc);
+
+        mOCSPSigning = makeJCheckBox("OCSPSIGNING");
+        CMSAdminUtil.resetGBC(gbc);
+        gbc.anchor = gbc.NORTHWEST;
+        gbc.insets = new Insets(0,COMPONENT_SPACE, 0, COMPONENT_SPACE);
+        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = gbc.NONE;
+        gbc.weightx = 1.0;
+        add(mOCSPSigning, gbc);
+     
+        mAIACheckBox = makeJCheckBox("AIA");
+        CMSAdminUtil.resetGBC(gbc);
+        gbc.anchor = gbc.NORTHWEST;
+        gbc.fill = gbc.NONE;
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
+          COMPONENT_SPACE,COMPONENT_SPACE);
+        gbc.gridwidth = gbc.REMAINDER;
+        add(mAIACheckBox, gbc);
 
         mAKICheckBox = makeJCheckBox("AKI");
         CMSAdminUtil.resetGBC(gbc);
@@ -322,6 +342,15 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mSKICheckBox, gbc);
+
+        mOCSPNoCheck = makeJCheckBox("OCSPNOCHECK");
+        CMSAdminUtil.resetGBC(gbc);
+        gbc.anchor = gbc.NORTHWEST;
+        gbc.fill = gbc.NONE;
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
+          COMPONENT_SPACE,COMPONENT_SPACE);
+        gbc.gridwidth = gbc.REMAINDER;
+        add(mOCSPNoCheck, gbc);
 
         mCMCLabel = new JLabel(mResource.getString(
             mPanelName + "_TEXT_CMC_LABEL"));
