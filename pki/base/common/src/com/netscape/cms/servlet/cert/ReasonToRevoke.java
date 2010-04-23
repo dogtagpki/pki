@@ -226,9 +226,10 @@ public class ReasonToRevoke extends CMSServlet {
             if (mCA != null) {
                 X509CertImpl caCert = mCA.getSigningUnit().getCertImpl();
 
-                //if (isCertFromCA(caCert)) 
-                header.addStringValue("caSerialNumber",
-                    caCert.getSerialNumber().toString(16));
+                if (isCertFromCA(caCert)) {
+                    header.addStringValue("caSerialNumber",
+                        caCert.getSerialNumber().toString(16));
+                }
             }
 
             /**
