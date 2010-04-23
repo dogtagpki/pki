@@ -1,6 +1,6 @@
 Name:           pki-common
 Version:        1.3.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -113,6 +113,9 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Fri Apr 23 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.6-2
+- Bugzilla Bug #501088 - agent cannot revoke cert with serial same as sub ca
+
 * Wed Apr 21 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.6-1
 - Bugzilla Bug #493765 - console renewal fix for ca, ocsp, and ssl certificates
 
