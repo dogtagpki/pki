@@ -212,6 +212,12 @@ fi
 
 if [ ${OS} = "Linux" ] ; then
 	CLASSPATH="$CLASSPATH":"$CATALINA_HOME"/bin/bootstrap.jar:"$CATALINA_HOME"/bin/commons-logging-api.jar:`/usr/bin/build-classpath mx4j/mx4j-impl`:`/usr/bin/build-classpath mx4j/mx4j-jmx`
+
+        # add jars in required components for velocity >= 1.6 (just in case)
+        VELOCITY=`rpm -q velocity|sed 's/velocity-\([0-9]*\)\.\([0-9]*\).*/\1\2/'`
+        if [ "$VELOCITY" -ge 16 ]; then 
+            CLASSPATH="$CLASSPATH":`/usr/bin/build-classpath bcel hsqldb commons-collections commons-lang commons-logging commons-logging-api jdom junit oro servletapi5 werken.xpath`
+        fi
 elif [ ${OS} = "SunOS" ] ; then
 	# The following definitions are provided for Solaris
 	# platforms since they are unable to execute the
@@ -264,6 +270,19 @@ elif [ ${OS} = "SunOS" ] ; then
 	elif [ -f /usr/share/java/pki/tks/tks.jar ]; then
 		CLASSPATH="$CLASSPATH":/usr/share/java/pki/tks/tks.jar
 	fi
+
+        # add jars for velocity 1.6 (just in case) 
+        CLASSPATH="$CLASSPATH":/usr/share/java/bcel.jar
+        CLASSPATH="$CLASSPATH":/usr/share/java/hsqldb.jar
+        CLASSPATH="$CLASSPATH":/usr/share/java/commons-collections.jar
+        CLASSPATH="$CLASSPATH":/usr/share/java/commons-lang.jar
+        CLASSPATH="$CLASSPATH":/usr/share/java/commons-logging.jar
+        CLASSPATH="$CLASSPATH":/usr/share/java/commons-logging-api.jar
+        CLASSPATH="$CLASSPATH":/usr/share/java/jdom.jar
+        CLASSPATH="$CLASSPATH":/usr/share/java/junit.jar
+        CLASSPATH="$CLASSPATH":/usr/share/java/oro.jar
+        CLASSPATH="$CLASSPATH":/usr/share/java/servletapi5.jar
+        CLASSPATH="$CLASSPATH":/usr/share/java/werken.xpath.jar
 fi
 
 if [ -z "$CATALINA_BASE" ] ; then

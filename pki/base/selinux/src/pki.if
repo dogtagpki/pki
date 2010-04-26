@@ -38,6 +38,7 @@ template(`pki_ca_template',`
 		type pki_ca_tomcat_exec_t;
 		type $1_port_t;
                 type rpm_var_lib_t;
+                type rpm_exec_t;
 		type setfiles_t;
 	')
 	########################################
@@ -81,6 +82,9 @@ template(`pki_ca_template',`
 	allow $1_t self:process signull;
 
 	allow $1_t $1_port_t:tcp_socket {name_bind name_connect};
+
+        # use rpm to look at velocity version in dtomcat-foo
+        allow $1_t rpm_exec_t:file exec_file_perms;
 
 	corenet_all_recvfrom_unlabeled($1_t)
 	corenet_tcp_sendrecv_all_if($1_t)
