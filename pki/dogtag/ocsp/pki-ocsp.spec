@@ -121,6 +121,9 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Mon Apr 26 2010 Ade Lee <alee@redhat.com> 1.3.2-2
+- Bugzilla Bug 584917- Can not access CA Configuration Web UI after CA installation
+
 * Wed Apr 21 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.2-1
 - Bugzilla Bug #493765 - console renewal fix for ca, ocsp, and ssl certificates
 

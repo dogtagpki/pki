@@ -1,6 +1,6 @@
 Name:           pki-common
 Version:        1.3.6
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -113,6 +113,10 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Mon Apr 26 2010 Ade Lee <alee@redhat.com> 1.3.6-3
+- Bugzilla Bug 577949 - clone from a clone requires contacting original 
+  security domain master
+
 * Fri Apr 23 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.6-2
 - Bugzilla Bug #501088 - agent cannot revoke cert with serial same as sub ca
 

@@ -1,5 +1,5 @@
 Name:           pki-kra
-Version:        1.3.2
+Version:        1.3.3
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Data Recovery Manager
 URL:            http://pki.fedoraproject.org/
@@ -112,6 +112,9 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Mon Apr 26 2010 Ade Lee <alee@redhat.com> 1.3.3-1
+- Bugzilla Bug 584917- Can not access CA Configuration Web UI after CA installation
+
 * Mon Mar 22 2010 Christina Fu <cfu@redhat.com> 1.3.2-1
 - Bugzilla Bug #522343 Add asynchronous key recovery mode
 

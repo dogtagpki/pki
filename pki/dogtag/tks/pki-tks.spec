@@ -1,6 +1,6 @@
 Name:           pki-tks
-Version:        1.3.1
-Release:        2%{?dist}
+Version:        1.3.2
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Token Key Service
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -114,6 +114,9 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Mon Apr 26 2010 Ade Lee <alee@redhat.com> 1.3.2-1
+- Bugzilla Bug 584917- Can not access CA Configuration Web UI after CA installation
+
 * Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-2
 - Bugzilla Bug #566059 -  Add 'pki-console' as a runtime dependency
   for CA, KRA, OCSP, and TKS . . .
