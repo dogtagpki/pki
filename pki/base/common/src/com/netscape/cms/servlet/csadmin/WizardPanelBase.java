@@ -922,6 +922,48 @@ public class WizardPanelBase implements IWizardPanel {
         return c;
     }
 
+    public boolean isSDHostDomainMaster (IConfigStore config) {
+        String dm="false";
+        try {
+            String hostname = config.getString("securitydomain.host");
+            int httpsadminport = config.getInteger("securitydomain.httpsadminport");
+
+            CMS.debug("Getting domain.xml from CA...");
+            String c = getDomainXML(hostname, httpsadminport, true);
+
+            CMS.debug("Getting DomainMaster from security domain");
+
+            ByteArrayInputStream bis = new ByteArrayInputStream( c.getBytes() );
+            XMLObject parser = new XMLObject( bis );
+            Document doc = parser.getDocument();
+            NodeList nodeList = doc.getElementsByTagName( "CA" );
+
+            int len = nodeList.getLength();
+            for( int i = 0; i < len; i++ ) {
+                Vector v_hostname =
+                       parser.getValuesFromContainer( nodeList.item(i),
+                                                      "Host" );
+
+                Vector v_https_admin_port =
+                       parser.getValuesFromContainer( nodeList.item(i),
+                                                      "SecureAdminPort" );
+
+                Vector v_domain_mgr =
+                       parser.getValuesFromContainer( nodeList.item(i),
+                                                      "DomainManager" );
+
+                if( v_hostname.elementAt( 0 ).equals( hostname ) &&
+                    v_https_admin_port.elementAt( 0 ).equals( Integer.toString(httpsadminport) ) ) {
+                    dm = v_domain_mgr.elementAt( 0 ).toString();
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            CMS.debug( e.toString() );
+        }
+        return dm.equals("true");
+    }
+ 
     public Vector getMasterUrlListFromSecurityDomain( IConfigStore config,
                                                       String type,
                                                       String portType ) {

@@ -262,10 +262,6 @@ public class CMSEngine implements ICMSEngine {
         SessionTimer timertask = new SessionTimer(mSecurityDomainSessionTable);
         mSDTimer.schedule(timertask, 5, 5000);
 
-        if ((state == 1) && (sd.equals("existing"))) {
-            mSDTimer.cancel();
-        }
-
         // initialize the PasswordReader and PasswordWriter
         String pwdPath = config.getString("passwordFile");
         String pwdClass = config.getString("passwordClass");

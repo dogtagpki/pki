@@ -147,8 +147,8 @@ public class CreateSubsystemPanel extends WizardPanelBase {
         } catch (EBaseException e) {
         }
 
-        Vector v = getMasterUrlListFromSecurityDomain( config, cstype,
-                                                       "SecurePort" );
+        Vector v = getUrlListFromSecurityDomain(config, cstype, "SecurePort" );
+
         StringBuffer list = new StringBuffer();
         int size = v.size();
         for (int i = 0; i < size; i++) {
@@ -245,6 +245,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
                     if (counter == x) {
                         break;
                     }
+                    counter++;
                 }
             } catch (Exception e) {
             }

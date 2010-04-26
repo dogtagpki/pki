@@ -252,6 +252,13 @@ public class DonePanel extends WizardPanelBase {
         } catch (Exception e) {
         }
 
+        boolean cloneMaster = false;
+
+        if (select.equals("clone") && type.equalsIgnoreCase("CA") && isSDHostDomainMaster(cs)) {
+            cloneMaster = true;
+            CMS.debug("Cloning a domain master");
+        }
+
         String s = getSubsystemNodeName(type);
         if (sdtype.equals("new")) {
             try {
@@ -334,7 +341,6 @@ public class DonePanel extends WizardPanelBase {
                     CMS.debug("Unable to create host entry in security domain");
                     throw e;
                 }
-                cs.putString("securitydomain.store", "ldap");
                 CMS.debug("DonePanel display: finish updating domain info");
                 conn.disconnect();
             } catch (Exception e) {
@@ -378,6 +384,11 @@ public class DonePanel extends WizardPanelBase {
                 else
                     cloneStr = "&clone=false";
 
+                String domainMasterStr = "";
+                if (cloneMaster) 
+                    domainMasterStr = "&dm=true";
+                else 
+                    domainMasterStr = "&dm=false"; 
                 String eecaStr = "";
                 if (owneeclientauthsport != null) 
                     eecaStr="&eeclientauthsport=" + owneeclientauthsport;
@@ -389,7 +400,8 @@ public class DonePanel extends WizardPanelBase {
                                + "&host=" + ownhost
                                + "&name=" + subsystemName
                                + "&sport=" + ownsport
-                               + "&dm=false" + cloneStr
+                               + domainMasterStr 
+                               + cloneStr
                                + "&agentsport=" + ownagentsport
                                + "&adminsport=" + ownadminsport
                                + eecaStr 
@@ -408,6 +420,7 @@ public class DonePanel extends WizardPanelBase {
         // needs to remove system reference from the security domain
         try {
             cs.putString("service.securityDomainPort", ownagentsport);
+            cs.putString("securitydomain.store", "ldap");
             cs.commit(false);
         } catch (Exception e) {
             CMS.debug("DonePanel: exception in adding service.securityDomainPort to CS.cfg" + e);
@@ -522,6 +535,19 @@ public class DonePanel extends WizardPanelBase {
                 } catch (Exception e) {
                     CMS.debug("Unable to update global next range numbers: " + e);
                 } 
+            }
+        } 
+
+        if (cloneMaster) {
+            // cloning a domain master CA, the clone is also master of its domain
+            try {
+                cs.putString("securitydomain.host", ownhost);
+                cs.putString("securitydomain.httpport", ownport);
+                cs.putString("securitydomain.httpsadminport", ownadminsport);
+                cs.putString("securitydomain.httpsagentport", ownagentsport);
+                cs.putString("securitydomain.httpseeport", ownsport);
+            } catch (Exception e) {
+                CMS.debug("Caught exception trying to save security domain parameters for clone of a domain master");
             }
         }
 
