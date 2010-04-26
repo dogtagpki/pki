@@ -1,5 +1,5 @@
 Name:           pki-ca
-Version:        1.3.3
+Version:        1.3.4
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
@@ -103,6 +103,9 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Mon Apr 26 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.4-1
+- Bugzilla Bug #493765 - console renewal fix for ca, ocsp, and ssl certificates
+
 * Tue Mar 9 2010 Ade Lee <alee@redhat.com> 1.3.3-1
 - Bugzilla Bug #545935 -  Add new client-auth ee port to address CVE-2009-3555 
   TLS: MITM attacks via session renegotiation
