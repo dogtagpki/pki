@@ -155,6 +155,9 @@ public class DBSSession implements IDBSSession {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) 
                 throw new EDBNotAvailException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) 
+                throw new EDBRecordNotFoundException(
+                        CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
             throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
                         name + " " + e.toString()));
         }
