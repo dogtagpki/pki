@@ -152,6 +152,9 @@ public class DisplayBySerial extends CMSServlet {
                 CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mForm1Path, e.toString()));
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+        } catch (EDBRecordNotFoundException e) {
+            throw new ECMSGWException(
+                    CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", "0x" + serialNumber.toString(16)));
         }
 
         IArgBlock header = CMS.createArgBlock();
