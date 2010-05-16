@@ -615,15 +615,46 @@ public class CAService implements ICAService, IService {
                     Debug.trace("setting default validity");
                 }
 				
-                // set to CA's not after  if default validity 
-                // exceeds ca's not after.
                 begin = CMS.getCurrentDate();
                 end = new Date(begin.getTime() + mCA.getDefaultValidity());
                 certi.set(CertificateValidity.NAME, 
                     new CertificateValidity(begin, end));
             }
 
-            // check if validity exceeds CA time.
+            /*
+             * For non-CA certs, check if validity exceeds CA time.
+             * If so, set to CA's not after  if default validity 
+             * exceeds ca's not after.
+             */
+
+            // First find out if it is a CA cert
+            boolean is_ca = false;
+            CertificateExtensions exts = null;
+            BasicConstraintsExtension bc_ext = null;
+
+            try {
+                exts = (CertificateExtensions)
+                    certi.get(X509CertInfo.EXTENSIONS);
+                if (exts != null) {
+                    Enumeration e = exts.getElements();
+
+                    while (e.hasMoreElements()) {
+                        Extension ext = (Extension) e.nextElement();
+
+                        if (ext.getExtensionId().toString().equals(PKIXExtensions.BasicConstraints_Id.toString())) {
+                            bc_ext = (BasicConstraintsExtension) ext;
+                        }
+                    }
+
+                    if(bc_ext != null)  {
+                        Boolean isCA = (Boolean) bc_ext.get(BasicConstraintsExtension.IS_CA);
+                        is_ca = isCA.booleanValue();
+                    }
+                } // exts != null
+            } catch (Exception e) {
+                CMS.debug("EnrollDefault: getExtension " + e.toString());
+            }
+
             Date caNotAfter = 
                 mCA.getSigningUnit().getCertImpl().getNotAfter();
 
@@ -631,13 +662,21 @@ public class CAService implements ICAService, IService {
                 mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_PAST_VALIDITY"));
                 throw new ECAException(CMS.getUserMessage("CMS_CA_CERT_BEGIN_AFTER_CA_VALIDITY"));
             }
-            if (!mCA.isEnablePastCATime()) {
-                if (end.after(caNotAfter)) {
-                    end = caNotAfter;
-                    certi.set(CertificateValidity.NAME, 
-                        new CertificateValidity(begin, caNotAfter));
-                    mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_PAST_NOT_AFTER"));
-                }
+
+            if (end.after(caNotAfter)) {
+                if(!is_ca)  {
+                    if (!mCA.isEnablePastCATime()) {
+                        end = caNotAfter;
+                        certi.set(CertificateValidity.NAME, 
+                            new CertificateValidity(begin, caNotAfter));
+                        CMS.debug("CAService: issueX509Cert: cert past CA's NOT_AFTER...ca.enablePastCATime != true...resetting");
+                    } else {
+                        CMS.debug("CAService: issueX509Cert: cert past CA's NOT_AFTER...ca.enablePastCATime = true...not resetting");
+                    }
+                } else {
+                    CMS.debug("CAService: issueX509Cert: CA cert issuance past CA's NOT_AFTER.");
+                } //!is_ca
+                mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_PAST_NOT_AFTER"));
             }
 
             // check algorithm in certinfo.

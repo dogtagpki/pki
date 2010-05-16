@@ -127,6 +127,8 @@ public class CAValidityConstraint extends CAEnrollConstraint {
             return true;
         if (def instanceof ValidityDefault)
             return true;
+        if (def instanceof CAValidityDefault)
+            return true;
         return false;
     }
 }
