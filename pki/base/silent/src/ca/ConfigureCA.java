@@ -151,6 +151,9 @@ public class ConfigureCA {
     public static String clone_p12_passwd = null;
     public static String clone_p12_file = null;
 
+    //for correct selection of CA to be cloned
+    public static String urls;
+
 
     public ConfigureCA() {// do nothing :)
     }
@@ -292,6 +295,15 @@ public class ConfigureCA {
                 "&session_id=" + subca_session_id + "&xml=true" ;
         
             hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri, query_string_2);
+            urls = hr.getHTML();
+            int indx = urls.indexOf(clone_uri);
+            if (indx < 0) {
+                throw new Exception("Invalid clone_uri");
+            }
+            urls = urls.substring(urls.lastIndexOf("<option" , indx), indx);
+            urls = urls.split("\"")[1];
+
+            System.out.println("urls =" + urls);
                                                                                                                                                                                                                  return true;
         } catch (Exception e) {
             System.out.println("Exception in SecurityDomainLoginPanel(): " + e.toString());
@@ -316,7 +328,7 @@ public class ConfigureCA {
                 query_string = "p=3" + "&op=next" + "&xml=true"
                     + "&choice=clonesubsystem" + "&subsystemName="
                     + URLEncoder.encode(subsystem_name)
-                    + "&urls=0" + "";
+                    + "&urls=" + urls + "";
             }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -1496,7 +1508,7 @@ public class ConfigureCA {
                 x_ext_csr_file);
 
         parser.addOption("-clone %s #Clone of another CA [true, false] (optional, default false)", x_clone);
-        parser.addOption("-clone_uri %s #URL of Master CA to clone (optional)", x_clone_uri);
+        parser.addOption("-clone_uri %s #URL of Master CA to clone. It must have the form https://<hostname>:<EE port> (optional, required if -clone=true)", x_clone_uri);
         parser.addOption("-clone_p12_file %s #File containing pk12 keys of Master CA (optional, required if -clone=true)", x_clone_p12_file);
         parser.addOption("-clone_p12_password %s #Password for pk12 file (optional, required if -clone=true)", x_clone_p12_passwd);
 

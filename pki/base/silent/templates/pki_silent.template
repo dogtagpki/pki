@@ -403,6 +403,7 @@ ca_audit_signing_cert_subject_name="cn=CA\ Audit\ Signing\ Certificate,o=${pki_s
 ##  ca_clone=true	
 ##  ca_clone_p12_file=		
 ##  ca_clone_p12_password=
+##  clone_uri=
 ##  sd_hostname=
 ##  sd_admin_port=
 ##  sd_admin_name=
@@ -412,6 +413,7 @@ ca_audit_signing_cert_subject_name="cn=CA\ Audit\ Signing\ Certificate,o=${pki_s
 ##  1. ca_clone_p12_file must be just the filename relative to the alias directory.
 ##     So in the example above, ca_clone_p12_file="ca-master.p12"
 ##  2. sd_* refer to the CA where the security domain is hosted. 
+##  3. clone_uri has the following format: https://<hostname>:<EE port> fo the CA to be cloned
 ##
 ##  ADDITIONAL NOTES:
 ##  1. The clone CA and master CA cannot share the same database instance.  A new 
@@ -1121,6 +1123,7 @@ pkisilent ConfigureCA \
 #       -clone ${ca_clone} \
 #       -clone_p12_file ${ca_clone_p12_file} \
 #       -clone_p12_password ${ca_clone_p12_password} \
+#       -clone_uri ${clone_uri} \
 #       -sd_hostname ${sd_hostname} \
 #       -sd_admin_port ${sd_admin_port} \
 #       -sd_admin_name ${sd_admin_name} \

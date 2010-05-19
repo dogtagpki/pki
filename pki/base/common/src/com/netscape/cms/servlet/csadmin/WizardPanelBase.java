@@ -961,7 +961,7 @@ public class WizardPanelBase implements IWizardPanel {
         } catch (Exception e) {
             CMS.debug( e.toString() );
         }
-        return dm.equals("true");
+        return dm.equalsIgnoreCase("true");
     }
  
     public Vector getMasterUrlListFromSecurityDomain( IConfigStore config,
@@ -1014,7 +1014,7 @@ public class WizardPanelBase implements IWizardPanel {
                 Vector v_clone = parser.getValuesFromContainer(nodeList.item(i),
                   "Clone");
                 String clone = (String)v_clone.elementAt(0);
-                if (clone.equals("true"))
+                if (clone.equalsIgnoreCase("true"))
                     continue;
                 Vector v_name = parser.getValuesFromContainer(nodeList.item(i),
                         "SubsystemName");
@@ -1089,12 +1089,23 @@ public class WizardPanelBase implements IWizardPanel {
                         "Host");
                 Vector v_port = parser.getValuesFromContainer(nodeList.item(i),
                         portType);
+                Vector v_admin_port = parser.getValuesFromContainer(nodeList.item(i),
+                        "SecureAdminPort");
 
-                v.addElement( v_name.elementAt(0)
+                if (v_host.elementAt(0).equals(hostname) && v_admin_port.elementAt(0).equals(new Integer(httpsadminport).toString())) {
+                    // add security domain CA to the beginning of list
+                    v.add( 0, v_name.elementAt(0)
                             + " - https://"
                             + v_host.elementAt(0)
                             + ":"
                             + v_port.elementAt(0) );
+                } else {
+                    v.addElement( v_name.elementAt(0)
+                            + " - https://"
+                            + v_host.elementAt(0)
+                            + ":"
+                            + v_port.elementAt(0) );
+                }
             }
         } catch (Exception e) {
             CMS.debug(e.toString());
