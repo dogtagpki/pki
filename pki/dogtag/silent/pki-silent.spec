@@ -1,5 +1,5 @@
 Name:           pki-silent
-Version:        1.3.2
+Version:        1.3.3
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Silent Installer
 URL:            http://pki.fedoraproject.org/
@@ -72,6 +72,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Fri May 21 2010 Ade Lee <alee@redhat.com> 1.3.3-3
+- Bugzilla Bug #577949 - Clone from a clone requires contacting original
+  security domain master
+
 * Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
 - Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
   compatibility (rename jar files as appropriate)

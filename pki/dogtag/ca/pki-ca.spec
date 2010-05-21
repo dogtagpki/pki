@@ -1,6 +1,6 @@
 Name:           pki-ca
-Version:        1.3.4
-Release:        2%{?dist}
+Version:        1.3.5
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -103,6 +103,10 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Fri May 21 2010 Christina Fu <cfu@redhat.com> 1.3.5-1
+- Bugzilla Bug #580203 - Existing renewals generate certificates with validity
+  limited by current validity
+
 * Mon Apr 26 2010 Ade Lee <alee@redhat.com> 1.3.4-2
 - Bugzilla Bug 584917- Can not access CA Configuration Web UI after CA installation
 

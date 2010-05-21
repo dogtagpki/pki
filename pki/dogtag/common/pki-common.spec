@@ -1,6 +1,6 @@
 Name:           pki-common
-Version:        1.3.6
-Release:        4%{?dist}
+Version:        1.3.7
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Common Framework
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -113,6 +113,12 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
+* Fri May 21 2010 Christina Fu <cfu@redhat.com> 1.3.7-1
+- Bugzilla Bug #580203 - Existing renewals generate certificates with validity
+  limited by current validity (cfu)
+- Bugzilla Bug #577949 - Clone from a clone requires contacting original
+  security domain master (alee)
+
 * Mon Apr 26 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.6-4
 - Bugzilla Bug #553423 - displayBySerial returns a cryptic error
   if an unknown serial number is requested
