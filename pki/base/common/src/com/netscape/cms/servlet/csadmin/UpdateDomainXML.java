@@ -294,7 +294,14 @@ public class UpdateDomainXML extends CMSServlet {
             ILdapConnFactory connFactory = null;
             LDAPConnection conn = null;
             String listName = type + "List";
-            String cn = host + ":" + adminsport;
+            String cn = host + ":";
+
+            if ((adminsport!= null) && (adminsport != "")) {
+                cn += adminsport;
+            } else {
+                cn += sport;
+            }
+
             String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + basedn;
             CMS.debug("UpdateDomainXML: updating LDAP entry: " + dn);
 
