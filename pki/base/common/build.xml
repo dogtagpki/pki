@@ -130,8 +130,8 @@
         </jar>
         <jar jarfile="${build.jars}/cmsbundle.jar">
             <fileset dir="${src.dir}">
-                <include name="LogMessages_en.properties"/>
-                <include name="UserMessages_en.properties"/>
+                <include name="LogMessages.properties"/>
+                <include name="UserMessages.properties"/>
             </fileset>
         </jar>
         <echo message="${end.build.jars.log.message}"/>
