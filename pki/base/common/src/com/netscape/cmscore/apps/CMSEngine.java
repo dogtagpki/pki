@@ -257,10 +257,22 @@ public class CMSEngine implements ICMSEngine {
         String sd = mConfig.getString("securitydomain.select", "");
         // my default is 1 day
         String flush_timeout = config.getString("securitydomain.flushinterval", "86400000");
-        mSecurityDomainSessionTable = new SecurityDomainSessionTable((new Long(flush_timeout)).longValue());
+        String secdomain_source = config.getString("securitydomain.source", "memory");
+        String secdomain_check_interval = config.getString("securitydomain.checkinterval", "5000");
+
+        if (secdomain_source.equals("ldap")) {
+            mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable((new Long(flush_timeout)).longValue());
+        } else {
+            mSecurityDomainSessionTable = new SecurityDomainSessionTable((new Long(flush_timeout)).longValue());
+        }
+
         mSDTimer = new Timer();
         SessionTimer timertask = new SessionTimer(mSecurityDomainSessionTable);
-        mSDTimer.schedule(timertask, 5, 5000);
+        if ((state == 1) && (sd.equals("existing"))) {
+            // for non-security domain hosts, do not check session domain table
+        } else {
+            mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
+        }
 
         // initialize the PasswordReader and PasswordWriter
         String pwdPath = config.getString("passwordFile");

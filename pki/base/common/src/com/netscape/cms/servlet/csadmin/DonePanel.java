@@ -546,6 +546,7 @@ public class DonePanel extends WizardPanelBase {
                 cs.putString("securitydomain.httpsadminport", ownadminsport);
                 cs.putString("securitydomain.httpsagentport", ownagentsport);
                 cs.putString("securitydomain.httpseeport", ownsport);
+                cs.putString("securitydomain.select", "new");
             } catch (Exception e) {
                 CMS.debug("Caught exception trying to save security domain parameters for clone of a domain master");
             }

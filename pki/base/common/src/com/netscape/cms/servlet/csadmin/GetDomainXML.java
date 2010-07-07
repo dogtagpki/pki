@@ -107,7 +107,7 @@ public class GetDomainXML extends CMSServlet {
                 try {
                     // get data from ldap
                     String[] entries = {};
-                    String filter = "objectclass=*";
+                    String filter = "objectclass=pkiSecurityGroup";
                     LDAPSearchConstraints cons = null;
                     String[] attrs = null;
                     String dn = "ou=Security Domain," + basedn;
