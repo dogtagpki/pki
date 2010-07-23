@@ -200,8 +200,12 @@ public class RecoverBySerial extends CMSServlet {
               int requiredNumber = mService.getNoOfRequiredAgents();
               header.addIntegerValue("noOfRequiredAgents", requiredNumber);
             } else {
-              ctx.put(SessionContext.RECOVERY_ID,
-                req.getParameter("recoveryID"));
+                String recoveryID = req.getParameter("recoveryID");
+
+                if (recoveryID != null && !recoveryID.equals("")) {
+                  ctx.put(SessionContext.RECOVERY_ID,
+                    req.getParameter("recoveryID"));
+                }
               byte pkcs12[] = process(form, argSet, header, 
                     req.getParameter(IN_SERIALNO), 
                     req.getParameter("localAgents"),

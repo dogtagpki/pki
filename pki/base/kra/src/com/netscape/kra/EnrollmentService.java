@@ -92,12 +92,12 @@ public class EnrollmentService implements IService {
         LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
         "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
     private final static String
-        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_PROCESSED_3";
+        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =
+        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
     private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST =
         "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_4";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_4";
+    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED =
+        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_4";
     /**
      * Constructs request processor.
      * <P>
@@ -455,7 +455,7 @@ public class EnrollmentService implements IService {
             // store a message in the signed audit log file
             auditPublicKey = auditPublicKey(rec);
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_PROCESSED,
+                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditPublicKey);

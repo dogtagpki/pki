@@ -50,7 +50,6 @@ public class ProfileProcessServlet extends ProfileServlet {
     private String mAuthorityId = null;
     private Nonces mNonces = null;
 
-    private final static byte EOL[] = { Character.LINE_SEPARATOR };
     private final static String SIGNED_AUDIT_CERT_REQUEST_REASON =
         "requestNotes";
     private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
@@ -910,8 +909,8 @@ public class ProfileProcessServlet extends ProfileServlet {
             // extract all line separators from the "base64Data"
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < base64Data.length(); i++) {
-                if (base64Data.substring(i, i).getBytes() != EOL) {
-                    sb.append(base64Data.substring(i, i));
+                  if (!Character.isWhitespace(base64Data.charAt(i))) {
+                    sb.append(base64Data.charAt(i));
                 }
             }
             cert = sb.toString();

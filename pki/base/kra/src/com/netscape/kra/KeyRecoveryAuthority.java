@@ -120,16 +120,16 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
         "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
     private final static String
-        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_PROCESSED_3";
+        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =
+        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
     private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST =
         "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_4";
     private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC =
         "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC_4";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_4";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_ASYNC =
-        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_ASYNC_4";
+    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED =
+        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_4";
+    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC =
+        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC_4";
 
     /**
      * Constructs an escrow authority.
@@ -695,7 +695,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST used
      * whenever a user private key archive request is made (this is when the
      * DRM receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_PROCESSED used
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED used
      * whenever a user private key archive request is processed (this is when
      * the DRM processes the request)
      * </ul>
@@ -765,7 +765,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_PROCESSED,
+                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditPublicKey);
@@ -774,7 +774,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_PROCESSED,
+                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditPublicKey);
@@ -944,7 +944,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever
      * a user private key recovery request is made (this is when the DRM
      * receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED used whenever
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever
      * a user private key recovery request is processed (this is when the DRM
      * processes the request)
      * </ul>
@@ -1036,7 +1036,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED,
+                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditRecoveryID,
@@ -1050,7 +1050,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             } else {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED,
+                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRecoveryID,
@@ -1063,7 +1063,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED,
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -1084,7 +1084,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever
      * a user private key recovery request is made (this is when the DRM
      * receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED used whenever
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever
      * a user private key recovery request is processed (this is when the DRM
      * processes the request)
      * </ul>
@@ -1133,7 +1133,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_ASYNC,
+                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditRecoveryID,
@@ -1147,7 +1147,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             } else {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_ASYNC,
+                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRecoveryID,
@@ -1160,7 +1160,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_ASYNC,
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,

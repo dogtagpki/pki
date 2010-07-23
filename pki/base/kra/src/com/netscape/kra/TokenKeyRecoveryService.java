@@ -90,8 +90,8 @@ public class TokenKeyRecoveryService implements IService {
 	"LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_4";
 
     private final static String
-       LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED =
-	"LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED_4";
+       LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED =
+	"LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_4";
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     /**
@@ -243,7 +243,7 @@ public class TokenKeyRecoveryService implements IService {
 
         wrapped_des_key = null;
 
-	PK11SymKey sk= null;
+        PK11SymKey sk= null;
 
         String rCUID = request.getExtDataInString(IRequest.NETKEY_ATTR_CUID);
         String rUserid = request.getExtDataInString(IRequest.NETKEY_ATTR_USERID);
@@ -260,40 +260,72 @@ public class TokenKeyRecoveryService implements IService {
             // unwrap the des key
             sk = (PK11SymKey) mTransportUnit.unwrap_encrypt_sym(wrapped_des_key);
 
-	    if (sk == null) {
-		CMS.debug("TokenKeyRecoveryService: no des key");
-		request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-	    } else {
-		CMS.debug("TokenKeyRecoveryService: received des key");
-	    }
+            if (sk == null) {
+                CMS.debug("TokenKeyRecoveryService: no des key");
+                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+            } else {
+                CMS.debug("TokenKeyRecoveryService: received des key");
+            }
         } else {
-	    CMS.debug("TokenKeyRecoveryService: not receive des key");
+            CMS.debug("TokenKeyRecoveryService: not receive des key");
             request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-	    return false;
-	}
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+            audit(auditMessage);
+            return false;
+        }
 
         // retrieve based on Certificate
-	String cert_s = request.getExtDataInString(ATTR_USER_CERT);
-	if (cert_s == null) {
-	    CMS.debug("TokenKeyRecoveryService: not receive cert");
+        String cert_s = request.getExtDataInString(ATTR_USER_CERT);
+        if (cert_s == null) {
+            CMS.debug("TokenKeyRecoveryService: not receive cert");
             request.setExtData(IRequest.RESULT, Integer.valueOf(3));
-	    return false;
-	}
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
 
-	String cert = normalizeCertStr(cert_s);
-	java.security.cert.X509Certificate x509cert = null;
-	try {
-	    x509cert= (java.security.cert.X509Certificate)  Cert.mapCert(cert);
-	    if (x509cert == null) {
-		CMS.debug("cert mapping failed");
-		request.setExtData(IRequest.RESULT, Integer.valueOf(5));
-		return false;
-	    }
-	} catch (IOException e) {
-	    CMS.debug("TokenKeyRecoveryService: mapCert failed");
+            audit(auditMessage);
+            return false;
+        }
+
+        String cert = normalizeCertStr(cert_s);
+        java.security.cert.X509Certificate x509cert = null;
+        try {
+            x509cert= (java.security.cert.X509Certificate)  Cert.mapCert(cert);
+            if (x509cert == null) {
+                CMS.debug("cert mapping failed");
+                request.setExtData(IRequest.RESULT, Integer.valueOf(5));
+                auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+                audit(auditMessage);
+                return false;
+            }
+        } catch (IOException e) {
+            CMS.debug("TokenKeyRecoveryService: mapCert failed");
             request.setExtData(IRequest.RESULT, Integer.valueOf(6));
-	    return false;
-	}
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+            audit(auditMessage);
+            return false;
+        }
 
 	try {
 	    /*
@@ -301,11 +333,10 @@ public class TokenKeyRecoveryService implements IService {
 		CryptoManager.getInstance().getInternalKeyStorageToken();
 	    */
 	    CryptoToken token = mStorageUnit.getToken();
-	    CMS.debug("NetkeyKeygenService: got token slot:"+token.getName());
+	    CMS.debug("TokenKeyRecoveryService: got token slot:"+token.getName());
 	    IVParameterSpec algParam = new IVParameterSpec(iv);
 
 	    Cipher cipher = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-
 
 		KeyRecord keyRecord = null;
 		CMS.debug( "KRA reading key record");
@@ -316,11 +347,27 @@ public class TokenKeyRecoveryService implements IService {
 		    else {
 			CMS.debug("key record not found");
 			request.setExtData(IRequest.RESULT, Integer.valueOf(8));
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+            audit(auditMessage);
 			return false;
 		    }
 		}catch (Exception e) {
 		    com.netscape.cmscore.util.Debug.printStackTrace(e);
 		    request.setExtData(IRequest.RESULT, Integer.valueOf(9));
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+            audit(auditMessage);
 		    return false;
 		}
 
@@ -342,6 +389,14 @@ public class TokenKeyRecoveryService implements IService {
 
 		if (inputPubData.length != pubData.length) {
 		    mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+            audit(auditMessage);
 		    throw new EKRAException(
 					    CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
 		}
@@ -349,6 +404,14 @@ public class TokenKeyRecoveryService implements IService {
 		for (int i = 0; i < pubData.length; i++) {
 		    if (pubData[i] != inputPubData[i]) {
 			mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+            audit(auditMessage);
 			throw new EKRAException(
 						CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
 		    }
@@ -359,10 +422,18 @@ public class TokenKeyRecoveryService implements IService {
 		privateKeyData = recoverKey(params, keyRecord);
 		if (privateKeyData == null) {
 		    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-		    CMS.debug("NetkeyKeygenService: failed getting private key");
+		    CMS.debug("TokenKeyRecoveryService: failed getting private key");
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+            audit(auditMessage);
 		    return false;
 		}
-		CMS.debug("NetkeyKeygenService: got private key...about to verify");
+		CMS.debug("TokenKeyRecoveryService: got private key...about to verify");
 
         /* LunaSA returns data with padding which we need to remove */
         ByteArrayInputStream dis = new ByteArrayInputStream(privateKeyData);
@@ -378,10 +449,18 @@ public class TokenKeyRecoveryService implements IService {
 		if (verifyKeyPair(pubData, privateKeyData) == false) {
 		    mKRA.log(ILogger.LL_FAILURE,
 			     CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+            audit(auditMessage);
 		    throw new EKRAException(
 					    CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
 		} else {
-		    CMS.debug("NetkeyKeygenService: private key verified with public key");
+		    CMS.debug("TokenKeyRecoveryService: private key verified with public key");
 		}
 
 		//encrypt and put in private key
@@ -392,14 +471,22 @@ public class TokenKeyRecoveryService implements IService {
                     com.netscape.cmsutil.util.Utils.SpecialEncode(wrapped);
 		if (wrappedPrivKeyString == null) {
 		    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-		    CMS.debug("NetkeyKeygenService: failed generating wrapped private key");
+		    CMS.debug("TokenKeyRecoveryService: failed generating wrapped private key");
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+            audit(auditMessage);
 		    return false;
 		} else {
-		    CMS.debug("NetkeyKeygenService: got private key data wrapped");
+		    CMS.debug("TokenKeyRecoveryService: got private key data wrapped");
 		    request.setExtData("wrappedUserPrivate",
 				wrappedPrivKeyString);
 		    request.setExtData(IRequest.RESULT, Integer.valueOf(1));
-		    CMS.debug( "NetkeyKeygenService: key for " +rCUID+":"+rUserid +" recovered");
+		    CMS.debug( "TokenKeyRecoveryService: key for " +rCUID+":"+rUserid +" recovered");
 		}
 
 		//convert and put in the public key
@@ -416,23 +503,31 @@ public class TokenKeyRecoveryService implements IService {
 	    
 		if (b64PKey == null) {
 		    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-		    CMS.debug("NetkeyKeygenService: failed getting publickey encoded");
+		    CMS.debug("TokenKeyRecoveryService: failed getting publickey encoded");
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+            audit(auditMessage);
 		    return false;
 		} else {
-		    CMS.debug("NetkeyKeygenService: got publicKeyData b64 = "+
+		    CMS.debug("TokenKeyRecoveryService: got publicKeyData b64 = "+
 			      b64PKey);
 		}
 		request.setExtData("public_key", b64PKey);
-		auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_PROCESSED,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditRecoveryID,
-			agentId);
+        auditMessage = CMS.getLogMessage(
+               LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+               auditSubjectID,
+               ILogger.SUCCESS,
+               auditRecoveryID,
+               agentId);
 
-		audit(auditMessage);
+        audit(auditMessage);
 
-		return true;
+        return true;
 
 	} catch (Exception e) {
 	    CMS.debug("TokenKeyRecoveryService: " + e.toString());

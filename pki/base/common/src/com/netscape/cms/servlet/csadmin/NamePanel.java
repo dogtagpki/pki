@@ -252,14 +252,19 @@ public class NamePanel extends WizardPanelBase {
                     boolean done = config.getBoolean("preop.NamePanel.done");
                     c.setDN(dn);
                 } catch (Exception e) {
+                    String instanceId = config.getString("service.instanceID", "");
                     if (select.equals("clone") || dnUpdated) {
                         c.setDN(dn);
                     } else if (count != 0 && override && (cert.equals("") || certreq.equals(""))) {
                         CMS.debug("NamePanel subsystemCount = "+count);
-                        c.setDN(dn + " "+count+ ((o_sd)? (",O=" + domainname):""));
+                        c.setDN(dn + " "+count+ 
+                          ((!instanceId.equals(""))? (",OU=" + instanceId):"") +
+                          ((o_sd)? (",O=" + domainname):""));
                         config.putBoolean(PCERT_PREFIX+certTag+".updatedDN", true);
                     } else {
-                        c.setDN(dn + ((o_sd)? (",O=" + domainname):""));
+                        c.setDN(dn + 
+                            ((!instanceId.equals(""))? (",OU=" + instanceId):"") +
+                            ((o_sd)? (",O=" + domainname):""));
                         config.putBoolean(PCERT_PREFIX+certTag+".updatedDN", true);
                     }
                 }

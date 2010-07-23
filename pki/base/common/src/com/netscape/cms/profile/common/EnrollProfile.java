@@ -1167,7 +1167,20 @@ public abstract class EnrollProfile extends BasicProfile
     public void populateInput(IProfileContext ctx, IRequest request)
         throws EProfileException {
         super.populateInput(ctx, request);
+    }
 
+    public void populate(IRequest request)
+        throws EProfileException {
+        super.populate(request);
+
+    }
+
+    /**
+     * Passes the request to the set of constraint policies
+     * that validate the request against the profile.
+     */
+    public void validate(IRequest request)
+        throws ERejectException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(request);
@@ -1230,34 +1243,8 @@ public abstract class EnrollProfile extends BasicProfile
 
             audit(auditMessage);
         }
-        // } catch( EProfileException eAudit1 ) {
-        //     // store a message in the signed audit log file
-        //     auditMessage = CMS.getLogMessage(
-        //                        LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST,
-        //                        auditSubjectID,
-        //                        ILogger.FAILURE,
-        //                        auditRequesterID,
-        //                        auditProfileID,
-        //                        auditCertificateSubjectName );
-        //
-        //     audit( auditMessage );
-        // }
-    }
 
-    public void populate(IRequest request)
-        throws EProfileException {
-        super.populate(request);
-
-    }
-
-    /**
-     * Passes the request to the set of constraint policies
-     * that validate the request against the profile.
-     */
-    public void validate(IRequest request)
-        throws ERejectException {
         super.validate(request);
-        X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
         Object key = null;
 
         try {
