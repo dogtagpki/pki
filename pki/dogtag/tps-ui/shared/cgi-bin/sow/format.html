@@ -62,6 +62,8 @@ function UserSelectRowByKeyID(keyType, keyID)
   SelectRowByKeyID(keyType, keyID);
 }
 
+var officerToken = null;
+
 function UserOnDoneInitializeBindingTable()
 {
   // display existing blank smart
@@ -81,6 +83,18 @@ function UserOnDoneInitializeBindingTable()
       updateKeyText('An ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
       UserSelectRowByKeyID(keyType, keyID);
     }
+
+    if(keyStatus == "ENROLLED" ) {
+        var uid =  GetCoolKeyIssuedTo(keyType,keyID);
+        if(uid)
+        {
+            isAgent = window.IsAgentOrUser(uid,"agent");
+        }
+        if(isAgent == true)
+        {
+            officerToken = keyID;
+        }
+    }
   }
 
   if (arr && arr.length <= 1  )
@@ -92,30 +106,43 @@ function UserOnDoneInitializeBindingTable()
 function UserOnCOOLKeyInserted(keyType, keyID)
 {
   var arr = GetAvailableCOOLKeys();
-  if (arr && arr.length <= 1  )
-  {
-    toggleButton('enrollbtn','off');
-  }
-  if (arr && arr.length > 1 )
-  {
-    toggleButton('enrollbtn','on');
+  var curKeyType = null;
+  var curKeyID = null;
+  var curKeyStatus = null;
+  var i = 0;
+  while(1) {
+      if (arr && arr.length <= 1  )
+      {
+          toggleButton('enrollbtn','off');
+          return;
+      }
+      if (arr && arr.length > 1 )
+      {
+          toggleButton('enrollbtn','on');
+      }
+      curKeyType = arr[i][0];
+      curKeyID = arr[i][1];
+      
+      var curKeyStatus = GetStatusForKeyID(curKeyType, curKeyID);
+      if(!(curKeyID == officerToken && curKeyStatus == "ENROLLED")) {
+          break;
+      }
+      i++; 
   }
 
-  var keyStatus = GetStatusForKeyID(keyType, keyID);
-  if (keyStatus == "ENROLLED" || keyStatus == "UNINITIALIZED") {
-    updateKeyText('An ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
+  if (curKeyStatus == "ENROLLED" || curKeyStatus == "UNINITIALIZED") {
+      updateKeyText('An ' + curKeyStatus + ' smartcard "' + curKeyID + '" is detected!');
   } else {
-    updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
+      updateKeyText('A ' + curKeyStatus + ' smartcard "' + curKeyID + '" is detected!');
   }
-  UserSelectRowByKeyID(keyType, keyID);
 
   var uid = null;
-  var isAgent = false;
+  var isAgent = null;
+  UserSelectRowByKeyID(curKeyType, curKeyID);
 
-  if(keyStatus == "ENROLLED")
+  if(curKeyStatus == "ENROLLED")
   {
-    uid =  GetCoolKeyIssuedTo(keyType,keyID);
-
+    uid =  GetCoolKeyIssuedTo(curKeyType,curKeyID);
     if(uid)
     {
         isAgent = window.IsAgentOrUser(uid,"agent");
@@ -123,8 +150,7 @@ function UserOnCOOLKeyInserted(keyType, keyID)
     if(isAgent == true)
     {
         MyAlert("You can't Format a card that belongs to another Security Officer!");
-
-        updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" SECURITY OFFICER is detected!');
+        updateKeyText('A ' + curKeyStatus + ' smartcard "' + curKeyID + '" SECURITY OFFICER is detected!');
         toggleButton('enrollbtn','off');
     }
   }

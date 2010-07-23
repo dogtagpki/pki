@@ -54,6 +54,7 @@ function updateKeyText(text)
   f.appendChild(text);
 }
 
+var officerToken = null;
 function UserOnDoneInitializeBindingTable()
 {
   // display existing blank smart
@@ -73,18 +74,74 @@ function UserOnDoneInitializeBindingTable()
       updateKeyText('An ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
       UserSelectRowByKeyID(keyType, keyID);
     }
+
+    if(keyStatus == "ENROLLED" ) {
+        var uid =  GetCoolKeyIssuedTo(keyType,keyID);
+        if(uid)
+        {
+            isAgent = window.IsAgentOrUser(uid,"agent");
+        }
+        if(isAgent == true)
+        {
+            officerToken = keyID;
+        }
+    }
+
   }
 }
 
 function UserOnCOOLKeyInserted(keyType, keyID)
 {
-  var keyStatus = GetStatusForKeyID(keyType, keyID);
-  if (keyStatus == "ENROLLED" || keyStatus == "UNINITIALIZED") {
-    updateKeyText('An ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
-  } else {
-    updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
+  var arr = GetAvailableCOOLKeys();
+  var curKeyType = null;
+  var curKeyID = null;
+  var curKeyStatus = null;
+  var i = 0;
+  var enrollbtn = document.getElementById('enrollbtn');
+  while(1) {
+      if (arr && arr.length <= 1  )
+      {
+          toggleButton('enrollbtn','off');
+          return;
+      }
+      if (arr && arr.length > 1 )
+      {
+          toggleButton('enrollbtn','on');
+      }
+      curKeyType = arr[i][0];
+      curKeyID = arr[i][1];
+
+      var curKeyStatus = GetStatusForKeyID(curKeyType, curKeyID);
+      if(!(curKeyID == officerToken && curKeyStatus == "ENROLLED")) {
+          break;
+      }
+      i++;
   }
-  UserSelectRowByKeyID(keyType, keyID);
+
+  if (curKeyStatus == "ENROLLED" || curKeyStatus == "UNINITIALIZED") {
+      updateKeyText('An ' + curKeyStatus + ' smartcard "' + curKeyID + '" is detected!');
+  } else {
+      updateKeyText('A ' + curKeyStatus + ' smartcard "' + curKeyID + '" is detected!');
+  }
+
+  var uid = null;
+  var isAgent = null;
+  UserSelectRowByKeyID(curKeyType, curKeyID);
+
+  if(curKeyStatus == "ENROLLED")
+  {
+    uid =  GetCoolKeyIssuedTo(curKeyType,curKeyID);
+    if(uid)
+    {
+        isAgent = window.IsAgentOrUser(uid,"agent");
+    }     
+    if(isAgent == true)
+    {
+        MyAlert("You can't Enroll a temporary card that belongs to another Security Officer!");
+        updateKeyText('A ' + curKeyStatus + ' smartcard "' + curKeyID + '" SECURITY OFFICER is detected!');
+        toggleButton('enrollbtn','off');
+    }
+  }
 }
 
 function UserOnCOOLKeyRemoved(keyType, keyID)
