@@ -95,6 +95,7 @@ public class ConfigureCA {
 
     public static String key_size = null;
     public static String key_type = null;
+    public static String key_algorithm = null;
     public static String token_name = null;
     public static String token_pwd = null;
 
@@ -514,22 +515,36 @@ public class ConfigureCA {
                     + "&sslserver_custom_size=" + key_size
                     + "&sslserver_choice=custom"
                     + "&sslserver_keytype=" + key_type 
+                    + "&sslserver_keyalgorithm=" + key_algorithm
+                    + "&keyalgorithm=" + key_algorithm
                     + "&choice=default" + "&keytype=" + key_type 
                     + "&custom_size=" + key_size + "";
             } else {
                 query_string = "p=10" + "&op=next" + "&xml=true"
                     + "&subsystem_custom_size=" + key_size
-                    + "&sslserver_custom_size=" + key_size + "&signing_keytype="
-                    + key_type + "&keytype=" + key_type + "&choice=custom"
-                    + "&op=next" + "&custom_size=" + key_size
-                    + "&ocsp_signing_keytype=" + key_type + "&subsystem_keytype="
-                    + key_type + "&ocsp_signing_custom_size=" + key_size
+                    + "&subsystem_keytype=" + key_type
+                    + "&subsystem_choice=custom"
+                    + "&subsystem_keyalgorithm=" + key_algorithm
+                    + "&sslserver_custom_size=" + key_size
+                    + "&sslserver_keytype=" + key_type
+                    + "&sslserver_choice=custom"
+                    + "&sslserver_keyalgorithm=" + key_algorithm 
                     + "&signing_custom_size=" + key_size
-                    + "&ocsp_signing_choice=custom" + "&signing_choice=custom"
-                    + "&subsystem_choice=custom" + "&sslserver_keytype=" + key_type
-                    + "&sslserver_choice=custom" + "&audit_signing_choice=custom" 
-                    + "&audit_signing_keytype=" + key_type 
-                    + "&audit_signing_custom_size=" + key_size + ""; 
+                    + "&signing_keytype=" + key_type
+                    + "&signing_choice=custom"
+                    + "&signing_keyalgorithm=" + key_algorithm
+                    + "&ocsp_signing_custom_size=" + key_size
+                    + "&ocsp_signing_keytype=" + key_type 
+                    + "&ocsp_signing_choice=custom" 
+                    + "&ocsp_signing_keyalgorithm=" + key_algorithm
+                    + "&audit_signing_custom_size=" + key_size
+                    + "&audit_signing_keytype=" + key_type
+                    + "&audit_signing_choice=custom" 
+                    + "&audit_signing_keyalgorithm=" + key_algorithm
+                    + "&custom_size=" + key_size
+                    + "&keytype=" + key_type 
+                    + "&choice=custom"
+                    + "&keyalgorithm=" + key_algorithm + "";
             }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -1394,6 +1409,7 @@ public class ConfigureCA {
         // key size
         StringHolder x_key_size = new StringHolder();
         StringHolder x_key_type = new StringHolder();
+        StringHolder x_key_algorithm = new StringHolder();
         StringHolder x_token_name = new StringHolder();
         StringHolder x_token_pwd = new StringHolder();
 
@@ -1471,6 +1487,7 @@ public class ConfigureCA {
 
         parser.addOption("-key_size %s #Key Size", x_key_size); 
         parser.addOption("-key_type %s #Key type [RSA,ECC]", x_key_type); 
+        parser.addOption("-key_algorithm %s #Key algorithm", x_key_algorithm);
         parser.addOption("-token_name %s #HSM/Software Token name", x_token_name); 
         parser.addOption("-token_pwd %s #HSM/Software Token password (optional - only required for HSM)",
                 x_token_pwd); 
@@ -1555,6 +1572,11 @@ public class ConfigureCA {
 
         key_size = x_key_size.value;
         key_type = x_key_type.value;
+        if ((x_key_algorithm.value == null) || (x_key_algorithm.equals(""))) {
+            key_algorithm = "SHA256withRSA";
+        } else {
+            key_algorithm = x_key_algorithm.value;
+        }
         token_name = x_token_name.value;
         token_pwd = x_token_pwd.value;
         save_p12 = x_save_p12.value;

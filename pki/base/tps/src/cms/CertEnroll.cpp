@@ -79,6 +79,7 @@ TOKENDB_PUBLIC int CertEnroll::RevokeCertificate(const char *reason, const char 
 {
     char parameters[5000];
     char configname[5000];
+    int num;
 
     PR_snprintf((char *)parameters, 5000, "op=revoke&revocationReason=%s&revokeAll=(certRecordId%%3D%s)&totalRecordCount=1", reason, serialno);
 
@@ -87,23 +88,27 @@ TOKENDB_PUBLIC int CertEnroll::RevokeCertificate(const char *reason, const char 
 
     PSHttpResponse *resp =  sendReqToCA(servletID, parameters, connid);
 
-    char *content = resp->getContent();
-    char *p = strstr(content, "status=");
-    int num = *(p+7) - '0';
-    RA::Debug("CertEnroll::RevokeCertificate", "serialno=%s reason=%s connid=%s status=%d", serialno, reason, connid, num);
-    if (num != 0) {
-        char *q = strstr(p, "error=");
-        q = q+6;
-        o_status = PL_strdup(q);
-        RA::Debug("CertEnroll::RevokeCertificate", "status string=%s", q);
-    }
     if (resp != NULL) {
+        char *content = resp->getContent();
+        char *p = strstr(content, "status=");
+        num = *(p+7) - '0';
+        RA::Debug("CertEnroll::RevokeCertificate", "serialno=%s reason=%s connid=%s status=%d", serialno, reason, connid, num);
+        if (num != 0) {
+            char *q = strstr(p, "error=");
+            q = q+6;
+            o_status = PL_strdup(q);
+            RA::Debug("CertEnroll::RevokeCertificate", "status string=%s", q);
+        }
         if (content != NULL) {
             resp->freeContent();
             content = NULL;
         }    
         delete resp;
         resp = NULL;
+    } else {
+        RA::Debug("CertEnroll::RevokeCertificate", "serialno=%s reason=%s connid=%s failed: resp is NULL");
+        o_status = PL_strdup("resp from sendReqToCA is NULL");
+        num = 1;  //non-zero
     }
     return num;
 }
@@ -113,6 +118,7 @@ TOKENDB_PUBLIC int CertEnroll::UnrevokeCertificate(const char *serialno, const c
 {
     char parameters[5000];
     char configname[5000];
+    int num;
 
     PR_snprintf((char *)parameters, 5000, "serialNumber=%s",serialno);
 
@@ -120,29 +126,36 @@ TOKENDB_PUBLIC int CertEnroll::UnrevokeCertificate(const char *serialno, const c
     char *servletID = (char*)RA::GetConfigStore()->GetConfigAsString(configname);
 
     PSHttpResponse *resp =  sendReqToCA(servletID, parameters, connid);
-    // XXX - need to parse response
-    char *content = resp->getContent();
-    char *p = strstr(content, "status=");
-    int num = *(p+7) - '0';
-    RA::Debug("CertEnroll::UnrevokeCertificate", "status=%d", num);
-    if (num != 0) {
-        char *q = strstr(p, "error=");
-        q = q+6;
-        o_status = PL_strdup(q);
-        RA::Debug("CertEnroll::UnrevokeCertificate", "status string=%s", q);
-    }
     if (resp != NULL) {
+        // XXX - need to parse response
+        char *content = resp->getContent();
+        char *p = strstr(content, "status=");
+        num = *(p+7) - '0';
+        RA::Debug("CertEnroll::UnrevokeCertificate", "status=%d", num);
+        
+        if (num != 0) {
+            char *q = strstr(p, "error=");
+            q = q+6;
+            o_status = PL_strdup(q);
+            RA::Debug("CertEnroll::UnrevokeCertificate", "status string=%s", q);
+        }
+
         if (content != NULL) {
             resp->freeContent();
             content = NULL;
         }    
         delete resp;
         resp = NULL;
+    }  else {
+        RA::Debug("CertEnroll::UnrevokeCertificate", "serialno=%s reason=%s connid=%s failed: resp is NULL");
+        o_status = PL_strdup("resp from sendReqToCA is NULL");
+        num = 1;  //non-zero
     }
+
     return num;
 }
 
-TOKENDB_PUBLIC Buffer *CertEnroll::RenewCertificate(PRUint64 serialno, const char *connid, const char *profileId)
+TOKENDB_PUBLIC Buffer *CertEnroll::RenewCertificate(PRUint64 serialno, const char *connid, const char *profileId, char *error_msg)
 {
     char parameters[5000];
     char configname[5000];
@@ -159,6 +172,7 @@ TOKENDB_PUBLIC Buffer *CertEnroll::RenewCertificate(PRUint64 serialno, const cha
         if (servlet == NULL) {
             RA::Debug("CertEnroll::RenewCertificate",
                 "Missing the configuration parameter for %s", configname);
+            PR_snprintf(error_msg, 512, "Missing the configuration parameter for %s", configname);
             return NULL;
         }
 
@@ -181,6 +195,7 @@ TOKENDB_PUBLIC Buffer *CertEnroll::RenewCertificate(PRUint64 serialno, const cha
     } else {
       RA::Error("CertEnroll::RenewCertificate",
         "sendReqToCA failure");
+      PR_snprintf(error_msg, 512, "sendReqToCA failure");
       return NULL;
     }
 
@@ -197,6 +212,7 @@ Buffer * CertEnroll::EnrollCertificate(
 					const char *uid,
 					const char *cuid /*token id*/,
 					const char *connid, 
+                                        char *error_msg,
                                         SECItem** encodedPublicKeyInfo)
 {
     char parameters[5000];
@@ -206,7 +222,7 @@ Buffer * CertEnroll::EnrollCertificate(
 
       RA::Error("CertEnroll::EnrollCertificate",
           "SECKEY_EncodeDERSubjectPublicKeyInfo  returns error");
-
+      PR_snprintf(error_msg, 512, "SECKEY_EncodeDERSubjectPublicKeyInfo  returns error");
       return NULL;
     }
 
@@ -231,6 +247,7 @@ Buffer * CertEnroll::EnrollCertificate(
     RA::Error(LL_PER_PDU, "CertEnroll::EnrollCertificate",
           "BTOA_ConvertItemToAscii returns error");
 
+        PR_snprintf(error_msg, 512, "BTOA_ConvertItemToAscii returns error");
         return NULL;
     }
     RA::Debug(LL_PER_PDU, "CertEnroll::EnrollCertificate",
@@ -264,6 +281,7 @@ Buffer * CertEnroll::EnrollCertificate(
     } else {
       RA::Error("CertEnroll::EnrollCertificate",
         "sendReqToCA failure");
+      PR_snprintf(error_msg, 512, "sendReqToCA failure");
       return NULL;
     }
 

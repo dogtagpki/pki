@@ -221,6 +221,9 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
                 c1.append(".keytype,");
                 c1.append("cloning.");
                 c1.append(t1);
+                c1.append(".keyalgorithm,");
+                c1.append("cloning.");
+                c1.append(t1);
                 c1.append(".privkey.id,");
                 c1.append("cloning.");
                 c1.append(t1);

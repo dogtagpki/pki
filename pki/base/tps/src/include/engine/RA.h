@@ -44,6 +44,7 @@
 #include "main/Buffer.h"
 #include "main/PublishEntry.h"
 #include "main/AuthenticationEntry.h"
+#include "main/LogFile.h"
 #include "authentication/Authentication.h"
 #include "apdu/APDU.h"
 #include "main/RA_Context.h"
@@ -144,6 +145,14 @@ class RA
 	  TPS_PUBLIC static void Error(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Debug(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  static void DebugBuffer(RA_Log_Level level, const char *func_name, const char *prefix, Buffer *buf);
+          TPS_PUBLIC static void FlushAuditLogBuffer();
+          TPS_PUBLIC static void SignAuditLog(NSSUTF8 *msg);
+          TPS_PUBLIC static char *GetAuditSigningMessage(NSSUTF8 *msg);
+          TPS_PUBLIC static void SetFlushInterval(int interval);
+          TPS_PUBLIC static void SetBufferSize(int size);
+          static void RunFlushThread(void *arg);
+          TPS_PUBLIC static int setup_audit_log(bool enable_signing, bool signing_changed);
+          TPS_PUBLIC static void enable_audit_logging(bool enable);
   private:
 	  static void AuditThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void ErrorThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
@@ -206,6 +215,7 @@ class RA
           static HttpConnection *GetDRMConn(const char *id);
           static void ReturnDRMConn(HttpConnection *conn);
           static int GetCurrentIndex(HttpConnection *conn);
+          static LogFile* GetLogFile(const char *log_type);
 
   public:
 
@@ -216,8 +226,8 @@ class RA
           TPS_PUBLIC static PRLock *GetAuthLock();
           TPS_PUBLIC static void IncrementAuthCurrentIndex(int len);
           TPS_PUBLIC static void update_signed_audit_selected_events(char *new_selected);
-          TPS_PUBLIC static void update_signed_audit_enable(char *enable);
-          TPS_PUBLIC static void update_signed_audit_logging_enable(char *enable);
+          TPS_PUBLIC static void update_signed_audit_enable(const char *enable);
+          TPS_PUBLIC static void update_signed_audit_log_signing(const char *enable);
      
 	  static void SetGlobalSecurityLevel(SecurityLevel sl);
 	  static SecurityLevel GetGlobalSecurityLevel();
@@ -253,6 +263,15 @@ class RA
 	  static const char *CFG_ERROR_FILENAME;
 	  static const char *CFG_CHANNEL_SEC_LEVEL;
 	  static const char *CFG_CHANNEL_ENCRYPTION;
+          static const char *CFG_AUDIT_BUFFER_SIZE;
+          static const char *CFG_AUDIT_FLUSH_INTERVAL;
+          static const char *CFG_AUDIT_FILE_TYPE;
+          static const char *CFG_DEBUG_FILE_TYPE;
+          static const char *CFG_ERROR_FILE_TYPE;
+          static const char *CFG_AUDIT_PREFIX;
+          static const char *CFG_DEBUG_PREFIX;
+          static const char *CFG_ERROR_PREFIX;
+
 
       static const char *CFG_AUTHS_ENABLE;
       static const char *CFG_AUTHS_CURRENTIMPL;
@@ -284,7 +303,7 @@ class RA
           static PRLock *m_pod_lock;
           static PRLock *m_auth_lock;
           static PRLock *m_error_log_lock;
-          static PRLock *m_audit_log_lock;
+          static PRMonitor *m_audit_log_monitor;
           static PRLock *m_debug_log_lock;
           static int m_audit_log_level;
           static int m_debug_log_level;
@@ -297,6 +316,12 @@ class RA
           TPS_PUBLIC static char *m_signedAuditSelectedEvents;
           TPS_PUBLIC static char *m_signedAuditSelectableEvents;
           TPS_PUBLIC static char *m_signedAuditNonSelectableEvents;
+          static char *m_audit_log_buffer;
+          static PRThread *m_flush_thread;
+          static size_t m_bytes_unflushed;
+          static size_t m_buffer_size;
+          static int m_flush_interval;
+
       static HttpConnection* m_caConnection[];
       static HttpConnection* m_tksConnection[];
       static int m_caConns_len;
@@ -308,6 +333,7 @@ class RA
 
           static PublisherEntry *publisher_list;
           static int m_num_publishers;
+          static RA_Context *m_ctx;
 
 
           static PublisherEntry *getPublisherById(const char *publisher_id);
@@ -315,7 +341,7 @@ class RA
           static int InitializeHttpConnections(const char *id, int *len, HttpConnection **conn, RA_Context *ctx);
           static void CleanupPublishers();
         static int Failover(HttpConnection *&conn, int len);   
-         
+   
 };
 
 #endif /* RA_H */

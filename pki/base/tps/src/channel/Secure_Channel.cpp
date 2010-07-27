@@ -2319,6 +2319,7 @@ Buffer Secure_Channel::CreatePKCS11PriKeyAttrsBuffer(TokenKeyType key_type, cons
   RA::Debug("Secure_Channel::CreatePKCS11PriAttrs", "label=%s", label);
   RA::DebugBuffer("Secure_Channel::CreatePKCS11PriAttrs", "keyid", keyid);
   RA::DebugBuffer("Secure_Channel::CreatePKCS11PriAttrs", "modulus", modulus);
+  RA::Debug("Secure_Channel::CreatePKCS11PriAttrs", "id=%s",id);
 
 //    AppendAttribute(b,CKA_LABEL, strlen(label), (BYTE*)label);
     AppendAttribute(b,CKA_MODULUS, modulus->size(), (BYTE*)*modulus);

@@ -99,18 +99,34 @@ public class UpdateOCSPConfig extends CMSServlet {
             return;
         }
 
+        IConfigStore cs = CMS.getConfigStore();
+        String nickname = "";
+
+        // get nickname
+        try {
+            nickname = cs.getString("ca.subsystem.nickname", "");
+            String tokenname = cs.getString("ca.subsystem.tokenname", "");
+            if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
+                nickname = tokenname+":"+nickname;
+        } catch (Exception e) {
+        }
+
+        CMS.debug("UpdateOCSPConfig process: nickname="+nickname);
+
         String ocsphost = httpReq.getParameter("ocsp_host");
         String ocspport = httpReq.getParameter("ocsp_port");
         try {
-            IConfigStore cs = CMS.getConfigStore();
             cs.putString("ca.publish.enable", "true");
             cs.putString("ca.publish.publisher.instance.OCSPPublisher.host", 
               ocsphost);
             cs.putString("ca.publish.publisher.instance.OCSPPublisher.port", 
               ocspport);
+            cs.putString("ca.publish.publisher.instance.OCSPPublisher.nickName", 
+              nickname);
             cs.putString("ca.publish.publisher.instance.OCSPPublisher.path",
-              "/ocsp/ee/ocsp/addCRL");
+              "/ocsp/agent/ocsp/addCRL");
             cs.putString("ca.publish.publisher.instance.OCSPPublisher.pluginName", "OCSPPublisher");
+            cs.putString("ca.publish.publisher.instance.OCSPPublisher.enableClientAuth", "true");
             cs.putString("ca.publish.rule.instance.ocsprule.enable", "true");
             cs.putString("ca.publish.rule.instance.ocsprule.mapper", "NoMap");
             cs.putString("ca.publish.rule.instance.ocsprule.pluginName", "Rule");

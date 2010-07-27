@@ -167,7 +167,8 @@ class RA_Processor
 				SecurityLevel security_level, 
 				const char *connid, 
 				NameValueSet *extensions,
-				int start_progress, int end_progress);
+				int start_progress, int end_progress,
+                                char **key_version);
 
 		int UpgradeKey(RA_Session *session, BYTE major_version, BYTE minor_version, int new_version);
 

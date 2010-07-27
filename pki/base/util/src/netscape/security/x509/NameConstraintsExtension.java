@@ -234,7 +234,6 @@ implements CertAttrSet {
         DerOutputStream tmp = new DerOutputStream();
         if (this.extensionValue == null) {
             this.extensionId = PKIXExtensions.NameConstraints_Id;
-            this.critical = false;
             encodeThis();
         }
         super.encode(tmp);

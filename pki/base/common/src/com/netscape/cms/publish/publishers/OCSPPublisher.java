@@ -44,11 +44,15 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private static final String PROP_HOST = "host";
     private static final String PROP_PORT = "port";
     private static final String PROP_PATH = "path";
+    private static final String PROP_NICK = "nickName";
+    private static final String PROP_CLIENT_AUTH_ENABLE = "enableClientAuth";
 
     private IConfigStore mConfig = null;
     private String mHost = null;
     private String mPort = null;
     private String mPath = null;
+    private String mNickname = null;
+    private boolean mClientAuthEnabled = true;
     private ILogger mLogger = CMS.getLogger();
 
     /**
@@ -67,9 +71,11 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_HOST + ";string;Host of CMS's OCSP Secure EE service",
-                PROP_PORT + ";string;Port of CMS's OCSP Secure EE service",
-                PROP_PATH + ";string;URI of CMS's OCSP Secure EE service",
+                PROP_HOST + ";string;Host of CMS's OCSP Secure agent service",
+                PROP_PORT + ";string;Port of CMS's OCSP Secure agent service",
+                PROP_PATH + ";string;URI of CMS's OCSP Secure agent service",
+                PROP_NICK + ";string;Nickname of cert used for client authentication",
+                PROP_CLIENT_AUTH_ENABLE + ";boolean;Client Authentication enabled",
                 IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-ldappublish-publisher-ocsppublisher",
                 IExtendedPluginInfo.HELP_TEXT +
@@ -87,6 +93,8 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
         String host = "";
         String port = "";
         String path = "";
+        String nickname = "";
+        String clientAuthEnabled = "";
 
         try {
             host = mConfig.getString(PROP_HOST);
@@ -103,6 +111,16 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
         } catch (EBaseException e) {
         }
         v.addElement(PROP_PATH + "=" + path);
+        try {
+            nickname = mConfig.getString(PROP_NICK);
+        } catch (EBaseException e) {
+        }
+        v.addElement(PROP_NICK + "=" + nickname);
+        try {
+            clientAuthEnabled = mConfig.getString(PROP_CLIENT_AUTH_ENABLE);
+        } catch (EBaseException e) {
+        }
+        v.addElement(PROP_CLIENT_AUTH_ENABLE + "=" + clientAuthEnabled);
         return v;
     }
 
@@ -112,9 +130,23 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public Vector getDefaultParams() {
         Vector v = new Vector();
 
+        IConfigStore config = CMS.getConfigStore();
+        String nickname = "";
+        // get subsystem cert nickname as default for client auth
+        try {
+            nickname = config.getString("ca.subsystem.nickname", "");
+            String tokenname = config.getString("ca.subsystem.tokenname", "");
+            if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
+                nickname = tokenname+":"+nickname;
+        } catch (Exception e) {
+        }
+
+
         v.addElement(PROP_HOST + "=");
         v.addElement(PROP_PORT + "=");
-        v.addElement(PROP_PATH + "=/ocsp/ee/ocsp/addCRL");
+        v.addElement(PROP_PATH + "=/ocsp/agent/ocsp/addCRL");
+        v.addElement(PROP_CLIENT_AUTH_ENABLE + "=true");
+        v.addElement(PROP_NICK + "=" + nickname);
         return v;
     }
 
@@ -127,6 +159,8 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             mHost = mConfig.getString(PROP_HOST, "");
             mPort = mConfig.getString(PROP_PORT, "");
             mPath = mConfig.getString(PROP_PATH, "");
+            mNickname = mConfig.getString(PROP_NICK, "");
+            mClientAuthEnabled = mConfig.getBoolean(PROP_CLIENT_AUTH_ENABLE, true);
         } catch (EBaseException e) {
         }
     }
@@ -135,7 +169,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
         return mConfig;
     }
 
-    protected Socket Connect(String host, boolean secure) 
+    protected Socket Connect(String host, boolean secure, JssSSLSocketFactory factory) 
     {
             Socket socket = null;
                StringTokenizer st = new StringTokenizer(host, " ");
@@ -146,9 +180,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
                   int p = Integer.parseInt(st1.nextToken());
                   try {
                      if (secure) {
-                        SSLSocket sec_socket = new SSLSocket(h, p);
-                        sec_socket.setUseClientMode(true);
-                        socket = sec_socket;
+                        socket = factory.makeSocket(h, p);
                      } else {
                         socket = new Socket(h, p);
                      }
@@ -206,20 +238,24 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             query.append("&noui=true");
 
             Socket socket = null;
+            JssSSLSocketFactory factory;
+
+            if (mClientAuthEnabled) {
+                factory = new JssSSLSocketFactory(mNickname);
+            } else {
+                factory = new JssSSLSocketFactory();
+            }
 
             if (mHost != null && mHost.indexOf(' ') != -1) {
                // support failover hosts configuration
                // host parameter can be
                // "directory.knowledge.com:1050 people.catalog.com 199.254.1.2"
                do {
-                   socket = Connect(mHost, secure);
+                   socket = Connect(mHost, secure, factory);
                } while (socket == null);
             } else {
               if (secure) {
-                SSLSocket sec_socket = new SSLSocket(host, port);
-
-                sec_socket.setUseClientMode(true);
-                socket = sec_socket;
+                socket = factory.makeSocket(host, port);
               } else {
                 socket = new Socket(host, port);
               }

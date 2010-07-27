@@ -286,7 +286,8 @@ loser:
 int RA_Processor::UpgradeApplet(RA_Session *session, char *prefix, char *tokenType, BYTE major_version, BYTE minor_version, const char *new_version, const char *applet_dir, SecurityLevel security_level, const char *connid,
 		NameValueSet *extensions,
 		int start_progress,
-		int end_progress)
+		int end_progress, 
+                char **key_version)
 {
         Buffer *NetKeyAID = RA::GetConfigStore()->GetConfigAsBuffer(
 			RA::CFG_APPLET_NETKEY_INSTANCE_AID,
@@ -374,6 +375,11 @@ int RA_Processor::UpgradeApplet(RA_Session *session, char *prefix, char *tokenTy
 		  "channel creation failure");
 	     goto loser;
 	}
+
+        // get keyVersion
+        if (channel != NULL) {
+            *key_version = Util::Buffer2String(channel->GetKeyInfoData());
+        }
 
 	if (channel->ExternalAuthenticate() == -1) {
              RA::Error(LL_PER_PDU, "RA_Processor::UpgradeApplet", 

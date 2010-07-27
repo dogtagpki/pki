@@ -54,6 +54,7 @@ import org.mozilla.jss.util.Base64OutputStream;
 import netscape.security.util.*;
 import netscape.security.pkcs.*;
 import netscape.security.x509.*;
+import com.netscape.cmsutil.util.Cert;
 
 
 public class CryptoUtil {
@@ -240,6 +241,26 @@ public class CryptoUtil {
         X509Key x509key = getPublicX509Key(modulus, exponent);
         PrivateKey prik = findPrivateKeyFromID(prikdata);
         PKCS10 pkcs10 = createCertificationRequest(dn, x509key, prik);
+        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(bs);
+        pkcs10.print(ps);
+        return bs.toString();
+    }
+
+    public static String getPKCS10FromKey(String dn, 
+                    byte modulus[], byte exponent[], byte prikdata[], String alg)
+              throws IOException,
+                     InvalidKeyException,
+                     TokenException,
+                     NoSuchProviderException,
+                     CertificateException,
+                     SignatureException,
+                     CryptoManager.NotInitializedException,
+                     NoSuchAlgorithmException
+    {
+        X509Key x509key = getPublicX509Key(modulus, exponent);
+        PrivateKey prik = findPrivateKeyFromID(prikdata);
+        PKCS10 pkcs10 = createCertificationRequest(dn, x509key, prik, alg);
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(bs);
         pkcs10.print(ps);
@@ -508,6 +529,23 @@ public class CryptoUtil {
         throws IOException, 
                 CertificateException, 
                 InvalidKeyException {
+        // set default; use the other call with "alg" to set algorithm
+        String alg = "SHA1withRSA";
+        try {
+        return createX509CertInfo (x509key, serialno, issuername, subjname, notBefore, notAfter, alg);
+        } catch (NoSuchAlgorithmException ex) {
+          // for those that calls the old call without alg
+          throw new CertificateException("createX509CertInfo old call should not be here");
+        }
+    }
+
+    public static X509CertInfo createX509CertInfo(X509Key x509key,
+            int serialno, String issuername, String subjname, 
+            Date notBefore, Date notAfter, String alg)
+        throws IOException, 
+                CertificateException, 
+                InvalidKeyException,
+                NoSuchAlgorithmException {
         X509CertInfo info = new X509CertInfo();
 
         info.set(X509CertInfo.VERSION, new
@@ -520,11 +558,10 @@ public class CryptoUtil {
                 CertificateSubjectName(new X500Name(subjname)));
         info.set(X509CertInfo.VALIDITY, new
                 CertificateValidity(notBefore, notAfter));
-        AlgorithmId sigAlgId = new AlgorithmId(
-                AlgorithmId.md5WithRSAEncryption_oid);
+        AlgorithmId sigAlgId = new AlgorithmId();
 
         info.set(X509CertInfo.ALGORITHM_ID, new
-                CertificateAlgorithmId(sigAlgId));
+                CertificateAlgorithmId(sigAlgId.get(alg)));
         info.set(X509CertInfo.KEY, new CertificateX509Key(x509key));
         info.set(X509CertInfo.EXTENSIONS, new CertificateExtensions());
         return info;
@@ -543,13 +580,45 @@ public class CryptoUtil {
                 IOException,
                 CertificateException
     {
+        // set default; use the other call with "alg" to specify algorithm
+        String alg = "SHA1withEC";
+        return signECCCert(privateKey, certInfo, alg);
+    }
+
+    public static X509CertImpl signECCCert(PrivateKey privateKey, 
+            X509CertInfo certInfo, String alg)
+        throws NoSuchTokenException, 
+                CryptoManager.NotInitializedException,
+                NoSuchAlgorithmException,
+                NoSuchTokenException,
+                TokenException,
+                InvalidKeyException,
+                SignatureException,
+                IOException,
+                CertificateException
+    {
        return signCert(privateKey, certInfo, 
-                SignatureAlgorithm.ECSignatureWithSHA1Digest);
+                Cert.mapAlgorithmToJss(alg));
     }
 
     /**
      * Signs certificate.
      */
+    public static X509CertImpl signCert(PrivateKey privateKey, 
+            X509CertInfo certInfo, String alg)
+        throws NoSuchTokenException, 
+                CryptoManager.NotInitializedException,
+                NoSuchAlgorithmException,
+                NoSuchTokenException,
+                TokenException,
+                InvalidKeyException,
+                SignatureException,
+                IOException,
+                CertificateException {
+        return signCert (privateKey, certInfo,
+                 Cert.mapAlgorithmToJss(alg));
+    }
+
     public static X509CertImpl signCert(PrivateKey privateKey, 
             X509CertInfo certInfo, SignatureAlgorithm sigAlg)
         throws NoSuchTokenException, 
@@ -598,11 +667,20 @@ public class CryptoUtil {
         throws NoSuchAlgorithmException, NoSuchProviderException,
                 InvalidKeyException, IOException, CertificateException,
                 SignatureException {
-        X509Key key = pubk;
-        String alg = "MD5/RSA";
-        if (isECCKey(key)) {
+        // give default
+        String alg = "SHA1withRSA";
+        if (isECCKey(pubk)) {
           alg = "SHA1withEC";
         }
+        return createCertificationRequest(subjectName, pubk, prik, alg);
+    }
+
+    public static PKCS10 createCertificationRequest(String subjectName,
+            X509Key pubk, PrivateKey prik, String alg)
+        throws NoSuchAlgorithmException, NoSuchProviderException,
+                InvalidKeyException, IOException, CertificateException,
+                SignatureException {
+        X509Key key = pubk;
         java.security.Signature sig = java.security.Signature.getInstance(alg,
                 "Mozilla-JSS");
 
@@ -623,16 +701,28 @@ public class CryptoUtil {
         throws NoSuchAlgorithmException, NoSuchProviderException,
                 InvalidKeyException, IOException, CertificateException,
                 SignatureException {
+        String alg;
         PublicKey pubk = keyPair.getPublic();
         X509Key key = convertPublicKeyToX509Key(pubk);
-        String alg;
-                                                                                
         if (pubk instanceof RSAPublicKey) {
-            alg = "MD5/RSA";
+            alg = "SHA1withRSA";
+        } else if (isECCKey(key)) {
+            alg = "SHA1withEC";
         } else {
             // Assert.assert(pubk instanceof DSAPublicKey);
             alg = "DSA";
         }
+        return createCertificationRequest(subjectName,keyPair, alg);
+    }
+
+    public static PKCS10 createCertificationRequest(String subjectName,
+            KeyPair keyPair, String alg)
+        throws NoSuchAlgorithmException, NoSuchProviderException,
+                InvalidKeyException, IOException, CertificateException,
+                SignatureException {
+        PublicKey pubk = keyPair.getPublic();
+        X509Key key = convertPublicKeyToX509Key(pubk);
+                                                                                
         java.security.Signature sig = java.security.Signature.getInstance(alg,
                 "Mozilla-JSS");
                                                                                 

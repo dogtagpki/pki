@@ -1018,7 +1018,7 @@ void AP_Session::WriteMsg( RA_Msg *msg )
             int local_msg = end_op->GetMsg();
             int op = end_op->GetOpType();
 
-            sprintf( msgbuf, "%s=%d&%s=%d&%s=%d&%s=%d", 
+            sprintf( msgbuf, "%s=%d&%s=%d&%s=%d&%s=%d\r\n0\r\n", 
                      PARAM_MSG_TYPE, MSG_END_OP,
                      PARAM_OPERATION, op,
                      PARAM_RESULT, result,

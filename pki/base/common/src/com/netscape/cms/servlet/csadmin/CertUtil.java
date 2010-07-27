@@ -128,6 +128,8 @@ public class CertUtil {
         try {
             String pubKeyType = config.getString(
                         prefix + certTag + ".keytype");
+            String algorithm = config.getString(
+                        prefix + certTag + ".keyalgorithm");
             if (pubKeyType.equals("rsa")) {
               String pubKeyModulus = config.getString(
                     prefix + certTag + ".pubkey.modulus");
@@ -170,7 +172,7 @@ public class CertUtil {
 
             PKCS10 certReq = null;
             certReq = CryptoUtil.createCertificationRequest(dn, pubk,
-                    privk);
+                    privk, algorithm);
             byte[] certReqb = certReq.toByteArray();
             String certReqs = CryptoUtil.base64Encode(certReqb);
 
@@ -250,7 +252,53 @@ public class CertUtil {
             CMS.debug("CertUtil:updateLocalRequest - Exception:" + e.toString());
         }
     }
- 
+
+/**
+ * reads from the admin cert profile caAdminCert.profile and takes the first 
+ * entry in the list of allowed algorithms.  Users that wish a different algorithm 
+ * can specify it in the profile using default.params.signingAlg
+ */
+
+    public static String getAdminProfileAlgorithm(IConfigStore config) {
+        String algorithm = "SHA1withRSA";
+        try {
+            String caSigningKeyType = config.getString("preop.cert.signing.keytype","rsa");
+            String pfile = config.getString("profile.caAdminCert.config");
+            FileInputStream fis = new FileInputStream(pfile);
+            DataInputStream in = new DataInputStream(fis);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+           String strLine;
+           while ((strLine = br.readLine()) != null) {
+               String marker2 = "default.params.signingAlg=";
+               int indx = strLine.indexOf(marker2);
+               if (indx != -1) {
+                   String alg = strLine.substring(indx + marker2.length());
+                   if ((alg.length() > 0) && (!alg.equals("-"))) {
+                       algorithm = alg;
+                       break;
+                   };
+               };
+
+               String marker = "signingAlgsAllowed=";
+               indx = strLine.indexOf(marker);
+               if (indx != -1) {
+                   String[] algs = strLine.substring(indx + marker.length()).split(",");
+                   for (int i=0; i<algs.length; i++) {
+                       if ((caSigningKeyType.equals("rsa") && (algs[i].indexOf("RSA") != -1)) ||
+                           (caSigningKeyType.equals("ecc") && (algs[i].indexOf("EC" ) != -1)) ) {
+                           algorithm = algs[i];
+                           break;
+                       }
+                   }
+               }
+           }
+           in.close();
+        } catch (Exception e) {
+            CMS.debug("getAdminProfleAlgorithm: exception: " + e);
+        }
+        return algorithm;
+    }
 
     public static X509CertImpl createLocalCert(IConfigStore config, X509Key x509key,
             String prefix, String certTag, String type, Context context) throws IOException {
@@ -272,10 +320,16 @@ public class CertUtil {
 
         try {
             String dn = config.getString(prefix + certTag + ".dn");
+            String keyAlgorithm = null;
             Date date = new Date();
 
             X509CertInfo info = null;
 
+            if (certTag.equals("admin")) {
+                keyAlgorithm = getAdminProfileAlgorithm(config);
+            } else {
+                keyAlgorithm = config.getString(prefix + certTag + ".keyalgorithm");
+            }
             ca = (ICertificateAuthority) CMS.getSubsystem(
                     ICertificateAuthority.ID);
             cr = (ICertificateRepository) ca.getCertificateRepository();
@@ -284,14 +338,14 @@ public class CertUtil {
                 CMS.debug("Creating local certificate... issuerdn=" + dn);
                 CMS.debug("Creating local certificate... dn=" + dn);
                 info = CryptoUtil.createX509CertInfo(x509key, serialNo.intValue(), dn, dn, date,
-                        date);
+                        date, keyAlgorithm);
             } else { 
                 String issuerdn = config.getString("preop.cert.signing.dn", "");
                 CMS.debug("Creating local certificate... issuerdn=" + issuerdn);
                 CMS.debug("Creating local certificate... dn=" + dn);
 
                 info = CryptoUtil.createX509CertInfo(x509key,
-                        serialNo.intValue(), issuerdn, dn, date, date);
+                        serialNo.intValue(), issuerdn, dn, date, date, keyAlgorithm);
             }
             CMS.debug("Cert Template: " + info.toString());
 
@@ -352,13 +406,13 @@ public class CertUtil {
             String caSigningKeyType = 
                  config.getString("preop.cert.signing.keytype","rsa");
             CMS.debug("CA Signing Key type " + caSigningKeyType);
+
             if (caSigningKeyType.equals("ecc")) {
               CMS.debug("Signing ECC certificate");
-              cert = CryptoUtil.signECCCert(caPrik, info);
+              cert = CryptoUtil.signECCCert(caPrik, info, keyAlgorithm);
             } else {
               CMS.debug("Signing RSA certificate");
-              cert = CryptoUtil.signCert(caPrik, info,
-                    SignatureAlgorithm.RSASignatureWithSHA1Digest);
+              cert = CryptoUtil.signCert(caPrik, info, keyAlgorithm);
             }
 
             if (cert != null) {

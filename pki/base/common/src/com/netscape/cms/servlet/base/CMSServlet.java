@@ -1782,6 +1782,8 @@ public abstract class CMSServlet extends HttpServlet {
             }
             String userid = authToken.getInString(IAuthToken.USER_ID);
 
+            CMS.debug("CMSServlet: userid=" + userid);
+
             if (userid != null) {
                 ctx.put(SessionContext.USER_ID, userid);
             }
@@ -1806,8 +1808,7 @@ public abstract class CMSServlet extends HttpServlet {
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditAuthMgrID,
-                        auditUID);
-
+                        auditUID); 
             audit(auditMessage);
 
             // rethrow the specific exception to be handled later
@@ -1850,8 +1851,22 @@ public abstract class CMSServlet extends HttpServlet {
         throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
+        String auditGroupID = auditGroupID();
+        String auditID = auditSubjectID;
         String auditACLResource = resource;
         String auditOperation = operation;
+
+
+        SessionContext auditContext = SessionContext.getExistingContext();
+        String authManagerId = null;
+
+        if(auditContext != null) {
+            authManagerId = (String) auditContext.get(SessionContext.AUTH_MANAGER_ID);
+    
+            if(authManagerId != null && authManagerId.equals("TokenAuth")) {
+               auditID = auditGroupID;  
+            }
+        }
 
         // "normalize" the "auditACLResource" value
         if (auditACLResource != null) {
@@ -1895,7 +1910,7 @@ public abstract class CMSServlet extends HttpServlet {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
-                            auditSubjectID,
+                            auditID,
                             ILogger.SUCCESS,
                             auditGroups(auditSubjectID));
 
@@ -1914,7 +1929,7 @@ public abstract class CMSServlet extends HttpServlet {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
-                            auditSubjectID,
+                            auditID,
                             ILogger.FAILURE,
                             auditGroups(auditSubjectID));
 
@@ -1936,7 +1951,7 @@ public abstract class CMSServlet extends HttpServlet {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
-                        auditSubjectID,
+                        auditID,
                         ILogger.FAILURE,
                         auditGroups(auditSubjectID));
 
@@ -2007,15 +2022,18 @@ public abstract class CMSServlet extends HttpServlet {
             return null;
         }
 
+        CMS.debug("CMSServlet: in auditSubjectID");
         String subjectID = null;
 
         // Initialize subjectID
         SessionContext auditContext = SessionContext.getExistingContext();
 
+        CMS.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
         if (auditContext != null) {
             subjectID = (String)
                     auditContext.get(SessionContext.USER_ID);
 
+            CMS.debug("CMSServlet auditSubjectID: subjectID: " + subjectID);
             if (subjectID != null) {
                 subjectID = subjectID.trim();
             } else {
@@ -2026,6 +2044,46 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         return subjectID;
+    }
+
+    /**
+     * Signed Audit Log Group ID
+     *
+     * This method is inherited by all extended "CMSServlet"s,
+     * and is called to obtain the "gid" for
+     * a signed audit log message.
+     * <P>
+     *
+     * @return id string containing the signed audit log message SubjectID
+     */
+    protected String auditGroupID() {
+        // if no signed audit object exists, bail
+        if (mSignedAuditLogger == null) {
+            return null;
+        }
+
+        CMS.debug("CMSServlet: in auditGroupID");
+        String groupID = null;
+
+        // Initialize groupID
+        SessionContext auditContext = SessionContext.getExistingContext();
+
+        CMS.debug("CMSServlet: auditGroupID auditContext " + auditContext);
+        if (auditContext != null) {
+            groupID = (String)
+                    auditContext.get(SessionContext.GROUP_ID);
+
+            CMS.debug("CMSServlet auditGroupID: groupID: " + groupID);
+            if (groupID != null) {
+                groupID = groupID.trim();
+            } else {
+                groupID = ILogger.NONROLEUSER;
+            }
+        } else {
+            groupID = ILogger.UNIDENTIFIED;
+        }
+
+        return groupID;
     }
 
     /**

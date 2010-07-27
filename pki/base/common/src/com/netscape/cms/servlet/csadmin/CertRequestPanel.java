@@ -312,6 +312,8 @@ public class CertRequestPanel extends WizardPanelBase {
             // get public key
             String pubKeyType = config.getString(
                     PCERT_PREFIX + certTag + ".keytype");
+            String algorithm = config.getString(
+                    PCERT_PREFIX + certTag + ".keyalgorithm");
             X509Key pubk = null;
             if (pubKeyType.equals("rsa")) {
                 pubk = getRSAX509Key(config, certTag);
@@ -350,7 +352,7 @@ public class CertRequestPanel extends WizardPanelBase {
 
             cert.setDN(caDN);
             PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, pubk,
-                    privk);
+                    privk, algorithm);
 
             CMS.debug("CertRequestPanel: created cert request");
             byte[] certReqb = certReq.toByteArray();

@@ -283,6 +283,7 @@ subca_base_dn="dc=${pki_host}-${subca_instance_name}"
 subca_db_name="${pki_host}-${subca_instance_name}"
 subca_key_size=2048
 subca_key_type=rsa
+subca_key_algorithm=SHA256withRSA
 subca_sign_cert_subject_name="cn=Certificate\ Authority\ 2,o=${pki_security_domain_name}"
 subca_subsystem_cert_subject_name="cn=CA\ Subsystem\ Certificate\ 2,o=${pki_security_domain_name}"
 subca_ocsp_cert_subject_name="cn=OCSP\ Signing\ Certificate\ 2,o=${pki_security_domain_name}"
@@ -480,6 +481,7 @@ pkisilent ConfigureSubCA \
 	-db_name "${subca_db_name}" \
 	-key_size ${subca_key_size} \
 	-key_type ${subca_key_type} \
+	-key_algorithm ${subca_key_algorithm} \
 	-token_name ${subca_token_name} \
 	-token_pwd ${subca_token_password} \
 	-agent_key_size ${subca_agent_key_size} \

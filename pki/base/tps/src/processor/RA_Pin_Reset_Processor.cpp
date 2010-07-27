@@ -86,7 +86,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
     const char* required_version = NULL;
     const char *appletVersion = NULL;
     const char *final_applet_version = NULL;
-    const char *keyVersion = PL_strdup( "" );
+    char *keyVersion = PL_strdup( "" );
     const char *userid = PL_strdup( "" );
     BYTE major_version = 0x0;
     BYTE minor_version = 0x0;
@@ -112,6 +112,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
     LDAPMessage *e = NULL;
     LDAPMessage *ldapResult = NULL;
     int maxReturns = 10;
+    char audit_msg[512] = "";
 
 
     RA::Debug("RA_Pin_Reset_Processor::Process", "Client %s",                       session->GetRemoteIP());
@@ -126,6 +127,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
           RA::Error("RA_Pin_Reset_Processor::Process",
                         "Get Data Failed");
           status = STATUS_ERROR_SECURE_CHANNEL;
+          PR_snprintf(audit_msg, 512, "Get Data Failed, status = STATUS_ERROR_SECURE_CHANNEL");
           goto loser;
     }
     RA::DebugBuffer("RA_Pin_Reset_Processor::process", "CPLC Data = ", 
@@ -134,6 +136,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
           RA::Error("RA_Format_Processor::Process",
                         "Invalid CPLC Size");
           status = STATUS_ERROR_SECURE_CHANNEL;
+          PR_snprintf(audit_msg, 512, "Invalid CPLC Size, status = STATUS_ERROR_SECURE_CHANNEL");
           goto loser;
     }
     token_cuid =  Buffer(cplc_data->substr(3,4)) +
@@ -174,6 +177,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
         RA::Error("RA_Pin_Reset_Processor::Process",
                         "CUID %s Not Present", cuid);
         status = STATUS_ERROR_DB;
+        PR_snprintf(audit_msg, 512, "CUID Not Present, status = STATUS_ERROR_DB");
         goto loser;
     }
 
@@ -182,6 +186,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
     if (!GetTokenType(OP_PREFIX, major_version,
                     minor_version, cuid, msn,
                     extensions, status, tokenType)) {
+                PR_snprintf(audit_msg, 512, "Failed to get token type");
 		goto loser;
     }
 
@@ -190,16 +195,40 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
                         "CUID %s Disabled", cuid);
         status = STATUS_ERROR_DISABLED_TOKEN;
         RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "token disabled", "", tokenType);
+        PR_snprintf(audit_msg, 512, "Token disabled, status = STATUS_ERROR_DISABLED_TOKEN");
         goto loser;
      }
+
+    // we know cuid and msn here 
+    RA::Audit(EV_PIN_RESET, AUDIT_MSG_PROC,
+      userid != NULL ? userid : "",
+      cuid != NULL ? cuid : "",
+      msn != NULL ? msn : "",
+      "success",
+      "pin_reset",
+      final_applet_version != NULL ? final_applet_version : "",
+      keyVersion != NULL? keyVersion : "",
+      "token enabled");
 
     if (!RA::ra_is_token_pin_resetable(cuid)) {
         RA::Error("RA_Pin_Reset_Processor::Process",
                         "CUID %s Cannot Pin Reset", cuid);
         status = STATUS_ERROR_NOT_PIN_RESETABLE;
         RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "pin not resetable", "", tokenType);
+        PR_snprintf(audit_msg, 512, "token cannot pin reset, status = STATUS_ERROR_PIN_RESETABLE");
         goto loser;
       }
+
+    // we know cuid and msn here 
+    RA::Audit(EV_PIN_RESET, AUDIT_MSG_PROC,
+      userid != NULL ? userid : "",
+      cuid != NULL ? cuid : "",
+      msn != NULL ? msn : "",
+      "success",
+      "pin_reset",
+      final_applet_version != NULL ? final_applet_version : "",
+      keyVersion != NULL? keyVersion : "",
+      "pin reset allowed");
 
     PR_snprintf((char *)configname, 256, "%s.%s.tks.conn",
                     OP_PREFIX, tokenType);
@@ -208,6 +237,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
         RA::Error("RA_Pin_Reset_Processor::Process",
                         "TKS Connection Parameter %s Not Found", configname);
         status = STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND;
+        PR_snprintf(audit_msg, 512, "TKS Connection Parameter %s Not Found, status = STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND", configname);
         goto loser;
     }
 
@@ -222,6 +252,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
 			"no applet found and applet upgrade not enabled");
                  status = STATUS_ERROR_SECURE_CHANNEL;
                 RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "secure channel not established", "", tokenType);
+                PR_snprintf(audit_msg, 512, "no applet found and applet upgrade not enabled, status = STATUS_ERROR_SECURE_CHANNEL");
 		 goto loser;
 	 }
     } else {
@@ -254,6 +285,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
              RA::Error("RA_Pin_Reset_Processor::Process", 
 			"misconfiguration for upgrade");
               status = STATUS_ERROR_MISCONFIGURATION;
+              PR_snprintf(audit_msg, 512, "misconfiguration for upgrade, status = STATUS_ERROR_MISCONFIGURATION");
               goto loser;
 	}
 	/* Bugscape #55826: used case-insensitive check below */
@@ -264,6 +296,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
             if (applet_dir == NULL) {
                 RA::Error(LL_PER_PDU, "RA_Processor::UpgradeApplet",
                                 "Failed to get %s", applet_dir);
+                PR_snprintf(audit_msg, 512, "Failed to get %s", applet_dir);
                 goto loser;
             }
             PR_snprintf((char *)configname, 256, "%s.%s.update.applet.encryption", OP_PREFIX, tokenType);
@@ -272,7 +305,8 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
               security_level = SECURE_MSG_MAC;
             PR_snprintf((char *)configname, 256, "%s.%s.tks.conn", OP_PREFIX, tokenType);
             connid = RA::GetConfigStore()->GetConfigAsString(configname);
-            int upgrade_rc = UpgradeApplet(session, OP_PREFIX, (char*)tokenType, major_version, minor_version, expected_version, applet_dir, security_level, connid, extensions, 30, 70);
+            int upgrade_rc = UpgradeApplet(session, OP_PREFIX, (char*)tokenType, major_version, minor_version, 
+                expected_version, applet_dir, security_level, connid, extensions, 30, 70, &keyVersion);
 	    if (upgrade_rc != 1) {
                RA::Error("RA_Pin_Reset_Processor::Process", 
 			"upgrade failure");
@@ -282,10 +316,19 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
                * Bugscape #55709: Re-select Net Key Applet ONLY on failure.
                */
               SelectApplet(session, 0x04, 0x00, NetKeyAID);
+
+              RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+                userid, cuid, msn, "Failure", "pin_reset", 
+                keyVersion != NULL? keyVersion : "", 
+                appletVersion, expected_version, "applet upgrade");
               goto loser;
 	    }
-            RA::Audit(EV_PIN_RESET, "op='applet_upgrade' app_ver='%s' new_app_ver='%s'", 
-			    appletVersion, expected_version);
+
+            RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+              userid, cuid, msn, "Success", "pin_reset", 
+              keyVersion != NULL? keyVersion : "", 
+              appletVersion, expected_version, "applet upgrade");
+
 	    final_applet_version = expected_version;
         }
     }
@@ -318,6 +361,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
 			"setup secure channel failure");
             status = STATUS_ERROR_SECURE_CHANNEL;
             RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "secure channel not established", "", tokenType);
+            PR_snprintf(audit_msg, 512, "setup secure channel failure, status = STATUS_ERROR_SECURE_CHANNEL");
             goto loser;
 	}
 
@@ -327,6 +371,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
 			"External authentication in secure channel failed");
             status = STATUS_ERROR_EXTERNAL_AUTH;
             RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "external authentication error", "", tokenType);
+            PR_snprintf(audit_msg, 512, "External authentication in secure channel failed, status = STATUS_ERROR_EXTERNAL_AUTH");
             goto loser;
         } 
 
@@ -347,6 +392,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
                         "failed to create new key set");
             status = STATUS_ERROR_CREATE_CARDMGR;
             RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "create key set error", "", tokenType);
+            PR_snprintf(audit_msg, 512, "failed to create new key set, status = STATUS_ERROR_CREATE_CARDMGR");
             goto loser;
         }
 
@@ -358,8 +404,12 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
                   curIndex,
                   &key_data_set);
 
-        RA::Audit(EV_PIN_RESET, "op='key_change_over' app_ver='%s' cuid='%s' old_key_ver='%02x01' new_key_ver='%02x01'", final_applet_version, cuid, curVersion, ((BYTE*)newVersion)[0]);
-
+        if (rc!=0) {
+            RA::Audit(EV_KEY_CHANGEOVER, AUDIT_MSG_KEY_CHANGEOVER,
+                userid, cuid, msn, "Failure", "pin_reset",
+                final_applet_version, curVersion, ((BYTE*)newVersion)[0],
+                "key changeover failed");
+        }
 
          SelectApplet(session, 0x04, 0x00, NetKeyAID);
         PR_snprintf((char *)configname, 256, "%s.%s.update.symmetricKeys.requiredVersion", OP_PREFIX, tokenType);
@@ -378,8 +428,14 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
 			"setup secure channel failure");
             status = STATUS_ERROR_CREATE_CARDMGR;
             RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "secure channel not established", "", tokenType);
+            PR_snprintf(audit_msg, 512, "setup secure channel failure, status = STATUS_ERROR_CREATE_CARDMGR");
             goto loser;
          }
+
+        RA::Audit(EV_KEY_CHANGEOVER, AUDIT_MSG_KEY_CHANGEOVER,
+                userid, cuid, msn, "Success", "pin_reset",
+                final_applet_version, curVersion, ((BYTE*)newVersion)[0],
+                "key changeover");
       }
     } else {
       PR_snprintf((char *)configname, 256, "%s.%s.tks.conn", OP_PREFIX, tokenType);
@@ -399,6 +455,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
 			"no channel creation failure");
             status = STATUS_ERROR_CREATE_CARDMGR;
             RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "secure channel not established", "", tokenType);
+            PR_snprintf(audit_msg, 512, "no channel creation failure, status = STATUS_ERROR_CREATE_CARDMGR");
             goto loser;
     }
 
@@ -488,6 +545,8 @@ locale),
 			"login not provided");
         status = STATUS_ERROR_LOGIN;
         RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "login not found", "", tokenType);
+        PR_snprintf(audit_msg, 512, "login not provided, status = STATUS_ERROR_LOGIN");
+
         goto loser;
       }
       if( userid != NULL ) {
@@ -503,6 +562,16 @@ locale),
                         "PROGRESS_START_AUTHENTICATION");
     }
 
+    RA::Audit(EV_PIN_RESET, AUDIT_MSG_PROC,
+      userid != NULL ? userid : "",
+      cuid != NULL ? cuid : "",
+      msn != NULL ? msn : "",
+      "success",
+      "pin_reset",
+      final_applet_version != NULL ? final_applet_version : "",
+      keyVersion != NULL? keyVersion : "",
+      "userid obtained");
+
     PR_snprintf(configname, 256, "cn=%s", cuid);
     rc = RA::ra_find_tus_token_entries(configname, maxReturns, &ldapResult, 0);
 
@@ -513,12 +582,14 @@ locale),
             if (tokenOwner[0] != NULL && strlen(tokenOwner[0]) > 0 &&
                 strcmp(userid, tokenOwner[0]) != 0) {
                 status = STATUS_ERROR_NOT_TOKEN_OWNER;
+                PR_snprintf(audit_msg, 512, "token owner mismatch, status = STATUS_ERROR_NOT_TOKEN_OWNER");
                 goto loser;
             }
         }
     } else {
         RA::Error("RA_Pin_Reset_Processor::Process", "Error in ldap connection with token database.");
         status = STATUS_ERROR_LDAP_CONN;
+        PR_snprintf(audit_msg, 512, "Error in ldap connection with token database, status = STATUS_ERROR_LDAP_CONN");
         goto loser;
     }
 
@@ -527,6 +598,7 @@ locale),
         if (login == NULL) {
                 RA::Error("RA_Pin_Reset_Processor::Process", "Login Request Disabled. Authentication failed.");
                 status = STATUS_ERROR_LOGIN;
+                PR_snprintf(audit_msg, 512, "Login Request Disabled. status = STATUS_ERROR_LOGIN");
                 goto loser;
         }
 
@@ -535,6 +607,7 @@ locale),
         authid = RA::GetConfigStore()->GetConfigAsString(configname);
         if (authid == NULL) {
                 status = STATUS_ERROR_LOGIN;
+            PR_snprintf(audit_msg, 512, "authid is null, status = STATUS_ERROR_LOGIN");
             goto loser;
 	}
         AuthenticationEntry *auth = RA::GetAuth(authid);
@@ -543,6 +616,7 @@ locale),
         {
             RA::Error("RA_Pin_Reset_Processor::Process", "Authentication manager is NULL . Authentication failed.");
             status = STATUS_ERROR_LOGIN;
+            PR_snprintf(audit_msg, 512, "Authentication manager is NULL, status = STATUS_ERROR_LOGIN");
             goto loser;
         }
  
@@ -550,6 +624,7 @@ locale),
         if (type == NULL) {
             status = STATUS_ERROR_LOGIN;
             RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "authentication is missing param type", "", tokenType);
+            PR_snprintf(audit_msg, 512, "authentication is missing param type, status = STATUS_ERROR_LOGIN");
             goto loser;
         }
         if (strcmp(type, "LDAP_Authentication") == 0) {
@@ -570,6 +645,7 @@ locale),
                 if (login == NULL) {
                     RA::Error("RA_Pin_Reset_Processor::Process", "Login Request Disabled. Authentication failed.");
                     status = STATUS_ERROR_LOGIN;
+                    PR_snprintf(audit_msg, 512, "Login Request Disabled, r=-2 or -3. status= STATUS_ERROR_LOGIN");
                     goto loser;
                 }
                 retries++;
@@ -582,6 +658,7 @@ locale),
                 RA::Error("RA_Pin_Reset_Processor::Process", "Authentication failed.");
                 status = STATUS_ERROR_LDAP_CONN;
                 RA::Debug(LL_PER_PDU, "RA_Pin_Reset_Processor::Process", "Authentication status = %d", status);
+                PR_snprintf(audit_msg, 512, "authentication failed, rc=-1, status = STATUS_ERROR_LDAP_CONN");
                 goto loser; 
             }
 
@@ -589,6 +666,7 @@ locale),
                 RA::Error("RA_Pin_Reset_Processor::Process", "Authentication failed.");
                 status = STATUS_ERROR_LOGIN;
                 RA::Debug(LL_PER_PDU, "RA_Pin_Reset_Processor::Process", "Authentication status = %d", status);
+                PR_snprintf(audit_msg, 512, "authentication failed, rc=-2 or rc=-3, status = STATUS_ERROR_LOGIN");
                 goto loser; 
             }
 
@@ -597,12 +675,24 @@ locale),
             RA::Error("RA_Pin_Reset_Processor::Process", "No Authentication type was found.");
             status = STATUS_ERROR_LOGIN;
             RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "authentication error", "", tokenType);
+            PR_snprintf(audit_msg, 512, "No Authentication type was found. status = STATUS_ERROR_LOGIN");
             goto loser;
         }
     } else {
         RA::Debug(LL_PER_PDU, "RA_Pin_Reset_Processor::Process", 
           "Authentication has been disabled.");
     }
+
+    RA::Audit(EV_PIN_RESET, AUDIT_MSG_PROC,
+      userid != NULL ? userid : "",
+      cuid != NULL ? cuid : "",
+      msn != NULL ? msn : "",
+      "success",
+      "pin_reset",
+      final_applet_version != NULL ? final_applet_version : "",
+      keyVersion != NULL? keyVersion : "",
+      "authentication successful");
+
 
     RA::Debug(LL_PER_PDU, "RA_Pin_Reset_Processor::Process", 
           "SetupSecureChannel");
@@ -622,15 +712,27 @@ locale),
         RA::Error(LL_PER_PDU, "RA_Pin_Reset_Processor::Process", 
           "No user owns the token '%s'", cuid);
         status = STATUS_ERROR_TOKEN_DISABLED;
+        PR_snprintf(audit_msg, 512, "No user owns the token, status = STATUS_ERROR_TOKEN_DISABLED");
         goto loser;
     } else {
       if (strcmp(token_userid, userid) != 0) {
         RA::Error(LL_PER_PDU, "RA_Pin_Reset_Processor::Process", 
           "User does not own the token '%s'", cuid);
         status = STATUS_ERROR_TOKEN_DISABLED;
+        PR_snprintf(audit_msg, 512, "User does not own the token. status = STATUS_ERROR_TOKEN_DISABLED");
         goto loser;
       }
     }
+
+    RA::Audit(EV_PIN_RESET, AUDIT_MSG_PROC,
+      userid != NULL ? userid : "",
+      cuid != NULL ? cuid : "",
+      msn != NULL ? msn : "",
+      "success",
+      "pin_reset",
+      final_applet_version != NULL ? final_applet_version : "",
+      keyVersion != NULL? keyVersion : "",
+      "login successful");
 
     RA::Debug(LL_PER_PDU, "RA_Pin_Reset_Processor::Process", 
           "ExternalAuthenticate");
@@ -640,6 +742,7 @@ locale),
 			"External Authenticate failed.");
         status = STATUS_ERROR_CREATE_CARDMGR;
         RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "external authentication error", "", tokenType);
+        PR_snprintf(audit_msg, 512, "External Authenticate failed, status = STATUS_ERROR_CREATE_CARDMGR");
         goto loser;
     }
     RA::Debug(LL_PER_PDU, "RA_Pin_Reset_Processor::Process", 
@@ -654,6 +757,7 @@ locale),
 			"Set Pin failed.");
         status = STATUS_ERROR_MAC_RESET_PIN_PDU;
         RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "request new pin error", "", tokenType);
+        PR_snprintf(audit_msg, 512, "RequestNewPin failed, status = STATUS_ERROR_MAC_RESET_PIN_PDU");
         goto loser;
     }
 
@@ -667,6 +771,7 @@ locale),
     if (rc == -1) {
         status = STATUS_ERROR_MAC_RESET_PIN_PDU;
         RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "ereset pin error", "", tokenType);
+        PR_snprintf(audit_msg, 512, "ResetPin failed, status = STATUS_ERROR_MAC_RESET_PIN_PDU");
         goto loser;
     }
 
@@ -676,8 +781,19 @@ locale),
 			"Failed to close channel");
         status = STATUS_ERROR_CONNECTION;
         RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "secure channel close error", "", tokenType);
+        PR_snprintf(audit_msg, 512, "Failed to close channel, status = STATUS_ERROR_CONNECTION");
         goto loser;
     }
+
+    RA::Audit(EV_PIN_RESET, AUDIT_MSG_PROC,
+      userid != NULL ? userid : "",
+      cuid != NULL ? cuid : "",
+      msn != NULL ? msn : "",
+      "success",
+      "pin_reset",
+      final_applet_version != NULL ? final_applet_version : "",
+      keyVersion != NULL? keyVersion : "",
+      "ResetPin successful");
 
     if (extensions != NULL &&
            extensions->GetValue("statusUpdate") != NULL) {
@@ -704,7 +820,18 @@ locale),
 	  tmp_policy[11] = 'O';
 	  for (i = 12; tmp_policy[i] != '\0'; i++)
 	    tmp_policy[i] = tmp_policy[i+1];
-	  RA::ra_update_token_policy(cuid, policy);
+	  rc = RA::ra_update_token_policy(cuid, policy);
+          if (rc != 0) { 
+              RA::Audit(EV_PIN_RESET, AUDIT_MSG_PROC,
+                  userid != NULL ? userid : "",
+                  cuid != NULL ? cuid : "",
+                  msn != NULL ? msn : "",
+                 "failure",
+                 "pin_reset",
+                 final_applet_version != NULL ? final_applet_version : "",
+                 keyVersion != NULL? keyVersion : "",
+                 "failed to reset token policy");
+          }
 	}
       }
     }
@@ -714,29 +841,27 @@ locale),
     RA::tdb_activity(session->GetRemoteIP(), (char *)cuid, "pin reset", "success", activity_msg, userid, tokenType);
 
     /* audit log for successful pin reset */
-    if (authid == NULL)
-        RA::Audit(EV_PIN_RESET, "status='success' app_ver='%s' key_ver='%s' cuid='%s' msn='%s' uid='%s' time='%d msec'",
-          final_applet_version, keyVersion, cuid, msn, userid, ((PR_IntervalToMilliseconds(end) - PR_IntervalToMilliseconds(start))));
-    else 
-        RA::Audit(EV_PIN_RESET, "status='success' app_ver='%s' key_ver='%s' cuid='%s' msn='%s' uid='%s' auth='%s' time='%d msec'",
-          final_applet_version, keyVersion, cuid, msn, userid, authid, ((PR_IntervalToMilliseconds(end) - PR_IntervalToMilliseconds(start))));
+    if (authid != NULL) {
+        sprintf(activity_msg, "pin_reset processing completed, authid = %s", authid);
+    } else {
+        sprintf(activity_msg, "pin_reset processing completed");
+    }
+    RA::Audit(EV_PIN_RESET, AUDIT_MSG_PROC,
+          userid, cuid, msn, "success", "pin_reset", final_applet_version, keyVersion!=NULL? keyVersion: "", activity_msg);
 
 loser:
-    if (channel == NULL) {
-        RA::Debug(LL_PER_PDU, "RA_Pin_Reset_Processor: Failed to create secure channel.", "");
-        if (login == NULL) {
-            RA::Audit(EV_PIN_RESET, "status='error' app_ver='%s' key_ver='%s' cuid='%s' msn='%s' note='failed to login'", final_applet_version, keyVersion, cuid, msn);
-	} else { 
-            RA::Audit(EV_PIN_RESET, "status='error' app_ver='%s' key_ver='%s' cuid='%s' msn='%s'  uid='%s' note='failed to create secure channel'", final_applet_version, keyVersion, cuid, msn, userid);  
-        } 
-    } else if (rc != 1 && status == STATUS_ERROR_LOGIN) {
-        if (login == NULL) {
-            RA::Audit(EV_PIN_RESET, "status='error' app_ver='%s' key_ver='%s' cuid='%s' msn='%s' note='login failure'", final_applet_version, keyVersion, cuid, msn);
-	} else {
-            RA::Audit(EV_PIN_RESET, "status='error' app_ver='%s' key_ver='%s' cuid='%s' msn='%s' uid='%s' note='authentication failure'", 
-                final_applet_version, keyVersion, cuid, msn, userid);
-        } 
+    if (strlen(audit_msg) > 0) {
+            RA::Audit(EV_PIN_RESET, AUDIT_MSG_PROC,
+               userid != NULL ? userid : "",
+               cuid != NULL ? cuid : "",
+               msn != NULL ? msn : "",
+              "failure",
+              "pin_reset",
+              final_applet_version != NULL ? final_applet_version : "",
+              keyVersion != NULL? keyVersion : "",
+              audit_msg);
     }
+
     if( token_status != NULL ) {
         delete token_status;
         token_status = NULL;

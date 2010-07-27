@@ -60,6 +60,11 @@ public class SessionContext extends Hashtable implements IAuthInfo {
     public static final String USER_ID = "userid"; // String
 
     /**
+     * Group ID of the authenticated user in the current thread.
+     */
+    public static final String GROUP_ID = "groupid"; //String
+
+    /**
      * ID of the processing request in the current thread.
      */
     public static final String REQUESTER_ID = "requesterID"; // String

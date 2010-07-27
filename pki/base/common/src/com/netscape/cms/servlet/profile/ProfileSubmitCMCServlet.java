@@ -30,6 +30,7 @@ import com.netscape.certsrv.template.*;
 import com.netscape.certsrv.profile.*;
 import com.netscape.certsrv.request.*;
 import com.netscape.certsrv.authentication.*;
+import com.netscape.certsrv.authorization.*;
 import com.netscape.certsrv.logging.*;
 import com.netscape.cms.servlet.common.*;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -393,6 +394,33 @@ profile, IRequest req) {
                   OtherInfo.BAD_REQUEST, s); 
                 CMS.debug("ProfileSubmitCMCServlet: authentication error " + 
                     e.toString());
+                return;
+            }
+
+            //authorization only makes sense when request is authenticated
+            AuthzToken authzToken = null;
+            if (authToken != null) {
+                CMS.debug("ProfileSubmitCMCServlet authToken not null");
+                try {
+                    authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "submit");
+                } catch (Exception e) {
+                    CMS.debug("ProfileSubmitCMCServlet authorization failure: "+e.toString());
+                }
+            }
+
+            if (authzToken == null) {
+                CMS.debug("ProfileSubmitCMCServlet authorization failure: authzToken is null");
+                CMCOutputTemplate template = new CMCOutputTemplate();
+                SEQUENCE seq = new SEQUENCE();
+                seq.addElement(new INTEGER(0));
+                UTF8String s = null;
+                try {
+                    s = new UTF8String("ProfileSubmitCMCServlet authorization failure");
+                } catch (Exception ee) {
+                }
+                template.createFullResponseWithFailedStatus(response, seq,
+                    OtherInfo.BAD_REQUEST, s);
                 return;
             }
         }

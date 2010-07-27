@@ -130,6 +130,29 @@ public class SizePanel extends WizardPanelBase {
         }
 
         context.put("select", select);
+
+        String ecclist = "";
+        try {
+            ecclist = config.getString("preop.ecc.algorithm.list", "SHA256withEC,SHA1withEC,SHA384withEC,SHA512withEC");
+        } catch (Exception e) {
+        }
+        context.put("ecclist", ecclist);
+
+        String rsalist = "";
+        try {
+            rsalist = config.getString("preop.rsa.algorithm.list", "SHA256withRSA,SHA1withRSA,SHA512withRSA,MD5withRSA,MD2withRSA");
+        } catch (Exception e) {
+        }
+
+        context.put("rsalist", rsalist);
+
+        String subsystemType = "";
+        try {
+            subsystemType = config.getString("pkicreate.subsystem_type");
+        } catch (Exception e) {
+        }
+        context.put("subsystemtype", subsystemType);
+ 
         try {
             // same token for now
             String token = config.getString(PRE_CONF_CA_TOKEN);
@@ -229,6 +252,15 @@ public class SizePanel extends WizardPanelBase {
                     continue;
 
                 String keytype = HttpInput.getKeyType(request, ct + "_keytype"); // rsa or ecc
+                String keyalgorithm = HttpInput.getString(request, ct + "_keyalgorithm");
+
+                if (keyalgorithm == null) {
+                    if (keytype != null && keytype.equals("ecc")) {
+                        keyalgorithm = "SHA256withEC";
+                    } else {
+                        keyalgorithm = "SHA256withRSA";
+                    }
+                }
 
                 String select = HttpInput.getID(request, ct + "_choice");
 
@@ -243,6 +275,8 @@ public class SizePanel extends WizardPanelBase {
                   config.getString(PCERT_PREFIX+ct+".keysize.size", "");
                 String oldkeytype = 
                   config.getString(PCERT_PREFIX + ct + ".keytype", "");
+                String oldkeyalgorithm = 
+                  config.getString(PCERT_PREFIX + ct + ".keyalgorithm", "");
 
                 if (select.equals("default")) {
                     // XXXrenaming these...keep for now just in case
@@ -258,6 +292,7 @@ public class SizePanel extends WizardPanelBase {
                     }
 
                     config.putString(PCERT_PREFIX + ct + ".keytype", keytype);
+                    config.putString(PCERT_PREFIX + ct + ".keyalgorithm", keyalgorithm);
                     config.putString(PCERT_PREFIX + ct + ".keysize.select",
                             "default");
                     if (keytype != null && keytype.equals("ecc")) {
@@ -282,6 +317,7 @@ public class SizePanel extends WizardPanelBase {
                             HttpInput.getKeySize(request, ct + "_custom_size", keytype));
 
                     config.putString(PCERT_PREFIX + ct + ".keytype", keytype);
+                    config.putString(PCERT_PREFIX + ct + ".keyalgorithm", keyalgorithm);
                     config.putString(PCERT_PREFIX + ct + ".keysize.select",
                             "custom");
                     config.putString(PCERT_PREFIX + ct + ".keysize.custom_size",
@@ -297,8 +333,11 @@ public class SizePanel extends WizardPanelBase {
                   config.getString(PCERT_PREFIX+ct+".keysize.size", "");
                 String newkeytype = 
                   config.getString(PCERT_PREFIX + ct + ".keytype", "");
+                String newkeyalgorithm = 
+                  config.getString(PCERT_PREFIX + ct + ".keyalgorithm", "");
                 if (!oldkeysize.equals(newkeysize) || 
-                  !oldkeytype.equals(newkeytype))
+                  !oldkeytype.equals(newkeytype) ||
+                  !oldkeyalgorithm.equals(newkeyalgorithm))
                     hasChanged = true;
             }// while
 
@@ -342,9 +381,10 @@ public class SizePanel extends WizardPanelBase {
 
             try {
                 String keytype = config.getString(PCERT_PREFIX + ct + ".keytype");
+                String keyalgorithm = config.getString(PCERT_PREFIX + ct + ".keyalgorithm");
                 int keysize = config.getInteger(
                         PCERT_PREFIX + ct + ".keysize.size");
-                                                                                
+                                                                               
                 if (keytype.equals("rsa")) {
 
                     createRSAKeyPair(token, keysize, config, ct);
@@ -442,6 +482,12 @@ public class SizePanel extends WizardPanelBase {
         config.putString(PCERT_PREFIX + ct + ".pubkey.encoded",
           CryptoUtil.byte2string(encoded));
 
+        String keyAlgo = "";
+        try {
+            keyAlgo = config.getString(PCERT_PREFIX + ct + ".keyalgorithm");
+        } catch (Exception e1) {
+        }
+
         // set default signing algorithm for CA
         String systemType = "";
         try {
@@ -452,20 +498,20 @@ public class SizePanel extends WizardPanelBase {
         if (systemType.equals("OCSP")) {
           if (ct.equals("signing")) {
              config.putString("ocsp.signing.defaultSigningAlgorithm",
-                           "SHA1withEC");
+                           keyAlgo);
            }
         }
 
         if (systemType.equals("CA")) {
           if (ct.equals("signing")) {
             config.putString("ca.signing.defaultSigningAlgorithm",
-                           "SHA1withEC");
+                           keyAlgo);
             config.putString("ca.crl.MasterCRL.signingAlgorithm",
-                           "SHA1withEC");
+                           keyAlgo);
           }
           if (ct.equals("ocsp_signing")) {
             config.putString("ca.ocsp_signing.defaultSigningAlgorithm",
-                           "SHA1withEC");
+                           keyAlgo);
           }
         }
 
@@ -498,15 +544,21 @@ public class SizePanel extends WizardPanelBase {
         config.putString(PCERT_PREFIX + ct + ".pubkey.exponent",
             CryptoUtil.byte2string(exponent));
 
+        String keyAlgo = "";
+        try {
+            keyAlgo = config.getString(PCERT_PREFIX + ct + ".keyalgorithm");
+        } catch (Exception e1) {
+        }
+
         if (ct.equals("signing")) {
           config.putString("ca.signing.defaultSigningAlgorithm",
-                           "SHA1withRSA");
+                           keyAlgo);
           config.putString("ca.crl.MasterCRL.signingAlgorithm",
-                           "SHA1withRSA");
+                           keyAlgo);
         }
         if (ct.equals("ocsp_signing")) {
           config.putString("ca.ocsp_signing.defaultSigningAlgorithm",
-                           "SHA1withRSA");
+                           keyAlgo);
         }
     }
 

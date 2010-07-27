@@ -192,6 +192,12 @@ public class TokenAuthentication implements IAuthManager,
                 authToken.set(TOKEN_UID, uid);
                 authToken.set(TOKEN_GID, gid);
 
+                if(context != null)  {
+                    CMS.debug("SessionContext.USER_ID " + uid + " SessionContext.GROUP_ID " + gid);
+                    context.put(SessionContext.USER_ID,  uid );
+                    context.put(SessionContext.GROUP_ID, gid );
+                }
+
                 CMS.debug("TokenAuthentication: authenticated uid="+uid+", gid="+gid);
             } catch (EBaseException e) {
                 throw e;

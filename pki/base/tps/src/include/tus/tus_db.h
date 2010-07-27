@@ -117,6 +117,8 @@
 #define STATE_ACTIVE        "active"
 #define I_STATE_DISABLED    2
 #define STATE_DISABLED      "disabled"
+#define I_STATE_LOST        3
+#define STATE_LOST          "lost"
 
 #define C_TIME              "createTimeStamp"
 #define M_TIME              "modifyTimeStamp"

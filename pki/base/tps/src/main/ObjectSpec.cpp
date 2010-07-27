@@ -244,6 +244,16 @@ void ObjectSpec::ParseAttributes(char *objectID, ObjectSpec *ObjectSpec, Buffer 
 		curpos += 4 + 2 + attribute_size;
 	}
 
+        //Here the objectID fixed attribute gets massaged. Here's how:
+        // The objectID becomes the cert container id, ex: 01
+        // Each key pair associated with the cert must have the same ID.
+        // This is done by math using the following formula:
+        // Given a cert id of "2", the keyAttrIds of the keys are originally
+        // configured as k4 and k5. Note that one is twice the cert id, and
+        // the other is twice the cert id plus 1. In order to map the key ids
+        // down to the cert's id, the code below changes both "4" and "5" back
+        // to "2".
+
 	int val = (objectID[1] - '0');
 	switch (objectID[0]) {
         case 'c':		
@@ -361,12 +371,17 @@ ObjectSpec *ObjectSpec::Parse(Buffer *b, int offset, int *nread)
 {
 	int sum = 0;
 
+
+        if((b->size() - offset) < 10)
+            return NULL;
+        
         ObjectSpec *o = new ObjectSpec();
 	unsigned long id = 
 		(((unsigned char *)*b)[offset + 0] << 24) + 
 		(((unsigned char *)*b)[offset + 1] << 16) + 
 		(((unsigned char *)*b)[offset + 2] << 8) + 
 		(((unsigned char *)*b)[offset + 3]);
+
 	o->SetObjectID(id);
 	unsigned long attribute = 
 		(((unsigned char *)*b)[offset + 4] << 24) + 

@@ -96,18 +96,25 @@ PKCS11Obj *PKCS11Obj::Parse(Buffer *b, int offset)
 	Buffer tokenName = data.substr(5, ((BYTE *)data)[4]);
 	o->SetTokenName(tokenName);
 
+        RA::Debug("PKCS11Obj::Parse", "objcount = %d", objCount);
 
 	int curpos = (int)objOffset;
 	int nread = 0;
 	for (int i = 0; i < objCount; i++) {
+                RA::Debug("PKCS11Obj::Parse", "working on object %d", i);                
 		ObjectSpec *objSpec = ObjectSpec::Parse(&data, curpos, &nread);
+                if(!objSpec)
+                    continue;
 		o->AddObjectSpec(objSpec);
 
 		unsigned long oid = objSpec->GetObjectID();
 		char b[2];
+
 		b[0] = (char)((oid >> 24) & 0xff);
 		b[1] = (char)((oid >> 16) & 0xff);
-		
+
+                RA::Debug("PKCS11Obj::Parse", "About to parse = %c%c", b[0],b[1]);
+
 		// add corresponding 'C' object for 'c'
 	        if (b[0] == 'c') { 
 			for (int j = 0; j < objSpec->GetAttributeSpecCount();
@@ -260,9 +267,16 @@ Buffer PKCS11Obj::GetData()
 	    char c = (char)((objectID >> 24) & 0xff);
 	    unsigned long fixedAttrs = spec->GetFixedAttributes();
 	    unsigned int xclass = (fixedAttrs & 0x70) >> 4;
+            char cont_id = (char) ((objectID >> 16) & 0xff);
 	    unsigned int id = (fixedAttrs & 0x0f);
 	    /* locate all certificate objects */
 	    if (c == 'c' && xclass == CKO_CERTIFICATE) {
+
+                //We need to use the container id, there may be more than one cert
+                //with the same CKA_ID byte
+
+                id = (unsigned int) (cont_id - '0');
+
 		/* locate the certificate object */
 	        for (int u = 0; u < objectCount; u++) {
 	    		ObjectSpec *u_spec = GetObjectSpec(u);
@@ -335,6 +349,7 @@ Buffer PKCS11Obj::GetData()
 Buffer PKCS11Obj::GetCompressedData()
 {
 	Buffer data = Buffer();
+        Buffer error = Buffer(0);
 
 	unsigned short objectOffset = m_tokenName.size() + 2 + 3;
 	data += Buffer(1, (objectOffset >> 8) & 0xff);
@@ -350,16 +365,24 @@ Buffer PKCS11Obj::GetCompressedData()
 	data += Buffer(1, objectCountX & 0xff);
 	data += Buffer(1, m_tokenName.size() & 0xff);
 	data += m_tokenName;
-
+        RA::Debug("PKCS11Obj::GetCompressedData", "object count = %d", objectCount);
 	for (int i = 0; i < objectCount; i++) {
 	    ObjectSpec *spec = GetObjectSpec(i);
 	    unsigned long objectID = spec->GetObjectID();
+            RA::Debug("PKCS11Obj::GetCompressedData", "objid = %lu", objectID);
 	    char c = (char)((objectID >> 24) & 0xff);
 	    unsigned long fixedAttrs = spec->GetFixedAttributes();
 	    unsigned int xclass = (fixedAttrs & 0x70) >> 4;
+            char cont_id = (char) ((objectID >> 16) & 0xff);
 	    unsigned int id = (fixedAttrs & 0x0f);
+
 	    /* locate all certificate objects */
 	    if (c == 'c' && xclass == CKO_CERTIFICATE) {
+
+                //We need to use the container id, there may be more than one cert
+                //with the same CKA_ID byte
+
+                id = (unsigned int) (cont_id - '0');
 
 		/* locate the certificate object */
 	        for (int u = 0; u < objectCount; u++) {
@@ -370,7 +393,9 @@ Buffer PKCS11Obj::GetCompressedData()
 				u_spec->GetFixedAttributes();
 	    		unsigned int u_xclass = (u_fixedAttrs & 0x70) >> 4;
 	    		unsigned int u_id = (u_fixedAttrs & 0x0f);
+                        char cont_u_id = (char) ((u_objectID >>  16) & 0xff);
 	    		if (u_c == 'C' && u_xclass == CKO_CERTIFICATE && u_id == id) {
+                            RA::Debug("PKCS11Obj::GetCompressedData", "located Certificate id = %d cont_u_id = %c", u_id,cont_u_id);
 	    			AttributeSpec * u_attr = 
 					u_spec->GetAttributeSpec(0);
 	    		AttributeSpec * n_attr = new AttributeSpec();
@@ -392,8 +417,10 @@ Buffer PKCS11Obj::GetCompressedData()
 	    		unsigned int x_xclass = (x_fixedAttrs & 0x70) >> 4;
 	    		unsigned int x_id = (x_fixedAttrs & 0x0f);
 	    		if (x_xclass == CKO_PUBLIC_KEY && x_id == id) {
+                                RA::Debug("PKCS11Obj::GetCompressedData", "located Public Key = %d", x_id);
 	    			data += x_spec->GetData();
 			}
+
 		}
 
 		/* locate private object */
@@ -404,13 +431,14 @@ Buffer PKCS11Obj::GetCompressedData()
 	    		unsigned int y_xclass = (y_fixedAttrs & 0x70) >> 4;
 	    		unsigned int y_id = (y_fixedAttrs & 0x0f);
 	    		if (y_xclass == CKO_PRIVATE_KEY && y_id == id) {
+                                RA::Debug("PKCS11Obj::GetCompressedData", "located Private Key = %d", y_id);
 	    			data += y_spec->GetData();
 			}
 		}
 	    }
 	}
 
-#define MAX_COMPRESS_SIZE 50000
+#define MAX_COMPRESS_SIZE 50000 
 	char buffer[MAX_COMPRESS_SIZE];
 	unsigned long len = MAX_COMPRESS_SIZE ;
 
@@ -425,6 +453,13 @@ Buffer PKCS11Obj::GetCompressedData()
 
     rc = compress((Bytef*)buffer, (uLongf*)&len, (Bytef*)src_buffer,
                (uLong)data.size());
+
+
+    if(rc != Z_OK) {
+        RA::Debug("PKCS11Obj", "failure compressing data, possibly buffer overrun! Error: %d ",rc);
+
+        return error;
+    }
 
     RA::Debug("PKCS11Obj", "after compress length = %d", len);
     RA::Debug("PKCS11Obj", "rc = %d", rc);

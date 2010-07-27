@@ -293,6 +293,8 @@ libtps_la_SOURCES =	src/main/Buffer.cpp                        \
 					src/main/AttributeSpec.cpp                 \
 					src/main/ObjectSpec.cpp                    \
 					src/main/PKCS11Obj.cpp                     \
+                                        src/main/LogFile.cpp                       \
+                                        src/main/RollingLogFile.cpp                \
 					src/httpClient/httpClient.cpp              \
 					src/httpClient/Cache.cpp                   \
 					src/httpClient/engine.cpp                  \
@@ -358,7 +360,7 @@ libtps_la_SOURCES =	src/main/Buffer.cpp                        \
 					src/processor/RA_Unblock_Processor.cpp     \
 					src/processor/RA_Format_Processor.cpp
 
-libtps_la_CPPFLAGS = $(AM_CPPFLAGS) @ldapsdk_inc@ @svrcore_inc@ \
+libtps_la_CPPFLAGS = $(AM_CPPFLAGS) @apr_inc@ @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
 libtps_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(GENERIC_LIBRARY_VERSION) --release $(VERSION)
 libtps_la_LIBADD = ${top_builddir}/libtokendb.la $(LDAPSDK_LINK)       \

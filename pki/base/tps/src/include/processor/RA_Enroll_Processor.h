@@ -88,7 +88,8 @@ class RA_Enroll_Processor : public RA_Processor
         bool DoRenewal(const char *connid,
                 const char *profileId,
                 CERTCertificate *i_cert,
-                CERTCertificate **o_cert);
+                CERTCertificate **o_cert, 
+                char *error_msg);
 
         bool GenerateCertificate(AuthParams *login,
                 int keyTypeNum, 
@@ -268,7 +269,10 @@ class RA_Enroll_Processor : public RA_Processor
 				BYTE &o_major_version,
 				BYTE &o_minor_version,
 				Buffer *a_aid,
-				RA_Status &o_status );
+                                const char *msn,
+                                const char *userid,
+				RA_Status &o_status,
+                                char **key_version );
 
 		bool CheckAndUpgradeSymKeys(
 				RA_Session *session,
@@ -276,6 +280,9 @@ class RA_Enroll_Processor : public RA_Processor
 				char *cuid,
 				const char *tokenType,
 				char *msn,
+                                const char* applet_version, 
+                                const char* userid,
+                                const char* key_version,
 				Buffer *a_cardmanagerAID,  /* in */
 				Buffer *a_appletAID,       /* in */
 				Secure_Channel *&channel,  /* out */
@@ -283,6 +290,9 @@ class RA_Enroll_Processor : public RA_Processor
 				);
 
 		TPS_PUBLIC RA_Status Process(RA_Session *session, NameValueSet *extensions);
+
+	private:
+		int GetNextFreeCertIdNumber(PKCS11Obj *pkcs11objx);
 };
 
 #endif /* RA_ENROLL_PROCESSOR_H */

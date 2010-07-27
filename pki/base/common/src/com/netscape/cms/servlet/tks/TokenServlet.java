@@ -75,12 +75,40 @@ public class TokenServlet extends CMSServlet {
 
     private final static String
         LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST =
-        "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_5";
+        "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_3";
 
-    private final static String
-        LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_5";
+   private final static String
+        LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS =
+        "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS_8";
 
+   private final static String
+        LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE =
+        "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE_9";
+
+   private final static String
+        LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST =
+        "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_5";
+
+   private final static String
+        LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS =
+        "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS_6";
+
+   private final static String
+        LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE =
+        "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE_7";
+
+
+   private final static String
+        LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST =
+        "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_4";
+
+   private final static String
+        LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS =
+        "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS_7";
+
+   private final static String
+        LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE =
+        "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE_8";
 
     /**
      * Constructs tks servlet.
@@ -209,7 +237,10 @@ public class TokenServlet extends CMSServlet {
         byte[] xcard_challenge, xhost_challenge;
         byte[] enc_session_key, xkeyInfo;
         String auditMessage = null;
-    
+        String errorMsg = "";
+        String badParams = "";
+   
+        String rCUID = req.getParameter("CUID"); 
         String keySet = req.getParameter("keySet");
         if (keySet == null || keySet.equals("")) {
           keySet = "defKeySet";
@@ -230,6 +261,22 @@ public class TokenServlet extends CMSServlet {
         host_cryptogram = null;
         enc_session_key = null;
 	//        kek_session_key = null;
+
+        SessionContext sContext = SessionContext.getContext();
+
+        String agentId="";
+        if (sContext != null) {
+            agentId =
+                (String) sContext.get(SessionContext.USER_ID);
+        }
+
+        auditMessage = CMS.getLogMessage(
+                         LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST,
+                        rCUID,
+                        ILogger.SUCCESS,
+                        agentId);
+
+        audit(auditMessage);
 
         String kek_wrapped_desKeyString = null;
 	String keycheck_s = null;
@@ -255,32 +302,27 @@ public class TokenServlet extends CMSServlet {
         String rcard_challenge = req.getParameter("card_challenge");
         String rhost_challenge = req.getParameter("host_challenge");
         String rKeyInfo = req.getParameter("KeyInfo");
-        String rCUID = req.getParameter("CUID");
         String rcard_cryptogram = req.getParameter("card_cryptogram");
         if ((rCUID == null) || (rCUID.equals(""))) {
             CMS.debug("TokenServlet: ComputeSessionKey(): missing request parameter: CUID");
+            badParams += " CUID,";
             missingParam = true;
         }
 
-        SessionContext sContext = SessionContext.getContext();
-
-        String agentId="";
-        if (sContext != null) {
-            agentId =
-                (String) sContext.get(SessionContext.USER_ID);
-        }
-
         if ((rcard_challenge == null) || (rcard_challenge.equals(""))) {
+            badParams += " card_challenge,";
             CMS.debug("TokenServlet: ComputeSessionKey(): missing request parameter: card challenge");
             missingParam = true;
         }
 
         if ((rhost_challenge == null) || (rhost_challenge.equals(""))) {
+            badParams += " host_challenge,";
             CMS.debug("TokenServlet: ComputeSessionKey(): missing request parameter: host challenge");
             missingParam = true;
         }
 
         if ((rKeyInfo == null) || (rKeyInfo.equals(""))) {
+            badParams += " KeyInfo,";
             CMS.debug("TokenServlet: ComputeSessionKey(): missing request parameter: key info");
             missingParam = true;
         }
@@ -291,38 +333,34 @@ public class TokenServlet extends CMSServlet {
         boolean sameCardCrypto = true;
 
         if (!missingParam) {
-            auditMessage = CMS.getLogMessage(
-                         LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST,
-                        rCUID,
-                        ILogger.SUCCESS,
-                        agentId,
-                        isCryptoValidate? "true":"false",
-                        serversideKeygen? "true":"false");
 
-            audit(auditMessage);
-
-            xCUID =com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
+            xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
             if (xCUID == null || xCUID.length != 10) {
+                        badParams += " CUID length,";
                         CMS.debug("TokenServlet: Invalid CUID length");
                         missingParam = true;
             }
             xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
             if (xkeyInfo == null || xkeyInfo.length != 2) {
-                        CMS.debug("TokenServlet: Invalid key info length");
+                        badParams += " KeyInfo length,";
+                        CMS.debug("TokenServlet: Invalid key info length.");
                         missingParam = true;
             }
             xcard_challenge = 
                 com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_challenge);
             if (xcard_challenge == null || xcard_challenge.length != 8) {
-                        CMS.debug("TokenServlet: Invalid card challenge length");
+                        badParams += " card_challenge length,";
+                        CMS.debug("TokenServlet: Invalid card challenge length.");
                         missingParam = true;
             }
         
             xhost_challenge = com.netscape.cmsutil.util.Utils.SpecialDecode(rhost_challenge);
             if (xhost_challenge == null || xhost_challenge.length != 8) {
+                        badParams += " host_challenge length,";
                         CMS.debug("TokenServlet: Invalid host challenge length");
                         missingParam = true;
             }
+ 
         }
 
         CUID = null;
@@ -565,42 +603,73 @@ public class TokenServlet extends CMSServlet {
         if (session_key != null && session_key.length > 0) {
             outputString = 
                 com.netscape.cmsutil.util.Utils.SpecialEncode(session_key);
-        } else 
+        } else   {
+            
             status = "1";
+        }
 
         if (enc_session_key != null && enc_session_key.length > 0) {
             encSessionKeyString = 
                 com.netscape.cmsutil.util.Utils.SpecialEncode(enc_session_key);
-        } else 
+        } else  {
             status = "1";
+        }
+
 
         if (serversideKeygen == true) {
 	    if ( drm_trans_wrapped_desKey != null && drm_trans_wrapped_desKey.length > 0)
 		drm_trans_wrapped_desKeyString  = 
 		    com.netscape.cmsutil.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
-	    else 
+	    else  {
 		status = "1";
+            }
 	}
 
+        
         if (host_cryptogram != null && host_cryptogram.length > 0) {
             cryptogram = 
                 com.netscape.cmsutil.util.Utils.SpecialEncode(host_cryptogram);
-        } else
+        } else {
             status = "2";
+        }
 
-        if (selectedToken == null || keyNickName == null)
+        if (selectedToken == null || keyNickName == null) {
             status = "4";
+        }
 
-        if (!sameCardCrypto)
+        if (!sameCardCrypto) {
             status = "3";
+        }
 
-        if (missingParam)
+        if (missingParam) {
             status = "3";
-                
-        if (!status.equals("0")) 
+        }
+ 
+        if (!status.equals("0"))  {
+
+
+           if(status.equals("1")) {
+               errorMsg = "Problem generating session key info.";
+           }
+ 
+           if(status.equals("2")) {
+               errorMsg = "Problem creating host_cryptogram.";
+           }
+ 
+           if(status.equals("4")) {
+               errorMsg = "Problem obtaining token information.";
+           }
+
+           if(status.equals("3")) {
+               if(badParams.endsWith(","))  {
+                  badParams = badParams.substring(0,badParams.length() -1);         
+               }
+               errorMsg = "Missing input parameters :" + badParams;
+           }
+
             value = "status="+status;
+        }
         else {
-
             if (serversideKeygen == true) {
                 StringBuffer sb = new StringBuffer();
                 sb.append("status=0&");
@@ -642,14 +711,35 @@ public class TokenServlet extends CMSServlet {
         } catch (IOException e) {
             CMS.debug("TokenServlet: " + e.toString());
         }
-        auditMessage = CMS.getLogMessage(
-                         LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED,
+       
+        if(status.equals("0")) {
+
+           auditMessage = CMS.getLogMessage(
+                         LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
                         rCUID,
+                        ILogger.SUCCESS,
                         status,
                         agentId,
                         isCryptoValidate? "true":"false",
-                        serversideKeygen? "true":"false");
+                        serversideKeygen? "true":"false",
+                        selectedToken,
+                        keyNickName);
 
+        } else {
+
+           auditMessage = CMS.getLogMessage(
+                         LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
+                        rCUID,
+                        ILogger.FAILURE,
+                        status,
+                        agentId,
+                        isCryptoValidate? "true":"false",
+                        serversideKeygen? "true":"false",
+                        selectedToken,
+                        keyNickName,
+                        errorMsg);
+       }
+ 
         audit(auditMessage);
     }
 
@@ -658,12 +748,15 @@ public class TokenServlet extends CMSServlet {
         byte[] KeySetData,KeysValues,CUID,xCUID;
         byte[] xkeyInfo,xnewkeyInfo;
         boolean missingParam = false;
+        String errorMsg = "";
+        String badParams = "";
 
         IConfigStore sconfig = CMS.getConfigStore();
          String rnewKeyInfo        = req.getParameter("newKeyInfo");
         String newMasterKeyName = req.getParameter("newKeyInfo");
         String oldMasterKeyName = req.getParameter("KeyInfo");
         String rCUID =req.getParameter("CUID");
+        String auditMessage="";
 
         String keySet = req.getParameter("keySet");
         if (keySet == null || keySet.equals("")) {
@@ -671,15 +764,37 @@ public class TokenServlet extends CMSServlet {
         }
         CMS.debug("keySet selected: " + keySet);
 
+        SessionContext sContext = SessionContext.getContext();
+
+        String agentId="";
+        if (sContext != null) {
+            agentId =
+                (String) sContext.get(SessionContext.USER_ID);
+        }
+
+        auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST,
+                        rCUID,
+                        ILogger.SUCCESS,
+                        agentId,
+                        oldMasterKeyName,
+                        newMasterKeyName);
+
+        audit(auditMessage);
+
+
         if ((rCUID == null) || (rCUID.equals(""))) {
+            badParams += " CUID,";
             CMS.debug("TokenServlet: processDiversifyKey(): missing request parameter: CUID");
             missingParam = true;
         }
         if ((rnewKeyInfo == null) || (rnewKeyInfo.equals(""))) {
+            badParams += " newKeyInfo,";
             CMS.debug("TokenServlet: processDiversifyKey(): missing request parameter: newKeyInfo");
             missingParam = true;
         }
         if ((oldMasterKeyName == null) || (oldMasterKeyName.equals(""))){
+            badParams += " KeyInfo,";
             CMS.debug("TokenServlet: processDiversifyKey(): missing request parameter: KeyInfo");
             missingParam = true;
         }
@@ -687,11 +802,13 @@ public class TokenServlet extends CMSServlet {
         if (!missingParam) {
                 xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(oldMasterKeyName);
                     if (xkeyInfo == null || xkeyInfo.length != 2) {
+                        badParams += " KeyInfo length,";
                         CMS.debug("TokenServlet: Invalid key info length");
                         missingParam = true;
                      }
                 xnewkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(newMasterKeyName);
                     if (xnewkeyInfo == null || xnewkeyInfo.length != 2) {
+                        badParams += " NewKeyInfo length,";
                         CMS.debug("TokenServlet: Invalid new key info length");
                         missingParam = true;
                      }
@@ -705,6 +822,7 @@ public class TokenServlet extends CMSServlet {
         if (!missingParam) {
                    xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
                    if (xCUID == null || xCUID.length != 10) {
+                        badParams += " CUID length,";
                         CMS.debug("TokenServlet: Invalid CUID length");
             missingParam = true;
                    }
@@ -776,14 +894,24 @@ public class TokenServlet extends CMSServlet {
         //String value="keySetData=%00" if the KeySetData=byte[0]=0;
 
         String value = "";
+        String status = "0";
+
         if (KeySetData != null && KeySetData.length > 1) {
             value = "status=0&"+"keySetData=" + 
                      com.netscape.cmsutil.util.Utils.SpecialEncode(KeySetData);
             CMS.debug("TokenServlet:process DiversifyKey.encode " +value);
         } else if (missingParam) {
-            value = "status=3";
-        } else 
-            value = "status=1";
+            status = "3";
+            if(badParams.endsWith(","))  {
+                badParams = badParams.substring(0,badParams.length() -1);
+            }
+            errorMsg = "Missing input parameters: " + badParams;
+            value = "status=" + status;
+        } else  {
+            errorMsg = "Problem diversifying key data.";
+            status = "1";
+            value = "status=" + status;
+        }
 
         resp.setContentLength(value.length());
         CMS.debug("TokenServlet:outputString.length " +value.length());
@@ -796,6 +924,32 @@ public class TokenServlet extends CMSServlet {
         } catch (Exception e) {
             CMS.debug("TokenServlet:process DiversifyKey: " + e.toString());
         }
+
+         if(status.equals("0")) {
+
+           auditMessage = CMS.getLogMessage(
+                         LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS,
+                        rCUID,
+                        ILogger.SUCCESS,
+                        status,
+                        agentId,
+                        oldMasterKeyName,
+                        newMasterKeyName);
+
+        } else {
+
+           auditMessage = CMS.getLogMessage(
+                         LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE,
+                        rCUID,
+                        ILogger.FAILURE,
+                        status,
+                        agentId,
+                        oldMasterKeyName,
+                        newMasterKeyName,
+                        errorMsg);
+       }
+
+       audit(auditMessage);
     }
 
     private void processEncryptData(HttpServletRequest req,
@@ -805,6 +959,8 @@ public class TokenServlet extends CMSServlet {
         byte[] data = null;
         boolean isRandom = true; // randomly generate the data to be encrypted
 
+        String errorMsg = "";
+        String badParams = "";
         IConfigStore sconfig = CMS.getConfigStore();
         encryptedData = null;
         String rdata = req.getParameter("data");
@@ -814,6 +970,15 @@ public class TokenServlet extends CMSServlet {
         if (keySet == null || keySet.equals("")) {
             keySet = "defKeySet";
         }
+
+        SessionContext sContext = SessionContext.getContext();
+
+        String agentId="";
+        if (sContext != null) {
+            agentId =
+                (String) sContext.get(SessionContext.USER_ID);
+        }
+
         CMS.debug("keySet selected: " + keySet);
 
         String s_isRandom = sconfig.getString("tks.EncryptData.isRandom", "true");
@@ -824,6 +989,15 @@ public class TokenServlet extends CMSServlet {
             CMS.debug("TokenServlet: processEncryptData(): Random number generation required");
             isRandom = true;
         }
+
+        String auditMessage = CMS.getLogMessage(
+                       LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST,
+                       rCUID,
+                       ILogger.SUCCESS,
+                       agentId,
+                       s_isRandom);
+
+        audit(auditMessage);
 
         if (isRandom) {
             if ((rdata == null) || (rdata.equals(""))) {
@@ -837,33 +1011,40 @@ public class TokenServlet extends CMSServlet {
               random.nextBytes(data);
             } catch (Exception e) {
               CMS.debug("TokenServlet: processEncryptData():"+ e.toString());
-              throw new EBaseException("processEncryptData:"+ e.toString());
+              badParams += " Random Number,";
+              missingParam = true;
             }
         } else if ((!isRandom) && (((rdata == null) || (rdata.equals(""))))){
             CMS.debug("TokenServlet: processEncryptData(): missing request parameter: data.");
+            badParams += " data,";
             missingParam = true;
         }
 
         if ((rCUID == null) || (rCUID.equals(""))) {
-
+            badParams += " CUID,";
             CMS.debug("TokenServlet: processEncryptData(): missing request parameter: CUID");
             missingParam = true;
         }
+ 
         if ((rKeyInfo == null) || (rKeyInfo.equals(""))) {
+            badParams += " KeyInfo,";
             CMS.debug("TokenServlet: processEncryptData(): missing request parameter: key info");
             missingParam = true;
         }
 
+
         if (!missingParam) {
              xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
                      if (xCUID == null || xCUID.length != 10) {
+                        badParams += " CUID length,";
                         CMS.debug("TokenServlet: Invalid CUID length");
-                        throw  new EBaseException("Invalid CUID length");
+                        missingParam = true;
                       }
              xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
                      if (xkeyInfo == null || xkeyInfo.length != 2) {
+                        badParams += " KeyInfo length,";
                         CMS.debug("TokenServlet: Invalid key info length");
-                        throw  new EBaseException("Invalid key info length");
+                         missingParam = true;
                       }
         }
 
@@ -871,6 +1052,8 @@ public class TokenServlet extends CMSServlet {
 	if (!useSoftToken_s.equalsIgnoreCase("true"))
 	    useSoftToken_s = "false";
 
+        String selectedToken = null;
+        String keyNickName = null;
         if (!missingParam) {
           if (!isRandom)
             data = com.netscape.cmsutil.util.Utils.SpecialDecode(rdata);
@@ -879,8 +1062,6 @@ public class TokenServlet extends CMSServlet {
 
           String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo;
           String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
-          String selectedToken = null;
-          String keyNickName = null;
           if (mappingValue == null) {
               selectedToken = CMS.getConfigStore().getString("tks.defaultSlot", "internal");
               keyNickName = rKeyInfo;
@@ -902,6 +1083,7 @@ public class TokenServlet extends CMSServlet {
         resp.setContentType("text/html");
             
         String value = "";
+        String status = "0"; 
         if (encryptedData != null && encryptedData.length > 0) { 
             String outputString  = new String(encryptedData);
             // sending both the pre-encrypted and encrypted data back
@@ -910,9 +1092,17 @@ public class TokenServlet extends CMSServlet {
                          "&encryptedData=" + 
                          com.netscape.cmsutil.util.Utils.SpecialEncode(encryptedData);
         } else if (missingParam) {
-            value = "status=3";
-        } else
-            value = "status=1";
+            if(badParams.endsWith(","))  {
+                badParams = badParams.substring(0,badParams.length() -1);
+            }
+            errorMsg = "Missing input parameters: " + badParams;
+            status = "3";
+            value = "status=" + status;
+        } else {
+            errorMsg = "Problem encrypting data.";
+            status = "1";
+            value = "status=" + status;
+        }
 
         CMS.debug("TokenServlet:process EncryptData.encode " +value);
 
@@ -927,6 +1117,34 @@ public class TokenServlet extends CMSServlet {
         } catch (Exception e) {
             CMS.debug("TokenServlet: " + e.toString());
         }
+
+         if(status.equals("0")) {
+
+           auditMessage = CMS.getLogMessage(
+                         LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS,
+                        rCUID,
+                        ILogger.SUCCESS,
+                        status,
+                        agentId,
+                        s_isRandom,
+                        selectedToken,
+                        keyNickName);
+
+        } else {
+
+           auditMessage = CMS.getLogMessage(
+                         LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE,
+                        rCUID,
+                        ILogger.FAILURE,
+                        status,
+                        agentId,
+                        s_isRandom,
+                        selectedToken,
+                        keyNickName,
+                        errorMsg);
+       }
+
+       audit(auditMessage);
     }
 
     /* 
@@ -953,7 +1171,7 @@ public class TokenServlet extends CMSServlet {
 
         try {
             authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "read");
+                        mAuthzResourceName, "execute");
         } catch (Exception e) {
         }
 
