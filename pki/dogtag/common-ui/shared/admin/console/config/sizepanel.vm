@@ -30,7 +30,16 @@ div#simple
 </style>
 
 <SCRIPT type="text/JavaScript">
+
+var rsalist="${rsalist}";
+var ecclist="${ecclist}"; 
+
 function myOnLoad() {
+   var form = document.forms[0];
+   var keyTypeSelect = form.elements['keytype'];
+   setAlgOptions(keyTypeSelect.value, "commontag");
+
+   setAllAlgOptions(keyTypeSelect.value);
 }
 
 function performPanel() {
@@ -50,6 +59,11 @@ function toggleLayer(whichLayer)
       style2.display = "block";
     }
   }
+
+  var algIndex = document.forms[0].elements['keyalgorithm'].selectedIndex;
+  keyTypeChange("commontag");
+  document.forms[0].elements['keyalgorithm'].selectedIndex = algIndex;
+  keyAlgorithmChange();
 }
 
 function toggleLayer1(whichLayer)
@@ -67,16 +81,68 @@ function toggleLayer1(whichLayer)
   }
 }
 
-function keyTypeChange()
+function keyAlgorithmChange()
 {
   var form = document.forms[0];
-  var keyTypeSelect = document.forms[0].elements['keytype'];
+  var keyTypeSelect = document.forms[0].elements['keyalgorithm'];
   for (var i = 0; i < form.length; i++) {
     var name = form[i].name;
-    if (name.indexOf('_keytype') != -1) {
+    if (name.indexOf('_keyalgorithm') != -1) {
       form.elements[name].selectedIndex = keyTypeSelect.selectedIndex;
     }
   }
+}
+
+function setAllAlgOptions(keyType)
+{
+  var form = document.forms[0];
+  for (var i = 0; i < form.length; i++) {
+    var name = form[i].name;
+    var ind = name.indexOf('_keyalgorithm');
+    if (ind != -1) {
+      var tag = name.substring(0,ind);
+      setAlgOptions(keyType, tag);
+    }
+  }
+}
+
+function setAlgOptions(keyType, certTag)
+{
+  var algSelect;
+  var list;
+  if (certTag == "commontag") {
+    algSelect = document.forms[0].elements['keyalgorithm'];
+  } else {
+    algSelect = document.forms[0].elements[certTag + '_keyalgorithm'];
+  }
+  algSelect.options.length=0;
+  if (keyType == "rsa") {
+    list = rsalist.split(",");
+  } else {
+    list = ecclist.split(",");
+  }
+  for (i=0; i < list.length; i++) {
+    algSelect.options[algSelect.options.length] = new Option(list[i], list[i]);
+  }
+}
+
+function keyTypeChange(certTag)
+{
+  var form = document.forms[0];
+  var keyTypeSelect;
+  if (certTag == "commontag") {
+    keyTypeSelect = document.forms[0].elements['keytype'];
+    for (var i = 0; i < form.length; i++) {
+      var name = form[i].name;
+      if (name.indexOf('_keytype') != -1) {
+        form.elements[name].selectedIndex = keyTypeSelect.selectedIndex;
+      }
+    }
+    setAllAlgOptions(keyTypeSelect.value);
+  } else {
+      keyTypeSelect = document.forms[0].elements[certTag + '_keytype'];
+  }
+  setAlgOptions(keyTypeSelect.value, certTag);
 }
 
 function defaultChange()
@@ -122,7 +188,7 @@ function textChange()
 }
 
 </SCRIPT>
-Select the key pair type(s) from the pulldown menu, and enter the associated key pair size(s). <a href="javascript:toggle_details();">[Details]</a>
+Select the key pair type(s) and associated key pair size(s) and hashing algorithm(s) from the pulldown menus. <a href="javascript:toggle_details();">[Details]</a>
 <SCRIPT type="text/JavaScript">
 function toggle_details()
 {
@@ -136,7 +202,8 @@ function toggle_details()
 </script>
 <div id=details style="display: none;">
 <br/>
-Each key pair is comprised of a <b><i>key type</i></b> and a <b><i>key size</i></b>. Based upon the key type selected from the first pulldown menu, please enter appropriate key size (in bits).
+Each key pair is comprised of a <b><i>key type</i></b>, <b><i>key size</i></b> and <b><i>hashing algorithm</i></b>. Based upon the key type selected from the first pulldown menu, associated key sizes (in bits) and hashing algorithms will be selectable from the second pulldown menu.  Hashing algorithm selection is disabled for non-CA subsystems.  Please refer to the documentation for details.
+<br/>
 <br/>
 Within each key pair type (but not comparable between two different key pair types), the size of the key is a measure of how secure a given system is (i.e. - the longer the key pair size, the more secure the system). Unfortunately, longer key pair sizes increase the time required to perform operations such as signing certificates.
 <br/>
@@ -162,9 +229,28 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
 <table width=100% class="details">
       <tr>
         <th width="30%">Key Type:</th>
-        <td><select name="keytype" onChange="keyTypeChange()"><option value="rsa">RSA</option><option value="ecc">ECC</option></select></td>
+        <td><select name="keytype" onChange="keyTypeChange('commontag')"><option value="rsa">RSA</option><option value="ecc">ECC</option></select></td>
       </tr>
 </table>
+
+#if ($subsystemtype == "ca")
+<table width=100% class="details">
+      <tr> 
+        <th width="30%">Hashing Algorithm:</th>
+        <td><select name="keyalgorithm" onChange="keyAlgorithmChange()">
+            </select></td>
+      </tr>
+</table>
+#else 
+<table width=100% class="details">
+      <tr>
+        <th width="30%">Hashing Algorithm:</th>
+        <td><select disabled="disabled" name="keyalgorithm" onChange="keyAlgorithmChange()">
+            </select></td>
+      </tr>
+</table>
+#end
+
 <p>
     <input checked onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default key size ($default_keysize bits for RSA, $default_ecc_keysize bits for ECC)</b>.
     <p>
@@ -177,6 +263,7 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
         <td><input onChange="textChange()" type="text" size="20" name="custom_size" value="2048" /></td>
       </tr>
 </table>
+
 </div>
 <p>
 <div id="advance">
@@ -193,12 +280,31 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
       <tr>
         <th width="30%">Key Type:</th>
 #if ($item.isEnable())
-        <td><select name="$item.getCertTag()_keytype"><option value=rsa>RSA</option><option value="ecc">ECC</option></select></td>
+        <td><select name="$item.getCertTag()_keytype" onChange="keyTypeChange('$item.getCertTag()')"><option value=rsa>RSA</option><option value="ecc">ECC</option></select></td>
 #else
-        <td><select name="$item.getCertTag()_keytype" disabled="disabled"><option value=rsa>RSA</option><option value="ecc">ECC</option></select></td>
+        <td><select name="$item.getCertTag()_keytype" disabled="disabled" onChange="keyTypeChange('$item.getCertTag()')"><option value=rsa>RSA</option><option value="ecc">ECC</option></select></td>
 #end
       </tr>
 </table>
+<br/>
+
+#if ($subsystemtype == "ca")
+<table width=100% class="details">
+      <tr>
+        <th width="30%">Hashing Algorithm:</th>
+        <td><select name="$item.getCertTag()_keyalgorithm">
+            </select></td>
+      </tr>
+</table>
+#else 
+<table width=100% class="details">
+      <tr>
+        <th width="30%">Hashing Algorithm:</th>
+        <td><select disabled="disabled" name="$item.getCertTag()_keyalgorithm">
+            </select></td>
+      </tr>
+</table>
+#end
 <br/>
 
 #if ($item.isEnable())
@@ -240,6 +346,7 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
 #end
       </tr>
 </table>
+
 #end
 </div>
 <br/>

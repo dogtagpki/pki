@@ -124,6 +124,26 @@ function doCancel() {
     document.write("</td>\n");
     document.write("</tr>\n");
 
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Audit Log Signing Interval (seconds):&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<input TYPE=TEXT NAME=logSigningInterval VALUE=\"" + signedAuditLogInterval + "\" />");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Audit Log Signing Buffer Size (bytes, minimum 512):&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<input TYPE=TEXT NAME=logSigningBufferSize VALUE=\"" + signedAuditLogBufferSize + "\" />");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
     var nonselectable_array = signedAuditNonSelectableEvents.split(",");
     document.write("<tr>\n");
     document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");

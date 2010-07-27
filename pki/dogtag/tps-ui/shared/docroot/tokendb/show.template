@@ -149,6 +149,15 @@ function doSave(form) {
     }
 }
 
+function check_transition(state, tlist) {
+    for (var i=0; i < tlist.length; i++) {
+        if (state == tlist[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function doCancel() {
     var uri = "";
     if (typeof(uriBase) == "undefined") {
@@ -297,8 +306,40 @@ if (typeof(results) == "undefined" || results.length == 0) {
     document.write("<tr>\n");
     document.write("<td width=60%>\n");
    
-    if ((typeof(topLevel) == "undefined") || (topLevel != "operator")) { 
-        document.write("<form method='get' action='tus'><select name=\"question\"><option value=\"1\">This token has been physically damaged.</option><option value=\"2\">This token has been permanently lost.</option><option value=\"3\">This token has been temporarily lost.</option><option value=\"4\">This temporarily lost token has been found.</option><option value=\"5\">This temporarily lost token cannot be found (becomes permanently lost).</option><option value=\"6\">This token has been terminated.</option></select><input type=hidden name=op value=do_confirm_token><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Go\"></form>");
+    if ((allowed_transitions != "") && ((typeof(topLevel) == "undefined") || (topLevel != "operator"))) { 
+        var transitions = allowed_transitions.split(",");
+        document.write("<form method='get' action='tus'><select name=\"question\">");
+        if (check_transition(1, transitions)) {
+            document.write("<option value=\"1\" >This token has been physically damaged.</option>");
+        } else {
+            document.write("<option value=\"1\" disabled=true >This token has been physically damaged.</option>");
+        }
+        if (check_transition(2, transitions)) {
+            document.write("<option value=\"2\">This token has been permanently lost.</option>");
+        } else {
+            document.write("<option value=\"2\" disabled=true >This token has been permanently lost.</option>");
+        }
+        if (check_transition(3, transitions)) {
+            document.write("<option value=\"3\" >This token has been temporarily lost.</option>");
+        } else {
+            document.write("<option value=\"3\" disabled=true >This token has been temporarily lost.</option>");
+        }
+        if (check_transition(4, transitions)) {
+            document.write("<option value=\"4\" >This temporarily lost token has been found.</option>");
+        } else {
+            document.write("<option value=\"4\" disabled=true >This temporarily lost token has been found.</option>");
+        }
+        if (check_transition(5, transitions)) {
+            document.write("<option value=\"5\" >This temporarily lost token cannot be found (becomes permanently lost).</option>");
+        } else {
+            document.write("<option value=\"5\" disabled=true >This temporarily lost token cannot be found (becomes permanently lost).</option>");
+        }
+        if (check_transition(6, transitions)) {
+            document.write("<option value=\"6\" >This token has been terminated.</option>");
+        } else {
+            document.write("<option value=\"6\" disabled=true >This token has been terminated.</option>");
+        }
+        document.write("</select><input type=hidden name=op value=do_confirm_token><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Go\"></form>");
     }
     document.write("</td>\n");
     document.write("<td align=right width=10%>\n");
