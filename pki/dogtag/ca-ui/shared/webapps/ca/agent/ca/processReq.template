@@ -24,7 +24,7 @@
 
 <SCRIPT type="text/javascript" SRC="/ca/agent/funcs.js"></SCRIPT>
 <SCRIPT type="text/javascript" SRC="/ca/agent/helpfun.js"></SCRIPT>
-<SCRIPT type="text/javascript" SRC="/ca/ee/dynamicVars.js"></SCRIPT>
+<SCRIPT type="text/javascript" SRC="/ca/agent/dynamicVars.js"></SCRIPT>
 
 <CMS_TEMPLATE>
 

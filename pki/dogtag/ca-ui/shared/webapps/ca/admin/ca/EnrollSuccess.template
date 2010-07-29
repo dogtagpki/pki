@@ -53,15 +53,13 @@ function toHex(number)
 
 document.writeln('Congratulations a certificate has been issued and ' +
 'the administrator now has Certificate Manager Agent privileges.' +
-'You can now go to '+
-'<a href="' + result.fixed.scheme + '://' + result.fixed.host +
-':' + result.fixed.port+ '/ca/agent/ca">' + 'the agent page</a>' +
+'  You can now go to the <b>Agent Services</b> page' +
 ' to process any pending requests.');
 
 document.writeln('<P>');
 document.writeln('Issued Certificates: </font>');
 document.writeln('<P>');
-document.writeln('<table border="0" cellspacing="0" cellpadding="0" background="/ca/agent/graphics/hr.gif" width="100%">');
+document.writeln('<table border="0" cellspacing="0" cellpadding="0" background="/ca/admin/graphics/hr.gif" width="100%">');
 document.writeln('  <tr> ');
 document.writeln('    <td>&nbsp;</td>');
 document.writeln('  </tr>');
