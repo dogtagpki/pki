@@ -1645,6 +1645,21 @@
    </servlet>
 
    <servlet>
+      <servlet-name>  caDynamicVariables-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDynamicVariables </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  dynamicVariables  </param-name>
+                         <param-value> serverdate=serverdate(),subsystemname=subsystemname(),http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl() </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent       </param-value> </init-param>
+   </servlet>
+
+   <servlet>
       <servlet-name>  caDynamicVariables-admin  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -2212,6 +2227,11 @@
    <servlet-mapping>
       <servlet-name>  caDynamicVariables  </servlet-name>
       <url-pattern>   /ee/dynamicVars.js  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caDynamicVariables-agent  </servlet-name>
+      <url-pattern>   /agent/dynamicVars.js  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

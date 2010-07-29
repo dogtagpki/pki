@@ -88,16 +88,99 @@ public class PolicyAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         String authority = config.getInitParameter(PROP_AUTHORITY);
+        String policyStatus = null;
 
+        CMS.debug( "PolicyAdminServlet: In Policy Admin Servlet init!" );
+
+        // CMS 6.1 began utilizing the "Certificate Profiles" framework
+        // instead of the legacy "Certificate Policies" framework.
+        //
+        // Beginning with CS 8.1, to meet the Common Criteria evaluation
+        // performed on this version of the product, it was determined
+        // that this legacy "Certificate Policies" framework would be
+        // deprecated and disabled by default (see Bugzilla Bug #472597).
+        //
+        // NOTE:  The "Certificate Policies" framework ONLY applied to
+        //        to CA, KRA, and legacy RA (pre-CMS 7.0) subsystems.
+        //
+        //        Further, the "PolicyAdminServlet.java" servlet is ONLY used 
+        //        by the CA Console for the following:
+        //
+        //            SERVLET-NAME           URL-PATTERN
+        //            ====================================================
+        //            capolicy               ca/capolicy
+        //
+        //        Finally, the "PolicyAdminServlet.java" servlet is ONLY used 
+        //        by the KRA Console for the following:
+        //
+        //            SERVLET-NAME           URL-PATTERN
+        //            ====================================================
+        //            krapolicy              kra/krapolicy
+        //
         if (authority != null)
             mAuthority = (IAuthority) CMS.getSubsystem(authority);
         if (mAuthority != null)
             if (mAuthority instanceof ICertificateAuthority) {
                 mProcessor = ((ICertificateAuthority) mAuthority).getPolicyProcessor();
+                try {
+                    policyStatus = ICertificateAuthority.ID
+                                 + "." + "Policy"
+                                 + "." + IPolicyProcessor.PROP_ENABLE;
+                    if( mConfig.getBoolean( policyStatus, true ) == true ) {
+                        // NOTE:  If "ca.Policy.enable=<boolean>" is missing,
+                        //        then the referenced instance existed prior
+                        //        to this name=value pair existing in its
+                        //        'CS.cfg' file, and thus we err on the
+                        //        side that the user may still need to
+                        //        use the policy framework.
+                        CMS.debug( "PolicyAdminServlet::init "
+                                 + "Certificate Policy Framework (deprecated) "
+                                 + "is ENABLED" );
+                    } else {
+                        // CS 8.1 Default:  ca.Policy.enable=false
+                        CMS.debug( "PolicyAdminServlet::init "
+                                 + "Certificate Policy Framework (deprecated) "
+                                 + "is DISABLED" );
+                        return; 
+                    }
+                } catch( EBaseException e ) {
+                    throw new ServletException( authority
+                                              + " does not have a "
+                                              + "master policy switch called '"
+                                              + policyStatus + "'" );
+                }
             } else if (mAuthority instanceof IRegistrationAuthority) {
+                // this refers to the legacy RA (pre-CMS 7.0)
                 mProcessor = ((IRegistrationAuthority) mAuthority).getPolicyProcessor();
             } else if (mAuthority instanceof IKeyRecoveryAuthority) {
                 mProcessor = ((IKeyRecoveryAuthority) mAuthority).getPolicyProcessor();
+                try {
+                   policyStatus = IKeyRecoveryAuthority.ID
+                                + "." + "Policy"
+                                + "." + IPolicyProcessor.PROP_ENABLE;
+                    if( mConfig.getBoolean( policyStatus, true ) == true ) {
+                        // NOTE:  If "kra.Policy.enable=<boolean>" is missing,
+                        //        then the referenced instance existed prior
+                        //        to this name=value pair existing in its
+                        //        'CS.cfg' file, and thus we err on the
+                        //        side that the user may still need to
+                        //        use the policy framework.
+                        CMS.debug( "PolicyAdminServlet::init "
+                                 + "Certificate Policy Framework (deprecated) "
+                                 + "is ENABLED" );
+                    } else {
+                        // CS 8.1 Default:  kra.Policy.enable=false
+                        CMS.debug( "PolicyAdminServlet::init "
+                                 + "Certificate Policy Framework (deprecated) "
+                                 + "is DISABLED" );
+                        return; 
+                    }
+                } catch( EBaseException e ) {
+                    throw new ServletException( authority
+                                              + " does not have a "
+                                              + "master policy switch called '"
+                                              + policyStatus + "'" );
+                }
             } else 
                 throw new ServletException(authority + "  does not have policy processor!"); 
     }

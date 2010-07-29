@@ -60,6 +60,8 @@ import com.netscape.certsrv.authorization.*;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.AuditFormat;
 
+import com.netscape.certsrv.policy.IPolicyProcessor;
+
 import com.netscape.certsrv.usrgrp.*;
 import com.netscape.certsrv.ca.*;
 import com.netscape.certsrv.dbs.certdb.*;
@@ -167,6 +169,67 @@ public class EnrollServlet extends CMSServlet {
             super.init(sc);
 
             CMS.debug("EnrollServlet: In Enroll Servlet init!");
+
+            try {
+                IConfigStore configStore = CMS.getConfigStore();
+                String PKI_Subsystem = configStore.getString( "subsystem.0.id",
+                                                              null );
+
+                // CMS 6.1 began utilizing the "Certificate Profiles" framework
+                // instead of the legacy "Certificate Policies" framework.
+                //
+                // Beginning with CS 8.1, to meet the Common Criteria
+                // evaluation performed on this version of the product, it
+                // was determined that this legacy "Certificate Policies"
+                // framework would be deprecated and disabled by default
+                // (see Bugzilla Bug #472597).
+                //
+                // NOTE:  The "Certificate Policies" framework ONLY applied to
+                //        to CA, KRA, and legacy RA (pre-CMS 7.0) subsystems.
+                //
+                //        Further, the "EnrollServlet.java" servlet is ONLY
+                //        used by the CA for the following:
+                //
+                //        SERVLET-NAME           URL-PATTERN
+                //        ====================================================
+                //        caadminEnroll          ca/admin/ca/adminEnroll.html
+                //        cabulkissuance         ca/agent/ca/bulkissuance.html
+                //        cacertbasedenrollment  ca/certbasedenrollment.html
+                //        caenrollment           ca/enrollment.html
+                //
+                //        The "EnrollServlet.java" servlet is NOT used by
+                //        the KRA.
+                //
+                if( PKI_Subsystem.trim().equalsIgnoreCase( "ca" ) ) {
+                    String policyStatus = PKI_Subsystem.trim().toLowerCase()
+                                        + "." + "Policy"
+                                        + "." + IPolicyProcessor.PROP_ENABLE;
+
+                    if( configStore.getBoolean( policyStatus, true ) == true ) {
+                        // NOTE:  If "<subsystem>.Policy.enable=<boolean>"
+                        //        is missing, then the referenced instance
+                        //        existed prior to this name=value pair
+                        //        existing in its 'CS.cfg' file, and thus
+                        //        we err on the side that the user may
+                        //        still need to use the policy framework.
+                        CMS.debug( "EnrollServlet::init Certificate "
+                                 + "Policy Framework (deprecated) "
+                                 + "is ENABLED" );
+                    } else {
+                        // CS 8.1 Default:  <subsystem>.Policy.enable=false
+                        CMS.debug( "EnrollServlet::init Certificate "
+                                 + "Policy Framework (deprecated) "
+                                 + "is DISABLED" );
+                        return;
+                    }
+                }
+            } catch( EBaseException e ) {
+                throw new ServletException( "EnrollServlet::init - "
+                                          + "EBaseException:  "
+                                          + "Unable to initialize "
+                                          + "Certificate Policy Framework "
+                                          + "(deprecated)" );
+            }
 
             // override success template to allow direct import of keygen certs.
             mTemplates.remove(CMSRequest.SUCCESS);
