@@ -57,6 +57,10 @@ document.write("<table width=\"100%\"><tr><td align=\"right\"><b>UID:</b>" +
                 userid + "</td></tr></table>\n");
 document.write("<HR NOSHADE SIZE=1>\n");
 
+function submitEditForm(form) {
+    document.editForm.submit();
+}
+
 function doFind(form) {
     if (form.uid.value == "" && form.tid.value == "") {
         alert("Enter token or user ID");
@@ -110,6 +114,7 @@ document.write("</tr></table>");
    <tr>
     <td><li><a href="tus?op=new">Add New Token</a></td>
   </tr>
+  <tr><td>&nbsp;</td></tr>
   <tr> 
     <td><i>Users</i></td>
   </tr>
@@ -122,17 +127,40 @@ document.write("</tr></table>");
   <tr>
     <td><li><a href="tus?op=search_users">Search Users</a></td>
   </tr>
+  <tr><td>&nbsp;</td></tr>
    <tr>
     <td><i>Activities</i></td>
   </tr>
   <tr>
     <td><li><a href="tus?op=search_activity_admin">List/Search Activities</a></td>
   </tr>
+  <tr><td>&nbsp;</td></tr>
    <tr>
     <td><i>Auditing</i></td>
   </tr>
   <tr>
     <td><li><a href="tus?op=audit_admin">Configure Signed Audit</a></td>
+  </tr>
+  <tr><td>&nbsp;</td></tr>
+  <tr>
+    <td><i>Advanced Configuration</i></td>
+  </tr>
+  <SCRIPT type="text/JavaScript">
+  <!--
+    var target_array = target_list.split(","); 
+    for (var i=0; i< target_array.length ; i++) {
+      document.write("<tr><td><li><a href=\"tus?op=select_config_parameter&type=" + target_array[i] + "\">" +
+          target_array[i].replace(/_/g, " ") + "</a></td> </tr>");
+    }
+  //-->
+  </SCRIPT>
+  <tr>
+    <form name="editForm" method=POST action="tus" >
+        <input TYPE=hidden NAME=query VALUE="op=edit_config_parameter">
+        <input TYPE=HIDDEN NAME=ptype VALUE="Generals">
+        <input TYPE=HIDDEN NAME=pname VALUE="General">
+        <td><li><a href="javascript:submitEditForm(this)">General</a></td>
+    </form>
   </tr>
 </table>
 <HR NOSHADE SIZE=1>

@@ -53,6 +53,13 @@ if (typeof(uriBase) == "undefined") {
 
 document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
                "<a href=\""+uri0+"\">Main Menu</a></font>\n");
+
+if ((typeof(flash) != "undefined") && (flash != "")) {
+    document.write("<table width=\"100%\"><tr><td align=\"left\">" +
+        "<font color=\"#ff0000\"><b>" + flash.replace(/\+/g, " ") + "</b><font>" +
+        "</td></tr></table>\n");
+}
+
 document.write("<table width=\"100%\"><tr><td align=\"right\"><b>UID:</b>" + 
                 userid + "</td></tr></table>\n");
 document.write("<HR NOSHADE SIZE=1>\n");
@@ -90,6 +97,7 @@ if ((typeof(adminAuth) != "undefined") && (adminAuth == "true")) {
 }
 document.write("<td width=\"" + lastCol + "%\"></td>");
 document.write("</tr></table>");
+
 //-->
 </SCRIPT>
 
@@ -105,12 +113,14 @@ document.write("</tr></table>");
   <tr>
     <td><li><a href="tus?op=search">List/Search Tokens</a></td>
   </tr>
+  <tr><td>&nbsp;</td></tr>
   <tr>
     <td><i>Certificates</i></td>
   </tr>
   <tr>
     <td><li><a href="tus?op=search_certificate">List/Search Certificates</a></td>
   </tr>
+  <tr><td>&nbsp;</td></tr>
   <tr>
     <td><i>Activities</i></td>
   </tr>
@@ -120,6 +130,20 @@ document.write("</tr></table>");
   <tr>
     <td></td>
   </tr>
+  <tr><td>&nbsp;</td></tr>
+  <tr>
+    <td><i>Advanced Configuration</i></td>
+  </tr>
+  <SCRIPT type="text/JavaScript">
+  <!--
+    var target_array = agent_target_list.split(",");
+    for (var i=0; i< target_array.length ; i++) {
+      document.write("<tr><td><li><a href=\"tus?op=agent_select_config&type=" + target_array[i] + "\">" +
+          target_array[i].replace(/_/g, " ") + "</a></td> </tr>");
+    }
+  //-->
+  </SCRIPT>
+
 </table>
 <HR NOSHADE SIZE=1>
 <DIV ALIGN=RIGHT>

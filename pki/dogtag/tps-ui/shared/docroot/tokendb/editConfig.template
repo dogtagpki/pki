@@ -1,0 +1,233 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation.
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2010 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+<link rel="shortcut icon" href="/tps/admin/console/img/favicon.ico" />
+<HEAD>
+<TITLE>TPS</Title>
+</HEAD>
+
+<table border="0" width="100%" cellspacing="0" cellpadding="0" bgcolor="#000000">
+  <tr>
+    <td> 
+      <table border="0" cellspacing="12" cellpadding="0">
+        <tr>
+          <td><img src="/tps/admin/console/img/logo_header.gif"></td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">Red Hat<sup><font color="#999999" size="-2">&reg;</font></sup> TPS Services</font></td>
+        </tr>
+      </table>
+    </td> 
+  </tr>
+</table>
+<p>
+
+<BODY>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/JavaScript">
+<!--
+var uri0 = "";
+if (typeof(uriBase) == "undefined") {
+    uri0 += "/tus";
+} else {
+    uri0 += uriBase;
+}
+
+String.prototype.htmlEntities = function () {
+   return this.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+};
+
+String.prototype.unescapeEntry = function () {
+   return this.replace(/&dbquote/g,'\"').replace(/&singlequote/g,'\'').replace(/&lessthan/g,'<').replace(/&greaterthan/g, '>');
+};
+
+String.prototype.escapeEntry = function () {
+   return this.replace(/\"/g,'&dbquote').replace(/\'/g,'&singlequote').replace(/</g,'&lessthan').replace(/>/g, '&greaterthan');
+};
+
+var disp_conf_type = conf_type.replace(/_/g, " ").substring(0, conf_type.length -1);
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : " + disp_conf_type + " Configuration </font>\n");
+
+if ((typeof(flash) != "undefined") && (flash != "")) {
+    document.write("<table width=\"100%\"><tr><td align=\"left\">" +
+        "<font color=\"#ff0000\"><b>" + flash.replace(/\+/g, " ") + "</b><font>" +
+        "</td></tr></table>\n");
+}
+
+document.write("<table width=\"100%\"><tr><td align=\"right\">" +
+                "<b>UID:</b>" + userid
+                + "</td></tr></table>\n");
+document.write("<HR NOSHADE SIZE=1>\n");
+
+function validate_required(field,alerttxt) {
+    with (field) {
+        if (value==null||value=="") {
+            alert(alerttxt);
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+}
+
+// validate according to the pattern
+function validate_form(s) {
+    var s_array = s.split("\n");
+    var reg = new RegExp(conf_pattern.replace(/\$name/g, conf_name));
+
+    for (var i=0; i< s_array.length ; i++) {
+        var key_value = s_array[i].split("=");
+        if (! reg.test(key_value[0])) {
+            alert(key_value[0] + " is not a valid parameter.\nValid parameters have the format " + conf_pattern.replace(/\$name/g, conf_name));
+            return false;
+        }
+    }
+    return true;
+}
+
+function doUpdateConfig(form) {
+        var uri = "";
+        var s = document.editConfigForm.pvalues.value;
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus";
+        } else {
+            uri += uriBase;
+        }
+        if (validate_form(s)) {
+            document.editConfigForm.pvalues.value = s.escapeEntry().replace(/\n/g, "&&");
+            this.action = uri;
+            return true;
+        } else {
+            return false;
+        }
+}
+
+function doCancel() {
+    var uri = "";
+    if (typeof(uriBase) == "undefined") {
+        uri += "/tus";
+    } else {
+        uri += uriBase;
+    }
+    location.href = uri;
+}
+
+function doDelete() {
+    var uri = "";
+    if (typeof(uriBase) == "undefined") {
+        uri += "/tus";
+    } else {
+        uri += uriBase;
+    }
+    location.href = uri;
+}
+
+
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
+    document.write("<tr><td align=left width=20% bgcolor=#e5e5e5>" + disp_conf_type + ": </td>\n");
+    document.write("<td align=left width=20% colspan=4>" + conf_name + "</td></tr>");
+
+    document.write("<tr><td align=left width=20% bgcolor=#e5e5e5> Status: </td>\n");
+    document.write("<td align=left width=20% colspan=4>" + conf_state.replace(/_/g, " ") + "</td></tr>");
+
+    document.write("<form NAME =\"editConfigForm\" METHOD=POST onSubmit=\"return doUpdateConfig(this);\">\n");
+    document.write("<input TYPE=hidden NAME=query VALUE=\"op=confirm_config_changes\">");
+    document.write("<input TYPE=hidden NAME=ptype VALUE=\"" + conf_type + "\">");
+    document.write("<input TYPE=hidden NAME=pname VALUE=\"" + conf_name + "\">");
+    document.write("<input TYPE=hidden NAME=ptimestamp VALUE=\"" + conf_tstamp + "\">");
+
+    document.write("<tr><td align=left width=20% bgcolor=#e5e5e5> Contents: </td>\n");
+    document.write("<td align=left colspan=4>\n");
+    if ((typeof(conf_values) == "undefined") || (conf_values.length == 0) ) {
+        if ((conf_state == "Disabled") || (agent_must_approve != "true")) {
+            document.write("<textarea name=pvalues cols=100 rows=40>\n");
+            document.write("</textarea>\n");
+        } else {
+            document.write("<textarea name=pvalues style=\"color:#000000\" cols=100 rows=40 disabled=disabled>\n");
+            document.write("</textarea>\n");
+        }
+    } else {
+        if ((conf_state == "Disabled") || (agent_must_approve != "true")) {
+            document.write("<textarea name=pvalues cols=100 rows=40>\n");
+            document.write(conf_values.unescapeEntry().replace(/&&/g, "\r\n"));
+            document.write("</textarea>\n");
+        } else {
+            document.write("<textarea name=pvalues cols=100 style=\"color:#000000\" rows=40 disabled=disabled>\n");
+            document.write(conf_values.unescapeEntry().replace(/&&/g, "\r\n"));
+            document.write("</textarea>\n");
+        }
+    }
+    document.write("</td></tr>\n");
+    document.write("</table>\n");
+
+    document.write("<HR NOSHADE SIZE=1>");
+    document.write("<DIV ALIGN=RIGHT>");
+
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=4>\n");
+
+    document.write("<tr>\n");
+    document.write("<td align=left>\n");
+    if ((conf_state == "Disabled") || (agent_must_approve != "true")) {
+        document.write("<input name=choice TYPE=submit VALUE=Save>");
+    } else {
+        document.write("<input name=choice TYPE=submit VALUE=Save disabled=disabled>");
+    }
+    document.write("</td>\n");
+
+    document.write("<td align=left>\n");
+    document.write("<input TYPE=button VALUE=Cancel onClick=\"doCancel();\">");
+    document.write("</td>\n");
+
+    document.write("<td align=left>\n");
+    if ((conf_state == "Disabled") && (agent_must_approve == "true")) {
+        document.write("<input name=choice TYPE=submit VALUE=\"Submit For Approval\">");
+    } else {
+        document.write("<input name=choice TYPE=submit VALUE=\"Submit For Approval\" disabled=disabled>");
+    }
+    document.write("</td>\n");
+    document.write("</form>\n");
+
+    document.write("<td align=left>\n");
+    document.write("<form name=deleteConfig method=POST onSubmit=\"return doDelete(this);\">\n");
+    document.write("<input type=hidden name=query value=\"op=confirm_delete_config\">");
+    document.write("<input type=hidden name=pname value=\"" + conf_name + "\">");
+    document.write("<input type=hidden name=ptype value=\"" + conf_type + "\">");
+    document.write("<input type=hidden name=pvalues value=\"" + escapeEntry(conf_values) + "\">");
+    document.write("<input type=hidden name=pstate value=\"" + conf_state + "\">");
+    document.write("<input TYPE=hidden NAME=ptimestamp VALUE=\"" + conf_tstamp + "\">");
+    if ((conf_state == "Disabled")|| (agent_must_approve != "true")) {
+        document.write("<input TYPE=submit VALUE=\"Delete\">");
+    } else {
+        document.write("<input TYPE=submit VALUE=\"Delete\" disabled=disabled>");
+    }
+    document.write("</form>");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+    document.write("</table>\n");
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>

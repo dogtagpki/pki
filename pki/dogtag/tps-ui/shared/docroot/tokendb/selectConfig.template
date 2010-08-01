@@ -1,0 +1,138 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation.
+     
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+<link rel="shortcut icon" href="/tps/admin/console/img/favicon.ico" />
+<HEAD>
+<TITLE>TPS</Title>
+</HEAD>
+
+<table border="0" width="100%" cellspacing="0" cellpadding="0" bgcolor="#000000">
+  <tr>
+    <td> 
+      <table border="0" cellspacing="12" cellpadding="0">
+        <tr>
+          <td><img src="/tps/admin/console/img/logo_header.gif"></td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">Red Hat<sup><font color="#999999" size="-2">&reg;</font></sup> TPS Services</font></td>
+        </tr>
+      </table>
+    </td> 
+  </tr>
+</table>
+<p>
+
+<BODY>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/JavaScript">
+<!--
+var uri0 = "";
+if (typeof(uriBase) == "undefined") {
+    uri0 += "/tus";
+} else {
+    uri0 += uriBase;
+}
+
+var disp_conf_type = conf_type.replace(/_/g, " ").substring(0, conf_type.length -1);
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : " + disp_conf_type + " Configuration </font>\n");
+
+if ((typeof(flash) != "undefined") && (flash != "")) {
+    document.write("<table width=\"100%\"><tr><td align=\"left\">" +
+        "<font color=\"#ff0000\"><b>" + flash.replace(/\+/g, " ") + "</b><font>" +
+        "</td></tr></table>\n");
+}
+
+document.write("<table width=\"100%\"><tr><td align=\"right\">" +
+                "<b>UID:</b>" + userid
+                + "</td></tr></table>\n");
+document.write("<HR NOSHADE SIZE=1>\n");
+
+function doAddConfig(form) {
+        var uri = "";
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus";
+        } else {
+            uri += uriBase;
+        }
+        // need to validate that pname is not empty
+        this.action = uri;
+        return true;
+}
+
+function doEditConfig(form) {
+        var uri = "";
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus";
+        } else {
+            uri += uriBase;
+        }
+        this.action = uri;
+        return true;
+}
+
+function doCancel() {
+    var uri = "";
+    if (typeof(uriBase) == "undefined") {
+        uri += "/tus";
+    } else {
+        uri += uriBase;
+    }
+    location.href = uri;
+}
+
+
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
+    document.write("<tr bgcolor=#e5e5e5> <p>  Use this form to add or modify " + disp_conf_type.toLowerCase() + "s.  <br> Either select an item " + 
+         " to edit in the drop-down box below and click \"Edit\", <br> or fill in the name of a new " + disp_conf_type.toLowerCase() + 
+         " and click the \"Add\" button.</p></tr>");
+
+    document.write("<form NAME =\"selectEditConfigForm\" METHOD=POST onSubmit=\"return doEditConfig(this);\">");
+    document.write("<input TYPE=hidden NAME=query VALUE=\"op=edit_config_parameter\">");
+    document.write("<input TYPE=HIDDEN NAME=ptype VALUE=\"" + conf_type + "\">");
+
+    var pset_list = conf_list.split(",");
+    document.write("<tr>");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5> Edit an existing " + disp_conf_type + ": </td>");
+    document.write("<td ALIGN=LEFT width=30%><select name=\"pname\">");
+    for (var i=0; i < pset_list.length; i++) {
+        document.write("<option value=\""+ pset_list[i] + "\">" + pset_list[i] + "</option>\n");
+    }
+    document.write("</select></td>");
+    document.write("<td ALIGN=LEFT width=30%><input TYPE=submit VALUE=Edit></td></tr>");
+    document.write("</form>\n");
+
+    document.write("<form NAME =\"selectAddConfigForm\" METHOD=POST onSubmit=\"return doAddConfig(this);\">");
+    document.write("<input TYPE=hidden NAME=query VALUE=\"op=add_config_parameter\">");
+    document.write("<input TYPE=HIDDEN NAME=ptype VALUE=\"" + conf_type + "\">");
+    document.write("<tr>");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5> Add a new " + disp_conf_type + ": </td>");
+    document.write("<td ALIGN=LEFT width=30%> <input type=text name=pname></td> ");
+    document.write("<td ALIGN=LEFT width=30%><input TYPE=submit VALUE=Add></td></tr>");
+    document.write("</table>");
+    document.write("</form>\n");
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>
