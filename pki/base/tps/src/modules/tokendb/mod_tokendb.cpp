@@ -52,7 +52,9 @@ extern "C"
 #include "plstr.h"
 #include "prmem.h"
 #include "prtime.h"
+#include "prthread.h"
 #include "cert.h"
+#include "regex.h"
 #include "nss3/base64.h"
 
 #include "httpd/httpd.h"
@@ -172,7 +174,6 @@ enum token_ui_states  {
     TOKEN_TERMINATED = 6
 };
 
-
 /*  _________________________________________________________________
 **
 **  Tokendb Module Request Data
@@ -213,6 +214,13 @@ static char *searchUserTemplate              = NULL;
 static char *newUserTemplate                 = NULL;
 static char *userDeleteTemplate              = NULL;
 static char *auditAdminTemplate              = NULL;
+static char *agentSelectConfigTemplate       = NULL;
+static char *selectConfigTemplate            = NULL;
+static char *agentViewConfigTemplate         = NULL;
+static char *editConfigTemplate              = NULL;
+static char *confirmConfigChangesTemplate    = NULL;
+static char *addConfigTemplate               = NULL;
+static char *confirmDeleteConfigTemplate     = NULL;
 
 static char *profileList                     = NULL;
 static char *transitionList                  = NULL;
@@ -303,6 +311,14 @@ inline void do_free(char * buf)
     }
 }
 
+inline void do_strfree(char *buf)
+{
+    if (buf != NULL) {
+        PL_strfree(buf);
+        buf = NULL;
+    }
+}
+
 /**
  * unencode
  * summary: takes a URL encoded string and returns an unencoded string 
@@ -389,6 +405,17 @@ char *get_post_field( apr_table_t *post, const char *fname, int len)
    } else {
       return NULL;
   }
+}
+
+char *get_post_field_s( apr_table_t *post, const char *fname)
+{
+   char *ret = NULL;
+   if (post) {
+      ret = unencode(apr_table_get(post, fname));
+      return ret;
+   } else {
+      return NULL;
+   }
 }
 
 /**
@@ -650,7 +677,6 @@ char *escapeSpecialChars(char* src)
     ret[i]='\0';  
     return ret;   
 }
-
 
 void getCertificateFilter( char *filter, char *query )
 {
@@ -2266,6 +2292,9 @@ int get_tus_config( char *name )
         }
     }
 
+    /* keep this assignment to profileList for backwards compatibility.
+       It has been superseded by target.Profiles.list.
+       This should be removed in a future release */
     if( ( s = PL_strstr( buf, "target.tokenType.list=" ) ) != NULL ) {
         s += PL_strlen( "target.tokenType.list=" );
         v = s;
@@ -2292,6 +2321,14 @@ int get_tus_config( char *name )
 
     get_cfg_string("tokendb.allowedTransitions=", transitionList);
     get_cfg_string("tokendb.auditAdminTemplate=", auditAdminTemplate);
+    get_cfg_string("tokendb.selectConfigTemplate=", selectConfigTemplate);
+    get_cfg_string("tokendb.agentSelectConfigTemplate=", agentSelectConfigTemplate);
+    get_cfg_string("tokendb.editConfigTemplate=", editConfigTemplate);
+    get_cfg_string("tokendb.agentViewConfigTemplate=", agentViewConfigTemplate);
+    get_cfg_string("tokendb.confirmConfigChangesTemplate=", confirmConfigChangesTemplate);
+    get_cfg_string("tokendb.addConfigTemplate=", addConfigTemplate);
+    get_cfg_string("tokendb.confirmDeleteConfigTemplate=", confirmDeleteConfigTemplate);
+    get_cfg_string("target.Profiles.list=", profileList);
 
     if( buf != NULL ) {
         PR_Free( buf );
@@ -2661,6 +2698,517 @@ int audit_attribute_change(LDAPMessage *e, const char *fname, char *fvalue, char
 }
 
 /**
+ * replaces all instances of a substring oldstr with newstr
+ * must be freed by caller
+ **/
+char *replace(const char *s, const char *oldstr, const char *newstr)
+{
+    char *ret = NULL;
+    int i, count = 0;
+    size_t newlen = PL_strlen(newstr);
+    size_t oldlen = PL_strlen(oldstr);
+
+    for (i = 0; s[i] != '\0'; i++) {
+        if (PL_strstr(&s[i], oldstr) == &s[i]) {
+            count++;
+            i += oldlen - 1;
+        }
+    }
+
+    ret = (char *) PR_Malloc(PL_strlen(s)  + count * (newlen - oldlen) + 1);
+
+    i = 0;
+    while (*s) {
+        if (PL_strstr(s, oldstr) == s) {
+            PL_strncpy(&ret[i], newstr, newlen);
+            i += newlen;
+            s += oldlen;
+    } else
+        ret[i++] = *s++;
+    }
+    ret[i] = '\0';
+
+    return ret;
+}
+
+char *escapeString(const char *s)
+{
+    char *ret, *ret1, *ret2, *ret3;
+
+    ret1 = replace(s,    "\"", "&dbquote");
+    ret2 = replace(ret1, "\'", "&singlequote");
+    ret3 = replace(ret2, "<", "&lessthan");
+    ret = replace(ret3, ">", "&greaterthan");
+    do_free(ret1);
+    do_free(ret2);
+    do_free(ret3);
+    return ret;
+}
+
+char *unescapeString(const char *s)
+{
+    char *ret, *ret1, *ret2, *ret3;
+
+    ret1 = replace(s,   "&dbquote", "\"");
+    ret2 = replace(ret1,"&singlequote", "\'");
+    ret3 = replace(ret2, "&lessthan", "<");
+    ret = replace(ret3, "&greaterthan", ">");
+    do_free(ret1);
+    do_free(ret2);
+    do_free(ret3);
+    return ret;
+}
+
+
+/**
+ * determines if the parameter set named pname of type ptype 
+ * has been defined.  
+ **/
+bool config_param_exists(char *ptype, char* pname)
+{
+    char configname[256]="";
+    PR_snprintf( ( char * ) configname, 256, "target.%s.list", ptype );
+    const char* conf_list = RA::GetConfigStore()->GetConfigAsString( configname );
+    return RA::match_comma_list((const char*) pname, (char *) conf_list);
+}
+
+/** 
+ * takes in the type and name of the parameter set.
+ * returns the current state and timestamp of this parameter set.
+ *
+ * If a parameter set is being viewed in the UI for the first time, the state is returned
+ * as "Enabled" and the timestamp is set to the current timestamp.
+ **/
+void get_config_state_timestamp(char *type, char *name, char **pstate, char **ptimestamp)
+{
+    char configname[256] = "";
+    bool commit_needed = false;
+    const char *tmp_state = NULL;
+    const char *tmp_timestamp = NULL;
+    PRLock *config_lock = RA::GetConfigLock();
+
+    PR_Lock(config_lock);
+    PR_snprintf(configname, 256, "config.%s.%s.state", type, name);
+    
+    tmp_state = RA::GetConfigStore()->GetConfigAsString(configname);
+    if ((tmp_state == NULL) && (config_param_exists(type, name))) {
+        RA::GetConfigStore()->Add(configname, "Enabled");
+        commit_needed = true;
+        *pstate = (char *) PL_strdup("Enabled");
+    } else {
+       *pstate = (char *) PL_strdup(tmp_state);
+    }
+ 
+    PR_snprintf(configname, 256, "config.%s.%s.timestamp", type, name);
+    tmp_timestamp = RA::GetConfigStore()->GetConfigAsString(configname);
+    if ((tmp_timestamp == NULL) &&  (config_param_exists(type, name))) {
+        char new_ts[256];
+        PR_snprintf(new_ts, 256, "%lld", PR_Now());
+        RA::GetConfigStore()->Add(configname, new_ts);
+        commit_needed = true;
+        *ptimestamp = (char *) PL_strdup(new_ts);
+    } else {
+        *ptimestamp = (char *) PL_strdup(tmp_timestamp);
+    }
+    
+    PR_Unlock(config_lock);
+    if (commit_needed) {
+        RA::GetConfigStore()->Commit(false);
+    }
+}
+
+/**
+ * takes in a parameter set type and name
+ * removes any variables defining the state and timestamp.  
+ * Called when a parameter set is deleted.
+ **/
+void remove_config_state_timestamp(char *type, char *name)
+{
+    char configname[256] = "";
+    PRLock *config_lock = RA::GetConfigLock();
+
+    PR_Lock(config_lock);
+    PR_snprintf(configname, 256, "config.%s.%s.state", type, name);
+    RA::GetConfigStore()->Remove(configname);
+
+    PR_snprintf(configname, 256, "config.%s.%s.timestamp", type, name);
+    RA::GetConfigStore()->Remove(configname);
+    PR_Unlock(config_lock);
+
+}
+
+/**
+ * takes in a parameter set type
+ * returns true if this parameter set type must be approved/ disabled by an agent
+ **/
+bool agent_must_approve(char *conf_type)
+{
+    const char* agent_list = RA::GetConfigStore()->GetConfigAsString("target.agent_approve.list");
+    return RA::match_comma_list((const char*) conf_type, (char *) agent_list);
+}
+
+/**
+ * This is the main function used to set the state and timestamp for parameter sets 
+ * managed by the UI.  The function includes checks to enforce only allowed transitions.
+ * 
+ * Arguments are as follows:
+ *     type: parameter set type
+ *     name: parameter set name
+ *     old_ts: old timestamp of parameter set.  Used to check for concurrency conflicts.
+ *     new_state: state to transition to: one of "Enabled", "Disabled", "Pending_Approval" or "Writing"
+ *     who: role requesting the transition, one of "Agent" or "Admin"
+ *     new_config: true if this is a new parameter set, false otherwise
+ *     userid: userid of user requesting the transition, used for audit log message 
+ * 
+ * function will return 0 on success, non-zero otherwise
+ **/
+int set_config_state_timestamp(char *type, char* name, char *old_ts, char *new_state, char *who, bool new_config, char *userid)
+{
+    char ts_name[256] = "";
+    char state_name[256] = "";
+    char writer_name[256] = "";
+    char new_ts[256] ="";
+    char new_writer[256]="";
+    char final_state[256] = "";
+    char me[256]="";
+    int ret =0;
+    PRTime now;
+    PRThread *ct = NULL;
+    PRLock *config_lock = RA::GetConfigLock();
+
+    PR_snprintf(ts_name, 256, "config.%s.%s.timestamp", type, name);
+    PR_snprintf(state_name, 256, "config.%s.%s.state", type, name);
+    PR_snprintf(writer_name, 256, "config.%s.%s.writer", type, name); 
+
+    ct = PR_GetCurrentThread();
+    PR_snprintf(me, 256, "%x", ct);
+
+    PR_Lock(config_lock); 
+    if (new_config) {
+        if (agent_must_approve(type)) {
+             RA::GetConfigStore()->Add(state_name, "Disabled");
+        } else {
+             RA::GetConfigStore()->Add(state_name, "Enabled");
+        }
+        now = PR_Now();
+        PR_snprintf(new_ts, 256, "%lld", now);
+        RA::GetConfigStore()->Add(ts_name, new_ts);
+    }
+
+    // used to make sure auditing is correct
+    PR_snprintf(final_state, 256, "%s", new_state);
+
+    const char *cur_state = RA::GetConfigStore()->GetConfigAsString(state_name);
+    const char *cur_writer = RA::GetConfigStore()->GetConfigAsString(writer_name, "");
+    const char *cur_ts = RA::GetConfigStore()->GetConfigAsString(ts_name);
+
+    if ((cur_state == NULL) || (cur_ts == NULL)) {
+        // this item has likely been deleted
+        ret=20;
+        goto release_and_exit;
+    }
+
+    if ((PL_strcmp(cur_ts, old_ts) != 0) && (!new_config)) {
+        // version out of date
+        ret=1;
+        goto release_and_exit;
+    } 
+
+    if (PL_strcmp(cur_state, new_state) == 0) {
+        ret=0; 
+        goto release_and_exit;
+    }
+
+    if (PL_strcmp(who, "Admin")==0) {
+        if (PL_strcmp(new_state, "Disabled")==0) {
+            if ((PL_strcmp(cur_state, "Writing") == 0) && (PL_strcmp(me, cur_writer) == 0)) {
+                // "Writing" to "Disabled", with me as writer, admin finishes writes after "Save"
+                now = PR_Now();
+                PR_snprintf(new_ts, 256, "%lld", now); 
+                RA::GetConfigStore()->Add(ts_name, new_ts);
+                if (agent_must_approve(type)) {
+                    RA::GetConfigStore()->Add(state_name, new_state);
+                } else {
+                    PR_snprintf(final_state, 256, "Enabled");
+                    RA::GetConfigStore()->Add(state_name, "Enabled");
+                }
+                ret=0;
+                goto release_and_exit;
+            } else {
+                ret=2;
+                goto release_and_exit;
+            }
+        } else if (PL_strcmp(new_state, "Enabled")==0) {
+            if ((!agent_must_approve(type)) && (PL_strcmp(cur_state, "Writing") == 0) 
+              && (PL_strcmp(me, cur_writer) == 0)) {
+                now = PR_Now();
+                PR_snprintf(new_ts, 256, "%lld", now);
+                RA::GetConfigStore()->Add(ts_name, new_ts);
+                ret = 0;
+                goto release_and_exit;
+            }
+
+            //  no valid transitions for admin (if agent approval required)
+            ret=3;
+            goto release_and_exit;
+        } else if (PL_strcmp(new_state, "Pending_Approval")==0) {
+            if (PL_strcmp(cur_state, "Disabled") == 0) {
+                // Disabled -> Pending (admin submits for approval with no changes) 
+                RA::GetConfigStore()->Add(state_name, new_state);
+                ret=0;
+                goto release_and_exit;
+            } else if ((PL_strcmp(cur_state, "Writing") == 0) && (PL_strcmp(me, cur_writer) == 0)) {
+                // Writing -> Pending. (admin finishes writes after "Submit for Approval")
+                now = PR_Now();
+                PR_snprintf(new_ts, 256, "%lld", now);    
+                RA::GetConfigStore()->Add(ts_name, new_ts);
+                RA::GetConfigStore()->Add(state_name, new_state);
+                ret=0;
+                goto release_and_exit;
+            } else {
+                ret=4;
+                goto release_and_exit;
+            }
+        } else if (PL_strcmp(new_state, "Writing")==0) {
+            if (PL_strcmp(cur_state, "Disabled") == 0) {
+                // Disabled -> Writing (admin start to write changes - need to save writer)
+                RA::GetConfigStore()->Add(writer_name, me);
+                RA::GetConfigStore()->Add(state_name, new_state);
+                ret=0;
+                goto release_and_exit;
+            } if ((!agent_must_approve(type)) && (PL_strcmp(cur_state, "Enabled") == 0)) {
+                // Enabled -> Writing (admin start to write changes for case where agent need not approve - need to save writer)
+                RA::GetConfigStore()->Add(writer_name, me);
+                RA::GetConfigStore()->Add(state_name, new_state);
+                ret=0;
+                goto release_and_exit;
+            } else {
+                ret=5;
+                goto release_and_exit;
+            }
+        }
+    }
+
+    if (PL_strcmp(who, "Agent")==0) {
+        if (PL_strcmp(new_state, "Disabled")==0) {
+            if ((PL_strcmp(cur_state, "Enabled") == 0) || (PL_strcmp(cur_state, "Pending_Approval") == 0)) {
+                // "Enabled or Pending" to "Disabled", agent disables or rejects
+                RA::GetConfigStore()->Add(state_name, new_state);
+                ret=0;
+                goto release_and_exit;
+            } else {
+                ret=6;
+                goto release_and_exit;
+            }
+        } else if (PL_strcmp(new_state, "Enabled")==0) {
+            if ((PL_strcmp(cur_state, "Disabled") == 0) || (PL_strcmp(cur_state, "Pending_Approval") == 0)) {
+                // "Disabled or Pending" to "Enabled", agent approves
+                RA::GetConfigStore()->Add(state_name, new_state);
+                ret=0;
+                goto release_and_exit;
+            } else {
+                ret=7;
+                goto release_and_exit;
+            }
+        } else if (PL_strcmp(new_state, "Pending_Approval")==0) {
+            //  no valid transitions for agent
+            ret=8;
+            goto release_and_exit;
+        } else if (PL_strcmp(new_state, "Writing")==0) {
+            //  no valid transitions for agent
+            ret=9;
+            goto release_and_exit;
+        }
+    }
+
+release_and_exit:
+    PR_Unlock(config_lock);
+
+    //audit changes
+    char pString[256]="";
+    char msg[256] = "";
+
+    if (PL_strcmp(new_ts, "") != 0) {
+        PR_snprintf(pString, 256, "%s;;%s+%s;;%s", state_name, final_state, ts_name, new_ts);
+        PR_snprintf(msg, 256, "config item state and timestamp changed");
+    } else {
+        PR_snprintf(pString, 256, "%s;;%s", state_name, final_state);
+        PR_snprintf(msg, 256, "config item state changed");
+    }
+    if (ret == 0) { 
+        RA::Audit(EV_CONFIG_AUDIT, AUDIT_MSG_CONFIG, userid, who, "Success", type, pString, msg);
+    } else {
+        PR_snprintf(msg, 256, "config item state or timestamp change failed, return value is %d", ret);
+        RA::Audit(EV_CONFIG, AUDIT_MSG_CONFIG, userid, who, "Failure", type, pString, msg);
+    }
+    return ret;
+}
+
+/** 
+ * takes in the type and name of the parameter set
+ * looks up the regular expression pattern for this parameter set in CS.cfg and substitutes
+ * $name with the name of the parameter set.
+ * returns this "fixed" pattern as a string (that must be freed by caller)
+ **/
+char *get_fixed_pattern(char *ptype, char *pname)
+{
+    char configname[256]="";
+    char tmpc[256]="";
+    char *p = NULL;
+    char *fixed_pattern = NULL;
+
+     PR_snprintf( ( char * ) configname, 256, "target.%s.pattern", ptype );
+    const char* pattern = RA::GetConfigStore()->GetConfigAsString( configname );
+
+    if (pattern == NULL) {
+        tokendbDebug("get_pattern_substore: pattern is NULL");
+        return NULL;
+    }
+
+    if (p = PL_strstr(pattern, "$name")) {
+        PL_strncpy(tmpc, pattern, p-pattern);
+        tmpc[p-pattern] = '\0';
+        sprintf(tmpc+(p-pattern), "%s%s", pname, p+PL_strlen("$name"));
+        fixed_pattern = (char *) PL_strdup(tmpc);
+        p = NULL;
+    } else {
+        fixed_pattern=PL_strdup(pattern);
+    }
+
+    tokendbDebug(fixed_pattern);
+
+    return fixed_pattern;
+} 
+
+/**
+ * get ConfigStore with entries that match the relevant pattern
+ * must be freed by caller 
+ **/
+ConfigStore *get_pattern_substore(char *ptype, char *pname)
+{ 
+    char *fixed_pattern = NULL;
+    ConfigStore *store = NULL;
+
+    fixed_pattern=get_fixed_pattern(ptype, pname);
+    if (fixed_pattern == NULL) {
+        return NULL;
+    }
+    store = RA::GetConfigStore()->GetPatternSubStore(fixed_pattern);
+
+    do_strfree(fixed_pattern); 
+    return store;
+}
+
+/***
+ * parse the parameter string of form foo=bar&&foo2=baz&& ...
+ * and perform (and audit) the changes
+ **/
+void parse_and_apply_changes(char* userid, char* ptype, char* pname, char *operation, char *params) {
+    char *pair;
+    char *line = NULL;
+    int i;
+    int len;
+    char *lasts = NULL;
+    int op;
+    char audit_str[4096] = "";
+    char configname[256]="";
+    char *fixed_pattern = NULL;
+    regex_t *regex=NULL;
+    int err_no;
+
+    if (PL_strstr(operation, "ADD")) {
+        op=1;
+    } else if (PL_strstr(operation, "DELETE")) {
+        op=2;
+    } else if (PL_strstr(operation, "MODIFY")) {
+        op=3;
+    }
+
+    tokendbDebug(operation);
+
+    // get the correct pattern and regex
+    fixed_pattern = get_fixed_pattern(ptype, pname);
+    if (fixed_pattern == NULL) {
+       tokendbDebug("parse_and_apply_changes: pattern is NULL. Aborting changes ..");
+       return;
+    }
+
+    regex = (regex_t *) malloc(sizeof(regex_t));
+    memset(regex, 0, sizeof(regex_t));
+
+    if((err_no=regcomp(regex, fixed_pattern, 0))!=0) /* Comple the regex */
+    {
+      // Error in computing the regex
+      size_t length;
+      char *buffer;
+      length = regerror (err_no, regex, NULL, 0);
+      buffer = (char *) PR_Malloc(length);
+      regerror (err_no, regex, buffer, length);
+      tokendbDebug("parse_and_apply_changes: error computing the regex, aborting changes");
+      tokendbDebug(buffer);
+      PR_Free(buffer);
+      regfree(regex);
+      return;
+    }
+    size_t no_sub = regex->re_nsub+1;
+    regmatch_t *result = NULL;
+    
+    line = PL_strdup(params);
+    pair = PL_strtok_r(line, "&&", &lasts);
+    while (pair != NULL) {
+        len = strlen(pair);
+        i = 0;
+        while (1) {
+            if (i >= len) {
+                goto skip1;
+            }
+            if (pair[i] == '\0') {
+                goto skip1;
+            }
+            if (pair[i] == '=') {
+                pair[i] = '\0';
+                break;
+            }
+            i++;
+        }
+
+        result = NULL;
+        result = (regmatch_t *) PR_Malloc(sizeof(regmatch_t) * no_sub);
+        if (regexec(regex, (char *) &pair[0], no_sub, result, 0)!=0) {
+            tokendbDebug("parse_and_apply_changes: parameter does not match pattern. Dropping edit ..");
+            tokendbDebug(&pair[0]);
+            if (result != NULL) { 
+                PR_Free(result);
+                result=NULL;
+            }
+            goto skip1;
+        }
+        if (result != NULL) {
+            PR_Free(result);
+            result=NULL;
+        }
+
+        if (op == 1) { //ADD 
+            RA::GetConfigStore()->Add(&pair[0], &pair[i+1]);
+            PR_snprintf(audit_str, 4096, "%s;;%s", &pair[0], &pair[i+1]);
+            RA::Audit(EV_CONFIG, AUDIT_MSG_CONFIG, userid, "Admin", "Success", "", audit_str, "config parameter added");
+        } else if (op == 2) { //DELETE
+            RA::GetConfigStore()->Remove(&pair[0]);
+            PR_snprintf(audit_str, 4096, "%s;;%s", &pair[0], &pair[i+1]);
+            RA::Audit(EV_CONFIG, AUDIT_MSG_CONFIG, userid, "Admin", "Success", "", audit_str, "config parameter deleted");
+        } else if (op == 3) { //MODIFY
+            RA::GetConfigStore()->Add(&pair[0], &pair[i+1]);
+            PR_snprintf(audit_str, 4096, "%s;;%s", &pair[0], &pair[i+1]);
+            RA::Audit(EV_CONFIG, AUDIT_MSG_CONFIG, userid, "Admin", "Success", "", audit_str, "config parameter modified");
+        }
+    skip1:
+        pair = PL_strtok_r(NULL, "&&", &lasts);
+    }
+    do_strfree(line);
+    do_strfree(fixed_pattern);
+}
+
+/**
  * mod_tokendb_handler handles the protocol between the tokendb and the RA
  */
 static int
@@ -2708,20 +3256,20 @@ mod_tokendb_handler( request_rec *rq )
     char pString[512] = "";
     char oString[512] = "";
     char pLongString[4096] = "";
-    char configname[512];
-    char filter[512];
-    char msg[512];
-    char template1[512];
-    char question_no[100];
-    char cuid[256];
-    char cuidUserId[100];
+    char configname[512] ="";
+    char filter[512] = "";
+    char msg[512] = "";
+    char template1[512] = "";
+    char question_no[100] ="";
+    char cuid[256] = "";
+    char cuidUserId[100]="";
     char tokenStatus[100]="";
     char tokenReason[100]="";
     int token_ui_state= 0;
     bool show_token_ui_state = false;
-    char serial[100];
-    char userCN[256];
-    char tokenType[512];
+    char serial[100]="";
+    char userCN[256]="";
+    char tokenType[512]="";
     apr_table_t *post = NULL; /* used for POST data */
   
     char *statusString = NULL;
@@ -2905,8 +3453,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "index", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -2914,10 +3462,14 @@ mod_tokendb_handler( request_rec *rq )
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "index", "Success", "Tokendb user authorization");
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n", 
-                     "var userid = \"", userid,
-                     "\";\n" );
+                     "var userid = \"", userid, "\";\n",
+                     "var agent_target_list = \"", 
+                     RA::GetConfigStore()->GetConfigAsString("target.agent_approve.list", ""), "\";\n",
+                     "var target_list = \"", 
+                      RA::GetConfigStore()->GetConfigAsString("target.configure.list", ""), "\";\n" );
+
         add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
         PL_strcat(injection, JS_STOP);
 
@@ -2929,8 +3481,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "index_operator", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "index_operator", "Success", "Tokendb user authorization");
@@ -2949,16 +3501,18 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "index_admin", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "index_admin", "Success", "Tokendb user authorization");
+
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n", 
-                     "var userid = \"", userid,
-                     "\";\n" );
+                     "var userid = \"", userid, "\";\n", 
+                     "var target_list = \"", RA::GetConfigStore()->GetConfigAsString("target.configure.list", ""), "\";\n" );
+
         add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
         PL_strcat(injection, JS_STOP);
 
@@ -2970,8 +3524,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "do_token", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "do_token", "Success", "Tokendb user authorization");
@@ -3227,8 +3781,8 @@ mod_tokendb_handler( request_rec *rq )
                                     PL_strlen( buf ), rq );
 
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             } else if( rc > 0 ) {
@@ -3255,8 +3809,8 @@ mod_tokendb_handler( request_rec *rq )
                                     PL_strlen( buf ), rq );
 
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             }
@@ -3451,8 +4005,8 @@ mod_tokendb_handler( request_rec *rq )
                                     PL_strlen( buf ), rq );
 
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             } else if( rc > 0 ) {
@@ -3478,8 +4032,8 @@ mod_tokendb_handler( request_rec *rq )
                                     PL_strlen( buf ), rq );
 
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             }
@@ -3640,8 +4194,8 @@ mod_tokendb_handler( request_rec *rq )
                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pString, "token marked temporarily lost failed, failed to revoke certificates");
                 error_out("Errors in revoking certificates.", "Errors in revoking certificates.");
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
                 return DONE;
             }
 
@@ -3664,8 +4218,8 @@ mod_tokendb_handler( request_rec *rq )
                 ( void ) ap_rwrite( ( const void * ) buf,
                                     PL_strlen( buf ), rq );
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             } else if( rc > 0 ) {
@@ -3688,8 +4242,8 @@ mod_tokendb_handler( request_rec *rq )
                                     PL_strlen( buf ), rq );
 
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             }
@@ -3821,8 +4375,8 @@ mod_tokendb_handler( request_rec *rq )
                 error_out("Failed to create LDAPMod: ", "Failed to create LDAPMod");
 
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             } else if( rc > 0 ) {
@@ -3830,8 +4384,8 @@ mod_tokendb_handler( request_rec *rq )
                 ldap_error_out("LDAP mod error: ", "LDAP error: %s");
 
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             }
@@ -4000,8 +4554,8 @@ mod_tokendb_handler( request_rec *rq )
             // invalid operation or transition
             error_out("Transition or operation not allowed", "Transition or operation not allowed");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
         
@@ -4026,8 +4580,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "revoke", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
 
@@ -4053,8 +4607,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "search_activity_admin", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         } 
 
@@ -4077,8 +4631,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "search_activity", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         } 
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "search_activity", "Success", "Tokendb user authorization");
@@ -4106,8 +4660,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "search_admin,search_users", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -4132,8 +4686,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "search_certificate", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "search_certificate", "Success", "Tokendb user authorization");
@@ -4159,8 +4713,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "search", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "search", "Success", "Tokendb user authorization");
@@ -4186,8 +4740,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "new", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
 
         }
@@ -4208,8 +4762,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "add_user", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -4224,6 +4778,899 @@ mod_tokendb_handler( request_rec *rq )
         PL_strcat(injection, JS_STOP);
 
         buf = getData( newUserTemplate,injection );
+
+    } else if ( ( PL_strstr( query, "op=confirm_delete_config" ) ) ) {
+        tokendbDebug( "authorization for confirm_delete_config\n" );
+        if( ! is_admin ) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "confirm_delete_config", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "confirm_delete_config", "Success", "Tokendb user authorization");
+
+        char *ptype = NULL;
+        char *pname = NULL;
+        char *ptimestamp = NULL;
+        char *pvalues = NULL;
+        char *large_injection = NULL;
+        char *pstate = NULL;
+
+        ptype = get_post_field(post, "ptype", SHORT_LEN);
+        pname = get_post_field(post, "pname", SHORT_LEN);
+        pstate = get_post_field(post, "pstate", SHORT_LEN);
+        ptimestamp = get_post_field(post, "ptimestamp", SHORT_LEN);
+        pvalues = get_post_field_s(post, "pvalues");
+
+        large_injection = (char *) PR_Malloc(PL_strlen(pvalues) + MAX_INJECTION_SIZE);
+        PR_snprintf( large_injection, PL_strlen(pvalues) + MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n",
+                     "var conf_type = \"", ptype, "\";\n",
+                     "var conf_name = \"", pname, "\";\n",
+                     "var conf_state = \"", pstate,  "\";\n",
+                     "var conf_tstamp = \"", ptimestamp,  "\";\n",
+                     "var agent_must_approve = \"", agent_must_approve(ptype)? "true": "false", "\";\n",
+                     "var conf_values= \"", pvalues, "\";\n");
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, large_injection); 
+        PL_strcat(large_injection, JS_STOP);
+
+        buf = getData( confirmDeleteConfigTemplate, large_injection );
+
+        do_free(ptype);
+        do_free(pname);
+        do_free(ptimestamp);
+        do_free(pvalues);
+        do_free(pstate);
+        do_free(large_injection);
+    } else if( ( PL_strstr( query, "op=delete_config_parameter" ) ) ) {
+        tokendbDebug( "authorization for op=delete_config_parameter\n" );
+        if (! is_admin) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "delete_config_parameter", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "delete_config_parameter", "Success", "Tokendb user authorization");
+
+        char *ptype = NULL;
+        char *pname = NULL;
+        char *ptimestamp = NULL;
+
+        char *key_values = NULL;
+        char *new_value = NULL;
+        char *conf_list = NULL;
+        ConfigStore *store = NULL;
+        int return_done = 0;
+        int status=0;
+
+        ptype = get_post_field(post, "ptype", SHORT_LEN);
+        pname = get_post_field(post, "pname", SHORT_LEN);
+        ptimestamp = get_post_field(post, "ptimestamp", SHORT_LEN);
+        
+        if ((ptype == NULL) || (pname == NULL) || (PL_strlen(pname)==0) || (PL_strlen(ptype)==0)) {
+            error_out("Invalid Invocation: Parameter type or name is NULL or empty", "Parameter type or name is NULL or empty");
+            return_done = 1;
+            goto delete_config_parameter_cleanup;
+        }
+
+        if (!config_param_exists(ptype, pname)) {
+            error_out("Parameter does not exist", "Parameter does not exist");
+            return_done = 1;
+            goto delete_config_parameter_cleanup;
+        }
+
+        status =  set_config_state_timestamp(ptype, pname, ptimestamp, "Writing", "Admin", false, userid);
+        if (status != 0) {
+            error_out("The data you are viewing has changed.  Please reload the data and try your edits again.", "Data Out of Date");
+            return_done=1;
+            goto delete_config_parameter_cleanup;
+        }
+
+        store = get_pattern_substore(ptype, pname);
+
+        key_values = (char *) store->GetOrderedList();
+        if (PL_strlen(key_values) > 0)  parse_and_apply_changes(userid, ptype, pname, "DELETE", key_values);
+
+        // remove from the list for that config type
+        PR_snprintf( ( char * ) configname, 256, "target.%s.list", ptype );
+        conf_list = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+        new_value = RA::remove_from_comma_list((const char*) pname, (char *)conf_list);
+        RA::GetConfigStore()->Add(configname, new_value);
+
+        // remove state and timestamp variables
+        remove_config_state_timestamp(ptype, pname);
+
+        tokendbDebug("Committing delete ..");
+        RA::GetConfigStore()->Commit(true);
+
+        PR_snprintf(oString, 512, "%s", pname);
+        PR_snprintf(pLongString, 4096, "%s;;%s", configname, new_value);
+        RA::Audit(EV_CONFIG, AUDIT_MSG_CONFIG, userid, "Admin", "Success", oString, pLongString, "config item deleted");
+
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n",
+                     "var flash = \"Configuration changes have been saved.\";\n",
+                     "var agent_target_list = \"",
+                      RA::GetConfigStore()->GetConfigAsString("target.agent_approve.list", ""), "\";\n",
+                     "var target_list = \"", RA::GetConfigStore()->GetConfigAsString("target.configure.list", ""), "\";\n");
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
+
+        buf = getData( indexTemplate, injection );
+    delete_config_parameter_cleanup:
+        do_free(ptype);
+        do_free(pname);
+        do_free(key_values);
+        do_free(new_value);
+        do_free(ptimestamp);
+
+        if (store != NULL) {
+            delete store;
+            store = NULL;
+        }
+        if (return_done == 1) {
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+
+    } else if( ( PL_strstr( query, "op=add_config_parameter" ) ) ) {
+        tokendbDebug( "authorization for op=add_config_parameter\n" );
+        if (! is_admin) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "add_config_parameter", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "add_config_parameter", "Success", "Tokendb user authorization");
+
+        char *ptype = NULL;
+        char *pname = NULL;
+
+        ConfigStore *store = NULL;
+        char *pattern = NULL;
+        int return_done =0;
+
+        ptype = get_post_field(post, "ptype", SHORT_LEN);
+        pname = get_post_field(post, "pname", SHORT_LEN);
+        
+        if ((ptype == NULL) || (pname == NULL) || (PL_strlen(pname)==0) || (PL_strlen(ptype)==0)) {
+            error_out("Invalid Invocation: Parameter type or name is NULL or empty", "Parameter type or name is NULL or empty");
+            return_done = 1;
+            goto add_config_parameter_cleanup;
+        }
+
+        if (config_param_exists(ptype, pname)) {
+            error_out("Parameter already exists.  Use edit instead.", "Parameter already exists");
+            return_done = 1;
+            goto add_config_parameter_cleanup;
+        }
+
+        /* extra check (just in case) */
+        store = get_pattern_substore(ptype, pname);
+
+        if ((store != NULL) && (store->Size() != 0)) {
+            error_out("Config entries already exist for this parameter.  This is an error. Manually delete them first.", "Setup Error");
+            return_done = 1;
+            goto add_config_parameter_cleanup;
+        }
+ 
+        PR_snprintf( ( char * ) configname, 256, "target.%s.pattern", ptype );
+        pattern = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n", 
+                     "var conf_type = \"", ptype, "\";\n",
+                     "var conf_name = \"", pname, "\";\n",
+                     "var conf_pattern = \"", pattern, "\";\n");
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection); //needed?
+        PL_strcat(injection, JS_STOP);
+
+        buf = getData( addConfigTemplate, injection );
+    add_config_parameter_cleanup:
+        do_free(ptype);
+        do_free(pname);
+
+        if (store != NULL) {
+            delete store;
+            store = NULL;
+        }
+        if (return_done == 1) {
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+    } else if( ( PL_strstr( query, "op=agent_change_config_state" ) ) ) {
+        tokendbDebug( "authorization for op=agent_change_config_state\n" );
+        if (! is_agent) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "agent_change_config_state", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "agent_change_config_state", "Success", "Tokendb user authorization");
+
+        char *ptype = NULL;
+        char *pname = NULL;
+        char *ptimestamp = NULL;
+        char *choice = NULL;
+
+        char pstate[128]="";
+        int return_done =0;
+        int set_status = 0;
+
+        ptype = get_post_field(post, "ptype", SHORT_LEN);
+        pname = get_post_field(post, "pname", SHORT_LEN);
+        ptimestamp = get_post_field(post, "ptimestamp", SHORT_LEN);
+        choice = get_post_field(post, "choice", SHORT_LEN);
+
+        if ((ptype == NULL) || (pname == NULL) || (ptimestamp == NULL) || (choice == NULL)) {
+            error_out("Invalid Invocation: A required parameter is NULL", "Invalid Invocation: A required parameter is NULL");
+            return_done=1;
+            goto agent_change_config_state_cleanup;
+        }
+
+        // check if agent has permission to see this config parameter
+        if (!agent_must_approve(ptype)) {
+            error_out("Invalid Invocation: Agent is not permitted to change the state of this configuration item", 
+                "Invalid Invocation: Agent is not permitted to change the state of this configuration item");
+            return_done=1;
+            goto agent_change_config_state_cleanup;
+        }
+
+        if ((PL_strcmp(choice, "Disable") == 0) || (PL_strcmp(choice, "Reject") == 0)) {
+            PR_snprintf(pstate, 128, "Disabled");
+        } else {
+            PR_snprintf(pstate, 128, "Enabled");
+        }
+ 
+        set_status = set_config_state_timestamp(ptype, pname, ptimestamp, pstate, "Agent", false, userid);
+
+        if (set_status != 0) {
+            error_out("The data you are viewing has been changed by an administrator and is out of date.  Please reload the data and try again.", 
+                "Data Out of Date");
+            return_done=1;
+            goto agent_change_config_state_cleanup;
+        }
+
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n",
+                     "var flash = \"Configuration changes have been saved.\";\n",  
+                     "var agent_target_list = \"",
+                     RA::GetConfigStore()->GetConfigAsString("target.agent_approve.list", ""), "\";\n",
+                     "var target_list = \"", RA::GetConfigStore()->GetConfigAsString("target.configure.list", ""), "\";\n");
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection); 
+        PL_strcat(injection, JS_STOP);
+
+        buf = getData( indexTemplate, injection );
+    agent_change_config_state_cleanup:
+        do_free(ptype);
+        do_free(pname);
+        do_strfree(ptimestamp);
+        do_strfree(choice);
+ 
+        if (return_done == 1) {
+             do_free(buf);
+             do_strfree(uri);
+             do_strfree(query);
+             return DONE;
+        }
+
+    } else if( ( PL_strstr( query, "op=agent_view_config" ) ) ) {
+        tokendbDebug( "authorization for op=agent_view_config\n" );
+        if (! is_agent) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "agent_view_config", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "agent_view_config", "Success", "Tokendb user authorization");
+
+        char *ptype = NULL;
+        char *pname = NULL;
+        char *pstate = NULL;
+        char *ptimestamp = NULL;
+        int return_done = 0;
+
+        char *key_values = NULL;
+        char *large_injection = NULL;
+        char *escaped = NULL;
+        ConfigStore *store = NULL;
+
+        ptype = get_post_field(post, "ptype", SHORT_LEN);
+        pname = get_post_field(post, "pname", SHORT_LEN);
+        
+        if ((ptype == NULL) || (pname == NULL)) {
+            error_out("Invalid Invocation: Parameter type or name is NULL", "Invalid Invocation: Parameter type or name is NULL");
+            return_done =1;
+            goto agent_view_config_cleanup;
+        }
+
+        // check if agent has permission to see this config parameter
+        if (! agent_must_approve(ptype)) {
+            error_out("Invalid Invocation: Agent is not permitted to view this configuration item", 
+                "Invalid Invocation: Agent is not permitted to view this configuration item");
+            return_done =1;
+            goto agent_view_config_cleanup;
+        }
+
+        get_config_state_timestamp(ptype, pname, &pstate, &ptimestamp);
+
+        store = get_pattern_substore(ptype, pname);
+
+        if (store == NULL) {
+            error_out("Setup Error: Pattern Substore is NULL", "Pattern Substore is NULL");
+            return_done =1;
+            goto agent_view_config_cleanup;
+        }
+
+        key_values = (char *) store->GetOrderedList();
+        escaped = escapeSpecialChars(key_values);
+        tokendbDebug( "got ordered list");
+     
+        large_injection = (char *) PR_Malloc(PL_strlen(key_values) + MAX_INJECTION_SIZE);
+        PR_snprintf( large_injection, PL_strlen(key_values) + MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n", 
+                     "var conf_type = \"", ptype, "\";\n",
+                     "var conf_name = \"", pname, "\";\n",
+                     "var conf_state = \"", pstate,  "\";\n",
+                     "var conf_tstamp = \"", ptimestamp,  "\";\n",
+                     "var conf_values= \"", escaped, "\";\n");
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, large_injection); //needed?
+        PL_strcat(large_injection, JS_STOP);
+
+        buf = getData( agentViewConfigTemplate, large_injection );
+    agent_view_config_cleanup:
+        do_free(ptype);
+        do_free(pname);
+        do_free(pstate);
+        do_free(ptimestamp);
+        do_free(key_values);
+        do_free(large_injection);
+        do_strfree(escaped);
+
+        if (store != NULL) {
+            delete store;
+            store = NULL;
+        }
+
+        if (return_done != 0 ) {
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+    } else if( ( PL_strstr( query, "op=edit_config_parameter" ) ) ) {
+        tokendbDebug( "authorization for op=edit_config_parameter\n" );
+        if (! is_admin) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "edit_config_parameter", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "edit_config_parameter", "Success", "Tokendb user authorization");
+
+        char *ptype = NULL;
+        char *pname = NULL;
+
+        char *pstate = NULL;
+        char *ptimestamp = NULL;
+        char *key_values = NULL;
+        char *escaped = NULL;
+        ConfigStore *store = NULL;
+        char *large_injection = NULL;
+        char *pattern = NULL;
+        int return_done = 0;
+        
+        ptype = get_post_field(post, "ptype", SHORT_LEN);
+        pname = get_post_field(post, "pname", SHORT_LEN);
+        
+        if ((ptype == NULL) || (pname == NULL)) {
+            error_out("Invalid Invocation: Parameter type or name is NULL", "Invalid Invocation: Parameter type or name is NULL");
+            return_done =1;
+            goto edit_config_parameter_cleanup;
+        }
+
+        get_config_state_timestamp(ptype, pname, &pstate, &ptimestamp);
+        tokendbDebug(pstate);
+        tokendbDebug(ptimestamp);
+
+        store = get_pattern_substore(ptype, pname);
+
+        if (store == NULL) {
+            error_out("Setup Error", "Pattern Substore is NULL");
+            return_done =1;
+            goto edit_config_parameter_cleanup;
+        }
+
+        key_values = (char *) store->GetOrderedList();
+        //escaped = escapeSpecialChars(key_values); 
+        escaped = escapeString(key_values); 
+        tokendbDebug( "got ordered list");
+     
+        PR_snprintf( ( char * ) configname, 256, "target.%s.pattern", ptype );
+        pattern = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+ 
+        large_injection = (char *) PR_Malloc(PL_strlen(key_values) + MAX_INJECTION_SIZE);
+        PR_snprintf( large_injection, PL_strlen(key_values) + MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n", 
+                     "var conf_type = \"", ptype, "\";\n",
+                     "var conf_name = \"", pname, "\";\n",
+                     "var conf_state = \"", pstate,  "\";\n",
+                     "var conf_tstamp = \"", ptimestamp,  "\";\n",
+                     "var agent_must_approve = \"", agent_must_approve(ptype)? "true": "false", "\";\n",
+                     "var conf_pattern = \"", pattern, "\";\n",
+                     "var conf_values= \"", escaped, "\";\n");
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, large_injection); //needed?
+        PL_strcat(large_injection, JS_STOP);
+
+        buf = getData( editConfigTemplate, large_injection );
+    edit_config_parameter_cleanup:
+        do_free(ptype);
+        do_free(pname);
+        do_strfree(ptimestamp);
+        do_strfree(pstate);
+        do_free(large_injection);
+        do_free(key_values);
+        do_strfree(escaped);
+       
+        if (store != NULL) {
+            delete store;
+            store = NULL;
+        } 
+        if (return_done == 1) {
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+    } else if( ( PL_strstr( query, "op=return_to_edit_config_parameter" ) ) ) {
+        tokendbDebug( "authorization for op=return_to_edit_config_parameter\n" );
+        if (! is_admin) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "return_to_edit_config_parameter", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "return_to_edit_config_parameter", "Success", "Tokendb user authorization");
+
+        char *ptype = NULL;
+        char *pname = NULL;
+        char *pstate = NULL;
+        char *ptimestamp = NULL;
+        char *pvalues = NULL;
+
+        char *large_injection = NULL;
+        char *pattern = NULL;
+        int return_done = 0;
+        
+        ptype = get_post_field(post, "ptype", SHORT_LEN);
+        pname = get_post_field(post, "pname", SHORT_LEN);
+        pstate = get_post_field(post, "pstate", SHORT_LEN);
+        ptimestamp = get_post_field(post, "ptimestamp", SHORT_LEN);
+        pvalues = get_post_field_s(post, "pvalues");
+
+        if ((ptype == NULL) || (pname == NULL) || (pstate == NULL) || (ptimestamp == NULL) || (pvalues == NULL)) {
+            error_out("Invalid Invocation: A required parameter is missing", "Invalid Invocation: A required parameter is missing");
+            return_done =1;
+            goto return_to_edit_config_parameter_cleanup;
+        }
+
+        PR_snprintf( ( char * ) configname, 256, "target.%s.pattern", ptype );
+        pattern = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+ 
+        large_injection = (char *) PR_Malloc(PL_strlen(pvalues) + MAX_INJECTION_SIZE);
+        PR_snprintf( large_injection, PL_strlen(pvalues) + MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n", 
+                     "var conf_type = \"", ptype, "\";\n",
+                     "var conf_name = \"", pname, "\";\n",
+                     "var conf_state = \"", pstate,  "\";\n",
+                     "var conf_tstamp = \"", ptimestamp,  "\";\n",
+                     "var agent_must_approve = \"", agent_must_approve(ptype)? "true": "false", "\";\n",
+                     "var conf_pattern = \"", pattern, "\";\n",
+                     "var conf_values= \"", pvalues, "\";\n");
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, large_injection); //needed?
+        PL_strcat(large_injection, JS_STOP);
+
+        buf = getData( editConfigTemplate, large_injection );
+    return_to_edit_config_parameter_cleanup:
+        do_free(ptype);
+        do_free(pname);
+        do_free(ptimestamp);
+        do_free(pstate);
+        do_free(pvalues);
+        do_free(large_injection);
+       
+        if (return_done == 1) {
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+    } else if( ( PL_strstr( query, "op=confirm_config_changes" ) ) ) {
+        tokendbDebug( "authorization for op=confirm_config_changes\n" );
+        if (! is_admin) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "confirm_config_changes", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "confirm_config_changes", "Success", "Tokendb user authorization");
+
+        char *ptype = NULL;
+        char *pname = NULL;
+        char *pvalues = NULL;
+        char *ptimestamp = NULL;
+        char *choice = NULL;
+
+        char *cur_ts = NULL;
+        char *cur_state = NULL;
+        char *changed_str = NULL;
+        char *added_str = NULL;
+        char *deleted_str = NULL;
+        char *escaped_deleted_str = NULL;
+        char *escaped_added_str = NULL;
+        char *escaped_changed_str = NULL;
+        char *escaped_pvalues = NULL;
+        int return_done=0;
+        char flash[512]="";
+
+        char *pair = NULL;
+        char *line = NULL;
+        int i;
+        int len;
+        char *lasts = NULL;
+        char *value = NULL;
+        ConfigStore *store = NULL;
+
+        ptype = get_post_field(post, "ptype", SHORT_LEN);
+        pname = get_post_field(post, "pname", SHORT_LEN);
+        ptimestamp = get_post_field(post, "ptimestamp", SHORT_LEN);
+        escaped_pvalues = get_post_field_s(post, "pvalues");
+        choice = get_post_field(post, "choice", SHORT_LEN);
+
+        if ((ptype == NULL) || (pname == NULL) || (escaped_pvalues == NULL) || (ptimestamp == NULL)) {
+            error_out("Invalid Invocation: A required parameter is NULL", "A required parameter is NULL");
+            return_done=1;
+            goto confirm_config_changes_cleanup;
+        }
+
+        tokendbDebug(ptype);        
+        tokendbDebug(pname);        
+       
+        if (PL_strlen(escaped_pvalues) == 0) {
+            error_out("Empty Data not allowed. Use Delete Parameter instead", "Empty Data");
+            return_done=1;
+            goto confirm_config_changes_cleanup;
+        }
+
+        get_config_state_timestamp(ptype, pname, &cur_state, &cur_ts);
+        if (PL_strcmp(cur_ts, ptimestamp) != 0) {
+            error_out("The data you are viewing has changed.  Please reload the data and try your edits again.", "Data Out of Date");
+            return_done=1;
+            goto confirm_config_changes_cleanup;
+        } 
+
+
+        store = get_pattern_substore(ptype, pname);
+        if (store == NULL) {
+            error_out("Setup Error", "Pattern Substore is NULL");
+            return_done=1;
+            goto confirm_config_changes_cleanup;
+        }
+
+        // parse the pvalues string of form foo=bar&&foo2=baz&& ...
+        pvalues = unescapeString(escaped_pvalues);
+        changed_str = (char*) PR_Malloc(PL_strlen(pvalues));
+        added_str = (char*) PR_Malloc(PL_strlen(pvalues));
+
+        PR_snprintf(changed_str, PL_strlen(pvalues),"");
+        PR_snprintf(added_str, PL_strlen(pvalues), "");
+
+        line = PL_strdup(pvalues);
+        pair = PL_strtok_r(line, "&&", &lasts);
+        while (pair != NULL) {
+            len = strlen(pair);
+            i = 0;
+            while (1) {
+                if (i >= len) {
+                    goto skip;
+                }
+                if (pair[i] == '\0') {
+                    goto skip;
+                }
+                if (pair[i] == '=') {
+                    pair[i] = '\0';
+                    break;
+                }
+                i++;
+            }
+            if (value= (char *) store->GetConfigAsString(&pair[0])) {  // key exists
+                if (PL_strcmp(value, &pair[i+1]) != 0) {
+                    // value has changed
+                    PR_snprintf(changed_str, PL_strlen(pvalues), "%s%s%s=%s", changed_str, 
+                        (PL_strlen(changed_str) != 0) ? "&&" : "", 
+                        &pair[0], &pair[i+1]);
+                }
+                store->Remove(&pair[0]);
+            } else {  // new key
+                PR_snprintf(added_str, PL_strlen(pvalues), "%s%s%s=%s", added_str, 
+                    (PL_strlen(added_str) != 0) ? "&&" : "", 
+                    &pair[0], &pair[i+1]);
+            }
+        skip:
+            pair = PL_strtok_r(NULL, "&&", &lasts);
+        }
+
+        // remaining entries have been deleted
+        deleted_str = (char *) store->GetOrderedList();
+
+        //escape special characters
+        escaped_deleted_str = escapeString(deleted_str);
+        escaped_added_str = escapeString(added_str);
+        escaped_changed_str = escapeString(changed_str);
+
+        if ((PL_strlen(escaped_added_str) + PL_strlen(escaped_changed_str) + PL_strlen(escaped_deleted_str))!=0) {
+            int injection_size = PL_strlen(escaped_deleted_str) + PL_strlen(escaped_pvalues) + PL_strlen(escaped_added_str) + 
+                PL_strlen(escaped_changed_str) + MAX_INJECTION_SIZE;
+            char * large_injection = (char *) PR_Malloc(injection_size);
+
+            PR_snprintf( large_injection, injection_size,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n", 
+                     "var conf_type = \"", ptype, "\";\n",
+                     "var conf_name = \"", pname, "\";\n",
+                     "var conf_tstamp = \"", ptimestamp,  "\";\n",
+                     "var conf_state = \"", cur_state, "\";\n",
+                     "var conf_values = \"", escaped_pvalues, "\";\n",
+                     "var added_str= \"", escaped_added_str, "\";\n",
+                     "var changed_str= \"", escaped_changed_str, "\";\n",
+                     "var conf_approval_requested = \"", (PL_strcmp(choice, "Save") == 0) ? "FALSE" : "TRUE", "\";\n",
+                     "var deleted_str= \"", escaped_deleted_str, "\";\n");
+
+            add_authorization_data(userid, is_admin, is_operator, is_agent, large_injection); //needed?
+            PL_strcat(large_injection, JS_STOP);
+
+            buf = getData( confirmConfigChangesTemplate, large_injection );
+
+            do_free(large_injection);
+           
+        } else {
+            // no changes need to be saved
+
+            if (PL_strcmp(choice, "Save") != 0) {
+                int status =  set_config_state_timestamp(ptype, pname, ptimestamp, "Pending_Approval", "Admin", false, userid);
+                if (status != 0) {
+                    error_out("The data you are viewing has changed.  Please reload the data and try your edits again.", "Data Out of Date");
+                    return_done=1;
+                    goto confirm_config_changes_cleanup;
+                }
+                PR_snprintf(flash, 512, "Configuration Parameters have been submitted for Agent Approval");
+            } else {
+                PR_snprintf(flash, 512, "The data displayed is up-to-date.  No changes need to be saved.");
+            }
+
+            PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n",
+                     "var flash = \"", flash , "\";\n",
+                     "var agent_target_list = \"",
+                      RA::GetConfigStore()->GetConfigAsString("target.agent_approve.list", ""), "\";\n",
+                     "var target_list = \"", RA::GetConfigStore()->GetConfigAsString("target.configure.list", ""), "\";\n");
+
+            add_authorization_data(userid, is_admin, is_operator, is_agent, injection); 
+            PL_strcat(injection, JS_STOP);
+            buf = getData( indexTemplate, injection );
+        }
+
+    confirm_config_changes_cleanup:
+        do_strfree(cur_state);
+        do_strfree(cur_ts);
+        do_free(changed_str);
+        do_free(added_str);
+        do_free(deleted_str);
+        do_strfree(escaped_deleted_str);
+        do_strfree(escaped_added_str);
+        do_strfree(escaped_changed_str);
+        do_strfree(escaped_pvalues);
+        do_free(ptype);
+        do_free(pname);
+        do_free(pvalues);
+        do_free(ptimestamp);
+        do_free(choice);
+        do_strfree(line);
+
+        if (store != NULL) {
+            delete store;
+            store = NULL;
+        } 
+        if (return_done != 0) {
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+    
+    } else if( ( PL_strstr( query, "op=save_config_changes" ) ) ) {
+        tokendbDebug( "authorization for op=save_config_changes\n" );
+        if (! is_admin) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "save_config_changes", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "save_config_parameter", "Success", "Tokendb user authorization");
+
+        char *ptype = NULL;
+        char *pname = NULL;
+        char *ptimestamp = NULL;
+        char *escaped_added_str = NULL;
+        char *escaped_deleted_str = NULL;
+        char *escaped_changed_str = NULL;
+        char *new_config = NULL;
+        char *approval_requested = NULL;
+        char *pstate = NULL;
+        char flash[256] = "";
+        int return_done = 0;
+        bool new_config_bool = false;
+
+        ptype = get_post_field(post, "ptype", SHORT_LEN);
+        pname = get_post_field(post, "pname", SHORT_LEN);
+        ptimestamp = get_post_field(post, "ptimestamp", SHORT_LEN);
+        escaped_added_str = get_post_field_s(post, "added_params");
+        escaped_deleted_str =  get_post_field_s(post, "deleted_params");
+        escaped_changed_str = get_post_field_s(post, "changed_params");
+        new_config = get_post_field(post, "new_config", SHORT_LEN);
+        approval_requested = get_post_field(post, "approval_requested", SHORT_LEN);
+        new_config_bool = (PL_strcmp(new_config, "true") == 0) ? true : false;
+       
+        tokendbDebug(ptype);
+        tokendbDebug(pname);
+        tokendbDebug(new_config);
+        tokendbDebug(ptimestamp);
+        tokendbDebug(approval_requested);
+
+        char *added_str = unescapeString(escaped_added_str);
+        char *deleted_str = unescapeString(escaped_deleted_str);
+        char *changed_str = unescapeString(escaped_changed_str);
+
+        tokendbDebug(added_str);
+        tokendbDebug(deleted_str);
+        tokendbDebug(changed_str);
+
+        if ((ptype == NULL) || (pname == NULL)) {
+            error_out("Invalid Invocation: Parameter type, name or values is NULL", "Parameter type, name or values is NULL");
+            return_done = 1;
+            goto save_config_changes_cleanup;
+        }
+
+        if (set_config_state_timestamp(ptype, pname, ptimestamp, "Writing", "Admin", new_config_bool, userid) != 0) {
+            error_out("The data you are viewing has changed.  Please reload the data and try your edits again.", "Data Out of Date");
+            return_done=1;
+            goto save_config_changes_cleanup;
+        }
+
+        if (new_config) {
+             do_free(ptimestamp);
+             get_config_state_timestamp(ptype, pname, &pstate, &ptimestamp);
+        }
+
+        if (PL_strlen(added_str)   != 0) parse_and_apply_changes(userid, ptype, pname, "ADD", added_str);
+        if (PL_strlen(deleted_str) != 0) parse_and_apply_changes(userid, ptype, pname, "DELETE", deleted_str);
+        if (PL_strlen(changed_str) != 0) parse_and_apply_changes(userid, ptype, pname, "MODIFY", changed_str);
+
+        if (PL_strcmp(new_config, "true") ==0) {
+            // add to the list for that config type
+            PR_snprintf( ( char * ) configname, 256, "target.%s.list", ptype );
+            const char *conf_list = RA::GetConfigStore()->GetConfigAsString( configname );
+            char value[4096] = "";
+            PR_snprintf(value, 4096, "%s%s%s", conf_list, (PL_strlen(conf_list) > 0) ? "," : "", pname);
+            RA::GetConfigStore()->Add(configname, value);
+
+            PR_snprintf(oString, 512, "%s", pname);
+            PR_snprintf(pLongString, 4096, "%s;;%s", configname, value);
+            RA::Audit(EV_CONFIG, AUDIT_MSG_CONFIG, userid, "Admin", "Success", oString, pLongString, "config item added");
+        }
+
+        if (PL_strcmp(approval_requested, "TRUE") == 0) {
+            int status =  set_config_state_timestamp(ptype, pname, ptimestamp, "Pending_Approval", "Admin", false, userid);
+            if (status != 0) {
+                error_out("The data you are viewing has changed.  Please reload the data and try your edits again.", "Data Out of Date");
+                return_done=1;
+                goto save_config_changes_cleanup;
+            }
+            PR_snprintf(flash, 256, "Configuration Parameters have been saved and submitted for approval");
+        } else {
+            int status =  set_config_state_timestamp(ptype, pname, ptimestamp, "Disabled", "Admin", false, userid);
+            if (status != 0) {
+                error_out("The data you are viewing has changed.  Please reload the data and try your edits again.", "Data Out of Date");
+                return_done=1;
+                goto save_config_changes_cleanup;
+            }
+            PR_snprintf(flash, 256, "Configuration Parameters have been saved");
+        }
+
+        if ((PL_strlen(added_str) != 0) || (PL_strlen(deleted_str) != 0) ||  (PL_strlen(changed_str) != 0)) {
+            RA::GetConfigStore()->Commit(true);
+            RA::Audit(EV_CONFIG, AUDIT_MSG_CONFIG, userid, "Admin", "Success", "", "", "config changes committed to filesystem");
+        }
+
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n",
+                     "var flash = \"" , flash, "\";\n",  
+                     "var agent_target_list = \"",
+                     RA::GetConfigStore()->GetConfigAsString("target.agent_approve.list", ""), "\";\n",
+                     "var target_list = \"", RA::GetConfigStore()->GetConfigAsString("target.configure.list", ""), "\";\n");
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection); 
+        PL_strcat(injection, JS_STOP);
+
+        buf = getData( indexTemplate, injection );
+    save_config_changes_cleanup:
+        do_free(ptype);
+        do_free(pname);
+        do_free(added_str);
+        do_free(deleted_str);
+        do_free(changed_str);
+        do_free(escaped_added_str);
+        do_free(escaped_deleted_str);
+        do_free(escaped_changed_str);
+        do_free(new_config);
+        do_free(ptimestamp);
+        do_free(pstate);
+        do_free(approval_requested);
+        if (return_done == 1) {
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
     } else if( ( PL_strstr( query, "op=view_admin" ) )       ||
                ( PL_strstr( query, "op=view_certificate" ) ) ||
                ( PL_strstr( query, "op=view_activity_admin" ) ) ||
@@ -4255,8 +5702,8 @@ mod_tokendb_handler( request_rec *rq )
                 RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, op, "Failure", "Tokendb user authorization");
                 error_out("Authorization Failure", "Failed to authorize request");
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             }
@@ -4269,8 +5716,8 @@ mod_tokendb_handler( request_rec *rq )
                 RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, op, "Failure", "Tokendb user authorization");
                 error_out("Authorization Failure", "Failed to authorize request");
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             }
@@ -4282,8 +5729,8 @@ mod_tokendb_handler( request_rec *rq )
             if ( (! is_agent) && (! is_operator) && (! is_admin)) {
                 error_out("Authorization Failure", "Failed to authorize request");
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DECLINED;
             } */
@@ -4294,8 +5741,8 @@ mod_tokendb_handler( request_rec *rq )
                 RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, op, "Failure", "Tokendb user authorization");
                 error_out("Authorization Failure", "Failed to authorize request");
                 do_free(buf);
-                do_free(uri);
-                do_free(query);
+                do_strfree(uri);
+                do_strfree(query);
 
                 return DONE;
             }
@@ -4392,8 +5839,8 @@ mod_tokendb_handler( request_rec *rq )
             ldap_error_out("LDAP search error: ", "LDAP search error: %s");
             do_free(complete_filter);
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -4832,8 +6279,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "add_profile_user", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -4852,8 +6299,8 @@ mod_tokendb_handler( request_rec *rq )
                     do_free(other_profile);
                     do_free(uid);
                     do_free(buf);
-                    do_free(uri);
-                    do_free(query);
+                    do_strfree(uri);
+                    do_strfree(query);
 
                     return OK;
                }
@@ -4876,8 +6323,8 @@ mod_tokendb_handler( request_rec *rq )
         }
         do_free(other_profile);
         do_free(buf);
-        do_free(uri);
-        do_free(query);
+        do_strfree(uri);
+        do_strfree(query);
 
         PR_snprintf((char *)msg, 512,
             "'%s' has added profile %s to user %s", userid, profile, uid);
@@ -4903,8 +6350,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "save_user", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -4956,8 +6403,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "failure", oString, pLongString, "user record failed to be updated"); 
             ldap_error_out("LDAP modify error: ", "LDAP error: %s");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             do_free(uid);
             do_free(opOperator);
             do_free(opAgent);
@@ -5074,8 +6521,8 @@ mod_tokendb_handler( request_rec *rq )
         }
 
         do_free(buf);
-        do_free(uri);
-        do_free(query);
+        do_strfree(uri);
+        do_strfree(query);
 
         PR_snprintf((char *)msg, 512,
             "'%s' has modified user %s", userid, uid);
@@ -5097,8 +6544,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "save", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "save", "Success", "Tokendb user authorization");
@@ -5141,8 +6588,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pLongString, "failed to modify token record");
              ldap_error_out("LDAP modify error: ", "LDAP error: %s");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
 
@@ -5165,8 +6612,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "do_delete_user", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -5180,8 +6627,8 @@ mod_tokendb_handler( request_rec *rq )
         if (uid == NULL) {
             error_out("Error in delete user. userid is null", "Error in delete user. userid is null");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             do_free(opOperator);
             do_free(opAdmin);
             do_free(opAgent);
@@ -5227,8 +6674,8 @@ mod_tokendb_handler( request_rec *rq )
             PR_snprintf(msg, 512, "Error deleting user %s", uid);
             ldap_error_out(msg, msg);
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             do_free(uid);
            
             return DONE;
@@ -5259,8 +6706,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "addUser", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -5284,8 +6731,8 @@ mod_tokendb_handler( request_rec *rq )
             do_free(opAgent);
             do_free(userCert);
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return OK;
         }
@@ -5306,8 +6753,8 @@ mod_tokendb_handler( request_rec *rq )
             do_free(opAgent);
             do_free(userCert);
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return OK;
         }
@@ -5387,8 +6834,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "add", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "add", "Success", "Tokendb user authorization");
@@ -5409,8 +6856,8 @@ mod_tokendb_handler( request_rec *rq )
         if( strcmp( filter, "" ) == 0 ) {
             error_out("No Token ID Found", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
 
@@ -5423,8 +6870,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Admin", "Failure", oString, "", "failed to add token record");
             ldap_error_out("LDAP add error: ", "LDAP error: %s");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
             return DONE;
         }
 
@@ -5449,8 +6896,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "delete", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -5477,8 +6924,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Admin", "Failure", oString, "",  "failure in deleting token record");
             ldap_error_out("LDAP delete error: ", "LDAP error: %s");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -5502,8 +6949,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "load", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -5519,8 +6966,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "audit_admin", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -5566,8 +7013,8 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "update_audit_admin", "Failure", "Tokendb user authorization");
             error_out("Authorization Failure", "Failed to authorize request");
             do_free(buf);
-            do_free(uri);
-            do_free(query);
+            do_strfree(uri);
+            do_strfree(query);
 
             return DONE;
         }
@@ -5702,14 +7149,100 @@ mod_tokendb_handler( request_rec *rq )
         PR_snprintf(injection, MAX_INJECTION_SIZE,
                     "/tus/tus?op=audit_admin&flash=Signed+Audit+configuration+has+been+updated");
         do_free(buf);
-        do_free(uri);
-        do_free(query);
+        do_strfree(uri);
+        do_strfree(query);
 
         rq->method = apr_pstrdup(rq->pool, "GET");
         rq->method_number = M_GET;
 
         ap_internal_redirect_handler(injection, rq);
         return OK;
+    } else if( ( PL_strstr( query, "op=agent_select_config" ) ) ) {
+        tokendbDebug( "authorization for op=agent_select_config\n" );
+        if (! is_agent) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "agent_select_config", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "agent_select_config", "Success", "Tokendb user authorization");
+
+        char *conf_type = NULL;
+        conf_type = get_field(query, "type=", SHORT_LEN);
+
+        if (conf_type == NULL) {
+            error_out("Invalid Invocation: Type is NULL", "Type is NULL");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            do_free(conf_type);
+            return DONE;
+        }
+
+        // check if agent has permission to see this config parameter
+        if (! agent_must_approve(conf_type)) {
+            error_out("Invalid Invocation: Agent is not permitted to view this configuration item", "Agent is not permitted to view this configuration item");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+
+        PR_snprintf( ( char * ) configname, 256, "target.%s.list", conf_type );
+        const char *conf_list = RA::GetConfigStore()->GetConfigAsString( configname );
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n",
+                     "var conf_type = \"", conf_type, "\";\n",
+                     "var conf_list = \"", (conf_list != NULL)? conf_list : "", "\";\n");
+
+        do_free(conf_type);
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection); //needed?
+        PL_strcat(injection, JS_STOP);
+
+        buf = getData( agentSelectConfigTemplate, injection );
+    } else if( ( PL_strstr( query, "op=select_config_parameter" ) ) ) {
+        tokendbDebug( "authorization for op=select_config_parameter\n" );
+        if (! is_admin) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "select_config_parameter", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "select_config_parameter", "Success", "Tokendb user authorization");
+
+        char *conf_type = NULL;
+        conf_type = get_field(query, "type=", SHORT_LEN);
+
+        if (conf_type == NULL) {
+            error_out("Invalid Invocation: Type is NULL", "Type is NULL");
+            do_free(buf);
+            do_strfree(uri);
+            do_strfree(query);
+            return DONE;
+        }
+
+        PR_snprintf( ( char * ) configname, 256,
+            "target.%s.list", conf_type );
+        const char *conf_list = RA::GetConfigStore()->GetConfigAsString( configname );
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n",
+                     "var conf_type = \"", conf_type, "\";\n",
+                     "var conf_list = \"", (conf_list != NULL)? conf_list : "", "\";\n");
+
+        do_free(conf_type);
+        // do_free(conf_list);
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection); //needed?
+        PL_strcat(injection, JS_STOP);
+
+        buf = getData( selectConfigTemplate, injection );
     }
 
     if( buf != NULL ) {
@@ -5720,8 +7253,8 @@ mod_tokendb_handler( request_rec *rq )
         do_free(buf);
     }
     do_free(userid);
-    do_free(uri);
-    do_free(query);
+    do_strfree(uri);
+    do_strfree(query);
 
     return OK;
 }

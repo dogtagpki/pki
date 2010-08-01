@@ -75,6 +75,7 @@ PRLock *RA::m_verify_lock = NULL;
 PRLock *RA::m_auth_lock = NULL;
 PRLock *RA::m_debug_log_lock = NULL;
 PRLock *RA::m_error_log_lock = NULL;
+PRLock *RA::m_config_lock = NULL;
 PRMonitor *RA::m_audit_log_monitor = NULL;
 bool RA::m_audit_enabled = false;
 bool RA::m_audit_signed = false;
@@ -207,6 +208,11 @@ TPS_PUBLIC ConfigStore *RA::GetConfigStore()
 PRLock *RA::GetVerifyLock()
 {
   return m_verify_lock;
+}
+
+PRLock *RA::GetConfigLock()
+{
+  return m_config_lock;
 }
 
 void RA::do_free(char *p)
@@ -367,6 +373,7 @@ TPS_PUBLIC int RA::Initialize(char *cfg_path, RA_Context *ctx)
 	m_debug_log_lock = PR_NewLock();
 	m_audit_log_monitor = PR_NewMonitor();
 	m_error_log_lock = PR_NewLock();
+	m_config_lock = PR_NewLock();
 	m_cfg = ConfigStore::CreateFromConfigFile(cfg_path);
     if( m_cfg == NULL ) {
         rc = -2;
@@ -635,8 +642,9 @@ TPS_PUBLIC bool RA::match_comma_list(const char* item, char *list)
 {
     char *pList = PL_strdup(list);
     char *sresult = NULL;
+    char *lasts = NULL;
 
-    sresult = strtok(pList, ",");
+    sresult = PL_strtok_r(pList, ",", &lasts);
     while (sresult != NULL) {
         if (PL_strcmp(sresult, item) == 0) {
             if (pList != NULL) {
@@ -645,7 +653,7 @@ TPS_PUBLIC bool RA::match_comma_list(const char* item, char *list)
             }
             return true;
         }
-        sresult = strtok(NULL, ",");
+        sresult = PL_strtok_r(NULL, ",", &lasts);
     }
     if (pList != NULL) {
         PR_Free(pList);
@@ -653,6 +661,35 @@ TPS_PUBLIC bool RA::match_comma_list(const char* item, char *list)
     }
     return false;
 }
+
+/*
+ * return comma separated list with all instances of item removed
+ * must be freed by caller
+ */
+TPS_PUBLIC char* RA::remove_from_comma_list(const char*item, char *list)
+{
+    int len = PL_strlen(list);
+    char *pList=PL_strdup(list);
+    char *ret = (char *) PR_Malloc(len);
+    char  *sresult = NULL;
+    char *lasts = NULL;
+    
+
+    PR_snprintf(ret, len, "");
+    sresult = PL_strtok_r(pList, ",", &lasts);
+    while (sresult != NULL) {
+        if (PL_strcmp(sresult, item) != 0) {
+            PR_snprintf(ret, len, "%s%s%s", ret, (PL_strlen(ret)>0)? "," : "", sresult);
+        }
+        sresult = PL_strtok_r(NULL, ",",&lasts);
+    }
+    if (pList != NULL) {
+        PR_Free(pList);
+        pList = NULL;
+    }
+    return ret;
+}
+
 
 /*
  * returns true if an audit event is valid, false if not
@@ -790,6 +827,11 @@ TPS_PUBLIC int RA::Shutdown()
     if( m_error_log_lock != NULL ) {
         PR_DestroyLock( m_error_log_lock );
         m_error_log_lock = NULL;
+    }
+
+    if( m_config_lock != NULL ) {
+        PR_DestroyLock( m_config_lock );
+        m_config_lock = NULL;
     }
 
     if (m_auth_list != NULL) {

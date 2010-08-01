@@ -67,10 +67,12 @@ class ConfigStore
 	  int                 IsNameDefined(const char *name);
           void                SetFilePath(const char* cfg_file_path);
 	  void                Add(const char *name, const char *value);
+          void                Remove(const char *name);
 	  const char *        GetConfig(const char *name);
 	  int                 Size();
 	  const char *        GetNameAt(int pos);
 	  ConfigStore         GetSubStore(const char*name);
+	  ConfigStore         *GetPatternSubStore(const char* pattern);
 
 	// Retrieve config parameters
       Buffer *         GetConfigAsBuffer(const char *key);
@@ -85,6 +87,7 @@ class ConfigStore
       TOKENDB_PUBLIC const char *GetConfigAsString(const char *key, const char *def);  
       TPS_PUBLIC int Commit(const bool backup);
       TPS_PUBLIC const char *GetConfigAsString(const char *key);
+      TPS_PUBLIC const char *GetOrderedList();
 	  /**
 	   * operator[] is used to look up config strings in the ConfigStore.
 	   * For example:

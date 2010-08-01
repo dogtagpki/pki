@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <regex.h>
 #include "prmem.h"
 #include "prsystem.h"
 #include "plstr.h"
@@ -192,7 +193,6 @@ ConfigStore ConfigStore::GetSubStore(const char *substore)
 	return ConfigStore(m_root,newname);
 }
 
-
 /**
  * Reads configuration file and puts name value
  * pair into the global hashtable.
@@ -326,6 +326,10 @@ typedef struct {
     char *key;
 } OrderedEntry_t;
 
+typedef struct {
+    regex_t *regex;
+    ConfigStore *store;
+} PatternEntry_t;
 
 #ifdef __cplusplus
 extern "C"
@@ -383,6 +387,46 @@ static PRIntn OrderLoop(PLHashEntry *he, PRIntn index, void *arg)
     } else {
         return HT_ENUMERATE_STOP;
     }
+}
+
+/**
+ * Called from PL_HashTableEnumerateEntries
+ * A pointer to a PatternEntry is passed in.  A PatternEntry consists of 
+ * a pointer a regex_t and a pointer to a new config store. 
+ * Once enumeration is complete, the new config store will contain 
+ * all the parameters (key and values) whose keys match the regex.
+ */ 
+static PRIntn PatternLoop(PLHashEntry *he, PRIntn index, void *arg)
+{
+    PatternEntry_t *entry = (PatternEntry_t *) arg;
+
+    if (entry == NULL) {
+        return HT_ENUMERATE_STOP;
+    }
+
+    regex_t *r = entry->regex;
+    ConfigStore *store = entry->store;
+
+    if ((r == NULL) || (store == NULL)) {
+        return HT_ENUMERATE_STOP;
+    }
+
+    size_t no_sub = r->re_nsub+1; 
+    regmatch_t *result = NULL;
+
+    result = (regmatch_t *) PR_Malloc(sizeof(regmatch_t) * no_sub);
+ 
+    if ((he != NULL) && (he->key != NULL) && (he->value != NULL)) {
+        if (regexec(r, (char *) he->key, no_sub, result, 0)==0) {
+            // Found a match 
+            store->Add((const char*) he->key, (const char *) he->value);
+        }
+    }  else {
+        return HT_ENUMERATE_STOP;
+    }
+    
+    if (result != NULL) PR_Free(result);
+    return HT_ENUMERATE_NEXT;
 }
 
 #ifdef __cplusplus
@@ -444,6 +488,15 @@ void ConfigStore::Add(const char *name, const char *value)
 	  PL_HashTableAdd(m_root->getSet(), PL_strdup(name), PL_strdup(value));
           PR_Unlock(m_lock);
 	}
+}
+
+void ConfigStore::Remove(const char *name)
+{
+	if (IsNameDefined(name)) {
+          PR_Lock(m_lock);
+	  PL_HashTableRemove(m_root->getSet(), name);
+          PR_Unlock(m_lock);
+	} 
 }
 
 const char *ConfigStore::GetConfig(const char *name)
@@ -625,6 +678,67 @@ Buffer *ConfigStore::GetConfigAsBuffer(const char *key, const char *def)
 }
 
 /**
+ * returns a string containing all the parameters in the ConfigStore hash set in the 
+ * format key1=value1&&key2=value2&& ...
+ * The list will be lexically ordered by parameter key values.
+ * The string needs to be freed by the caller.
+ **/
+TPS_PUBLIC const char* ConfigStore::GetOrderedList()
+{
+    char *outstr = NULL;
+    char *new_string = NULL;
+    PRCList order_list;
+    PR_INIT_CLIST(&order_list);
+
+    PR_Lock(m_lock);
+    PL_HashTableEnumerateEntries(m_root->getSet(), &OrderLoop, &order_list);
+    PR_Unlock(m_lock);
+
+    PRCList *current = PR_LIST_HEAD(&order_list);
+    PRCList *next;
+
+    outstr = (char*) PR_Malloc(128);
+    int allocated = 128;
+    int needed = 0;
+    PR_snprintf(outstr, 128, "");
+
+    while (current != &order_list) {
+        OrderedEntry_t *entry = (OrderedEntry_t *) current;
+        const char *value = GetConfigAsString(entry->key, "");
+
+        if ((entry != NULL) && (entry->key != NULL)) {
+            needed = PL_strlen(outstr) + PL_strlen(entry->key) + PL_strlen(value) + 4;
+            if (allocated <= needed) {
+                while (allocated <= needed) {
+                    allocated = allocated * 2;
+                }
+                new_string = (char *)PR_Malloc(allocated);
+                PR_snprintf(new_string, allocated, "%s", outstr);
+                PR_Free(outstr);
+                outstr = new_string;
+            } 
+                
+            PL_strcat(outstr, entry->key);
+            PL_strcat(outstr, "=");
+            PL_strcat(outstr, value);
+
+            // free the memory for the Ordered Entry
+            PL_strfree(entry->key);
+        }
+
+        next = PR_NEXT_LINK(current);
+        PR_REMOVE_AND_INIT_LINK(current);
+        if (current != NULL) {
+            PR_Free(current);
+        }
+        current = next;
+
+        if (current != &order_list) PL_strcat(outstr, "&&");
+    }
+    return outstr;
+}
+
+/**
  * Commits changes to the config file
  */
 TPS_PUBLIC int ConfigStore::Commit(const bool backup)
@@ -686,5 +800,54 @@ TPS_PUBLIC int ConfigStore::Commit(const bool backup)
     PR_Rename(name_tmp, m_cfg_file_path);
 
     return 0;
+}
+
+/**
+ * Takes in a string containing a regular expression.
+ * Returns a new ConfigStore which contains only those parameters whose
+ * keys match the pattern.
+ * The new Configstore must of course be freed by the caller.
+ **/
+ConfigStore *ConfigStore::GetPatternSubStore(const char *pattern)
+{
+
+    ConfigStoreRoot *root = NULL;
+    ConfigStore *ret = NULL;
+    PatternEntry_t entry;
+    regex_t *regex = NULL;
+    int err_no=0; /* For regerror() */
+
+    regex = (regex_t *) malloc(sizeof(regex_t));
+    memset(regex, 0, sizeof(regex_t));
+
+    if((err_no=regcomp(regex, pattern, 0))!=0) /* Compile the regex */
+    {
+      // Error in computing the regex
+      size_t length; 
+      char *buffer;
+      length = regerror (err_no, regex, NULL, 0);
+      buffer = (char *) PR_Malloc(length);
+      regerror (err_no, regex, buffer, length);
+      // PR_fprintf(m_dump_f, "%s\n", buffer); /* Print the error */
+      PR_Free(buffer);
+      regfree(regex);
+      return NULL;
+    }
+
+    entry.regex = regex;
+    root = new ConfigStoreRoot();
+    ret = new ConfigStore(root, "");
+    entry.store = ret;
+
+    PR_Lock(m_lock);
+    PL_HashTableEnumerateEntries(m_root->getSet(), &PatternLoop, &entry);
+    PR_Unlock(m_lock);
+
+    /* cleanup */
+    //regfree(entry.regex);
+    //entry.store = NULL;
+
+    ret->SetFilePath("");
+    return ret;
 }
 

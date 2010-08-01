@@ -136,6 +136,7 @@ class RA
   public:
 	  TPS_PUBLIC static ConfigStore *GetConfigStore();
           TPS_PUBLIC static bool match_comma_list(const char* item, char *list);
+          TPS_PUBLIC static char* remove_from_comma_list(const char*item, char *list);
   public:
 	  TPS_PUBLIC static void Audit(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Error(const char *func_name, const char *fmt, ...);
@@ -162,6 +163,7 @@ class RA
           static int InitializeTokendb(char *cfg_path);
           static int InitializeSignedAudit();
           static PRLock *GetVerifyLock();
+          static PRLock *GetConfigLock();
           TPS_PUBLIC static CERTCertificate **ra_get_certificates(LDAPMessage *e);
           TPS_PUBLIC static LDAPMessage *ra_get_first_entry(LDAPMessage *e);
           TPS_PUBLIC static LDAPMessage *ra_get_next_entry(LDAPMessage *e);
@@ -305,6 +307,7 @@ class RA
           static PRLock *m_error_log_lock;
           static PRMonitor *m_audit_log_monitor;
           static PRLock *m_debug_log_lock;
+          static PRLock *m_config_lock;
           static int m_audit_log_level;
           static int m_debug_log_level;
           static int m_error_log_level;

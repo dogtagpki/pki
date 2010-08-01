@@ -1840,6 +1840,7 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
     char **origins = NULL;
     char **tokenTypes = NULL;
     char *tokentype = NULL;
+    char *profile_state = NULL;
 	RA_Status st;
     int token_present = 0;
     bool renewed = false;
@@ -1866,6 +1867,17 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
         /* ADE figure out what to do here for this line*/
         // RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "token type not found", "");
         goto loser;
+    }
+
+    // check if profile is enabled here
+    PR_snprintf((char *)configname, 256, "config.Profiles.%s.state", tokenType);
+    profile_state = (char *) RA::GetConfigStore()->GetConfigAsString(configname);
+    if ((profile_state != NULL) && (PL_strcmp(profile_state, "Enabled") != 0)) {
+         RA::Error(FN, "Profile %s Disabled for CUID %s", tokenType, cuid);
+         status =  STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND;
+         RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "profile disabled", "", tokenType);
+         PR_snprintf(audit_msg, 512, "profile %s disabled", tokenType);
+         goto loser;
     }
 
     if (RA::ra_is_token_present(cuid)) {

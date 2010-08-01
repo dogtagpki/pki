@@ -113,6 +113,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
     LDAPMessage *ldapResult = NULL;
     int maxReturns = 10;
     char audit_msg[512] = "";
+    char *profile_state = NULL;
 
 
     RA::Debug("RA_Pin_Reset_Processor::Process", "Client %s",                       session->GetRemoteIP());
@@ -188,6 +189,17 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
                     extensions, status, tokenType)) {
                 PR_snprintf(audit_msg, 512, "Failed to get token type");
 		goto loser;
+    }
+
+    // check if profile is enabled 
+    PR_snprintf((char *)configname, 256, "config.Profiles.%s.state", tokenType);
+    profile_state = (char *) RA::GetConfigStore()->GetConfigAsString(configname);
+    if ((profile_state != NULL) && (PL_strcmp(profile_state, "Enabled") != 0)) {
+        RA::Error("RA_Pin_Reset_Processor::Process", "Profile %s Disabled for CUID %s", tokenType, cuid);
+        status =  STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND;
+        RA::tdb_activity(session->GetRemoteIP(), cuid, "pin_reset", "failure", "profile disabled", "", tokenType);
+        PR_snprintf(audit_msg, 512, "profile %s disabled", tokenType);
+        goto loser;
     }
 
     if (RA::ra_is_tus_db_entry_disabled(cuid)) {

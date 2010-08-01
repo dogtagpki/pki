@@ -114,6 +114,7 @@ TPS_PUBLIC RA_Status RA_Format_Processor::Process(RA_Session *session, NameValue
     char *keyVersion = NULL;
     char *xuserid = NULL;
     char audit_msg[512] = "";
+    char *profile_state = NULL;
 
     Buffer *CardManagerAID = RA::GetConfigStore()->GetConfigAsBuffer(
 		   RA::CFG_APPLET_CARDMGR_INSTANCE_AID, 
@@ -199,6 +200,16 @@ TPS_PUBLIC RA_Status RA_Format_Processor::Process(RA_Session *session, NameValue
         goto loser;
     }
 
+    // check if profile is enabled 
+    PR_snprintf((char *)configname, 256, "config.Profiles.%s.state", tokenType);
+    profile_state = (char *) RA::GetConfigStore()->GetConfigAsString(configname);
+    if ((profile_state != NULL) && (PL_strcmp(profile_state, "Enabled") != 0)) {
+        RA::Error("RA_Format_Processor::Process", "Profile %s Disabled for CUID %s", tokenType, cuid);
+        status =  STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND;
+        RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "profile disabled", "", tokenType);
+        PR_snprintf(audit_msg, 512, "profile %s disabled", tokenType);
+        goto loser;
+    }
 
     if (RA::ra_is_token_present(cuid)) {
        RA::Debug("RA_Format_Processor::Process",
