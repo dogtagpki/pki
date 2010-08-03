@@ -284,7 +284,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
         try {
             authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "read");
+                        mAuthzResourceName, "submit");
         } catch (Exception e) {
         }
 

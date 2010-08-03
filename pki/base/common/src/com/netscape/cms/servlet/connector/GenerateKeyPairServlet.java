@@ -242,7 +242,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
 
         try {
             authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "read");
+                        mAuthzResourceName, "execute");
         } catch (Exception e) {
         }
 

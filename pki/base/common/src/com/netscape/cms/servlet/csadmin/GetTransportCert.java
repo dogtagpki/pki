@@ -108,7 +108,7 @@ public class GetTransportCert extends CMSServlet {
         AuthzToken authzToken = null;
         try {
             authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, 
-              "modify");
+              "read");
             CMS.debug("GetTransportCert authorization successful.");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
