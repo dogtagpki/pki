@@ -1,6 +1,6 @@
 Name:           dogtag-pki-tks-ui
-Version:        1.3.0
-Release:        5%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Token Key Service User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -62,6 +62,10 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Wed Aug 4 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #472597 - Disable policy code,UI
+- Bugzilla Bug #436990 - browser tab shows no distinguishable names for systems
+
 * Wed Apr 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
 - Bugzilla Bug #580282 - Dogtag PKI UI Packages should "Conflict" with
   associated Red Hat PKI UI Packages . . .

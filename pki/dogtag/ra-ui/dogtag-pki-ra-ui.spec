@@ -1,5 +1,5 @@
 Name:           dogtag-pki-ra-ui
-Version:        1.3.1
+Version:        1.3.2
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority User Interface
 URL:            http://pki.fedoraproject.org/
@@ -62,6 +62,9 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Wed Aug 4 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
+- Bugzilla Bug #436990 - browser tab shows no distinguishable names for systems
+
 * Thu Apr 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
 - Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
   needs correction

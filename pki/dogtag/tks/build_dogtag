@@ -40,7 +40,7 @@ PKI_PRODUCT_PREFIX="pki"
 export PKI_PRODUCT_PREFIX
 PKI_PRODUCT="tks"
 export PKI_PRODUCT
-PKI_VERSION="1.3.2"
+PKI_VERSION="1.3.3"
 export PKI_VERSION
 
 # Set Dogtag helper variables
