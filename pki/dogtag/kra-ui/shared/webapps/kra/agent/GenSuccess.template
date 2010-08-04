@@ -20,9 +20,7 @@
 <!-- This template is intended to be replaced by request specific results !  -->
 <CMS_TEMPLATE>
 
-<TITLE> 
-Generic Request Success 
-</TITLE>
+<TITLE>DRM Agent Generic Request Success</TITLE>
 
 <BODY BGCOLOR=white>
 

@@ -19,9 +19,7 @@
 <HTML>
 <CMS_TEMPLATE>
 
-<TITLE>
-CS Request Pending 
-</TITLE>
+<TITLE>OCSP Agent Request Pending</TITLE>
 
 <BODY bgcolor="white">
 

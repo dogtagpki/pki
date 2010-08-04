@@ -19,9 +19,7 @@
 <HTML>
 <CMS_TEMPLATE>
 
-<TITLE>
-CS Request Rejected
-</TITLE>
+<TITLE>OCSP Agent Request Rejected</TITLE>
 
 <BODY bgcolor="white">
 

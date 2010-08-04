@@ -28,7 +28,7 @@
 <OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'>
 </OBJECT>
 
-<title>Certificate System</title>
+<title>User Certificate Request</title>
     <link rel="shortcut icon" href="/ra/admin/console/img/favicon.ico" />
     <link rel="stylesheet" href="/css/pki-base.css" type="text/css" />
     <META http-equiv=Content-Type content="text/html; charset=UTF-8">

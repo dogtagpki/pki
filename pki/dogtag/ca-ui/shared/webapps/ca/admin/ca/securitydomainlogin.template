@@ -20,7 +20,7 @@
 <CMS_TEMPLATE>
   <head>
     
-    <title>Certificate System</title>
+    <title>CA Admin Security Domain Login</title>
 
     <link rel="shortcut icon" href="/ca/admin/console/img/favicon.ico" />
     <link rel="stylesheet" href="/ca/admin/console/css/rhn-base.css" type="text/css" />

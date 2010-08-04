@@ -20,9 +20,7 @@
 <HEAD>
 <CMS_TEMPLATE>
 
-<TITLE>
-CS Request Pending 
-</TITLE>
+<TITLE>CA Agent Request Pending</TITLE>
 
 </HEAD>
 <BODY bgcolor="white">

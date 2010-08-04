@@ -20,9 +20,7 @@
 <HEAD>
 <CMS_TEMPLATE>
 
-<TITLE>
-CS Request Rejected
-</TITLE>
+<TITLE>CA Agent Request Rejected</TITLE>
 </HEAD>
 
 <BODY bgcolor="white">
