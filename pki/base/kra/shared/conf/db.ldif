@@ -31,7 +31,7 @@ dn: cn=Administrators,ou=groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
 cn: Administrators
-description: People who manage the Fedora Certificate System
+description: People who manage the Certificate System
 
 dn: cn=Auditors,ou=groups,{rootSuffix}
 objectClass: top
