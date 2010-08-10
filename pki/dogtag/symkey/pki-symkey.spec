@@ -1,6 +1,6 @@
 Name:           pki-symkey
-Version:        1.3.2
-Release:        4%{?dist}
+Version:        2.0.0
+Release:        1%{?dist}
 Summary:        Symmetric Key JNI Package
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -78,33 +78,5 @@ rm -rf %{buildroot}
 %{_libdir}/symkey/
 
 %changelog
-* Mon Feb 01 2010 Kevin Wright <kwright@redhat.com> 1.3.2-4
-- no java on rhel ppc
-
-* Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-3
-- Applied %%{?_smp_mflags} option to 'make'
-
-* Thu Jan 28 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-2
-- Updated 'm4/jss.m4' file to account for new JSS library path
-- Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
-- Bugzilla Bug #557632 -  Re-Review Request: pki-symkey - rename from symkey
-
-* Thu Jan 21 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
-- Bugzilla Bug #557638 -  Rename 'symkey' package to 'pki-symkey' package
-- Bugzilla Bug #557632 -  Re-Review Request: pki-symkey - rename from symkey
-
-* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.1-1
-- Removed BuildRequires bash
-- Removed 'with exceptions' from License
-
-* Fri Oct 30 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
-- Bugzilla Bug #522272 -  New Package for Dogtag PKI: symkey
-- Removed LICENSE logic from installation section
-- Take ownership of library directory
-
-* Tue Oct 27 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
-- Bugzilla Bug #522272 -  New Package for Dogtag PKI: symkey
-- Complied with Fedora JNI packaging logic
-
-* Mon Oct 12 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
-- Bugzilla Bug #522272 -  New Package for Dogtag PKI: symkey
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.

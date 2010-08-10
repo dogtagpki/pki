@@ -1,5 +1,5 @@
 Name:           dogtag-pki-ca-ui
-Version:        1.3.2
+Version:        2.0.0
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Certificate Authority User Interface
 URL:            http://pki.fedoraproject.org/
@@ -62,28 +62,5 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
-* Wed Aug 4 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
-- Bugzilla Bug #472597 - Disable policy code,UI
-- Bugzilla Bug #436990 - browser tab shows no distinguishable names for systems
-
-* Wed Apr 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-2
-- Bugzilla Bug #580282 - Dogtag PKI UI Packages should "Conflict" with
-  associated Red Hat PKI UI Packages . . .
-
-* Tue Mar 9 2010 Ade Lee <alee@redhat.com> 1.3.1-1
-- Bugzilla Bug #545935 -  Add new client-auth ee port to address CVE-2009-3555
-  TLS: MITM attacks via session renegotiation
-
-* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
-- Bugzilla Bug #522208 -  New Package for Dogtag PKI: dogtag-pki-ca-ui
-- Removed "Requires:  bash"
-
-* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-3
-- Removed 'with exceptions' from License
-
-* Mon Nov 2 2009 Ade Lee <alee@redhat.com> 1.3.0-2
-- Bugzilla Bug #522208 - Packaging for Fedora Dogtag
-- Take ownership of directories
-
-* Tue Oct 13 2009 Ade Lee <alee@redhat.com> 1.3.0-1
-- Bugzilla Bug #522208 - Packaging for Fedora Dogtag
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.

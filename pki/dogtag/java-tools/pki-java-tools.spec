@@ -1,5 +1,5 @@
 Name:           pki-java-tools
-Version:        1.3.1
+Version:        2.0.0
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Java-Based Tools
 URL:            http://pki.fedoraproject.org/
@@ -83,21 +83,5 @@ rm -rf %{buildroot}
 %{_javadocdir}/%{name}-%{version}/
 
 %changelog
-* Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
-- Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
-  compatibility (rename jar files as appropriate)
-
-* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-4
-- Removed 'with exceptions' from License
-
-* Tue Nov 24 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
-- Bugzilla Bug #521995 - Packaging for Fedora Dogtag PKI
-- Use "_javadir" macro when appropriate
-- Move jar file to top-level
-
-* Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
-- Bugzilla Bug #521995 - Packaging for Fedora Dogtag PKI
-- Take ownership of directories
-
-* Tue Oct 13 2009 Ade Lee <alee@redhat.com> 1.3.0-1
-- Bugzilla Bug #521995 - Packaging for Fedora Dogtag PKI
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.

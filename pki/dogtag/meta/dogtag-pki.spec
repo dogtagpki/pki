@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
-Version:          1.3.0
-Release:          2%{?dist}
+Version:          2.0.0
+Release:          1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -94,10 +94,5 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 
 %changelog
-* Wed Apr 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
-- Bugzilla Bug #580274 - Dogtag PKI Meta Package should "Conflict" with
-  Red Hat PKI Meta Package . . .
-
-* Thu Feb 11 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
-- Initial build.
-
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.

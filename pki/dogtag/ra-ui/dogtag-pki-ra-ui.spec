@@ -1,5 +1,5 @@
 Name:           dogtag-pki-ra-ui
-Version:        1.3.2
+Version:        2.0.0
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority User Interface
 URL:            http://pki.fedoraproject.org/
@@ -62,31 +62,5 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
-* Wed Aug 4 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
-- Bugzilla Bug #436990 - browser tab shows no distinguishable names for systems
-
-* Thu Apr 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
-- Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
-  needs correction
-
-* Wed Apr 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
-- Bugzilla Bug #580282 - Dogtag PKI UI Packages should "Conflict" with
-  associated Red Hat PKI UI Packages . . .
-
-* Mon Jan 18 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
-- Bugzilla Bug #553848 - New Package for Dogtag PKI: dogtag-pki-ra-ui
-- Fixed various licensing headers
-
-* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
-- Bugzilla Bug #553848 - New Package for Dogtag PKI: dogtag-pki-ra-ui
-- Removed "Requires:  bash"
-
-* Wed Jan 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
-- Bugzilla Bug #553848 - New Package for Dogtag PKI: dogtag-pki-ra-ui
-- Take ownership of directories
-
-* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
-- Removed 'with exceptions' from License
-
-* Fri Oct 16 2009 Ade Lee <alee@redhat.com> 1.3.0-1
-- Bugzilla Bug #X - Fedora Packaging Changes
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.

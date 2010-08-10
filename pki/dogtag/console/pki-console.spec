@@ -1,5 +1,5 @@
 Name:           pki-console
-Version:        1.3.2
+Version:        2.0.0
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Console
 URL:            http://pki.fedoraproject.org/
@@ -68,22 +68,5 @@ rm -rf %{buildroot}
 %{_javadir}/*
 
 %changelog
-* Wed Apr 21 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.2-1
-- Bugzilla Bug #493765 - console renewal fix for ca, ocsp, and ssl certificates
-
-* Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
-- Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
-  compatibility (rename jar files as appropriate)
-
-* Fri Jan 15 2010 Kevin Wright <kwright@redhat.com> 1.3.0-4
-- removed BuildRequires dogtag-pki-console-ui
-
-* Wed Jan 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
-- Bugzilla Bug #553487 - Review Request: pki-console - The Dogtag PKI Console
-- Take ownership of directories
-
-* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
-- Removed 'with exceptions' from License
-
-* Thu Oct 15 2009 Ade Lee <alee@redhat.com> 1.3.0-1
-- Bugzilla Bug #X - Packaging for Fedora Dogtag
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.

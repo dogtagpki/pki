@@ -1,5 +1,5 @@
 Name:           pki-setup
-Version:        1.3.4
+Version:        2.0.0
 Release:        1%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
@@ -52,54 +52,5 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
-* Tue Mar 9 2010 Ade Lee <alee@redhat.com> 1.3.4-1
-- Bugzilla Bug #545935 -  Add new client-auth ee port to address CVE-2009-3555
-  TLS: MITM attacks via session renegotiation
-
-* Mon Feb 1 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.3-2
-- Restored "perl-Crypt-SSLeay" runtime dependency
-
-* Thu Jan 28 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.3-1
-- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
-
-* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
-- Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
-  pkicreate . . .
-- Bugzilla Bug #547471 - Apply PKI SELinux changes to PKI registry model
-- Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
-- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
-
-* Thu Jan 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
-- Bugzilla Bug #475895 - Disallow creation of an initial login shell
-- Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
-  pkicreate . . .
-- Bugzilla Bug #553072 - Apply "registry" logic to pki-kra . . .
-- Bugzilla Bug #553074 - Apply "registry" logic to pki-ocsp . . .
-- Bugzilla Bug #553075 - Apply "registry" logic to pki-tks . . .
-
-* Wed Dec 23 2009 Kevin Wright <kwright@redhat.com> 1.3.0-6
-- Bugzilla Bug #521993 - packaging for Fedora Dogtag
-- Removed Requires for all perl packages
-- Removed Requires for pki-native-tools
- 
-* Mon Dec 14 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
-- Bugzilla Bug #521993 - packaging for Fedora Dogtag
-- Bugzilla Bug #529070 -  rpm packaging problems (cannot reinstall correctly) 
-- Removed 'with exceptions' from License
-- Removed 'Requires: perl >= 5.8.0'
-
-* Mon Dec 7 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
-- Bugzilla Bug #528556 -  policycoreutils-python (semanage) prerequisite
-  missing from rpm
-- Added "conditional" support for Fedora 11
-- Added "conditional" support for Fedora 12
-
-* Mon Nov 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
-- Bugzilla Bug #533518 -  Remove "pkihost" script from pki-setup . . .
-
-* Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
-- Bugzilla Bug #521993 - packaging for Fedora Dogtag
-- Take ownership of directories
-
-* Tue Oct 13 2009 Ade Lee <alee@redhat.com> 1.3.0-1
-- Bugzilla Bug #521993 - packaging for Fedora Dogtag
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.

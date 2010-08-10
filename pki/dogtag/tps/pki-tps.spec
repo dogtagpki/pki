@@ -1,5 +1,5 @@
 Name:           pki-tps
-Version:        1.3.2
+Version:        2.0.0
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System
 URL:            http://pki.fedoraproject.org/
@@ -209,99 +209,5 @@ fi
 %{_libdir}/libtps.so
 
 %changelog
-* Wed Aug 4 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
-- Bugzilla Bug #601299 - tps installation does not update security domain
-- Bugzilla Bug #527593 - More robust signature digest alg, like SHA256
-  instead of SHA1 for ECC
-- Bugzilla Bug #528236 - rhcs80 web conf wizard - cannot specify CA signing
-  algorithm
-- Bugzilla Bug #533510 - tps exception, cannot start when signed audit true
-- Bugzilla Bug #529280 - TPS returns HTTP data without ending in 0rn per
-  RFC 2616
-- Bugzilla Bug #498299 - Should not be able to change the status manually
-  on a token marked as permanently lost or destroyed
-- Bugzilla Bug #554892 - configurable frequency signed audit
-- Bugzilla Bug #500700 - tps log rotation
-- Bugzilla Bug #562893 - tps shutdown if audit logs full
-- Bugzilla Bug #557346 - Name Constraints Extension cant be marked critical
-- Bugzilla Bug #556152 - ACL changes to CA and OCSP
-- Bugzilla Bug #556167 - ACL changes to CA and OCSP
-- Bugzilla Bug #581004 - add more audit logging to the TPS
-- Bugzilla Bug #566517 - CC: Add client auth to OCSP publishing, and move
-  to a client-auth port
-- Bugzilla Bug #565842 - Clone config throws errors - fix key_algorithm
-- Bugzilla Bug #581017 - enabling log signing from tps ui pages causes tps
-  crash
-- Bugzilla Bug #581004 - add more audit logs
-- Bugzilla Bug #595871 - CC: TKS needed audit message changes
-- Bugzilla Bug #598752 - Common Criteria: TKS ACL analysis result.
-- Bugzilla Bug #598666 - Common Criteria: incorrect ACLs for signedAudit
-- Bugzilla Bug #504905 - Smart card renewal should load old encryption cert
-  on the token.
-- Bugzilla Bug #499292 - TPS - Enrollments where keys are recovered need
-  to do both GenerateNewKey and RecoverLast operation for encryption key.
-- Bugzilla Bug #498299 - fix case where no transitions available
-- Bugzilla Bug #604186 - Common Criteria: TPS: Key Recovery needs to meet CC
-  requirements
-- Bugzilla Bug #604178 - Common Criteria: TPS: cert registration needs to meet
-  CC requirements
-- Bugzilla Bug #600968 - Common Criteria: TPS: cert registration needs to meet
-  CC requirements
-- Bugzilla Bug #607381 - Common Criteria: TPS: cert registration needs to meet
-  CC requirements
-
-* Thu Apr 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
-- Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
-  needs correction
-
-* Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-8
-- Bugzilla Bug #566060 -  Add 'pki-native-tools' as a runtime dependency
-  for RA, and TPS . . .
-
-* Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-7
-- Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System
-  Token Processing System
-- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
-- Applied filters for unwanted perl provides and requires
-- Applied %%{?_smp_mflags} option to 'make'
-- Removed manual 'strip' commands
-
-* Thu Jan 28 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
-- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
-- Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System
-  Token Processing System
-
-* Wed Jan 27 2010 Kevin Wright <kwright@redhat.com> 1.3.0-5
-- Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System
-  Token Processing System
-  Per direction from the Fedora community, removed the following
-  explicit "Requires":
-
-      perl-HTML-Parser
-      perl-HTML-Tagset
-      perl-Parse-RecDescent
-      perl-URI
-      perl-XML-NamespaceSupport
-      perl-XML-Parser
-      perl-XML-Simple
-
-* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
-- Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
-  pkicreate . . .
-- Bugzilla Bug #547471 - Apply PKI SELinux changes to PKI registry model
-- Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
-- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
-- Bugzilla Bug #553852 - Review Request: pki-tps - Dogtag Certificate System
-  Token Processing System
-
-* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-3
-- Removed BuildRequires bash
-- Removed 'with exceptions' from License
-
-* Mon Nov 2 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
-- Bugzilla Bug #X - Packaging for Fedora Dogtag PKI
-- Prepended directory path in front of setup_package
-- Take ownership of pki tps directory.
-
-* Fri Oct 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
-- Bugzilla Bug #X - Packaging for Fedora Dogtag PKI
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.

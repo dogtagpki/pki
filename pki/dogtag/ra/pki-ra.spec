@@ -1,5 +1,5 @@
 Name:           pki-ra
-Version:        1.3.1
+Version:        2.0.0
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority
 URL:            http://pki.fedoraproject.org/
@@ -106,43 +106,5 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
-* Thu Apr 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
-- Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
-  needs correction
-
-* Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
-- Bugzilla Bug #566060 -  Add 'pki-native-tools' as a runtime dependency
-  for RA, and TPS . . .
-
-* Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
-- Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
-- Applied filters for unwanted perl provides and requires
-- Restored "perl-DBD-SQLite" runtime dependency
-
-* Tue Jan 26 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
-- Bugzilla Bug #553850 - Review Request: pki-ra - Dogtag Registration Authority
-  Per direction from the Fedora community, removed the following
-  explicit "Requires":
-
-      perl-DBI
-      perl-HTML-Parser
-      perl-HTML-Tagset
-      perl-Parse-RecDescent
-      perl-URI
-      perl-XML-NamespaceSupport
-      perl-XML-Parser
-      perl-XML-Simple
-
-* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
-- Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
-  pkicreate . . .
-- Bugzilla Bug #547471 - Apply PKI SELinux changes to PKI registry model
-- Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
-- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
-- Bugzilla Bug #553850 - Review Request: pki-ra - Dogtag Registration Authority
-
-* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
-- Removed 'with exceptions' from License
-
-* Fri Oct 16 2009 Ade Lee <alee@redhat.com> 1.3.0-1
-- Bugzilla Bug #X - Fedora Packaging Changes
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.

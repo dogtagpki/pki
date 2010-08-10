@@ -40,7 +40,7 @@ PKI_PRODUCT_PREFIX="pki"
 export PKI_PRODUCT_PREFIX
 PKI_PRODUCT="ocsp-ui"
 export PKI_PRODUCT
-PKI_VERSION="1.3.1"
+PKI_VERSION="2.0.0"
 export PKI_VERSION
 
 # Set Dogtag helper variables

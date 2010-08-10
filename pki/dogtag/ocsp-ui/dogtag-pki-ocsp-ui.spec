@@ -1,5 +1,5 @@
 Name:           dogtag-pki-ocsp-ui
-Version:        1.3.1
+Version:        2.0.0
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Online Certificate Status Protocol User Interface
 URL:            http://pki.fedoraproject.org/
@@ -63,24 +63,5 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
-* Wed Aug 4 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
-- Bugzilla Bug #472597 - Disable policy code,UI
-- Bugzilla Bug #436990 - browser tab shows no distinguishable names for systems
-
-* Wed Apr 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
-- Bugzilla Bug #580282 - Dogtag PKI UI Packages should "Conflict" with
-  associated Red Hat PKI UI Packages . . .
-
-* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
-- Bugzilla Bug #553843 - New Package for Dogtag PKI: dogtag-pki-ocsp-ui
-- Removed "Requires:  bash"
-
-* Wed Jan 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
-- Bugzilla Bug #553843 - New Package for Dogtag PKI: dogtag-pki-ocsp-ui
-- Take ownership of directories
-
-* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
-- Removed 'with exceptions' from License
-
-* Thu Oct 15 2009 Ade Lee <alee@redhat.com> 1.3.0-1
-- Bugzilla Bug #X - Packaging for Fedora Dogtag
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.

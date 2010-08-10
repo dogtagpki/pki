@@ -1,6 +1,6 @@
 Name:           dogtag-pki-console-ui
-Version:        1.3.2
-Release:        2%{?dist}
+Version:        2.0.0
+Release:        1%{?dist}
 Summary:        Dogtag Certificate System - PKI Console User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -77,27 +77,5 @@ rm -rf %{buildroot}
 %{_javadir}/*
 
 %changelog
-* Wed Apr 21 2010 Andrew Wnuk <awnuk@redhat.com> 1.3.2-1
-- Bugzilla Bug #493765 - console renewal fix for ca, ocsp, and ssl certificates
-
-* Wed Apr 7 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-2
-- Bugzilla Bug #580282 - Dogtag PKI UI Packages should "Conflict" with
-  associated Red Hat PKI UI Packages . . .
-
-* Mon Feb 8 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
-- Bugzilla Bug #562986 -  Supply convenience symlink(s) for backwards
-  compatibility (rename jar files as appropriate)
-
-* Mon Jan 18 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
-- Bugzilla Bug #553483 - New Package for Dogtag PKI: dogtag-pki-console-ui
-- Fixed various licensing headers
-
-* Wed Jan 6 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
-- Bugzilla Bug #553483 - New Package for Dogtag PKI: dogtag-pki-console-ui
-- Take ownership of directories
-
-* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
-- Removed 'with exceptions' from License
-
-* Wed Oct 14 2009 Ade Lee <alee@redhat.com> 1.3.0-1
-- Bugzilla Bug #X - Packaging for Fedora Dogtag
+* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0.
