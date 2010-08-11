@@ -1,8 +1,9 @@
 ###############################################################################
 #  Since the 'svn.fedorahosted.org' repository uses a different URL prefix to #
 #  distinguish between read-only (http) and read-write (svn+ssh) check-outs,  #
-#  ALL external SVN properties MUST now be read-only, which means that ALL    #
-#  changes that need to be saved MUST be applied to the top-level directory   #
-#  referred to by each external SVN property (i.e. - 'pki/base/config').      #
+#  ALL external SVN properties that refer to this repository MUST now be      #
+#  read-only, which means that ALL changes which refer to this repository     #
+#  that need to be saved MUST be applied to the top-level directory referred  #
+#  to by each external SVN property (i.e. - 'pki/base/config').               #
 ###############################################################################
 config http://svn.fedorahosted.org/svn/pki/trunk/pki/base/config
