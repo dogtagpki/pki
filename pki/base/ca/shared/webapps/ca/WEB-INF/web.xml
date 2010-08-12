@@ -1930,7 +1930,7 @@
              <init-param><param-name>  ID          </param-name>
                          <param-value> caGetSubsystemCert   </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.cert </param-value> </init-param>
+                         <param-value> certServer.ee.certificate </param-value> </init-param>
              <init-param><param-name>  interface   </param-name>
                          <param-value> ee          </param-value> </init-param>
    </servlet>

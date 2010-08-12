@@ -177,6 +177,13 @@ public class JobsAdminServlet extends AdminServlet {
                     return;
                 }
             } else if (op.equals(OpDef.OP_MODIFY)) {
+                mOp = "modify";
+                if ((mToken = super.authorize(req)) == null) {
+                    sendResponse(ERROR,
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                        null, resp);
+                    return;
+                }
                 if (scope.equals(ScopeDef.SC_JOBS)) {
                     setSettings(req, resp);
                 } else if (scope.equals(ScopeDef.SC_JOBS_INSTANCE)) {

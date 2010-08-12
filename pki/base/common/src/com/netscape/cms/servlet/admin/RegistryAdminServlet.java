@@ -162,8 +162,12 @@ public class RegistryAdminServlet extends AdminServlet {
                 return;
             getProfileImplConfig(req, resp);
         } else if (op.equals(OpDef.OP_DELETE)) {
+            if (!modifyAuthorize(req, resp))
+                return;
             deleteImpl(req, resp);
         } else if (op.equals(OpDef.OP_ADD)) {
+            if (!modifyAuthorize(req, resp))
+                return;
             addImpl(req, resp);
         } else
             sendResponse(ERROR, INVALID_POLICY_IMPL_OP,
