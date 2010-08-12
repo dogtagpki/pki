@@ -268,8 +268,9 @@ public class CMSEngine implements ICMSEngine {
 
         mSDTimer = new Timer();
         SessionTimer timertask = new SessionTimer(mSecurityDomainSessionTable);
-        if ((state == 1) && (sd.equals("existing"))) {
-            // for non-security domain hosts, do not check session domain table
+        if ((state != 1) || (sd.equals("existing"))) {
+            // for non-security domain hosts or if not yet configured, 
+            // do not check session domain table
         } else {
             mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
         }
