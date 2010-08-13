@@ -743,7 +743,8 @@ TPS_PUBLIC const char* ConfigStore::GetOrderedList()
  */
 TPS_PUBLIC int ConfigStore::Commit(const bool backup)
 {
-    char name_tmp[256], cdate[256], name_bak[256];
+    char name_tmp[256], cdate[256], name_bak[256], bak_dir[256];
+    char basename[256], dirname[256];
     PRFileDesc *ftmp  = NULL;
     PRExplodedTime time;
     PRTime now;
@@ -751,13 +752,23 @@ TPS_PUBLIC int ConfigStore::Commit(const bool backup)
     if (m_cfg_file_path == NULL) 
         return 1;
 
+    if (strrchr(m_cfg_file_path, '/') != NULL) {
+        PR_snprintf((char *) basename, 256, "%s", strrchr(m_cfg_file_path, '/') +1);
+        PR_snprintf((char *) dirname, PL_strlen(m_cfg_file_path) - PL_strlen(basename), "%s", m_cfg_file_path);
+        PL_strcat(dirname, '\0');
+    } else {
+        PR_snprintf((char *) basename, 256, "%s", m_cfg_file_path);
+        PR_snprintf((char *) dirname, 256, ".");
+    }
+    PR_snprintf(bak_dir, 256, "%s/bak", dirname); 
+
     now = PR_Now();
     PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
     PR_snprintf(cdate, 16, "%04d%02d%02d%02d%02d%02dZ",
         time.tm_year, (time.tm_month + 1), time.tm_mday,
         time.tm_hour, time.tm_min, time.tm_sec);
     PR_snprintf(name_tmp, 256, "%s.%s.tmp", m_cfg_file_path,cdate);
-    PR_snprintf(name_bak, 256, "%s.%s",  m_cfg_file_path, cdate);
+    PR_snprintf(name_bak, 256, "%s/%s.%s", bak_dir, basename, cdate);
 
     ftmp = PR_Open(name_tmp, PR_WRONLY| PR_CREATE_FILE, 00400|00200);
     if (ftmp == NULL) {
@@ -796,7 +807,13 @@ TPS_PUBLIC int ConfigStore::Commit(const bool backup)
 
     PR_Close(ftmp);
 
-    PR_Rename(m_cfg_file_path, name_bak);
+    if (backup) { 
+        // create the backup directory if it does not exist
+        if (PR_Access(bak_dir, PR_ACCESS_EXISTS) != PR_SUCCESS) {
+            PR_MkDir(bak_dir, 00770);
+        } 
+        PR_Rename(m_cfg_file_path, name_bak);
+    }
     PR_Rename(name_tmp, m_cfg_file_path);
 
     return 0;
