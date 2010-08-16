@@ -140,10 +140,12 @@ class RA
   public:
 	  TPS_PUBLIC static void Audit(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Error(const char *func_name, const char *fmt, ...);
+	  TPS_PUBLIC static void SelfTestLog(const char *func_name, const char *fmt, ...);
           TPS_PUBLIC static void Debug(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void DebugBuffer(const char *func_name, const char *prefix, Buffer *buf);
 	  TPS_PUBLIC static void Audit(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Error(RA_Log_Level level, const char *func_name, const char *fmt, ...);
+	  TPS_PUBLIC static void SelfTestLog(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Debug(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  static void DebugBuffer(RA_Log_Level level, const char *func_name, const char *prefix, Buffer *buf);
           TPS_PUBLIC static void FlushAuditLogBuffer();
@@ -157,6 +159,7 @@ class RA
   private:
 	  static void AuditThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void ErrorThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
+	  static void SelfTestLogThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
           static void do_free(char *s);
   public:
@@ -263,6 +266,9 @@ class RA
           static const char *CFG_ERROR_LEVEL;
 	  static const char *CFG_ERROR_ENABLE;
 	  static const char *CFG_ERROR_FILENAME;
+	  static const char *CFG_SELFTEST_LEVEL;
+	  static const char *CFG_SELFTEST_ENABLE;
+	  static const char *CFG_SELFTEST_FILENAME;
 	  static const char *CFG_CHANNEL_SEC_LEVEL;
 	  static const char *CFG_CHANNEL_ENCRYPTION;
           static const char *CFG_AUDIT_BUFFER_SIZE;
@@ -270,9 +276,11 @@ class RA
           static const char *CFG_AUDIT_FILE_TYPE;
           static const char *CFG_DEBUG_FILE_TYPE;
           static const char *CFG_ERROR_FILE_TYPE;
+          static const char *CFG_SELFTEST_FILE_TYPE;
           static const char *CFG_AUDIT_PREFIX;
           static const char *CFG_DEBUG_PREFIX;
           static const char *CFG_ERROR_PREFIX;
+          static const char *CFG_SELFTEST_PREFIX;
 
 
       static const char *CFG_AUTHS_ENABLE;
@@ -305,12 +313,14 @@ class RA
           static PRLock *m_pod_lock;
           static PRLock *m_auth_lock;
           static PRLock *m_error_log_lock;
+          static PRLock *m_selftest_log_lock;
           static PRMonitor *m_audit_log_monitor;
           static PRLock *m_debug_log_lock;
           static PRLock *m_config_lock;
           static int m_audit_log_level;
           static int m_debug_log_level;
           static int m_error_log_level;
+          static int m_selftest_log_level;
           TPS_PUBLIC static bool m_audit_signed;
           TPS_PUBLIC static bool m_audit_enabled;
           static SECKEYPrivateKey *m_audit_signing_key;
