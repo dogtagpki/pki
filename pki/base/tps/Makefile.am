@@ -358,7 +358,10 @@ libtps_la_SOURCES =	src/main/Buffer.cpp                        \
 					src/processor/RA_Pin_Reset_Processor.cpp   \
 					src/processor/RA_Renew_Processor.cpp       \
 					src/processor/RA_Unblock_Processor.cpp     \
-					src/processor/RA_Format_Processor.cpp
+					src/processor/RA_Format_Processor.cpp      \
+					src/selftests/SelfTest.cpp                 \
+					src/selftests/TPSPresence.cpp              \
+					src/selftests/TPSValidity.cpp
 
 libtps_la_CPPFLAGS = $(AM_CPPFLAGS) @apr_inc@ @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
