@@ -57,11 +57,13 @@ extern "C"
 #include "main/RA_pblock.h"
 #include "main/LogFile.h"
 #include "main/RollingLogFile.h"
+#include "selftests/SelfTest.h"
 
 static ConfigStore *m_cfg = NULL;
 static LogFile* m_debug_log = (LogFile *)NULL; 
 static LogFile* m_error_log = (LogFile *)NULL; 
 static LogFile* m_audit_log = (LogFile *)NULL; 
+static LogFile* m_selftest_log = (LogFile *)NULL;
 
 static int tokendbInitialized = 0;
 static int tpsConfigured = 0;
@@ -75,6 +77,7 @@ PRLock *RA::m_verify_lock = NULL;
 PRLock *RA::m_auth_lock = NULL;
 PRLock *RA::m_debug_log_lock = NULL;
 PRLock *RA::m_error_log_lock = NULL;
+PRLock *RA::m_selftest_log_lock = NULL;
 PRLock *RA::m_config_lock = NULL;
 PRMonitor *RA::m_audit_log_monitor = NULL;
 bool RA::m_audit_enabled = false;
@@ -97,6 +100,7 @@ int RA::m_flush_interval = 5;
 int RA::m_audit_log_level = (int) LL_PER_SERVER;
 int RA::m_debug_log_level = (int) LL_PER_SERVER;
 int RA::m_error_log_level = (int) LL_PER_SERVER;
+int RA::m_selftest_log_level = (int) LL_PER_SERVER;
 int RA::m_caConns_len = 0;
 int RA::m_tksConns_len = 0;
 int RA::m_drmConns_len = 0;
@@ -135,6 +139,9 @@ const char *RA::CFG_AUDIT_SIGNING_CERT_NICK = "logging.audit.signedAuditCertNick
 const char *RA::CFG_ERROR_ENABLE = "logging.error.enable"; 
 const char *RA::CFG_ERROR_FILENAME = "logging.error.filename"; 
 const char *RA::CFG_ERROR_LEVEL = "logging.error.level";
+const char *RA::CFG_SELFTEST_ENABLE = "selftests.container.logger.enable";
+const char *RA::CFG_SELFTEST_FILENAME = "selftests.container.logger.fileName";
+const char *RA::CFG_SELFTEST_LEVEL = "selftests.container.logger.level";
 const char *RA::CFG_CHANNEL_SEC_LEVEL = "channel.securityLevel"; 
 const char *RA::CFG_CHANNEL_ENCRYPTION = "channel.encryption";
 const char *RA::CFG_APPLET_CARDMGR_INSTANCE_AID = "applet.aid.cardmgr_instance"; 
@@ -152,9 +159,11 @@ const char *RA::CFG_AUDIT_FLUSH_INTERVAL = "logging.audit.flush.interval";
 const char *RA::CFG_AUDIT_FILE_TYPE = "logging.audit.file.type";
 const char *RA::CFG_DEBUG_FILE_TYPE = "logging.debug.file.type";
 const char *RA::CFG_ERROR_FILE_TYPE = "logging.error.file.type";
+const char *RA::CFG_SELFTEST_FILE_TYPE = "selftests.container.logger.file.type";
 const char *RA::CFG_AUDIT_PREFIX = "logging.audit";
 const char *RA::CFG_ERROR_PREFIX = "logging.error";
 const char *RA::CFG_DEBUG_PREFIX = "logging.debug";
+const char *RA::CFG_SELFTEST_PREFIX = "selftests.container.logger";
 
 const char *RA::CFG_AUTHS_ENABLE="auth.enable";
 
@@ -373,6 +382,7 @@ TPS_PUBLIC int RA::Initialize(char *cfg_path, RA_Context *ctx)
 	m_debug_log_lock = PR_NewLock();
 	m_audit_log_monitor = PR_NewMonitor();
 	m_error_log_lock = PR_NewLock();
+	m_selftest_log_lock = PR_NewLock();
 	m_config_lock = PR_NewLock();
 	m_cfg = ConfigStore::CreateFromConfigFile(cfg_path);
     if( m_cfg == NULL ) {
@@ -398,6 +408,7 @@ TPS_PUBLIC int RA::Initialize(char *cfg_path, RA_Context *ctx)
         m_error_log_level = m_cfg->GetConfigAsInt(CFG_ERROR_LEVEL, (int) LL_PER_SERVER);
         m_audit_log_level = m_cfg->GetConfigAsInt(CFG_AUDIT_LEVEL, (int) LL_PER_SERVER);
         m_debug_log_level = m_cfg->GetConfigAsInt(CFG_DEBUG_LEVEL, (int) LL_PER_SERVER);
+        m_selftest_log_level = m_cfg->GetConfigAsInt(CFG_SELFTEST_LEVEL, (int) LL_PER_SERVER);
 
         // get events for audit signing
         m_signedAuditSelectedEvents = PL_strdup(m_cfg->GetConfigAsString(CFG_AUDIT_SELECTED_EVENTS, ""));
@@ -445,6 +456,20 @@ TPS_PUBLIC int RA::Initialize(char *cfg_path, RA_Context *ctx)
                     goto loser;
 
                 status = m_error_log->open();
+                if (status != PR_SUCCESS)
+                    goto loser;
+
+	}
+
+	if (m_cfg->GetConfigAsBool(CFG_SELFTEST_ENABLE, 0)) {
+                m_selftest_log = GetLogFile(m_cfg->GetConfigAsString(CFG_SELFTEST_FILE_TYPE, "LogFile"));
+                status = m_selftest_log->startup(ctx, CFG_SELFTEST_PREFIX,
+                             m_cfg->GetConfigAsString(CFG_SELFTEST_FILENAME, "/tmp/selftest.log"),
+                             false);
+                if (status != PR_SUCCESS)
+                    goto loser;
+
+                status = m_selftest_log->open();
                 if (status != PR_SUCCESS)
                     goto loser;
 
@@ -567,6 +592,7 @@ int RA::InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount) {
         RA::Debug( LL_PER_SERVER, "RA::InitializeInChild", 
             "Failed to initialize CA Connection, rc=%i", 
             (int)status);
+        goto loser;
     } 
     // initialize TKS connections
     status = InitializeHttpConnections("tks", &m_tksConns_len,
@@ -575,6 +601,7 @@ int RA::InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount) {
         RA::Debug( LL_PER_SERVER, "RA::InitializeInChild", 
             "Failed to initialize TKS Connection, rc=%i", 
             (int)status);
+        goto loser;
     } 
     // initialize DRM connections
     status = InitializeHttpConnections("drm", &m_drmConns_len,
@@ -583,6 +610,7 @@ int RA::InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount) {
         RA::Debug( LL_PER_SERVER, "RA::InitializeInChild", 
             "Failed to initialize DRM Connection, rc=%i", 
             (int)status);
+        goto loser;
     } 
 
     RA::Debug("RA::InitializeInChild", "nSignedAuditInitCount=%i",
@@ -605,6 +633,10 @@ int RA::InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount) {
      
     if (m_error_log != NULL) {
         m_error_log->child_init();
+    }
+
+    if (m_selftest_log != NULL) {
+        m_selftest_log->child_init();
     }
 
     if (m_audit_log != NULL) {
@@ -809,6 +841,13 @@ TPS_PUBLIC int RA::Shutdown()
         m_error_log = NULL;
     }
 
+    /* close self test file if opened */
+    if( m_selftest_log != NULL ) {
+        m_selftest_log->shutdown();
+        delete m_selftest_log;
+        m_selftest_log = NULL;
+    }
+
     if( m_verify_lock != NULL ) {
         PR_DestroyLock( m_verify_lock );
         m_verify_lock = NULL;
@@ -827,6 +866,11 @@ TPS_PUBLIC int RA::Shutdown()
     if( m_error_log_lock != NULL ) {
         PR_DestroyLock( m_error_log_lock );
         m_error_log_lock = NULL;
+    }
+
+    if( m_selftest_log_lock != NULL ) {
+        PR_DestroyLock( m_selftest_log_lock );
+        m_selftest_log_lock = NULL;
     }
 
     if( m_config_lock != NULL ) {
@@ -2141,6 +2185,51 @@ void RA::ErrorThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_error_log_lock);
 }
 
+TPS_PUBLIC void RA::SelfTestLog (const char *func_name, const char *fmt, ...)
+{ 
+	va_list ap; 
+	va_start(ap, fmt); 
+	RA::SelfTestLogThis(LL_PER_SERVER, func_name, fmt, ap);
+	va_end(ap); 
+	va_start(ap, fmt); 
+	RA::DebugThis(LL_PER_SERVER, func_name, fmt, ap);
+	va_end(ap); 
+}
+
+TPS_PUBLIC void RA::SelfTestLog (RA_Log_Level level, const char *func_name, const char *fmt, ...)
+{ 
+	va_list ap; 
+	va_start(ap, fmt); 
+	RA::SelfTestLogThis(level, func_name, fmt, ap);
+	va_end(ap); 
+	va_start(ap, fmt); 
+	RA::DebugThis(level, func_name, fmt, ap);
+	va_end(ap); 
+}
+
+void RA::SelfTestLogThis (RA_Log_Level level, const char *func_name, const char *fmt, va_list ap)
+{ 
+	PRTime now;
+        const char* time_fmt = "%Y-%m-%d %H:%M:%S";
+        char datetime[1024]; 
+        PRExplodedTime time;
+	PRThread *ct;
+
+ 	if ((m_selftest_log == NULL) || (!m_selftest_log->isOpen()))
+		return;
+	if ((int) level >= m_selftest_log_level)
+		return;
+	PR_Lock(m_selftest_log_lock);
+	now = PR_Now();
+	ct = PR_GetCurrentThread();
+        PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
+	PR_FormatTimeUSEnglish(datetime, 1024, time_fmt, &time);
+	m_selftest_log->printf("[%s] %x %s - ", datetime, ct, func_name);
+	m_selftest_log->vfprintf(fmt, ap); 
+	m_selftest_log->write("\n");
+	PR_Unlock(m_selftest_log_lock);
+}
+
 PublisherEntry *RA::getPublisherById(const char *publisher_id)
 {
 
@@ -2428,35 +2517,9 @@ int RA::InitializeHttpConnections(const char *id, int *len, HttpConnection **con
         //     specified certificate:
         if( ( clientnickname != NULL ) &&
             ( PL_strcmp( clientnickname, "" ) != 0 ) ) {
-            cert = CERT_FindCertByNickname( handle,
-                                            (char *) clientnickname );
-            if( cert == NULL ) {
-                RA::Error( LL_PER_SERVER,
-                           "RA::InitializeHttpConnections", 
-                           "A %s certificate nicknamed \"%s\" "
-                           "could NOT be found in the certificate "
-                           "database for connection %d!",
-                           id,
-                           clientnickname,
-                           i );
-                rc = -2;
-                if (cinfo != NULL) { 
-                    delete cinfo;
-                    cinfo = NULL;
-                }
-                goto loser;
-            } else {
-                RA::Debug( LL_PER_CONNECTION,
-                           "RA::InitializeHttpConnections", 
-                           "A %s certificate nicknamed \"%s\" "
-                           "was found in the certificate "
-                           "database for connection %d.",
-                           id,
-                           clientnickname,
-                           i );
-                CERT_DestroyCertificate( cert );
-                cert = NULL;
-            }
+            SelfTest::Initialize(m_cfg);
+            rc = SelfTest::runStartUpSelfTests(clientnickname);
+            if (rc != 0) goto loser;
         } else {
                 RA::Error( LL_PER_SERVER,
                            "RA::InitializeHttpConnections", 
