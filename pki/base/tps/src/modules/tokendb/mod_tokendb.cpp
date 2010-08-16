@@ -70,6 +70,7 @@ extern "C"
 #include "engine/RA.h"
 #include "tus/tus_db.h"
 #include "processor/RA_Processor.h"
+#include "selftests/SelfTest.h"
 
 extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
                                             conn_rec *c, request_rec *r,
@@ -214,6 +215,8 @@ static char *searchUserTemplate              = NULL;
 static char *newUserTemplate                 = NULL;
 static char *userDeleteTemplate              = NULL;
 static char *auditAdminTemplate              = NULL;
+static char *selfTestTemplate                = NULL;
+static char *selfTestResultsTemplate         = NULL;
 static char *agentSelectConfigTemplate       = NULL;
 static char *selectConfigTemplate            = NULL;
 static char *agentViewConfigTemplate         = NULL;
@@ -2321,6 +2324,8 @@ int get_tus_config( char *name )
 
     get_cfg_string("tokendb.allowedTransitions=", transitionList);
     get_cfg_string("tokendb.auditAdminTemplate=", auditAdminTemplate);
+    get_cfg_string("tokendb.selfTestTemplate=", selfTestTemplate);
+    get_cfg_string("tokendb.selfTestResultsTemplate=", selfTestResultsTemplate);
     get_cfg_string("tokendb.selectConfigTemplate=", selectConfigTemplate);
     get_cfg_string("tokendb.agentSelectConfigTemplate=", agentSelectConfigTemplate);
     get_cfg_string("tokendb.editConfigTemplate=", editConfigTemplate);
@@ -7157,6 +7162,83 @@ mod_tokendb_handler( request_rec *rq )
 
         ap_internal_redirect_handler(injection, rq);
         return OK;
+    } else if ( PL_strstr( query, "op=self_test") ) {
+        tokendbDebug( "authorization for op=self_test\n" );
+
+        if (!is_admin )  {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "self_test", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "self_test", "Success", "Tokendb user authorization");
+
+        PR_snprintf (injection, MAX_INJECTION_SIZE,
+             "%s%s%s%s%s%s%s%s%d%s%s%d%s", JS_START,
+             "var uriBase = \"", uri, "\";\n",
+             "var userid = \"", userid, "\";\n",
+             "var enabled = ", SelfTest::isOnDemandEnabled(), ";\n",
+             "var critical = ", SelfTest::isOnDemandCritical(), ";\n");
+
+        if (SelfTest::nTests > 0)
+            PL_strcat(injection, "var test_list = [");
+        for (int i = 0; i < SelfTest::nTests; i++) {
+            RA::Debug( "mod_tokendb::mod_tokendb_handler", "test name: %s", SelfTest::TEST_NAMES[i]);
+            if (i > 0)
+                PL_strcat(injection, ", ");
+            PL_strcat(injection, "\"");
+            PL_strcat(injection, SelfTest::TEST_NAMES[i]);
+            PL_strcat(injection, "\"");
+        }
+        if (SelfTest::nTests > 0)
+            PL_strcat(injection, "];\n");
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
+        buf = getData(selfTestTemplate, injection);
+    } else if ( PL_strstr( query, "op=run_self_test" ) ) {
+        tokendbDebug( "authorization for run_self_test\n" );
+
+        if( ! is_admin ) {
+            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "run_self_test", "Failure", "Tokendb user authorization");
+            error_out("Authorization Failure", "Failed to authorize request");
+            do_free(buf);
+            do_free(uri);
+            do_free(query);
+
+            return DONE;
+        }
+        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "run_self_test", "Success", "Tokendb user authorization");
+
+        rc = SelfTest::runOnDemandSelfTests();
+
+        PR_snprintf( injection, MAX_INJECTION_SIZE,
+                     "%s%s%s%s%s%s%s%s%d%s%s%d%s", JS_START,
+                     "var uriBase = \"", uri, "\";\n",
+                     "var userid = \"", userid, "\";\n",
+                     "var enabled = ", SelfTest::isOnDemandEnabled(), ";\n",
+                     "var result = \"", rc, "\";\n");
+
+        if (SelfTest::nTests > 0)
+            PL_strcat(injection, "var test_list = [");
+        for (int i = 0; i < SelfTest::nTests; i++) {
+            RA::Debug( "mod_tokendb::mod_tokendb_handler", "test name: %s", SelfTest::TEST_NAMES[i]);
+            if (i > 0)
+                PL_strcat(injection, ", ");
+            PL_strcat(injection, "\"");
+            PL_strcat(injection, SelfTest::TEST_NAMES[i]);
+            PL_strcat(injection, "\"");
+        }
+        if (SelfTest::nTests > 0)
+            PL_strcat(injection, "];\n");
+
+        add_authorization_data(userid, is_admin, is_operator, is_agent, injection);
+        PL_strcat(injection, JS_STOP);
+
+        buf = getData( selfTestResultsTemplate, injection );
     } else if( ( PL_strstr( query, "op=agent_select_config" ) ) ) {
         tokendbDebug( "authorization for op=agent_select_config\n" );
         if (! is_agent) {
