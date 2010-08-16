@@ -109,37 +109,44 @@ document.write("</tr></table>");
     <td><i>Tokens</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=search_admin">List/Search Tokens</a></td>
+    <td>&bull;&nbsp;<a href="tus?op=search_admin">List/Search Tokens</a></td>
   </tr>
    <tr>
-    <td><li><a href="tus?op=new">Add New Token</a></td>
+    <td>&bull;&nbsp;<a href="tus?op=new">Add New Token</a></td>
   </tr>
   <tr><td>&nbsp;</td></tr>
   <tr> 
     <td><i>Users</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=add_user?tid=&uid=">Add User</a></td>
+    <td>&bull;&nbsp;<a href="tus?op=add_user?tid=&uid=">Add User</a></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=view_users">List Users</a></td>
+    <td>&bull;&nbsp;<a href="tus?op=view_users">List Users</a></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=search_users">Search Users</a></td>
+    <td>&bull;&nbsp;<a href="tus?op=search_users">Search Users</a></td>
   </tr>
   <tr><td>&nbsp;</td></tr>
    <tr>
     <td><i>Activities</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=search_activity_admin">List/Search Activities</a></td>
+    <td>&bull;&nbsp;<a href="tus?op=search_activity_admin">List/Search Activities</a></td>
+  </tr>
+  <tr><td>&nbsp;</td></tr>
+   <tr>
+    <td><i>Self Tests</i></td>
+  </tr>
+  <tr>
+    <td>&bull;&nbsp;<a href="tus?op=self_test">Run Self Tests</a></td>
   </tr>
   <tr><td>&nbsp;</td></tr>
    <tr>
     <td><i>Auditing</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=audit_admin">Configure Signed Audit</a></td>
+    <td>&bull;&nbsp;<a href="tus?op=audit_admin">Configure Signed Audit</a></td>
   </tr>
   <tr><td>&nbsp;</td></tr>
   <tr>
@@ -149,7 +156,7 @@ document.write("</tr></table>");
   <!--
     var target_array = target_list.split(","); 
     for (var i=0; i< target_array.length ; i++) {
-      document.write("<tr><td><li><a href=\"tus?op=select_config_parameter&type=" + target_array[i] + "\">" +
+      document.write("<tr><td>&bull;&nbsp;<a href=\"tus?op=select_config_parameter&type=" + target_array[i] + "\">" +
           target_array[i].replace(/_/g, " ") + "</a></td> </tr>");
     }
   //-->
@@ -159,7 +166,7 @@ document.write("</tr></table>");
         <input TYPE=hidden NAME=query VALUE="op=edit_config_parameter">
         <input TYPE=HIDDEN NAME=ptype VALUE="Generals">
         <input TYPE=HIDDEN NAME=pname VALUE="General">
-        <td><li><a href="javascript:submitEditForm(this)">General</a></td>
+        <td>&bull;&nbsp;<a href="javascript:submitEditForm(this)">General</a></td>
     </form>
   </tr>
 </table>

@@ -103,21 +103,21 @@ document.write("</tr></table>");
     <td><i>Tokens</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=search&top=operator">List/Search Tokens</a></td>
+    <td>&bull;&nbsp;<a href="tus?op=search&top=operator">List/Search Tokens</a></td>
   </tr>
   <tr><td>&nbsp;</td></tr>
   <tr>
     <td><i>Certificates</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=search_certificate&top=operator">List/Search Certificates</a></td>
+    <td>&bull;&nbsp;<a href="tus?op=search_certificate&top=operator">List/Search Certificates</a></td>
   </tr>
   <tr><td>&nbsp;</td></tr>
   <tr>
     <td><i>Activities</i></td>
   </tr>
   <tr>
-    <td><li><a href="tus?op=search_activity&top=operator">List/Search Activities</a></td>
+    <td>&bull;&nbsp;<a href="tus?op=search_activity&top=operator">List/Search Activities</a></td>
   </tr>
   <tr>
     <td></td>
