@@ -229,7 +229,10 @@ am_libtps_la_OBJECTS = src/main/libtps_la-Buffer.lo \
 	src/processor/libtps_la-RA_Pin_Reset_Processor.lo \
 	src/processor/libtps_la-RA_Renew_Processor.lo \
 	src/processor/libtps_la-RA_Unblock_Processor.lo \
-	src/processor/libtps_la-RA_Format_Processor.lo
+	src/processor/libtps_la-RA_Format_Processor.lo \
+	src/selftests/libtps_la-SelfTest.lo \
+	src/selftests/libtps_la-TPSPresence.lo \
+	src/selftests/libtps_la-TPSValidity.lo
 libtps_la_OBJECTS = $(am_libtps_la_OBJECTS)
 libtps_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -438,7 +441,6 @@ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
-PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
@@ -832,7 +834,10 @@ libtps_la_SOURCES = src/main/Buffer.cpp                        \
 					src/processor/RA_Pin_Reset_Processor.cpp   \
 					src/processor/RA_Renew_Processor.cpp       \
 					src/processor/RA_Unblock_Processor.cpp     \
-					src/processor/RA_Format_Processor.cpp
+					src/processor/RA_Format_Processor.cpp      \
+					src/selftests/SelfTest.cpp                 \
+					src/selftests/TPSPresence.cpp              \
+					src/selftests/TPSValidity.cpp
 
 libtps_la_CPPFLAGS = $(AM_CPPFLAGS) @apr_inc@ @ldapsdk_inc@ @svrcore_inc@ \
 	@sasl_inc@ @nss_inc@ @nspr_inc@
@@ -1330,6 +1335,18 @@ src/processor/libtps_la-RA_Unblock_Processor.lo:  \
 src/processor/libtps_la-RA_Format_Processor.lo:  \
 	src/processor/$(am__dirstamp) \
 	src/processor/$(DEPDIR)/$(am__dirstamp)
+src/selftests/$(am__dirstamp):
+	@$(MKDIR_P) src/selftests
+	@: > src/selftests/$(am__dirstamp)
+src/selftests/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/selftests/$(DEPDIR)
+	@: > src/selftests/$(DEPDIR)/$(am__dirstamp)
+src/selftests/libtps_la-SelfTest.lo: src/selftests/$(am__dirstamp) \
+	src/selftests/$(DEPDIR)/$(am__dirstamp)
+src/selftests/libtps_la-TPSPresence.lo: src/selftests/$(am__dirstamp) \
+	src/selftests/$(DEPDIR)/$(am__dirstamp)
+src/selftests/libtps_la-TPSValidity.lo: src/selftests/$(am__dirstamp) \
+	src/selftests/$(DEPDIR)/$(am__dirstamp)
 libtps.la: $(libtps_la_OBJECTS) $(libtps_la_DEPENDENCIES) 
 	$(libtps_la_LINK) -rpath $(libdir) $(libtps_la_OBJECTS) $(libtps_la_LIBADD) $(LIBS)
 src/modules/tokendb/$(am__dirstamp):
@@ -2155,6 +2172,12 @@ mostlyclean-compile:
 	-rm -f src/processor/libtps_la-RA_Renew_Processor.lo
 	-rm -f src/processor/libtps_la-RA_Unblock_Processor.$(OBJEXT)
 	-rm -f src/processor/libtps_la-RA_Unblock_Processor.lo
+	-rm -f src/selftests/libtps_la-SelfTest.$(OBJEXT)
+	-rm -f src/selftests/libtps_la-SelfTest.lo
+	-rm -f src/selftests/libtps_la-TPSPresence.$(OBJEXT)
+	-rm -f src/selftests/libtps_la-TPSPresence.lo
+	-rm -f src/selftests/libtps_la-TPSValidity.$(OBJEXT)
+	-rm -f src/selftests/libtps_la-TPSValidity.lo
 	-rm -f src/tus/libtokendb_la-tus_db.$(OBJEXT)
 	-rm -f src/tus/libtokendb_la-tus_db.lo
 	-rm -f tools/raclient/tpsclient-RA_Client.$(OBJEXT)
@@ -2301,6 +2324,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/processor/$(DEPDIR)/libtps_la-RA_Processor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/processor/$(DEPDIR)/libtps_la-RA_Renew_Processor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/processor/$(DEPDIR)/libtps_la-RA_Unblock_Processor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-SelfTest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-TPSPresence.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-TPSValidity.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/tus/$(DEPDIR)/libtokendb_la-tus_db.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tools/raclient/$(DEPDIR)/tpsclient-RA_Client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tools/raclient/$(DEPDIR)/tpsclient-RA_Conn.Po@am__quote@
@@ -2948,6 +2974,27 @@ src/processor/libtps_la-RA_Format_Processor.lo: src/processor/RA_Format_Processo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/processor/RA_Format_Processor.cpp' object='src/processor/libtps_la-RA_Format_Processor.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/processor/libtps_la-RA_Format_Processor.lo `test -f 'src/processor/RA_Format_Processor.cpp' || echo '$(srcdir)/'`src/processor/RA_Format_Processor.cpp
+
+src/selftests/libtps_la-SelfTest.lo: src/selftests/SelfTest.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/selftests/libtps_la-SelfTest.lo -MD -MP -MF src/selftests/$(DEPDIR)/libtps_la-SelfTest.Tpo -c -o src/selftests/libtps_la-SelfTest.lo `test -f 'src/selftests/SelfTest.cpp' || echo '$(srcdir)/'`src/selftests/SelfTest.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/selftests/$(DEPDIR)/libtps_la-SelfTest.Tpo src/selftests/$(DEPDIR)/libtps_la-SelfTest.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/selftests/SelfTest.cpp' object='src/selftests/libtps_la-SelfTest.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/selftests/libtps_la-SelfTest.lo `test -f 'src/selftests/SelfTest.cpp' || echo '$(srcdir)/'`src/selftests/SelfTest.cpp
+
+src/selftests/libtps_la-TPSPresence.lo: src/selftests/TPSPresence.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/selftests/libtps_la-TPSPresence.lo -MD -MP -MF src/selftests/$(DEPDIR)/libtps_la-TPSPresence.Tpo -c -o src/selftests/libtps_la-TPSPresence.lo `test -f 'src/selftests/TPSPresence.cpp' || echo '$(srcdir)/'`src/selftests/TPSPresence.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/selftests/$(DEPDIR)/libtps_la-TPSPresence.Tpo src/selftests/$(DEPDIR)/libtps_la-TPSPresence.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/selftests/TPSPresence.cpp' object='src/selftests/libtps_la-TPSPresence.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/selftests/libtps_la-TPSPresence.lo `test -f 'src/selftests/TPSPresence.cpp' || echo '$(srcdir)/'`src/selftests/TPSPresence.cpp
+
+src/selftests/libtps_la-TPSValidity.lo: src/selftests/TPSValidity.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/selftests/libtps_la-TPSValidity.lo -MD -MP -MF src/selftests/$(DEPDIR)/libtps_la-TPSValidity.Tpo -c -o src/selftests/libtps_la-TPSValidity.lo `test -f 'src/selftests/TPSValidity.cpp' || echo '$(srcdir)/'`src/selftests/TPSValidity.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/selftests/$(DEPDIR)/libtps_la-TPSValidity.Tpo src/selftests/$(DEPDIR)/libtps_la-TPSValidity.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/selftests/TPSValidity.cpp' object='src/selftests/libtps_la-TPSValidity.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/selftests/libtps_la-TPSValidity.lo `test -f 'src/selftests/TPSValidity.cpp' || echo '$(srcdir)/'`src/selftests/TPSValidity.cpp
 
 src/modules/tokendb/mod_tokendb_la-mod_tokendb.lo: src/modules/tokendb/mod_tokendb.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mod_tokendb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/modules/tokendb/mod_tokendb_la-mod_tokendb.lo -MD -MP -MF src/modules/tokendb/$(DEPDIR)/mod_tokendb_la-mod_tokendb.Tpo -c -o src/modules/tokendb/mod_tokendb_la-mod_tokendb.lo `test -f 'src/modules/tokendb/mod_tokendb.cpp' || echo '$(srcdir)/'`src/modules/tokendb/mod_tokendb.cpp
@@ -3721,6 +3768,7 @@ clean-libtool:
 	-rm -rf src/modules/tps/.libs src/modules/tps/_libs
 	-rm -rf src/msg/.libs src/msg/_libs
 	-rm -rf src/processor/.libs src/processor/_libs
+	-rm -rf src/selftests/.libs src/selftests/_libs
 	-rm -rf src/tus/.libs src/tus/_libs
 
 distclean-libtool:
@@ -4416,6 +4464,8 @@ distclean-generic:
 	-rm -f src/msg/$(am__dirstamp)
 	-rm -f src/processor/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/processor/$(am__dirstamp)
+	-rm -f src/selftests/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/selftests/$(am__dirstamp)
 	-rm -f src/tus/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/tus/$(am__dirstamp)
 	-rm -f tools/raclient/$(DEPDIR)/$(am__dirstamp)
@@ -4432,7 +4482,7 @@ clean-am: clean-apache_modulesLTLIBRARIES clean-generic \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf src/apdu/$(DEPDIR) src/authentication/$(DEPDIR) src/channel/$(DEPDIR) src/cms/$(DEPDIR) src/engine/$(DEPDIR) src/httpClient/$(DEPDIR) src/main/$(DEPDIR) src/modules/tokendb/$(DEPDIR) src/modules/tps/$(DEPDIR) src/msg/$(DEPDIR) src/processor/$(DEPDIR) src/tus/$(DEPDIR) tools/raclient/$(DEPDIR)
+	-rm -rf src/apdu/$(DEPDIR) src/authentication/$(DEPDIR) src/channel/$(DEPDIR) src/cms/$(DEPDIR) src/engine/$(DEPDIR) src/httpClient/$(DEPDIR) src/main/$(DEPDIR) src/modules/tokendb/$(DEPDIR) src/modules/tps/$(DEPDIR) src/msg/$(DEPDIR) src/processor/$(DEPDIR) src/selftests/$(DEPDIR) src/tus/$(DEPDIR) tools/raclient/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -4495,7 +4545,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf src/apdu/$(DEPDIR) src/authentication/$(DEPDIR) src/channel/$(DEPDIR) src/cms/$(DEPDIR) src/engine/$(DEPDIR) src/httpClient/$(DEPDIR) src/main/$(DEPDIR) src/modules/tokendb/$(DEPDIR) src/modules/tps/$(DEPDIR) src/msg/$(DEPDIR) src/processor/$(DEPDIR) src/tus/$(DEPDIR) tools/raclient/$(DEPDIR)
+	-rm -rf src/apdu/$(DEPDIR) src/authentication/$(DEPDIR) src/channel/$(DEPDIR) src/cms/$(DEPDIR) src/engine/$(DEPDIR) src/httpClient/$(DEPDIR) src/main/$(DEPDIR) src/modules/tokendb/$(DEPDIR) src/modules/tps/$(DEPDIR) src/msg/$(DEPDIR) src/processor/$(DEPDIR) src/selftests/$(DEPDIR) src/tus/$(DEPDIR) tools/raclient/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
