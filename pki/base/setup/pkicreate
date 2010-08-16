@@ -3820,7 +3820,8 @@ sub process_pki_selinux_setup()
                 "/var/run/$pki_instance_name\\.pid", "f");
         }
         emit("Restorecon file context for /var/run\n");
-        system("$restorecon -F -R /var/run");
+        system("$restorecon -F -R /var/run/$pki_instance_name\\.pid");
+        system("$restorecon -F -R /var/run/pki");
     }
 
     # set file context for $log_path
