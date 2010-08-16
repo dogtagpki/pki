@@ -107,7 +107,6 @@ int SelfTest::runStartUpSelfTests (const char *nickname)
     }
     if (TPSValidity::isStartupEnabled()) {
         rc = TPSValidity::runSelfTest(nickname, cert);
-rc = 4;
     }
     if (cert != 0) {
         CERT_DestroyCertificate (cert);
@@ -144,7 +143,6 @@ int SelfTest::runOnDemandSelfTests ()
     }
     if (TPSValidity::isOnDemandEnabled()) {
         rc = TPSValidity::runSelfTest();
-rc = 5;
     }
     if (rc != 0 && TPSValidity::isOnDemandCritical()) {
         if (rc > 0) rc *= -1;
