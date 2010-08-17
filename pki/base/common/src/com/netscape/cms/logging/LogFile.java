@@ -486,7 +486,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         if( !Utils.isNT() ) {
             // Always insure that a physical file exists!
             Utils.exec( "touch " + mFileName );
-            Utils.exec( "chmod 00660 " + mFileName );
+            Utils.exec( "chmod 00640 " + mFileName );
         }
         mFile = new File(mFileName);
         mBufferSize = bufferSize;
@@ -729,7 +729,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             mBytesWritten = (int) out.length();
             if( !Utils.isNT() ) {
                 try {
-                    Utils.exec( "chmod 00660 " + mFile.getCanonicalPath() );
+                    Utils.exec( "chmod 00640 " + mFile.getCanonicalPath() );
                 } catch( IOException e ) {
                     CMS.debug( "Unable to change file permissions on "
                              + mFile.toString() );

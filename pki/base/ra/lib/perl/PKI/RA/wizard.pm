@@ -107,7 +107,7 @@ if( $^O ne "linux" ) {
 # create cfg debug log
 my $logfile = $config->get("service.instanceDir") .  "/logs/debug";
 system( "touch $logfile" );
-system( "chmod 00660 $logfile" );
+system( "chmod 00640 $logfile" );
 open( DEBUG, ">>" . $logfile ) ||
 warn( "Could not open '" . $logfile . "':  $!" );
 

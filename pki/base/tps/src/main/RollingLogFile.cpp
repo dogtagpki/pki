@@ -212,7 +212,7 @@ void RollingLogFile::rotate() {
     }
 
     /* open the new file */
-    m_fd = PR_Open(m_fname,  PR_RDWR | PR_CREATE_FILE | PR_TRUNCATE, 440|220);
+    m_fd = PR_Open(m_fname,  PR_RDWR | PR_CREATE_FILE | PR_TRUNCATE, 440|200);
     set_bytes_written(0);
     if (m_fd == NULL) {
         m_ctx->LogError( "RollingLogFile::rotate",

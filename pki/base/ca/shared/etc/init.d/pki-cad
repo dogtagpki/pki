@@ -1385,6 +1385,27 @@ start_instance()
 			PKI_SECURE_PORT="<Port Undefined>"
 		fi
 
+                # Set permissions of log files
+                pki_logs_directory=${PKI_INSTANCE_PATH}/logs
+                pki_signedAudit="${pki_logs_directory}/signedAudit"
+                for file in ${pki_logs_directory}/*; do
+                    if  [  ! -d "${file}" ]; then
+                            chmod 00640 ${file}
+                            chgrp $TOMCAT_GROUP ${file}
+                            chown $TOMCAT_USER ${file}
+                    fi
+                done
+
+                # Set permissions of signedAudit log files
+                # do not set the group id, this will be set by the sgid on the directory
+                pki_signedAudit_files=`ls -1A ${pki_signedAudit} | wc -l`
+                if  [ ${pki_signedAudit_files} -gt 0 ]; then
+                    for file in ${pki_signedAudit}/*; do
+                        chmod 00640 ${file}
+                        chown $TOMCAT_USER ${file}
+                    done
+                fi
+
 		# ignore "status" return codes
 		echo
 		display_instance_status

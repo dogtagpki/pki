@@ -234,7 +234,7 @@ public class RollingLogFile extends LogFile {
                 // Make certain that the backup file has
                 // the correct permissions.
                 if( !Utils.isNT() ) {
-                    Utils.exec( "chmod 00660 " + backupFile.getCanonicalPath() );
+                    Utils.exec( "chmod 00640 " + backupFile.getCanonicalPath() );
                 }
 
                 try {
@@ -246,7 +246,7 @@ public class RollingLogFile extends LogFile {
                     // Make certain that the original file retains
                     // the correct permissions.
                     if( !Utils.isNT() ) {
-                        Utils.exec( "chmod 00660 " + mFile.getCanonicalPath() );
+                        Utils.exec( "chmod 00640 " + mFile.getCanonicalPath() );
                     }
                 } catch ( FileNotFoundException e ) {
                     CMS.debug( "Unable to zeroize "

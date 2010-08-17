@@ -125,7 +125,7 @@ int LogFile::open()
     PRFileInfo info;
     PR_EnterMonitor(m_monitor);
     if (m_fd == NULL) {
-        m_fd = PR_Open(m_fname,  PR_RDWR | PR_CREATE_FILE | PR_APPEND, 440|220);
+        m_fd = PR_Open(m_fname,  PR_RDWR | PR_CREATE_FILE | PR_APPEND, 440|200);
         if (m_fd == NULL) {
             m_ctx->LogError( "LogFile::open",
                       __LINE__,

@@ -317,7 +317,7 @@ public class Debug
                     if( !Utils.isNT() ) {
                         // Always insure that a physical file exists!
                         Utils.exec( "touch " + filename );
-                        Utils.exec( "chmod 00660 " + filename );
+                        Utils.exec( "chmod 00640 " + filename );
                     }
                     OutputStream os = new FileOutputStream(filename, append);
                     mOut = new PrintStream(os, true);  /* true == autoflush */
