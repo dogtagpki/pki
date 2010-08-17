@@ -212,7 +212,6 @@ implements CertAttrSet {
         DerOutputStream tmp = new DerOutputStream();
         if (extensionValue == null) {
 	  extensionId = PKIXExtensions.PolicyConstraints_Id;
-	  critical = false;
 	  encodeThis();
 	}
 	super.encode(tmp);
