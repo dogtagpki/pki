@@ -71,6 +71,7 @@ class TPSValidity : public SelfTest
     static bool onDemandCritical;
     static int  initialized;
     static char *nickname;
+    static const char *UNINITIALIZED_NICKNAME;
     static const char *NICKNAME_NAME;
     static const char *CRITICAL_TEST_NAME;
 };

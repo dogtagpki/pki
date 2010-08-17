@@ -57,6 +57,7 @@ bool TPSPresence::onDemandEnabled = false;
 bool TPSPresence::startupCritical = false;
 bool TPSPresence::onDemandCritical = false;
 char *TPSPresence::nickname = 0;
+const char *TPSPresence::UNINITIALIZED_NICKNAME = "[HSM_LABEL][NICKNAME]";
 const char *TPSPresence::NICKNAME_NAME = "selftests.plugin.TPSPresence.nickname";
 const char *TPSPresence::CRITICAL_TEST_NAME = "TPSPresence:critical";
 const char *TPSPresence::TEST_NAME = "TPSPresence";
@@ -94,9 +95,17 @@ void TPSPresence::Initialize (ConfigStore *cfg)
         }
         char* n = (char*)(cfg->GetConfigAsString(TPSPresence::NICKNAME_NAME));
         if (n != 0 && PL_strlen(n) > 0) {
+            if (PL_strstr (n, TPSPresence::UNINITIALIZED_NICKNAME) != NULL) {
+                TPSPresence::initialized = 0;
+            } else {
+                TPSPresence::nickname = n;
+            }
+
             TPSPresence::nickname = n;
         }
-        TPSPresence::initialized = 2;
+        if (TPSPresence::initialized == 1) {
+            TPSPresence::initialized = 2;
+        }
     }
     RA::SelfTestLog("TPSPresence::Initialize", "%s", ((initialized==2)?"successfully completed":"failed"));
 }
@@ -112,11 +121,15 @@ void TPSPresence::Initialize (ConfigStore *cfg)
 int TPSPresence::runSelfTest ()
 {
     int rc = 0;
-    if (TPSPresence::nickname != 0 && PL_strlen(TPSPresence::nickname) > 0) {
-        rc = TPSPresence::runSelfTest (TPSPresence::nickname);
-    } else {
-        rc = -3;
+
+    if (TPSPresence::initialized == 2) {
+        if (TPSPresence::nickname != 0 && PL_strlen(TPSPresence::nickname) > 0) {
+            rc = TPSPresence::runSelfTest (TPSPresence::nickname);
+        } else {
+            rc = -3;
+        }
     }
+
     return rc;
 }
 
@@ -126,21 +139,23 @@ int TPSPresence::runSelfTest (const char *nick_name)
     CERTCertDBHandle *handle = 0;
     CERTCertificate *cert = 0;
 
-    if (nick_name != 0 && PL_strlen(nick_name) > 0) {
-        handle = CERT_GetDefaultCertDB();
-        if (handle != 0) {
-            cert = CERT_FindCertByNickname( handle, (char *) nick_name);
-            if (cert != 0) {
-                CERT_DestroyCertificate (cert);
-                cert = 0;
+    if (TPSPresence::initialized == 2) {
+        if (nick_name != 0 && PL_strlen(nick_name) > 0) {
+            handle = CERT_GetDefaultCertDB();
+            if (handle != 0) {
+                cert = CERT_FindCertByNickname( handle, (char *) nick_name);
+                if (cert != 0) {
+                    CERT_DestroyCertificate (cert);
+                    cert = 0;
+                } else {
+                    rc = 2;
+                }
             } else {
-                rc = 2;
+                rc = -1;
             }
         } else {
-            rc = -1;
+            rc = TPSPresence::runSelfTest ();
         }
-    } else {
-        rc = TPSPresence::runSelfTest ();
     }
 
     return rc;
@@ -151,14 +166,16 @@ int TPSPresence::runSelfTest (const char *nick_name, CERTCertificate **cert)
     int rc = 0;
     CERTCertDBHandle *handle = 0;
 
-    handle = CERT_GetDefaultCertDB();
-    if (handle != 0) {
-        *cert = CERT_FindCertByNickname( handle, (char *) nick_name);
-        if (*cert == NULL) {
-            rc = 2;
+    if (TPSPresence::initialized == 2) {
+        handle = CERT_GetDefaultCertDB();
+        if (handle != 0) {
+            *cert = CERT_FindCertByNickname( handle, (char *) nick_name);
+            if (*cert == NULL) {
+                rc = 2;
+            }
+        } else {
+            rc = 1;
         }
-    } else {
-        rc = 1;
     }
 
     return rc;

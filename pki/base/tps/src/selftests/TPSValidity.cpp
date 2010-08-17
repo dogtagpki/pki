@@ -57,6 +57,7 @@ bool TPSValidity::onDemandEnabled = false;
 bool TPSValidity::startupCritical = false;
 bool TPSValidity::onDemandCritical = false;
 char *TPSValidity::nickname = 0;
+const char *TPSValidity::UNINITIALIZED_NICKNAME = "[HSM_LABEL][NICKNAME]";
 const char *TPSValidity::NICKNAME_NAME = "selftests.plugin.TPSValidity.nickname";
 const char *TPSValidity::CRITICAL_TEST_NAME = "TPSValidity:critical";
 const char *TPSValidity::TEST_NAME = "TPSValidity";
@@ -95,9 +96,15 @@ void TPSValidity::Initialize (ConfigStore *cfg)
         }
         char* n = (char*)(cfg->GetConfigAsString(TPSValidity::NICKNAME_NAME));
         if (n != NULL && PL_strlen(n) > 0) {
-            TPSValidity::nickname = n;
+            if (PL_strstr (n, TPSValidity::UNINITIALIZED_NICKNAME) != NULL) {
+                TPSValidity::initialized = 0;
+            } else {
+                TPSValidity::nickname = n;
+            }
         }
-        TPSValidity::initialized = 2;
+        if (TPSValidity::initialized == 1) {
+            TPSValidity::initialized = 2;
+        }
     }
     RA::SelfTestLog("TPSValidity::Initialize", "%s", ((initialized==2)?"successfully completed":"failed"));
 }
@@ -113,11 +120,15 @@ void TPSValidity::Initialize (ConfigStore *cfg)
 int TPSValidity::runSelfTest ()
 {
     int rc = 0;
-    if (TPSValidity::nickname != NULL && PL_strlen(TPSValidity::nickname) > 0) {
-        rc = TPSValidity::runSelfTest (TPSValidity::nickname);
-    } else {
-        rc = -3;
+
+    if (TPSValidity::initialized == 2) {
+        if (TPSValidity::nickname != NULL && PL_strlen(TPSValidity::nickname) > 0) {
+            rc = TPSValidity::runSelfTest (TPSValidity::nickname);
+        } else {
+            rc = -3;
+        }
     }
+
     return rc;
 }
 
@@ -129,24 +140,26 @@ int TPSValidity::runSelfTest (const char *nick_name)
     CERTCertDBHandle *handle = 0;
     CERTCertificate *cert = 0;
 
-    handle = CERT_GetDefaultCertDB();
-    if (handle != 0) {
-        cert = CERT_FindCertByNickname( handle, (char *) nick_name);
-        if (cert != 0) {
-            now = PR_Now();
-            certTimeValidity = CERT_CheckCertValidTimes (cert, now, PR_FALSE);
-            if (certTimeValidity == secCertTimeExpired) {
-                rc = 4;
-            } else if (certTimeValidity == secCertTimeNotValidYet) {
-                rc = 5;
+    if (TPSValidity::initialized == 2) {
+        handle = CERT_GetDefaultCertDB();
+        if (handle != 0) {
+            cert = CERT_FindCertByNickname( handle, (char *) nick_name);
+            if (cert != 0) {
+                now = PR_Now();
+                certTimeValidity = CERT_CheckCertValidTimes (cert, now, PR_FALSE);
+                if (certTimeValidity == secCertTimeExpired) {
+                    rc = 4;
+                } else if (certTimeValidity == secCertTimeNotValidYet) {
+                    rc = 5;
+                }
+                CERT_DestroyCertificate (cert);
+                cert = 0;
+            } else {
+                rc = 2;
             }
-            CERT_DestroyCertificate (cert);
-            cert = 0;
         } else {
-            rc = 2;
+            rc = -1;
         }
-    } else {
-        rc = -1;
     }
 
     return rc;
@@ -158,20 +171,22 @@ int TPSValidity::runSelfTest (const char *nick_name, CERTCertificate *cert)
     PRTime now;
     int rc = 0;
 
-    if (cert != 0) {
-        now = PR_Now();
-        certTimeValidity = CERT_CheckCertValidTimes (cert, now, PR_FALSE);
-            if (certTimeValidity == secCertTimeExpired) {
-                rc = 4;
-            } else if (certTimeValidity == secCertTimeNotValidYet) {
-                rc = 5;
-            }
-            CERT_DestroyCertificate (cert);
-            cert = 0;
-    } else if (nick_name != 0 && PL_strlen(nick_name) > 0) {
-        rc = TPSValidity::runSelfTest (nick_name);
-    } else {
-        rc = TPSValidity::runSelfTest ();
+    if (TPSValidity::initialized == 2) {
+        if (cert != 0) {
+            now = PR_Now();
+            certTimeValidity = CERT_CheckCertValidTimes (cert, now, PR_FALSE);
+                if (certTimeValidity == secCertTimeExpired) {
+                    rc = 4;
+                } else if (certTimeValidity == secCertTimeNotValidYet) {
+                    rc = 5;
+                }
+                CERT_DestroyCertificate (cert);
+                cert = 0;
+        } else if (nick_name != 0 && PL_strlen(nick_name) > 0) {
+            rc = TPSValidity::runSelfTest (nick_name);
+        } else {
+            rc = TPSValidity::runSelfTest ();
+        }
     }
 
     return rc;
