@@ -876,7 +876,7 @@ start_instance()
 		for file in ${pki_logs_directory}/*; do
 			if	[ "${file}" != "${pki_signedAudit}" ]; then
 				chown ${PKI_USER}:${PKI_GROUP} ${file}
-				chmod 00660 ${file}
+				chmod 00640 ${file}
 			fi
 		done
 
@@ -884,8 +884,8 @@ start_instance()
 		pki_signedAudit_files=`ls -1A ${pki_signedAudit} | wc -l`
 		if	[ ${pki_signedAudit_files} -gt 0 ]; then
 			for file in ${pki_signedAudit}/*; do
-				chown ${PKI_USER}:${PKI_GROUP} ${file}
-				chmod 00660 ${file}
+				chown ${PKI_USER} ${file}
+				chmod 00640 ${file}
 			done
 		fi
 

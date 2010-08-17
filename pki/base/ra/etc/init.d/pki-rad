@@ -862,7 +862,7 @@ start_instance()
 		# Set permissions of log files
 		for file in ${pki_logs_directory}/*; do
 			chown ${PKI_USER}:${PKI_GROUP} ${file}
-			chmod 00660 ${file}
+			chmod 00640 ${file}
 		done
 
 		# ignore "status" return codes
