@@ -266,7 +266,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
             if (ext == null)
                 return "";
 
-            int num_mappings = DEF_NUM_MAPPINGS;
+            int num_mappings = getNumMappings();
 
             Enumeration maps = ext.getMappings();
          
