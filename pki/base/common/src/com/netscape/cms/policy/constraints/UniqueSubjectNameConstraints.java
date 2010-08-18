@@ -48,7 +48,7 @@ import com.netscape.certsrv.apps.*;
  * and one for signing. This policy does not deal with this case 
  * directly. But it can be easily extended to do that.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class UniqueSubjectNameConstraints extends APolicyRule 
     implements IEnrollmentPolicy, IExtendedPluginInfo {

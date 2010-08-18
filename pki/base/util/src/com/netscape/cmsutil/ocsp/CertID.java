@@ -30,7 +30,7 @@ import java.io.*;
  *     issuerKeyHash       OCTET STRING, -- Hash of Issuers public key
  *     serialNumber        CertificateSerialNumber }
  *
- * $Revision: 14564 $ $Date: 2007-05-01 10:40:13 -0700 (Tue, 01 May 2007) $
+ * $Revision$ $Date$
  */
 
 public class CertID implements ASN1Value

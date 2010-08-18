@@ -22,7 +22,7 @@ package com.netscape.certsrv.template;
  * Argument value can be in string, in a list, or 
  * in a set.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public interface IArgValue {
 }

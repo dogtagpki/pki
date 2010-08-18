@@ -32,7 +32,7 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
  * The ARequestNotifier class implements the IRequestNotifier interface,
  * which notifies all registered request listeners.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class ARequestNotifier implements IRequestNotifier {
     private Hashtable mListeners = new Hashtable();

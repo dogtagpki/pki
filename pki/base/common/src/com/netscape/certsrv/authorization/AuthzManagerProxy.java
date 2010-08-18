@@ -21,7 +21,7 @@ package com.netscape.certsrv.authorization;
 /**
  * A class represents an authorization manager. It contains an
  * authorization manager instance and its state (enable or not).
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class AuthzManagerProxy {
     private boolean mEnable;

@@ -49,7 +49,7 @@ import com.netscape.certsrv.logging.ILogger;
  * This represents the authentication manager that authenticates
  * user against a file where id, and password are stored.
  * 
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class FlatFileAuth 
     implements IProfileAuthenticator, IExtendedPluginInfo {

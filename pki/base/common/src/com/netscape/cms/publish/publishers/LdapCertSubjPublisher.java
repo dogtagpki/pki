@@ -35,7 +35,7 @@ import com.netscape.certsrv.publish.*;
  * Publishes a certificate as binary and its subject name.
  * there is one subject name value for each certificate. 
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class LdapCertSubjPublisher implements ILdapPublisher {
     public static final String LDAP_CERTSUBJNAME_ATTR = "certSubjectName";

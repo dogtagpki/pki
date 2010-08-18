@@ -30,7 +30,7 @@ import java.io.*;
  *  requestList             SEQUENCE OF Request,
  *  requestExtensions   [2] EXPLICIT Extensions OPTIONAL }
  *
- * $Revision: 14564 $ $Date: 2007-05-01 10:40:13 -0700 (Tue, 01 May 2007) $
+ * $Revision$ $Date$
  */
 
 public class TBSRequest implements ASN1Value

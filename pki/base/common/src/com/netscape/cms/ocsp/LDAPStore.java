@@ -48,7 +48,7 @@ import org.mozilla.jss.pkix.cert.Extension;
  * This is the LDAP OCSP store. It reads CA certificate and
  * revocation list attributes from the CA entry.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private static final String PROP_NUM_CONNS = "numConns";

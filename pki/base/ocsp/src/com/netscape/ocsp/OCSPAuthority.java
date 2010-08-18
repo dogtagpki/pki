@@ -60,7 +60,7 @@ import java.security.cert.*;
  * <P>
  *
  * @author lhsiao
- * @version $Revision: 14565 $, $Date: 2007-05-01 10:42:49 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, IAuthority {
 

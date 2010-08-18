@@ -49,7 +49,7 @@ import com.netscape.certsrv.authorization.*;
  * Display a Specific Key Archival Request, and initiate
  * key recovery process
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class DisplayBySerialForRecovery extends CMSServlet {
 

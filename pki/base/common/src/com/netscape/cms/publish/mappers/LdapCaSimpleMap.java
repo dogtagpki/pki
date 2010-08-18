@@ -42,7 +42,7 @@ import com.netscape.certsrv.publish.*;
  * The restriction of this mapper is that the ldap dn components must
  * be part of certificate subject name or request attributes or constant.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     protected static final String PROP_DNPATTERN = "dnPattern";  

@@ -58,7 +58,7 @@ import com.netscape.cmsutil.util.*;
  * Tool for creating PKCS12 file
  * 
  * <P>
- * @version $Revision: $, $Date: $
+ * @version $Revision$, $Date$
  *
  */
 public class PKCS12Export {

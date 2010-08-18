@@ -37,7 +37,7 @@ import com.netscape.certsrv.apps.*;
 /**
  * This represents a CRL number extension.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class CMSCRLNumberExtension
     implements ICMSCRLExtension, IExtendedPluginInfo {

@@ -39,7 +39,7 @@ import com.netscape.certsrv.apps.*;
  * </ul>
  * 
  * @author lhsiao
- * @version $Revision: 14561 $
+ * @version $Revision$
  */
 public class X500NameSubsystem implements ISubsystem {
 

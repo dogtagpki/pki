@@ -38,7 +38,7 @@ import com.netscape.certsrv.request.*;
  * responsible for certificate enrollment operations.
  * <P>
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public interface IRegistrationAuthority extends ISubsystem {
     public static final String ID = "ra";

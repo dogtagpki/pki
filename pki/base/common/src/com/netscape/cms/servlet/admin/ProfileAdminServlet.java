@@ -48,7 +48,7 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
  * for registering an instance of this with the remote
  * administration subsystem.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class ProfileAdminServlet extends AdminServlet {
     public final static String PROP_AUTHORITY = "authority";

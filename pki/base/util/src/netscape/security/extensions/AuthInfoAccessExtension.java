@@ -53,7 +53,7 @@ import netscape.security.util.*;
  * oidmap.auth_info_access.oid=1.3.6.1.5.5.7.1.1
  *
  * @author thomask
- * @version $Revision: 14564 $, $Date: 2007-05-01 10:40:13 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
     public static final String NAME = "AuthInfoAccessExtension";

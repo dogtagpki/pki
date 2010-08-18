@@ -34,7 +34,7 @@ import com.netscape.certsrv.base.*;
  *   $ctx.user_id$
  * <p>
  *
- * @version $Revision: 14596 $, $Date: 2007-05-01 17:33:35 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class Pattern {
 

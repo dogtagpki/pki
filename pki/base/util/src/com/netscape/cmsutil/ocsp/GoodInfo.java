@@ -30,7 +30,7 @@ import org.mozilla.jss.pkix.cert.Extension;
  *  revoked             [1]     IMPLICIT RevokedInfo,
  *  unknown             [2]     IMPLICIT UnknownInfo }
  *
- * $Revision: 14564 $ $Date: 2007-05-01 10:40:13 -0700 (Tue, 01 May 2007) $
+ * $Revision$ $Date$
  */
 public class GoodInfo implements CertStatus
 {

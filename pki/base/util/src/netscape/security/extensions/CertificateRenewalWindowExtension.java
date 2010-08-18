@@ -39,7 +39,7 @@ import netscape.security.util.*;
  *     endTime GeneralizedTime OPTIONAL }
  *
  * @author thomask
- * @version $Revision: 14564 $, $Date: 2007-05-01 10:40:13 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class CertificateRenewalWindowExtension extends Extension 
     implements CertAttrSet {

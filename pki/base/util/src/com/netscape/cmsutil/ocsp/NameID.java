@@ -28,7 +28,7 @@ import org.mozilla.jss.pkix.primitive.Name;
  *    byName               [1] EXPLICIT Name,
  *    byKey                [2] EXPLICIT KeyHash }
  *
- * $Revision: 14564 $ $Date: 2007-05-01 10:40:13 -0700 (Tue, 01 May 2007) $
+ * $Revision$ $Date$
  */
 public class NameID implements ResponderID
 {

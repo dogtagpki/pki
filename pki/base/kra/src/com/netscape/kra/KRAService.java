@@ -38,7 +38,7 @@ import com.netscape.certsrv.apps.CMS;
  * <P>
  *
  * @author thomask
- * @version $Revision: 14563 $, $Date: 2007-05-01 10:35:23 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class KRAService implements IService {
 

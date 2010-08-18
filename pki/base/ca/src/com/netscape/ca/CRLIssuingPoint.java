@@ -63,7 +63,7 @@ import com.netscape.cmscore.util.Debug;
  * @author awnuk
  * @author lhsiao
  * @author galperin
- * @version $Revision: 14562 $, $Date: 2007-05-01 10:31:12 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 
 public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {

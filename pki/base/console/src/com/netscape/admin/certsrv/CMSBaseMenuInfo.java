@@ -29,7 +29,7 @@ import java.util.*;
  * call back function.
  *
  * @author Jack Pan-Chen
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv
  */
 public class CMSBaseMenuInfo implements IMenuInfo {

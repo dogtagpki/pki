@@ -34,7 +34,7 @@ import netscape.ldap.*;
  * Retrieve the status of the server
  *
  * @author Ross Fubini
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class CMSStatus extends CGITask
 {

@@ -36,7 +36,7 @@ import com.netscape.certsrv.publish.*;
  * Maps a X509 certificate to a LDAP entry by finding an LDAP entry
  * which has an attribute whose contents are equal to the cert subject name.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
     public static final String LDAP_CERTSUBJNAME_ATTR = "certSubjectName";

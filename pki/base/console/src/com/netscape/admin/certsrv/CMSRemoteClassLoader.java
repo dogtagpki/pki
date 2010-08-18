@@ -27,7 +27,7 @@ import com.netscape.admin.certsrv.connection.AdminConnection;
  * used by the Certificate Server console.
  *
  * @author Jack Pan-Chen
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @date	 	02/13/97
  * @see ClassLoader
  */

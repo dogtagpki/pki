@@ -37,7 +37,7 @@ import netscape.security.x509.*;
  * parameters: graceBefore and graceAfter
  *
  * @author Christina Fu
- * @version $Revision: $, $Date: $
+ * @version $Revision$, $Date$
  */
 public class RenewGracePeriodConstraint extends EnrollConstraint {
 

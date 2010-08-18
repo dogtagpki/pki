@@ -45,7 +45,7 @@ import com.netscape.certsrv.apps.*;
 /**
  * Gets a issued certificate from a request id. 
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class GetCertFromRequest extends CMSServlet {
     private final static String PROP_IMPORT = "importCert";

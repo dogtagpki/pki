@@ -47,7 +47,7 @@ import org.mozilla.jss.crypto.PrivateKey;
  * is used to protected EE's private key in transit.
  *
  * @author thomask
- * @version $Revision: 14563 $, $Date: 2007-05-01 10:35:23 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public abstract class EncryptionUnit implements IEncryptionUnit {
 

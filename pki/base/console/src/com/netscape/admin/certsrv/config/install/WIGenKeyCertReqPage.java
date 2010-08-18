@@ -32,7 +32,7 @@ import com.netscape.management.client.util.*;
  * Generate the certificate request
  *
  * @author Christine Ho
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
 class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {

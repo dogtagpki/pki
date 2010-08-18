@@ -56,7 +56,7 @@ import com.netscape.certsrv.dbs.*;
  * <P>
  * 
  * @author thomask
- * @version $Revision: 8691 $, $Date: 2005-08-18 14:02:20 -0700 (Thu, 18 Aug 2005) $
+ * @version $Revision$, $Date$
  */
 public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
 

@@ -37,7 +37,7 @@ import com.netscape.cmsutil.util.*;
  * <P>
  * 
  * @author Christina Fu
- * @version $Revision: $, $Date: 
+ * @version $Revision$, $Date: 
  */
 public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
     private String mType = "user_origreq";

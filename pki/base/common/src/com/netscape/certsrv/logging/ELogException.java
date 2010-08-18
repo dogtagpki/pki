@@ -30,7 +30,7 @@ import com.netscape.certsrv.base.MessageFormatter;
  * should be caught by LogSubsystem managers.
  * <P>
  * 
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see java.text.MessageFormat
  */
 public class ELogException extends EBaseException {

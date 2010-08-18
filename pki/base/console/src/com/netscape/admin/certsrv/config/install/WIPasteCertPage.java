@@ -37,7 +37,7 @@ import com.netscape.management.client.util.*;
  * text area or get the cert from the CMS where the request was sent.
  *
  * @author Christine Ho
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
 class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {

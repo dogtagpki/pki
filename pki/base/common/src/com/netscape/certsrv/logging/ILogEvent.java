@@ -30,7 +30,7 @@ import java.util.Locale;
  * For instance, an audit type event represents messages having to do with auditable CMS
  * actions.  The resulting message will ultimately appear into a specific log file.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public interface ILogEvent extends Serializable {
 

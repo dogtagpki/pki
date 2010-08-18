@@ -55,7 +55,7 @@ import com.netscape.certsrv.publish.*;
  * Takes the certificate info (serial number) and optional challenge phrase, creates a 
  * revocation request and submits it to the authority subsystem for processing
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class ChallengeRevocationServlet1 extends CMSServlet {
     public final static String GETCERTS_FOR_CHALLENGE_REQUEST = "getCertsForChallenge";

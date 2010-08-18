@@ -48,7 +48,7 @@ import com.netscape.certsrv.apps.CMS;
  *   parameterMap: make->manufacturer,model->name=expedition,->suv=true
  *   output:       vehicle:car manufactuer:ford model:expedition suv:true
  *
- * @version $Revision: 3765 $, $Date: 2002-12-13 14:15:08 -0800 (Fri, 13 Dec 2002) $
+ * @version $Revision$, $Date$
  */
 public class ProxyServlet extends HttpServlet {
 

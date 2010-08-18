@@ -35,7 +35,7 @@ import com.netscape.cms.profile.common.*;
  * that populates a Key Usage extension
  * into the certificate template.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class KeyUsageExtDefault extends EnrollExtDefault {
 

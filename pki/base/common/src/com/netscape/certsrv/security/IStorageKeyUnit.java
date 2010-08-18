@@ -35,7 +35,7 @@ import org.mozilla.jss.crypto.PrivateKey;
  * unit contains a storage key pair that is used for
  * encrypting the user private key for long term storage.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public interface IStorageKeyUnit extends IEncryptionUnit {
 

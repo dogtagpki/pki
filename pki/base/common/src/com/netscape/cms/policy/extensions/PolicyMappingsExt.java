@@ -38,7 +38,7 @@ import com.netscape.cms.policy.APolicyRule;
  * Adds the Policy Mappings extension to a (CA) certificate. 
  * Filtering of CA certificates is done through predicates.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class PolicyMappingsExt extends APolicyRule
     implements IEnrollmentPolicy, IExtendedPluginInfo {

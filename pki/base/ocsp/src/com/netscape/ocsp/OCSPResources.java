@@ -25,7 +25,7 @@ import java.util.*;
  * A class represents a resource bundle for OCSP subsystem.
  * <P>
  *
- * @version $Revision: 14565 $ $Date: 2007-05-01 10:42:49 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$ $Date$
  */
 public class OCSPResources extends ListResourceBundle {
 

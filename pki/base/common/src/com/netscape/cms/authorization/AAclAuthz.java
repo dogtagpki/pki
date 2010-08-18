@@ -52,7 +52,7 @@ import com.netscape.cmsutil.util.*;
  * default "evaluators" are used to evaluate the "group=.." or "user=.."
  * rules.  See evaluator for more info
  * 
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see <A HREF="http://developer.netscape.com/library/documentation/enterprise/admnunix/aclfiles.htm">ACL Files</A>
  */
 public abstract class AAclAuthz {

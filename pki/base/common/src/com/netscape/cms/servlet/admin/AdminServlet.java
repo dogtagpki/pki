@@ -63,7 +63,7 @@ import com.netscape.cms.servlet.base.*;
  * }
  * </code>
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class AdminServlet extends HttpServlet {
 

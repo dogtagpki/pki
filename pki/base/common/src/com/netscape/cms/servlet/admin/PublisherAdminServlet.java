@@ -49,7 +49,7 @@ import com.netscape.cmsutil.password.*;
  * Publishing subsystem.  This servlet is responsible
  * to serve configuration requests for the Publishing subsystem.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class PublisherAdminServlet extends AdminServlet {
     public final static String PROP_AUTHORITY = "authority";

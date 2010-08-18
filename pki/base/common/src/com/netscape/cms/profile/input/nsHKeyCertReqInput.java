@@ -39,7 +39,7 @@ import com.netscape.cms.profile.common.*;
  * This input usually is used by an enrollment profile for
  * certificate requests coming from TPS.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class nsHKeyCertReqInput extends EnrollInput implements IProfileInput { 
     public static final String VAL_TOKEN_CUID = "tokencuid";

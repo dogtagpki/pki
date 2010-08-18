@@ -46,7 +46,7 @@ import org.mozilla.jss.pkix.crmf.*;
  * This class implements a Registration Manager 
  * enrollment profile.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class RAEnrollProfile extends EnrollProfile {
 

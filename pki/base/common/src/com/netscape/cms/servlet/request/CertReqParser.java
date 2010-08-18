@@ -40,7 +40,7 @@ import com.netscape.certsrv.request.*;
 /**
  * Output a 'pretty print' of a certificate request
  *
- * @version $Revision: 14711 $, $Date: 2007-05-09 17:13:13 -0700 (Wed, 09 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class CertReqParser extends ReqParser {
 	

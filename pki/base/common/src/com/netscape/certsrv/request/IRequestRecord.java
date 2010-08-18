@@ -29,7 +29,7 @@ import com.netscape.certsrv.request.RequestId;
  * It has a set of attributes that are mapped into LDAP
  * attributes for actual directory operations.
  * <p>
- * @version $Revision: 14561 $ $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$ $Date$
  */
 public interface IRequestRecord
     extends IDBObj {

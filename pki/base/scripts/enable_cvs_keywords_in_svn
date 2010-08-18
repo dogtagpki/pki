@@ -1,0 +1,97 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2010 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+# Always switch into this base directory
+# prior to script execution so that all
+# of its output is written to this directory
+cd `dirname $0`
+
+# Retrieve the name of this base directory
+PKI_PWD=`pwd`
+
+# Retrieve the base name of this script
+PKI_SCRIPT=`basename $0`
+
+# Print pre-script instructions
+printf "REMINDER:  ALWAYS remember to execute 'svn update' on 'pki/base'\n"
+printf "           PRIOR to executing '${PKI_SCRIPT}'!\n\n"
+while :
+do
+    printf "Have you executed 'svn update' at the 'pki/base' level?  [yn]  "
+    read ANSWER
+    printf "\n"
+    if [ "${ANSWER}" = "N" ] ||
+       [ "${ANSWER}" = "n" ] ; then
+        printf "\n"
+        printf "Please execute 'svn update'\n"
+        printf "PRIOR to executing '${PKI_SCRIPT}'!\n\n"
+        exit 255
+    elif [ "${ANSWER}" = "Y" ] ||
+         [ "${ANSWER}" = "y" ] ; then
+        printf "\n"
+		break
+	else
+        continue
+    fi
+done
+
+# Set equivalent "SVN" keyword properties to enable
+# legacy "CVS" keywords in pre-existing PKI files
+SVN_KEYWORDS="Author Date Header Id Revision URL"
+
+# Generate timestamp
+PKI_TIMESTAMP=`date  +%Y%m%d%H%M%S`
+
+# Create the name of the list
+PKI_LIST=list.${PKI_TIMESTAMP}
+
+# Switch into the 'pki/base' directory
+cd ${PKI_PWD}/..
+
+# Fill the list with the name of each ".c", ".cpp", and ".java" file
+find . -type f | grep -v '/\.svn/' | egrep "\.(c|cpp|h|pm|java)$" > ${PKI_LIST}
+
+# Complete the list with miscellaneous files containing legacy "CVS" keywords
+echo "./ca/shared/conf/catalina.policy" >> ${PKI_LIST}
+echo "./ca/shared/conf/dtomcat5" >> ${PKI_LIST}
+echo "./ocsp/shared/conf/catalina.policy" >> ${PKI_LIST}
+echo "./ocsp/shared/conf/dtomcat5" >> ${PKI_LIST}
+echo "./tks/shared/conf/catalina.policy" >> ${PKI_LIST}
+echo "./tks/shared/conf/dtomcat5" >> ${PKI_LIST}
+echo "./kra/shared/conf/catalina.policy" >> ${PKI_LIST}
+echo "./kra/shared/conf/dtomcat5" >> ${PKI_LIST}
+echo "./setup/pkicommon" >> ${PKI_LIST}
+echo "./setup/pkicreate" >> ${PKI_LIST}
+echo "./setup/pkihost" >> ${PKI_LIST}
+echo "./setup/pkiremove" >> ${PKI_LIST}
+
+# Add 'svn:keywords' properties to ALL files in the list that
+# do NOT already contain the SPECIFIED 'svn:keywords' properties
+printf "BEGIN:  Processing 'svn:keywords' to ALL files in list . . .\n"
+for FILE in `cat ${PKI_LIST}`
+do
+	# retrieve the current 'svn:keywords' properties set for this file
+	KEYWORDS=`svn propget svn:keywords ${FILE}`
+	if [ "${KEYWORDS}" = "" ] ; then
+		# set the SPECIFIED 'svn:keywords' properties on this file
+		svn propset svn:keywords "${SVN_KEYWORDS}" ${FILE}
+	elif [ "${KEYWORDS}" != "${SVN_KEYWORDS}" ] ; then
+		# Warn the script user if a file in the list contains
+		# 'svn:keywords' properties that are DIFFERENT than
+		# the SPECIFIED 'svn:keywords' properties
+		printf "WARNING:  '${FILE}' ONLY contains the keywords '${KEYWORDS}'!\n"
+	fi
+done
+printf "END:  Finished processing 'svn:keywords' to ALL files in list.\n\n"
+
+# Always remove this list
+rm -rf ${PKI_LIST}
+
+# Print post-script instructions
+printf "\n"
+printf "REMINDER:  ALWAYS remember to execute 'svn commit' on 'pki/base'\n"
+printf "           AFTER executing '${PKI_SCRIPT}'!\n\n"
+

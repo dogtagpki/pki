@@ -39,7 +39,7 @@ import com.netscape.certsrv.apps.CMS;
  *	4. If this is n't adequate, roll your own.
  *
  * @author kanda
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class PolicyPredicateParser {
     public static final int OP_AND = 1;

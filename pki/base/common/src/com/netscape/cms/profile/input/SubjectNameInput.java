@@ -44,7 +44,7 @@ import com.netscape.cms.profile.common.*;
  * fomulating the subject name in the certificate.
  * <p>
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class SubjectNameInput extends EnrollInput implements IProfileInput { 
 

@@ -35,7 +35,7 @@ import com.netscape.certsrv.common.*;
  * process the event accordingly which will result in a log
  * message existing in some file.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public interface ILogEventListener extends EventListener {
 

@@ -38,7 +38,7 @@ import com.netscape.cmsutil.http.*;
  * This publisher writes certificate and CRL into
  * a directory.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private static final String PROP_HOST = "host";

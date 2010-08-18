@@ -44,7 +44,7 @@ import com.netscape.certsrv.apps.*;
  * a clone when a requested service (such as CRL) is not available. 
  * It redirects the user to the master.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class CloneRedirect extends CMSServlet {
 

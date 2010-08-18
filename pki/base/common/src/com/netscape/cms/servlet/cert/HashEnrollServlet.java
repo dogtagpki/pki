@@ -69,7 +69,7 @@ import java.math.*;
 /**
  * XXX performs face-to-face enrollment.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class HashEnrollServlet extends CMSServlet {
     public final static String ADMIN_ENROLL_SERVLET_ID = "adminEnroll";

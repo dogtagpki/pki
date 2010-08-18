@@ -36,7 +36,7 @@ import com.netscape.certsrv.publish.*;
  * Maps a X509 certificate to a LDAP entry by using the subject name
  * of the certificate as the LDAP entry DN.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
     private ILogger mLogger = CMS.getLogger();

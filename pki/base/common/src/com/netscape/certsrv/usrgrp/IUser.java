@@ -28,7 +28,7 @@ import netscape.security.x509.*;
  * This interface defines the basic interfaces for
  * a user identity. (get/set methods for a user entry attributes)
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public interface IUser extends IAttrSet, IUserConstants {
 

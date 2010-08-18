@@ -47,7 +47,7 @@ import org.w3c.dom.*;
  * Checked if the given token is valid.
  * <P>
  *
- * @version $Revision: 6081 $, $Date: 2004-01-29 10:42:22 -0800 (Thu, 29 Jan 2004) $
+ * @version $Revision$, $Date$
  */
 public class TokenAuthentication implements IAuthManager, 
         IProfileAuthenticator {

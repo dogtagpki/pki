@@ -32,7 +32,7 @@ import com.netscape.management.client.console.*;
  * This panel asks for the user to logon to the keycert token  . 
  *
  * @author Christine Ho
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.keycert
  */
 class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {

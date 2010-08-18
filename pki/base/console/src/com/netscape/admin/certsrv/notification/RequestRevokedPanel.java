@@ -31,7 +31,7 @@ import java.awt.event.*;
  * notification settings tab for RequestCompletion
  *
  * @author cfu
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class RequestRevokedPanel extends CMSBaseTab implements ItemListener {
     private static final String RA_HELPINDEX = 

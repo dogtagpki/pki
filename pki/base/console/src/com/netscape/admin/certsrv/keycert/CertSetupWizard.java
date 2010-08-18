@@ -26,7 +26,7 @@ import com.netscape.admin.certsrv.wizard.*;
  * Wizard for Key and Certificate management
  *
  * @author Christine Ho
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.keycert
  */
 

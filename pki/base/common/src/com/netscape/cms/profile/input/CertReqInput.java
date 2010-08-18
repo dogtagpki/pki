@@ -49,7 +49,7 @@ import org.mozilla.jss.pkcs10.*;
  * This input usually is used by an enrollment profile for
  * certificate requests.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class CertReqInput extends EnrollInput implements IProfileInput { 
     public static final String VAL_CERT_REQUEST_TYPE = 

@@ -35,7 +35,7 @@ import com.netscape.cmsutil.util.*;
  * the Netscape Common Log API implementing rollover interval, size and file
  * naming conventions. It does not yet implement Disk Usage.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class RollingLogFile extends LogFile {
     public static final String PROP_MAX_FILE_SIZE = "maxFileSize";

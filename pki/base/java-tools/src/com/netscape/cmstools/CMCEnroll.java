@@ -53,7 +53,7 @@ import java.util.*;
  * Tool for signing PKCS #10 , return CMC enrollment request
  * 
  * <P>
- * @version $Revision: 14569 $, $Date: 2007-05-01 10:50:46 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
 
  */
 public class CMCEnroll {

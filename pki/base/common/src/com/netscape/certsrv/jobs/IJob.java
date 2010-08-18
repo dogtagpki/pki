@@ -25,7 +25,7 @@ import com.netscape.certsrv.base.*;
  * An interface to be implemented from for a job to be scheduled by
  * the Jobs Scheduler.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $ 
+ * @version $Revision$, $Date$ 
  */
 public interface IJob {
 

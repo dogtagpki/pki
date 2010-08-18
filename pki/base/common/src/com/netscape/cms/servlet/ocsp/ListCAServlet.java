@@ -57,7 +57,7 @@ import javax.servlet.http.*;
 /**
  * Show the list of CA's that the OCSP responder can service
  *
- * $Revision: 14561 $ $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * $Revision$ $Date$
  */
 public class ListCAServlet extends CMSServlet {
 

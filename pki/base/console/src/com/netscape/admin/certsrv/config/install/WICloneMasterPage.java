@@ -32,7 +32,7 @@ import java.awt.event.*;
  * Clone CA getting Clone Master connector info.
  *
  * @author Christina Fu
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
 

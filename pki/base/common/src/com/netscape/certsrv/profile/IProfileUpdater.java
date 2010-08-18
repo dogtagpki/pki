@@ -26,7 +26,7 @@ import com.netscape.certsrv.request.*;
  * This interface represents an updater that will be
  * called when the request's state changes.
  * 
- * @version $Revision: 3925 $, $Date: 2003-01-07 17:32:45 -0800 (Tue, 07 Jan 2003) $
+ * @version $Revision$, $Date$
  */
 public interface IProfileUpdater extends IConfigTemplate {
 

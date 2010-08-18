@@ -46,7 +46,7 @@ import netscape.security.util.*;
  *                                in a "pretty print" ASCII format
  * </PRE>
  *
- * @version $Revision: 14569 $, $Date: 2007-05-01 10:50:46 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 
 public class PrettyPrintCert {

@@ -43,7 +43,7 @@ import com.netscape.cmscore.security.JssSubsystem;
 /**
  * CA signing unit based on JSS.
  *
- * $Revision: 14562 $ $Date: 2007-05-01 10:31:12 -0700 (Tue, 01 May 2007) $
+ * $Revision$ $Date$
  */
 
 public final class SigningUnit implements ISigningUnit {

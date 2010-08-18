@@ -29,7 +29,7 @@ import org.mozilla.jss.asn1.*;
  *    byName               [1] EXPLICIT Name,
  *    byKey                [2] EXPLICIT KeyHash }
  *
- * $Revision: 14564 $ $Date: 2007-05-01 10:40:13 -0700 (Tue, 01 May 2007) $
+ * $Revision$ $Date$
  */
 public interface ResponderID extends ASN1Value
 {

@@ -59,7 +59,7 @@ import java.io.IOException;
  * Syntax of the pattern is described in the init() method.
  * 
  * <P>
- * @version $Revision: 14596 $, $Date: 2007-05-01 17:33:35 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public abstract class DirBasedAuthentication 
     implements IAuthManager, IExtendedPluginInfo {

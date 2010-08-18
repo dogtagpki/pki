@@ -44,7 +44,7 @@
 /*
  * Support for various policy related extensions
  *
- * $Id: pppolicy.c,v 1.3 2005/02/22 20:02:22 wtchang%redhat.com Exp $
+ * $Id$
  */
 
 #include "seccomon.h"

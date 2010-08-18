@@ -31,7 +31,7 @@ import com.netscape.certsrv.common.*;
  * Old Agent name/password for reconfiguring the Recovery MN Scheme
  *
  * @author Jack Pan-Chen
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
  */
 class WMNOldAgent extends WizardBasePanel

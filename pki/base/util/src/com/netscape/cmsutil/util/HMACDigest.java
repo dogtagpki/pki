@@ -27,7 +27,7 @@ import java.security.NoSuchAlgorithmException;
  * any MessageDigest.
  *
  * @author mikep
- * @version $Revision: 14564 $, $Date: 2007-05-01 10:40:13 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see java.security.MessageDigest
  */
 public class HMACDigest implements Cloneable {

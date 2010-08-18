@@ -42,7 +42,7 @@ import com.netscape.certsrv.ldap.*;
  *  Controls the publishing process from the top level.  Maintains
  *  a collection of Publishers , Mappers, and Publish Rules.
  *
- * @version $Revision: 14561 $ $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$ $Date$
  */
 
 public interface IPublisherProcessor extends ISubsystem {

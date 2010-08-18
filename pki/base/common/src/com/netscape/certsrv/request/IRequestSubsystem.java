@@ -25,7 +25,7 @@ import com.netscape.certsrv.base.EBaseException;
  * This interface defines storage of request objects
  * in the local database.
  * <p>
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public interface IRequestSubsystem {
     public static final String SUB_ID = "request";

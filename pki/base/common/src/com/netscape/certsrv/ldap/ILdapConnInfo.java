@@ -28,7 +28,7 @@ import com.netscape.certsrv.ldap.*;
  * Class for reading ldap connection information from the config store.
  * Ldap connection info: host name, port number,whether of not it is a secure connection.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public interface ILdapConnInfo {
     public static final String PROP_HOST = "host";

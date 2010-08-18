@@ -50,7 +50,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 /**
  * This class implements a generic enrollment profile.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public abstract class EnrollProfile extends BasicProfile 
     implements IEnrollProfile {

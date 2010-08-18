@@ -43,7 +43,7 @@ import org.mozilla.jss.ssl.SSLSocket;
  * This allows the requestor (browser) to make decisions about what
  * to present in the UI, depending on how CMS is configured
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class DynamicVariablesServlet extends CMSServlet {
     public final static String PROP_ACCESS = "ServletAccess";

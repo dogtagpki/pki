@@ -25,7 +25,7 @@ import javax.swing.border.*;
  * class used to crate the label to be displayed in the attr list
  *
  * @author Jack Pan-Chen
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class AttrCellRenderer extends JLabel implements ListCellRenderer {
     static Color HIGHLIGHTCOLOR = new Color(0, 0, 128);

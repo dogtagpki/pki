@@ -30,7 +30,7 @@ import java.lang.reflect.*;
  * and java.text.MessageFormat mechanism.
  * <P>
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see java.text.MessageFormat
  * @see java.util.ResourceBundle
  */

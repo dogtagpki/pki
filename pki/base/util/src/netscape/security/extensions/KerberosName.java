@@ -44,7 +44,7 @@ import netscape.security.util.*;
  *      }
  *
  * @author thomask
- * @version $Revision: 4467 $, $Date: 2003-04-11 11:58:47 -0700 (Fri, 11 Apr 2003) $
+ * @version $Revision$, $Date$
  */
 public class KerberosName {
 

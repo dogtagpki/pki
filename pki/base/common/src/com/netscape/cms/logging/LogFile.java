@@ -45,7 +45,7 @@ import java.io.CharConversionException;
 /**
  * A log event listener which write logs to log files
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  **/
 public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     public static final String PROP_TYPE = "type";

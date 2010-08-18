@@ -42,7 +42,7 @@ import com.netscape.certsrv.base.*;
  * ca.connector.KRA.maxHttpConns=10                  #Max connection pool connections. 
  * </pre>
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public interface IConnector {
 

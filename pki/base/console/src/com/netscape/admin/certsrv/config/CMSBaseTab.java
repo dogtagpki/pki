@@ -32,7 +32,7 @@ import com.netscape.management.client.util.*;
  * This class is the base class for all the TAB panels.
  *
  * @author Jack Pan-Chen
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public abstract class CMSBaseTab extends CMSBaseConfigPanel 
   implements IRefreshTab {

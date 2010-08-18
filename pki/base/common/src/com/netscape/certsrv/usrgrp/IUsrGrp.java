@@ -25,7 +25,7 @@ import netscape.ldap.*;
  * This interface defines the basic capabilities of
  * a usr/group manager. (get/add/modify/remove users or groups)
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public interface IUsrGrp extends IIdEvaluator {
 

@@ -37,7 +37,7 @@ import com.netscape.cmscore.util.Debug;
  * XXX2 moved to just implement IPolicy since GenericPolicyProcessor is 
  * unuseable for CA.
  * 
- * @version $Revision: 14646 $, $Date: 2007-05-04 14:17:27 -0700 (Fri, 04 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class CAPolicy implements IPolicy {
     IConfigStore mConfig = null;

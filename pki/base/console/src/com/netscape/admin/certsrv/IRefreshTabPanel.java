@@ -21,7 +21,7 @@ package com.netscape.admin.certsrv;
  * The interface to get selected tab from the tab panel.
  *
  * @author Christine Ho
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.IRefreshTab
  * @see com.netscape.admin.certsrv.menu.RefreshTabPane
  * @see com.netscape.admin.certsrv.CMSBaseResourceModel

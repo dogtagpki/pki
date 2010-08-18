@@ -60,7 +60,7 @@ import org.mozilla.jss.pkcs11.*;
 /**
  * A class represents recovery request processor.
  * @author Christina Fu (cfu)
- * @version $Revision: 14563 $, $Date: 2007-05-01 10:35:23 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class TokenKeyRecoveryService implements IService {
 

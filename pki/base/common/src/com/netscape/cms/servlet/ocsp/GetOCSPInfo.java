@@ -53,7 +53,7 @@ import com.netscape.certsrv.authorization.*;
  * Retrieve information about the number of OCSP requests the OCSP 
  * has serviced
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class GetOCSPInfo extends CMSServlet {
     private final static String TPL_FILE = "getOCSPInfo.template";

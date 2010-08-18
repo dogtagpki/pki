@@ -52,7 +52,7 @@ import com.netscape.cms.policy.APolicyRule;
  * NS Cert Type policy.
  * Adds the ns cert type extension depending on cert type requested.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class NSCertTypeExt extends APolicyRule
     implements IEnrollmentPolicy, IExtendedPluginInfo {

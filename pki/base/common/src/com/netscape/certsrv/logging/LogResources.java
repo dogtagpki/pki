@@ -26,7 +26,7 @@ import com.netscape.certsrv.base.*;
  * This is the fallback resource bundle for all log events.
  * <P>
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle
  */
 public class LogResources extends ListResourceBundle {

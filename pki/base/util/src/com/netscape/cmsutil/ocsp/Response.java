@@ -25,7 +25,7 @@ import org.mozilla.jss.asn1.*;
  *
  *     response       OCTET STRING
  *
- * $Revision: 14564 $ $Date: 2007-05-01 10:40:13 -0700 (Tue, 01 May 2007) $
+ * $Revision$ $Date$
  */
 public interface Response extends ASN1Value
 {

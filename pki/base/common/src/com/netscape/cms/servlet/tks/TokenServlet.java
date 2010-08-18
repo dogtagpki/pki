@@ -57,7 +57,7 @@ import com.netscape.symkey.*;
  * tks administrative operation such as configuration 
  * parameter updates.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class TokenServlet extends CMSServlet {
     protected static final String PROP_ENABLED = "enabled";

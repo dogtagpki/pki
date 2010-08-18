@@ -39,7 +39,7 @@ import com.netscape.cmscore.util.Debug;
  * uses a vector of ordered policies to enforce priority.
  *
  * @author kanda
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class PolicySet implements IPolicySet {
     private String mName;

@@ -41,7 +41,7 @@ import com.netscape.cms.policy.APolicyRule;
  * Authority Public Key Extension Policy
  * Adds the subject public key id extension to certificates. 
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class AuthorityKeyIdentifierExt extends APolicyRule
     implements IEnrollmentPolicy, IExtendedPluginInfo {

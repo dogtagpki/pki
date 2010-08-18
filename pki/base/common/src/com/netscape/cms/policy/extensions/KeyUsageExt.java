@@ -42,7 +42,7 @@ import com.netscape.cms.policy.APolicyRule;
  * Policy to add Key Usage Extension.
  * Adds the key usage extension based on what's requested.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class KeyUsageExt extends APolicyRule
     implements IEnrollmentPolicy, IExtendedPluginInfo {

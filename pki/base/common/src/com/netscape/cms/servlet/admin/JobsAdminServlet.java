@@ -38,7 +38,7 @@ import com.netscape.certsrv.apps.*;
  * A class representing an administration servlet for the
  * Jobs Scheduler and it's scheduled jobs.
  * 
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class JobsAdminServlet extends AdminServlet {
     // ... remove later

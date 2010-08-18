@@ -36,7 +36,7 @@ import netscape.ldap.*;
  *
  * @author Jack Pan-Chen
  * @author Thomas Kwan
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @date	 	02/04/97
  */
 public class CMSTaskModel extends TaskModel implements IMenuInfo {

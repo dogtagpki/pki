@@ -39,7 +39,7 @@ import com.netscape.cmscore.util.Debug;
  * x509 certificate into database.
  *
  * @author  thomask
- * @version $Revision: 14597 $, $Date: 2007-05-01 17:35:51 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class X509CertImplMapper implements IDBAttrMapper {
 

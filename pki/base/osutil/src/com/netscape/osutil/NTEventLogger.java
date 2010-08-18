@@ -21,7 +21,7 @@ package com.netscape.osutil;
 /**
  * This class provides an interface to Windows NT event logging.
  *
- * @version $Revision: 14579 $, $Date: 2007-05-01 13:07:48 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class NTEventLogger {
 

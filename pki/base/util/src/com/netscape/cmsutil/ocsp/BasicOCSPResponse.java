@@ -34,7 +34,7 @@ import org.mozilla.jss.pkix.cert.Certificate;
  *    signature            BIT STRING,
  *    certs                [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL }
  *
- * $Revision: 14564 $ $Date: 2007-05-01 10:40:13 -0700 (Tue, 01 May 2007) $
+ * $Revision$ $Date$
  */
 public class BasicOCSPResponse implements Response
 {

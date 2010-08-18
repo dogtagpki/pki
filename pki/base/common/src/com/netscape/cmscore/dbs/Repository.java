@@ -43,7 +43,7 @@ import com.netscape.certsrv.dbs.replicadb.*;
  * @author thomask
  * @version $Revision: 1.4
  *       
- $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ $, $Date$
  */
 
 public abstract class Repository implements IRepository {

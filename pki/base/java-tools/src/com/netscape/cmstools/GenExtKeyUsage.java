@@ -31,7 +31,7 @@ import netscape.security.util.*;
  * arguments.  The OIDs are described in RFC 2459.  For example,
  * the OID for code signing is 1.3.6.1.5.5.7.3.3.
  *
- * @version $Revision: 14569 $, $Date: 2007-05-01 10:50:46 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class GenExtKeyUsage {
 

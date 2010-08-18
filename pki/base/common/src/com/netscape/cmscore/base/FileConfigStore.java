@@ -35,7 +35,7 @@ import com.netscape.cmsutil.util.Utils;
  * the configuration stores from the Ldap directory.
  * <P>
  * 
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see PropConfigStore
  */
 public class FileConfigStore extends PropConfigStore implements 

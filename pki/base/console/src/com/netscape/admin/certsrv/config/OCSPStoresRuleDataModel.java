@@ -29,7 +29,7 @@ import com.netscape.management.client.util.Debug;
  * CRL Extensions instance Data model - represents the instance
  * table information
  *
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 
 public class OCSPStoresRuleDataModel extends CMSRuleDataModel

@@ -41,7 +41,7 @@ import com.netscape.cmsutil.util.*;
 /**
  * OCSP signing unit based on JSS.
  *
- * $Revision: 14565 $ $Date: 2007-05-01 10:42:49 -0700 (Tue, 01 May 2007) $
+ * $Revision$ $Date$
  */
 
 public final class SigningUnit implements ISigningUnit {

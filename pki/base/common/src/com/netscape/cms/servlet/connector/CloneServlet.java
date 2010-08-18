@@ -47,7 +47,7 @@ import com.netscape.certsrv.apps.*;
  * processes Revoked certs from its dependant clone CAs
  * service request and return status. 
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class CloneServlet extends CMSServlet {
     public static final String INFO = "Clone Servlet";

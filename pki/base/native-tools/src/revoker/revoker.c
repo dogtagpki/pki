@@ -94,7 +94,7 @@ int getopt(int ac, char * const av[], const char * opts);
 #endif /* XP_PC */
 /*end secopt.h*/
 
-#define VERSIONSTRING "$Revision: 14069 $ ($Date: 2007-03-02 01:41:17 -0800 (Fri, 02 Mar 2007) $)"
+#define VERSIONSTRING "$Revision$ ($Date$)"
 
 #ifndef PORT_Sprintf
 #define PORT_Sprintf sprintf

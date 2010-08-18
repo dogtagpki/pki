@@ -31,7 +31,7 @@ import com.netscape.certsrv.common.*;
  * Display this dialog to get the instance name and password.
  *
  * @author Christine Ho
- * @version $Revision: 14593 $, $Date: 2007-05-01 16:35:45 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class AuthDialog extends JDialog
     implements ActionListener, DocumentListener, MouseListener

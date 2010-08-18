@@ -32,7 +32,7 @@ package com.netscape.certsrv.request;
  * error conditions, and usually result because the request was invalid
  * or was not approved by an agent.
  *
- * @version $Revision: 14561 $ $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$ $Date$
  */
 public final class RequestStatus {
     public static String BEGIN_STRING = "begin";

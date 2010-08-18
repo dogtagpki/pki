@@ -27,7 +27,7 @@ import java.util.Locale;
  * classes and standalone programs.
  *
  * @author mikep
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  * @see com.netscape.certsrv.base.MessageFormatter
  * @see com.netscape.cmscore.util.UtilResources
  */

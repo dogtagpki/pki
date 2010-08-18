@@ -33,7 +33,7 @@ import java.util.*;
  * This updater class will create the new user to the subsystem group and
  * then add the subsystem certificate to the user.
  * 
- * @version $Revision: $, $Date: $
+ * @version $Revision$, $Date$
  */
 public class SubsystemGroupUpdater implements IProfileUpdater {
 

@@ -38,7 +38,7 @@ import com.netscape.certsrv.publish.*;
  * maps the crl to a ldap entry by using components in the issuer name
  * to find the CA's entry.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class LdapCrlIssuerCompsMap 
     extends LdapDNCompsMap implements ILdapMapper {

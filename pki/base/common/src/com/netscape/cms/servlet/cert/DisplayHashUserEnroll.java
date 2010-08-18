@@ -52,7 +52,7 @@ import com.netscape.cms.servlet.*;
  * XXX Servlet to report the status, ie, the agent-initiated user
  * enrollment is enabled or disabled.
  *
- * @version $Revision: 14561 $, $Date: 2007-05-01 10:28:56 -0700 (Tue, 01 May 2007) $
+ * @version $Revision$, $Date$
  */
 public class DisplayHashUserEnroll extends CMSServlet {
     private final static String TPL_FILE = "/ra/hashDirUserEnroll.template";

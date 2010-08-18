@@ -26,7 +26,7 @@ import com.netscape.certsrv.dbs.repository.*;
  * It provides unique managed replica IDs.
  * <P>
  *
- * @version $Revision: 14561 $, $Date: 2008-11-18 10:28:56 -0700 (Tue, 18 Nov 2008) $
+ * @version $Revision$, $Date$
  */
 public interface IReplicaIDRepository extends IRepository {
 }
