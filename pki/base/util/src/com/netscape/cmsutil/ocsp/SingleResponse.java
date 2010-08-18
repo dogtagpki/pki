@@ -25,14 +25,16 @@ import org.mozilla.jss.pkix.cert.Extension;
 /**
  * RFC 2560:
  *
+ * <pre>
  * SingleResponse ::= SEQUENCE {
  * certID                       CertID,
  * certStatus                   CertStatus,
  * thisUpdate                   GeneralizedTime,
  * nextUpdate           [0]     EXPLICIT GeneralizedTime OPTIONAL,
  * singleExtensions     [1]     EXPLICIT Extensions OPTIONAL }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class SingleResponse implements ASN1Value
 {

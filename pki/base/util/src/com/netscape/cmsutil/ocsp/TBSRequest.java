@@ -24,13 +24,15 @@ import java.io.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  * TBSRequest      ::=     SEQUENCE {
  *  version             [0] EXPLICIT Version DEFAULT v1,
  *  requestorName       [1] EXPLICIT GeneralName OPTIONAL,
  *  requestList             SEQUENCE OF Request,
  *  requestExtensions   [2] EXPLICIT Extensions OPTIONAL }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 
 public class TBSRequest implements ASN1Value

@@ -23,11 +23,13 @@ import java.io.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  * ResponseBytes ::=       SEQUENCE {
  *     responseType   OBJECT IDENTIFIER,
  *     response       OCTET STRING }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class ResponseBytes implements ASN1Value
 {

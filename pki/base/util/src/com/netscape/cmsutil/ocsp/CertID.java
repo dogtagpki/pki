@@ -24,13 +24,15 @@ import java.io.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  * CertID          ::=     SEQUENCE {
  *     hashAlgorithm       AlgorithmIdentifier,
  *     issuerNameHash      OCTET STRING, -- Hash of Issuer's DN
  *     issuerKeyHash       OCTET STRING, -- Hash of Issuers public key
  *     serialNumber        CertificateSerialNumber }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 
 public class CertID implements ASN1Value

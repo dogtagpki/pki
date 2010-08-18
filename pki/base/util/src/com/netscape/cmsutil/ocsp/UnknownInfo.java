@@ -23,9 +23,11 @@ import org.mozilla.jss.asn1.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  * UnknownInfo ::= NULL -- this can be replaced with an enumeration
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class UnknownInfo implements CertStatus
 {

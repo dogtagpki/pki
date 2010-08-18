@@ -25,12 +25,14 @@ import java.io.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  * Signature       ::=     SEQUENCE {
  *  signatureAlgorithm   AlgorithmIdentifier,
  *  signature            BIT STRING,
  *  certs                [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 
 public class Signature implements ASN1Value

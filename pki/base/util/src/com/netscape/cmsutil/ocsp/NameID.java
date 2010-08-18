@@ -24,11 +24,13 @@ import org.mozilla.jss.pkix.primitive.Name;
 /**
  * RFC 2560:
  *
+ * <pre>
  * ResponderID ::= CHOICE {
  *    byName               [1] EXPLICIT Name,
  *    byKey                [2] EXPLICIT KeyHash }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class NameID implements ResponderID
 {

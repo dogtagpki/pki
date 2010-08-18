@@ -23,6 +23,7 @@ import java.io.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  * OCSPResponseStatus ::= ENUMERATED {
  *     successful            (0),  --Response has valid confirmations
  *     malformedRequest      (1),  --Illegal confirmation request
@@ -32,8 +33,9 @@ import java.io.*;
  *     sigRequired           (5),  --Must sign the request
  *     unauthorized          (6)   --Request unauthorized
  * }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class OCSPResponseStatus implements ASN1Value
 {

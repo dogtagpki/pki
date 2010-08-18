@@ -24,11 +24,13 @@ import java.io.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  *   Request         ::=     SEQUENCE {
  *     reqCert                     CertID,
  *     singleRequestExtensions     [0] EXPLICIT Extensions OPTIONAL }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 
 public class Request implements ASN1Value

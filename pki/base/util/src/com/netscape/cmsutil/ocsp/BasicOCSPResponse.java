@@ -28,13 +28,15 @@ import org.mozilla.jss.pkix.cert.Certificate;
 /**
  * RFC 2560:
  *
+ * <pre>
  * BasicOCSPResponse       ::= SEQUENCE {
  *    tbsResponseData      ResponseData,
  *    signatureAlgorithm   AlgorithmIdentifier,
  *    signature            BIT STRING,
  *    certs                [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class BasicOCSPResponse implements Response
 {

@@ -28,7 +28,9 @@ import org.mozilla.jss.crypto.X509Certificate;
 import com.netscape.cmsutil.net.*;
 
 /**
- * Uses HCL ssl socket.
+ * Uses NSS ssl socket.
+ *
+ * @version $Revision$ $Date$
  */
 public class JssSSLSocketFactory implements ISocketFactory {
     private String mClientAuthCertNickname = null;

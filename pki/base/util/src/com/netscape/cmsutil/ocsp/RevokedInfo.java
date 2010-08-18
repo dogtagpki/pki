@@ -23,11 +23,13 @@ import org.mozilla.jss.asn1.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  * RevokedInfo ::= SEQUENCE {
  *  revocationTime              GeneralizedTime,
  *  revocationReason    [0]     EXPLICIT CRLReason OPTIONAL }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class RevokedInfo implements CertStatus
 {

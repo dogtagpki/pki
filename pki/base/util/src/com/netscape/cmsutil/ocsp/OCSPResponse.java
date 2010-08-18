@@ -23,11 +23,13 @@ import java.io.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  * OCSPResponse ::= SEQUENCE {
  *    responseStatus         OCSPResponseStatus,
  *    responseBytes          [0] EXPLICIT ResponseBytes OPTIONAL }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class OCSPResponse implements ASN1Value
 {

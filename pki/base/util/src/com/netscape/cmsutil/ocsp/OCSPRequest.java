@@ -23,11 +23,13 @@ import java.io.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  * OCSPRequest     ::=     SEQUENCE {
  *  tbsRequest                  TBSRequest,
  *  optionalSignature   [0]     EXPLICIT Signature OPTIONAL }
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 
 public class OCSPRequest implements ASN1Value

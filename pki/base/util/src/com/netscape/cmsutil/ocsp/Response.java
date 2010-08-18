@@ -23,9 +23,11 @@ import org.mozilla.jss.asn1.*;
 /**
  * RFC 2560:
  *
+ * <pre>
  *     response       OCTET STRING
+ * </pre>
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public interface Response extends ASN1Value
 {
