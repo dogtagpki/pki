@@ -74,7 +74,6 @@ public interface IKeyService {
      * add approving agent in asynchronous key recovery
      * @param reqID request id
      * @param agentID agent id
-     * @return requestId
      * @exception EBaseException failed to initiate async recovery
      */
     public void addAgentAsyncKeyRecovery(String reqID, String agentID)

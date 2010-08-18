@@ -33,8 +33,8 @@ import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.DSAParams;
 import java.security.cert.*;
 
-import sun.misc.BASE64Encoder;
-import sun.misc.BASE64Decoder;
+//import sun.misc.BASE64Encoder;
+//import sun.misc.BASE64Decoder;
 import org.mozilla.jss.*;
 import org.mozilla.jss.asn1.*;
 import org.mozilla.jss.util.*;
@@ -68,12 +68,13 @@ public class CryptoUtil {
     /*
      * encodes cert
      */
-    private static BASE64Encoder mEncoder = new BASE64Encoder();
+ // private static BASE64Encoder mEncoder = new BASE64Encoder();
     public static String toMIME64(X509CertImpl cert) {
         try {
             return
                     "-----BEGIN CERTIFICATE-----\n"
-                    + mEncoder.encodeBuffer(cert.getEncoded())
+                //  + mEncoder.encodeBuffer(cert.getEncoded())
+                    + com.netscape.osutil.OSUtil.BtoA( cert.getEncoded() )
                     + "-----END CERTIFICATE-----\n";
         } catch (Exception e) {}
         return null;
@@ -198,8 +199,9 @@ public class CryptoUtil {
     }
                                                                                 
     public static byte[] base64Decode(String s) throws IOException {
-        BASE64Decoder base64 = new BASE64Decoder();
-        byte[] d = base64.decodeBuffer(s);
+     // BASE64Decoder base64 = new BASE64Decoder();
+     // byte[] d = base64.decodeBuffer(s);
+        byte[] d = com.netscape.osutil.OSUtil.AtoB( s );
                                                                                 
         return d;
     }

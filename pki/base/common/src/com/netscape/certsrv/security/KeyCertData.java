@@ -692,7 +692,7 @@ public class KeyCertData extends Properties {
     /**
      * Sets Authority Information Access flag
      *
-     * @param aki Authority Information Access flag
+     * @param aia Authority Information Access flag
      */
     public void setAIA(String aia) {
         put(Constants.PR_AIA, aia);

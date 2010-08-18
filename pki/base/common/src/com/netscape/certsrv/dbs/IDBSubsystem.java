@@ -191,7 +191,6 @@ public interface IDBSubsystem extends ISubsystem {
     /**
      * Determines if serial number management has been enabled
      *
-     * @param repo   repo identifier 
      * @return true if enabled, false otherwise
      */
     public boolean getEnableSerialMgmt();
