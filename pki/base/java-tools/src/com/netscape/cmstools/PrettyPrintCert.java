@@ -37,12 +37,12 @@ import netscape.security.util.*;
  * The program may be invoked as follows:
  * <PRE>
  *
- *      PrettyPrintCert <input filename> [output filename]
+ *      PrettyPrintCert &lt;input filename&gt; [output filename]
  *
- *      NOTE:  <input filename>   must contain an ASCII
+ *      NOTE:  &lt;input filename&gt;   must contain an ASCII
  *                                BASE 64 encoded certificate
  *
- *             [output filename]  contains a certificate displayed
+ *             &lt;output filename&gt;  contains a certificate displayed
  *                                in a "pretty print" ASCII format
  * </PRE>
  *

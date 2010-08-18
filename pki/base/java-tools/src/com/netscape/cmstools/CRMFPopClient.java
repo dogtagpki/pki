@@ -52,12 +52,11 @@ import com.netscape.cmsutil.util.*;
 
 
 /**
- * Description:  A command-line utility used to generate a
- *               Certificate Request Message Format (CRMF)
- *               request with proof of possesion (POP).
+ * A command-line utility used to generate a Certificate Request Message
+ * Format (CRMF) request with proof of possesion (POP).
  *
  * Usage:
- *
+ * <pre>
  *     CRMFPopClient  TOKEN_PWD
  *                    Authenticator HOST PORT USER_NAME PASSWORD
  *                    POP_OPTION
@@ -71,10 +70,10 @@ import com.netscape.cmsutil.util.*;
  *
  *
  *     where POP_OPTION can be [POP_SUCCESS or POP_FAIL or POP_NONE]
- *
- *
+ * </pre>
+ * <p>
  * Examples:
- *
+ * <pre>
  *     CRMFPopClient  password123
  *                    nullAuthMgr host.netscape.com 1026 admin netscape
  *                    [POP_SUCCESS or POP_FAIL or POP_NONE]
@@ -92,12 +91,16 @@ import com.netscape.cmsutil.util.*;
  *     CRMFPopClient  password123
  *                    [POP_SUCCESS or POP_FAIL or POP_NONE]
  *                    OUTPUT_CERT_REQ CN=MyTest,C=US,UID=MyUid
- *
- *
+ * </pre>
+ * <p>
+ * <pre>
  * IMPORTANT:  The file "transport.txt" needs to be created to contain the
  *             transport certificate in its base64 encoded format.  This
  *             file should consist of one line containing a single certificate
  *             in base64 encoded format with the header and footer removed.
+ * </pre>
+ * <p>
+ * @version $Revision$, $Date$
  */
 public class CRMFPopClient
 {

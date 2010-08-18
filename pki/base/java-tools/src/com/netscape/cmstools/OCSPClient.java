@@ -42,6 +42,8 @@ import com.netscape.cmsutil.ocsp.Request;
 
 /**
  * This class implements a OCSP client for testing.
+ *
+ * @version $Revision$, $Date$
  */
 public class OCSPClient
 {

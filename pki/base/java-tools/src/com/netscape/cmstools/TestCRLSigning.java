@@ -50,7 +50,12 @@ import netscape.security.x509.*;
 import com.netscape.cmsutil.ocsp.*;
 import com.netscape.cmsutil.ocsp.Request;
 
-
+/**
+ * Tool used to test out signing a CRL
+ *
+ * <p>
+ * @version $Revision$ Date: $
+ */
 public class TestCRLSigning
 {
     public static void printUsage()

@@ -33,12 +33,12 @@ import java.io.*;
  * The program may be invoked as follows:
  * <PRE>
  *
- *      AtoB <input filename> <output filename>
+ *      AtoB &lt;input filename&gt; &lt;output filename&gt;
  *
- *      NOTE:  <input filename>   must contain an ASCII
+ *      NOTE:  &lt;input filename&gt;   must contain an ASCII
  *                                BASE 64 encoded blob
  *
- *             <output filename>  contains a BINARY
+ *             &lt;output filename&gt;  contains a BINARY
  *                                BASE 64 encoded blob
  * </PRE>
  *

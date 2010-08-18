@@ -31,11 +31,12 @@ import netscape.security.util.*;
  * certificates (i.e. CA certificate, SSL certificate).
  *
  * Usage:
+ * <pre>
  *  ExtJoiner \
- *    <ext_file0> <ext_file1> ... <ext_fileN>
+ *    &lt;ext_file0&gt; &lt;ext_file1&gt; ... &lt;ext_fileN&gt;
  *
  *  where,
- *    <ext_file> is a file that has the base64 
+ *    &lt;ext_file&gt; is a file that has the base64 
  *    encoded DER encoding of an X509 Extension
  * 
  *  ExtensionSequence ::= SEQUENCE OF Extension;
@@ -58,7 +59,7 @@ import netscape.security.util.*;
  *           :       73 63 61 70 65 2E 63 6F 6D 88 03 29 01 01
  *           :     }
  *           :   }
- *
+ * </pre>
  *
  * @version $Revision$, $Date$
  */

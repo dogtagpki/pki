@@ -43,6 +43,8 @@ import com.netscape.cmsutil.ocsp.Request;
 
 /**
  * This class implements a CMC Enroll client for testing.
+ *
+ * @version $Revision$, $Date$
  */
 public class HttpClient
 {

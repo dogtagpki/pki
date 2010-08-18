@@ -50,7 +50,7 @@ import java.util.*;
 
 
 /**
- * Tool for signing PKCS #10 , return CMC
+ * Tool for signing a CMC revocation request with an agent's certificate.
  * 
  * <P>
  * @version $Revision$, $Date$

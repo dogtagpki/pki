@@ -30,11 +30,12 @@ import netscape.security.util.*;
  * the configuration wizard.
  *
  * Usage:
+ * <pre>
  *  GenIssuerAltNameExt \
- *    <general_type0> <general_name0> ... <general_typeN> <general_nameN>
+ *    &lt;general_type0&gt; &lt;general_name0&gt; ... &lt;general_typeN&gt; &lt;general_nameN&gt;
  *
  *  where,
- *    <general_type> can be one of the following string:
+ *    &lt;general_type&gt; can be one of the following string:
  *      DNSName 
  *      EDIPartyName
  *      IPAddressName
@@ -42,7 +43,8 @@ import netscape.security.util.*;
  *      RFC822Name
  *      OIDName
  *      X500Name
- *    <general_name> is string
+ *    &lt;general_name&gt; is string
+ * </pre>
  *
  * @version $Revision$, $Date$
  */

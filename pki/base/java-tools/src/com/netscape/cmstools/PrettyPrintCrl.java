@@ -37,12 +37,12 @@ import netscape.security.util.*;
  * The program may be invoked as follows:
  * <PRE>
  *
- *      PrettyPrintCrl <input filename> [output filename]
+ *      PrettyPrintCrl &lt;input filename&gt; [output filename]
  *
- *      NOTE:  <input filename>   must contain an ASCII
+ *      NOTE:  &lt;input filename&gt;   must contain an ASCII
  *                                BASE 64 encoded CRL
  *
- *             [output filename]  contains a CRL displayed
+ *             &lt;output filename&gt;  contains a CRL displayed
  *                                in a "pretty print" ASCII format
  * </PRE>
  *
