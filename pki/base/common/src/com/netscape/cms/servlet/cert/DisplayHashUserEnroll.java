@@ -49,7 +49,7 @@ import com.netscape.cms.servlet.*;
 
 
 /**
- * XXX Servlet to report the status, ie, the agent-initiated user
+ * Servlet to report the status, ie, the agent-initiated user
  * enrollment is enabled or disabled.
  *
  * @version $Revision$, $Date$

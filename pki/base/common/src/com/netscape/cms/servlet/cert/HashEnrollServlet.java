@@ -67,7 +67,7 @@ import java.math.*;
 
 
 /**
- * XXX performs face-to-face enrollment.
+ * performs face-to-face enrollment.
  *
  * @version $Revision$, $Date$
  */

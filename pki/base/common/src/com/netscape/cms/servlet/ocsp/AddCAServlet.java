@@ -57,7 +57,7 @@ import javax.servlet.http.*;
 /**
  * Configure the CA to respond to OCSP requests for a CA
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class AddCAServlet extends CMSServlet {
 	

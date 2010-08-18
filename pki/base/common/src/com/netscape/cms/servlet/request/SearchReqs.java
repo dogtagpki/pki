@@ -44,7 +44,7 @@ import com.netscape.certsrv.request.*;
 
 
 /**
- * XXX Search for certificates matching complex query filter
+ * Search for certificates matching complex query filter
  *
  * @version $Revision$, $Date$
  */

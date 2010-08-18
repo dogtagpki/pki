@@ -57,7 +57,7 @@ import javax.servlet.http.*;
 /**
  * Check the status of a specific certificate 
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class CheckCertServlet extends CMSServlet {
 

@@ -48,7 +48,7 @@ import com.netscape.cms.servlet.*;
 
 
 /**
- * XXX Servlet to get the enrollment status, enable or disable.
+ * Servlet to get the enrollment status, enable or disable.
  *
  * @version $Revision$, $Date$
  */

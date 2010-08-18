@@ -58,7 +58,7 @@ import com.netscape.certsrv.base.*;
  * Process OCSP messages, According to RFC 2560
  * See http://www.ietf.org/rfc/rfc2560.txt
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class OCSPServlet extends CMSServlet {
 

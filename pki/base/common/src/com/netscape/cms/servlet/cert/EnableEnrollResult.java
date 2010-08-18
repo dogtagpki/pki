@@ -49,9 +49,10 @@ import com.netscape.cms.servlet.*;
 
 
 /**
- *  XXX see disable
+ * For Face-to-face enrollment, enable EE enrollment feature
  *
  * @version $Revision$, $Date$
+ * @see com.netscape.cms.servlet.cert.DisableEnrollResult
  */
 public class EnableEnrollResult extends CMSServlet {
     private final static String TPL_FILE = "enableEnrollResult.template";

@@ -61,7 +61,7 @@ import javax.servlet.http.*;
 /**
  * Update the OCSP responder with a new CRL
  *
- * $Revision$ $Date$
+ * @version $Revision$ $Date$
  */
 public class AddCRLServlet extends CMSServlet {
 

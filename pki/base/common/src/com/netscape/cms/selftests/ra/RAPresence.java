@@ -44,7 +44,16 @@ import java.util.*;
 /**
  * This class implements a self test to check for RA presence.
  * <P>
+ * <PRE>
+ * NOTE:  This self-test is for Registration Authorities prior to
+ *        Netscape Certificate Management System 7.0.  It does NOT
+ *        apply to the Registration Authority found in
+ *        Red Hat Certificate System 7.3 or later (including
+ *        ALL versions of Dogtag Certificate System).
+ * </PRE>
+ * <P>
  * 
+ * @deprecated
  * @author mharmsen
  * @author thomask
  * @version $Revision$, $Date$

@@ -45,7 +45,7 @@ import com.netscape.certsrv.authorization.*;
 
 
 /**
- * XXX Provide statistical queries of request and certificate records.
+ * Provide statistical queries of request and certificate records.
  *
  * @version $Revision$, $Date$
  */
