@@ -33,7 +33,13 @@ import com.netscape.cms.policy.APolicyRule;
  * KeyAlgorithmConstraints enforces a constraint that the RA or a CA
  * honor only the keys generated using one of the permitted algorithms
  * such as RSA, DSA or DH.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class KeyAlgorithmConstraints extends APolicyRule

@@ -35,7 +35,13 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * Whether to allow renewal of an expired cert.
  * @version $Revision$, $Date$
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class RenewalConstraints extends APolicyRule

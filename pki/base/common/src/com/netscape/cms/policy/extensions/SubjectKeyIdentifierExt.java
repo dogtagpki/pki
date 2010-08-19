@@ -39,7 +39,13 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * Subject Public Key Extension Policy
  * Adds the subject public key id extension to certificates. 
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class SubjectKeyIdentifierExt extends APolicyRule

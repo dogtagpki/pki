@@ -34,7 +34,13 @@ import com.netscape.cms.policy.APolicyRule;
  * all requests for issuing agent's approval if no authentication
  * is present. The policy rejects a request if any of the auth tokens
  * indicates authentication failure.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class ManualAuthentication extends APolicyRule

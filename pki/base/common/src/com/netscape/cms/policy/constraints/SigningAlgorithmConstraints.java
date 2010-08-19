@@ -37,7 +37,13 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * SigningAlgorithmConstraints enforces that only a supported
  * signing algorithm be requested.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class SigningAlgorithmConstraints extends APolicyRule

@@ -37,7 +37,13 @@ import com.netscape.cms.policy.APolicyRule;
 
 /**
  * Certificate Renewal Window Extension Policy
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class CertificateRenewalWindowExt extends APolicyRule

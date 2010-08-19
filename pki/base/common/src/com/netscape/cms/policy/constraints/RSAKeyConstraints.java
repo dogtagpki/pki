@@ -34,7 +34,13 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * RSAKeyConstraints policy enforces min and max size of the key.
  * Optionally checks the exponents.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class RSAKeyConstraints extends APolicyRule

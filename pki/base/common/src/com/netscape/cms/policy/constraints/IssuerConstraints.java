@@ -33,8 +33,14 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * IssuerConstraints is a rule for restricting the issuers of the
  * certificates used for certificate-based enrollments.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
- * @version $Revision$Date: 2002/12/13 22:13:47 $
+ * @deprecated
+ * @version $Revision$ $Date$
  */
 public class IssuerConstraints extends APolicyRule
     implements IEnrollmentPolicy, IExtendedPluginInfo {

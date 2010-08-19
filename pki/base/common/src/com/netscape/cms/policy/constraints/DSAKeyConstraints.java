@@ -36,7 +36,13 @@ import com.netscape.cms.policy.APolicyRule;
 
 /**
  * DSAKeyConstraints policy enforces min and max size of the key.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class DSAKeyConstraints extends APolicyRule

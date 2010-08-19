@@ -26,6 +26,9 @@ import java.io.*;
 /**
  * Use Java's reflection API to leverage CMS's
  * old Share and JoinShares implementations.
+ *
+ * @deprecated
+ * @version $Revision$ $Date$
  */
 public class OldShare implements IShare 
 {

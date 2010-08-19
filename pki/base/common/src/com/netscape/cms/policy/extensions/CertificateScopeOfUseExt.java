@@ -40,7 +40,13 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * Certificate Scope Of Use extension policy. This extension
  * is defined in draft-thayes-cert-scope-00.txt
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class CertificateScopeOfUseExt extends APolicyRule implements 

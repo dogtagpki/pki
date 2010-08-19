@@ -33,7 +33,13 @@ import com.netscape.cms.policy.APolicyRule;
  * This is the default revocation policy. Currently this does
  * nothing. We can later add checks like whether or not to
  * revoke expired certs ..etc here.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class DefaultRevocation extends APolicyRule

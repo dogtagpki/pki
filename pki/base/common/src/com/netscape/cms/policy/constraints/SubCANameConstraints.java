@@ -37,7 +37,13 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * This simple policy checks the subordinate CA CSR to see
  * if it is the same as the local CA.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class SubCANameConstraints extends APolicyRule implements IEnrollmentPolicy, IExtendedPluginInfo {

@@ -37,7 +37,13 @@ import com.netscape.cms.policy.APolicyRule;
  * Policy Mappings Extension Policy
  * Adds the Policy Mappings extension to a (CA) certificate. 
  * Filtering of CA certificates is done through predicates.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class PolicyMappingsExt extends APolicyRule

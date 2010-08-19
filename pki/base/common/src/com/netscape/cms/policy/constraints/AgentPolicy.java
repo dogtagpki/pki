@@ -38,7 +38,13 @@ import com.netscape.cms.policy.APolicyRule;
  *   policy indicates that the request should be deferred, a check
  *   for agent approvals is done.  If any are found, the request
  *   is approved.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class AgentPolicy extends APolicyRule

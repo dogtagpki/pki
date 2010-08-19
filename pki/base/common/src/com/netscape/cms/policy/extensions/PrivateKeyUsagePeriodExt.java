@@ -37,7 +37,13 @@ import com.netscape.cms.policy.APolicyRule;
 
 /**
  * PrivateKeyUsagePeriod Identifier Extension policy.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class PrivateKeyUsagePeriodExt extends APolicyRule

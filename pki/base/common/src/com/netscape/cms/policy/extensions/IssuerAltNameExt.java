@@ -47,7 +47,13 @@ import com.netscape.cms.policy.APolicyRule;
  * 
  * This extension is used to associate Internet-style identities 
  * with the Certificate issuer. 
- * 
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
+ *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class IssuerAltNameExt extends APolicyRule

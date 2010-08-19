@@ -47,7 +47,13 @@ import com.netscape.certsrv.apps.*;
  * the same subject name. For example, one key for encryption, 
  * and one for signing. This policy does not deal with this case 
  * directly. But it can be easily extended to do that.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class UniqueSubjectNameConstraints extends APolicyRule 

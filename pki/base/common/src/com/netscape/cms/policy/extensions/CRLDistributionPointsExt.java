@@ -40,7 +40,13 @@ import com.netscape.cms.policy.APolicyRule;
  * as a simple string in the configuration file, so this attribute is needed
  * to tell whether the simple string should be stored in an X.500 Name,
  * a URL, or an RDN.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 class NameType {

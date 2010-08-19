@@ -20,7 +20,13 @@ package com.netscape.certsrv.policy;
 
 /**
  * Interface for a revocation policy rule.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IRevocationPolicy extends IPolicyRule {

@@ -21,6 +21,13 @@ import java.lang.reflect.*;
 import com.netscape.certsrv.kra.*;
 import com.netscape.certsrv.apps.*;
 
+/**
+ * Use Java's reflection API to leverage CMS's
+ * old Share and JoinShares implementations.
+ *
+ * @deprecated
+ * @version $Revision$ $Date$
+ */
 public class OldJoinShares implements IJoinShares {
 
     public Object mOldImpl = null;

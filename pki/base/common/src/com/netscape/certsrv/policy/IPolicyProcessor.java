@@ -32,7 +32,13 @@ import com.netscape.certsrv.base.*;
  *
  * By making both processor and policy rules implement a common
  * interface, one can write rules that are processors as well.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IPolicyProcessor extends ISubsystem,

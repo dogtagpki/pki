@@ -37,7 +37,13 @@ import com.netscape.cms.policy.APolicyRule;
  * Optionally the lead and lag times - i.e how far back into the
  * front or back the notBefore date could go in minutes can also
  * be specified.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class ValidityConstraints extends APolicyRule

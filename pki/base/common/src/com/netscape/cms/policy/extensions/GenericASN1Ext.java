@@ -68,7 +68,13 @@ import com.netscape.cms.policy.APolicyRule;
  * ca.Policy.rule.genericASNExt.attribute5.value=
  * ca.Policy.rule.genericASNExt.implName=genericASNExt
  * ca.Policy.rule.genericASNExt.predicate=
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class GenericASN1Ext extends APolicyRule implements 

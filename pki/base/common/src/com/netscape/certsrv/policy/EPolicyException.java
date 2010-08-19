@@ -32,7 +32,12 @@ import com.netscape.certsrv.base.*;
  *
  * Adapted from EBasException
  * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  * @see java.text.MessageFormat
  */

@@ -26,7 +26,13 @@ import netscape.security.util.*;
 /** 
  * Class that can be used to form general names from configuration file. 
  * Used by policies and extension commands.
- * 
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
+ *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IGeneralNamesAsConstraintsConfig {

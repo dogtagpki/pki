@@ -41,7 +41,13 @@ import com.netscape.cms.policy.APolicyRule;
  *  The renewal leadtime in days: - i.e how many days before the
  *      expiry of the current certificate can one request the renewal.
  *      min and max validity duration.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class RenewalValidityConstraints extends APolicyRule

@@ -51,7 +51,13 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * NS Cert Type policy.
  * Adds the ns cert type extension depending on cert type requested.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class NSCertTypeExt extends APolicyRule

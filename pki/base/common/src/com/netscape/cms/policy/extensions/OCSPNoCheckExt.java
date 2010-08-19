@@ -35,8 +35,14 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * This implements an OCSP Signing policy, it
  * adds the OCSP Signing extension to the certificate.
- * 
- * @version $Revision$
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
+ *
+ * @deprecated
+ * @version $Revision$ $Date$
  */
 public class OCSPNoCheckExt extends APolicyRule
     implements IEnrollmentPolicy, IExtendedPluginInfo {

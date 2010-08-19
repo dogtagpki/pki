@@ -17,6 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.kra;
 
+/**
+ * Use Java's reflection API to leverage CMS's
+ * old Share and JoinShares implementations.
+ *
+ * @deprecated
+ * @version $Revision$ $Date$
+ */
 public interface IShare {
 
     public void initialize(byte[] secret, int threshold) throws Exception;

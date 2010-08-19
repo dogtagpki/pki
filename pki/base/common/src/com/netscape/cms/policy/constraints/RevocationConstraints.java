@@ -32,7 +32,13 @@ import com.netscape.cms.policy.APolicyRule;
 
 /**
  * Whether to allow revocation of an expired cert.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class RevocationConstraints extends APolicyRule

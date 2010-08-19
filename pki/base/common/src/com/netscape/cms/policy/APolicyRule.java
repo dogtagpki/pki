@@ -38,7 +38,13 @@ import java.security.cert.*;
 /**
  * The abstract policy rule that concrete implementations will
  * extend.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public abstract class APolicyRule implements IPolicyRule {

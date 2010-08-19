@@ -33,7 +33,13 @@ import com.netscape.certsrv.request.IRequest;
  * The policy system initialization needs to deal with reading the rules, sorting
  * them in increasing order of priority and presenting an ordered vector of rules
  * via the IPolicySet interface.
+ * <P>
+ * <PRE>
+ * NOTE:  The Policy Framework has been replaced by the Profile Framework.
+ * </PRE>
+ * <P>
  *
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IPolicySet {
