@@ -270,15 +270,13 @@ public class AdminPanel extends WizardPanelBase {
         }
 
         // REMINDER:  This panel is NOT used by "clones"
-        if( ( ca != null ) && ( security_domain_type.equals( "new" ) ) ) {
+        if( ca != null ) {
             if( selected_hierarchy.equals( "root" ) ) {
                 CMS.debug( "AdminPanel update:  "
-                         + "Root CA subsystem - "
-                         + "(new Security Domain)" );
+                         + "Root CA subsystem");
             } else {
                 CMS.debug( "AdminPanel update:  "
-                         + "Subordinate CA subsystem - "
-                         + "(new Security Domain)" );
+                         + "Subordinate CA subsystem");
             }
 
             try {
@@ -292,27 +290,13 @@ public class AdminPanel extends WizardPanelBase {
         } else {
             String ca_hostname = null;
             int ca_port = -1;
-            boolean caRoot = false;
 
             // REMINDER:  This panel is NOT used by "clones"
-            if( subsystemtype.equals( "CA" ) ) {
-                if( selected_hierarchy.equals( "root" ) ) {
-                    CMS.debug( "AdminPanel update:  "
-                             + "Root CA subsystem - "
-                             + "(existing Security Domain)" );
-                    caRoot = true;
-                } else {
-                    CMS.debug( "AdminPanel update:  "
-                             + "Subordinate CA subsystem - "
-                             + "(existing Security Domain)" );
-                }
-            } else {
-                CMS.debug( "AdminPanel update:  "
+            CMS.debug( "AdminPanel update:  "
                          + subsystemtype
                          + " subsystem" );
-            }
 
-            if ((type.equals("sdca")) && (!caRoot)) {
+            if (type.equals("sdca")) {
                 try {
                     ca_hostname = config.getString("preop.ca.hostname");
                     ca_port = config.getInteger("preop.ca.httpsport");

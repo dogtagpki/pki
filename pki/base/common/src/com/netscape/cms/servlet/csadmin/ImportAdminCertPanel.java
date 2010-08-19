@@ -133,24 +133,28 @@ public class ImportAdminCertPanel extends WizardPanelBase {
         if (ca == null) {
             if (type.equals("otherca")) {
                 try {
+                    // this is a non-CA system that has elected to have its certificates 
+                    // signed by a CA outside of the security domain.
+                    // in this case, we submitted the cert request for the admin cert to
+                    // to security domain host.
                     caHost = cs.getString("securitydomain.host", "");
                     caPort = cs.getString("securitydomain.httpsadminport", "");
                 } catch (Exception e) {}
             } else if (type.equals("sdca")) {
                 try {
-                    // If this code is selected (e. g. - Subordinate CAs
-                    // that are NOT their own Security Domain), it MUST
-                    // still pass the "httpsadminport" associated with the
-                    // Security Domain CA as defined via the NamePanel.
+                    // this is a non-CA system that submitted its certs to a CA
+                    // within the security domain.  In this case, we submitted the cert
+                    // request for the admin cert to this CA
                     caHost = cs.getString("preop.ca.hostname", "");
                     caPort = cs.getString("preop.ca.httpsadminport", "");
                 } catch (Exception e) {}
             }
         } else {
-            // Provide default Security Domain values for 'caHost' and 'caPort'
+            // for CAs, we always generate our own admin certs
+            // send our own connection details
             try {
-                caHost = cs.getString("securitydomain.host", "");
-                caPort = cs.getString("securitydomain.httpsadminport", "");
+                caHost = cs.getString("service.machineName", "");
+                caPort = cs.getString("pkicreate.admin_secure_port", "");
             } catch (Exception e) {}
         }
 
@@ -207,7 +211,7 @@ public class ImportAdminCertPanel extends WizardPanelBase {
         X509CertImpl certs[] = new X509CertImpl[1];
 
         // REMINDER:  This panel is NOT used by "clones"
-        if( ( ca != null ) && ( security_domain_type.equals( "new" ) ) ) {
+        if( ca != null ) {
             String serialno = null;
 
             if( selected_hierarchy.equals( "root" ) ) {
