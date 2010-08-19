@@ -79,11 +79,13 @@ PKCS11Obj *PKCS11Obj::Parse(Buffer *b, int offset)
 
 #define MAX_UNCOMPRESS_SIZE 20000
 	   unsigned char buf[MAX_UNCOMPRESS_SIZE];
-	   int len = MAX_UNCOMPRESS_SIZE;
-           uncompress((Bytef*)buf, (uLongf*)&len, 
+           int rc = 0;
+           uLong len = MAX_UNCOMPRESS_SIZE;
+           rc = uncompress((Bytef*)buf, (uLongf*)&len, 
 			   (Bytef*)((BYTE*)compressedData), 
 			   (uLong)compressedData.size());
-	   data = Buffer(buf, len);
+           RA::Debug("PKCS11Obj::Parse","uncompress ret=%d",rc);
+	   data = Buffer(buf,(unsigned int) len);
        	} else {
 		/* error */
        	}
