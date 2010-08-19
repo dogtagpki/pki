@@ -2839,6 +2839,7 @@ int RA::tdb_update_certificates(char* cuid, char **tokentypes, char *userid, CER
 	goto loser;
     }
 
+     RA::Debug(LL_PER_PDU, "RA::tdb_update_certificates","numOfCerts %d", numOfCerts);
     /* update certificates */
     for (i = 0; i < numOfCerts; i++) {
       if (certificates[i] == NULL) {

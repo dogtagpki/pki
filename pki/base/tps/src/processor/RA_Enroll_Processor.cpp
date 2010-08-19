@@ -31,6 +31,7 @@
 
 
 #include <string.h>
+#include <time.h>
 #include "pkcs11.h"
 
 // for public key processing
@@ -71,6 +72,7 @@
 #endif /* !XP_WIN32 */
 
 SECStatus PK11_GenerateRandom(unsigned char *,int);
+void PrintPRTime(PRTime,char *);
 
 
 // This parameter is read from the config file. It is the
@@ -1037,6 +1039,8 @@ bool RA_Enroll_Processor::GetAppletInfo(
     BYTE &o_app_major_version,
     BYTE &o_app_minor_version)
 {
+    int total_mem = 0;
+    int free_mem  = 0;
     Buffer *token_status = NULL;
     SelectApplet(a_session, 0x04, 0x00, a_aid);
     token_status = GetStatus(a_session, 0x00, 0x00);
@@ -1050,11 +1054,22 @@ bool RA_Enroll_Processor::GetAppletInfo(
       o_minor_version = ((BYTE*)*token_status)[1];
       o_app_major_version = ((BYTE*)*token_status)[2]; // and this applet version?
       o_app_minor_version = ((BYTE*)*token_status)[3];
+
+      BYTE tot_high = ((BYTE*)*token_status)[6];
+      BYTE tot_low  = ((BYTE*)*token_status)[7];
+
+      BYTE free_high = ((BYTE*)*token_status)[10];
+      BYTE free_low  = ((BYTE*)*token_status)[11];
+
+      total_mem =   (tot_high << 8)  + tot_low;
+      free_mem  =   (free_high << 8) + free_low;
+
+      RA::DebugBuffer("RA_Enroll_Processor::Process AppletInfo Data", "Data=", token_status);
       delete token_status;
     }
     RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process",
-	      "Major=%d Minor=%d Applet Major=%d Applet Minor=%d", 
-			o_major_version, o_minor_version, o_app_major_version, o_app_minor_version);
+	      "Major=%d Minor=%d Applet Major=%d Applet Minor=%d Total Mem %d Free Mem %d", 
+			o_major_version, o_minor_version, o_app_major_version, o_app_minor_version,total_mem,free_mem);
 	return true;
 }
 
@@ -3156,24 +3171,51 @@ RA::Debug("RA_Enroll_Processor::GenerateCertsAfterRecoveryPolicy", "returning bo
 
 /*
  * cfu - check  if a cert is within the renewal grace period
- *   for now, just check if it expired
+ *  utilize passed in grace period values. 
  */
-bool isCertRenewable(CERTCertificate *cert){
+bool RA_Enroll_Processor::isCertRenewable(CERTCertificate *cert, int graceBefore, int graceAfter){
     PRTime timeBefore, timeAfter, now;
-    PRExplodedTime beforePrintable, afterPrintable;
-    char *beforestr, *afterstr;
 
+    //Grace period input in days
+    RA::Debug("RA_Enroll_Processor::isCertRenewable","graceBefore %d graceAfter %d",graceBefore,graceAfter);
+    PRTime graceBefore64, graceAfter64,microSecondsPerSecond;
+    PRInt64 graceBeforeSeconds,graceAfterSeconds;
+
+    LL_I2L(microSecondsPerSecond, PR_USEC_PER_SEC);
+
+    //Get number of microseconds in each grace period value.
+    LL_I2L(graceBeforeSeconds, graceBefore * 60 * 60 * 24);
+    LL_I2L(graceAfterSeconds,graceAfter * 60 * 60 * 24);
+
+    LL_MUL(graceBefore64, microSecondsPerSecond,graceBeforeSeconds);
+    LL_MUL(graceAfter64,  microSecondsPerSecond,graceAfterSeconds);
+
+    PRTime lowerBound, upperBound;
+ 
     DER_DecodeTimeChoice(&timeBefore, &cert->validity.notBefore);
     DER_DecodeTimeChoice(&timeAfter, &cert->validity.notAfter);
+
+    PrintPRTime(timeBefore,"timeBefore");
+    PrintPRTime(timeAfter,"timeAfter");
+
     now = PR_Now();
-    if (timeAfter <= now) {
+
+    //Calculate lower and upper legal bounds for time
+    LL_SUB(lowerBound,timeAfter, graceBefore64);
+    LL_ADD(upperBound,timeAfter,graceAfter64);
+
+    PrintPRTime(lowerBound,"lowerBound");
+    PrintPRTime(now,"now");
+    PrintPRTime(upperBound,"upperBound");
+
+    if(LL_CMP(now,>=, lowerBound) && LL_CMP(now,<=,upperBound)) {
+        RA::Debug("RA_Enroll_Processor::isCertRenewable","returning true!");
         return true;
     }
+
+    RA::Debug("RA_Enroll_Processor::isCertRenewable","returning false!");
+
     return false;
-/*
-    PR_ExplodeTime(timeBefore, PR_GMTParameters, &beforePrintable);
-    PR_ExplodeTime(timeAfter, PR_GMTParameters, &afterPrintable);
-*/
 }
 
 /*
@@ -3233,8 +3275,26 @@ loser:
     return r;
 }
 
+#define RENEWAL_FAILURE 1
+#define RENEWAL_FAILURE_GRACE 2
 
-// cfu
+/*
+* Renewal logic
+*  1. Create Optional local TPS grace period per token profile, 
+*     per token type, such as signing or encryption.
+*    This grace period must match how the CA is configured. Ex:
+*    op.enroll.userKey.renewal.encryption.enable=true
+*    op.enroll.userKey.renewal.encryption.gracePeriod.enable=true
+*    op.enroll.userKey.renewal.encryption.gracePeriod.before=30
+*    op.enroll.userKey.renewal.encryption.gracePeriod.after=30
+*  2. In case of a grace period failure the code will go on 
+*     and attempt to renew the next certificate in the list.
+*  3. In case of any other code failure, the code will abort
+*     and leave the token untouched, while informing the user
+*     with an error message.
+*
+*
+*/
 bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session, char **&ktypes,
  char **&origins,
   char *tokenType, PKCS11Obj *pkcs11objx, int pkcs11obj_enable,
@@ -3253,6 +3313,11 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
     const char *pretty_cuid = NULL;
     char audit_msg[512] = "";
     char *keyVersion = NULL;
+    int renewal_failure_found = 0;
+   
+    int   maxCertUpdate = 25; 
+    char  *renewedCertUpdateList[25];
+    int   renewedCertUpdateCount = 0;
 
     int i = 0;
     const char *FN="RA_Enroll_Processor::ProcessRenewal";
@@ -3284,13 +3349,18 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 
     RA::Debug("RA_Enroll_Processor::ProcessRenewal", "keyType.num=%d", keyTypeNum);
 
-    o_certNums = 0 /*keyTypeNum*/;
+    o_certNums = keyTypeNum;
     certificates = (CERTCertificate **) malloc (sizeof(CERTCertificate *) * keyTypeNum);
     ktypes = (char **) malloc (sizeof(char *) * keyTypeNum);
     origins = (char **) malloc (sizeof(char *) * keyTypeNum);
     tokenTypes = (char **) malloc (sizeof(char *) * keyTypeNum);
 
     for (i=0; i<keyTypeNum; i++) {
+        certificates[i] = NULL;
+        ktypes[i] = NULL;
+        origins[i] = NULL;
+        tokenTypes[i] = NULL;
+
         bool renewable = true;
         // e.g. op.enroll.userKey.renewal.keyType.value.0=signing
         // e.g. op.enroll.userKey.renewal.keyType.value.1=encryption
@@ -3419,6 +3489,10 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                     Buffer *exponent=NULL;
                     CERTSubjectPublicKeyInfo*  spkix = NULL;
 
+                    bool graceEnabled = false;
+                    int graceBefore = 0;
+                    int graceAfter = 0;
+
                     if (certs[0] != NULL) {
 
                         RA::Debug("RA_Enroll_Processor::ProcessRenewal",
@@ -3464,19 +3538,56 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 
                         RA::Debug("RA_Enroll_Processor::ProcessRenewal","got profileId=%s",profileId);
 			RA::Debug("RA_Enroll_Processor::ProcessRenewal", "begin renewal");
+
+
+                        PR_snprintf(configname,256,
+                           "op.enroll.%s.renewal.%s.gracePeriod.enable",tokenType,keyTypeValue);
+
+                        graceEnabled = RA::GetConfigStore()->GetConfigAsBool(configname,0);
+
+                        if(graceEnabled) {
+
+                            PR_snprintf(configname,256,
+                               "op.enroll.%s.renewal.%s.gracePeriod.before",tokenType,keyTypeValue);
+
+                            graceBefore = RA::GetConfigStore()->GetConfigAsInt(configname,0);
+
+                            PR_snprintf(configname,256,
+                                "op.enroll.%s.renewal.%s.gracePeriod.after",tokenType,keyTypeValue); 
+                            
+                            graceAfter = RA::GetConfigStore()->GetConfigAsInt(configname,0); 
+                            // check if renewable (note: CA makes the final decision)
+                            if (!isCertRenewable(certs[0],graceBefore,graceAfter)) {
+                                RA::Debug("RA_Enroll_Processor::ProcessRenewal",
+                                    "Cert outside of renewal period");
+                                renewal_failure_found = RENEWAL_FAILURE_GRACE;
+                                //Since this is merely a grace period failure for one cert
+                                //let's keep going.
+                                r = true;
+                                goto rloser;
+                            }
+
+                        }
+
                         // send renewal request to CA
                         // o_cert is the cert gotten back
                         r = DoRenewal(caconnid, profileId, certs[0], &o_cert, audit_msg);
                         if (r == false) {
-			    RA::Debug("RA_Enroll_Processor::ProcessRenewal", "after DoRenewal");
+			    RA::Debug("RA_Enroll_Processor::ProcessRenewal", "after DoRenewal failure. o_cert %p",o_cert);
                             o_status = STATUS_ERROR_MAC_ENROLL_PDU;
-
+                            //Assume a renewal grace failure here since we can't obtain the reason.
+                            //This is the most likely error and there is a chance the next renewal may succeed.
+                            renewal_failure_found = RENEWAL_FAILURE_GRACE;
                             char snum[2048];
                             RA::ra_tus_print_integer(snum, &(certs[0])->serialNumber);
                             RA::Audit(EV_RENEWAL, AUDIT_MSG_PROC_CERT_REQ, 
                               userid, cuid, msn, "failure", "renewal", final_applet_version,
                               keyVersion != NULL ? keyVersion :  "", 
                               snum, caconnid, audit_msg);
+                            //Since this is merely a grace period or renewal failure for one cert
+                            //let's keep it going
+
+                            r = true;
                             goto rloser;
                         }
 
@@ -3492,6 +3603,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                         if(pattern == NULL)
                         {
                             RA::Debug("RA_Enroll_Processor::ProcessRenewal", "no configured cert label!");
+                            renewal_failure_found = RENEWAL_FAILURE;
                             PR_snprintf(audit_msg,512, "No cert label configured for cert!");
                             goto rloser;
                         }
@@ -3524,7 +3636,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                         ktypes[i] = PL_strdup(keyTypeValue);
                         origins[i] = PL_strdup(cuid);
                         certificates[i] = o_cert;
-                        o_certNums++;
+                        //o_certNums++;
 
                         // For the encrytion cert we actually need to calculate the proper certId and certAttrId
                         // since we now leave previous encryption certs on the token to allow dencryption of old
@@ -3543,6 +3655,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                                 RA::Debug(LL_PER_CONNECTION,FN,
                                     "RA_Enroll_Processor::ProcessRenewal","Possible misconfiguration or out of sync token!");
                                 PR_snprintf(audit_msg, 512, "Renewal of cert failed, misconfiguration or out of sync token!");
+                                renewal_failure_found = RENEWAL_FAILURE; 
                                 goto rloser;
 
                             }
@@ -3570,6 +3683,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 			} else {
                           RA::Debug(LL_PER_CONNECTION,FN,
                             "Not implemented");
+                          renewal_failure_found = RENEWAL_FAILURE;
                           PR_snprintf(audit_msg, 512, "Write cert to token failed: pkcs11obj_enable = false not implemented");
                           goto rloser;
 /*
@@ -3605,6 +3719,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                                key_type , finalCertAttrId, label, keyid);
                           if (b == NULL) {
                               PR_snprintf(audit_msg, 512, "Write cert to token failed: CreatePKCS11CertAttrsBuffer returns null");
+                              renewal_failure_found = RENEWAL_FAILURE;
                               goto rloser;
                           }
                           ObjectSpec *objSpec = 
@@ -3614,6 +3729,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 				   &b);
                           if (objSpec == NULL) {
                               PR_snprintf(audit_msg, 512, "Write cert to token failed: ParseFromTokenData returns null");
+                              renewal_failure_found = RENEWAL_FAILURE;
                               goto rloser;
                           }
 
@@ -3646,6 +3762,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                           RA::Debug(LL_PER_CONNECTION,FN,
                             "Not implemented");
                           PR_snprintf(audit_msg, 512, "Write cert to token failed: pkcs11obj_enable = false not implemented");
+                          renewal_failure_found = RENEWAL_FAILURE;
                           goto rloser;
 /*
                           RA::Debug(LL_PER_CONNECTION,FN,
@@ -3678,11 +3795,13 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 			modulus = new Buffer((BYTE*) si_mod.data, si_mod.len);
                         if (modulus == NULL) {
                             PR_snprintf(audit_msg, 512, "Write cert to token failed: modulus is null");
+                            renewal_failure_found = RENEWAL_FAILURE;
                             goto rloser;
                         }
 			spkix = SECKEY_CreateSubjectPublicKeyInfo(pk_p);
                         if (spkix == NULL) {
                             PR_snprintf(audit_msg, 512, "Write cert to token failed: CreateSubjectPublicKeyInfo returns null");
+                            renewal_failure_found = RENEWAL_FAILURE;
                             goto rloser;
                         }
 
@@ -3696,6 +3815,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 			si_kid = PK11_MakeIDFromPubKey(&spkix->subjectPublicKey);
                         if (si_kid == NULL) {
                             PR_snprintf(audit_msg, 512, "Write cert to token failed: si_kid is null");
+                            renewal_failure_found = RENEWAL_FAILURE;
                             goto rloser;
                         }
 			spkix->subjectPublicKey.len <<= 3;
@@ -3705,12 +3825,14 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 			    keyid = new Buffer((BYTE*) si_kid->data, si_kid->len);
                         if (keyid == NULL) {
                             PR_snprintf(audit_msg, 512, "Write cert to token failed: keyid is null");
+                            renewal_failure_found = RENEWAL_FAILURE;
                             goto rloser;
                         }
 			si_exp = pk_p->u.rsa.publicExponent;
 			exponent =  new Buffer((BYTE*) si_exp.data, si_exp.len);
                         if (exponent == NULL) {
                             PR_snprintf(audit_msg, 512, "Write cert to token failed: exponent is null");
+                            renewal_failure_found = RENEWAL_FAILURE;
                             goto rloser;
                         }
 			RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process",
@@ -3739,13 +3861,20 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 			  PL_strfree( (char *) label );
 			  label = NULL;
 			}
+                        if(renewal_failure_found == RENEWAL_FAILURE) {
+                            RA::Debug("RA_Enroll_Processor_ProcessRenewal", "A renewal in list failed other than grace period error, aborting.");
+                            goto loser;
+                        }
                     }
                     break;
                   } //for
                   if((strcmp( attr_status, "active" ) == 0) &&
                        renewed) {
                       char *cn = RA::ra_get_cert_cn(e);
-                      RA::ra_update_cert_status(cn, "renewed");
+                      if(renewedCertUpdateCount < ( maxCertUpdate -1)) //unlikely scenario this fails 
+                          renewedCertUpdateList[renewedCertUpdateCount++] = PL_strdup(cn);
+                      // Let's hold off on the celebration until the end.
+                      // RA::ra_update_cert_status(cn, "renewed");
                       if (cn != NULL) {
                           PL_strfree(cn);
                           cn = NULL;
@@ -3775,6 +3904,27 @@ loser:
           final_applet_version != NULL ? final_applet_version : "",
           keyVersion != NULL? keyVersion : "",
           audit_msg);
+    }
+
+    //Let's wait until all the certs are processed to actually update the renewal status
+    RA::Debug("RA_Enroll_Process::ProcessRenewal","renewedCertUpdateCount %d", renewedCertUpdateCount);
+    if(renewedCertUpdateCount > 0) {
+        for(int rr = 0; rr < renewedCertUpdateCount; rr++) {
+            if(renewedCertUpdateList[rr]) {
+                if(renewal_failure_found != RENEWAL_FAILURE) {
+                    RA::Debug("RA_Enroll_Process::ProcessRenewal","updating to renewed status of cn= %s", renewedCertUpdateList[rr]);
+                    RA::ra_update_cert_status(renewedCertUpdateList[rr],"renewed");
+                }
+                PL_strfree(renewedCertUpdateList[rr]);
+                renewedCertUpdateList[rr] = NULL;
+            }
+        }
+    } else {
+        // All certs failed to renew 
+         RA::Debug("RA_Enroll_Process::ProcessRenewal","All certs failed to renew, bailing with error");
+        o_status =  STATUS_ERROR_MAC_ENROLL_PDU;
+        r = false;
+
     }
 
     if( pretty_cuid != NULL ) {
@@ -4532,6 +4682,7 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
         ldap_msgfree( result );
     }
 
+    
      RA::Debug("RA_Enroll_Processor::ProcessRecovery","leaving whole function...");
     return r;
 }
@@ -4696,4 +4847,30 @@ int RA_Enroll_Processor::GetNextFreeCertIdNumber(PKCS11Obj *pkcs11objx)
                                   "RA_Enroll_Processor::GetNextFreeCertIdNumber",
                                    "returning id number: %d", highest_cert_id + 1);
     return highest_cert_id + 1;
+}
+
+void PrintPRTime(PRTime theTime,char *theName)
+{
+  struct tm t;
+  PRExplodedTime explode;
+  char buffer[256];
+
+  if(!theName)
+      return;
+  
+  PR_ExplodeTime (theTime, PR_LocalTimeParameters, &explode);
+  
+  t.tm_sec = explode.tm_sec;
+  t.tm_min = explode.tm_min;
+  t.tm_hour = explode.tm_hour;
+  t.tm_mday = explode.tm_mday;
+  t.tm_mon = explode.tm_month;
+  t.tm_year = explode.tm_year - 1900;
+  t.tm_wday = explode.tm_wday;
+  t.tm_yday = explode.tm_yday;
+  
+  PL_strncpy(buffer, asctime (&t), 256);
+  buffer[256 - 1] = 0;
+ 
+  RA::Debug("PrintPRTime","Date/Time: %s %s",theName,buffer); 
 }
