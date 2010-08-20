@@ -130,7 +130,8 @@ cgibin_demo_SCRIPTS =	$(srcdir)/forms/esc/cgi-bin/demo/enroll.cgi \
 cgibin_home_DATA =
 
 cgibin_home_SCRIPTS =	$(srcdir)/forms/esc/cgi-bin/home/enroll.cgi \
-						$(srcdir)/forms/esc/cgi-bin/home/index.cgi
+						$(srcdir)/forms/esc/cgi-bin/home/index.cgi	\
+						 $(srcdir)/forms/esc/cgi-bin/home/cachain.cgi
 
 cgibin_so_DATA =
 
