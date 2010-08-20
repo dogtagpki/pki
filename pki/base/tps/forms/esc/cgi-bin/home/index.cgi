@@ -44,5 +44,8 @@ print "</EnrolledTokenURL>";
 print "<TokenType>";
 print "userKey";
 print "</TokenType>";
+#print "<CAChainUI>";
+#print "http://[SERVER_NAME]:[PORT]/cgi-bin/home/cachain.cgi";
+#print "</CAChainUI>";
 print "</Services>";
 print "</ServiceInfo>";
