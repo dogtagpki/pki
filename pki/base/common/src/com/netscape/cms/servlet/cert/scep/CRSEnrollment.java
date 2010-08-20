@@ -74,6 +74,7 @@ public class CRSEnrollment extends HttpServlet
 
   private   String                mAuthManagerName;
   private   String                mSubstoreName;
+  private   boolean               mEnabled = false;
   private   String                mHashAlgorithm = "SHA1";
   private   String                mmEncryptionAlgorithm = "DES3";
   private   String                mEncryptionAlgorithm = "DES3";
@@ -145,12 +146,14 @@ public class CRSEnrollment extends HttpServlet
           if (mAuthority instanceof ISubsystem) {
               IConfigStore authorityConfig = ((ISubsystem)mAuthority).getConfigStore();
               IConfigStore scepConfig = authorityConfig.getSubStore("scep");
+              mEnabled = scepConfig.getBoolean("enable", false);
               mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
               mEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
           }
       } catch (EBaseException e) {
       } 
       mmEncryptionAlgorithm = mEncryptionAlgorithm;
+      CMS.debug("CRSEnrollment: init: SCEP support is "+((mEnabled)?"enabled":"disabled")+".");
 
       try {
 	      mProfileSubsystem = (IProfileSubsystem)CMS.getSubsystem("profile");
@@ -226,6 +229,10 @@ public class CRSEnrollment extends HttpServlet
             message   = (String)input.get(URL_MESSAGE);
             CMS.debug("message=" + message);
             
+            if (!mEnabled) {
+                CMS.debug("CRSEnrollment: SCEP support is disabled.");
+                throw new ServletException("SCEP support is disabled.");
+            }
             if (operation == null) {
                 // 'operation' is mandatory.
                 throw new ServletException("Bad request: operation missing from URL");
