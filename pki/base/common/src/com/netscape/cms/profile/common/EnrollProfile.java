@@ -95,6 +95,13 @@ public abstract class EnrollProfile extends BasicProfile
             CMS.debug("EnrollProfile: request type is null");
         }
 
+        /* cert request must not be null */
+        if (cert_request == null) {
+            CMS.debug("EnrollProfile: cert_request null");
+            throw new EProfileException(
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+        }
+
         int num_requests = 1; // default to 1 request
 
         if (cert_request_type != null && cert_request_type.startsWith("pkcs10")) {
