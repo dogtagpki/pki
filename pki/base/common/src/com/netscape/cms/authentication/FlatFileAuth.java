@@ -20,13 +20,17 @@ package com.netscape.cms.authentication;
 
 // ldap java sdk
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.StringTokenizer;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.property.*;
@@ -65,6 +69,8 @@ public class FlatFileAuth
     protected String mKeyAttributes = "UID";
     protected String mAuthAttrs = "PWD";
     protected boolean mDeferOnFailure = true;
+    private static final String DATE_PATTERN = "yyyy-MM-dd-HH-mm-ss";
+    private static SimpleDateFormat mDateFormat = new SimpleDateFormat(DATE_PATTERN);
 
     protected static String[] mConfigParams = 
         new String[] {
@@ -291,6 +297,99 @@ public class FlatFileAuth
         return sb.toString();
     }
 
+    private synchronized void updateFile (String key) {
+        try {
+            String name = writeFile (key);
+            if (name != null) {
+                File orgFile = new File(mFilename);
+                long lastModified = orgFile.lastModified();
+                File newFile = new File(name);
+                if (lastModified > mFileLastRead) {
+                    mFileLastRead = lastModified;
+                } else {
+                    mFileLastRead = newFile.lastModified();
+                }
+                if (orgFile.renameTo(new File(name.substring(0, name.length()-1)))) {
+                    if (!newFile.renameTo(new File(mFilename))) {
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("RENAME_FILE_ERROR", name, mFilename));
+                        File file = new File(name.substring(0, name.length()-1));
+                        file.renameTo(new File(mFilename));
+                    }
+                } else {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("RENAME_FILE_ERROR", mFilename,
+                                                              name.substring(0, name.length()-1)));
+                }
+            }
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+        }
+    }
+
+    private String writeFile (String key) {
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+        String name = null;
+        boolean commentOutNextLine = false;
+        boolean done = false;
+        String line = null;
+        try {
+            reader = new BufferedReader (new FileReader (mFilename));
+            name = mFilename+"."+mDateFormat.format(new Date())+"~";
+            writer = new BufferedWriter (new FileWriter(name));
+            if (reader != null && writer != null) {
+                while ((line = reader.readLine()) != null) {
+                    if (commentOutNextLine) {
+                        writer.write("#");
+                        commentOutNextLine = false;
+                    }
+                    if (line.indexOf(key) > -1) {
+                        writer.write("#");
+                        commentOutNextLine = true;
+                    }
+                    writer.write(line);
+                    writer.newLine();
+                }
+                done = true;
+            }
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+        }
+
+        try {
+            if (reader != null) {
+                reader.close();
+            }
+            if (writer != null) {
+                writer.flush();
+                writer.close();
+            }
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+        }
+
+        try {
+            if (!done) {
+                long s1 = 0;
+                long s2 = 0;
+                File f1 = new File(mFilename);
+                File f2 = new File(name);
+                if (f1.exists()) s1 = f1.length();
+                if (f2.exists()) s2 = f2.length();
+                if (s1 > 0 && s2 > 0 && s2 > s1) {
+                    done = true;
+                } else {
+                    if (f2.exists()) f2.delete();
+                    name = null;
+                }
+            }
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+        }
+
+        return name;
+    }
+
+
     /**
      * Read a file with the following format: <p><pre>
      * param1: valuea
@@ -427,6 +526,7 @@ public class FlatFileAuth
             if (pwfilelastmodified > mFileLastRead) {
                 mFileLastRead = pwfilelastmodified;
                 entries = readFile(file, keyAttrs);
+                // printAllEntries();
             }
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("READ_FILE_ERROR", mFilename, e.getMessage()));
@@ -483,7 +583,7 @@ public class FlatFileAuth
         if (user != null) {
             String dn = (String) user.get("dn");
 
-            if (dn != null) {
+            if (dn != null && authToken != null) {
                 authToken.set(AuthToken.TOKEN_CERT_SUBJECT, dn);
             }
         }
@@ -491,6 +591,11 @@ public class FlatFileAuth
         // If defer on failure is true, and the auth failed, authToken will
         // be null here, which causes the request to be deferred.
 
+        if (user != null && authToken != null) {
+            entries.remove(keyForUser);
+            updateFile(keyForUser);
+            // printAllEntries();
+        }
         return authToken;
     }
 
