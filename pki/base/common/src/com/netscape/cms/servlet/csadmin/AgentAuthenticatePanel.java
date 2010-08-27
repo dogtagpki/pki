@@ -197,6 +197,9 @@ public class AgentAuthenticatePanel extends WizardPanelBase {
                 throw new IOException("Missing port");
             }
 
+/*
+             // Bugzilla Bug #583825 - CC: Obsolete servlets to be removed from
+             //                        web.xml as part of CC interface review
              boolean authenticated = authenticate(host, httpsport, true,
              "/ca/ee/ca/checkIdentity", "uid="+uid+"&pwd="+pwd);
 
@@ -204,6 +207,7 @@ public class AgentAuthenticatePanel extends WizardPanelBase {
                  context.put("errorString", "Wrong user id or password");
                  throw new IOException("Wrong user id or password");
              }
+*/
 
             try {
                 config.commit(false);

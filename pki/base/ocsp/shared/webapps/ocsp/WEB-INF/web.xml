@@ -116,16 +116,6 @@
 
 
    <servlet>
-      <servlet-name>  ocspregistry  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.RegistryAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspregistry </param-value> </init-param>             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ocsp        </param-value> </init-param>
-   </servlet>
-                                                                                
-   <servlet>
       <servlet-name>  ocspacl  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.ACLAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -413,21 +403,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  eeocspAddCRL  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.ocsp.AddCRLServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ocsp        </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> eeocspAddCRL  </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.crl </param-value> </init-param>
-   </servlet>
-                                                                                
-   <servlet>
       <servlet-name>  services </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.MainPageServlet </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -488,7 +463,6 @@
 [PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
    <filter-mapping>
       <filter-name>   PassThroughRequestFilter    </filter-name>
-      <url-pattern>   /registry  </url-pattern>
       <url-pattern>   /acl  </url-pattern>
       <url-pattern>   /jobsScheduler  </url-pattern>
       <url-pattern>   /ug  </url-pattern>
@@ -518,11 +492,6 @@
    </filter-mapping>
 [PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
 
-   <servlet-mapping>
-      <servlet-name>  ocspregistry  </servlet-name>
-      <url-pattern>   /registry  </url-pattern>
-   </servlet-mapping>
-                                                                                
    <servlet-mapping>
       <servlet-name>  ocspacl  </servlet-name>
       <url-pattern>   /acl  </url-pattern>
@@ -618,11 +587,6 @@
       <url-pattern>   /agent/header  </url-pattern>
    </servlet-mapping>
 
-   <servlet-mapping>
-      <servlet-name>  eeocspAddCRL  </servlet-name>
-      <url-pattern>   /ee/ocsp/addCRL  </url-pattern>
-   </servlet-mapping>
-                                                                                
    <servlet-mapping>
       <servlet-name>  ocspOCSP  </servlet-name>
       <url-pattern>   /ee/ocsp  </url-pattern>

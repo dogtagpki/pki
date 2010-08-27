@@ -57,89 +57,8 @@
     </servlet>
 
     <servlet>
-        <servlet-name>csadmin-base</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.BaseServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
         <servlet-name>csadmin-login</servlet-name>
         <servlet-class>com.netscape.cms.servlet.csadmin.LoginServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-welcome</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.WelcomeServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-database</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.DatabaseServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-admin</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.AdministratorServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-module</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ModuleServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-size</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.KeySizeServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-name</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.NameServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-hierarchy</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.HierarchyServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-done</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.DoneServlet</servlet-class>
         <init-param>
             <param-name>properties</param-name>
             <param-value>/WEB-INF/velocity.properties</param-value>
@@ -821,17 +740,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  kraregistry  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.RegistryAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraregistry </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraUpdateNumberRange  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.UpdateNumberRange  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -890,7 +798,6 @@
       <url-pattern>   /server  </url-pattern>
       <url-pattern>   /kra  </url-pattern>
       <url-pattern>   /log  </url-pattern>
-      <url-pattern>   /registry  </url-pattern>
       <url-pattern>   /ug  </url-pattern>
       <url-pattern>   /acl  </url-pattern>
       <url-pattern>   /jobsScheduler  </url-pattern>
@@ -932,11 +839,6 @@
    <servlet-mapping>
       <servlet-name>  kralog  </servlet-name>
       <url-pattern>   /log  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraregistry  </servlet-name>
-      <url-pattern>   /registry  </url-pattern>
    </servlet-mapping>
 
 
@@ -1101,11 +1003,6 @@
    </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>csadmin-base</servlet-name>
-        <url-pattern>/admin/console/config/base</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
         <servlet-name>csadmin-login</servlet-name>
         <url-pattern>/admin/console/config/login</url-pattern>
     </servlet-mapping>
@@ -1135,46 +1032,6 @@
         <url-pattern>/admin/console/config/config_clone</url-pattern>
     </servlet-mapping>
 
-
-    <servlet-mapping>
-        <servlet-name>csadmin-welcome</servlet-name>
-        <url-pattern>/admin/console/config/welcome</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-database</servlet-name>
-        <url-pattern>/admin/console/config/database</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-admin</servlet-name>
-        <url-pattern>/admin/console/config/admin</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-module</servlet-name>
-        <url-pattern>/admin/console/config/module</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-size</servlet-name>
-        <url-pattern>/admin/console/config/size</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-name</servlet-name>
-        <url-pattern>/admin/console/config/name</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-hierarchy</servlet-name>
-        <url-pattern>/admin/console/config/hierarchy</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-done</servlet-name>
-        <url-pattern>/admin/console/config/done</url-pattern>
-    </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  kraRegisterUser </servlet-name>

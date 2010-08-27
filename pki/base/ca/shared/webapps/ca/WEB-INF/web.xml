@@ -66,15 +66,6 @@
     </servlet>
 
     <servlet>
-        <servlet-name>csadmin-base</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.BaseServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
         <servlet-name>csadmin-login</servlet-name>
         <servlet-class>com.netscape.cms.servlet.csadmin.LoginServlet</servlet-class>
         <init-param>
@@ -140,78 +131,6 @@
     <servlet>
         <servlet-name>config-clone</servlet-name>
         <servlet-class>com.netscape.cms.servlet.csadmin.ConfigCloneServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-welcome</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.WelcomeServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-database</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.DatabaseServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-admin</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.AdministratorServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-module</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ModuleServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-size</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.KeySizeServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-name</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.NameServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-hierarchy</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.HierarchyServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-done</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.DoneServlet</servlet-class>
         <init-param>
             <param-name>properties</param-name>
             <param-value>/WEB-INF/velocity.properties</param-value>
@@ -466,19 +385,6 @@
                          <param-value> ca          </param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caGetStatus </param-value> </init-param>
-   </servlet>
-
-   <servlet>
-      <servlet-name>  caCheckIdentity  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.CheckIdentity  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caCheckIdentity </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> passwdUserDBAuthMgr </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -1286,27 +1192,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  camasterCCA-CLAConnector  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.connector.CloneServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> camasterCCA-CLAConnector </param-value> </init-param>
-             <init-param><param-name>  RequestEncoder  </param-name>
-                         <param-value> com.netscape.cmscore.connector.HttpRequestEncoder </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.clone </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  camasterCADisplayCRL  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.DisplayCRL  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1424,19 +1309,6 @@
                          <param-value> caGetCRL    </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
                          <param-value> certServer.ee.crl </param-value> </init-param>
-   </servlet>
-
-   <servlet>
-      <servlet-name>  caRemoteAuthConfig  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.RemoteAuthConfig  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caRemoteAuthConfig </param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -2059,7 +1931,6 @@
       <url-pattern>   /index                      </url-pattern>
       <url-pattern>   /ca/connector               </url-pattern>
       <url-pattern>   /ca/displayCertFromRequest  </url-pattern>
-      <url-pattern>   /ca/cloneConnector          </url-pattern>
       <url-pattern>   /doRevoke                   </url-pattern>
 
       <url-pattern>   /acl                        </url-pattern>
@@ -2075,7 +1946,6 @@
       <url-pattern>   /capublisher                </url-pattern>
 
       <url-pattern>   /renewal                    </url-pattern>
-      <url-pattern>   /remoteAuthConfig           </url-pattern>
       <url-pattern>   /certbasedenrollment        </url-pattern>
       <url-pattern>   /enrollment                 </url-pattern>
       <url-pattern>   /ocsp                       </url-pattern>
@@ -2137,11 +2007,6 @@
    <servlet-mapping>
       <servlet-name>  caGetAdminCertBySerial  </servlet-name>
       <url-pattern>   /ca/getAdminCertBySerial  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caCheckIdentity  </servlet-name>
-      <url-pattern>   /ee/ca/checkIdentity  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
@@ -2400,11 +2265,6 @@
    </servlet-mapping>
 
    <servlet-mapping>  
-      <servlet-name>  camasterCCA-CLAConnector  </servlet-name>
-      <url-pattern>   /ca/cloneConnector  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
       <servlet-name>  camasterCADisplayCRL  </servlet-name>
       <url-pattern>   /agent/ca/displayCRL  </url-pattern>
    </servlet-mapping>
@@ -2432,11 +2292,6 @@
    <servlet-mapping>
       <servlet-name>  caGetCRL  </servlet-name>
       <url-pattern>   /ee/ca/getCRL  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caRemoteAuthConfig  </servlet-name>
-      <url-pattern>   /remoteAuthConfig  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
@@ -2565,53 +2420,8 @@
    </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>csadmin-base</servlet-name>
-        <url-pattern>/admin/console/config/base</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
         <servlet-name>csadmin-login</servlet-name>
         <url-pattern>/admin/console/config/login</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-welcome</servlet-name>
-        <url-pattern>/admin/console/config/welcome</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-database</servlet-name>
-        <url-pattern>/admin/console/config/database</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-admin</servlet-name>
-        <url-pattern>/admin/console/config/admin</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-module</servlet-name>
-        <url-pattern>/admin/console/config/module</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-size</servlet-name>
-        <url-pattern>/admin/console/config/size</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-name</servlet-name>
-        <url-pattern>/admin/console/config/name</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-hierarchy</servlet-name>
-        <url-pattern>/admin/console/config/hierarchy</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-done</servlet-name>
-        <url-pattern>/admin/console/config/done</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

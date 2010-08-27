@@ -145,17 +145,6 @@
    </servlet>
                                                                                 
    <servlet>
-      <servlet-name>  tksregistry  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.RegistryAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> tksregistry </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> tks         </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  tksauths  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.AuthAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -350,7 +339,6 @@
       <filter-name>  PassThroughRequestFilter  </filter-name>
       <url-pattern>   /ug  </url-pattern>
       <url-pattern>   /log  </url-pattern>
-      <url-pattern>   /registry  </url-pattern>
       <url-pattern>   /jobsScheduler  </url-pattern>
       <url-pattern>   /acl  </url-pattern>
       <url-pattern>   /server  </url-pattern>
@@ -392,11 +380,6 @@
       <url-pattern>   /log  </url-pattern>
    </servlet-mapping>
                                                                                 
-   <servlet-mapping>
-      <servlet-name>  tksregistry  </servlet-name>
-      <url-pattern>   /registry  </url-pattern>
-   </servlet-mapping>
-                      
    <servlet-mapping>
       <servlet-name>  tksauths  </servlet-name>
       <url-pattern>   /auths  </url-pattern>
