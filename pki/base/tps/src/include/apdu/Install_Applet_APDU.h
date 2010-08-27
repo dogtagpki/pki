@@ -50,7 +50,7 @@ class Install_Applet_APDU : public APDU
 {
   public:
 	TPS_PUBLIC Install_Applet_APDU(Buffer &packageAID, Buffer &appletAID, 
-			BYTE appPrivileges, unsigned int instanceSize);
+			BYTE appPrivileges, unsigned int instanceSize, unsigned int appletMemorySize);
 	TPS_PUBLIC Install_Applet_APDU(Buffer &data);
 	TPS_PUBLIC ~Install_Applet_APDU();
 	TPS_PUBLIC APDU_Type GetType();

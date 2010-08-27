@@ -33,7 +33,7 @@
  * Constructs Install Applet APDU.
  */
 TPS_PUBLIC Install_Applet_APDU::Install_Applet_APDU (Buffer &packageAID, Buffer &appletAID,
-		BYTE appPrivileges, unsigned int instanceSize)
+		BYTE appPrivileges, unsigned int instanceSize, unsigned int appletMemorySize)
 {
     SetCLA(0x84);
     SetINS(0xE6);
@@ -57,11 +57,31 @@ TPS_PUBLIC Install_Applet_APDU::Install_Applet_APDU (Buffer &packageAID, Buffer 
     installParams += 0x04;
     installParams += 0xC8;
     installParams += 0x02;
+
     installParams += (instanceSize>>8) & 0xff;
     installParams += instanceSize & 0xff;
     installParams += 0xC9;
-    installParams += 0x01;
+
+
+    //installParams += 0x01;
+    //installParams += (BYTE)0x00;
+
+    //Now add some applet specific init data that the applet supports
+    //Length of applet specific data
+
+    installParams += 0x04;
+
+    //Issuer info length.
+    //Leave this to zero since TPS already writes phone home info to card.
     installParams += (BYTE)0x00;
+
+    //Length of applet memory size
+    installParams += (BYTE)0x02;
+
+    // Applet memory block size
+
+    installParams += (appletMemorySize>>8) & 0xff;
+    installParams += appletMemorySize & 0xff;
 
     data += installParams.size();
     data += installParams;

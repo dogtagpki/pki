@@ -112,7 +112,7 @@ class Secure_Channel : public Channel
 		        Buffer *data); 
           int InstallApplet(RA_Session *session,
 	                Buffer &packageAID, Buffer &appletAID,
-	                BYTE appPrivileges, unsigned int instanceSize);
+	                BYTE appPrivileges, unsigned int instanceSize, unsigned int appletMemorySize);
           int InstallLoad(RA_Session *session,
 	                Buffer& packageAID, Buffer& sdAID, unsigned int fileLen);
 	  int DeleteFileX(RA_Session *session, Buffer *aid);

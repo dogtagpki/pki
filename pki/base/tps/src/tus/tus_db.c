@@ -3849,6 +3849,11 @@ TPS_PUBLIC int allow_token_reenroll(char *cn)
     return allow_token_enroll_policy(cn, "RE_ENROLL=YES");
 }
 
+TPS_PUBLIC int force_token_format(char *cn)
+{
+    return allow_token_enroll_policy(cn,"FORCE_FORMAT=YES");
+}
+
 TPS_PUBLIC int allow_token_enroll_policy(char *cn, const char *policy)
 {
     LDAPMessage *result = NULL;

@@ -198,7 +198,15 @@ class RA_Processor
                                 const char * a_tokenType);
 
 	protected:
+                RA_Status Format(RA_Session *session, NameValueSet *extensions, bool skipAuth);
+                bool RevokeCertificates(char *cuid, char *audit_msg,
+                		char *final_applet_version,
+				char *keyVersion,
+                                char *tokenType, char *userid, RA_Status &status );
 		int IsTokenDisabledByTus(Secure_Channel *channel);
+
+                int totalAvailableMemory;
+                int totalFreeMemory;
 };
 
 #endif /* RA_PROCESSOR_H */

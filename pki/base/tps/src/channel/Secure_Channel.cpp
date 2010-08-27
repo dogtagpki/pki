@@ -429,7 +429,7 @@ loser:
 
 int Secure_Channel::InstallApplet(RA_Session *session, 
 		Buffer &packageAID, Buffer &appletAID, 
-		BYTE appPrivileges, unsigned int instanceSize)
+		BYTE appPrivileges, unsigned int instanceSize, unsigned int appletMemorySize)
 {
     int rc = 0;
     APDU_Response *install_response = NULL;
@@ -442,7 +442,7 @@ int Secure_Channel::InstallApplet(RA_Session *session,
         "RA_Processor::InstallApplet");
 
     install_apdu = new Install_Applet_APDU(packageAID, appletAID, appPrivileges, 
-		    	instanceSize);
+		    	instanceSize, appletMemorySize );
     rc =  ComputeAPDU(install_apdu);
     if (rc == -1)
       goto loser;

@@ -1064,6 +1064,9 @@ bool RA_Enroll_Processor::GetAppletInfo(
       total_mem =   (tot_high << 8)  + tot_low;
       free_mem  =   (free_high << 8) + free_low;
 
+      totalAvailableMemory = total_mem;
+      totalFreeMemory      = free_mem;
+
       RA::DebugBuffer("RA_Enroll_Processor::Process AppletInfo Data", "Data=", token_status);
       delete token_status;
     }
@@ -1261,8 +1264,6 @@ loser:
     }
 	return r;
 }
-
-
 
 /**
  * Authenticate user with LDAP plugin
@@ -1859,6 +1860,7 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
 	RA_Status st;
     int token_present = 0;
     bool renewed = false;
+    bool do_force_format = false;
 
     RA::Debug("RA_Enroll_Processor::Process", "Client %s", 
                       session->GetRemoteIP());
@@ -1906,8 +1908,15 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
         }
 
         // at this point, token is either active or uninitialized (formatted)
+        // or the adminstrator has called for a force format.
+
+        do_force_format = RA::ra_force_token_format(cuid);
+
+        RA::Debug("RA_Enroll_Processor::Process","force format flag %d", do_force_format);
+
         if (!RA::ra_allow_token_reenroll(cuid) &&
-            !RA::ra_allow_token_renew(cuid)) {
+            !RA::ra_allow_token_renew(cuid) &&
+            !do_force_format) {
             RA::Error(FN, "CUID %s Re-Enrolled Disallowed", cuid);
             status = STATUS_ERROR_DISABLED_TOKEN;
             RA::tdb_activity(session->GetRemoteIP(), cuid, "enrollment", "failure", "token re-enrollment or renewal disallowed", "", tokenType);
@@ -2000,25 +2009,41 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
 
 	StatusUpdate(session, extensions, 4, "PROGRESS_APPLET_UPGRADE");
 
-	if (! CheckAndUpgradeApplet(
-		session,
-		extensions,
-		cuid,
-		tokenType,
-		final_applet_version,
-		app_major_version, app_minor_version,
-		//appletVersion,
-		NetKeyAID,
-                msn,
-                userid,
-		status, 
-                &keyVersion)) {
+        if(do_force_format)  {
+            bool skip_auth = true;
+            if(Format(session,extensions,skip_auth) != STATUS_NO_ERROR )  {
+                    PR_snprintf(audit_msg,512, "ForceUpgradeApplet error");
+                    status = STATUS_ERROR_MAC_ENROLL_PDU; 
+                    goto loser;
+                } else {
+                    RA::Debug(LL_PER_CONNECTION, "RA_Enroll_Processor::Process",
+                              "after Successful ForceUpdgradeApplet, succeeded!");
+
+                    PR_snprintf(audit_msg,512, "ForceUpgradeApplet succeeded as per policy.");
+                   status = STATUS_NO_ERROR;
+                    goto loser;
+
+                }
+        }  else {
+            if (! CheckAndUpgradeApplet(
+		    session,
+		    extensions,
+		    cuid,
+		    tokenType,
+		    final_applet_version,
+		    app_major_version, app_minor_version,
+		    //appletVersion,
+		    NetKeyAID,
+               	    msn,
+            	    userid,
+		    status, 
+       		    &keyVersion)) {
                 PR_snprintf(audit_msg, 512, "CheckAndUpgradeApplet error");
 		goto loser;
-	}
-	
+	      }
+      }
 
-    RA::Audit(EV_ENROLLMENT, AUDIT_MSG_PROC,
+      RA::Audit(EV_ENROLLMENT, AUDIT_MSG_PROC,
         userid != NULL ? userid : "",
         cuid != NULL ? cuid : "",
         msn != NULL ? msn : "",
@@ -2313,7 +2338,9 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
               pkcs11obj_enable, extensions, channel, wrapped_challenge, 
               key_check, plaintext_challenge, cuid, msn, final_applet_version, 
               khex, userid, status, certificates, o_certNums, tokenTypes)) {
-                RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process - after GenerateCertificates"," returns false");
+                RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process - after GenerateCertificates"," returns false might as well clean up token.");
+                bool skip_auth = true;
+                Format(session,extensions,skip_auth);
                 goto loser;
             } else {
                 RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process - after GenerateCertificates"," returns true");
@@ -2513,6 +2540,16 @@ op.enroll.certificates.caCert.label=caCert Label
           goto loser;
       }
 
+      if(xb.size() > totalAvailableMemory) {
+          status = STATUS_ERROR_MAC_ENROLL_PDU;
+          RA::Debug("RA_Enroll_Processor::Failure pkcs11 object may exceed applet memory"," failed");
+          PR_snprintf(audit_msg, 512, "Applet memory exceeded when writing out final token data");
+          bool skip_auth = true;
+          if(!renewed) { //Renewal should leave what they have on the token.
+          	Format(session,extensions,skip_auth);
+          }
+          goto loser;
+      }
 
 	BYTE perms[6];
 
@@ -2814,11 +2851,13 @@ bool RA_Enroll_Processor::GenerateCertificates(AuthParams *login, RA_Session *se
   const char *final_applet_version, char *khex, const char *userid, RA_Status &o_status, 
   CERTCertificate **&certificates, int &o_certNums, char **&tokenTypes) {
 
+    bool noFailedCerts = true;
     bool r=true;
     int keyTypeNum = 0;
     int i = 0;
     char configname[256];
 	const char *FN = "RA_Enroll_Processor::GenerateCertificates";
+    RA_Status lastErrorStatus = STATUS_NO_ERROR;
 
 
     RA::Debug(LL_PER_CONNECTION,FN, "tokenType=%s", tokenType); 
@@ -2831,16 +2870,20 @@ bool RA_Enroll_Processor::GenerateCertificates(AuthParams *login, RA_Session *se
         o_status = STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND;
         goto loser; 
     }
+
+    ktypes = (char **) malloc (sizeof(char *) * keyTypeNum);
+    origins = (char **) malloc (sizeof(char *) * keyTypeNum);
+    tokenTypes = (char **) malloc (sizeof(char *) * keyTypeNum);
     
     certificates = (CERTCertificate **) malloc (sizeof(CERTCertificate *) * keyTypeNum);
     o_certNums = keyTypeNum;
     for (i=0; i<keyTypeNum; i++) {
 		certificates[i] = NULL;
-	}
-    ktypes = (char **) malloc (sizeof(char *) * keyTypeNum);
-    origins = (char **) malloc (sizeof(char *) * keyTypeNum);
-    tokenTypes = (char **) malloc (sizeof(char *) * keyTypeNum);
+		ktypes[i] = NULL;
+		origins[i] = NULL;
+		tokenTypes[i] = NULL;
 
+    }
     for (i=0; i<keyTypeNum; i++) {
 
         PR_snprintf((char *)configname, 256, "%s.%s.keyGen.keyType.value.%d", OP_PREFIX, tokenType, i);
@@ -2851,11 +2894,22 @@ bool RA_Enroll_Processor::GenerateCertificates(AuthParams *login, RA_Session *se
           key_check, plaintext_challenge, cuid, msn, final_applet_version,
           khex, userid, o_status, certificates);
 
+        RA::Debug("GenerateCertificates","configname %s  result  %d",configname,r);
+
         tokenTypes[i] = PL_strdup(tokenType);
+        if(r == false)  {
+            noFailedCerts  = false;
+            lastErrorStatus = o_status;
+            break;
+       }
+            
     }
 
  loser:
-    return r;
+    if(lastErrorStatus != STATUS_NO_ERROR) {
+        o_status = lastErrorStatus;
+    }
+    return noFailedCerts;
 }
 
 bool RA_Enroll_Processor::GenerateCertificate(AuthParams *login, int keyTypeNum, const char *keyTypeValue, int i, RA_Session *session, 
