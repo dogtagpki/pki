@@ -1430,6 +1430,7 @@ sub parse_arguments()
     # At this point in time, ALWAYS attempt to add "$pki_user" as a
     # valid member of "$default_nfast_group" (presuming one exists)
     if( group_exists( $default_nfast_group ) ) {
+        # Ignore failures as this should be considered a 'benign' error
         if( add_user_as_a_member_of_group( $pki_user,
                                            $default_nfast_group ) ) {
             emit( "User '$pki_user' is a member of group "
