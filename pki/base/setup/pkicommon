@@ -708,6 +708,66 @@ sub user_is_a_member_of_group
 
 
 # arg0 username
+# arg1 groupname
+# return 1 - success, or
+# return 0 - failure
+sub add_user_as_a_member_of_group
+{
+    my( $username ) = $_[0];
+    my( $groupname ) = $_[1];
+
+    my $command = "";
+    my $report = "";
+
+    my $result = 0;
+
+    if( !user_exists( $username ) ) {
+        return $result;
+    }
+
+    if( !group_exists( $groupname ) ) {
+        return $result;
+    }
+
+    my( $name, $passwd, $gid, $members ) = getgrnam( $groupname );
+
+    my $groupuser = $members =~ m/$username/;
+
+    if( $groupuser >= 1 ) {
+        # user is already a member of group
+        $result = 1;
+    } else {
+        # Attempt to add user to be a member of group
+        emit( "Adding user '$username' to be a member of group "
+            . "'$groupname'.\n", "debug" );
+        if( $^O eq "linux" ) {
+            $command = "/usr/sbin/usermod "
+                     . "-G $groupname "
+                     . "$username";
+        } elsif( $^O eq "solaris" ) {
+            $command = "/usr/sbin/usermod "
+                     . "-G $groupname "
+                     . "$username";
+        } else {
+            $command = "/usr/sbin/usermod "
+                     . "-G $groupname "
+                     . "$username";
+        }
+
+        $report = `$command`;
+        if( $report ne "" ) {
+            emit( "$report", "error" );
+        } else {
+            # successfully added user to be a member of group
+            $result = 1;
+        }
+    }
+
+    return $result;
+}
+
+
+# arg0 username
 # return UID, or
 # return (-1) - user is not in password file
 sub get_UID_from_username

@@ -287,6 +287,7 @@ my $default_exe_permissions        = 00770;
 my $default_file_permissions       = 00660;
 my $default_security_token         = "internal";
 my $default_tomcat_common_path     = "/var/lib/tomcat5/common";
+my $default_nfast_group            = "nfast";
 
 # Default PKI user and group to give to PKI installed files
 my $pki_user  = $PKI_USER;
@@ -1424,6 +1425,17 @@ sub parse_arguments()
     #           "error" );
     #     return 0;
     # }
+
+
+    # At this point in time, ALWAYS attempt to add "$pki_user" as a
+    # valid member of "$default_nfast_group" (presuming one exists)
+    if( group_exists( $default_nfast_group ) ) {
+        if( add_user_as_a_member_of_group( $pki_user,
+                                           $default_nfast_group ) ) {
+            emit( "User '$pki_user' is a member of group "
+                . "'$default_nfast_group'.\n" );
+        }
+    }
 
 
     ## Optional "-redirect <dir_name>=<real dir path> ..." option
