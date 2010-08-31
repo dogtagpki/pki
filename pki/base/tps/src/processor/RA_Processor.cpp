@@ -2425,7 +2425,6 @@ loser:
             RA::Debug(LL_PER_PDU, "RA_Format_Processor::Process", "Failed to revoke certificates on this token.");
             status = STATUS_ERROR_REVOKE_CERTIFICATES_FAILED;
             PR_snprintf(audit_msg, 512, "Failed to revoke certificates on this token. status = STATUS_ERROR_REVOKE_CERTIFICATES_FAILED");
-            goto loser;
     }
 
     return !revocation_failed;
