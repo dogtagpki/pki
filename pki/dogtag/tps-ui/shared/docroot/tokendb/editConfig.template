@@ -213,7 +213,7 @@ function doDelete() {
     document.write("<input type=hidden name=query value=\"op=confirm_delete_config\">");
     document.write("<input type=hidden name=pname value=\"" + conf_name + "\">");
     document.write("<input type=hidden name=ptype value=\"" + conf_type + "\">");
-    document.write("<input type=hidden name=pvalues value=\"" + escapeEntry(conf_values) + "\">");
+    document.write("<input type=hidden name=pvalues value=\"" + conf_values.escapeEntry() + "\">");
     document.write("<input type=hidden name=pstate value=\"" + conf_state + "\">");
     document.write("<input TYPE=hidden NAME=ptimestamp VALUE=\"" + conf_tstamp + "\">");
     if ((conf_state == "Disabled")|| (agent_must_approve != "true")) {
