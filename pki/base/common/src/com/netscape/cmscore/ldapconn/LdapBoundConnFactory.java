@@ -230,7 +230,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * makes the minumum number of connections
      */
     private void makeMinimum() throws ELdapException {
-        if (mMasterConn == null) 
+        if (mMasterConn == null || mMasterConn.isConnected() == false) 
             return;
         int increment;
 
@@ -307,9 +307,22 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         throws ELdapException {
         boolean waited = false;
 
-        if (mMasterConn == null) {
-            makeConnection(true);
+        CMS.debug("In LdapBoundConnFactory::getConn()"); 
+        if(mMasterConn != null) 
+            CMS.debug("masterConn is connected: " + mMasterConn.isConnected());
+        else
+            CMS.debug("masterConn is null.");
+
+        if (mMasterConn == null || !mMasterConn.isConnected()) {
+            try {
+                  makeConnection(true);
+            }  catch (ELdapException e) {
+                mMasterConn = null;
+                CMS.debug("Can't create master connection in LdapBoundConnFactory::getConn! " + e.toString());
+                throw e;
+            }
         }
+
         if (mNumConns == 0) 
             makeMinimum();
         if (mNumConns == 0) {
@@ -333,7 +346,37 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         mNumConns--;
         LDAPConnection conn = mConns[mNumConns];
 
-        mConns[mNumConns] = null;
+        boolean isConnected = false;
+        if(conn != null) {
+            isConnected = conn.isConnected();
+        }
+
+        CMS.debug("getConn: conn is connected " + isConnected);
+
+        //If masterConn is still alive, lets try to bring this one
+        //back to life
+
+        if((isConnected == false) && (mMasterConn != null) 
+            && (mMasterConn.isConnected() == true))   {
+            CMS.debug("Attempt to bring back down connection.");
+
+            if(doCloning == true) {
+                mConns[mNumConns] = (BoundConnection) mMasterConn.clone();
+            }
+            else {
+                try {
+                   mConns[mNumConns] = (BoundConnection) makeNewConnection(true);
+                }
+                catch (ELdapException e) {
+                   mConns[mNumConns] = null;
+                }
+           }
+           conn = mConns[mNumConns];
+
+           CMS.debug("Re-animated connection: " + conn);
+       }
+
+       mConns[mNumConns] = null;
 
         if (waited) {
             log(ILogger.LL_WARN, 

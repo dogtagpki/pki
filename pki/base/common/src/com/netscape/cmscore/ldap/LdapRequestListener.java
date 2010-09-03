@@ -178,7 +178,7 @@ class LdapEnrollmentListener implements IRequestListener {
 
     public void accept(IRequest r) {
         CMS.debug(
-            "handling publishing for enrollment request id " +
+            "LdapRequestListener handling publishing for enrollment request id " +
             r.getRequestId());
 
         String profileId = r.getExtDataInString("profileId");
@@ -231,7 +231,7 @@ class LdapEnrollmentListener implements IRequestListener {
 		
                 results[i] = IRequest.RES_SUCCESS;
                 CMS.debug(
-                    "Published cert serial no 0x" +
+                    "acceptX509: Published cert serial no 0x" +
                     xcert.getSerialNumber().toString(16));
                 //mProcessor.setPublishedFlag(xcert.getSerialNumber(), true);
             } catch (ELdapException e) {

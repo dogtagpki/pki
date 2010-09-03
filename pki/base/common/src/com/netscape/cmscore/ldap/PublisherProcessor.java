@@ -831,6 +831,8 @@ public class PublisherProcessor implements
         if (!enabled())
             return;
 
+        CMS.debug("PublishProcessor::publishCACert");
+
             // get mapper and publisher for cert type.
         Enumeration rules = getRules(PROP_LOCAL_CA);
 
@@ -874,6 +876,7 @@ public class PublisherProcessor implements
             } catch (Exception e) {
                 // continue publishing even publisher has errors
                 //log(ILogger.LL_WARN, e.toString());
+                CMS.debug("PublisherProcessor::publishCACert returned error: " + e.toString());
                 error = true;
                 errorRule = errorRule + " " + rule.getInstanceName() +
                         " error:" + e.toString();
@@ -1010,6 +1013,8 @@ public class PublisherProcessor implements
                 error = true;
                 errorRule = errorRule + " " + rule.getInstanceName() +
                         " error:" + e.toString();
+
+                CMS.debug("PublisherProcessor::publishXCertPair: error: " + e.toString());
             }
         }
     }
@@ -1023,6 +1028,7 @@ public class PublisherProcessor implements
         boolean error = false;
         String errorRule = "";
 
+        CMS.debug("In  PublisherProcessor::publishCert");
         if (!enabled())
             return;
 
@@ -1031,8 +1037,10 @@ public class PublisherProcessor implements
 
          // Bugscape  #52306  -  Remove superfluous log messages on failure
         if (rules == null || !rules.hasMoreElements()) {
+                  CMS.debug("Publishing: can't find publishing rule,bailing.");
                   return;
         }
+
         while (rules.hasMoreElements()) {
             LdapRule rule = (LdapRule) rules.nextElement();
 
@@ -1062,6 +1070,7 @@ public class PublisherProcessor implements
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), true);
         } else {
+            CMS.debug("PublishProcessor::publishCert : " + CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED",errorRule));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
         }
     }
@@ -1208,6 +1217,8 @@ public class PublisherProcessor implements
                         "Error publishing CRL to " + dn + ": " + e);
                     error = true;
                     errorRule = errorRule + " " + rule.getInstanceName();
+
+                    CMS.debug("PublisherProcessor::publishCRL: error: " + e.toString());
                 }
             }
         }catch (ELdapException e) {
@@ -1268,6 +1279,7 @@ public class PublisherProcessor implements
                         "Error publishing CRL to " + dn + ": " + e.toString());
                     error = true;
                     errorRule = errorRule + " " + rule.getInstanceName();
+                    CMS.debug("PublisherProcessor::publishCRL: error: " + e.toString()); 
                 } 
             }
         } catch (ELdapException e) {
@@ -1287,7 +1299,7 @@ public class PublisherProcessor implements
         IRequest r, Object obj) throws ELdapException {
         if (!enabled())
             return;
-CMS.debug("PublisherProcessor: in publishNow()");
+        CMS.debug("PublisherProcessor: in publishNow()");
         LDAPConnection conn = null;
 
         try {
@@ -1297,7 +1309,11 @@ CMS.debug("PublisherProcessor: in publishNow()");
                 LdapCertMapResult result = null;
 
                 if (mLdapConnModule != null) {
-                    conn = mLdapConnModule.getConn();
+                    try {
+                        conn = mLdapConnModule.getConn();
+                    } catch(ELdapException e) {
+                        throw e;
+                   }
                 }
                 try {
                     if ((mapper instanceof com.netscape.cms.publish.mappers.LdapCertSubjMap) &&
@@ -1325,7 +1341,7 @@ CMS.debug("PublisherProcessor: in publishNow()");
                     publisher.publish(conn, (String)dirdn, cert);
                 }
             } catch (Throwable e1) {
-                CMS.debug("Error publishing: publisher=" + publisher + " error=" + e1.toString());
+                CMS.debug("PublisherProcessor::publishNow : publisher=" + publisher + " error=" + e1.toString());
                 throw e1;
             }
             log(ILogger.LL_INFO, "published certificate serial number: 0x" + 

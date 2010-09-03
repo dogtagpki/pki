@@ -97,6 +97,8 @@ public class LdapConnModule implements ILdapConnModule {
         int minConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MINCONNS, 3);
         int maxConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MAXCONNS, 15);
         // must get authInfo from the config, don't default to internaldb!!!
+
+        CMS.debug("Creating LdapBoundConnFactory for LdapConnModule."); 
         mLdapConnFactory =
              new LdapBoundConnFactory(minConns, maxConns, (LdapConnInfo)connInfo, authInfo);
 
