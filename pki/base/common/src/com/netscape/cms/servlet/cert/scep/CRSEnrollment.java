@@ -633,6 +633,16 @@ public class CRSEnrollment extends HttpServlet
           httpResp.getOutputStream().write(response);
           httpResp.getOutputStream().flush();
 
+          int i1 = responseData.indexOf("<Password>");
+          if (i1 > -1) {
+              i1 += 10; // 10 is a length of "<Password>"
+              int i2 = responseData.indexOf("</Password>", i1);
+              if (i2 > -1) {
+                  responseData = responseData.substring(0, i1) + "********" +
+                                 responseData.substring(i2, responseData.length());
+              }
+          }
+
           CMS.debug("Output (decoding) PKIOperation response:");
           CMS.debug(responseData);
       }
