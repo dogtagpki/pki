@@ -95,13 +95,6 @@ public abstract class EnrollProfile extends BasicProfile
             CMS.debug("EnrollProfile: request type is null");
         }
 
-        /* cert request must not be null */
-        if (cert_request == null) {
-            CMS.debug("EnrollProfile: cert_request null");
-            throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
-        }
-
         int num_requests = 1; // default to 1 request
 
         if (cert_request_type != null && cert_request_type.startsWith("pkcs10")) {
@@ -314,11 +307,18 @@ public abstract class EnrollProfile extends BasicProfile
 
     public TaggedRequest[] parseCMC(Locale locale, String certreq)
         throws EProfileException {
+        /* cert request must not be null */
+        if (certreq == null) {
+            CMS.debug("EnrollProfile: parseCMC() certreq null");
+            throw new EProfileException(
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+        }
+        CMS.debug("EnrollProfile: Start parseCMC(): " + certreq);
+
         Hashtable t1 = new Hashtable();
         TaggedRequest msgs[] = null;
 
         String creq = normalizeCertReq(certreq);
-        CMS.debug("Start parseCMC " + certreq);
         try {
             byte data[] = CMS.AtoB(creq);
             ByteArrayInputStream cmcBlobIn =
@@ -692,9 +692,16 @@ public abstract class EnrollProfile extends BasicProfile
 
     public CertReqMsg[] parseCRMF(Locale locale, String certreq)
         throws EProfileException {
-        CertReqMsg msgs[] = null;
 
-        CMS.debug("Start parseCRMF " + certreq); 
+        /* cert request must not be null */
+        if (certreq == null) {
+            CMS.debug("EnrollProfile: parseCRMF() certreq null");
+            throw new EProfileException(
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+        }
+        CMS.debug("EnrollProfile: Start parseCRMF(): " + certreq);
+
+        CertReqMsg msgs[] = null;
         String creq = normalizeCertReq(certreq);
         try {
             byte data[] = CMS.AtoB(creq);
@@ -907,7 +914,14 @@ public abstract class EnrollProfile extends BasicProfile
 
     public PKCS10 parsePKCS10(Locale locale, String certreq)
         throws EProfileException {
-        CMS.debug("xx Start parsePKCS10 " + certreq);
+        /* cert request must not be null */
+        if (certreq == null) {
+            CMS.debug("EnrollProfile:parsePKCS10() certreq null");
+            throw new EProfileException(
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+        }
+        CMS.debug("Start parsePKCS10(): " + certreq);
+
         // trim header and footer
         String creq = normalizeCertReq(certreq);
 
