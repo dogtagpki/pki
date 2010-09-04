@@ -733,7 +733,7 @@ public class ConfigureSubCA
 							"&importCert=" + "true" +
 							""; 
 
-		hr = hc.sslConnect(sd_hostname,sd_admin_port,admin_uri,query_string);
+		hr = hc.sslConnect(cs_hostname,cs_port,admin_uri,query_string);
 		
 		// get response data
 		String cert_to_import = 
