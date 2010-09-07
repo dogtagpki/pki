@@ -3825,16 +3825,23 @@ sub process_pki_selinux_setup()
     emit("Restorecon file context for $pki_instance_root/$pki_instance_name\n");
     system("$restorecon -F -R $pki_instance_root/$pki_instance_name");
 
-
     if ($java_component) {
         # set file context for /var/run/$pki_instance_name.pid
+        my $pidfile = "/var/run/${pki_instance_name}.pid";
         if ($pki_instance_name ne $default_inst_name ) {
-            &add_selinux_file_context( $setype . "_var_run_t", 
-                "/var/run/$pki_instance_name\\.pid", "f");
+            &add_selinux_file_context( $setype . "_var_run_t",
+                "$pidfile", "f");
         }
-        emit("Restorecon file context for /var/run\n");
-        system("$restorecon -F -R /var/run/$pki_instance_name\\.pid");
-        system("$restorecon -F -R /var/run/pki");
+        if (-e $pidfile) {
+            emit("Restorecon file context for $pidfile\n");
+            system("$restorecon -F $pidfile");
+        }
+
+        my $pidpath = "/var/run/pki";
+        if (-e $pidpath) {
+            emit("Restorecon file context for $pidpath\n");
+            system("$restorecon -F -R $pidpath");
+        }
     }
 
     # set file context for $log_path
