@@ -319,7 +319,7 @@
              <init-param><param-name>  AuthMgr     </param-name>
                          <param-value> TokenAuth </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.clone.configuration </param-value> </init-param>
+                         <param-value> certServer.clone.configuration.GetConfigEntries </param-value> </init-param>
    </servlet>
 
    <servlet>

@@ -1864,7 +1864,11 @@ public abstract class CMSServlet extends HttpServlet {
             authManagerId = (String) auditContext.get(SessionContext.AUTH_MANAGER_ID);
     
             if(authManagerId != null && authManagerId.equals("TokenAuth")) {
-               auditID = auditGroupID;  
+               if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
+                   auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
+                   CMS.debug("CMSServlet: in authorize... TokenAuth auditSubjectID unavailable, changing to auditGroupID");
+                   auditID = auditGroupID;  
+               }
             }
         }
 

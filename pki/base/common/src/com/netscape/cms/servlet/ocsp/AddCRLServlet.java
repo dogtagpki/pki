@@ -160,6 +160,14 @@ public class AddCRLServlet extends CMSServlet {
                 return;
             }
 
+            if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
+                   auditSubjectID.equals(ILogger.UNIDENTIFIED))  {
+                String uid = authToken.getInString(IAuthToken.USER_ID);
+                if (uid != null) {
+                    CMS.debug("AddCAServlet: auditSubjectID set to "+uid);
+                    auditSubjectID = uid;
+                }
+            }
             log(ILogger.LL_INFO, "AddCRLServlet");
             String b64 = cmsReq.getHttpReq().getParameter("crl");
             if (CMS.debugOn()) CMS.debug("AddCRLServlet: b64=" + b64);
