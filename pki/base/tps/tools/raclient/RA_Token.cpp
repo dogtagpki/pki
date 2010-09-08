@@ -1503,16 +1503,23 @@ RA_Token::ProcessGetStatus (Get_Status_APDU * apdu,
       return apdu_resp;
     }
 
+  //Return a reasonable value for available applet memory.
+  //Free mem - 8192
+  //Tot  mem - 8447
+  BYTE free_mem_high = 0x20;
+  BYTE free_mem_low  = 0x00;
+  BYTE tot_mem_high  = 0x20;
+  BYTE tot_mem_low   = 0xff;
   Buffer data =
     Buffer (1, (BYTE) m_major_version) + Buffer (1, (BYTE) m_minor_version) +
     Buffer (1, (BYTE) 0x00) + Buffer (1, (BYTE) 0x00) +
     Buffer (1, (BYTE) 0x01) + Buffer (1, (BYTE) 0x00) +
+    Buffer (1, (BYTE) tot_mem_high) +  Buffer (1, (BYTE) tot_mem_low) +
+    Buffer (1, (BYTE) 0x01) + Buffer (1, (BYTE) 0x00) +
+    Buffer (1, (BYTE) free_mem_high) + Buffer (1, (BYTE) free_mem_low) +
     Buffer (1, (BYTE) 0x01) + Buffer (1, (BYTE) 0x00) +
     Buffer (1, (BYTE) 0x01) + Buffer (1, (BYTE) 0x00) +
-    Buffer (1, (BYTE) 0x01) + Buffer (1, (BYTE) 0x00) +
-    Buffer (1, (BYTE) 0x01) + Buffer (1, (BYTE) 0x00) +
-    Buffer (1, (BYTE) 0x01) + Buffer (1, (BYTE) 0x00) +
-    Buffer (1, (BYTE) 0x90) + Buffer (1, (BYTE) 0x00);
+    Buffer (1, (BYTE) 0x90) + Buffer (1, (BYTE) 0x00); 
   APDU_Response *apdu_resp = new APDU_Response (data);
   return apdu_resp;
 }
