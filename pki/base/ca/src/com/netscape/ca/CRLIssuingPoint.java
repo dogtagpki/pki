@@ -1072,8 +1072,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mEnable = false;
 
         setAutoUpdates();
-        if (mUpdateThread != null)
-            mUpdateThread.destroy();
+         /*
+        if (mUpdateThread != null) {
+            try {
+                mUpdateThread.interrupt();
+            }
+            catch (Exception e) {
+            }
+        }
+        */
+
     }
 
     /**
