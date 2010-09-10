@@ -838,6 +838,27 @@ public class CMSEngine implements ICMSEngine {
         CMS.debug("CMSEngine: done init id=" + id);
         mSSReg.put(id, ss);
         CMS.debug("CMSEngine: initialized " + id);
+
+        if(id.equals("ca") || id.equals("ocsp") ||
+            id.equals("kra") || id.equals("tks")) {
+            CMS.debug("CMSEngine::initSubsystem " + id + " Java subsytem about to calculate serverCertNickname. ");
+            // get SSL server nickname
+            IConfigStore serverCertStore = mConfig.getSubStore(id + "." + "sslserver");
+            if (serverCertStore != null && serverCertStore.size() > 0) {
+                String nickName = serverCertStore.getString("nickname");
+                String tokenName = serverCertStore.getString("tokenname");
+                if (tokenName != null && tokenName.length() > 0 &&
+                    nickName != null && nickName.length() > 0) {
+                    CMS.setServerCertNickname(tokenName, nickName);
+                    CMS.debug("Subsystem " + id + " init sslserver:  tokenName:"+tokenName+"  nickName:"+nickName);
+                } else if (nickName != null && nickName.length() > 0) {
+                    CMS.setServerCertNickname(nickName);
+                    CMS.debug("Subsystem " + id + " init sslserver:  nickName:"+nickName);
+                } else {
+                    CMS.debug("Subsystem " + id + " init error: SSL server certificate nickname is not available.");
+                }
+            }
+        }
     }
 
     public void reinit(String id) throws EBaseException {
