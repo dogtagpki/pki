@@ -63,6 +63,7 @@ import netscape.ldap.util.*;
 public final class JssSubsystem implements ICryptoSubsystem {
     public static final String ID = "jss";
 
+    private static final String CONFIG_DIR = "configDir";
     private static final String CERTPREFIX_ALIAS = "certPrefix";
     private static final String KEYPREFIX_ALIAS = "keyPrefix";
     private static final String CONFIGDIR_ALIAS = "configDir";
@@ -233,11 +234,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
         if (!enabled)
             return;
 
-		try {
-			devRandomInputStream = new FileInputStream("/dev/urandom");
-		} catch (IOException ioe) {
-			// XXX - add new exception
-		}
+        try {
+            devRandomInputStream = new FileInputStream("/dev/urandom");
+        } catch (IOException ioe) {
+            // XXX - add new exception
+        }
 
         // get hardcoded password (for debugging.
         String pw;
@@ -248,9 +249,31 @@ public final class JssSubsystem implements ICryptoSubsystem {
             CMS.debug("JssSubsystem init() got password from hardcoded in config");
         }
 
+        String certDir;
+
+        certDir = config.getString(CONFIG_DIR, null);
+        
+        CryptoManager.InitializationValues vals = 
+            new CryptoManager.InitializationValues(certDir,
+                                                   "", "", "secmod.db");
+
+        vals.removeSunProvider = false;
+        vals.installJSSProvider = true;
+        try {
+            CryptoManager.initialize(vals);
+        } catch (AlreadyInitializedException e) {
+            // do nothing
+        } catch (Exception e) {
+            String[] params = {mId, e.toString()};
+            EBaseException ex = new EBaseException(
+                    CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
+
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
+            throw ex;
+        }
+
         try {
             mCryptoManager = CryptoManager.getInstance();
-
             initSSL();
         } catch (CryptoManager.NotInitializedException e) {
             String[] params = {mId, e.toString()};

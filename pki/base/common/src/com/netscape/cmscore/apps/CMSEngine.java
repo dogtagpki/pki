@@ -213,7 +213,7 @@ public class CMSEngine implements ICMSEngine {
         return instanceDir;
     }
 
-    public IPasswordStore getPasswordStore() {
+    public synchronized IPasswordStore getPasswordStore() {
         // initialize the PasswordReader and PasswordWriter
       try {
         String pwdPath = mConfig.getString("passwordFile");
@@ -273,20 +273,6 @@ public class CMSEngine implements ICMSEngine {
             // do not check session domain table
         } else {
             mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
-        }
-
-        // initialize the PasswordReader and PasswordWriter
-        String pwdPath = config.getString("passwordFile");
-        String pwdClass = config.getString("passwordClass");
-
-        if (pwdClass != null) {
-            try {
-                mPasswordStore = (IPasswordStore)Class.forName(pwdClass).newInstance();
-                mPasswordStore.init(pwdPath); 
-                CMS.debug("CMSEngine: init(): password store initialized for "+
-                       pwdClass);
-            } catch (Exception e) {
-            }
         }
 
         String tsClass = config.getString("timeSourceClass", null);
