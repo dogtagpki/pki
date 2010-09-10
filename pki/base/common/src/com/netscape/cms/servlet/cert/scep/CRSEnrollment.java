@@ -78,6 +78,8 @@ public class CRSEnrollment extends HttpServlet
   private   String                mHashAlgorithm = "SHA1";
   private   String                mmEncryptionAlgorithm = "DES3";
   private   String                mEncryptionAlgorithm = "DES3";
+  private   Random                mRandom = null;
+  private   int                   mNonceSizeLimit = 0;
   protected ILogger mLogger =      CMS.getLogger();
   private ICertificateAuthority ca;
 		/* for hashing challenge password */
@@ -149,11 +151,13 @@ public class CRSEnrollment extends HttpServlet
               mEnabled = scepConfig.getBoolean("enable", false);
               mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
               mEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
+              mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
           }
       } catch (EBaseException e) {
       } 
       mmEncryptionAlgorithm = mEncryptionAlgorithm;
       CMS.debug("CRSEnrollment: init: SCEP support is "+((mEnabled)?"enabled":"disabled")+".");
+      CMS.debug("CRSEnrollment: init: mNonceSizeLimit: "+mNonceSizeLimit);
 
       try {
 	      mProfileSubsystem = (IProfileSubsystem)CMS.getSubsystem("profile");
@@ -193,6 +197,7 @@ public class CRSEnrollment extends HttpServlet
     catch (NoSuchAlgorithmException e) {
       }
 
+      mRandom = new Random();
   }
 
 
@@ -724,8 +729,17 @@ public class CRSEnrollment extends HttpServlet
               throw new ServletException("Error: malformed PKIMessage - missing sendernonce");
           }
           else {
-              crsResp.setRecipientNonce(sn);
-              crsResp.setSenderNonce(new byte[] {0});
+              if (mNonceSizeLimit > 0 && sn.length > mNonceSizeLimit) {
+                  byte[] snLimited = (mNonceSizeLimit > 0)? new byte[mNonceSizeLimit]: null;
+                  System.arraycopy(sn, 0, snLimited, 0, mNonceSizeLimit);
+                  crsResp.setRecipientNonce(snLimited);
+              } else {
+                  crsResp.setRecipientNonce(sn);
+              }
+              byte[] serverNonce = new byte[16];
+              mRandom.nextBytes(serverNonce);
+              crsResp.setSenderNonce(serverNonce);
+              // crsResp.setSenderNonce(new byte[] {0});
           }
                 
           // Deal with message type
@@ -861,8 +875,9 @@ public class CRSEnrollment extends HttpServlet
   {
       IRequest foundRequest=null;
 
-      resp.setRecipientNonce(req.getSenderNonce());
-      resp.setSenderNonce(null);
+      // already done by handlePKIOperation
+      // resp.setRecipientNonce(req.getSenderNonce());
+      // resp.setSenderNonce(null);
 
 	  try {
 	  	foundRequest = findRequestByTransactionID(req.getTransactionID(),false);
@@ -1561,7 +1576,7 @@ throws EBaseException {
         Hashtable fingerprints = new Hashtable();
 
         MessageDigest md;
-        String[] hashes = new String[] {"MD2", "MD5", "SHA1"};
+        String[] hashes = new String[] {"MD2", "MD5", "SHA1", "SHA256", "SHA512"};
         PKCS10 p10 = (PKCS10)req.getP10();
 
         for (int i=0;i<hashes.length;i++) {

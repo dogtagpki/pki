@@ -330,6 +330,13 @@ public class CRSPKIMessage {
                 aa.addElement(new Attribute(CRS_FAILINFO, fiset)); 
             }
             
+            if (senderNonce != null) {
+                SET snset = new SET();
+
+                snset.addElement(new OCTET_STRING(senderNonce));
+                aa.addElement(new Attribute(CRS_SENDERNONCE, snset));
+            }
+
             if (recipientNonce != null) {
                 SET rnset = new SET();
 
