@@ -288,45 +288,49 @@ if (typeof(results) == "undefined" || results.length == 0) {
     document.write("</table>\n");
     document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
 
-    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
-    document.write("<tr>\n");
-    document.write("<td width=60%>\n");
+    document.write("<td width=80%>\n");
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">");
     document.write("Are you sure?");
-    document.write("</font>");
+     document.write("</font>");
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
+    document.write("<tr>\n");
+    document.write("<td width=80%>\n");
     document.write("<form method='get' action='tus'><select name=\"question\">");
     if (question == '1') {
       document.write("<option selected value=\"1\">This token has been physically damaged.</option>");
     } else {
-      document.write("<option value=\"1\">This token has been physically damaged.</option>");
+      document.write("<option value=\"1\" disabled>This token has been physically damaged.</option>");
     }
     if (question == '2') {
       document.write("<option selected value=\"2\">This token has been permanently lost.</option>");
     } else {
-      document.write("<option value=\"2\">This token has been permanently lost.</option>");
+      document.write("<option value=\"2\" disabled>This token has been permanently lost.</option>");
     }
     if (question == '3') {
       document.write("<option selected value=\"3\">This token has been temporarily lost.</option>");
     } else {
-      document.write("<option value=\"3\">This token has been temporarily lost.</option>");
+      document.write("<option value=\"3\" disabled>This token has been temporarily lost.</option>");
     }
     if (question == '4') {
       document.write("<option selected value=\"4\">This temporarily lost token has been found.</option>");
     } else {
-      document.write("<option value=\"4\">This temporarily lost token has been found.</option>");
+      document.write("<option value=\"4\" disabled>This temporarily lost token has been found.</option>");
     }
     if (question == '5') {
       document.write("<option selected value=\"5\">This temporarily lost token cannot be found (becomes permanently lost).</option>");
     } else {
-      document.write("<option value=\"5\">This temporarily lost token cannot be found (becomes permanently lost).</option>");
+      document.write("<option value=\"5\" disabled>This temporarily lost token cannot be found (becomes permanently lost).</option>");
     }
     if (question == '6') {
       document.write("<option selected value=\"6\">This token has been terminated.</option>");
     } else {
-      document.write("<option value=\"6\">This token has been terminated.</option>");
+      document.write("<option value=\"6\" disabled>This token has been terminated.</option>");
     }
     document.write("</select><input type=hidden name=op value=do_token>");
     document.write("<input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Go\"></form>");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<input TYPE=button VALUE=Cancel onClick=\"doCancel();\">");
     document.write("</td>\n");
     document.write("</tr>\n");
     document.write("</table>\n");
