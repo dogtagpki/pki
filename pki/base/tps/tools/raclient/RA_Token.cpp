@@ -1038,11 +1038,11 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
 	    }
 
 	  m_buffer =
-	    Buffer (1, (BYTE) blob.size () / 256) +
-	    Buffer (1, (BYTE) blob.size () % 256) +
+	    Buffer (1, (BYTE) (blob.size () / 256)) +
+	    Buffer (1, (BYTE) (blob.size () % 256)) +
 	    Buffer (blob) +
-	    Buffer (1, (BYTE) proof.size () / 256) +
-	    Buffer (1, (BYTE) proof.size () % 256) + Buffer (proof);
+	    Buffer (1, (BYTE) (proof.size () / 256)) +
+	    Buffer (1, (BYTE) (proof.size () % 256)) + Buffer (proof);
 	  buffer_size = m_buffer.size ();
 	}			// if private key not NULL
 
