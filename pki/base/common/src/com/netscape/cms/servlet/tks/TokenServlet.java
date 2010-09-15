@@ -110,6 +110,18 @@ public class TokenServlet extends CMSServlet {
         LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE =
         "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE_8";
 
+   private final static String
+        LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST = 
+         "LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_2";
+
+   private final static String
+        LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS = 
+         "LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS_3";
+
+   private final static String
+        LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE =
+         "LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE_4";
+
     /**
      * Constructs tks servlet.
      */
@@ -1162,6 +1174,126 @@ public class TokenServlet extends CMSServlet {
      *   master_key_index   
      */
 
+    private void processComputeRandomData(HttpServletRequest req,
+      HttpServletResponse resp) throws EBaseException {
+       
+        byte[] randomData = null; 
+        String status = "0";
+        String errorMsg = "";
+        String badParams = "";
+        boolean missingParam = false;
+        int dataSize = 0;
+
+        CMS.debug("TokenServlet::processComputeRandomData");
+
+        SessionContext sContext = SessionContext.getContext();
+
+        String agentId="";
+        if (sContext != null) {
+            agentId =
+                (String) sContext.get(SessionContext.USER_ID);
+        }
+
+        String sDataSize = req.getParameter("dataNumBytes");
+
+        if(sDataSize == null || sDataSize.equals(""))  {
+            CMS.debug("TokenServlet::processComputeRandomData missing param dataNumBytes");
+            badParams += " Random Data size, ";
+            missingParam = true;
+            status = "1";
+        } else {
+            try
+            {
+               dataSize = Integer.parseInt(sDataSize.trim());
+            }
+            catch (NumberFormatException nfe)
+            {
+                CMS.debug("TokenServlet::processComputeRandomData invalid data size input!");
+                badParams += " Random Data size, ";
+                missingParam = true;
+                status = "1";
+            }
+
+        }
+
+        CMS.debug("TokenServlet::processComputeRandomData data size requested: " + dataSize);
+
+        String auditMessage = CMS.getLogMessage(
+                       LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST,
+                       ILogger.SUCCESS,
+                       agentId);
+
+        audit(auditMessage);
+
+        if(!missingParam) {         
+            try {
+                  SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+                  randomData = new byte[dataSize];
+                  random.nextBytes(randomData);
+                } catch (Exception e) {
+                   CMS.debug("TokenServlet::processComputeRandomData:"+ e.toString());
+                   errorMsg = "Can't generate random data!";
+                   status = "2";
+            }
+        }
+
+        String randomDataOut = "";
+        if(status.equals("0")) {
+            if (randomData != null && randomData.length == dataSize) {
+                randomDataOut =
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(randomData);
+            } else {
+                status = "2";
+                errorMsg = "Can't convert random data!";
+            }
+        }
+
+        if(status.equals("1") && missingParam) {
+
+            if(badParams.endsWith(","))  {
+                  badParams = badParams.substring(0,badParams.length() -1);
+            }
+            errorMsg = "Missing input parameters :" + badParams;
+        }
+
+        resp.setContentType("text/html");
+        String value = "";
+
+        value = "status="+status;
+        if(status.equals("0")) {
+            value = value + "&DATA="+randomDataOut;
+        }
+        
+        try {
+            resp.setContentLength(value.length());
+            CMS.debug("TokenServler::processComputeRandomData :outputString.length " +value.length());
+            
+            OutputStream ooss = resp.getOutputStream();
+            ooss.write(value.getBytes());
+            ooss.flush();
+            mRenderResult = false;
+        } catch (Exception e) {
+            CMS.debug("TokenServlet::processComputeRandomData " + e.toString());
+        }
+
+        if(status.equals("0")) {
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS,
+                        ILogger.SUCCESS,
+                        status,
+                        agentId);
+           } else {
+               auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE,
+                        ILogger.FAILURE,
+                        status,
+                        agentId,
+                        errorMsg);
+          }
+
+          audit(auditMessage);
+    }
+
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
@@ -1205,6 +1337,8 @@ public class TokenServlet extends CMSServlet {
             processEncryptData(req,resp);
         }else if(req.getParameter("newKeyInfo")!=null){
             processDiversifyKey(req,resp);
+        }else if(req.getParameter("dataNumBytes") !=null){
+            processComputeRandomData(req,resp);
         }
     }
 

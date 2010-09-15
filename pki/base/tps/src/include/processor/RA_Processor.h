@@ -108,7 +108,7 @@ class RA_Processor
 				Buffer &key_info_data,
 				Buffer &card_challenge,
 				Buffer &card_cryptogram,
-				Buffer &host_challenge);
+				Buffer &host_challenge, const char *connId);
 
 		int CreatePin(RA_Session *session, BYTE pin_number, BYTE max_retries, char *pin);
 
@@ -133,6 +133,8 @@ class RA_Processor
 		char *RequestASQ(RA_Session *session, char *question);
 
 		int EncryptData(Buffer &cuid, Buffer &versionID, Buffer &in, Buffer &out, const char *connid);
+                
+		int ComputeRandomData(Buffer &data_out, int dataSize,  const char *connid);
 
 		int CreateKeySetData(
 			Buffer &cuid, 

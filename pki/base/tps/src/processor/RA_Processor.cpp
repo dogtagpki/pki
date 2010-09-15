@@ -1403,7 +1403,7 @@ int RA_Processor::InitializeUpdate(RA_Session *session,
      Buffer &key_info_data,
      Buffer &card_challenge,
      Buffer &card_cryptogram,
-     Buffer &host_challenge)
+     Buffer &host_challenge, const char *connId)
 {
     int rc = -1;
     APDU_Response *initialize_update_response = NULL;
@@ -1411,16 +1411,30 @@ int RA_Processor::InitializeUpdate(RA_Session *session,
     RA_Token_PDU_Response_Msg *initialize_update_response_msg = NULL;
     Initialize_Update_APDU *initialize_update_apdu = NULL;
     Buffer update_response_data;
+    char configname[256];
 
     RA::Debug(LL_PER_PDU, "RA_Processor::InitializeUpdate",
         "RA_Processor::InitializeUpdate");
 
-    if (Util::GetRandomChallenge(host_challenge) != PR_SUCCESS)
-    {
+
+    PR_snprintf((char *) configname, 256, "conn.%s.generateHostChallenge", connId);
+    bool gen_host_challenge_tks  = RA::GetConfigStore()->GetConfigAsBool(configname, true);
+
+    if(gen_host_challenge_tks) {
+        RA::Debug(LL_PER_PDU, "RA_Processor::InitializeUpdate",
+        "Generate host challenge on TKS.");
+        rc = ComputeRandomData(host_challenge, (int) host_challenge.size(), connId);
+    } else {
+        rc = Util::GetRandomChallenge(host_challenge);
+    }
+
+    if(rc == -1) {
         RA::Debug(LL_PER_PDU, "RA_Processor::InitializeUpdate",
             "Failed to generate host challenge");
         goto loser;
+
     }
+
     RA::DebugBuffer(LL_PER_PDU, "RA_Processor::InitializeUpdate",
         "Generated Host Challenge",
         &host_challenge);
@@ -1517,16 +1531,40 @@ Secure_Channel *RA_Processor::SetupSecureChannel(RA_Session *session,
     Buffer key_info_data;
     Buffer card_challenge;
     Buffer card_cryptogram;
+    char configname[256];
 
     RA::Debug(LL_PER_PDU, "RA_Processor::Setup_Secure_Channel",
         "RA_Processor::Setup_Secure_Channel");
 
-    if (Util::GetRandomChallenge(host_challenge) != PR_SUCCESS)
+    PR_snprintf((char *) configname, 256, "conn.%s.generateHostChallenge", connId);
+    bool gen_host_challenge_tks  = RA::GetConfigStore()->GetConfigAsBool(configname, false);
+
+    int rc = 0;
+    if(gen_host_challenge_tks) {
+        RA::Debug(LL_PER_PDU, "RA_Processor::Setup_Secure_Channel",
+        "Generate host challenge on TKS.");
+        rc = ComputeRandomData(host_challenge, (int) host_challenge.size(), connId);
+    } else {
+        rc = Util::GetRandomChallenge(host_challenge); 
+    }
+
+    if(rc == -1) {
+        RA::Debug(LL_PER_PDU, "RA_Processor::SetupSecureChannel",
+            "Failed to generate host challenge");
+        goto loser;
+
+    }
+
+
+
+ /*   if (Util::GetRandomChallenge(host_challenge) != PR_SUCCESS)
     {
         RA::Debug(LL_PER_PDU, "RA_Processor::Setup_Secure_Channel",
             "Failed to generate host challenge");
         goto loser;
     }
+
+*/
     RA::DebugBuffer(LL_PER_PDU, "RA_Processor::Setup_Secure_Channel",
         "Generated Host Challenge",
         &host_challenge);
@@ -2275,6 +2313,132 @@ int RA_Processor::EncryptData(Buffer &CUID, Buffer &version, Buffer &in, Buffer 
 	    RA::ReturnTKSConn(tksConn);
 	}
 	return status;
+}
+
+int RA_Processor::ComputeRandomData(Buffer &data_out, int dataSize,  const char *connid)
+{
+    char body[5000];
+    char configname[256];
+    HttpConnection *tksConn = NULL;
+    int status = -1;
+    Buffer *decodedRandomData = NULL;
+    PSHttpResponse *response = NULL;
+
+    //check for absurd dataSize values
+    if(dataSize <= 0 || dataSize > 1024) {
+        RA::Debug(LL_PER_PDU, "RA_Processor::ComputeRandomData", "Invalid dataSize requested %d", dataSize);
+        return -1;
+    }
+
+    tksConn = RA::GetTKSConn(connid);
+    if (tksConn == NULL) {
+        RA::Debug(LL_PER_PDU, "RA_Processor::ComputeRandomData", "Failed to get TKSConnection %s", connid);
+        return -1;
+    } else {
+        int tks_curr = RA::GetCurrentIndex(tksConn);
+        int currRetries = 0;
+        char *data = NULL;
+
+        PR_snprintf((char *)body, 5000, "dataNumBytes=%d"
+          , dataSize );
+
+        PR_snprintf((char *)configname, 256, "conn.%s.servlet.computeRandomData", connid);
+        const char *servletID = RA::GetConfigStore()->GetConfigAsString(configname);
+
+        response = tksConn->getResponse(tks_curr, servletID, body);
+        ConnectionInfo *connInfo = tksConn->GetFailoverList();
+        char **hostport = connInfo->GetHostPortList();
+        if (response == NULL)
+            RA::Debug(LL_PER_PDU, "The ComputeRandomData response from TKS ",
+              "at %s is NULL.", hostport[tks_curr]);
+        else
+            RA::Debug(LL_PER_PDU, "The ComputeRandomData response from TKS ",
+              "at %s is not NULL.", hostport[tks_curr]);
+
+        while (response == NULL) {
+            RA::Failover(tksConn, connInfo->GetHostPortListLen());
+            tks_curr = RA::GetCurrentIndex(tksConn);
+            RA::Debug(LL_PER_PDU, "RA_Processor::ComputeRandomData: RA is reconnecting to TKS ",
+              "at %s for ComputeRandomData.", hostport[tks_curr]);
+
+            if (++currRetries >= tksConn->GetNumOfRetries()) {
+                RA::Debug(LL_PER_PDU, "RA_Processor::ComputeRandomData: Used up all the retries. Response is NULL","");
+                RA::Error(LL_PER_PDU, "RA_Processor::ComputeRandomData", "Failed connecting to TKS after %d retries", currRetries);
+                if (tksConn != NULL) {
+		          RA::ReturnTKSConn(tksConn);
+	            }
+                status = -1;
+                goto loser;
+            }
+            response = tksConn->getResponse(tks_curr, servletID, body);
+        }
+
+        Buffer *randomData = NULL;
+        status = 0;
+        if (response != NULL) {
+            RA::Debug(LL_PER_PDU, "RA_Processor::ComputeRandomData Response is not ","NULL");
+            char *content = response->getContent();
+            if (content != NULL) {
+                char *statusStr = strstr((char *)content, "status=0&");
+                if (statusStr == NULL) {
+                    char *p = strstr((char *)content, "status=");
+
+                    if(p != NULL) {
+                        status = int(p[7]) - 48;
+
+                        RA::Debug(LL_PER_PDU, "RA_Processor::ComputeRandomData status from TKS is ","status %d",status);
+                        status = -1;
+		    } else {
+			status = -1;
+                        goto loser;
+		    }
+                } else {
+                    status = 0;
+                    // skip over "status=0&"
+                    char *p = &content[9];
+
+                    // get random data
+                    char *dataStr = strstr((char *)p, "DATA=");
+                    if (dataStr != NULL) {
+                      // skip over "DATA="
+                      p = &dataStr[5];
+
+                      char *dstr = new char[ dataSize *3 + 1];
+                      if(!dstr) {
+                          status = -1;
+                          goto loser;
+                      }
+                      strncpy(dstr, p, dataSize * 3); 
+                      dstr[dataSize*3] = '\0';
+                      decodedRandomData = Util::URLDecode(dstr);
+                      RA::DebugBuffer("RA_Processor::ComputeRandomData", "decodedRandomData=", decodedRandomData);
+
+                      if(dstr) {
+                          data_out = *decodedRandomData;
+                          delete dstr;
+                          dstr = NULL;
+                      }
+                      if(decodedRandomData) {
+                         delete decodedRandomData;
+                         decodedRandomData = NULL;
+                      }
+                }
+            }
+        }
+    }
+  }
+loser:
+    if( response != NULL ) {
+        response->freeContent();
+        delete response;
+        response = NULL;
+    }
+
+    if (tksConn != NULL) {
+       RA::ReturnTKSConn(tksConn);
+    }
+
+    return status;
 }
 
 bool RA_Processor::RevokeCertificates(char *cuid,char *audit_msg, 
