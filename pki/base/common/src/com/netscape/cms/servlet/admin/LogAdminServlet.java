@@ -149,6 +149,8 @@ public class LogAdminServlet extends AdminServlet {
                     } else if (scope.equals(ScopeDef.SC_LOG_RULES)) {
                         getInstConfig(req, resp);
                         return;
+                    } else if (scope.equals(ScopeDef.SC_GENERAL)) {
+                        getGeneralConfig(req, resp);
                     } else {
                         sendResponse(ERROR, 
                             CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
@@ -210,6 +212,8 @@ public class LogAdminServlet extends AdminServlet {
                     if (scope.equals(ScopeDef.SC_LOG_RULES)) {
                         modLogInst(req, resp, scope);
                         return;
+                    } else if (scope.equals(ScopeDef.SC_GENERAL)) {
+                        setGeneralConfig(req, resp);
                     } else {
                         sendResponse(ERROR, 
                             CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
@@ -2487,5 +2491,59 @@ public class LogAdminServlet extends AdminServlet {
 
         return expirationTime;
     }
+
+    private void getGeneralConfig(HttpServletRequest req,
+        HttpServletResponse resp) throws ServletException,
+            IOException, EBaseException {
+
+        NameValuePairs params = new NameValuePairs();
+        String value = "false";
+
+        value = mConfig.getString(Constants.PR_DEBUG_LOG_ENABLE, "false");
+        params.add(Constants.PR_DEBUG_LOG_ENABLE, value);
+
+        value = mConfig.getString(Constants.PR_DEBUG_LOG_LEVEL, "0");
+        params.add(Constants.PR_DEBUG_LOG_LEVEL, value);
+
+        sendResponse(SUCCESS, null, params, resp);
+    }
+
+    private void setGeneralConfig(HttpServletRequest req,
+        HttpServletResponse resp) throws ServletException,
+            IOException, EBaseException {
+
+        Enumeration enum1 = req.getParameterNames();
+        boolean restart = false;
+
+        while (enum1.hasMoreElements()) {
+            String key = (String) enum1.nextElement();
+            String value = req.getParameter(key);
+
+            if (key.equals(Constants.PR_DEBUG_LOG_ENABLE)) {
+                if (value.equals("true") || value.equals("false")) {
+                    mConfig.putString(Constants.PR_DEBUG_LOG_ENABLE, value);
+                } else {
+                    CMS.debug("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_ENABLE + ": " + value);
+                    throw new EBaseException("Invalid value for " + Constants.PR_DEBUG_LOG_ENABLE);
+                }
+            } else if (key.equals(Constants.PR_DEBUG_LOG_LEVEL)) {
+                try {
+                    int number = Integer.parseInt(value);
+                    mConfig.putString(Constants.PR_DEBUG_LOG_LEVEL, value);
+                } catch (NumberFormatException e) {
+                    CMS.debug("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL + ": " + value);
+                    throw new EBaseException("Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL);
+                }
+            } 
+        }
+
+        mConfig.commit(true);
+
+        if (restart)
+            sendResponse(RESTART, null, null, resp);
+        else
+            sendResponse(SUCCESS, null, null, resp);
+    }
+
 }
 

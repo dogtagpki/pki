@@ -108,6 +108,12 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
         tabPane.addTab(new CMSSMTPPanel(tabPane));
         tabPane.addTab(new CMSSelfTestsPanel(tabPane));
 
+        // The log panel would only really be useful if we were able to 
+        // enable or disable debug without restarting.  If we can do this, 
+        // then we can enable this tab.
+        //
+        // tabPane.addTab(new GeneralLogPanel(tabPane));
+
         root.setCustomPanel(tabPane);
         
 

@@ -189,6 +189,10 @@ public interface Constants {
     public static final String PR_LOG_TRANSACTIONS = "Transactions";
     public static final String PR_LOG_SYSTEM = "System";
 
+    public static final String PR_DEBUG_LOG_SHOWCALLER = "debug.showcaller"; 
+    public static final String PR_DEBUG_LOG_ENABLE = "debug.enabled"; 
+    public static final String PR_DEBUG_LOG_LEVEL = "debug.level"; 
+
     /*========================================================
      * LDAP Publishing
      *========================================================*/
@@ -240,7 +244,9 @@ public interface Constants {
     public final static String PR_BIND_DN = "ldapauth.bindDN";
     public final static String PR_BIND_PASSWD = "ldapauth.bindPassword";
     public final static String PR_BIND_PASSWD_AGAIN = "bindPasswdAgain";
-    
+    public final static String PR_LDAP_MAX_CONNS = "maxConns";
+    public final static String PR_LDAP_MIN_CONNS = "minConns";
+
     public final static String PR_BASE_DN = "baseDN";
     public final static String PR_DNCOMPS = "dnComps";
     public final static String PR_FILTERCOMPS = "filterComps";
@@ -356,6 +362,7 @@ public interface Constants {
     public final static String PR_RECOVERY_AGENT = "recoveryAgent";
     public final static String PR_OLD_AGENT_PWD = "oldAgentPwd";
     public final static String PR_AGENT_PWD = "agentPwd";
+    public final static String PR_NO_OF_REQUIRED_RECOVERY_AGENTS = "noOfRequiredRecoveryAgents";
 
     /*========================================================
      * Status

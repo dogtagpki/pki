@@ -142,6 +142,13 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     public int getNoOfRequiredAgents() throws EBaseException;
 
     /**
+     * Sets the number of required recovery agents
+     *
+     * @param number number of agents
+     */
+    public void setNoOfRequiredAgents(int number) throws EBaseException;
+
+    /**
      * Returns the current recovery identifier.
      *
      * @return recovery identifier

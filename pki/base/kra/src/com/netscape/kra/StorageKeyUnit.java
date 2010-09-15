@@ -636,6 +636,10 @@ public class StorageKeyUnit extends EncryptionUnit implements
         return mStorageConfig.getInteger(PROP_M);
     }
 
+    public void setNoOfRequiredAgents(int number) {
+        mStorageConfig.putInteger(PROP_M, number);
+    }
+
     public CryptoToken getInternalToken() {
         try {
             return CryptoManager.getInstance().getInternalKeyStorageToken();

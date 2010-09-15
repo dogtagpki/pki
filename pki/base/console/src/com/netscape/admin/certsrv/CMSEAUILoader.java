@@ -85,7 +85,18 @@ public class CMSEAUILoader implements ISubSystemUILoader {
 	 * protected methods
      *==========================================================*/
     protected void populateConfigContent(CMSBaseResourceModel model) {
-        return;
+        CMSResourceObject list, node;
+        CMSTabPanel tabPane;
+
+        //ca node
+        list = new CMSResourceObject("EACONFIG");
+        tabPane = new CMSTabPanel(model, list);
+        tabPane.addTab(new CMSEAGeneralPanel(tabPane));
+        list.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_FOLDER));
+        list.setAllowsChildren(false);
+        list.setCustomPanel(tabPane);
+
+        model.addSubSystemNode(list);
     }
     
     /*

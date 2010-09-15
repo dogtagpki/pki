@@ -124,6 +124,9 @@ public class KRAAdminServlet extends AdminServlet {
                 } else if (scope.equals(ScopeDef.SC_NOTIFICATION_RIQ)) {
                     getNotificationRIQConfig(req, resp);
                     return;
+                } else if (scope.equals(ScopeDef.SC_GENERAL)) {
+                    getGeneralConfig(req, resp);
+                    return;
                 }
             } else if (op.equals(OpDef.OP_MODIFY)) {
                 mOp = "modify";
@@ -145,6 +148,8 @@ public class KRAAdminServlet extends AdminServlet {
                 } else if (scope.equals(ScopeDef.SC_NOTIFICATION_RIQ)) {
                     setNotificationRIQConfig(req, resp);
                     return;
+                } else if (scope.equals(ScopeDef.SC_GENERAL)) {
+                    setGeneralConfig(req,resp);
                 }
             } 
         } catch (EBaseException e) {
@@ -158,6 +163,65 @@ public class KRAAdminServlet extends AdminServlet {
         sendResponse(ERROR,
             CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
             null, resp);
+    }
+
+    private void getGeneralConfig(HttpServletRequest req,
+        HttpServletResponse resp) throws ServletException,
+            IOException, EBaseException {
+
+        NameValuePairs params = new NameValuePairs();
+        int value = 1;
+
+        value = mKRA.getNoOfRequiredAgents();
+        params.add(Constants.PR_NO_OF_REQUIRED_RECOVERY_AGENTS, Integer.toString(value));
+
+        sendResponse(SUCCESS, null, params, resp);
+    }
+
+    private void setGeneralConfig(HttpServletRequest req,
+        HttpServletResponse resp) throws ServletException,
+            IOException, EBaseException {
+        Enumeration enum1 = req.getParameterNames();
+        boolean restart = false;
+
+        String auditMessage = null;
+        String auditSubjectID = auditSubjectID();
+
+        while (enum1.hasMoreElements()) {
+            String key = (String) enum1.nextElement();
+            String value = req.getParameter(key);
+
+            if (key.equals(Constants.PR_NO_OF_REQUIRED_RECOVERY_AGENTS)) {
+                try {
+                    int number = Integer.parseInt(value); 
+                    mKRA.setNoOfRequiredAgents(number);
+                } catch (NumberFormatException e) {
+                    auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_CONFIG_DRM,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditParams(req));
+
+                    audit(auditMessage);
+                    throw new EBaseException("Number of agents must be an integer");
+                }
+            }
+        }
+
+        commit(true);
+
+        auditMessage = CMS.getLogMessage(
+            LOGGING_SIGNED_AUDIT_CONFIG_DRM,
+            auditSubjectID,
+            ILogger.SUCCESS,
+            auditParams(req));
+
+        audit(auditMessage);
+
+        if (restart)
+            sendResponse(RESTART, null, null, resp);
+        else
+            sendResponse(SUCCESS, null, null, resp);
     }
 
     /**

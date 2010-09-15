@@ -39,6 +39,8 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
     private JTextField mHostNameText;
     private JTextField mPortText;
     private JTextField mBindAsText;
+    private JTextField mMaxConnsText;
+    private JTextField mMinConnsText;
     private JPasswordField mPasswordText;
     private JPasswordField mPasswordAgainText;
     private JCheckBox mEnable;
@@ -157,6 +159,18 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
           dummy, gbc);
 */
 
+        // add maxconns label text field
+        CMSAdminUtil.resetGBC(gbc);
+        JLabel maxConnsLabel = makeJLabel("MAXCONNS");
+        mMaxConnsText = makeJTextField(30);
+        CMSAdminUtil.addEntryField(serverInfo, maxConnsLabel, mMaxConnsText, gbc);
+
+        // add maxconns label text field
+        CMSAdminUtil.resetGBC(gbc);
+        JLabel minConnsLabel = makeJLabel("MINCONNS");
+        mMinConnsText = makeJTextField(30);
+        CMSAdminUtil.addEntryField(serverInfo, minConnsLabel, mMinConnsText, gbc);
+
         refresh();
     }
 
@@ -169,6 +183,8 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
         //nvps.add(Constants.PR_BASE_DN, "");
         nvps.add(Constants.PR_BIND_DN, "");
         nvps.add(Constants.PR_LDAP_VERSION, "");
+        nvps.add(Constants.PR_LDAP_MAX_CONNS, "");
+        nvps.add(Constants.PR_LDAP_MIN_CONNS, "");
 
         try {
             NameValuePairs val = mAdmin.read(mServletName,
@@ -219,7 +235,12 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
                     mEnable.setSelected(false);
             } else if (name.equals(Constants.PR_LDAP_VERSION)) {
                 version = nvp.getValue();
+            } else if (name.equals(Constants.PR_LDAP_MIN_CONNS)) {
+                mMinConnsText.setText(nvp.getValue());
+            } else if (name.equals(Constants.PR_LDAP_MAX_CONNS)) {
+                mMaxConnsText.setText(nvp.getValue());
             }
+
         }
 
 /*
@@ -246,10 +267,12 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
         String port = mPortText.getText().trim();
         //String baseDN = mBaseDNText.getText().trim();
         String bindAs = mBindAsText.getText().trim();
+        String maxConns = mMaxConnsText.getText().trim();
+        String minConns = mMinConnsText.getText().trim();
 
         //if (host.equals("") || port.equals("") || baseDN.equals("") ||
         //  bindAs.equals("")) {
-        if (host.equals("") || port.equals("") || bindAs.equals("")) {
+        if (host.equals("") || port.equals("") || bindAs.equals("") || maxConns.equals("") || minConns.equals("")) {
             showMessageDialog("BLANKFIELD");
             return false;
         }
@@ -265,11 +288,25 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
             return false;
         }
 
+        try {
+            int max = Integer.parseInt(maxConns);
+            int min = Integer.parseInt(minConns);
+            if ((max < min) || (max <0) || (min <0)) {
+                showMessageDialog("MAXMINRANGE");
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            showMessageDialog("MAXMINNUMBERFORMAT");
+            return false;
+        }
+
         NameValuePairs nvps = new NameValuePairs();
         nvps.add(Constants.PR_HOST_NAME, host);
         nvps.add(Constants.PR_LDAP_PORT, port);
         //nvps.add(Constants.PR_BASE_DN, baseDN);
         nvps.add(Constants.PR_BIND_DN, bindAs);
+        nvps.add(Constants.PR_LDAP_MAX_CONNS, maxConns);
+        nvps.add(Constants.PR_LDAP_MIN_CONNS, minConns);
 /*
         nvps.add(Constants.PR_LDAP_VERSION, 
           (String)mVersionBox.getSelectedItem());

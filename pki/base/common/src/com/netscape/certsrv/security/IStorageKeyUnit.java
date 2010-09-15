@@ -55,6 +55,13 @@ public interface IStorageKeyUnit extends IEncryptionUnit {
     public int getNoOfRequiredAgents() throws EBaseException;
 
     /**
+     * Sets the numer of required recovery agents
+     *
+     * @param number number of required agents
+     */
+    public void setNoOfRequiredAgents(int number);
+
+    /**
      * Retrieves a list of agents in this unit.
      *
      * @return a list of string-based agent identifiers

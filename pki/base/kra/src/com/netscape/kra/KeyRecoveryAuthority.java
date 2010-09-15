@@ -538,7 +538,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @exception EBaseException failed to retrieve info
      */
     public int getNoOfRequiredAgents() throws EBaseException {
-        if (mConfig.getBoolean("keySplitting")) {
+        if (mConfig.getBoolean("keySplitting", false)) {
 		    return mStorageKeyUnit.getNoOfRequiredAgents(); 
         } else {
             int ret = -1;
@@ -547,6 +547,21 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
               throw new EBaseException("Invalid parameter noOfRequiredecoveryAgents");
             }
             return ret;
+        }
+    }
+
+    /**
+     * Sets number of required agents for 
+     * recovery operation
+     *
+     * @return none
+     * @exception EBaseException invalid setting
+     */
+    public void setNoOfRequiredAgents(int number) throws EBaseException {
+        if (mConfig.getBoolean("keySplitting")) {
+            mStorageKeyUnit.setNoOfRequiredAgents(number);
+        } else {
+           mConfig.putInteger("noOfRequiredRecoveryAgents", number); 
         }
     }
 
