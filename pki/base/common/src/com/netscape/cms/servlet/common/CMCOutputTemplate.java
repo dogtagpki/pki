@@ -361,6 +361,8 @@ public class CMCOutputTemplate {
                 signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
             } else if( keyType.equals( org.mozilla.jss.crypto.PrivateKey.DSA ) ) {
                 signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
+            } else if( keyType.equals( org.mozilla.jss.crypto.PrivateKey.EC ) ) {
+                 signAlg = SignatureAlgorithm.ECSignatureWithSHA1Digest;
             } else {
                 CMS.debug( "CMCOutputTemplate::getContentInfo() - "
                          + "signAlg is unsupported!" );
