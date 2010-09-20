@@ -620,6 +620,21 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 name, crlNumber, crlSize, thisUpdate, nextUpdate);
     }
 
+     public void deleteCRLIssuingPointRecord(String id)
+        throws EBaseException {
+
+        IDBSSession s = null;
+
+        try {
+            s = mDBService.createSession();
+            String name = "cn=" + transformDN(id) + "," + getBaseDN(); 
+            CMS.debug("DefStore::deleteCRLIssuingPointRecord: Attempting to delete: " + name);
+            if (s != null) s.delete(name);
+        } finally {
+            if (s != null) s.close();
+        }
+    }
+
     /**
      * Creates a new issuing point in OCSP.
      */

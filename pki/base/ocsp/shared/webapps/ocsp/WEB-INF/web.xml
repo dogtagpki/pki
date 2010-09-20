@@ -369,6 +369,28 @@
              <init-param><param-name>  templatePath  </param-name>
                          <param-value> /agent/ocsp/addCA.template </param-value> </init-param>
    </servlet>
+
+   <servlet>
+      <servlet-name>  ocspRemoveCA  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.ocsp.RemoveCAServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspRemoveCA   </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ocsp.ca </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ocsp/removeCA.template </param-value> </init-param>
+   </servlet>
+
                                                                                 
    <servlet>
       <servlet-name>  ocspReadAddCAPage  </servlet-name>
@@ -575,6 +597,11 @@
    <servlet-mapping>
       <servlet-name>  ocspAddCA  </servlet-name>
       <url-pattern>   /agent/ocsp/addCA  </url-pattern>
+   </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>  ocspRemoveCA  </servlet-name>
+      <url-pattern>   /agent/ocsp/removeCA  </url-pattern>
    </servlet-mapping>
                                                                                 
    <servlet-mapping>

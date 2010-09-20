@@ -396,6 +396,11 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         throw new EBaseException("NOT SUPPORTED");
     }
 
+    public void deleteCRLIssuingPointRecord(String id)
+       throws EBaseException  {
+       throw new EBaseException("NOT SUPPORTED");
+    }
+
     public boolean isNotFoundGood() {
         try {
             return isNotFoundGood1();

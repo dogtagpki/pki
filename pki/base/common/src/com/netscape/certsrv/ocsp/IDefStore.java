@@ -159,6 +159,17 @@ public interface IDefStore extends IOCSPStore
         throws EBaseException;
 
     /**
+     * This method deletes a CRL issuing point record
+     * <P>
+     *
+     * @param name a string representation of this CRL issuing point record
+     * @exception EBaseException occurs when the specified CRL issuing point
+     *     record cannot be deleted 
+     */
+    public void deleteCRLIssuingPointRecord(String id)
+        throws EBaseException;
+
+    /**
      * This method checks to see if the OCSP response should return good
      * when the certificate is not found.
      * <P>
