@@ -55,7 +55,7 @@ List Certificate Authorities
     document.writeln('<tr>');
     document.writeln('<td align="left" width="5%">');
     document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
-    document.writeln('<li>Number of pending updates:' + header.stateCount);
+    document.writeln('&bull;&nbsp;Number of pending updates:' + header.stateCount);
     document.writeln('</font></td>');
     document.writeln('</tr>');
 
@@ -78,36 +78,66 @@ List Certificate Authorities
 	    document.writeln('<tr>');
 	    document.writeln('<td align="left" width="5%">');
 	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
-	    document.writeln('<li>CRL Number:' + result.recordSet[i].CRLNumber);
+	    document.writeln('&bull;&nbsp;CRL Number:' + result.recordSet[i].CRLNumber);
 	    document.writeln('</font></td>');
 	    document.writeln('</tr>');
 	    document.writeln('<tr>');
 	    document.writeln('<td align="left" width="5%">');
 	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
-	    document.writeln('<li>This Update:' + result.recordSet[i].ThisUpdate);
+	    document.writeln('&bull;&nbsp;This Update:' + result.recordSet[i].ThisUpdate);
 	    document.writeln('</font></td>');
 	    document.writeln('</tr>');
 	    document.writeln('<tr>');
 	    document.writeln('<td align="left" width="5%">');
 	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
-            document.writeln('<li>Next Update:' + result.recordSet[i].NextUpdate);
+            document.writeln('&bull;&nbsp;Next Update:' + result.recordSet[i].NextUpdate);
 	    document.writeln('</font></td>');
 	    document.writeln('</tr>');
 	    document.writeln('<tr>');
 	    document.writeln('<td align="left" width="5%">');
 	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
-            document.writeln('<li>Number of Revoked Certificates:' + result.recordSet[i].NumRevoked);
+            document.writeln('&bull;&nbsp;Number of Revoked Certificates:' + result.recordSet[i].NumRevoked);
 	    document.writeln('</font></td>');
 	    document.writeln('</tr>');
 	    document.writeln('<tr>');
 	    document.writeln('<td align="left" width="5%">');
 	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
-            document.writeln('<li>Requests Served Since Startup:' + result.recordSet[i].ReqCount);
+            document.writeln('&bull;&nbsp;Requests Served Since Startup:' + result.recordSet[i].ReqCount);
 	    document.writeln('</font></td>');
 	    document.writeln('</tr>');
+	    document.writeln('<tr>');
+       	    document.writeln('<td align="left" width="5%"><b>');
+            document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln('&bull;&nbsp; Remove this CA from the list -');
+            document.writeln('</font></b></td>');
+            document.writeln('</tr>');
+            document.writeln('<tr>');
+            document.writeln('<td align ="left" width="5%">');
+            document.writeln('<button  onClick="removeCertificateAuthority( ' + i  + ')" VALUE="removeca">Remove CA </button>');
+            document.writeln('</td>');
+            document.writeln('</tr>');
+            document.writeln('<tr><td><br></td></tr>');
       }
     document.writeln('</table>');
     document.writeln('</td></tr></table>');
+
+    function removeCertificateAuthority(caIndex)
+    {
+        var id = result.recordSet[caIndex].Id;
+        var url = null;
+        var sure = true;
+
+        if(id)
+           url = "/ocsp/agent/ocsp/removeCA?caID="+id;
+
+        if(url) {
+           if(caIndex == 0)
+              sure = confirm("Are you sure you want to remove the initial CA?\n" + id);
+           if(sure) 
+              document.location=url;    
+        }
+    }
+
 //-->
 </SCRIPT>
 

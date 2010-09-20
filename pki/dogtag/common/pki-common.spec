@@ -16,7 +16,7 @@ BuildRequires:  jpackage-utils
 BuildRequires:  jss >= 4.2.6
 BuildRequires:  ldapjdk
 BuildRequires:  osutil
-BuildRequires:  pki-symkey
+#BuildRequires:  pki-symkey
 BuildRequires:  pki-util
 BuildRequires:  velocity
 BuildRequires:  xalan-j2
@@ -28,7 +28,7 @@ Requires:       osutil
 Requires:       pki-common-ui
 Requires:       pki-java-tools
 Requires:       pki-setup
-Requires:       pki-symkey
+#Requires:       pki-symkey
 Requires:       tomcatjss
 Requires:       %{_javadir}/ldapjdk.jar
 Requires:       %{_javadir}/velocity.jar
