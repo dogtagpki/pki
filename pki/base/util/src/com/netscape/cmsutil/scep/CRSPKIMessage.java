@@ -142,6 +142,7 @@ public class CRSPKIMessage {
 
     private SET           sis;     // set of SignerInfos
     private SignerInfo   si;     // First SignerInfo
+    private AlgorithmIdentifier digestAlgorithmId = null;
     private int          siv;  // Version
     private SET          aa;   // Authenticated Attributes
     private SET          aa_old;   // Authenticated Attributes
@@ -168,6 +169,7 @@ public class CRSPKIMessage {
     private byte[]       iv;              // initialization vector for above key
     private byte[]       ec;              // encrypted content (P10, in case of request)
     private byte[]       cc;              // * 'clear' content (not in ASN.1) *
+    private String       encryptionAlgorithm = null;
 
     // For the CertRep, the enveloped content is another signed Data:
     private SignedData     crsd;
@@ -220,6 +222,25 @@ public class CRSPKIMessage {
             }
         }
         return oid;
+    }
+
+    // getHashAlgorithm is added to work around issue 636217
+    private String getHashAlgorithm (OBJECT_IDENTIFIER algorithmOID)
+    {
+        String hashAlgorithm = null;
+        OBJECT_IDENTIFIER oid = MD5_DIGEST;
+        if (algorithmOID != null) {
+            if (algorithmOID.equals(MD5_DIGEST)) {
+                hashAlgorithm = "MD5";
+            } else if (algorithmOID.equals(SHA1_DIGEST)) {
+                hashAlgorithm = "SHA1";
+            } else if (algorithmOID.equals(SHA256_DIGEST)) {
+                hashAlgorithm = "SHA256";
+            } else  if (algorithmOID.equals(SHA512_DIGEST)) {
+                hashAlgorithm = "SHA512";
+            }
+        }
+        return hashAlgorithm;
     }
 
     // These functions are used to initialize the various blobs
@@ -514,6 +535,18 @@ public class CRSPKIMessage {
         return iv;
     }
 
+    public String getEncryptionAlgorithm() {
+        return encryptionAlgorithm;
+    }
+
+    public String getDigestAlgorithmName() {
+        String name = null;
+        if (digestAlgorithmId != null) {
+           name = getHashAlgorithm(digestAlgorithmId.getOID());
+        }
+        return name;
+    }
+
     public PublicKey getSignerPublicKey() {
         try {
 
@@ -653,7 +686,7 @@ public class CRSPKIMessage {
     }
             
 
-    public String decodeCRSPKIMessage (ByteArrayInputStream bais) throws InvalidBERException, Exception {
+    private void decodeCRSPKIMessage (ByteArrayInputStream bais) throws InvalidBERException, Exception {
 
         org.mozilla.jss.pkcs7.ContentInfo.Template crscit;
 
@@ -671,7 +704,7 @@ public class CRSPKIMessage {
                     new ByteArrayInputStream(
                         ((ANY) crsci.getContent()).getEncoded()
                     ));
-        return this.decodeSD();
+        this.decodeSD();
     }
 
     public CRSPKIMessage() {
@@ -683,7 +716,7 @@ public class CRSPKIMessage {
         decodeCRSPKIMessage(bais);
     }
 
-    private String decodeSD() throws Exception {
+    private void decodeSD() throws Exception {
         ContentInfo  sdci;
 
         sis = sd.getSignerInfos();
@@ -715,8 +748,7 @@ public class CRSPKIMessage {
         sgnIASN = new IssuerAndSerialNumber(firstCertInfo.getIssuer(),
                     firstCertInfo.getSerialNumber());
         
-        return decodeED();
-            
+        decodeED();
     }
             
     private void decodeSI() throws Exception {
@@ -724,13 +756,15 @@ public class CRSPKIMessage {
             throw new Exception("SignerInfos is empty");
         }
         si = (SignerInfo) sis.elementAt(0);
+
+        digestAlgorithmId = si.getDigestAlgorithmIdentifer();
+
         decodeAA();
 
         aa_digest = new OCTET_STRING(si.getEncryptedDigest());
     }
         
-    private String decodeED() throws Exception {
-        String encAlgorithm = null;
+    private void decodeED() throws Exception {
         SET ris;
 
         ris = (SET) sded.getRecipientInfos();
@@ -742,9 +776,9 @@ public class CRSPKIMessage {
         eci = sded.getEncryptedContentInfo();
 
         if (eci.getContentEncryptionAlgorithm().getOID().equals(DES_EDE3_CBC_ENCRYPTION)) {
-            encAlgorithm = "DES3";
+            encryptionAlgorithm = "DES3";
         } else if (eci.getContentEncryptionAlgorithm().getOID().equals(DES_CBC_ENCRYPTION)) {
-            encAlgorithm = "DES";
+            encryptionAlgorithm = "DES";
         } else {
             throw new Exception("P10 encrypted alg is not supported (not DES): " + eci.getContentEncryptionAlgorithm().getOID());
         }
@@ -762,8 +796,6 @@ public class CRSPKIMessage {
         iv = os.toByteArray();
 
         decodeRI();
-
-        return encAlgorithm;
     }
         
     /**

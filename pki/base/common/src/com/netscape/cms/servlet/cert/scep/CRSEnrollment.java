@@ -76,8 +76,12 @@ public class CRSEnrollment extends HttpServlet
   private   String                mSubstoreName;
   private   boolean               mEnabled = false;
   private   String                mHashAlgorithm = "SHA1";
-  private   String                mmEncryptionAlgorithm = "DES3";
+  private   String                mHashAlgorithmList = null;
+  private   String[]              mAllowedHashAlgorithm;
+  private   String                mConfiguredEncryptionAlgorithm = "DES3";
   private   String                mEncryptionAlgorithm = "DES3";
+  private   String                mEncryptionAlgorithmList = null;
+  private   String[]              mAllowedEncryptionAlgorithm;
   private   Random                mRandom = null;
   private   int                   mNonceSizeLimit = 0;
   protected ILogger mLogger =      CMS.getLogger();
@@ -150,14 +154,30 @@ public class CRSEnrollment extends HttpServlet
               IConfigStore scepConfig = authorityConfig.getSubStore("scep");
               mEnabled = scepConfig.getBoolean("enable", false);
               mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
-              mEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
+              mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
               mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
+              mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA1,SHA256,SHA512");
+              mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
+              mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
+              mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
           }
       } catch (EBaseException e) {
       } 
-      mmEncryptionAlgorithm = mEncryptionAlgorithm;
+      mEncryptionAlgorithm = mConfiguredEncryptionAlgorithm;
       CMS.debug("CRSEnrollment: init: SCEP support is "+((mEnabled)?"enabled":"disabled")+".");
       CMS.debug("CRSEnrollment: init: mNonceSizeLimit: "+mNonceSizeLimit);
+      CMS.debug("CRSEnrollment: init: mHashAlgorithm: "+mHashAlgorithm);
+      CMS.debug("CRSEnrollment: init: mHashAlgorithmList: "+mHashAlgorithmList);
+      for (int i = 0; i < mAllowedHashAlgorithm.length; i++) {
+          mAllowedHashAlgorithm[i] = mAllowedHashAlgorithm[i].trim();
+          CMS.debug("CRSEnrollment: init: mAllowedHashAlgorithm["+i+"]="+mAllowedHashAlgorithm[i]);
+      }
+      CMS.debug("CRSEnrollment: init: mEncryptionAlgorithm: "+mEncryptionAlgorithm);
+      CMS.debug("CRSEnrollment: init: mEncryptionAlgorithmList: "+mEncryptionAlgorithmList);
+      for (int i = 0; i < mAllowedEncryptionAlgorithm.length; i++) {
+          mAllowedEncryptionAlgorithm[i] = mAllowedEncryptionAlgorithm[i].trim();
+          CMS.debug("CRSEnrollment: init: mAllowedEncryptionAlgorithm["+i+"]="+mAllowedEncryptionAlgorithm[i]);
+      }
 
       try {
 	      mProfileSubsystem = (IProfileSubsystem)CMS.getSubsystem("profile");
@@ -221,7 +241,7 @@ public class CRSEnrollment extends HttpServlet
 
         String operation = null;
         String message   = null;
-        mEncryptionAlgorithm = mmEncryptionAlgorithm;
+        mEncryptionAlgorithm = mConfiguredEncryptionAlgorithm;
         
       
         // Parse the URL from the HTTP Request. Split it up into
@@ -267,6 +287,11 @@ public class CRSEnrollment extends HttpServlet
             }
                     
         }
+        catch (ServletException e)
+        {
+            CMS.debug("ServletException " + e);
+            throw new ServletException(e.getMessage().toString());
+        }
         catch (Exception e)
             {
                 CMS.debug("Service exception " + e);
@@ -284,6 +309,20 @@ public class CRSEnrollment extends HttpServlet
         
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                     level, "CEP Enrollment: "+msg);
+    }
+
+    private boolean isAlgorithmAllowed (String[] allowedAlgorithm, String algorithm) {
+        boolean allowed = false;
+
+        if (algorithm != null && algorithm.length() > 0) {
+            for (int i = 0; i < allowedAlgorithm.length; i++) {
+                if (algorithm.equalsIgnoreCase(allowedAlgorithm[i])) {
+                    allowed = true;
+                }
+            }
+        }
+
+        return allowed;
     }
 
     public IAuthToken authenticate(AuthCredentials credentials, IProfileAuthenticator authenticator,
@@ -462,8 +501,21 @@ public class CRSEnrollment extends HttpServlet
 				decodedPKIMessage.length+" bytes)");
 			}
 		  try {
-          	req     = new CRSPKIMessage();
-          	String ea = req.decodeCRSPKIMessage(is);
+          	req = new CRSPKIMessage(is);
+          	String ea = req.getEncryptionAlgorithm();
+            if (!isAlgorithmAllowed (mAllowedEncryptionAlgorithm, ea)) {
+                CMS.debug("CRSEnrollment: decodePKIMessage:  Encryption algorithm '"+ea+
+                          "' is not allowed ("+mEncryptionAlgorithmList+").");
+                throw new ServletException("Encryption algorithm '"+ea+
+                                           "' is not allowed ("+mEncryptionAlgorithmList+").");
+            }
+          	String da = req.getDigestAlgorithmName();
+            if (!isAlgorithmAllowed (mAllowedHashAlgorithm, da)) {
+                CMS.debug("CRSEnrollment: decodePKIMessage:  Hashing algorithm '"+da+
+                          "' is not allowed ("+mHashAlgorithmList+").");
+                throw new ServletException("Hashing algorithm '"+da+
+                                           "' is not allowed ("+mHashAlgorithmList+").");
+            }
           	if (ea != null) {
           	    mEncryptionAlgorithm = ea;
           	}
@@ -695,13 +747,29 @@ public class CRSEnrollment extends HttpServlet
 				decodedPKIMessage.length+" bytes)");
 			}
 		  try {
-          	req     = new CRSPKIMessage();
-          	String ea = req.decodeCRSPKIMessage(is);
+          	req = new CRSPKIMessage(is);
+          	String ea = req.getEncryptionAlgorithm();
+            if (!isAlgorithmAllowed (mAllowedEncryptionAlgorithm, ea)) {
+                CMS.debug("CRSEnrollment: handlePKIOperation:  Encryption algorithm '"+ea+
+                          "' is not allowed ("+mEncryptionAlgorithmList+").");
+                throw new ServletException("Encryption algorithm '"+ea+
+                                           "' is not allowed ("+mEncryptionAlgorithmList+").");
+            }
+          	String da = req.getDigestAlgorithmName();
+            if (!isAlgorithmAllowed (mAllowedHashAlgorithm, da)) {
+                CMS.debug("CRSEnrollment: handlePKIOperation:  Hashing algorithm '"+da+
+                          "' is not allowed ("+mHashAlgorithmList+").");
+                throw new ServletException("Hashing algorithm '"+da+
+                                           "' is not allowed ("+mHashAlgorithmList+").");
+            }
           	if (ea != null) {
           	    mEncryptionAlgorithm = ea;
           	}
           	crsResp = new CRSPKIMessage();
 		  }
+          catch (ServletException e) {
+              throw new ServletException(e.getMessage().toString());
+          }
 		  catch (Exception e) {
             CMS.debug(e);
 		  	throw new ServletException("Could not decode the request.");
@@ -779,6 +847,9 @@ public class CRSEnrollment extends HttpServlet
           } else {
               CMS.debug("Invalid request type " + mt);
           }
+      }
+      catch (ServletException e) {
+          throw new ServletException(e.getMessage().toString());
       }
       catch (CRSInvalidSignatureException e) {
           CMS.debug("handlePKIMessage exception " + e);
