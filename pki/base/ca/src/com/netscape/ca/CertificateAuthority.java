@@ -530,6 +530,10 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         return mDefaultValidity;
     }
 
+    public SignatureAlgorithm  getDefaultSignatureAlgorithm() {
+        return mSigningUnit.getDefaultSignatureAlgorithm();
+    }
+
     public String getDefaultAlgorithm() {
         return mSigningUnit.getDefaultAlgorithm();
     }

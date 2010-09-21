@@ -41,6 +41,7 @@ import org.mozilla.jss.*;
 import netscape.security.x509.*;
 import com.netscape.certsrv.profile.*;
 import com.netscape.certsrv.ca.*;
+import com.netscape.certsrv.security.*;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -350,13 +351,12 @@ public class CMCOutputTemplate {
               issuer, new INTEGER(x509CAcert.getSerialNumber().toString()));
             SignerIdentifier si = new SignerIdentifier(
               SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias, null);
-            // SHA1 is the default digest Alg for now.
-            DigestAlgorithm digestAlg = null;
-            SignatureAlgorithm signAlg = null;
+            // use CA instance's default signature and digest algorithm
+            SignatureAlgorithm signAlg = ca.getDefaultSignatureAlgorithm();
             org.mozilla.jss.crypto.PrivateKey privKey =
               CryptoManager.getInstance().findPrivKeyByCert(x509CAcert);
+/*
             org.mozilla.jss.crypto.PrivateKey.Type keyType = privKey.getType();
-
             if( keyType.equals( org.mozilla.jss.crypto.PrivateKey.RSA ) ) {
                 signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
             } else if( keyType.equals( org.mozilla.jss.crypto.PrivateKey.DSA ) ) {
@@ -368,17 +368,17 @@ public class CMCOutputTemplate {
                          + "signAlg is unsupported!" );
                 return null;
             }
-
-            MessageDigest SHADigest = null;
+*/
+            DigestAlgorithm digestAlg = signAlg.getDigestAlg();
+            MessageDigest msgDigest = null;
             byte[] digest = null;
 
-            SHADigest = MessageDigest.getInstance("SHA1");
-            digestAlg = DigestAlgorithm.SHA1;
+            msgDigest = MessageDigest.getInstance(digestAlg.toString());
 
             ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
             respBody.encode((OutputStream) ostream);
-            digest = SHADigest.digest(ostream.toByteArray());
+            digest = msgDigest.digest(ostream.toByteArray());
 
             SignerInfo signInfo = new
               SignerInfo(si, null, null,
@@ -400,6 +400,7 @@ public class CMCOutputTemplate {
               enContentInfo, certs, null, signInfos);
 
             ContentInfo contentInfo = new ContentInfo(signedData);
+            CMS.debug("CMCOutputTemplate::getContentInfo() - done");
             return contentInfo;
         } catch (Exception e) {
             CMS.debug("CMCOutputTemplate: Failed to create CMCContentInfo. Exception: "+e.toString());

@@ -104,6 +104,13 @@ public interface ISigningUnit {
      *
      * @return default signing algorithm
      */
+    public SignatureAlgorithm getDefaultSignatureAlgorithm();
+
+    /**
+     * Retrieves the default algorithm name.
+     *
+     * @return default signing algorithm name
+     */
     public String getDefaultAlgorithm();
 
     /**

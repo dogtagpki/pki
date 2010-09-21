@@ -26,6 +26,7 @@ import java.security.*;
 import java.security.cert.*;
 import netscape.security.x509.*;
 import netscape.security.util.*;
+import org.mozilla.jss.crypto.*;
 
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.request.*;
@@ -165,6 +166,13 @@ public interface ICertificateAuthority extends ISubsystem {
      * @exception EBaseException failed to set the last serial number
      */
     public void setMaxSerial(String serial) throws EBaseException;
+
+    /**
+     * Retrieves the default signature algorithm of this certificate authority.
+     *
+     * @return the default signature algorithm of this CA
+     */
+    public SignatureAlgorithm getDefaultSignatureAlgorithm();
 
     /**
      * Retrieves the default signing algorithm of this certificate authority.

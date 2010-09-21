@@ -339,9 +339,18 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                 SignedData cmcFullReq = (SignedData)
                                         cmcReq.getInterpretedContent();
             
-                IAuthToken agentToken = verifySignerInfo(authToken,cmcFullReq);
-                String userid = agentToken.getInString("userid");
-                String uid = agentToken.getInString("cn");
+                IConfigStore cmc_config = CMS.getConfigStore();
+                boolean checkSignerInfo =
+                    cmc_config.getBoolean("cmc.signerInfo.verify", true);
+                String userid = "defUser";
+                String uid = "defUser";
+                if (checkSignerInfo) {
+                    IAuthToken agentToken = verifySignerInfo(authToken,cmcFullReq);
+                    userid = agentToken.getInString("userid");
+                    uid = agentToken.getInString("cn");
+                } else {
+                    CMS.debug("CMCAuth: authenticate() signerInfo verification bypassed");
+                }
                 // reset value of auditSignerInfo
                 if( uid != null ) {
                     auditSignerInfo = uid.trim();
