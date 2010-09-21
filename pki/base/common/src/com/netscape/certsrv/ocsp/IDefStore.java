@@ -162,7 +162,7 @@ public interface IDefStore extends IOCSPStore
      * This method deletes a CRL issuing point record
      * <P>
      *
-     * @param name a string representation of this CRL issuing point record
+     * @param id a string representation of this CRL issuing point record
      * @exception EBaseException occurs when the specified CRL issuing point
      *     record cannot be deleted 
      */
