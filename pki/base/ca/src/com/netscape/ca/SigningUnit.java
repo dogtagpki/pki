@@ -331,7 +331,7 @@ public final class SigningUnit implements ISigningUnit {
     }
 
     /**
-     * returns default signing algorithm name.
+     * returns default signature algorithm
      */
     public SignatureAlgorithm getDefaultSignatureAlgorithm() {
         return mDefSigningAlgorithm;
