@@ -22,7 +22,7 @@ dn: cn=tus-listTokens-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
 cn: tus-listtokens-vlv
 objectClass: top
 objectClass: vlvsearch
-vlvBase: ou=Tokens,{rootSuffix}
+vlvBase: ou=Tokens,$TOKENDB_ROOT
 vlvFilter: (&(cn=*)(tokenUserID=*))
 vlvScope: 2
 
@@ -30,8 +30,8 @@ dn: cn=tus-listActivities-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
 cn: tus-listActivities-vlv
 objectClass: top
 objectClass: vlvsearch
-vlvBase: ou=Activities,{rootSuffix}
-vlvFilter: (tokenID=*)
+vlvBase: ou=Activities,$TOKENDB_ROOT
+vlvFilter: (&(tokenID=*)(tokenUserID=*))
 vlvScope: 2
 
 dn: cn=listTokensIndex,cn=tus-listTokens-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config

@@ -43,6 +43,7 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "plstr.h"
 #include "prmem.h"
@@ -2613,6 +2614,117 @@ TPS_PUBLIC int find_tus_db_entries (const char *filter, int max, LDAPMessage **r
     return rc;
 }
 
+/* all of the paging functions below are adapted from openldap
+ * When we move to openldap, they can be removed, and the openldap 
+ * equivalent of the top level function can ldap_create_page_control
+ * can be used instead */
+
+#define LDAP_CONTROL_PAGE_OID  "1.2.840.113556.1.4.319"
+
+int ldap_create_page_control_cs(LDAP * ld,
+                          unsigned long pagesize,
+                          struct berval *cookiep,
+                          int iscritical, LDAPControl ** ctrlp) {
+    BerElement *ber;
+    int i, rc;
+
+    if ( (ld == NULL) || (ctrlp == NULL)) {
+        return LDAP_PARAM_ERROR;
+    }
+
+    /* create a ber package to hold the controlValue */
+    if ( ( nsldapi_alloc_ber_with_options( ld, &ber ) ) != LDAP_SUCCESS ) {
+        ldap_set_lderrno( ld, LDAP_NO_MEMORY, NULL, NULL );
+        return LDAP_NO_MEMORY;
+    }
+
+    /* encode the start of the sequence of sequences into the ber */
+    if ( ber_printf( ber, "{" ) == -1 ) {
+        goto encoding_error_exit;
+    }
+
+    if ( ber_printf( ber, "i", pagesize) == -1 ) {
+        goto encoding_error_exit;
+    }
+
+    if (cookiep == NULL) {
+        if (ber_printf(ber, "o", "", 0) == -1) {
+            goto encoding_error_exit;
+        }
+    } else {
+        if (ber_printf (ber, "O", cookiep) == -1) {
+            goto encoding_error_exit;
+        }
+    }
+
+    if (ber_printf (ber,  "n}") == -1) {
+        goto encoding_error_exit;
+    }
+
+    rc = nsldapi_build_control( LDAP_CONTROL_PAGE_OID, ber, 1,
+            iscritical, ctrlp );
+
+    ldap_set_lderrno( ld, rc, NULL, NULL );
+    return rc ;
+
+encoding_error_exit:
+    ldap_set_lderrno( ld, LDAP_ENCODING_ERROR, NULL, NULL );
+    ber_free( ber, 1 );
+    return LDAP_ENCODING_ERROR;
+}
+
+TPS_PUBLIC int find_tus_db_entries_pcontrol_1(const char *filter, int max, int time_limit, int size_limit, LDAPMessage **result)
+{
+    int  rc = LDAP_OTHER, tries = 0;
+
+    LDAPsortkey **sortKeyList;
+    LDAPControl *controls[3];
+    struct berval  *cookie=NULL;
+    struct timeval timeout;
+
+    timeout.tv_sec = time_limit;
+    timeout.tv_usec = 0;
+
+    tus_check_conn();
+    controls[0] = NULL;
+    controls[1] = NULL;
+    controls[2] = NULL;
+
+    rc = ldap_create_page_control_cs(ld, max, cookie, 0, &controls[0]);
+
+    ldap_create_sort_keylist(&sortKeyList, "-dateOfModify");
+    ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */,
+        &controls[1]);
+
+    for (tries = 0; tries < MAX_RETRIES; tries++) {
+        rc = ldap_search_ext_s (ld, baseDN, LDAP_SCOPE_SUBTREE, filter,
+                 NULL, 0, controls, NULL, 
+                 time_limit >0 ? &timeout : NULL, 
+                 size_limit, result);
+        if ((rc == LDAP_SUCCESS) || (rc == LDAP_PARTIAL_RESULTS)) {
+            break;
+        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
+            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            if (rc != LDAP_SUCCESS) {
+                bindStatus = rc;
+                break;
+            }
+        }
+    }
+
+    if (cookie != NULL) {
+        ber_bvfree(cookie);
+        cookie = NULL;
+    }
+
+    ldap_free_sort_keylist(sortKeyList);
+    
+    ldap_control_free(controls[0]);
+    ldap_control_free(controls[1]);
+
+    return rc;
+}
+
 static int sort_cmp(const char *v1, const char *v2)
 {
   return PL_strcasecmp(v1, v2);
@@ -3187,6 +3299,57 @@ int find_tus_activity_entries (char *filter, int max, LDAPMessage **result)
     }
 
     ldap_free_sort_keylist(sortKeyList);
+    ldap_control_free(controls[0]);
+    ldap_control_free(controls[1]);
+
+    return rc;
+}
+
+TPS_PUBLIC int find_tus_activity_entries_pcontrol_1(char *filter, int max, int time_limit, int size_limit, LDAPMessage **result)
+{
+    int  rc = LDAP_OTHER, tries = 0;
+    LDAPsortkey **sortKeyList;
+    LDAPControl *controls[3];
+    struct berval *cookie=NULL;
+    struct timeval timeout;
+
+    timeout.tv_sec = time_limit;
+    timeout.tv_usec = 0;
+
+    tus_check_conn();
+    controls[0] = NULL;
+    controls[1] = NULL;
+    controls[2] = NULL;
+
+    rc = ldap_create_page_control_cs(ld, max, cookie, 0, &controls[0]);
+
+    ldap_create_sort_keylist(&sortKeyList, "-dateOfCreate");
+    ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */,
+        &controls[1]);
+
+    for (tries = 0; tries < MAX_RETRIES; tries++) {
+        rc = ldap_search_ext_s (ld, activityBaseDN, LDAP_SCOPE_SUBTREE, filter,
+                 NULL, 0, controls, NULL,
+                 time_limit >0 ? &timeout : NULL,
+                 size_limit, result);
+        if ((rc == LDAP_SUCCESS) || (rc == LDAP_PARTIAL_RESULTS)) {
+            break;
+        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
+            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            if (rc != LDAP_SUCCESS) {
+                bindStatus = rc;
+                break;
+            }
+        }
+    }
+
+    if (cookie != NULL) {
+       ber_bvfree(cookie);
+       cookie = NULL;
+    }
+
+    ldap_free_sort_keylist(sortKeyList);
+
     ldap_control_free(controls[0]);
     ldap_control_free(controls[1]);
 

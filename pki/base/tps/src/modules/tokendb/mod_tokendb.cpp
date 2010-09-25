@@ -155,6 +155,32 @@ extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
         } \
     }
 
+#define get_cfg_int(cname, vname) \
+    if( ( s = PL_strstr( buf, cname ) ) != NULL ) { \
+        s += PL_strlen( cname ); \
+        v = s; \
+        while( *s != '\x0D' && *s != '\x0A' && *s != '\0' && \
+               ( PRUint32 ) ( s - buf ) < size ) { \
+            s++; \
+        } \
+        n = s - v; \
+        s = PL_strndup( v, n ); \
+        if( s != NULL ) { \
+            char *endptr = NULL; \
+            errno = 0; \
+            vname = strtol(s, &endptr, 10);\
+            if ((errno == ERANGE && (vname == LONG_MAX || vname == LONG_MIN)) \
+              || (endptr == s)) { \
+                vname=0; \
+            } \
+            do_free(s); \
+        } else { \
+            do_free(buf); \
+            do_free(s); \
+            return 0; \
+        } \
+    }
+
 /**
  * Provide reasonable defaults for some defines.
  */
@@ -224,6 +250,10 @@ static char *editConfigTemplate              = NULL;
 static char *confirmConfigChangesTemplate    = NULL;
 static char *addConfigTemplate               = NULL;
 static char *confirmDeleteConfigTemplate     = NULL;
+static int maxSizeLimit                      = 0;
+static int defaultSizeLimit                  = 0;
+static int maxTimeLimit                      = 0;
+static int defaultTimeLimit                  = 0;
 
 static char *profileList                     = NULL;
 static char *transitionList                  = NULL;
@@ -2334,6 +2364,10 @@ int get_tus_config( char *name )
     get_cfg_string("tokendb.addConfigTemplate=", addConfigTemplate);
     get_cfg_string("tokendb.confirmDeleteConfigTemplate=", confirmDeleteConfigTemplate);
     get_cfg_string("target.Profiles.list=", profileList);
+    get_cfg_int("general.search.sizelimit.max=", maxSizeLimit);
+    get_cfg_int("general.search.sizelimit.default=", defaultSizeLimit);
+    get_cfg_int("general.search.timelimit.max=", maxTimeLimit);
+    get_cfg_int("general.search.timelimit.min=", defaultTimeLimit);
 
     if( buf != NULL ) {
         PR_Free( buf );
@@ -3211,6 +3245,40 @@ void parse_and_apply_changes(char* userid, char* ptype, char* pname, char *opera
     }
     do_strfree(line);
     do_strfree(fixed_pattern);
+}
+
+static int get_time_limit(char *query)
+{
+  char *val = NULL;
+  int ret;
+
+  val  = get_field(query, "timeLimit=", SHORT_LEN);
+  if (val == NULL) {
+      return maxTimeLimit;
+  } 
+
+  ret = atoi(val);
+  if ((ret == 0) || (maxTimeLimit == NULL) || (ret > maxTimeLimit)) {
+      return maxTimeLimit;
+  } 
+  return ret;
+}
+
+static int get_size_limit(char *query)
+{
+  char *val = NULL;
+  int ret;
+
+  val  = get_field(query, "sizeLimit=", SHORT_LEN);
+  if (val == NULL) {
+      return maxSizeLimit;
+  }
+
+  ret = atoi(val);
+  if ((ret == 0) || (maxSizeLimit == NULL) || (ret > maxSizeLimit)) {
+      return maxSizeLimit;
+  }
+  return ret;
 }
 
 /**
@@ -5779,6 +5847,9 @@ mod_tokendb_handler( request_rec *rq )
         char *complete_filter = add_profile_filter(filter, auth_filter);
         do_free(auth_filter);
 
+        int time_limit = get_time_limit(query);
+        int size_limit = get_size_limit(query);
+
         tokendbDebug( "looking for filter:" );
         tokendbDebug( complete_filter );
         tokendbDebug( filter );
@@ -5805,7 +5876,12 @@ mod_tokendb_handler( request_rec *rq )
             status = find_tus_activity_entries_no_vlv( complete_filter, &result, 1 ); 
         } else if (( PL_strstr( query, "op=view_activity_admin" )) ||
             ( PL_strstr( query, "op=view_activity" ) )) {
-            status = find_tus_activity_entries( complete_filter, maxReturns, &result);
+            if (PL_strcmp(complete_filter, "(&(tokenID=*)(tokenUserID=*))") == 0) {
+                tokendbDebug("activity vlv search");
+                status = find_tus_activity_entries(complete_filter, maxReturns, &result);
+            } else {
+                status = find_tus_activity_entries_pcontrol_1( complete_filter, maxReturns, time_limit, size_limit, &result);
+            }
         } else if(( PL_strstr( query, "op=view_certificate_all" ) ) ||
             ( PL_strstr( query, "op=show_certificate") )) {
 
@@ -5837,7 +5913,12 @@ mod_tokendb_handler( request_rec *rq )
                    (PL_strstr (query, "op=edit_user" )))  {
             status = find_tus_user_entries_no_vlv( filter, &result, 0); 
         } else {
-            status = find_tus_db_entries( complete_filter, maxReturns, &result );
+            if (PL_strcmp(complete_filter, "(&(cn=*)(tokenUserID=*))") == 0) {
+                tokendbDebug("token vlv search");
+                status = find_tus_db_entries(complete_filter, maxReturns, &result);
+            } else {
+                status = find_tus_db_entries_pcontrol_1( complete_filter, maxReturns, time_limit, size_limit, &result );
+            }
         }
 
         if( status != LDAP_SUCCESS ) {

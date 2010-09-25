@@ -174,7 +174,7 @@ sub update
 
     # add VLV indexes
     $tmp = "/tmp/addVLVIndexes-$$.ldif";
-    system("sed -e 's/userRoot/$database/g' " .
+    system("sed -e 's/userRoot/$database/g;s/\$TOKENDB_ROOT/$basedn/g' " .
               "/usr/share/$flavor/tps/scripts/addVLVIndexes.ldif > $tmp");
     system("$mozldap_path/ldapmodify -h '$host' -p '$port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
