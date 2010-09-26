@@ -416,7 +416,8 @@ public class SizePanel extends WizardPanelBase {
     public void createECCKeyPair(String token, int keysize, IConfigStore config, String ct) 
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException, CryptoManager.NotInitializedException
     {
-        CMS.debug("Generating ECC key pair");
+        CMS.debug("Generating ECC key pair with keysize="+ keysize +
+                    ", token="+token);
         KeyPair pair = null;
         /*
          * default ssl server cert to ECDHE unless stated otherwise

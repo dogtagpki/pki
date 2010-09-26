@@ -260,7 +260,7 @@ public class CertUtil {
  */
 
     public static String getAdminProfileAlgorithm(IConfigStore config) {
-        String algorithm = "SHA1withRSA";
+        String algorithm = "SHA256withRSA";
         try {
             String caSigningKeyType = config.getString("preop.cert.signing.keytype","rsa");
             String pfile = config.getString("profile.caAdminCert.config");
@@ -405,14 +405,19 @@ public class CertUtil {
             CMS.debug("key algorithm is " + keyAlgo);
             String caSigningKeyType = 
                  config.getString("preop.cert.signing.keytype","rsa");
+            String caSigningKeyAlgo = 
+                 config.getString("preop.cert.signing.keyalgorithm","SHA256withRSA");
             CMS.debug("CA Signing Key type " + caSigningKeyType);
+            CMS.debug("CA Signing Key algorithm " + caSigningKeyAlgo);
 
             if (caSigningKeyType.equals("ecc")) {
-              CMS.debug("Signing ECC certificate");
-              cert = CryptoUtil.signECCCert(caPrik, info, keyAlgorithm);
+              CMS.debug("CA signing cert is ECC");
+              cert = CryptoUtil.signECCCert(caPrik, info,
+                      caSigningKeyAlgo);
             } else {
-              CMS.debug("Signing RSA certificate");
-              cert = CryptoUtil.signCert(caPrik, info, keyAlgorithm);
+              CMS.debug("CA signing cert is not ecc");
+              cert = CryptoUtil.signCert(caPrik, info,
+                      caSigningKeyAlgo);
             }
 
             if (cert != null) {

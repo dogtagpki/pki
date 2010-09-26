@@ -160,6 +160,7 @@ public class CryptoUtil {
                 NoSuchAlgorithmException,
                 TokenException {
         CryptoToken t = getTokenByName(token);
+
         KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
         KeyPairGenerator g = t.getKeyPairGenerator(alg);
 
@@ -532,7 +533,7 @@ public class CryptoUtil {
                 CertificateException, 
                 InvalidKeyException {
         // set default; use the other call with "alg" to set algorithm
-        String alg = "SHA1withRSA";
+        String alg = "SHA256withRSA";
         try {
         return createX509CertInfo (x509key, serialno, issuername, subjname, notBefore, notAfter, alg);
         } catch (NoSuchAlgorithmException ex) {
@@ -583,7 +584,7 @@ public class CryptoUtil {
                 CertificateException
     {
         // set default; use the other call with "alg" to specify algorithm
-        String alg = "SHA1withEC";
+        String alg = "SHA256withEC";
         return signECCCert(privateKey, certInfo, alg);
     }
 
@@ -670,9 +671,9 @@ public class CryptoUtil {
                 InvalidKeyException, IOException, CertificateException,
                 SignatureException {
         // give default
-        String alg = "SHA1withRSA";
+        String alg = "SHA256withRSA";
         if (isECCKey(pubk)) {
-          alg = "SHA1withEC";
+          alg = "SHA256withEC";
         }
         return createCertificationRequest(subjectName, pubk, prik, alg);
     }
@@ -707,9 +708,9 @@ public class CryptoUtil {
         PublicKey pubk = keyPair.getPublic();
         X509Key key = convertPublicKeyToX509Key(pubk);
         if (pubk instanceof RSAPublicKey) {
-            alg = "SHA1withRSA";
+            alg = "SHA256withRSA";
         } else if (isECCKey(key)) {
-            alg = "SHA1withEC";
+            alg = "SHA256withEC";
         } else {
             // Assert.assert(pubk instanceof DSAPublicKey);
             alg = "DSA";
