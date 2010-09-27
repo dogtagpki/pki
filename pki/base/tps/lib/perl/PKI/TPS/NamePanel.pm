@@ -401,6 +401,21 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
         }
     }
 
+    # set selftest variables (always use the "latest" subsystem nickname)
+    my $selftestNickname = $::config->get( "preop.cert.subsystem.nickname" );
+    if ($hw ne "") {
+        $::config->put( "selftests.plugin.TPSPresence.nickname",
+                        "$tk$selftestNickname" );
+        $::config->put( "selftests.plugin.TPSValidity.nickname", 
+                        "$tk$selftestNickname" );
+    } else {
+        $::config->put( "selftests.plugin.TPSPresence.nickname",
+                        "$selftestNickname" );
+        $::config->put( "selftests.plugin.TPSValidity.nickname", 
+                        "$selftestNickname" );
+    }
+    $::config->commit();
+
 DONE:
     $::config->put("preop.namepanel.done", "true");
     $::config->commit();
