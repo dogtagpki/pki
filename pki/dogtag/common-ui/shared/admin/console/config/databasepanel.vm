@@ -65,7 +65,11 @@ Each instance needs access to a Fedora Directory Server instance to store reques
       </tr>       
       <tr>
         <th>Base DN:</th>
+#if ($clone == "clone")
+        <td><input type="text" size="40" name="basedn" value="$basedn" readonly/></td>
+#else 
         <td><input type="text" size="40" name="basedn" value="$basedn" /></td>
+#end
       </tr>
       <tr>
         <th>Database:</th>
