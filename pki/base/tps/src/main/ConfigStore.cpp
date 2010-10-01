@@ -741,16 +741,19 @@ TPS_PUBLIC const char* ConfigStore::GetOrderedList()
 /**
  * Commits changes to the config file
  */
-TPS_PUBLIC int ConfigStore::Commit(const bool backup)
+TPS_PUBLIC int ConfigStore::Commit(const bool backup, char *error_msg, int len)
 {
     char name_tmp[256], cdate[256], name_bak[256], bak_dir[256];
     char basename[256], dirname[256];
     PRFileDesc *ftmp  = NULL;
     PRExplodedTime time;
     PRTime now;
+    PRStatus status;
 
-    if (m_cfg_file_path == NULL) 
+    if (m_cfg_file_path == NULL) {
+        PR_snprintf(error_msg, len, "ConfigStore::Commit(): m_cfg_file_path is NULL!");
         return 1;
+    }
 
     if (strrchr(m_cfg_file_path, '/') != NULL) {
         PR_snprintf((char *) basename, 256, "%s", strrchr(m_cfg_file_path, '/') +1);
@@ -773,6 +776,7 @@ TPS_PUBLIC int ConfigStore::Commit(const bool backup)
     ftmp = PR_Open(name_tmp, PR_WRONLY| PR_CREATE_FILE, 00400|00200);
     if (ftmp == NULL) {
         // unable to create temporary config file 
+        PR_snprintf(error_msg, len, "ConfigStore::Commit(): unable to create temporary config file");
         return 1;
     }
 
@@ -812,9 +816,28 @@ TPS_PUBLIC int ConfigStore::Commit(const bool backup)
         if (PR_Access(bak_dir, PR_ACCESS_EXISTS) != PR_SUCCESS) {
             PR_MkDir(bak_dir, 00770);
         } 
-        PR_Rename(m_cfg_file_path, name_bak);
+        status = PR_Rename(m_cfg_file_path, name_bak);
+        if (status != PR_SUCCESS) {
+            // failed to back up CS.cfg
+        }
+    } 
+    if (PR_Access(m_cfg_file_path, PR_ACCESS_EXISTS) == PR_SUCCESS) {
+        // backup is false, or backup failed
+        status = PR_Delete(m_cfg_file_path);
+        if (status != PR_SUCCESS) {
+            // failed to delete old CS.cfg file
+            PR_snprintf(error_msg, len, "ConfigStore::Commit(): unable to delete old CS.cfg file");
+            return 1;
+        }
     }
-    PR_Rename(name_tmp, m_cfg_file_path);
+
+    status = PR_Rename(name_tmp, m_cfg_file_path);
+    if (status != PR_SUCCESS) {
+        // failed to move tmp to CS.cfg 
+        // major badness - we now have only tmp file, no CS.cfg
+        PR_snprintf(error_msg, len, "ConfigStore::Commit(): failed to move tmp file to CS.cfg");
+        return 1;
+    }
 
     return 0;
 }

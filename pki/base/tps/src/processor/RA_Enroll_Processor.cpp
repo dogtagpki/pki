@@ -1176,9 +1176,7 @@ bool RA_Enroll_Processor::CheckAndUpgradeApplet(
     PR_snprintf((char *)configname, 256, "%s.%s.update.applet.enable", OP_PREFIX, a_tokenType);
 	if (RA::GetConfigStore()->GetConfigAsBool(configname, 0)) {
 		PR_snprintf((char *)configname, 256, "%s.%s.update.applet.requiredVersion", OP_PREFIX, a_tokenType);
-		if (g_applet_target_version == NULL) {
-			g_applet_target_version = RA::GetConfigStore()->GetConfigAsString(configname);
-		}
+                g_applet_target_version = RA::GetConfigStore()->GetConfigAsString(configname);
 		if (g_applet_target_version == NULL) {
 			RA::Error(FN, "upgrade.version not found");
 			o_status = STATUS_ERROR_MISCONFIGURATION;		 

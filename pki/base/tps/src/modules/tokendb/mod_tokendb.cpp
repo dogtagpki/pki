@@ -2824,6 +2824,7 @@ void get_config_state_timestamp(char *type, char *name, char **pstate, char **pt
     bool commit_needed = false;
     const char *tmp_state = NULL;
     const char *tmp_timestamp = NULL;
+    int status;
     PRLock *config_lock = RA::GetConfigLock();
 
     PR_Lock(config_lock);
@@ -2852,7 +2853,11 @@ void get_config_state_timestamp(char *type, char *name, char **pstate, char **pt
     
     PR_Unlock(config_lock);
     if (commit_needed) {
-        RA::GetConfigStore()->Commit(false);
+        char error_msg[512];
+        status = RA::GetConfigStore()->Commit(false, error_msg, 512);
+        if (status != 0) {        
+            tokendbDebug(error_msg);
+        }
     }
 }
 
@@ -4962,7 +4967,11 @@ mod_tokendb_handler( request_rec *rq )
         remove_config_state_timestamp(ptype, pname);
 
         tokendbDebug("Committing delete ..");
-        RA::GetConfigStore()->Commit(true);
+        char error_msg[512];
+        status = RA::GetConfigStore()->Commit(true, error_msg, 512);
+        if (status != 0) { 
+            tokendbDebug(error_msg);
+        }
 
         PR_snprintf(oString, 512, "%s", pname);
         PR_snprintf(pLongString, 4096, "%s;;%s", configname, new_value);
@@ -5124,6 +5133,12 @@ mod_tokendb_handler( request_rec *rq )
                 "Data Out of Date");
             return_done=1;
             goto agent_change_config_state_cleanup;
+        }
+
+        char error_msg[512];
+        status = RA::GetConfigStore()->Commit(false, error_msg, 512);
+        if (status != 0) { 
+            tokendbDebug(error_msg);
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -5559,6 +5574,12 @@ mod_tokendb_handler( request_rec *rq )
                     return_done=1;
                     goto confirm_config_changes_cleanup;
                 }
+                char error_msg[512]; 
+                status = RA::GetConfigStore()->Commit(false, error_msg, 512);
+                if (status != 0) { 
+                    tokendbDebug(error_msg);
+                }
+
                 PR_snprintf(flash, 512, "Configuration Parameters have been submitted for Agent Approval");
             } else {
                 PR_snprintf(flash, 512, "The data displayed is up-to-date.  No changes need to be saved.");
@@ -5708,8 +5729,20 @@ mod_tokendb_handler( request_rec *rq )
         }
 
         if ((PL_strlen(added_str) != 0) || (PL_strlen(deleted_str) != 0) ||  (PL_strlen(changed_str) != 0)) {
-            RA::GetConfigStore()->Commit(true);
+            char error_msg[512];
+            status = RA::GetConfigStore()->Commit(true, error_msg, 512);
+            if (status != 0) { 
+                tokendbDebug(error_msg);
+            }
+
             RA::Audit(EV_CONFIG, AUDIT_MSG_CONFIG, userid, "Admin", "Success", "", "", "config changes committed to filesystem");
+        } else {
+            // commit state changes
+            char error_msg[512];
+            status = RA::GetConfigStore()->Commit(false, error_msg, 512);
+            if (status != 0) {        
+                tokendbDebug(error_msg);
+            }
         }
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -7229,7 +7262,11 @@ mod_tokendb_handler( request_rec *rq )
 
         if (need_update == 1) {
            tokendbDebug("Updating signed audit events in CS.cfg");
-           RA::GetConfigStore()->Commit(true);
+           char error_msg[512]; 
+           status = RA::GetConfigStore()->Commit(true, error_msg, 512);
+           if (status != 0) {        
+                tokendbDebug(error_msg);
+           }
         } 
 
         PR_snprintf(injection, MAX_INJECTION_SIZE,

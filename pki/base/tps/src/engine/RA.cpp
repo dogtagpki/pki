@@ -2102,6 +2102,9 @@ loser:
 TPS_PUBLIC void RA::SetFlushInterval(int interval)
 {
     char interval_str[512];
+    int status;
+    char error_msg[512];
+
     RA::Debug("RA::SetFlushInterval", "Setting flush interval to %d seconds", interval);
     m_flush_interval = interval;
 
@@ -2114,13 +2117,19 @@ TPS_PUBLIC void RA::SetFlushInterval(int interval)
     
     PR_snprintf((char *) interval_str, 512, "%d", interval);
     m_cfg->Add(CFG_AUDIT_FLUSH_INTERVAL, interval_str);
-    m_cfg->Commit(false);
+    status = m_cfg->Commit(false, error_msg, 512);
+    if (status != 0) {
+        RA::Debug("RA:SetFlushInterval", error_msg);
+    }
 }
 
 TPS_PUBLIC void RA::SetBufferSize(int size)
 {
     char * new_buffer;
     char size_str[512];
+    int status;
+    char error_msg[512];
+
     RA::Debug("RA::SetBufferSize", "Setting buffer size to %d bytes", size);
 
     PR_EnterMonitor(m_audit_log_monitor);
@@ -2136,7 +2145,11 @@ TPS_PUBLIC void RA::SetBufferSize(int size)
 
     PR_snprintf((char *) size_str, 512, "%d", size);
     m_cfg->Add(CFG_AUDIT_BUFFER_SIZE, size_str);
-    m_cfg->Commit(false);
+
+    status = m_cfg->Commit(false, error_msg, 512);
+    if (status != 0) {
+        RA::Debug("RA:SetFlushInterval", error_msg);
+    }
 }
 
 

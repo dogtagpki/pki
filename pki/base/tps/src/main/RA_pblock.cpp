@@ -156,7 +156,7 @@ void RA_pblock::free_pblock()
         }
 
         if( m_nvs[i]->value_s ) {
-            delete( m_nvs[i]->value_s );
+            PL_strfree( m_nvs[i]->value_s );
             m_nvs[i]->value_s = NULL;
         }
 

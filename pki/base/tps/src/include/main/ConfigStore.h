@@ -85,7 +85,7 @@ class ConfigStore
       bool              GetConfigAsBool(const char *key);
       TPS_PUBLIC bool GetConfigAsBool(const char *key, bool def); 
       TOKENDB_PUBLIC const char *GetConfigAsString(const char *key, const char *def);  
-      TPS_PUBLIC int Commit(const bool backup);
+      TPS_PUBLIC int Commit(const bool backup, char* error_msg, int len);
       TPS_PUBLIC const char *GetConfigAsString(const char *key);
       TPS_PUBLIC const char *GetOrderedList();
 	  /**

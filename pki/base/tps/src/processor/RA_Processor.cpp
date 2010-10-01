@@ -2415,7 +2415,7 @@ int RA_Processor::ComputeRandomData(Buffer &data_out, int dataSize,  const char 
 
                       if(dstr) {
                           data_out = *decodedRandomData;
-                          delete dstr;
+                          delete [] dstr;
                           dstr = NULL;
                       }
                       if(decodedRandomData) {
