@@ -33,12 +33,24 @@ function performPanel() {
 <img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 #if ($systemType.equals("tks"))
-As 'root', restart the server on the command line by typing "$initCommand restart $instanceId". After performing this restart, the server should become operational. 
+As 'root', restart the server on the command line by typing the following command:
+<br>
+$initCommand restart $instanceId
+<br>
+After performing this restart, the server should become operational. 
 #else
 #if ($externalCA.equals("true") && $systemType.equals("kra"))
-As 'root', restart the server on the command line by typing "$initCommand restart $instanceId". Startup the administration console to add the peer CA to the Trusted Manager's Group. Make sure to add the transport certificate and connector information to the peer CA. After performing this restart, the server should become operational.
+As 'root', restart the server on the command line by typing the following command:
+<br>
+$initCommand restart $instanceId
+<br>
+Startup the administration console to add the peer CA to the Trusted Manager's Group. Make sure to add the transport certificate and connector information to the peer CA. After performing this restart, the server should become operational.
 #else
-As 'root', restart the server on the command line by typing "$initCommand restart $instanceId". After performing this restart, the server should become operational.
+As 'root', restart the server on the command line by typing the following command:
+<br>
+$initCommand restart $instanceId
+<br>
+After performing this restart, the server should become operational.
 <br/>
 Please go to the <A href="https://$host:$port/$systemType/services"><b>services page</b></A> to access all of the available interfaces.
 <br/>
