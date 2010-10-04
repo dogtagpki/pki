@@ -496,24 +496,26 @@ public class SizePanel extends WizardPanelBase {
         } catch (Exception e1) {
         }
 
-        if (systemType.equals("OCSP")) {
-          if (ct.equals("signing")) {
-             config.putString("ocsp.signing.defaultSigningAlgorithm",
-                           keyAlgo);
-           }
-        }
-
-        if (systemType.equals("CA")) {
+        if (systemType.equalsIgnoreCase("CA")) {
           if (ct.equals("signing")) {
             config.putString("ca.signing.defaultSigningAlgorithm",
                            keyAlgo);
             config.putString("ca.crl.MasterCRL.signingAlgorithm",
                            keyAlgo);
-          }
-          if (ct.equals("ocsp_signing")) {
+          } else if (ct.equals("ocsp_signing")) {
             config.putString("ca.ocsp_signing.defaultSigningAlgorithm",
                            keyAlgo);
           }
+        } else if (systemType.equalsIgnoreCase("OCSP")) {
+          if (ct.equals("signing")) {
+             config.putString("ocsp.signing.defaultSigningAlgorithm",
+                           keyAlgo);
+           }
+        } else if (systemType.equalsIgnoreCase("KRA") ||
+               systemType.equalsIgnoreCase("DRM")) {
+           if (ct.equals("transport")) {
+                config.putString("kra.transportUnit.signingAlgorithm", keyAlgo);
+           }
         }
 
     }

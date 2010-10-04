@@ -38,6 +38,7 @@ import org.mozilla.jss.util.*;
 import org.mozilla.jss.crypto.*;
 import org.mozilla.jss.*;
 import org.mozilla.jss.crypto.PrivateKey;
+import com.netscape.cmsutil.util.Cert;
 
 
 /**
@@ -96,11 +97,11 @@ public class TransportKeyUnit extends EncryptionUnit implements
         try {
             mManager = CryptoManager.getInstance();
             mCert = mManager.findCertByNickname(getNickName());
+            String algo = config.getString("signingAlgorithm", "SHA256withRSA");
 
             // #613795 - initialize this; otherwise JSS is not happy
             CryptoToken token = getToken(); 
-            SignatureAlgorithm sigalg = 
-              SignatureAlgorithm.RSASignatureWithMD5Digest;
+            SignatureAlgorithm sigalg = Cert.mapAlgorithmToJss(algo);
             Signature signer = token.getSignatureContext(sigalg); 
             signer.initSign(getPrivateKey());
            
