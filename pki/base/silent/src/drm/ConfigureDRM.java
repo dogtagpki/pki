@@ -201,6 +201,60 @@ public class ConfigureDRM
 		return st;
 	}
 
+	public boolean TokenChoicePanel()
+	{
+		boolean st = false;
+		HTTPResponse hr = null;
+		ByteArrayInputStream bais = null;
+		ParseXML px = new ParseXML();
+
+		String query_string = null;
+
+		// Software Token
+		if(token_name.equalsIgnoreCase("internal"))
+		{
+			query_string = "p=1" + "&op=next" + "&xml=true" +
+							"&choice=" + 
+					URLEncoder.encode("Internal Key Storage Token") +
+								""; 
+			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+			// parse xml
+			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+			px.parse(bais);
+			px.prettyprintxml();
+		}
+		// HSM
+		else
+		{
+			// login to hsm first
+			query_string = "p=2" + "&op=next" + "&xml=true" +
+							"&uTokName=" + 
+							URLEncoder.encode(token_name) +
+							"&__uPasswd=" + 
+							URLEncoder.encode(token_pwd) +
+							""; 
+			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+			// parse xml
+			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+			px.parse(bais);
+			px.prettyprintxml();
+		
+			// choice with token name now
+			query_string = "p=1" + "&op=next" + "&xml=true" +
+							"&choice=" + 
+							URLEncoder.encode(token_name) +
+							""; 
+			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+			// parse xml
+			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+			px.parse(bais);
+			px.prettyprintxml();
+
+		}
+
+		return true;
+	}
+
 	public boolean DomainPanel()
 	{
 		boolean st = false;
@@ -214,7 +268,7 @@ public class ConfigureDRM
 		String query_string = "sdomainURL=" +
 							URLEncoder.encode(domain_url) +
 							"&choice=existingdomain"+ 
-							"&p=1" +
+							"&p=3" +
 							"&op=next" +
 							"&xml=true"; 
 
@@ -237,7 +291,7 @@ public class ConfigureDRM
 		ParseXML px = new ParseXML();
 		String query_string = null;
 
-		query_string = "p=2" + "&op=next" + "&xml=true"; 
+		query_string = "p=4" + "&op=next" + "&xml=true"; 
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 		// parse xml
 		// bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -258,7 +312,7 @@ public class ConfigureDRM
 
 		String kra_url = "https://" + cs_hostname + ":" + cs_port +
 							"/kra/admin/console/config/wizard" +
-							"?p=3&subsystem=KRA" ;
+							"?p=5&subsystem=KRA" ;
 
 		String query_string = "url=" + URLEncoder.encode(kra_url); 
 
@@ -281,7 +335,7 @@ public class ConfigureDRM
 
 		// use session id to connect back to KRA
 
-		String query_string_2 = "p=3" +
+		String query_string_2 = "p=5" +
 								"&subsystem=KRA" +
 								"&session_id=" + kra_session_id +
 								"&xml=true" ;
@@ -305,7 +359,7 @@ public class ConfigureDRM
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
 
-		String query_string = "p=3" + "&op=next" + "&xml=true" + 
+		String query_string = "p=5" + "&op=next" + "&xml=true" + 
 						"&subsystemName=" +
 						URLEncoder.encode(subsystem_name) +
 						"&choice=newsubsystem" ; 
@@ -327,7 +381,7 @@ public class ConfigureDRM
 		ParseXML px = new ParseXML();
 
 
-		String query_string = "p=5" + "&op=next" + "&xml=true" +
+		String query_string = "p=7" + "&op=next" + "&xml=true" +
 								"&host=" + URLEncoder.encode(ldap_host) + 
 								"&port=" + URLEncoder.encode(ldap_port) +
 								"&binddn=" + URLEncoder.encode(bind_dn) +
@@ -343,60 +397,6 @@ public class ConfigureDRM
 		bais = new ByteArrayInputStream(hr.getHTML().getBytes());
 		px.parse(bais);
 		px.prettyprintxml();
-
-		return true;
-	}
-
-	public boolean TokenChoicePanel()
-	{
-		boolean st = false;
-		HTTPResponse hr = null;
-		ByteArrayInputStream bais = null;
-		ParseXML px = new ParseXML();
-
-		String query_string = null;
-
-		// Software Token
-		if(token_name.equalsIgnoreCase("internal"))
-		{
-			query_string = "p=6" + "&op=next" + "&xml=true" +
-							"&choice=" + 
-					URLEncoder.encode("Internal Key Storage Token") +
-								""; 
-			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
-			// parse xml
-			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-			px.parse(bais);
-			px.prettyprintxml();
-		}
-		// HSM
-		else
-		{
-			// login to hsm first
-			query_string = "p=7" + "&op=next" + "&xml=true" +
-							"&uTokName=" + 
-							URLEncoder.encode(token_name) +
-							"&__uPasswd=" + 
-							URLEncoder.encode(token_pwd) +
-							""; 
-			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
-			// parse xml
-			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-			px.parse(bais);
-			px.prettyprintxml();
-		
-			// choice with token name now
-			query_string = "p=6" + "&op=next" + "&xml=true" +
-							"&choice=" + 
-							URLEncoder.encode(token_name) +
-							""; 
-			hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
-			// parse xml
-			bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-			px.parse(bais);
-			px.prettyprintxml();
-
-		}
 
 		return true;
 	}
@@ -829,7 +829,16 @@ public class ConfigureDRM
 		}
 
 		sleep_time();
-		// 2. domain panel
+		// 2. Token Choice Panel
+		boolean disp_token = TokenChoicePanel();
+		if(!disp_token)
+		{
+		System.out.println("ERROR: ConfigureDRM: TokenChoicePanel() failure");
+			return false;
+		}
+
+		sleep_time();
+		// 3. domain panel
 		boolean dom_st = DomainPanel();
 		if(!dom_st)
 		{
@@ -838,7 +847,7 @@ public class ConfigureDRM
 		}
 
 		sleep_time();
-		// 3. display cert chain panel
+		// 4. display cert chain panel
 		boolean disp_st = DisplayChainPanel();
 		if(!disp_st)
 		{
@@ -874,15 +883,6 @@ public class ConfigureDRM
 		}
 
 		sleep_time();
-		sleep_time();
-		// 8. Token Choice Panel
-		boolean disp_token = TokenChoicePanel();
-		if(!disp_token)
-		{
-		System.out.println("ERROR: ConfigureDRM: TokenChoicePanel() failure");
-			return false;
-		}
-
 		sleep_time();
 		// 9. Key Panel
 		boolean disp_key = KeyPanel();

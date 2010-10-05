@@ -211,6 +211,53 @@ public class ConfigureCA {
         }
     }
 
+    public boolean TokenChoicePanel() {
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
+
+            String query_string = null;
+
+            // Software Token
+            if (token_name.equalsIgnoreCase("internal")) {
+                query_string = "p=1" + "&op=next" + "&xml=true" + "&choice="
+                    + URLEncoder.encode("Internal Key Storage Token") + ""; 
+                hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+                // parse xml
+                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+                px.parse(bais);
+                px.prettyprintxml();
+            } // HSM
+            else {
+                // login to hsm first
+                query_string = "p=2" + "&op=next" + "&xml=true" + "&uTokName="
+                    + URLEncoder.encode(token_name) + "&__uPasswd="
+                    + URLEncoder.encode(token_pwd) + ""; 
+                hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+                // parse xml
+                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+                px.parse(bais);
+                px.prettyprintxml();
+		
+                // choice with token name now
+                query_string = "p=1" + "&op=next" + "&xml=true" + "&choice="
+                    + URLEncoder.encode(token_name) + ""; 
+                hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+                // parse xml
+                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+                px.parse(bais);
+                px.prettyprintxml();
+            }
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in TokenChoicePanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean DomainPanel() {
         try {
             HTTPResponse hr = null;
@@ -223,12 +270,12 @@ public class ConfigureCA {
             if (! clone) {
                 query_string = "sdomainURL=" + URLEncoder.encode(domain_url)
                     + "&sdomainName=" + URLEncoder.encode(domain_name)
-                    + "&choice=newdomain" + "&p=1" + "&op=next" + "&xml=true";
+                    + "&choice=newdomain" + "&p=3" + "&op=next" + "&xml=true";
             } else {
                 domain_url = "https://" + sd_hostname + ":" + sd_admin_port ;
                 query_string = "sdomainURL=" + URLEncoder.encode(domain_url)
                     + "&sdomainName="
-                    + "&choice=existingdomain" + "&p=1" + "&op=next" + "&xml=true";
+                    + "&choice=existingdomain" + "&p=3" + "&op=next" + "&xml=true";
             }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -253,7 +300,7 @@ public class ConfigureCA {
     public boolean DisplayCertChainPanel() {
         try {
             HTTPResponse hr = null;
-            String query_string = "p=2" + "&op=next" + "&xml=true";
+            String query_string = "p=4" + "&op=next" + "&xml=true";
             hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
             return true;
         } catch (Exception e) {
@@ -270,7 +317,7 @@ public class ConfigureCA {
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
             String subca_url = "https://" + cs_hostname + ":" + cs_port +
-                "/ca/admin/console/config/wizard" + "?p=3&subsystem=CA" ;
+                "/ca/admin/console/config/wizard" + "?p=5&subsystem=CA" ;
 
             String query_string = "url=" + URLEncoder.encode(subca_url);
 
@@ -292,7 +339,7 @@ public class ConfigureCA {
 
             // use session id to connect back to subCA
 
-            String query_string_2 = "p=3" + "&subsystem=CA" +
+            String query_string_2 = "p=5" + "&subsystem=CA" +
                 "&session_id=" + subca_session_id + "&xml=true" ;
         
             hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri, query_string_2);
@@ -322,11 +369,11 @@ public class ConfigureCA {
             String query_string = null;
 
             if (!clone) {
-                query_string = "p=3" + "&op=next" + "&xml=true"
+                query_string = "p=5" + "&op=next" + "&xml=true"
                     + "&choice=newsubsystem" + "&subsystemName="
                     + URLEncoder.encode(subsystem_name);
             } else {
-                query_string = "p=3" + "&op=next" + "&xml=true"
+                query_string = "p=5" + "&op=next" + "&xml=true"
                     + "&choice=clonesubsystem" + "&subsystemName="
                     + URLEncoder.encode(subsystem_name)
                     + "&urls=" + urls + "";
@@ -342,7 +389,7 @@ public class ConfigureCA {
             if (clone) {
 
                 hr = null;
-                query_string = "p=4" + "&op=next" + "&xml=true"; 
+                query_string = "p=6" + "&op=next" + "&xml=true"; 
                 hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
                 // parse xml
@@ -365,7 +412,7 @@ public class ConfigureCA {
             HTTPResponse hr = null;
             ParseXML px = new ParseXML();
 
-            String query_string = "p=5" + "&op=next" + "&xml=true" 
+            String query_string = "p=7" + "&op=next" + "&xml=true" 
                 + "&__password=" + URLEncoder.encode(clone_p12_passwd)
                 + "&path=" + URLEncoder.encode(clone_p12_file) + "";
 
@@ -391,7 +438,7 @@ public class ConfigureCA {
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
 
-            String query_string = "p=6" + "&op=next" + "&xml=true" ;
+            String query_string = "p=8" + "&op=next" + "&xml=true" ;
             if (external_ca.equalsIgnoreCase("true")) 
                 query_string += "&choice=join";
             else
@@ -431,7 +478,7 @@ public class ConfigureCA {
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
 
-            String query_string = "p=7" + "&op=next" + "&xml=true" + "&host="
+            String query_string = "p=9" + "&op=next" + "&xml=true" + "&host="
                 + URLEncoder.encode(ldap_host) + "&port="
                 + URLEncoder.encode(ldap_port) + "&binddn="
                 + URLEncoder.encode(bind_dn) + "&__bindpwd="
@@ -450,53 +497,6 @@ public class ConfigureCA {
             return true;
         } catch (Exception e) {
             System.out.println("Exception in LdapConnectionPanel(): " + e.toString());
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean TokenChoicePanel() {
-        try {
-            boolean st = false;
-            HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
-
-            String query_string = null;
-
-            // Software Token
-            if (token_name.equalsIgnoreCase("internal")) {
-                query_string = "p=8" + "&op=next" + "&xml=true" + "&choice="
-                    + URLEncoder.encode("Internal Key Storage Token") + ""; 
-                hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-                // parse xml
-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-                px.parse(bais);
-                px.prettyprintxml();
-            } // HSM
-            else {
-                // login to hsm first
-                query_string = "p=9" + "&op=next" + "&xml=true" + "&uTokName="
-                    + URLEncoder.encode(token_name) + "&__uPasswd="
-                    + URLEncoder.encode(token_pwd) + ""; 
-                hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-                // parse xml
-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-                px.parse(bais);
-                px.prettyprintxml();
-		
-                // choice with token name now
-                query_string = "p=8" + "&op=next" + "&xml=true" + "&choice="
-                    + URLEncoder.encode(token_name) + ""; 
-                hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-                // parse xml
-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-                px.parse(bais);
-                px.prettyprintxml();
-            }
-            return true;
-        } catch (Exception e) {
-            System.out.println("Exception in TokenChoicePanel(): " + e.toString());
             e.printStackTrace();
             return false;
         }
@@ -1170,7 +1170,16 @@ public class ConfigureCA {
         }
 
         sleep_time();
-        // 2. domain panel
+        // 2. Token Choice Panel
+        boolean disp_token = TokenChoicePanel();
+
+        if (!disp_token) {
+            System.out.println("ERROR: ConfigureCA: TokenChoicePanel() failure");
+            return false;
+        }
+        sleep_time();
+
+        // 3. domain panel
         boolean dom_st = DomainPanel();
 
         if (!dom_st) {
@@ -1179,7 +1188,7 @@ public class ConfigureCA {
         }
 
         sleep_time();
-        // 3. display cert chain panel and security domain login
+        // 4. display cert chain panel and security domain login
         if (clone) {
             boolean disp_st = DisplayCertChainPanel();
             if(!disp_st) {
@@ -1197,7 +1206,7 @@ public class ConfigureCA {
         }
 
         sleep_time();
-        // 4. display create CA panel
+        // 5. display create CA panel
         boolean disp_cert = CreateCAPanel();
 
         if (!disp_cert) {
@@ -1206,7 +1215,7 @@ public class ConfigureCA {
         }
 
         sleep_time();
-        // 5. display restore key cert panel
+        // 6. display restore key cert panel
         if (clone) {
             boolean restore_st = RestoreKeyCertPanel();
             if (!restore_st) {
@@ -1224,7 +1233,7 @@ public class ConfigureCA {
         // }
 
         sleep_time();
-        // 5. hierarchy panel
+        // 7. hierarchy panel
         if (! clone) {
             boolean disp_h = HierarchyPanel();
 
@@ -1243,7 +1252,7 @@ public class ConfigureCA {
         // }
 
         sleep_time();
-        // 7. ldap connection panel
+        // 8. ldap connection panel
         boolean disp_ldap = LdapConnectionPanel();
 
         if (!disp_ldap) {
@@ -1253,14 +1262,6 @@ public class ConfigureCA {
         }
 
         sleep_time();
-        // 8. Token Choice Panel
-        boolean disp_token = TokenChoicePanel();
-
-        if (!disp_token) {
-            System.out.println("ERROR: ConfigureCA: TokenChoicePanel() failure");
-            return false;
-        }
-
         sleep_time();
         // 9. Key Panel
         boolean disp_key = KeyPanel();
