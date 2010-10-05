@@ -61,14 +61,9 @@ invalid_architecture() {
 ##      Set the PATH environment variable to determine the search            ##
 ##      order this command wrapper uses to find binary executables.          ##
 ##                                                                           ##
-##      NOTE:  Since the wrappers themselves are ALWAYS located in           ##
-##             "/usr/bin" on 32-bit and 64-bit Linux as well as both         ##
-##             32-bit Solaris and 64-bit Solaris, this directory             ##
-##             will always be excluded from the search path.                 ##
-##                                                                           ##
-##             Additionally, since "/bin" is nothing more than a symbolic    ##
-##             link to "/usr/bin" on Solaris, this directory will also       ##
-##             always be excluded from the search path on this platform.     ##
+##      NOTE:  Since "/bin" is nothing more than a symbolic link to          ##
+##             "/usr/bin" on Solaris, this directory will always be          ##
+##             excluded from the search path on this platform.               ##
 ##                                                                           ##
 ###############################################################################
 
@@ -83,7 +78,7 @@ if [ "${OS}" = "Linux" ] ; then
         LD_LIBRARY_PATH=/usr/lib/${PRODUCT}/${SUBSYSTEM}:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH
 
-        PATH=/usr/lib/${PRODUCT}:/bin
+        PATH=/usr/lib/${PRODUCT}:/usr/bin:/bin
         PATH=/usr/lib/${PRODUCT}/${SUBSYSTEM}:${PATH}
         export PATH
     elif [ "${ARCHITECTURE}" = "x86_64" ] ; then
@@ -97,7 +92,7 @@ if [ "${OS}" = "Linux" ] ; then
         LD_LIBRARY_PATH=/usr/lib64/${PRODUCT}/${SUBSYSTEM}:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH
 
-        PATH=/usr/lib/${PRODUCT}:/bin
+        PATH=/usr/lib/${PRODUCT}:/usr/bin:/bin
         PATH=/usr/lib/${PRODUCT}/${SUBSYSTEM}:${PATH}
         PATH=/usr/lib64/${PRODUCT}:${PATH}
         PATH=/usr/lib64/${PRODUCT}/${SUBSYSTEM}:${PATH}
@@ -119,7 +114,8 @@ elif [ "${OS}" = "SunOS" ] ; then
         LD_LIBRARY_PATH=/usr/lib/${PRODUCT}/${SUBSYSTEM}:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH
 
-        PATH=/usr/lib/${PRODUCT}
+        PATH=/usr/bin
+        PATH=/usr/lib/${PRODUCT}:${PATH}
         PATH=/usr/lib/${PRODUCT}/${SUBSYSTEM}:${PATH}
         export PATH
     elif [ "${ARCHITECTURE}" = "sparcv9" ] ; then
