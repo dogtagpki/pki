@@ -75,6 +75,8 @@ public class CRSEnrollment extends HttpServlet
   private   String                mAuthManagerName;
   private   String                mSubstoreName;
   private   boolean               mEnabled = false;
+  private   boolean               mUseCA = true;
+  private   String                mNickname = null;
   private   String                mHashAlgorithm = "SHA1";
   private   String                mHashAlgorithmList = null;
   private   String[]              mAllowedHashAlgorithm;
@@ -160,11 +162,16 @@ public class CRSEnrollment extends HttpServlet
               mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
               mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
               mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
+              mNickname = scepConfig.getString("nickname", ca.getNickname());
+              if (!mNickname.equals(ca.getNickname())) mUseCA = false;
           }
       } catch (EBaseException e) {
       } 
       mEncryptionAlgorithm = mConfiguredEncryptionAlgorithm;
       CMS.debug("CRSEnrollment: init: SCEP support is "+((mEnabled)?"enabled":"disabled")+".");
+      CMS.debug("CRSEnrollment: init: SCEP nickname: "+mNickname);
+      CMS.debug("CRSEnrollment: init:   CA nickname: "+ca.getNickname());
+      CMS.debug("CRSEnrollment: init: Is SCEP using CA keys: "+mUseCA);
       CMS.debug("CRSEnrollment: init: mNonceSizeLimit: "+mNonceSizeLimit);
       CMS.debug("CRSEnrollment: init: mHashAlgorithm: "+mHashAlgorithm);
       CMS.debug("CRSEnrollment: init: mHashAlgorithmList: "+mHashAlgorithmList);
@@ -393,7 +400,12 @@ public class CRSEnrollment extends HttpServlet
           }
           CMS.debug("handleGetCACert selected chain=" + i);
 
-          bytes = chain[i].getEncoded();
+          if (mUseCA) {
+              bytes = chain[i].getEncoded();
+          } else {
+              CryptoContext cx = new CryptoContext();
+              bytes = cx.getSigningCert().getEncoded();
+          }
 
           httpResp.setContentType("application/x-x509-ca-cert");
 
@@ -526,7 +538,7 @@ public class CRSEnrollment extends HttpServlet
 		  }
                 
           // Create a new crypto context for doing all the crypto operations
-          cx = new CryptoContext(mEncryptionAlgorithm);
+          cx = new CryptoContext();
 
           // Verify Signature on message (throws exception if sig bad)
           verifyRequest(req,cx);
@@ -777,7 +789,7 @@ public class CRSEnrollment extends HttpServlet
 		  crsResp.setMessageType(crsResp.mType_CertRep);
                 
           // Create a new crypto context for doing all the crypto operations
-          cx = new CryptoContext(mEncryptionAlgorithm);
+          cx = new CryptoContext();
 
           // Verify Signature on message (throws exception if sig bad)
           verifyRequest(req,cx);
@@ -1924,19 +1936,19 @@ throws EBaseException {
       public CryptoContextException(String s) { super(s); }
     }
 
-    public CryptoContext(String encryptionAlgorithm)
+    public CryptoContext()
       throws CryptoContextException
       {
           try {
               KeyGenAlgorithm kga = KeyGenAlgorithm.DES;
-              if (encryptionAlgorithm != null && encryptionAlgorithm.equals("DES3")) {
+              if (mEncryptionAlgorithm != null && mEncryptionAlgorithm.equals("DES3")) {
                   kga = KeyGenAlgorithm.DES3;
               }
               cm = CryptoManager.getInstance();
               internalToken = cm.getInternalCryptoToken();
               internalKeyStorageToken = cm.getInternalKeyStorageToken();
               DESkg = internalToken.getKeyGenerator(kga);
-              signingCert = cm.findCertByNickname(ca.getNickname());
+              signingCert = cm.findCertByNickname(mNickname);
               signingCertPrivKey = cm.findPrivKeyByCert(signingCert);
 			  byte[] encPubKeyInfo = signingCert.getPublicKey().getEncoded();
 			  SEQUENCE.Template outer = SEQUENCE.getTemplate();
