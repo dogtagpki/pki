@@ -400,7 +400,11 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                     c1.append(".pubkey.exponent,");
                     c1.append("cloning.");
                     c1.append(t1);
-                    c1.append(".pubkey.modulus");
+                    c1.append(".pubkey.modulus,");
+                    c1.append("cloning.");
+                    c1.append(t1);
+                    c1.append(".pubkey.encoded");
+
 
                     if (s1.length()!=0)
                         s1.append(",");

@@ -390,8 +390,9 @@ public class CertUtil {
 
             String caPriKeyID = config.getString(
                     prefix + "signing" + ".privkey.id");
-            org.mozilla.jss.crypto.PrivateKey caPrik = CryptoUtil.findPrivateKeyFromID(
-                    CryptoUtil.string2byte(caPriKeyID));
+            byte[] keyIDb = CryptoUtil.string2byte(caPriKeyID);
+            PrivateKey caPrik = CryptoUtil.findPrivateKeyFromID(
+                    keyIDb);
 
             if( caPrik == null ) {
                 CMS.debug( "CertUtil::createSelfSignedCert() - "

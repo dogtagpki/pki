@@ -572,6 +572,13 @@ public class WizardPanelBase implements IWizardPanel {
                 CMS.debug("WizardPanelBase updateConfigEntries: status=" + status);
 
                 if (status.equals(SUCCESS)) {
+                    String cstype = "";
+                    try {
+                        cstype = config.getString("cs.type", "");
+                    } catch (Exception e) {
+                        CMS.debug("WizardPanelBase::updateConfigEntries() - unable to get cs.type: " + e.toString());
+                    }
+              
                     Document doc = parser.getDocument(); 
                     NodeList list = doc.getElementsByTagName("name");
                     int len = list.getLength();
@@ -632,10 +639,25 @@ public class WizardPanelBase implements IWizardPanel {
                             config.putString(name, v);
                         } else if (name.startsWith("cloning.ca")) {
                             config.putString(name.replaceFirst("cloning", "preop"), v);
+                        } else if (name.equals("cloning.signing.keyalgorithm")) {
+                            config.putString(name.replaceFirst("cloning", "preop.cert"), v);
+                            if (cstype.equals("CA")) {
+                                config.putString("ca.crl.MasterCRL.signingAlgorithm", v);
+                                config.putString("ca.signing.defaultSigningAlgorithm", v);
+                            } else if (cstype.equals("OCSP")) {
+                                config.putString("ocsp.signing.defaultSigningAlgorithm", v);
+                            }
+                        } else if (name.equals("cloning.transport.keyalgorithm")) {
+                            config.putString(name.replaceFirst("cloning", "preop.cert"), v);
+                            config.putString("kra.transportUnit.signingAlgorithm", v);
+                        } else if (name.equals("cloning.ocsp_signing.keyalgorithm")) {
+                            config.putString(name.replaceFirst("cloning", "preop.cert"), v);
+                            if (cstype.equals("CA")) {
+                                config.putString("ca.ocsp_signing.defaultSigningAlgorithm", v);
+                            }
                         } else if (name.startsWith("cloning")) {
                             config.putString(name.replaceFirst("cloning", "preop.cert"), v);
-                        }
-                        else {
+                        } else {
                             config.putString(name, v);
                         }
                     }

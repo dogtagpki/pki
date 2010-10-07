@@ -530,6 +530,7 @@ public class DonePanel extends WizardPanelBase {
                 cs.putString("cloning." + ss + ".privkey.id", cs.getString("preop.cert." + ss + ".privkey.id", ""));
                 cs.putString("cloning." + ss + ".pubkey.exponent", cs.getString("preop.cert." + ss + ".pubkey.exponent", ""));
                 cs.putString("cloning." + ss + ".pubkey.modulus", cs.getString("preop.cert." + ss + ".pubkey.modulus", ""));
+                cs.putString("cloning." + ss + ".pubkey.encoded", cs.getString("preop.cert." + ss + ".pubkey.encoded", ""));
             }
             cs.putString("cloning.module.token", cs.getString("preop.module.token", ""));
             cs.putString("cloning.list", list);
