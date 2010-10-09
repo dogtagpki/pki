@@ -46,7 +46,6 @@ import com.netscape.cmscore.request.CertRequestConstants;
 import com.netscape.cmscore.ldap.*;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority 
  * contains a map of CRLIssuingPoint indexed by string ids. Each issuing 
@@ -67,6 +66,9 @@ import com.netscape.cmscore.util.Debug;
  */
 
 public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
+
+    /* Foreign config param for IssuingDistributionPointExtension. */
+    public static final String PROP_CACERTS = "onlyContainsCACerts";
 
     public static final long SECOND = 1000L;
     public static final long MINUTE = (SECOND * 60L);
@@ -1011,6 +1013,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
 
                 if (name.equals(Constants.PR_CA_CERTS_ONLY)) {
+                    Extension distExt = getCRLExtension(IssuingDistributionPointExtension.NAME);
+                    IssuingDistributionPointExtension iExt = (IssuingDistributionPointExtension) distExt;
+                    IssuingDistributionPoint issuingDistributionPoint =  null;
+                   if(iExt != null)
+                       issuingDistributionPoint = iExt.getIssuingDistributionPoint();
                     if (value.equals(Constants.FALSE) && mCACertsOnly) {
                         clearCRLCache();
                         updateCRLCacheRepository();
@@ -1019,6 +1026,34 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         clearCRLCache();
                         updateCRLCacheRepository();
                         mCACertsOnly = true;
+                    }
+                    //attempt to sync the IssuingDistributionPoint Extension value of
+                    //onlyContainsCACerts
+                    if(issuingDistributionPoint != null && params.size() > 1) {
+                        boolean onlyContainsCACerts = issuingDistributionPoint.getOnlyContainsCACerts();
+                        if(onlyContainsCACerts != mCACertsOnly) {
+                            IConfigStore config = mCA.getConfigStore();
+                            IConfigStore crlsSubStore =
+                               config.getSubStore(mCA.PROP_CRL_SUBSTORE);
+                            IConfigStore crlSubStore = crlsSubStore.getSubStore(mId);
+                            IConfigStore crlExtsSubStore =
+                                crlSubStore.getSubStore(mCA.PROP_CRLEXT_SUBSTORE);
+                            crlExtsSubStore = crlExtsSubStore.getSubStore(IssuingDistributionPointExtension.NAME);
+
+                            if(crlExtsSubStore != null) {
+                                String val = "";
+                                if(mCACertsOnly == true) {
+                                    val = Constants.TRUE;
+                                } else {
+                                    val = Constants.FALSE;
+                                }
+                                crlExtsSubStore.putString(PROP_CACERTS,val);
+                                try {
+                                    crlExtsSubStore.commit(true);
+                                } catch (Exception e) {
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -1072,7 +1107,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mEnable = false;
 
         setAutoUpdates();
-         /*
+        /*
         if (mUpdateThread != null) {
             try {
                 mUpdateThread.interrupt();
@@ -1081,7 +1116,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
         }
         */
-
     }
 
     /**
@@ -1611,7 +1645,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         // accessor but we don't want to touch the interface
         CertificateRepository cr = (CertificateRepository)mCertRepository;
 
-        CMS.debug("About to start processRevokedCerts");
         synchronized (cr.mCertStatusUpdateThread) {
             CMS.debug("Starting processRevokedCerts (entered lock)");
             ICertRecordList list = mCertRepository.findCertRecordsInList(filter,
@@ -1653,6 +1686,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      */
     private void recoverCRLCache() {
         if (mEnableCacheRecovery) {
+            // 553815 - original filter was not aligned with any VLV index
+            // String filter = "(&(requeststate=complete)"+
+            //                 "(|(requestType=" + IRequest.REVOCATION_REQUEST + ")"+
+            //                 "(requestType=" + IRequest.UNREVOCATION_REQUEST + ")))";
             String filter = "(requeststate=complete)";
             if (Debug.on()) {
                 Debug.trace("recoverCRLCache  mFirstUnsaved="+mFirstUnsaved+"  filter="+filter);
@@ -1664,6 +1701,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (Debug.on()) {
                 Debug.trace("recoverCRLCache  size="+list.getSize()+"  index="+list.getCurrentIndex());
             }
+
+            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger, mAllowExtensions);
+            boolean includeCert = true;
 
             int s = list.getSize() - list.getCurrentIndex();
             for (int i = 0; i < s; i++) {
@@ -1688,7 +1728,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             Debug.trace("recoverCRLCache R j="+j+"  length="+revokedCert.length+
                                         "  SerialNumber=0x"+revokedCert[j].getSerialNumber().toString(16));
                         }
-                        updateRevokedCert(REVOKED_CERT, revokedCert[j].getSerialNumber(), revokedCert[j]);
+                        if(cp != null)
+                           includeCert = cp.checkRevokedCertExtensions(revokedCert[j].getExtensions());
+                        if(includeCert) {
+                            updateRevokedCert(REVOKED_CERT, revokedCert[j].getSerialNumber(), revokedCert[j]);
+                        }
                     }
                 } else if (IRequest.UNREVOCATION_REQUEST.equals(request.getRequestType())) {
                     BigInteger serialNo[] = request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
@@ -1727,6 +1771,33 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return mExpiredCerts.size();
     }
 
+    private Extension getCRLExtension(String extName) {
+        if(mAllowExtensions == false) {
+            return null;
+        }
+        if(mCMSCRLExtensions.isCRLExtensionEnabled(extName) == false) {
+            return null;
+        }
+
+        CMSCRLExtensions exts = (CMSCRLExtensions) this.getCRLExtensions();
+        CRLExtensions ext = new CRLExtensions();
+        
+        Vector extNames = exts.getCRLExtensionNames();
+            for (int i = 0; i < extNames.size(); i++) {
+                String curName = (String) extNames.elementAt(i);
+                if (curName.equals(extName)) {
+                   exts.addToCRLExtensions(ext, extName, null);
+                }
+            }
+            Extension theExt = null;
+            try {
+                theExt = ext.get(extName);
+            } catch (Exception e) {
+            }
+
+            CMS.debug("CRLIssuingPoint.getCRLExtension extension: " + theExt);
+            return theExt;
+    }
     /**
      * get required crl entry extensions
      */
@@ -1842,7 +1913,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     public void addRevokedCert(BigInteger serialNumber, RevokedCertImpl revokedCert,
                                String requestId) {
-        if (mEnable && mEnableCRLCache) {
+
+        CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger, mAllowExtensions);
+        boolean includeCert = true;
+        if(cp != null)
+           includeCert = cp.checkRevokedCertExtensions(revokedCert.getExtensions()); 
+
+        if (mEnable && mEnableCRLCache && includeCert == true) {
             updateRevokedCert(REVOKED_CERT, serialNumber, revokedCert, requestId);
 
             if (mCacheUpdateInterval == 0) {
@@ -1882,6 +1959,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * registers expired certificates
      */
     public void addExpiredCert(BigInteger serialNumber) {
+
         if (mEnable && mEnableCRLCache && (!mIncludeExpiredCerts)) {
             if (!(mExpiredCerts.containsKey(serialNumber))) {
                 CRLExtensions entryExt = new CRLExtensions();
@@ -2106,8 +2184,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (statsSub != null) {
               statsSub.startTiming("generation");
             }
-
-            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger);
+            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger, mAllowExtensions);
             processRevokedCerts(cp);
 
             if (statsSub != null) {
@@ -2629,34 +2706,181 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
 class CertRecProcessor implements IElementProcessor {
     private Hashtable mCRLCerts = null;
-    private boolean mAllowExtensions;
+    private boolean mAllowExtensions = false;
     private ILogger mLogger;
     private CRLIssuingPoint mIP = null;
 
-    public CertRecProcessor(Hashtable crlCerts, CRLIssuingPoint ip, ILogger logger) {
+    private boolean mIssuingDistPointAttempted = false;
+    private boolean mIssuingDistPointEnabled = false;
+    private BitArray mOnlySomeReasons = null;
+
+    public CertRecProcessor(Hashtable crlCerts, CRLIssuingPoint ip, ILogger logger, boolean allowExtensions) {
         mCRLCerts = crlCerts;
         mLogger = logger;
         mIP = ip;
+        mAllowExtensions = allowExtensions;
+        mIssuingDistPointAttempted = false;
+        mIssuingDistPointEnabled   = false;
+        mOnlySomeReasons = null;
+    }
+
+    private boolean initCRLIssuingDistPointExtension() {
+       boolean result = false;
+       CMSCRLExtensions exts = null;
+
+       if(mIssuingDistPointAttempted == true) {
+           if((mIssuingDistPointEnabled == true) && (mOnlySomeReasons != null )) {
+              return true;
+           } else {
+              return false;
+           } 
+       }
+
+       mIssuingDistPointAttempted = true;
+       exts = (CMSCRLExtensions) mIP.getCRLExtensions();
+       if(exts == null) {
+          return result;
+       }
+       boolean isIssuingDistPointExtEnabled =  false;
+        isIssuingDistPointExtEnabled =  exts.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
+        if(isIssuingDistPointExtEnabled == false) {
+            mIssuingDistPointEnabled = false;
+            return false;
+        }
+
+        mIssuingDistPointEnabled = true;
+
+       //Get info out of the IssuingDistPointExtension
+        CRLExtensions ext = new CRLExtensions();
+        Vector extNames = exts.getCRLExtensionNames();
+            for (int i = 0; i < extNames.size(); i++) {
+                String extName = (String) extNames.elementAt(i);
+                if (extName.equals(IssuingDistributionPointExtension.NAME)) {
+                   exts.addToCRLExtensions(ext, extName, null);
+                }
+            }
+            Extension issuingDistExt = null;
+            try {
+                issuingDistExt = ext.get(IssuingDistributionPointExtension.NAME);
+            } catch (Exception e) {
+            }
+
+            IssuingDistributionPointExtension iExt  = null;
+            if(issuingDistExt != null)
+                iExt = (IssuingDistributionPointExtension) issuingDistExt;
+            IssuingDistributionPoint issuingDistributionPoint =  null;
+            if(iExt != null)
+                issuingDistributionPoint = iExt.getIssuingDistributionPoint();
+
+            BitArray onlySomeReasons = null;
+
+            if(issuingDistributionPoint != null)
+                onlySomeReasons = issuingDistributionPoint.getOnlySomeReasons();
+
+            boolean applyReasonMatch = false;
+            boolean reasonMatch = true;
+
+            if(onlySomeReasons != null) {
+                applyReasonMatch = !onlySomeReasons.toString().equals("0000000");
+                CMS.debug("applyReasonMatch " + applyReasonMatch);
+                if(applyReasonMatch == true) {
+                    mOnlySomeReasons = onlySomeReasons;
+                    result = true;
+               }
+            }
+            return result;
+    }
+
+    private boolean checkOnlySomeReasonsExtension(CRLExtensions entryExts)
+    {
+        boolean includeCert = true;
+        //This is exactly how the Pretty Print code obtains the reason code
+        //through the extensions
+        if(entryExts == null) {
+            return includeCert;
+        }
+
+        Extension crlReasonExt = null;
+        try {
+                 crlReasonExt = entryExts.get(CRLReasonExtension.NAME);
+        } catch (Exception e) {
+            return includeCert;
+        }
+
+        RevocationReason reason = null;
+        int reasonIndex = 0;
+        if(crlReasonExt != null) {
+            try {
+                   CRLReasonExtension  theReason = (CRLReasonExtension) crlReasonExt;
+                   reason = (RevocationReason) theReason.get("value");
+                   reasonIndex = reason.toInt();
+                   CMS.debug("revoked reason " + reason);
+            } catch (Exception e) {
+                return includeCert;
+            }
+        } else {
+            return includeCert;
+        }
+        boolean reasonMatch = false;
+        if(reason != null) {
+            if(mOnlySomeReasons != null) {
+                reasonMatch = mOnlySomeReasons.get(reasonIndex);
+                if(reasonMatch != true) {
+                    includeCert = false;
+                } else {
+                    CMS.debug("onlySomeReasons match! reason: " + reason);
+                }
+            }
+        }
+ 
+        return includeCert;
+    }
+
+    public boolean checkRevokedCertExtensions(CRLExtensions crlExtensions)
+    {
+        //For now just check the onlySomeReason CRL IssuingDistributionPoint extension
+
+        boolean includeCert = true; 
+        if((crlExtensions == null) || (mAllowExtensions == false)) {
+            return includeCert;
+        }
+        boolean inited = initCRLIssuingDistPointExtension();
+
+        //If the CRLIssuingDistPointExtension is not available or
+        // if onlySomeReasons does not apply, bail.
+        if(inited == false) {
+            return includeCert;
+        } 
+
+        //Check the onlySomeReasonsExtension
+        includeCert = checkOnlySomeReasonsExtension(crlExtensions);
+
+        return includeCert;
     }
 
     public void process(Object o) throws EBaseException {
         try {
             CertRecord certRecord = (CertRecord) o;
 
-            CRLExtensions entryExt = null;
+            CRLExtensions entryExt = null, crlExts = null;
             BigInteger serialNumber = certRecord.getSerialNumber();
             Date revocationDate = certRecord.getRevocationDate();
             IRevocationInfo revInfo = certRecord.getRevocationInfo();
 
             if (revInfo != null) {
-                entryExt = mIP.getRequiredEntryExtensions(revInfo.getCRLEntryExtensions());
+                crlExts = revInfo.getCRLEntryExtensions();
+                entryExt = mIP.getRequiredEntryExtensions(crlExts);
             }
             RevokedCertificate newRevokedCert =
                 new RevokedCertImpl(serialNumber, revocationDate, entryExt);
 
-            mCRLCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
-            if (serialNumber != null) {
-                CMS.debug("Putting certificate serial: 0x"+serialNumber.toString(16)+" into CRL hashtable");
+            boolean includeCert = checkRevokedCertExtensions(crlExts);
+
+            if (includeCert == true) {
+                mCRLCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
+                if (serialNumber != null) {
+                    CMS.debug("Putting certificate serial: 0x"+serialNumber.toString(16)+" into CRL hashtable");
+                }
             }
         } catch (EBaseException e) {
             CMS.debug(

@@ -89,6 +89,7 @@ public class CMSIssuingDistributionPointExtension
         Object ip,
         boolean critical) {
 
+        CMS.debug("in CMSIssuingDistributionPointExtension::getCRLExtension.");
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
         IssuingDistributionPointExtension issuingDPointExt = null;
         IssuingDistributionPoint issuingDPoint = new IssuingDistributionPoint();
@@ -273,7 +274,8 @@ public class CMSIssuingDistributionPointExtension
             nvp.add(PROP_CACERTS, "false");
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "caCertsOnly", e.toString()));
         }
-
+        // Disable these for now unitl we support them fully
+/*
         try {
             boolean userCertsOnly = config.getBoolean(PROP_USERCERTS, false);
 
@@ -291,6 +293,7 @@ public class CMSIssuingDistributionPointExtension
             nvp.add(PROP_INDIRECT, "false");
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "indirectCRL", e.toString()));
         }
+*/
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
@@ -313,8 +316,9 @@ public class CMSIssuingDistributionPointExtension
                 PROP_REASONS + ";string;Select any combination of the following reasons: " +
                 sb_reasons.toString(),
                 PROP_CACERTS + ";boolean;Check if CRL contains CA certificates only",
-                PROP_USERCERTS + ";boolean;Check if CRL contains user certificates only",
-                PROP_INDIRECT + ";boolean;Check if CRL is built indirectly.",
+             //   Remove these from the UI until they can be supported fully.
+             //   PROP_USERCERTS + ";boolean;Check if CRL contains user certificates only",
+             //   PROP_INDIRECT + ";boolean;Check if CRL is built indirectly.",
                 IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-ca-edit-crlextension-issuingdistributionpoint",
                 IExtendedPluginInfo.HELP_TEXT +

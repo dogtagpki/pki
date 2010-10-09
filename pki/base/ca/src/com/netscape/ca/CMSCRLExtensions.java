@@ -47,6 +47,7 @@ import com.netscape.certsrv.logging.*;
 import com.netscape.certsrv.apps.*;
 import com.netscape.certsrv.ca.*;
 import java.security.cert.CertificateException;
+import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 
 
 public class CMSCRLExtensions implements ICMSCRLExtensions {
@@ -541,6 +542,14 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config) {
+        ICertificateAuthority ca  = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        String ipId = nvp.getValue("id");
+
+        ICRLIssuingPoint ip =  null;
+        if(ipId != null && ca != null) {
+           ip = ca.getCRLIssuingPoint(ipId);
+        }
+
         for (int i = 0; i < nvp.size(); i++) {
             NameValuePair p = nvp.elementAt(i);
             String name = p.getName();
@@ -573,6 +582,71 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 }
                 if (value.equals(Constants.FALSE)) {
                     mCriticalCRLExtensions.remove(id);
+                }
+            }
+            //Sync the onlyContainsCACerts with similar property in CRLIssuingPoint 
+            //called caCertsOnly.
+            if(name.equals(CMSIssuingDistributionPointExtension.PROP_CACERTS)) {
+                NameValuePairs crlIssuingPointPairs = null;
+                boolean crlCACertsOnly = false;
+
+                boolean issuingDistPointExtEnabled = false;
+
+                CMSCRLExtensions cmsCRLExtensions = (CMSCRLExtensions) ip.getCRLExtensions();
+                if(cmsCRLExtensions != null) {
+                    issuingDistPointExtEnabled =  cmsCRLExtensions.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME); 
+                }
+
+                CMS.debug("issuingDistPointExtEnabled = " + issuingDistPointExtEnabled);
+
+                if (!(value.equals(Constants.TRUE) ||
+                        value.equals(Constants.FALSE))) {
+                    continue;
+                }
+
+                //Get value of caCertsOnly from CRLIssuingPoint
+                if((ip != null) && (issuingDistPointExtEnabled == true)) {
+                    crlCACertsOnly = ip.isCACertsOnly();
+                    CMS.debug("CRLCACertsOnly is: " + crlCACertsOnly);
+                    crlIssuingPointPairs = new NameValuePairs();
+                    
+                }
+
+                String newValue = "";
+                boolean modifiedCRLConfig = false;
+                //If the CRLCACertsOnly prop is false change it to true to sync.
+                if(value.equals(Constants.TRUE) && (issuingDistPointExtEnabled == true)) {
+                    if(crlCACertsOnly == false) {
+                        CMS.debug(" value = true and CRLCACertsOnly is already false.");
+                        crlIssuingPointPairs.add(Constants.PR_CA_CERTS_ONLY, Constants.TRUE);
+                        newValue = Constants.TRUE;
+                        ip.updateConfig(crlIssuingPointPairs);
+                        modifiedCRLConfig = true;
+                    }
+                }
+
+                //If the CRLCACertsOnly prop is true change it to false to sync.
+                if(value.equals(Constants.FALSE) && (issuingDistPointExtEnabled == true)) {
+                    crlIssuingPointPairs.add(Constants.PR_CA_CERTS_ONLY, Constants.FALSE);
+                    if(ip != null) {
+                        ip.updateConfig(crlIssuingPointPairs);
+                        newValue = Constants.FALSE;
+                        modifiedCRLConfig = true;
+                    }
+                }
+               
+                if(modifiedCRLConfig == true) {
+                    //Commit to this CRL IssuingPoint's config store
+                    ICertificateAuthority CA = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                    IConfigStore crlsSubStore = CA.getConfigStore();
+                    crlsSubStore =   crlsSubStore.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+                    crlsSubStore = crlsSubStore.getSubStore(ipId);
+                    try {
+                        crlsSubStore.putString(Constants.PR_CA_CERTS_ONLY,newValue);
+                        crlsSubStore.commit(true);
+                    } catch (EBaseException e) {
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_SAVE_CONF", e.toString()));
+                    }
                 }
             }
 

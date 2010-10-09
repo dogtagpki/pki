@@ -430,5 +430,21 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         }
     }
 
+    /**
+    * Override the initialize method only for this panel.
+    * We need to refresh in case the CRLDistributionPointExtension
+    * has modified the caCertsOnly property for us.
+    **/ 
+    public void initialize() {
+        Debug.println("CMSCRLFormatPanel: intialize()");
+        if (!mInit) {
+            init();
+            mInit = true;
+        } else {
+            if(!isDirty()) {
+                refresh();
+            }
+        }
+    }
 }
 
