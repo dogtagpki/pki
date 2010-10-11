@@ -30,6 +30,7 @@ import org.mozilla.jss.ssl.*;
 import org.mozilla.jss.*;
 import org.mozilla.jss.util.*;
 import org.mozilla.jss.crypto.*;
+import org.mozilla.jss.pkcs11.*;
 import javax.swing.*;
 import java.awt.*;
 
@@ -90,30 +91,43 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 
 		UtilConsoleGlobals.initJSS();
 		cf = UtilConsoleGlobals.getX509CertificateFactory();
-		try {
-			cryptoManager = CryptoManager.getInstance();	
-		} catch (Exception e) {
-        	}
+        try {
+            cryptoManager = CryptoManager.getInstance();    
+        } catch (Exception e) {
+        }
 
-		s = new SSLSocket(host, port, null, 0, this, this);
-        s.enableSSL3(true);
-        s.enableSSL3Default(true);
-        int ciphers[] = s.getImplementedCipherSuites();
+        // SSLSocket needs to be set before getting an instance
+        // to get the ciphers
+        SSLSocket.enableSSL3Default(true);
+        int TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA = 0xC005; 
+        int TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA = 0xC00A; 
+
+        int ciphers[] = SSLSocket.getImplementedCipherSuites();
         for (int i = 0; ciphers != null && i < ciphers.length; i++) {
-           Debug.println("NSS Cipher Supported '0x" + 
+           Debug.println("JSSConnection Debug: NSS Cipher Supported '0x" + 
               Integer.toHexString(ciphers[i]) + "'"); 
-           int TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA = 0xC005; 
+           SSLSocket.setCipherPreferenceDefault(ciphers[i], true);
 
            /* Enable ECC Cipher */
+
            if (ciphers[i] == TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA) {
-             s.setCipherPreference(TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA, true);
+             Debug.println("JSSConnection Debug: found TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA, setting preference");
+             SSLSocket.setCipherPreferenceDefault(TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA, true);
+           }
+           if (ciphers[i] == TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA) {
+             Debug.println("JSSConnection Debug: found TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, setting preference");
+             SSLSocket.setCipherPreferenceDefault(TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, true);
            }
         }
+		s = new SSLSocket(host, port, null, 0, this, this);
+//        s.enableSSL3(true);
+//        s.enableSSL3Default(true);
 
 		// Initialze Http Input and Output Streams
 		httpIn = s.getInputStream();
 		httpOut = s.getOutputStream();
-		cryptoManager.setPasswordCallback(new pwcb());
+        cryptoManager.setPasswordCallback(new pwcb());
+        Debug.println("JSSConnection Debug: end of JSSConnection constructor");
 	}
 
     public boolean approve(org.mozilla.jss.crypto.X509Certificate serverCert,
@@ -341,7 +355,10 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 		{
 			Thread.sleep(100);
 		}
-		catch (Exception e) {System.out.println("sleeping "+e.toString());}
+		catch (Exception e) {
+            Debug.println("JSSConnection Debug: in sendRequest:"+e.toString());
+            System.out.println("sleeping "+e.toString());
+        }
 		//System.out.println("Request Sent - bytes:" + httpOut.getTotal());
 
 		// Init the Reply stream
@@ -465,8 +482,10 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 
         //System.out.println("XXX read " + nRead);
 
-		if (requestFailed(new String(headerLine)))
+		if (requestFailed(new String(headerLine))) {
+            Debug.println("JSSConnection Debug: in readHeader requestFailed");
 			throw new IOException(getReasonPhrase(new String (headerLine)));
+        }
 
 		while (true) {
 			nRead = readLineFromStream(httpIn, headerLine, 0, 1096);
