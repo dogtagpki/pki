@@ -497,6 +497,38 @@ ca_audit_signing_cert_subject_name="cn=CA\ Audit\ Signing\ Certificate,o=${pki_s
 ##                         +  "o=${pki_security_domain_name}"
 ##
 
+##  Optional CA Variables for creating a clone DRM
+##
+##  It is possible for pkisilent to create a DRM that is a clone of a previously
+##  installed DRM (the master DRM).  To do so, the keys of the master DRM must 
+##  first be backed up in a pk12 file, and this file should be copied to the  
+##  alias directory of the clone DRM.  This file should have read permission for  
+##  the PKI user (pkiuser).
+##  
+##  An example file would be /var/lib/drm-clone/alias/drm-master.p12.
+##
+##  The following variables should then be uncommented and defined for the clone CA.
+##  kra_clone=true       
+##  kra_clone_p12_file=          
+##  kra_clone_p12_password=
+##  kra_clone_uri=
+##
+##  NOTES: 
+##  1. drm_clone_p12_file must be just the filename relative to the alias directory.
+##     So in the example above, drm_clone_p12_file="drm-master.p12"
+##  2. drm_clone_uri has the following format: https://<hostname>:<EE port> of the DRM to be cloned
+##
+##  ADDITIONAL NOTES:
+##  1. The clone DRM and master DRM cannot share the same database instance.  A new 
+##     instance should be created for the clone DRM.
+##  2. The variables kra_base_dn and kra_db_name defined above MUST be identical to the
+##     kra_base_dn and kra_name of the master CA. The following assignments attempt
+##     to ensure this is correct.
+##
+##  kra_master_instance_name=
+##  kra_base_dn="dc=${pki_host}-${kra_master_instance_name}"
+##  kra_db_name="${pki_host}-${kra_master_instance_name}"
+
 kra_agent_name="KRA\ Administrator\ of\ Instance\ ${kra_instance_name}\'s\ ${pki_security_domain_name}\ ID"
 kra_agent_key_size=2048
 kra_agent_key_type=rsa
@@ -1324,10 +1356,81 @@ pkisilent ConfigureDRM \
 /sbin/service ${kra_init_script} restart ${kra_instance_name}
 
 
+##############################################################################
+##  D A T A   R E C O V E R Y   M A N A G E R (clone)                       ##
+##############################################################################
+##
+##  Use this to configure a DRM clone.
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${kra_init_script} status ${kra_instance_name}':
+##
+##      ${kra_instance_name} (pid 11723) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:10180/kra/ee/kra
+##          Secure Agent Port = https://${pki_host}:10443/kra/agent/kra
+##          Secure EE Port    = https://${pki_host}:10444/kra/ee/kra
+##          Secure Admin Port = https://${pki_host}:10445/kra/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:10445/kra
+##          Tomcat Port       = 10701 (for shutdown)
+##
+
+##  Configure DRM
+# printf "'${pki_silent_script}':  Configuring '${kra_instance_name}' . . .\n"
+# pkisilent ConfigureDRM \
+#	-cs_hostname "${pki_host}" \
+#	-cs_port ${kra_admin_port} \
+#	-sd_hostname "${pki_security_domain_host}" \
+#	-sd_ssl_port ${ca_ee_port} \
+#	-sd_agent_port ${ca_agent_port} \
+#	-sd_admin_port ${ca_admin_port} \
+#	-sd_admin_name "${pki_security_domain_admin_name}" \
+#	-sd_admin_password ${pki_security_domain_admin_password} \
+#	-ca_hostname ${pki_security_domain_host} \
+#	-ca_port ${ca_nonssl_port} \
+#	-ca_ssl_port ${ca_ee_port} \
+#	-client_certdb_dir ${pki_silent_security_database_repository} \
+#	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-preop_pin ${kra_preop_pin} \
+#	-domain_name "${pki_security_domain_name}" \
+#	-admin_user ${pki_silent_admin_user} \
+#	-admin_password ${pki_silent_admin_password} \
+#	-admin_email "${pki_silent_admin_email}" \
+#	-agent_name ${kra_agent_name} \
+#	-ldap_host ${pki_ldap_host} \
+#	-ldap_port ${pki_ldap_port} \
+#	-bind_dn "${pki_bind_dn}" \
+#	-bind_password ${pki_bind_password} \
+#	-base_dn "${kra_base_dn}" \
+#	-db_name "${kra_db_name}" \
+#	-key_size ${kra_key_size} \
+#	-key_type ${kra_key_type} \
+#	-token_name ${kra_token_name} \
+#	-token_pwd ${kra_token_password} \
+#	-agent_key_size ${kra_agent_key_size} \
+#	-agent_key_type ${kra_agent_key_type} \
+#	-agent_cert_subject "${kra_agent_cert_subject}" \
+#	-subsystem_name ${kra_subsystem_name} \
+#	-backup_pwd ${kra_backup_password} \
+#	-drm_transport_cert_subject_name "${kra_transport_cert_subject_name}" \
+#	-drm_subsystem_cert_subject_name "${kra_subsystem_cert_subject_name}" \
+#	-drm_storage_cert_subject_name "${kra_storage_cert_subject_name}" \
+#	-drm_server_cert_subject_name "${kra_server_cert_subject_name}" \
+#	-drm_audit_signing_cert_subject_name \
+#	"${kra_audit_signing_cert_subject_name}" \
+#       -clone ${kra_clone} \
+#       -clone_p12_file ${kra_clone_p12_file} \
+#       -clone_p12_password ${kra_clone_p12_password} \
+#       -clone_uri ${kra_uri} \
+#	| tee ${pki_silent_kra_log}
+
+##  Restart drm
+#/sbin/service ${kra_init_script} restart ${kra_instance_name}
+
 
 ##############################################################################
 ##  O N L I N E   S T A T U S   C E R T I F I C A T E   P R O T O C O L     ##
-##############################################################################
+###############################################################################
 ##
 ##  For example, upon completion,
 ##  execute '/sbin/service ${ocsp_init_script} status ${ocsp_instance_name}':

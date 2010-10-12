@@ -143,7 +143,15 @@ public class ConfigureDRM
 
     public static String subsystem_name = null;
 
+    // cloning
+    public static boolean clone = false;
+    public static String clone_uri = null;
+    public static String clone_p12_passwd = null;
+    public static String clone_p12_file = null;
 
+    //for correct selection of CA to be cloned
+    public static String urls;
+ 
     public ConfigureDRM ()
     {
         // do nothing :)
@@ -291,47 +299,62 @@ public class ConfigureDRM
 
     public boolean SecurityDomainLoginPanel()
     {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
+        try {
+            boolean st = false;
+            HTTPResponse hr = null;
+            ByteArrayInputStream bais = null;
+            ParseXML px = new ParseXML();
 
-
-        String kra_url = "https://" + cs_hostname + ":" + cs_port +
+            String kra_url = "https://" + cs_hostname + ":" + cs_port +
                             "/kra/admin/console/config/wizard" +
                             "?p=5&subsystem=KRA" ;
 
-        String query_string = "url=" + URLEncoder.encode(kra_url); 
+            String query_string = "url=" + URLEncoder.encode(kra_url); 
 
-        hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_login_uri,query_string);
+            hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_login_uri,query_string);
 
-        String query_string_1 = "uid=" + sd_admin_name +
+            String query_string_1 = "uid=" + sd_admin_name +
                                 "&pwd=" + sd_admin_password +
                                 "&url=" + URLEncoder.encode(kra_url) ;
 
-        hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_get_cookie_uri,
+            hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_get_cookie_uri,
                         query_string_1);
 
-        // get session id from security domain
+            // get session id from security domain
 
-        String kra_session_id = hr.getContentValue("header.session_id");
-        String kra_url_1 = hr.getContentValue("header.url");
+            String kra_session_id = hr.getContentValue("header.session_id");
+            String kra_url_1 = hr.getContentValue("header.url");
 
-        System.out.println("KRA_SESSION_ID=" + kra_session_id);
-        System.out.println("KRA_URL=" + kra_url_1);
+            System.out.println("KRA_SESSION_ID=" + kra_session_id);
+            System.out.println("KRA_URL=" + kra_url_1);
 
-        // use session id to connect back to KRA
+            // use session id to connect back to KRA
 
-        String query_string_2 = "p=5" +
+            String query_string_2 = "p=5" +
                                 "&subsystem=KRA" +
                                 "&session_id=" + kra_session_id +
                                 "&xml=true" ;
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,
+            hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,
                         query_string_2);
 
-        return true;
+            // parse urls
+            urls = hr.getHTML();
+            int indx = urls.indexOf(clone_uri);
+            if (indx < 0) {
+                throw new Exception("Invalid clone_uri");
+            }
+            urls = urls.substring(urls.lastIndexOf("<option" , indx), indx);
+            urls = urls.split("\"")[1];
 
+            System.out.println("urls =" + urls);
+
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in SecurityDomainLoginPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
     }
     
     public boolean SubsystemPanel()
@@ -340,11 +363,17 @@ public class ConfigureDRM
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-
-        String query_string = "p=5" + "&op=next" + "&xml=true" + 
-                        "&subsystemName=" +
-                        URLEncoder.encode(subsystem_name) +
-                        "&choice=newsubsystem" ; 
+        String query_string = null;
+        if (!clone) {
+            query_string = "p=5" + "&op=next" + "&xml=true"
+                + "&choice=newsubsystem" + "&subsystemName="
+                + URLEncoder.encode(subsystem_name);
+        } else {
+            query_string = "p=5" + "&op=next" + "&xml=true"
+                + "&choice=clonesubsystem" + "&subsystemName="
+                + URLEncoder.encode(subsystem_name)
+                + "&urls=" + urls;
+        }
 
         hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
         // parse xml
@@ -353,6 +382,30 @@ public class ConfigureDRM
         px.prettyprintxml();
 
         return true;
+    }
+
+    public boolean RestoreKeyCertPanel() {
+        try {
+            ByteArrayInputStream bais = null;
+            HTTPResponse hr = null;
+            ParseXML px = new ParseXML();
+
+            String query_string = "p=6" + "&op=next" + "&xml=true"
+                + "&__password=" + URLEncoder.encode(clone_p12_passwd)
+                + "&path=" + URLEncoder.encode(clone_p12_file) + "";
+
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+
+            // parse xml
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            px.parse(bais);
+            px.prettyprintxml();
+            return true;
+        } catch (Exception e) {
+            System.out.println("Exception in RestoreKeyCertPanel(): " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean LdapConnectionPanel()
@@ -390,26 +443,37 @@ public class ConfigureDRM
         ParseXML px = new ParseXML();
         ArrayList al = null;
 
+        String query_string = null;
 
-        String query_string = "p=8" + "&op=next" + "&xml=true" +
-                            "&transport_custom_size=" + key_size +
-                            "&storage_custom_size=" + key_size +
-                            "&subsystem_custom_size=" + key_size +
-                            "&sslserver_custom_size=" + key_size +
-                            "&custom_size=" + key_size +
-                            "&audit_signing_custom_size=" + key_size +
-                            "&transport_keytype=" + key_type + 
-                            "&storage_keytype=" + key_type + 
-                            "&subsystem_keytype=" + key_type + 
-                            "&sslserver_keytype=" + key_type + 
-                            "&audit_signing_keytype=" + key_type +
-                            "&keytype=" + key_type + 
-                            "&transport_choice=default"+
-                            "&storage_choice=default"+
-                            "&subsystem_choice=default"+
-                            "&sslserver_choice=default"+
-                            "&choice=default"+
-                            "&audit_signing_choice=default";
+        if (!clone) {
+            query_string = "p=8" + "&op=next" + "&xml=true" +
+                "&transport_custom_size=" + key_size +
+                "&storage_custom_size=" + key_size +
+                "&subsystem_custom_size=" + key_size +
+                "&sslserver_custom_size=" + key_size +
+                "&custom_size=" + key_size +
+                "&audit_signing_custom_size=" + key_size +
+                "&transport_keytype=" + key_type + 
+                "&storage_keytype=" + key_type + 
+                "&subsystem_keytype=" + key_type + 
+                "&sslserver_keytype=" + key_type + 
+                "&audit_signing_keytype=" + key_type +
+                "&keytype=" + key_type + 
+                "&transport_choice=default"+
+                "&storage_choice=default"+
+                "&subsystem_choice=default"+
+                "&sslserver_choice=default"+
+                "&choice=default"+
+                "&audit_signing_choice=default";
+        } else {
+            query_string = "p=8" + "&op=next" + "&xml=true" +
+                "&sslserver_custom_size=" + key_size +
+                "&sslserver_keytype=" + key_type + 
+                "&sslserver_choice=default" + 
+                "&custom_size=" + key_size +
+                "&keytype=" + key_type + 
+                "&choice=default";
+        } 
 
         hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -460,11 +524,12 @@ public class ConfigureDRM
         ArrayList req_list = null;
         ArrayList cert_list = null;
         ArrayList dn_list = null;
-
+        String query_string = null;
 
         String domain_url = "https://" + ca_hostname + ":" + ca_ssl_port ;
 
-        String query_string = "p=9" + "&op=next" + "&xml=true" +
+        if (!clone) {
+            query_string = "p=9" + "&op=next" + "&xml=true" +
                 "&subsystem=" + 
                 URLEncoder.encode(drm_subsystem_cert_subject_name) +
                 "&transport=" + 
@@ -476,8 +541,15 @@ public class ConfigureDRM
                 "&audit_signing=" +
                 URLEncoder.encode(drm_audit_signing_cert_subject_name) + 
                 "&urls=" + 
-                URLEncoder.encode(domain_url); 
-
+                URLEncoder.encode(domain_url);
+        } else {
+            query_string = "p=9" + "&op=next" + "&xml=true" +
+                "&sslserver=" + 
+                URLEncoder.encode(drm_server_cert_subject_name) + 
+                "&urls=" + 
+                URLEncoder.encode(domain_url);
+        }
+ 
         hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
         // parse xml
@@ -621,6 +693,16 @@ public class ConfigureDRM
                 asSeq.size()+" SafeContents");
 
             fis.close();
+
+            if (clone) {
+                query_string = "p=12" + "&op=next" + "&xml=true";
+                hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+
+                // parse xml
+                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+                px.parse(bais);
+                px.prettyprintxml();
+            }
         } catch (Exception e) {
             System.out.println("ERROR: Exception=" + e.getMessage());
             return false;
@@ -810,6 +892,16 @@ public class ConfigureDRM
         }
 
         sleep_time();
+        // 6. display restore key cert panel
+        if (clone) {
+            boolean restore_st = RestoreKeyCertPanel();
+            if (!restore_st) {
+                System.out.println("ERROR: ConfigureCA: RestoreKeyCertPanel() failure");
+                return false;
+            }
+        }
+
+        sleep_time();
         // 7. ldap connection panel
         boolean disp_ldap = LdapConnectionPanel();
         if (!disp_ldap) {
@@ -858,6 +950,10 @@ public class ConfigureDRM
             return false;
         }
 
+        if (clone) {
+            // no other panels required for clone
+            return true;
+        }
 
         sleep_time();
         // 13. Admin Cert Req Panel
@@ -947,6 +1043,12 @@ public class ConfigureDRM
 
         // subsystemName
         StringHolder x_subsystem_name = new StringHolder();
+
+        //clone parameters
+        StringHolder x_clone = new StringHolder();
+        StringHolder x_clone_uri = new StringHolder();
+        StringHolder x_clone_p12_file = new StringHolder();
+        StringHolder x_clone_p12_passwd = new StringHolder();
 
         // parse the args
         ArgParser parser = new ArgParser("ConfigureDRM");
@@ -1049,6 +1151,11 @@ public class ConfigureDRM
         "-drm_audit_signing_cert_subject_name %s #DRM audit signing cert subject name",
                             x_drm_audit_signing_cert_subject_name);
 
+        parser.addOption("-clone %s #Clone of another KRA [true, false] (optional, default false)", x_clone);
+        parser.addOption("-clone_uri %s #URL of Master KRA to clone. It must have the form https://<hostname>:<EE port> (optional, required if -clone=true)", x_clone_uri);
+        parser.addOption("-clone_p12_file %s #File containing pk12 keys of Master KRA (optional, required if -clone=true)", x_clone_p12_file);
+        parser.addOption("-clone_p12_password %s #Password for pk12 file (optional, required if -clone=true)", x_clone_p12_passwd);
+
         // and then match the arguments
         String [] unmatched = null;
         unmatched = parser.matchAllArgs (args,0,parser.EXIT_ON_UNMATCHED);
@@ -1117,6 +1224,15 @@ public class ConfigureDRM
                 drm_audit_signing_cert_subject_name = x_drm_audit_signing_cert_subject_name.value;
         
         subsystem_name = x_subsystem_name.value;
+
+        if ((x_clone.value != null) && (x_clone.value.equalsIgnoreCase("true"))) {
+            clone = true;
+        } else {
+            clone = false;
+        }
+        clone_uri = x_clone_uri.value;
+        clone_p12_file = x_clone_p12_file.value;
+        clone_p12_passwd = x_clone_p12_passwd.value;
 
         boolean st = ca.ConfigureDRMInstance();
     
