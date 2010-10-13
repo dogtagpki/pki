@@ -29,13 +29,16 @@ import com.netscape.cmscore.util.*;
 import com.netscape.osutil.*;
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.logging.ILogger;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import netscape.security.pkcs.*;
 import java.net.SocketException;
 
 import javax.servlet.http.HttpServletRequest;
-
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.CryptoManager.CertUsage;
 
 /**
  * Utility class with assorted methods to check for 
@@ -56,6 +59,10 @@ public class CertUtils {
         "-----BEGIN CERTIFICATE REVOCATION LIST-----";
     public static final String END_CRL_HEADER =
         "-----END CERTIFICATE REVOCATION LIST-----";
+
+    protected static ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
+    private final static String LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION =
+            "LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION_3";
 
     /**
      * Remove the header and footer in the PKCS10 request.
@@ -774,4 +781,213 @@ public class CertUtils {
         return tmp.toString();
     }
 	
+    /*
+     * verify a certificate by its tag name
+     * returns true if it verifies; false if any not
+     */
+    public static boolean verifySystemCertByTag(String tag) {
+        String auditMessage = null;
+        IConfigStore config = CMS.getConfigStore();
+        boolean r = true;
+
+        try {
+            CryptoManager cm = CryptoManager.getInstance();
+            String subsysType = config.getString("cs.type", "");
+            if (subsysType.equals("")) {
+                CMS.debug("CertUtils: verifySystemCertByTag() cs.type not defined in CS.cfg. System certificates verification not done");
+                r = false;
+            }
+            subsysType = toLowerCaseSubsystemType(subsysType);
+            if (subsysType == null) {
+                CMS.debug("CertUtils: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                            ILogger.SYSTEM_UID,
+                            ILogger.FAILURE,
+                            "");
+
+                audit(auditMessage);
+                r = false;
+                return r;
+            }
+            String nickname = config.getString(subsysType+".cert."+tag+".nickname", "");
+            if (nickname.equals("")) {
+                CMS.debug("CertUtils: verifySystemCertByTag() nickname for cert tag" + tag + " not found");
+                r = false;
+            }
+            String certusage = config.getString(subsysType+".cert."+tag+".certusage", "");
+            if (certusage.equals("")) {
+                CMS.debug("CertUtils: verifySystemCertByTag() certusage for cert tag" + tag + " not found");
+                r = false;
+            }
+
+            CertUsage cu = getCertUsage(certusage);
+            if (cu == null) {
+                CMS.debug("CertUtils: verifySystemCertByTag() failed: "+
+                  nickname + "with unsupported certusage ="+ certusage);
+                r = false;
+            }
+
+            if (cm.isCertValid(nickname, true, cu)) {
+                r = true;
+                CMS.debug("CertUtils: verifySystemCertByTag() passed:" + nickname);
+            } else {
+                CMS.debug("CertUtils: verifySystemCertByTag() failed:" + nickname);
+                r = false;
+            }
+        } catch (Exception e) {
+            CMS.debug("CertUtils: verifySystemCertsByTag() failed: "+
+                e.toString());
+            r = false;
+        }
+
+        return r;
+    }
+
+    public static CertUsage getCertUsage(String certusage) {
+        CertUsage cu = null;
+        if (certusage.equalsIgnoreCase("SSLServer"))
+            cu = CryptoManager.CertUsage.SSLServer;
+        else if (certusage.equalsIgnoreCase("SSLClient"))
+            cu = CryptoManager.CertUsage.SSLClient;
+        else if (certusage.equalsIgnoreCase("AnyCA"))
+            cu = CryptoManager.CertUsage.AnyCA;
+        else if (certusage.equalsIgnoreCase("StatusResponder"))
+            cu = CryptoManager.CertUsage.StatusResponder;
+        else if (certusage.equalsIgnoreCase("ObjectSigner"))
+            cu = CryptoManager.CertUsage.ObjectSigner;
+        else if (certusage.equalsIgnoreCase("ProtectedObjectSigner"))
+            cu = CryptoManager.CertUsage.ProtectedObjectSigner;
+        else if (certusage.equalsIgnoreCase("EmailSigner"))
+            cu = CryptoManager.CertUsage.ObjectSigner;
+
+        return cu;
+    }
+
+    /*
+     * goes through all system certs and check to see if they are good
+     * and audit the result
+     * returns true if all verifies; false if any not
+     */
+    public static boolean verifySystemCerts() {
+        String auditMessage = null;
+        IConfigStore config = CMS.getConfigStore();
+        String certlsit = "";
+        boolean r = true;
+        try {
+            String subsysType = config.getString("cs.type", "");
+            if (subsysType.equals("")) {
+                CMS.debug("CertUtils: verifySystemCerts() cs.type not defined in CS.cfg. System certificates verification not done");
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                            ILogger.SYSTEM_UID,
+                            ILogger.FAILURE,
+                            "");
+
+                audit(auditMessage);
+                r = false;
+                return r;
+            }
+            subsysType = toLowerCaseSubsystemType(subsysType);
+            if (subsysType == null) {
+                CMS.debug("CertUtils: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                            ILogger.SYSTEM_UID,
+                            ILogger.FAILURE,
+                            "");
+
+                audit(auditMessage);
+                r = false;
+                return r;
+            }
+            String certlist = config.getString(subsysType+".cert.list", "");
+            if (certlist.equals("")) {
+                CMS.debug("CertUtils: verifySystemCerts() "+subsysType+ ".cert.list not defined in CS.cfg. System certificates verification not done");
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                            ILogger.SYSTEM_UID,
+                            ILogger.FAILURE,
+                            "");
+
+                audit(auditMessage);
+                r = false;
+                return r;
+            }
+            StringTokenizer tokenizer = new StringTokenizer(certlist, ",");
+            while (tokenizer.hasMoreTokens()) {
+                String tag = tokenizer.nextToken();
+                tag = tag.trim();
+                CMS.debug("CertUtils: verifySystemCerts() cert tag=" + tag);
+                r = verifySystemCertByTag(tag);
+                if (r == true) {
+                    // audit here
+                    auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                        ILogger.SYSTEM_UID,
+                        ILogger.SUCCESS,
+                                tag);
+
+                    audit(auditMessage);
+                } else {
+                    // audit here
+                    auditMessage = CMS.getLogMessage(
+                                LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                                ILogger.SYSTEM_UID,
+                                ILogger.FAILURE,
+                                tag);
+
+                    audit(auditMessage);
+                }
+            }
+        } catch (Exception e) {
+            // audit here
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                        ILogger.SYSTEM_UID,
+                        ILogger.FAILURE,
+                        "");
+
+                    audit(auditMessage);
+            r = false;
+            CMS.debug("CertUtils: verifySystemCerts():" + e.toString());
+        }
+        return r;
+    }
+
+    public static String toLowerCaseSubsystemType(String s) {
+        String x = null;
+        if (s.equalsIgnoreCase("CA")) {
+            x = "ca";
+        } else if (s.equalsIgnoreCase("KRA")) {
+            x = "kra";
+        } else if (s.equalsIgnoreCase("OCSP")) {
+            x = "ocsp";
+        } else if (s.equalsIgnoreCase("TKS")) {
+            x = "tks";
+        }
+
+        return x;
+    }
+
+    /**
+     * Signed Audit Log
+     * This method is called to store messages to the signed audit log.
+     * @param msg signed audit log message
+     */
+    private static void audit(String msg) {
+        // in this case, do NOT strip preceding/trailing whitespace
+        // from passed-in String parameters
+        if (mSignedAuditLogger == null) {
+            return;
+        }
+
+        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
+            null,
+            ILogger.S_SIGNED_AUDIT,
+            ILogger.LL_SECURITY,
+            msg);
+    }
+
+
 }

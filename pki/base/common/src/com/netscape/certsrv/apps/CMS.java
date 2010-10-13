@@ -58,6 +58,7 @@ import com.netscape.certsrv.authorization.*;
 import com.netscape.certsrv.acls.*;
 import com.netscape.certsrv.tks.*;
 import org.mozilla.jss.util.PasswordCallback;
+import org.mozilla.jss.CryptoManager.CertUsage;
 import java.security.NoSuchAlgorithmException;
 import com.netscape.cmsutil.password.*;
 
@@ -1289,6 +1290,29 @@ public final class CMS {
      */
     public static String getEncodedCert(X509Certificate cert) {
         return _engine.getEncodedCert(cert);
+    }
+
+   /**
+    * Verifies all system certs
+    *  with tags defined in <subsystemtype>.cert.list
+    */
+    public static boolean verifySystemCerts() {
+        return _engine.verifySystemCerts();
+    }
+
+   /**
+    * Verify a system cert by tag name
+    *  with tags defined in <subsystemtype>.cert.list
+    */
+    public static boolean verifySystemCertByTag(String tag) {
+        return _engine.verifySystemCertByTag(tag);
+    }
+
+    /**
+     * get the CertUsage as defined in JSS CryptoManager
+     */
+    public static CertUsage getCertUsage(String certusage) {
+        return _engine.getCertUsage(certusage);
     }
 
     /**

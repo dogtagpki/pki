@@ -55,6 +55,7 @@ import com.netscape.certsrv.ocsp.*;
 import com.netscape.certsrv.logging.*;
 import com.netscape.certsrv.request.*;
 import org.mozilla.jss.util.PasswordCallback;
+import org.mozilla.jss.CryptoManager.CertUsage;
 import com.netscape.certsrv.acls.*;
 
 /**
@@ -743,6 +744,25 @@ public interface ICMSEngine extends ISubsystem {
      * @return port of administration service
      */
     public String getAdminPort();
+
+    /**
+     * Verifies all system certificates
+     * @return true if all passed, false otherwise
+     */
+     public boolean verifySystemCerts();
+
+    /**
+     * Verifies a system certificate by its tag name
+     * as defined in <subsystemtype>.cert.list
+     * @return true if passed, false otherwise
+     */
+    public boolean verifySystemCertByTag(String tag);
+
+    /**
+     * get the CertUsage as defined in JSS CryptoManager
+     * @returns CertUsage as defined in JSS CryptoManager
+     */
+    public CertUsage getCertUsage(String certusage);
 
     /**
      * Checks if the given certificate is a signing certificate.
