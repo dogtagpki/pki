@@ -338,16 +338,18 @@ public class ConfigureDRM
             hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,
                         query_string_2);
 
-            // parse urls
-            urls = hr.getHTML();
-            int indx = urls.indexOf(clone_uri);
-            if (indx < 0) {
-                throw new Exception("Invalid clone_uri");
-            }
-            urls = urls.substring(urls.lastIndexOf("<option" , indx), indx);
-            urls = urls.split("\"")[1];
+            if (clone) {
+                // parse urls
+                urls = hr.getHTML();
+                int indx = urls.indexOf(clone_uri);
+                if (indx < 0) {
+                    throw new Exception("Invalid clone_uri");
+                }
+                urls = urls.substring(urls.lastIndexOf("<option" , indx), indx);
+                urls = urls.split("\"")[1];
 
-            System.out.println("urls =" + urls);
+                System.out.println("urls =" + urls);
+            }
 
             return true;
         } catch (Exception e) {
