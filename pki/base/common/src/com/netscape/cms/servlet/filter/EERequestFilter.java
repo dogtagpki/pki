@@ -73,7 +73,7 @@ public class EERequestFilter implements Filter
             }
 
             // Always obtain either an "http" or an "https" port from request
-            port = request.getServerPort();
+            port = request.getLocalPort();
             request_port = Integer.toString( port );
 
             // Always obtain the "http" port passed in as a parameter

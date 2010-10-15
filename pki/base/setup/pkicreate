@@ -246,7 +246,7 @@ my $cmscore_jar_base_name        = "cmscore.jar";          # CA, KRA, OCSP, TKS
 my $conf_base_name               = "conf";                 # CA, KRA, OCSP, TKS,
                                                            # RA, TPS
 my $httpd_conf_base_name         = "httpd.conf";           # RA, TPS
-my $index_html_base_name         = "index.html";           # CA, KRA, OCSP, TKS
+my $index_jsp_base_name          = "index.jsp";            # CA, KRA, OCSP, TKS
 my $logs_base_name               = "logs";                 # CA, KRA, OCSP, TKS,
                                                            # RA, TPS
 my $magic_base_name              = "magic";                # RA, TPS
@@ -516,8 +516,8 @@ my $cmscore_jar_file_path                     = "";  # CA, KRA, OCSP, TKS
 my $cmscore_jar_symlink_path                  = "";  # CA, KRA, OCSP, TKS
 my $httpd_conf_instance_file_path             = "";  # RA, TPS
 my $httpd_conf_subsystem_file_path            = "";  # RA, TPS
-my $index_html_instance_file_path             = "";  # CA, KRA, OCSP, TKS
-my $index_html_subsystem_file_path            = "";  # CA, KRA, OCSP, TKS
+my $index_jsp_instance_file_path              = "";  # CA, KRA, OCSP, TKS
+my $index_jsp_subsystem_file_path             = "";  # CA, KRA, OCSP, TKS
 my $java_pki_flavor_jar_path                  = "";  # CA, KRA, OCSP, TKS
 my $magic_instance_file_path                  = "";  # RA, TPS
 my $magic_subsystem_file_path                 = "";  # RA, TPS
@@ -1849,10 +1849,10 @@ sub initialize_subdirectory_paths()
                                            . "/" . $cmscore_jar_base_name;
         $cmscore_jar_symlink_path          = $webinf_lib_instance_path
                                            . "/" . $cmscore_jar_base_name;
-        $index_html_instance_file_path     = $webapps_root_instance_path
-                                           . "/" . $index_html_base_name;
-        $index_html_subsystem_file_path    = $webapps_root_subsystem_path
-                                           . "/" . $index_html_base_name;
+        $index_jsp_instance_file_path      = $webapps_root_instance_path
+                                           . "/" . $index_jsp_base_name;
+        $index_jsp_subsystem_file_path     = $webapps_root_subsystem_path
+                                           . "/" . $index_jsp_base_name;
         $osutil_jar_file_path              = $default_system_jni_java_path
                                            . "/" . $osutil_jar_base_name;
         $osutil_jar_symlink_path           = $webinf_lib_instance_path
@@ -2859,9 +2859,9 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
               $catalina_sh_instance_file_path );
 
 
-        # process "index.html" template
-        $result = process_file_template( $index_html_subsystem_file_path,
-                                         $index_html_instance_file_path,
+        # process "index.jsp" template
+        $result = process_file_template( $index_jsp_subsystem_file_path,
+                                         $index_jsp_instance_file_path,
                                          \%slot_hash );
         if( !$result ) {
             return 0;

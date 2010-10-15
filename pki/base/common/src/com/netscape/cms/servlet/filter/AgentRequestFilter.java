@@ -67,7 +67,7 @@ public class AgentRequestFilter implements Filter
             }
 
             // Always obtain an "https" port from request
-            port = request.getServerPort();
+            port = request.getLocalPort();
             request_port = Integer.toString( port );
 
             // Always obtain the "https" port passed in as a parameter
