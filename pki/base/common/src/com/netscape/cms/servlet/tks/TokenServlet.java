@@ -533,17 +533,16 @@ public class TokenServlet extends CMSServlet {
                         PublicKey pubKey = drmTransCert.getPublicKey();
                         String pubKeyAlgo = pubKey.getAlgorithm();
                         CMS.debug("Transport Cert Key Algorithm: " + pubKeyAlgo);
-                        KeyWrapper rsaWrap = null;
+                        KeyWrapper keyWrapper = null;
+                        //For wrapping symmetric keys don't need IV, use ECB
                         if (pubKeyAlgo.equals("EC")) {
-                            byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
-                            IVParameterSpec IV = new IVParameterSpec(iv);
-                            rsaWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
-                            rsaWrap.initWrap(pubKey, IV);
+                            keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.AES_ECB);
+                            keyWrapper.initWrap(pubKey, null);
                         } else {
-                            rsaWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-                            rsaWrap.initWrap(pubKey, null);
+                            keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+                            keyWrapper.initWrap(pubKey, null);
                         }
-                        drm_trans_wrapped_desKey = rsaWrap.wrap(desKey);
+                        drm_trans_wrapped_desKey = keyWrapper.wrap(desKey);
 			CMS.debug("computeSessionKey:desKey wrapped with drm transportation key.");
 
                     } // if (serversideKeygen == true)

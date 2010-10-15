@@ -207,6 +207,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         String outputString = "";
         String wrappedPrivKeyString = "";
         String publicKeyString = "";
+        String ivString = "";
 	/* if is RECOVERY_PROTOTYPE
         String recoveryBlobString = "";
 
@@ -231,6 +232,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         publicKeyString = thisreq.getExtDataInString("public_key");
         wrappedPrivKeyString = thisreq.getExtDataInString("wrappedUserPrivate");
 
+        ivString = thisreq.getExtDataInString("iv_s");
         /*
           if (selectedToken == null)
           status = "4";
@@ -244,7 +246,10 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             sb.append(wrappedPrivKeyString);
             sb.append("&public_key=");
             sb.append(publicKeyString);
+            sb.append("&iv_param=");
+            sb.append(ivString);
             value = sb.toString();
+            
         }
         CMS.debug("ProcessTokenKeyRecovery:outputString.encode " +value);
 

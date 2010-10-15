@@ -209,17 +209,20 @@ public class TokenKeyRecoveryService implements IService {
         String auditRequesterID = "TPSagent";
         String auditRecoveryID = ILogger.UNIDENTIFIED;
         String auditPublicKey = ILogger.UNIDENTIFIED;
+        String iv_s ="";
 
         CMS.debug("KRA services token key recovery request");
 
         byte[] wrapped_des_key;
 
         byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
-/*
-        org.mozilla.jss.pkcs11.PK11SecureRandom random =
-          new org.mozilla.jss.pkcs11.PK11SecureRandom();
-        random.nextBytes(iv);
-*/
+        try {
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            random.nextBytes(iv);
+        } catch (Exception e) {
+            CMS.debug("TokenKeyRecoveryService.serviceRequest: "+ e.toString());
+        }
+
         String id = request.getRequestId().toString();
         if (id != null) {
             auditRecoveryID = id.trim();
@@ -434,6 +437,11 @@ public class TokenKeyRecoveryService implements IService {
 		    return false;
 		}
 		CMS.debug("TokenKeyRecoveryService: got private key...about to verify");
+
+         iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
+                request.setExtData("iv_s", iv_s);
+
+         CMS.debug("request.setExtData: iv_s: " + iv_s);
 
         /* LunaSA returns data with padding which we need to remove */
         ByteArrayInputStream dis = new ByteArrayInputStream(privateKeyData);

@@ -358,23 +358,18 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Unwraps the storage key with the given symmetric key.
      */
-    public static PrivateKey unwrapStorageKey(CryptoToken token,
+    public PrivateKey unwrapStorageKey(CryptoToken token,
         SymmetricKey sk, byte wrapped[], 	
         PublicKey pubKey)
         throws EBaseException {
         try {
 
+            CMS.debug("StorageKeyUnit.unwrapStorageKey.");
+
             KeyWrapper wrapper = token.getKeyWrapper(
                     KeyWrapAlgorithm.DES3_CBC_PAD);
-            byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
-/*
-            org.mozilla.jss.pkcs11.PK11SecureRandom random =
-              new org.mozilla.jss.pkcs11.PK11SecureRandom();
-            random.nextBytes(iv);
-*/
-
-
-            wrapper.initUnwrap(sk, new IVParameterSpec(iv));
+            
+            wrapper.initUnwrap(sk,  IV);
 
             // XXX - it does not like the public key that is
             // not a crypto X509Certificate
@@ -404,9 +399,10 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Used by config-cert.
      */
-    public static byte[] wrapStorageKey(CryptoToken token,
+    public byte[] wrapStorageKey(CryptoToken token,
         SymmetricKey sk, PrivateKey pri)
         throws EBaseException {
+        CMS.debug("StorageKeyUnit.wrapStorageKey.");
         try {
             // move public & private to config/storage.dat
             // delete private key
@@ -415,9 +411,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
             // next to randomly generate a symmetric
             // password
-            byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
 
-            wrapper.initWrap(sk, new IVParameterSpec(iv));
+            wrapper.initWrap(sk, IV);
             return wrapper.wrap(pri);
         } catch (TokenException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
@@ -695,7 +690,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
         // XXX
     }
 
-    public static String encryptShareWithInternalStorage(
+    public String encryptShareWithInternalStorage(
         byte share[], String pwd)
         throws EBaseException {
         try {
@@ -708,17 +703,16 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Protectes the share with the given password.
      */
-    public static String encryptShare(CryptoToken token,
+    public String encryptShare(CryptoToken token,
         byte share[], String pwd)
         throws EBaseException {
         try {
+            CMS.debug("StorageKeyUnit.encryptShare");
             Cipher cipher = token.getCipherContext(
                     EncryptionAlgorithm.DES3_CBC_PAD);
             SymmetricKey sk = StorageKeyUnit.buildSymmetricKey(token, pwd);
-            byte iv[] = {0x01, 0x01, 0x01, 0x01, 0x01, 
-                    0x01, 0x01, 0x01};
 
-            cipher.initEncrypt(sk, new IVParameterSpec(iv));
+            cipher.initEncrypt(sk, IV);
             byte prev[] = preVerify(share);
             byte enc[] = cipher.doFinal(prev);
 
@@ -799,7 +793,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
       
     }
 
-    public static byte[] decryptShareWithInternalStorage(
+    public byte[] decryptShareWithInternalStorage(
         String encoding, String pwd) 
         throws EBaseException {
         try {
@@ -812,19 +806,18 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Decrypts shares with the given password.
      */
-    public static byte[] decryptShare(CryptoToken token,
+    public byte[] decryptShare(CryptoToken token,
         String encoding, String pwd) 
         throws EBaseException {
         try {
+            CMS.debug("StorageKeyUnit.decryptShare");
             byte share[] = CMS.AtoB(encoding);
             Cipher cipher = token.getCipherContext(
                     EncryptionAlgorithm.DES3_CBC_PAD);
             SymmetricKey sk = StorageKeyUnit.buildSymmetricKey(
                     token, pwd);
-            byte iv[] = {0x01, 0x01, 0x01, 0x01, 0x01, 
-                    0x01, 0x01, 0x01};
 
-            cipher.initDecrypt(sk, new IVParameterSpec(iv));
+            cipher.initDecrypt(sk, IV);
             byte dec[] = cipher.doFinal(share);
 
             if (dec == null || !verifyShare(dec)) {

@@ -325,11 +325,12 @@ public class NetkeyKeygenService implements IService {
 
         byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
 	String iv_s ="";
-/*
-        org.mozilla.jss.pkcs11.PK11SecureRandom random =
-          new org.mozilla.jss.pkcs11.PK11SecureRandom();
-        random.nextBytes(iv);
-*/
+        try {
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            random.nextBytes(iv);
+        } catch (Exception e) {
+            CMS.debug("NetkeyKeygenService.serviceRequest:  "+ e.toString());
+        }
 
 	IVParameterSpec algParam = new IVParameterSpec(iv);
 
@@ -514,7 +515,6 @@ public class NetkeyKeygenService implements IService {
 
 		iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
 		request.setExtData("iv_s", iv_s);
-
 
 		/*
 		 * archival - option flag "archive" controllable by the caller - TPS

@@ -52,8 +52,6 @@ public class TransportKeyUnit extends EncryptionUnit implements
         ISubsystem, ITransportKeyUnit {
 
     public static final String PROP_NICKNAME = "nickName";
-    private byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
-    private IVParameterSpec IV = null;
 
     // private RSAPublicKey mPublicKey = null;
     // private RSAPrivateKey mPrivateKey = null;
@@ -66,12 +64,6 @@ public class TransportKeyUnit extends EncryptionUnit implements
      */
     public TransportKeyUnit() {
         super();
-/*
-        org.mozilla.jss.pkcs11.PK11SecureRandom random =
-          new org.mozilla.jss.pkcs11.PK11SecureRandom();
-        random.nextBytes(iv);
-*/
-        IV = new IVParameterSpec(iv);
     }
 
     /**

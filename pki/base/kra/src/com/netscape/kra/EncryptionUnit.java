@@ -51,15 +51,15 @@ import org.mozilla.jss.crypto.PrivateKey;
  */
 public abstract class EncryptionUnit implements IEncryptionUnit {
 
+    /* Establish one constant IV for base class, to be used for
+       internal operations. Constant IV acceptable for symmetric keys.
+    */
     private byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
-    private IVParameterSpec IV = null;
+    protected IVParameterSpec IV = null;
 
     public EncryptionUnit() {
-/*
-        org.mozilla.jss.pkcs11.PK11SecureRandom random =
-          new org.mozilla.jss.pkcs11.PK11SecureRandom();
-        random.nextBytes(iv);
-*/
+        CMS.debug("EncryptionUnit.EncryptionUnit this: " + this.toString());
+
         IV = new IVParameterSpec(iv);
     }
 
@@ -78,6 +78,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     public byte[] encryptInternalPrivate(byte priKey[]) 
         throws EBaseException {
         try {
+            CMS.debug("EncryptionUnit.encryptInternalPrivate");
             CryptoToken token = getToken();
             CryptoToken internalToken = getInternalToken();
 
@@ -155,6 +156,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     public byte[] wrap(PrivateKey priKey) throws EBaseException {
         try {
 
+            CMS.debug("EncryptionUnit.wrap");
             CryptoToken token = getToken();
             CryptoToken internalToken = getInternalToken();
 
@@ -246,15 +248,15 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             PrivateKey priKey = getPrivateKey();
             String priKeyAlgo = priKey.getAlgorithm();
 	    CMS.debug("EncryptionUnit::unwrap_sym() private key algo: " + priKeyAlgo);
-            KeyWrapper rsaWrap = null;
+            KeyWrapper keyWrapper = null;
             if (priKeyAlgo.equals("EC")) {
-                rsaWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
-                rsaWrap.initUnwrap(priKey, IV);
+                keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.AES_ECB);
+                keyWrapper.initUnwrap(priKey, null);
             } else {
-                rsaWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-                rsaWrap.initUnwrap(priKey, null);
+                keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+                keyWrapper.initUnwrap(priKey, null);
             }
-            SymmetricKey sk = rsaWrap.unwrapSymmetric(encSymmKey,
+            SymmetricKey sk = keyWrapper.unwrapSymmetric(encSymmKey,
                     SymmetricKey.DES3, usage,
                     0);
             return sk;
@@ -284,6 +286,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
         throws EBaseException {
         try {
 
+            CMS.debug("EncryptionUnit.decryptExternalPrivate");
             CryptoToken token = getToken();
             CryptoToken internalToken = getInternalToken();
 
@@ -343,6 +346,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             CryptoToken token = getToken();
             CryptoToken internalToken = getInternalToken();
 
+            CMS.debug("EncryptionUnit.unwrap symAlgParams: " + new String(symmAlgParams));
             // (1) unwrap the session
             KeyWrapper rsaWrap = token.getKeyWrapper(
                     KeyWrapAlgorithm.RSA);
@@ -385,6 +389,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     public byte[] decryptInternalPrivate(byte wrappedKeyData[]) 
         throws EBaseException {
         try {
+            CMS.debug("EncryptionUnit.decryptInternalPrivate");
             DerValue val = new DerValue(wrappedKeyData);
             // val.tag == DerValue.tag_Sequence
             DerInputStream in = val.data;

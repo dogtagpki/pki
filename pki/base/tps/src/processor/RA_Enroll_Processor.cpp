@@ -677,6 +677,14 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
 	  PL_strfree(ivParam);
 	}
 
+        if(iv_decoded == NULL) {
+           status = STATUS_ERROR_MAC_ENROLL_PDU;
+           PR_snprintf(audit_msg, 512, "ServerSideKeyGen: store keys in token failed, iv data not found");
+           delete decodeKey;
+           delete decodeKeyCheck;
+           goto loser; 
+        }
+
         BYTE alg = 0x80;
         if(decodeKey && decodeKey->size()) {
             alg = 0x81;
@@ -4018,6 +4026,7 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
     const char *pretty_cuid = NULL;
     char audit_msg[512] = "";
     char *keyVersion = NULL;
+    char *ivParam = NULL;
 
     int i = 0;
     int totalNumCerts = 0;
@@ -4105,6 +4114,13 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
     ktypes = (char **) malloc (sizeof(char *) * totalNumCerts);
     origins = (char **) malloc (sizeof(char *) * totalNumCerts);
     tokenTypes = (char **) malloc (sizeof(char *) * totalNumCerts);
+
+    for(i = 0; i < totalNumCerts; i++) {
+        ktypes[i] = NULL;
+        origins[i] = NULL;
+        tokenTypes[i] = NULL;
+        certificates[i] = NULL;
+    }
 
     //Iterate through number of key types. Iteration will be modified in case we have to insert extra
     //certificates due to the "GenerateNewKeyandRecoverLast" scheme.
@@ -4378,7 +4394,7 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
                             RA::RecoverKey(session, lostTokenCUID, userid, 
 				                           channel->getDrmWrappedDESKey(),
 				                           attr[0], &o_pub, &o_priv,
-				                           (char *)drmconnid);
+				                           (char *)drmconnid,&ivParam);
                         } else {
 			    r = false;
 			    o_status = STATUS_ERROR_KEY_ARCHIVE_OFF;
@@ -4396,6 +4412,7 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			} else
 			  RA::Debug(LL_PER_PDU, "DoEnrollment", "o_pub = %s", o_pub);
 
+                       
 			if (o_priv == NULL) {
 			  RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::DoEnrollment()", "RecoverKey called, o_priv is NULL");
 			  /* XXX
@@ -4405,7 +4422,19 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			  */
 			} else
 			  RA::Debug(LL_PER_PDU, "DoEnrollment", "o_priv = %s", o_priv);
-                        
+
+                        if (ivParam == NULL) {
+                            RA::Debug(LL_PER_CONNECTION,"RA_Enroll_Processor::ProcessRecovery",
+                            "ProcessRecovery called, ivParam is NULL");
+                             r = false;
+                             o_status = STATUS_ERROR_RECOVERY_FAILED;
+                             PR_snprintf(audit_msg, 512, "RA_Enroll_Processor::ProcessRecovery called, ivParam is NULL");
+                             goto rloser;
+                        } else {
+                           RA::Debug(LL_PER_CONNECTION,"ProcessRecovery",
+                            "ivParam = %s", ivParam);
+                        }
+                       
 			RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::ProcessRecovery()", "key injection for RecoverKey occurs here");
 			/*
 			 * the following code converts b64-encoded public key info into SECKEYPublicKey
@@ -4568,26 +4597,39 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
                               alg = 0x81;
                           }
 
-			  //XXX need randomize this later
-			  BYTE iv[] = {0x01, 0x01,0x01,0x01,0x01,0x01,0x01,0x01};
+                          //Get iv data returned by DRM
+
+                          Buffer *iv_decoded = Util::URLDecode(ivParam);
+                          if (ivParam) {
+                             PL_strfree(ivParam);
+                          }
+
+                          if(iv_decoded == NULL) {
+                             r = false;
+                             PR_snprintf(audit_msg, 512, "ProcessRecovery: store keys in token failed, iv data not found");
+                             delete decodeKey;
+                             delete decodeKeyCheck;
+                             goto rloser;
+                          }
 
 			  data =
 			    Buffer((BYTE*)objid, 4)+ // object id
                             Buffer(1,alg) +
-			//    Buffer(1, 0x08) + // key type is DES3: 8
+			    //Buffer(1, 0x08) + // key type is DES3: 8
 			    Buffer(1, (BYTE) decodeKey->size()) + // 1 byte length
 			    Buffer((BYTE *) *decodeKey, decodeKey->size())+ // key -encrypted to 3des block
 			    // check size
 			    // key check
 			    Buffer(1, (BYTE) decodeKeyCheck->size()) + //keycheck size
 			    Buffer((BYTE *) *decodeKeyCheck , decodeKeyCheck->size())+ // keycheck
-			    Buffer(1, 0x08)+ // IV_Length
-			    Buffer((BYTE*)iv, 8);
+                            Buffer(1, iv_decoded->size())+ // IV_Length
+                            Buffer((BYTE*)*iv_decoded, iv_decoded->size());
 
-			  //      RA::DebugBuffer("cfu debug", "ImportKeyEnc data buffer =", &data);
+			    //RA::DebugBuffer("cfu debug", "ImportKeyEnc data buffer =", &data);
 
 			  delete decodeKey;
 			  delete decodeKeyCheck;
+                          delete iv_decoded;
 
 			  if (channel->ImportKeyEnc((keyUser << 4)+priKeyNumber,
 						    (keyUsage << 4)+pubKeyNumber, &data) != 1) {

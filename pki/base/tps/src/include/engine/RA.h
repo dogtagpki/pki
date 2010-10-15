@@ -130,7 +130,7 @@ class RA
 	  static void RecoverKey(RA_Session *session, const char* cuid,
                              const char *userid, char* kekSessionKey_s,
                              char *cert_s, char **publickey_s,
-                             char **wrappedPrivateKey_s, const char *connId);
+                             char **wrappedPrivateKey_s, const char *connId,  char **ivParam_s);
 
 	  static Buffer *ComputeHostCryptogram(Buffer &card_challenge, Buffer &host_challenge);
   public:

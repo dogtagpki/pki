@@ -1032,11 +1032,12 @@ SecurityLevel RA::GetGlobalSecurityLevel() {
  * output:
  * @param publickey_s public key provided by DRM
  * @param wrappedPrivateKey_s encrypted private key provided by DRM
+ * @param ivParam_s returned intialization vector
  */
 void RA::RecoverKey(RA_Session *session, const char* cuid,
                     const char *userid, char* desKey_s,
                     char *b64cert, char **publicKey_s,
-                    char **wrappedPrivateKey_s, const char *connId)
+                    char **wrappedPrivateKey_s, const char *connId,  char **ivParam_s)
 {
     int status;
     PSHttpResponse *response = NULL;
@@ -1181,6 +1182,15 @@ void RA::RecoverKey(RA_Session *session, const char* cuid,
       } else {
 	RA::Debug(LL_PER_PDU, "RecoverKey", "got wrappedprivate key =%s", tmp);
 	*wrappedPrivateKey_s  = PL_strdup(tmp);
+      }
+
+      tmp = ra_pb->find_val_s("iv_param");
+      if ((tmp == NULL) || (tmp == "")) {
+          RA::Error(LL_PER_PDU, "RecoverKey",
+              "did not get iv_param for recovered  key in DRM response");
+      } else {
+          RA::Debug(LL_PER_PDU, "ServerSideKeyGen", "got iv_param for recovered key =%s", tmp);
+          *ivParam_s  = PL_strdup(tmp);
       }
 
     } else {// if content is NULL or status not 200
