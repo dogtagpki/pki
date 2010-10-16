@@ -257,6 +257,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         throws ELdapException {
         boolean waited = false;
 
+        CMS.debug("LdapAnonConnFactory::getConn");
         if (mNumConns == 0) 
             makeMinimum(true);
         if (mNumConns == 0) {
@@ -288,7 +289,26 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
                 "Ldap connections are available again in ldap connection pool " +
                 "to " + mConnInfo.getHost() + ":" + mConnInfo.getPort());
         }
-        CMS.debug("getConn(): num avail conns now " + mNumConns);
+        CMS.debug("LdapAnonConnFactory.getConn(): num avail conns now " + mNumConns);
+        //Beginning of fix for Bugzilla #630176 
+        boolean isConnected = false;
+        if(conn != null) {
+            isConnected = conn.isConnected();
+        }
+
+        if(!isConnected) {
+            CMS.debug("LdapAnonConnFactory.getConn(): selected conn is down, try to reconnect...");
+            conn = null;
+            try {
+               conn =  new AnonConnection(mConnInfo);
+            } catch (LDAPException e) {
+                 CMS.debug("LdapAnonConnFactory.getConn(): error when trying to bring back a down connection.");
+                 throw new ELdapException(
+                        CMS.getUserMessage("CMS_LDAP_CONNECT_TO_LDAP_SERVER_FAILED",
+                            mConnInfo.getHost(), "" + (Integer.valueOf(mConnInfo.getPort())), e.toString()));
+            }
+        }
+        //This is the end of the fix for Bugzilla #630176
 
         return conn;
     }
