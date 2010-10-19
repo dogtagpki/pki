@@ -1,11 +1,5 @@
 project(cmsutil_java Java)
 
-set(NSUTIL_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/nsutil.dir/" PARENT_SCOPE)
-set(CMSUTIL_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/cmsutil.dir/" PARENT_SCOPE)
-
-set(NSUTIL_JAR "${CMAKE_CURRENT_BINARY_DIR}/nsutil.jar" CACHE INTERNAL "nsutil jar file")
-set(CMSUTIL_JAR "${CMAKE_CURRENT_BINARY_DIR}/cmsutil.jar" CACHE INTERNAL "cmsutil jar file")
-
 find_file(LDAPJDK_JAR
     NAMES
         ldapjdk.jar
@@ -321,15 +315,13 @@ set(cmsutil_java_SRCS
 
 set(CMAKE_JAVA_INCLUDE_PATH ${LDAPJDK_JAR} ${XERCES_JAR} ${JSS_JAR} ${OSUTIL_JAR})
 
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 add_jar(nsutil ${netscape_java_SRCS})
+install_jar(nsutil ${JAVA_JAR_INSTALL_DIR}/pki)
+set(NSUTIL_JAR ${nsutil_JAR_FILE} CACHE INTERNAL "nsutil jar file")
 
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 add_jar(cmsutil ${cmsutil_java_SRCS})
 add_dependencies(cmsutil osutil)
-
-install(
-    FILES
-        ${NSUTIL_JAR}
-        ${CMSUTIL_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+install_jar(cmsutil ${JAVA_JAR_INSTALL_DIR}/pki)
+set(CMSUTIL_JAR ${cmsutil_JAR_FILE} CACHE INTERNAL "cmsutil jar file")
