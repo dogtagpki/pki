@@ -1,8 +1,5 @@
 project(osutil_java Java)
 
-set(OSUTIL_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/osutil.dir/" PARENT_SCOPE)
-set(OSUTIL_JAR "${CMAKE_CURRENT_BINARY_DIR}/osutil.jar" CACHE INTERNAL "osutil jar file")
-
 set(osutil_java_SRCS
     com/netscape/osutil/LibC.java
     com/netscape/osutil/NTEventLogger.java
@@ -13,11 +10,9 @@ set(osutil_java_SRCS
     com/netscape/osutil/UserID.java
 )
 
+set(CMAKE_JAVA_TARGET_VERSION ${OSUTIL_LIBRARY_VERSION})
 add_jar(osutil ${osutil_java_SRCS})
+install_jar(osutil ${JAVA_LIB_INSTALL_DIR})
 
-install(
-    FILES
-        ${OSUTIL_JAR}
-    DESTINATION
-        ${JAVA_LIB_INSTALL_DIR}
-)
+set(OSUTIL_JAVA_OBJECT_DIR ${osutil_CLASS_DIR} PARENT_SCOPE)
+set(OSUTIL_JAR ${osutil_JAR_FILE} CACHE INTERNAL "osutil jar file")
