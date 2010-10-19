@@ -55,6 +55,6 @@ add_definitions(-DHAVE_CONFIG_H)
 # check subdirectories
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/dogtag")
     set(APPLICATION_FLAVOUR dogtag)
-    #add_subdirectory(dogtag)
+    add_subdirectory(dogtag)
 endif (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/dogtag")
 add_subdirectory(base)
