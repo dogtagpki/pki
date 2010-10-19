@@ -23,5 +23,5 @@ install(
     FILES
         ${SYMKEY_JAR}
     DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
+        ${JAVA_LIB_INSTALL_DIR}
 )
