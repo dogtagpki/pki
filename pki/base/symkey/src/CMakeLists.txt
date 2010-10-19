@@ -1,8 +1,5 @@
 project(symkey Java)
 
-set(SYMKEY_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}.dir/" PARENT_SCOPE)
-set(SYMKEY_JAR "${CMAKE_CURRENT_BINARY_DIR}/symkey.jar" CACHE INTERNAL "symkey jar file")
-
 find_file(JSS_JAR
     NAMES
         jss4.jar
@@ -16,12 +13,10 @@ set(symkey_java_SRCS
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH ${JSS_JAR})
+set(CMAKE_JAVA_TARGET_VERSION ${SYMKEY_LIBRARY_VERSION})
 
 add_jar(symkey ${symkey_java_SRCS})
+install_jar(symkey ${JAVA_LIB_INSTALL_DIR})
 
-install(
-    FILES
-        ${SYMKEY_JAR}
-    DESTINATION
-        ${JAVA_LIB_INSTALL_DIR}
-)
+set(SYMKEY_JAVA_OBJECT_DIR ${symkey_CLASS_DIR} PARENT_SCOPE)
+set(SYMKEY_JAR ${symkey_JAR_FILE} CACHE INTERNAL "symkey jar file")
