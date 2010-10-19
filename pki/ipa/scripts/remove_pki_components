@@ -1,0 +1,157 @@
+#!/bin/bash
+##  BEGIN COPYRIGHT BLOCK
+##  (C) 2008 Red Hat, Inc.
+##  All rights reserved.
+##  END COPYRIGHT BLOCK
+
+##  Always switch into this base directory
+##  prior to script execution so that all
+##  of its output is written to this directory
+
+cd `dirname $0`
+
+
+##
+##  This script MUST be run as root!
+##
+
+ROOTUID=0
+
+OS=`uname`
+if [ "${OS}" = "Linux" ] ; then
+    MY_EUID=`/usr/bin/id -u`
+    MY_UID=`/usr/bin/id -ur`
+    USERNAME=`/usr/bin/id -un`
+else
+    printf "ERROR:  Unsupported operating system '${OS}'!\n"
+    exit 255
+fi
+
+if [ "${MY_UID}"  != "${ROOTUID}" ] &&
+   [ "${MY_EUID}" != "${ROOTUID}" ] ; then
+    printf "ERROR:  The '$0' script must be run as root!\n"
+    exit 255
+fi
+
+
+
+##
+##  Define DEFAULT PKI Instances
+##
+
+PKI_DIR="/var/lib"
+
+PKI_CA="pki-ca"
+PKI_DRM="pki-kra"
+PKI_OCSP="pki-ocsp"
+PKI_TKS="pki-tks"
+PKI_RA="pki-ra"
+PKI_TPS="pki-tps"
+
+
+
+##
+##  Ask user if any PKI instances need to be removed
+##
+
+printf "REMINDER:  PKI instances contain user's PKI data, and consist of\n"
+printf "           DEFAULT PKI instances and CUSTOMIZED PKI instances.\n\n"
+printf "           DEFAULT PKI instances are automatically created whenever\n"
+printf "           one of the PKI subsystems are installed UNLESS that\n"
+printf "           particular PKI subsystem's DEFAULT PKI instance\n"
+printf "           already exists.\n\n"
+printf "           DEFAULT PKI instances consist of the following:\n\n"
+printf "               CA   - ${PKI_DIR}/${PKI_CA}\n"
+printf "               DRM  - ${PKI_DIR}/${PKI_DRM}\n"
+printf "               OCSP - ${PKI_DIR}/${PKI_OCSP}\n"
+printf "               RA   - ${PKI_DIR}/${PKI_RA}\n"
+printf "               TKS  - ${PKI_DIR}/${PKI_TKS}\n"
+printf "               TPS  - ${PKI_DIR}/${PKI_TPS}\n\n"
+printf "           Please use the 'remove_default_pki_instances' script\n"
+printf "           to remove ALL of these DEFAULT PKI instances, OR\n"
+printf "           use the 'pkiremove' utility to remove INDIVIDUAL\n"
+printf "           DEFAULT PKI instances.\n\n"
+printf "           CUSTOMIZED PKI instances may be named anything and\n"
+printf "           may be located anywhere.  Please use the 'pkiremove'\n"
+printf "           utility to remove any CUSTOMIZED PKI instances.\n\n"
+printf "           IMPORTANT:  NEITHER CUSTOMIZED PKI instances,\n"
+printf "                       NOR DEFAULT PKI instances will be\n"
+printf "                       REMOVED by this script!\n\n"
+while :
+do
+    printf "Do any DEFAULT or CUSTOMIZED PKI instances need to be removed\n"
+    printf "PRIOR to uninstalling ALL of the PKI components?  [yn]  "
+    read ANSWER
+    printf "\n"
+    if [ "${ANSWER}" = "Y" ] ||
+       [ "${ANSWER}" = "y" ] ; then
+        printf "\n"
+        printf "Please REMOVE the desired CUSTOMIZED and/or DEFAULT\n"
+        printf "PKI instances PRIOR to re-running this script.\n\n"
+        exit 255
+    elif [ "${ANSWER}" = "N" ] ||
+         [ "${ANSWER}" = "n" ] ; then
+        printf "\n"
+        break
+    else
+        continue
+    fi
+done
+
+
+
+##
+##  Check for PKI components present on this operating system
+##
+
+printf "Processing PKI components present on system . . . "
+    # (1) grab all PKI components
+    PKI_COMPONENTS=`rpm -qa --queryformat '%{NAME}\n' | grep pki`
+
+    # (2) check for osutil
+    `rpm -q --quiet osutil`
+    OSUTIL_PRESENCE=$?
+    if [ "${OSUTIL_PRESENCE}" = "0" ] ; then
+        PKI_COMPONENTS="${PKI_COMPONENTS} osutil"
+    fi
+
+    # (3) check for symkey (legacy package)
+    `rpm -q --quiet symkey`
+    SYMKEY_PRESENCE=$?
+    if [ "${SYMKEY_PRESENCE}" = "0" ] ; then
+        PKI_COMPONENTS="${PKI_COMPONENTS} symkey"
+    fi
+printf "done.\n\n"
+
+
+
+##
+##  Place the PKI components into a list
+##
+
+PKI_COMPONENT_LIST=""
+for COMPONENT in ${PKI_COMPONENTS} ; do
+    if [ "${PKI_COMPONENT_LIST}" = "" ] ; then
+        PKI_COMPONENT_LIST="${COMPONENT}"
+    else
+        PKI_COMPONENT_LIST="${PKI_COMPONENT_LIST} ${COMPONENT}"
+    fi
+done
+
+
+
+##
+##  Remove ALL PKI components in the list
+##
+
+if [ "${PKI_COMPONENT_LIST}" != "" ] ; then
+    printf "Removing the following PKI packages:\n"
+    printf "    ${PKI_COMPONENT_LIST}\n\n"
+    rpm -ev ${PKI_COMPONENT_LIST}
+    printf "\n"
+else
+    printf "No PKI packages need to be removed.\n\n"
+fi
+
+exit 0
+
