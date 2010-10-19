@@ -108,6 +108,13 @@ function(ADD_JAR _TARGET_NAME)
         endif (_JAVA_EXT MATCHES ".java")
     endforeach(_JAVA_SOURCE_FILE)
 
+    # Check if we have a local UseJavaClassFilelist.cmake
+    if (EXISTS ${CMAKE_MODULE_PATH}/UseJavaClassFilelist.cmake)
+        set(_JAVA_CLASS_FILELIST ${CMAKE_MODULE_PATH}/UseJavaClassFilelist.cmake)
+    elseif (EXISTS ${CMAKE_ROOT}/Modules/UseJavaClassFilelist.cmake)
+        set(_JAVA_CLASS_FILELIST ${CMAKE_ROOT}/Modules/UseJavaClassFilelist.cmake)
+    endif (EXISTS ${CMAKE_MODULE_PATH}/UseJavaClassFilelist.cmake)
+
     # create an empty java_class_filelist
     file(WRITE ${CMAKE_JAVA_CLASS_OUTPUT_PATH}/java_class_filelist "")
 
@@ -122,7 +129,7 @@ function(ADD_JAR _TARGET_NAME)
                 ${_JAVA_COMPILE_FILES}
             COMMAND ${CMAKE_COMMAND}
                 -DCMAKE_JAVA_CLASS_OUTPUT_PATH=${CMAKE_JAVA_CLASS_OUTPUT_PATH}
-                -P ${CMAKE_MODULE_PATH}/JavaClassFilelist.cmake
+                -P ${_JAVA_CLASS_FILELIST}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Building Java objects for ${_TARGET_NAME}.jar"
         )
