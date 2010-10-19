@@ -32,14 +32,32 @@ SVN_IPA_URL="http://svn.fedorahosted.org/svn/pki/trunk/pki/ipa"
 cd ${PKI_PWD}/..
 printf "Setting external SVN properties for 'top-level' external components . . .\n"
 svn propset svn:externals "ca ${SVN_DOGTAG_URL}/ca" .
+svn propget svn:externals .
+svn update
 svn propset svn:externals "common ${SVN_DOGTAG_URL}/common" .
+svn propget svn:externals .
+svn update
 svn propset svn:externals "java-tools ${SVN_DOGTAG_URL}/java-tools" .
+svn propget svn:externals .
+svn update
 svn propset svn:externals "native-tools ${SVN_DOGTAG_URL}/native-tools" .
+svn propget svn:externals .
+svn update
 svn propset svn:externals "osutil ${SVN_DOGTAG_URL}/osutil" .
+svn propget svn:externals .
+svn update
 svn propset svn:externals "selinux ${SVN_DOGTAG_URL}/selinux" .
+svn propget svn:externals .
+svn update
 svn propset svn:externals "setup ${SVN_DOGTAG_URL}/setup" .
+svn propget svn:externals .
+svn update
 svn propset svn:externals "silent ${SVN_DOGTAG_URL}/silent" .
+svn propget svn:externals .
+svn update
 svn propset svn:externals "symkey ${SVN_DOGTAG_URL}/symkey" .
+svn propget svn:externals .
+svn update
 svn propset svn:externals "util ${SVN_DOGTAG_URL}/util" .
 svn propget svn:externals .
 svn update
