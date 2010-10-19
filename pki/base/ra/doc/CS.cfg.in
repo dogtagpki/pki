@@ -1,0 +1,256 @@
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+pkicreate.pki_instance_root=[INSTANCE_ROOT]
+pkicreate.pki_instance_name=[INSTANCE_ID]
+pkicreate.subsystem_type=[SUBSYSTEM_TYPE]
+pkicreate.secure_port=[SECURE_PORT]
+pkicreate.non_clientauth_secure_port=[NON_CLIENTAUTH_SECURE_PORT]
+pkicreate.unsecure_port=[PORT]
+pkicreate.user=[USERID]
+pkicreate.group=[GROUPID]
+pkiremove.cert.subsystem.nickname=subsystemCert cert-[INSTANCE_ID]
+request._000=#########################################
+request._001=# Request Queue Parameters
+request._002=#########################################
+agent.authorized_groups=administrators,agents
+admin.authorized_groups=administrators
+database.dbfile=[SERVER_ROOT]/conf/dbfile
+database.lockfile=[SERVER_ROOT]/conf/dblock
+request.renewal.approve_request.0.ca=ca1
+request.renewal.approve_request.0.plugin=PKI::Request::Plugin::RequestToCA
+request.renewal.approve_request.0.profileId=caDualRAuserCert
+request.renewal.approve_request.0.reqType=crmf
+request.renewal.approve_request.1.mailTo=$created_by
+request.renewal.approve_request.1.plugin=PKI::Request::Plugin::EmailNotification
+request.renewal.approve_request.1.templateDir=/usr/share/pki/ra/conf
+request.renewal.approve_request.1.templateFile=mail_approve_request.vm
+request.renewal.approve_request.num_plugins=2
+request.renewal.reject_request.num_plugins=0
+request.renewal.create_request.0.assignTo=agents
+request.renewal.create_request.0.plugin=PKI::Request::Plugin::AutoAssign
+request.renewal.create_request.1.mailTo=$created_by
+request.renewal.create_request.1.plugin=PKI::Request::Plugin::EmailNotification
+request.renewal.create_request.1.templateDir=/usr/share/pki/ra/conf
+request.renewal.create_request.1.templateFile=mail_create_request.vm
+request.renewal.create_request.num_plugins=2
+request.scep.profileId=caRARouterCert
+request.scep.reqType=pkcs10
+request.scep.create_request.num_plugins=2
+request.scep.create_request.0.plugin=PKI::Request::Plugin::AutoAssign
+request.scep.create_request.0.assignTo=agents
+request.scep.create_request.1.plugin=PKI::Request::Plugin::EmailNotification
+request.scep.create_request.1.mailTo=
+request.scep.create_request.1.templateDir=/usr/share/pki/ra/conf
+request.scep.create_request.1.templateFile=mail_create_request.vm
+request.scep.approve_request.num_plugins=1
+request.scep.approve_request.0.plugin=PKI::Request::Plugin::CreatePin
+request.scep.approve_request.0.pinFormat=$site_id
+request.scep.reject_request.num_plugins=0
+request.agent.profileId=caRAagentCert
+request.agent.reqType=crmf
+request.agent.create_request.num_plugins=2
+request.agent.create_request.0.plugin=PKI::Request::Plugin::AutoAssign
+request.agent.create_request.0.assignTo=agents
+request.agent.create_request.1.plugin=PKI::Request::Plugin::EmailNotification
+request.agent.create_request.1.mailTo=
+request.agent.create_request.1.templateDir=/usr/share/pki/ra/conf
+request.agent.create_request.1.templateFile=mail_create_request.vm
+request.agent.approve_request.num_plugins=1
+request.agent.approve_request.0.plugin=PKI::Request::Plugin::CreatePin
+request.agent.approve_request.0.pinFormat=$uid
+request.agent.reject_request.num_plugins=0
+request.user.create_request.num_plugins=2
+request.user.create_request.0.plugin=PKI::Request::Plugin::AutoAssign
+request.user.create_request.0.assignTo=agents
+request.user.create_request.1.plugin=PKI::Request::Plugin::EmailNotification
+request.user.create_request.1.templateDir=/usr/share/pki/ra/conf
+request.user.create_request.1.templateFile=mail_create_request.vm
+request.user.create_request.1.mailTo=
+request.user.approve_request.num_plugins=2
+request.user.approve_request.0.plugin=PKI::Request::Plugin::RequestToCA
+request.user.approve_request.0.ca=ca1
+request.user.approve_request.0.profileId=caDualRAuserCert
+request.user.approve_request.0.reqType=crmf
+request.user.approve_request.1.plugin=PKI::Request::Plugin::EmailNotification
+request.user.approve_request.1.mailTo=$created_by
+request.user.approve_request.1.templateDir=/usr/share/pki/ra/conf
+request.user.approve_request.1.templateFile=mail_approve_request.vm
+request.user.reject_request.num_plugins=0
+request.server.create_request.num_plugins=2
+request.server.create_request.0.plugin=PKI::Request::Plugin::AutoAssign
+request.server.create_request.0.assignTo=agents
+request.server.create_request.1.plugin=PKI::Request::Plugin::EmailNotification
+request.server.create_request.1.mailTo=
+request.server.create_request.1.templateDir=/usr/share/pki/ra/conf
+request.server.create_request.1.templateFile=mail_create_request.vm
+request.server.approve_request.num_plugins=2
+request.server.approve_request.0.plugin=PKI::Request::Plugin::RequestToCA
+request.server.approve_request.0.ca=ca1
+request.server.approve_request.0.profileId=caRAserverCert
+request.server.approve_request.0.reqType=pkcs10
+request.server.approve_request.1.plugin=PKI::Request::Plugin::EmailNotification
+request.server.approve_request.1.mailTo=$created_by
+request.server.approve_request.1.templateDir=/usr/share/pki/ra/conf
+request.server.approve_request.1.templateFile=mail_approve_request.vm
+request.server.reject_request.num_plugins=0
+cs.type=RA
+service.machineName=[SERVER_NAME]
+service.instanceDir=[SERVER_ROOT]
+service.securePort=[SECURE_PORT]
+service.non_clientauth_securePort=[NON_CLIENTAUTH_SECURE_PORT]
+service.unsecurePort=[PORT]
+service.instanceID=[INSTANCE_ID]
+logging._000=#########################################
+logging._001=# RA configuration File
+logging._002=#
+logging._003=# All <...> must be replaced with
+logging._004=# appropriate values.
+logging._005=#########################################
+logging._006=########################################
+logging._007=# logging
+logging._008=#
+logging._009=# logging.debug.enable:
+logging._010=# logging.audit.enable:
+logging._011=# logging.error.enable:
+logging._012=#   - enable or disable the corresponding logging
+logging._013=# logging.debug.filename:
+logging._014=# logging.audit.filename:
+logging._015=# logging.error.filename:
+logging._016=#   - name of the log file
+logging._017=# logging.debug.level:
+logging._018=# logging.audit.level:
+logging._019=# logging.error.level:
+logging._020=#   - level of logging. (0-10)
+logging._021=#      0 - no logging,
+logging._022=#      4 - LL_PER_SERVER       these messages will occur only once
+logging._023=#                              during the entire invocation of the
+logging._024=#                              server, e. g. at startup or shutdown
+logging._025=#                              time., reading the conf parameters.
+logging._026=#                              Perhaps other infrequent events
+logging._027=#                              relating to failing over of CA, TKS,
+logging._028=#                              too
+logging._029=#      6 - LL_PER_CONNECTION   these messages happen once per
+logging._030=#                              connection - most of the log events
+logging._031=#                              will be at this level
+logging._032=#      8 - LL_PER_PDU          these messages relate to PDU
+logging._033=#                              processing. If you have something that
+logging._034=#                              is done for every PDU, such as
+logging._035=#                              applying the MAC, it should be logged
+logging._036=#                              at this level
+logging._037=#      9 - LL_ALL_DATA_IN_PDU  dump all the data in the PDU - a more
+logging._038=#                              chatty version of the above
+logging._039=#     10 - all logging
+logging._040=#########################################
+logging.debug.enable=true
+logging.debug.filename=[SERVER_ROOT]/logs/ra-debug.log
+logging.debug.level=7
+logging.audit.enable=true
+logging.audit.filename=[SERVER_ROOT]/logs/ra-audit.log
+logging.audit.level=10
+logging.error.enable=true
+logging.error.filename=[SERVER_ROOT]/logs/ra-error.log
+logging.error.level=10
+conn.ca1._000=#########################################
+conn.ca1._001=# CA connection
+conn.ca1._002=#
+conn.ca1._003=# conn.ca<n>.hostport:
+conn.ca1._004=#   - host name and port number of your CA, format is host:port
+conn.ca1._005=# conn.ca<n>.clientNickname:
+conn.ca1._006=#   - nickname of the client certificate for
+conn.ca1._007=#     authentication
+conn.ca1._008=# conn.ca<n>.servlet.enrollment:
+conn.ca1._009=#   - servlet to contact in CA
+conn.ca1._010=#   - must be '/ca/ee/ca/profileSubmitSSLClient'
+conn.ca1._008=# conn.ca<n>.servlet.addagent:
+conn.ca1._009=#   - servlet to add ra agent on CA
+conn.ca1._010=#   - must be '/ca/admin/ca/registerRaUser
+conn.ca1._011=# conn.ca<n>.retryConnect:
+conn.ca1._012=#   - number of reconnection attempts on failure
+conn.ca1._013=# conn.ca<n>.timeout:
+conn.ca1._014=#   - connection timeout
+conn.ca1._015=# conn.ca<n>.SSLOn:
+conn.ca1._016=#   - enable SSL or not
+conn.ca1._017=# conn.ca<n>.keepAlive:
+conn.ca1._018=#   - enable keep alive or not
+conn.ca1._019=#
+conn.ca1._020=# where
+conn.ca1._021=#  <n>  - CA connection ID
+conn.ca1._022=#########################################
+failover.pod.enable=false
+conn.ca1.hostport=[CA_HOST]:[CA_PORT]
+conn.ca1.clientNickname=[HSM_LABEL][NICKNAME]
+conn.ca1.servlet.enrollment=/ca/ee/ca/profileSubmitSSLClient
+conn.ca1.servlet.addagent=/ca/admin/ca/registerRaUser
+conn.ca1.servlet.revoke=/ca/subsystem/ca/doRevoke
+conn.ca1.servlet.unrevoke=/ca/subsystem/ca/doUnrevoke
+conn.ca1.retryConnect=3
+conn.ca1.timeout=100
+conn.ca1.SSLOn=true
+conn.ca1.keepAlive=true
+preop.pin=[PKI_RANDOM_NUMBER]
+preop.product.version=@VERSION@
+preop.cert._000=#########################################
+preop.cert._001=# Installation configuration "preop" certs parameters
+preop.cert._002=#########################################
+preop.cert.list=sslserver,subsystem
+preop.cert.sslserver.enable=true
+preop.cert.subsystem.enable=true
+preop.cert.sslserver.defaultSigningAlgorithm=SHA1withRSA
+preop.cert.sslserver.dn=CN=[SERVER_NAME], OU=[INSTANCE_ID]
+preop.cert.sslserver.keysize.customsize=2048
+preop.cert.sslserver.keysize.size=2048
+preop.cert.sslserver.keysize.select=custom
+preop.cert.sslserver.nickname=Server-Cert cert-[INSTANCE_ID]
+preop.cert.sslserver.profile=caInternalAuthServerCert
+preop.cert.sslserver.subsystem=ra
+preop.cert._003=#preop.cert.sslserver.type=local
+preop.cert.sslserver.userfriendlyname=SSL Server Certificate
+preop.cert._004=#preop.cert.sslserver.cncomponent.override=false
+preop.cert.subsystem.defaultSigningAlgorithm=SHA1withRSA
+preop.cert.subsystem.dn=CN=RA Subsystem Certificate, OU=[INSTANCE_ID]
+preop.cert.subsystem.keysize.customsize=2048
+preop.cert.subsystem.keysize.size=2048
+preop.cert.subsystem.keysize.select=custom
+preop.cert.subsystem.nickname=subsystemCert cert-[INSTANCE_ID]
+preop.cert.subsystem.profile=caInternalAuthSubsystemCert
+preop.cert.subsystem.subsystem=ra
+preop.cert._005=#preop.cert.subsystem.type=local
+preop.cert.subsystem.userfriendlyname=Subsystem Certificate
+preop.cert._006=#preop.cert.subsystem.cncomponent.override=true
+preop.configModules._000=#########################################
+preop.configModules._001=# Installation configuration "preop" module parameters
+preop.configModules._002=#########################################
+preop.configModules.count=3
+preop.configModules.module0.commonName=NSS Internal PKCS #11 Module
+preop.configModules.module0.imagePath=../img/clearpixel.gif
+preop.configModules.module0.userFriendlyName=NSS Internal PKCS #11 Module
+preop.configModules.module1.commonName=nfast
+preop.configModules.module1.imagePath=../img/clearpixel.gif
+preop.configModules.module1.userFriendlyName=nCipher's nFast Token Hardware Module
+preop.configModules.module2.commonName=lunasa
+preop.configModules.module2.imagePath=../img/clearpixel.gif
+preop.configModules.module2.userFriendlyName=SafeNet's LunaSA Token Hardware Module
+preop.module.token=NSS Certificate DB
+preop.keysize._000=#########################################
+preop.keysize._001=# Installation configuration "preop" keysize parameters
+preop.keysize._002=#########################################
+preop.keysize.customsize=2048
+preop.keysize.select=default
+preop.keysize.size=2048
+preop.keysize.ecc.size=256
