@@ -1,0 +1,12 @@
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pki_console_wrapper ${CMAKE_CURRENT_BINARY_DIR}/pkiconsole COPYONLY)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/pkiconsole
+    DESTINATION
+        ${BIN_INSTALL_DIR}
+    PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)
