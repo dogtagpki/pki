@@ -1,0 +1,45 @@
+project(ca_java Java)
+
+set(CA_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/ca.dir/" PARENT_SCOPE)
+set(CA_JAR "${CMAKE_CURRENT_BINARY_DIR}/ca.jar" CACHE INTERNAL "ca jar file")
+
+find_file(JSS_JAR
+    NAMES
+        jss4.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
+find_file(LDAPJDK_JAR
+    NAMES
+        ldapjdk.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
+set(ca_java_SRCS
+    com/netscape/ca/CMSCRLExtensions.java
+    com/netscape/ca/CAService.java
+    com/netscape/ca/SigningUnit.java
+    com/netscape/ca/CRLWithExpiredCerts.java
+    com/netscape/ca/CRLIssuingPoint.java
+    com/netscape/ca/CAPolicy.java
+    com/netscape/ca/CertificateAuthority.java
+)
+
+set(CMAKE_JAVA_INCLUDE_PATH
+    ${JSS_JAR} ${LDAPJDK_JAR} ${NSUTIL_JAR} ${CMSUTIL_JAR}
+    ${OSUTIL_JAR} ${SYMKEY_JAR} ${CMS_JAR} ${CMSCORE_JAR}
+    ${CERTSRV_JAR})
+
+add_jar(ca ${ca_java_SRCS})
+add_dependencies(ca nsutil cmsutil osutil symkey cms cmscore certsrv)
+
+install(
+    FILES
+        ${CA_JAR}
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
