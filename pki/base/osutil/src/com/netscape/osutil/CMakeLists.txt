@@ -1,6 +1,31 @@
-project(osutil_c C)
+project(osutil_library C)
 
-set(osutil_c_HDRS
+set(OSUTIL_PUBLIC_INCLUDE_DIRS
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  CACHE INTERNAL "osutil public include directories"
+)
+
+set(OSUTIL_PRIVATE_INCLUDE_DIRS
+  ${OSUTIL_PUBLIC_INCLUDE_DIRS}
+  ${CMAKE_BINARY_DIR}
+  ${JNI_INCLUDE_DIRS}
+  ${NSPR_INCLUDE_DIRS}
+  ${NSS_INCLUDE_DIRS}
+)
+
+set(OSUTIL_SHARED_LIBRARY
+  osutil_library
+  CACHE INTERNAL "osutil shared library"
+)
+
+set(OSUTIL_LINK_LIBRARIES
+  ${NSPR_LIBRARIES}
+  ${NSS_LIBRARIES}
+  ${JNI_LIBRARIES}
+)
+
+set(osutil_library_HDRS
     LIBC.h
     ResourceLimit.h
     Signal.h
@@ -8,7 +33,7 @@ set(osutil_c_HDRS
     OSUtil.h
 )
 
-set(osutil_c_SRCS
+set(osutil_library_SRCS
     LibC.c
     OSUtil.c
     ResourceLimit.c
@@ -16,11 +41,11 @@ set(osutil_c_SRCS
     UserID.c
 )
 
-include_directories(${JNI_INCLUDE_DIRS} ${NSPR_INCLUDE_DIRS} ${NSS_INCLUDE_DIRS})
+include_directories(${OSUTIL_PRIVATE_INCLUDE_DIRS})
 
 add_custom_command(
     OUTPUT
-        ${osutil_c_HDRS}
+        ${osutil_library_HDRS}
     COMMAND
         ${JAVA_HEADER}
             -classpath ${OSUTIL_JAVA_OBJECT_DIR}
@@ -30,8 +55,24 @@ add_custom_command(
             com.netscape.osutil.Signal
             com.netscape.osutil.UserID
             com.netscape.osutil.OSUtil
-    DEPENDS
-        osutil_java
 )
 
-add_library(osutil SHARED ${osutil_c_HDRS} ${osutil_c_SRCS})
+add_library(${OSUTIL_SHARED_LIBRARY} SHARED ${osutil_library_HDRS} ${osutil_library_SRCS})
+target_link_libraries(${OSUTIL_SHARED_LIBRARY} ${OSUTIL_LINK_LIBRARIES})
+add_dependencies(${OSUTIL_SHARED_LIBRARY} osutil)
+
+set_target_properties(${OSUTIL_SHARED_LIBRARY}
+    PROPERTIES
+        VERSION
+            ${OSUTIL_LIBRARY_VERSION}
+        SOVERSION
+            ${OSUTIL_LIBRARY_SOVERSION}
+        OUTPUT_NAME
+            osutil
+)
+
+install(
+    TARGETS
+        ${OSUTIL_SHARED_LIBRARY}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+)

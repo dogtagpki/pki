@@ -31,6 +31,7 @@ macro_ensure_out_of_source_build("${PROJECT_NAME} requires an out of source buil
 
 # add macros
 include(MacroCopyFile)
+include(UseJava)
 
 # search for libraries
 find_package(Java REQUIRED)
