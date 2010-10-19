@@ -36,3 +36,12 @@ install(
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
 )
+
+install(
+    FILES
+        enroll.tps
+        format.tps
+        reset_pin.tps
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/samples
+)
