@@ -34,6 +34,11 @@
 /* Define to 1 if you want to enable ZLIB */
 #cmakedefine WITH_LIBZ 1
 
+/**************************** PLATTFORM ****************************/
+
+#cmakedefine XP_UNIX 1
+#cmakedefine VMS 1
+
 /*************************** ENDIAN *****************************/
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most

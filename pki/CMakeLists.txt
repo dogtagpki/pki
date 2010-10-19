@@ -47,5 +47,7 @@ find_package(Threads)
 include(ConfigureChecks.cmake)
 configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
+add_definitions(-DHAVE_CONFIG_H)
+
 # check subdirectories
 add_subdirectory(base)

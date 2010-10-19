@@ -40,19 +40,14 @@ if(CMAKE_COMPILER_IS_GNUCC AND NOT MINGW)
     endif (NOT GNUCC_VERSION EQUAL 34)
 endif(CMAKE_COMPILER_IS_GNUCC AND NOT MINGW)
 
+# PLATTFORM
+
+if (UNIX AND NOT WIN32)
+    set(XP_UNIX 1)
+endif (UNIX AND NOT WIN32)
+
 # HEADER FILES
 check_include_file(argp.h HAVE_ARGP_H)
-check_include_file(pty.h HAVE_PTY_H)
-check_include_file(terminos.h HAVE_TERMIOS_H)
-
-set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIRS})
-check_include_file(openssl/aes.h HAVE_OPENSSL_AES_H)
-
-set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIRS})
-check_include_file(openssl/blowfish.h HAVE_OPENSSL_BLOWFISH_H)
-
-set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIRS})
-check_include_file(openssl/des.h HAVE_OPENSSL_DES_H)
 
 if (CMAKE_HAVE_PTHREAD_H)
   set(HAVE_PTHREAD_H 1)
