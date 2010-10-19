@@ -1,0 +1,55 @@
+project(ldapauth_library CXX)
+
+set(LDAPAUTH_LIBRARY_VERSION ${APPLICATION_VERSION})
+set(LDAPAUTH_LIBRARY_SOVERSION 1)
+
+set(LDAPAUTH_PUBLIC_INCLUDE_DIRS
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${TPS_INCLUDE_DIR}
+  CACHE INTERNAL "ldapauth public include directories"
+)
+
+set(LDAPAUTH_PRIVATE_INCLUDE_DIRS
+  ${LDAPAUTH_PUBLIC_INCLUDE_DIRS}
+  ${CMAKE_BINARY_DIR}
+  ${NSPR_INCLUDE_DIRS}
+  ${NSS_INCLUDE_DIRS}
+  ${MOZLDAP_INCLUDE_DIRS}
+)
+
+set(LDAPAUTH_SHARED_LIBRARY
+  ldapauth_library
+  CACHE INTERNAL "ldapauth shared library"
+)
+
+set(LDAPAUTH_LINK_LIBRARIES
+  ${NSPR_LIBRARIES}
+  ${NSS_LIBRARIES}
+  ${MOZLDAP_LIBRARIES}
+)
+
+set(ldapauth_library_SRCS
+    LDAP_Authentication.cpp
+)
+
+include_directories(${LDAPAUTH_PRIVATE_INCLUDE_DIRS})
+
+add_library(${LDAPAUTH_SHARED_LIBRARY} SHARED ${ldapauth_library_SRCS})
+target_link_libraries(${LDAPAUTH_SHARED_LIBRARY} ${LDAPAUTH_LINK_LIBRARIES})
+
+set_target_properties(${LDAPAUTH_SHARED_LIBRARY}
+    PROPERTIES
+        VERSION
+            ${LDAPAUTH_LIBRARY_VERSION}
+        SOVERSION
+            ${LDAPAUTH_LIBRARY_SOVERSION}
+        OUTPUT_NAME
+            ldapauth
+)
+
+install(
+    TARGETS
+        ${LDAPAUTH_SHARED_LIBRARY}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+)

@@ -40,6 +40,7 @@ find_package(JNI REQUIRED)
 find_package(NSPR REQUIRED)
 find_package(NSS REQUIRED)
 find_package(MozLDAP REQUIRED)
+find_package(APR REQUIRED)
 
 # Find out if we have threading available
 set(CMAKE_THREAD_PREFER_PTHREADS ON)
