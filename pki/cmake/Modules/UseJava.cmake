@@ -33,6 +33,17 @@
 #           set(CMAKE_JAVA_TARGET_VERSION 1.2.0)
 #           add_jar(shibboleet shibbotleet.java)
 #
+#   Variables set:
+#       The add_jar() functions sets some variables which can be used in the
+#       same scope where add_jar() is called.
+#
+#       <target>_INSTALL_FILES      The files which should be installed. This
+#                                   is used by install_jar().
+#       <target>_JAR_FILE           The location of the jar file so that you
+#                                   can include it.
+#       <target>_CLASS_DIR          The directory where the class files can be
+#                                   found. For example to use them with javah.
+#
 #
 #    install_jar(TARGET_NAME DESTINATION)
 #
