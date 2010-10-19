@@ -1,8 +1,5 @@
 project(kra_java Java)
 
-set(KRA_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/kra.dir/" PARENT_SCOPE)
-set(KRA_JAR "${CMAKE_CURRENT_BINARY_DIR}/kra.jar" CACHE INTERNAL "kra jar file")
-
 find_file(JSS_JAR
     NAMES
         jss4.jar
@@ -37,13 +34,9 @@ set(CMAKE_JAVA_INCLUDE_PATH
     ${JSS_JAR} ${LDAPJDK_JAR} ${NSUTIL_JAR} ${CMSUTIL_JAR}
     ${OSUTIL_JAR} ${SYMKEY_JAR} ${CMS_JAR} ${CMSCORE_JAR}
     ${CERTSRV_JAR})
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(kra ${kra_java_SRCS})
 add_dependencies(kra nsutil cmsutil osutil symkey cms cmscore certsrv)
-
-install(
-    FILES
-        ${KRA_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+install_jar(kra ${JAVA_JAR_INSTALL_DIR}/pki)
+set(KRA_JAR ${kra_JAR_FILE} CACHE INTERNAL "kra jar file")
