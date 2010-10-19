@@ -1,7 +1,5 @@
 project(setpin C)
 
-find_package(MozLDAP REQUIRED)
-
 set(SETPIN_PRIVATE_INCLUDE_DIRS
   ${CMAKE_BINARY_DIR}
   ${NSPR_INCLUDE_DIRS}
