@@ -1,13 +1,5 @@
 project(cmsutil_java Java)
 
-set(CERTSRV_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/certsrv.dir/" PARENT_SCOPE)
-set(CMS_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/cms.dir/" PARENT_SCOPE)
-set(CMSCORE_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/cmscore.dir/" PARENT_SCOPE)
-
-set(CERTSRV_JAR "${CMAKE_CURRENT_BINARY_DIR}/certsrv.jar" CACHE INTERNAL "certsrv jar file")
-set(CMS_JAR "${CMAKE_CURRENT_BINARY_DIR}/cms.jar" CACHE INTERNAL "cms jar file")
-set(CMSCORE_JAR "${CMAKE_CURRENT_BINARY_DIR}/cmscore.jar" CACHE INTERNAL "cmscore jar file")
-
 find_file(LDAPJDK_JAR
     NAMES
         ldapjdk.jar
@@ -983,38 +975,44 @@ set(cmsbundle_RCS
     UserMessages.properties
 )
 
+# build crtsrv
 set(CMAKE_JAVA_INCLUDE_PATH
     ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR}
     ${NSUTIL_JAR} ${CMSUTIL_JAR} ${SERVLET_JAR})
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 add_jar(certsrv ${certsrv_java_SRCS})
 add_dependencies(certsrv osutil nsutil cmsutil)
+install_jar(certsrv ${JAVA_JAR_INSTALL_DIR}/pki)
+set(CERTSRV_JAR ${certsrv_JAR_FILE} CACHE INTERNAL "certsrv jar file")
 
+# build cms
 set(CMAKE_JAVA_INCLUDE_PATH
     ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR}
     ${NSUTIL_JAR} ${CMSUTIL_JAR} ${SERVLET_JAR}
     ${VELOCITY_JAR} ${SYMKEY_JAR} ${XERCES_JAR})
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 add_jar(cms ${cms_java_SRCS})
 add_dependencies(cms osutil nsutil cmsutil)
+install_jar(cms ${JAVA_JAR_INSTALL_DIR}/pki)
+set(CMS_JAR ${cms_JAR_FILE} CACHE INTERNAL "cms jar file")
 
+# build cmscore
 set(CMAKE_JAVA_INCLUDE_PATH
     ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR}
     ${NSUTIL_JAR} ${CMSUTIL_JAR} ${CERTSRV_JAR}
     ${SERVLET_JAR} ${XERCES_JAR})
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 add_jar(cmscore ${cmscore_java_SRCS})
 add_dependencies(cmscore osutil nsutil cmsutil certsrv)
+install_jar(cmscore ${JAVA_JAR_INSTALL_DIR}/pki)
+set(CMSCORE_JAR ${cmscore_JAR_FILE} CACHE INTERNAL "cmscore jar file")
 
+# build cmsbundle
 set(CMAKE_JAVA_INCLUDE_PATH
     ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR}
     ${NSUTIL_JAR} ${CMSUTIL_JAR} ${SERVLET_JAR}
     ${VELOCITY_JAR} ${SYMKEY_JAR} ${XERCES_JAR})
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 add_jar(cmsbundle ${certserv_java_SRCS} ${cms_java_SRCS} ${cmscore_java_SRCS} ${cmsbundle_RCS})
 add_dependencies(cmsbundle osutil nsutil cmsutil)
-
-install(
-    FILES
-        ${CERTSRV_JAR}
-        ${CMS_JAR}
-        ${CMSCORE_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+install_jar(cmsbundle ${JAVA_JAR_INSTALL_DIR}/pki)
