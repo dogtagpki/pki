@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 2.6.0)
 
 # global needed variables
 set(APPLICATION_NAME ${PROJECT_NAME})
+set(APPLICATION_FLAVOUR "dogtag")
 
 set(APPLICATION_VERSION_MAJOR "1")
 set(APPLICATION_VERSION_MINOR "0")
@@ -50,4 +51,8 @@ configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 add_definitions(-DHAVE_CONFIG_H)
 
 # check subdirectories
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/dogtag")
+    set(APPLICATION_FLAVOUR dogtag)
+    #add_subdirectory(dogtag)
+endif (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/dogtag")
 add_subdirectory(base)
