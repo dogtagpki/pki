@@ -1,7 +1,24 @@
 #
-# Additional flags:
-#   CMAKE_JAVA_COMPILE_FLAGS
-#   CMAKE_JAVA_INCLUDE_PATH
+# This file provides functions for Java support.
+#
+# Available Functions:
+#
+#   add_jar(TARGET_NAME SRC1 SRC2 .. SRCN RCS1 RCS2 .. RCSN)
+#
+#   This command create a <TARGET_NAME>.jar. It compiles the given source
+#   files (SRC) and adds the given resource files (RCS) to the jar file.
+#   If only resource files are given then just a jar file is created.
+#
+#   Additional instructions:
+#       To add compile flags to the target you can set these flags with
+#       the following variable:
+#
+#           set(CMAKE_JAVA_COMPILE_FLAGS -nowarn)
+#
+#       To add a path or a jar file to the class path you can do this
+#       with the CMAKE_JAVA_INCLUDE_PATH variable.
+#
+#           set(CMAKE_JAVA_INCLUDE_PATH /usr/share/java/shibboleet.jar)
 #
 #=============================================================================
 # Copyright 2010      Andreas schneider <asn@redhat.com>
