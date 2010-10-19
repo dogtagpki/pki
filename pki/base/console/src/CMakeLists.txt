@@ -1,8 +1,5 @@
 project(console_java Java)
 
-set(CONSOLE_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/cmstool.dir/" PARENT_SCOPE)
-set(CONSOLE_JAR "${CMAKE_CURRENT_BINARY_DIR}/console.jar" CACHE INTERNAL "console jar file")
-
 find_file(JSS_JAR
     NAMES
         jss4.jar
@@ -581,18 +578,13 @@ set(console_java_SRCS
     com/netscape/admin/certsrv/IUIMapper.java
 )
 
-#set(CMAKE_JAVA_INCLUDE_PATH ${JSS_JAR} ${OSUTIL_JAR} ${NSUTIL_JAR} ${CMSUTIL_JAR} ${CMS_JAR})
 set(CMAKE_JAVA_INCLUDE_PATH
     ${JSS_JAR} ${LDAPJDK_JAR} ${NSUTIL_JAR}
     ${BASE_JAR} ${MMC_JAR} ${MMC_EN_JAR}
     ${NMCLF_JAR} ${NMCLF_EN_JAR})
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(console ${console_java_SRCS})
 add_dependencies(console nsutil)
-
-install(
-    FILES
-        ${CONSOLE_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+install_jar(console ${JAVA_JAR_INSTALL_DIR}/pki)
+set(CONSOLE_JAR ${console_JAR_FILE} CACHE INTERNAL "console jar file")
