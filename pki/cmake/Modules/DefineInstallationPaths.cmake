@@ -64,6 +64,11 @@ if (UNIX)
     CACHE PATH "The install dir for sound files (default data/sounds)"
   )
 
+  SET(JAVA_LIB_INSTALL_DIR
+    "${CMAKE_INSTALL_PREFIX}/lib/java"
+    CACHE PATH "The subdirectory relative to the install prefix where java JNI files will be installed (default is prefix/lib/java)"
+  )
+
   SET(JAVA_JAR_INSTALL_DIR
     "${SHARE_INSTALL_PREFIX}/java"
     CACHE PATH "The subdirectory relative to the install prefix where java jar files will be installed (default is prefix/share/java)"
