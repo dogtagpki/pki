@@ -33,6 +33,12 @@
 #           set(CMAKE_JAVA_TARGET_VERSION 1.2.0)
 #           add_jar(shibboleet shibbotleet.java)
 #
+#
+#    install_jar(TARGET_NAME DESTINATION)
+#
+#    This command installs the TARGET_NAME files to the given DESTINATION. It
+#    should be called in the same scope as add_jar() or it will fail.
+#
 #=============================================================================
 # Copyright 2010      Andreas schneider <asn@redhat.com>
 #
@@ -191,3 +197,16 @@ function(ADD_JAR _TARGET_NAME)
         ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
          PARENT_SCOPE)
 endfunction(ADD_JAR)
+
+function(INSTALL_JAR _TARGET_NAME _DESTINATION)
+    if (${_TARGET_NAME}_INSTALL_FILES)
+        install(
+            FILES
+                ${${_TARGET_NAME}_INSTALL_FILES}
+            DESTINATION
+                ${_DESTINATION}
+        )
+    else (${_TARGET_NAME}_INSTALL_FILES)
+        message(SEND_ERROR "The target ${_TARGET_NAME} is not known in this scope.")
+    endif (${_TARGET_NAME}_INSTALL_FILES)
+endfunction(INSTALL_JAR _TARGET_NAME _DESTINATION)
