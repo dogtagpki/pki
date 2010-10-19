@@ -84,19 +84,6 @@ function(ADD_JAR _TARGET_NAME)
             set(_JAVA_CLASS_FILE "${_JAVA_PATH}/${_JAVA_FILE}.class")
             set(_JAVA_CLASS_FILES ${_JAVA_CLASS_FILES} ${_JAVA_CLASS_FILE})
 
-            # TODO FIXME
-            if (FALSE)
-            add_custom_command(
-                TARGET ${_TARGET_NAME}
-                COMMAND ${CMAKE_Java_COMPILER}
-                    ${CMAKE_JAVA_COMPILE_FLAGS}
-                    -classpath ${CMAKE_JAVA_INCLUDE_PATH_FINAL}
-                    -d ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
-                    ${_JAVA_SOURCE_FILE}
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                COMMENT "Building Java object ${_JAVA_CLASS_FILE}"
-            )
-            endif()
         else (_JAVA_EXT MATCHES ".java")
             java_copy_file(${CMAKE_CURRENT_SOURCE_DIR}/${_JAVA_SOURCE_FILE}
                            ${CMAKE_JAVA_CLASS_OUTPUT_PATH}/${_JAVA_SOURCE_FILE})
@@ -104,7 +91,11 @@ function(ADD_JAR _TARGET_NAME)
         endif (_JAVA_EXT MATCHES ".java")
     endforeach(_JAVA_SOURCE_FILE)
 
+    # create an empty java_class_filelist
+    file(WRITE ${CMAKE_JAVA_CLASS_OUTPUT_PATH}/java_class_filelist "")
+
     if (_JAVA_COMPILE_FILES)
+        # Compile the java files and create a list of class files
         add_custom_command(
             TARGET ${_TARGET_NAME}
             COMMAND ${CMAKE_Java_COMPILER}
@@ -112,17 +103,21 @@ function(ADD_JAR _TARGET_NAME)
                 -classpath ${CMAKE_JAVA_INCLUDE_PATH_FINAL}
                 -d ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
                 ${_JAVA_COMPILE_FILES}
+            COMMAND ${CMAKE_COMMAND}
+                -DCMAKE_JAVA_CLASS_OUTPUT_PATH=${CMAKE_JAVA_CLASS_OUTPUT_PATH}
+                -P ${CMAKE_MODULE_PATH}/JavaClassFilelist.cmake
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Building Java objects for ${_TARGET_NAME}.jar"
         )
     endif (_JAVA_COMPILE_FILES)
 
+    # create the jar file
     add_custom_command(
         TARGET ${_TARGET_NAME}
         COMMAND ${CMAKE_Java_ARCHIVE}
-            -cf ${_JAVA_OUTPUT_NAME}
-            -C ${CMAKE_JAVA_CLASS_OUTPUT_PATH} .
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            -cf ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_OUTPUT_NAME}
+            ${_JAVA_RESOURCE_FILES} @java_class_filelist
+        WORKING_DIRECTORY ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
         COMMENT "Creating Java archive ${_JAVA_OUTPUT_NAME}"
     )
 endfunction(ADD_JAR)
