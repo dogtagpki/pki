@@ -1,0 +1,20 @@
+###############################################################################
+#  Since the 'svn.fedorahosted.org' repository uses a different URL prefix to #
+#  distinguish between read-only (http) and read-write (svn+ssh) check-outs,  #
+#  ALL external SVN properties that refer to this repository MUST now be      #
+#  read-only, which means that ALL changes which refer to this repository     #
+#  that need to be saved MUST be applied to the top-level directory referred  #
+#  to by each external SVN property (i.e. - 'pki/base/config' AND             #
+#  'pki/dogtag/config-ext').                                                  #
+###############################################################################
+ca http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag/ca
+common http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag/common
+java-tools http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag/java-tools
+native-tools http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag/native-tools
+osutil http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag/osutil
+selinux http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag/selinux
+setup http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag/setup
+silent http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag/silent
+symkey http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag/symkey
+util http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag/util
+

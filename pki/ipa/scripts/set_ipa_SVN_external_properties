@@ -27,65 +27,16 @@ SVN_BASE_URL="http://svn.fedorahosted.org/svn/pki/trunk/pki/base"
 SVN_DOGTAG_URL="http://svn.fedorahosted.org/svn/pki/trunk/pki/dogtag"
 SVN_IPA_URL="http://svn.fedorahosted.org/svn/pki/trunk/pki/ipa"
 
+# Name and location of the SVN external properties DB.
+SVN_EXTERNAL_PROPERTIES_DB_LOCATION="${PKI_PWD}"
+SVN_EXTERNAL_PROPERTIES_DB_NAME="ipa_svn_external_properties_db"
+SVN_EXTERNAL_PROPERTIES_DB="${SVN_EXTERNAL_PROPERTIES_DB_LOCATION}/${SVN_EXTERNAL_PROPERTIES_DB_NAME}"
+
 # Change directory to the location of the "top-level" components,
 # and execute the defined SVN external property changes.
 cd ${PKI_PWD}/..
-printf "Setting external SVN properties for 'ca' external components . . .\n"
-svn propset svn:externals "ca ${SVN_DOGTAG_URL}/ca" .
-svn propget svn:externals .
-svn update
-
-cd ${PKI_PWD}/..
-printf "Setting external SVN properties for 'common' external components . . .\n"
-svn propset svn:externals "common ${SVN_DOGTAG_URL}/common" .
-svn propget svn:externals .
-svn update
-
-cd ${PKI_PWD}/..
-printf "Setting external SVN properties for 'java-tools' external components . . .\n"
-svn propset svn:externals "java-tools ${SVN_DOGTAG_URL}/java-tools" .
-svn propget svn:externals .
-svn update
-
-cd ${PKI_PWD}/..
-printf "Setting external SVN properties for 'native-tools' external components . . .\n"
-svn propset svn:externals "native-tools ${SVN_DOGTAG_URL}/native-tools" .
-svn propget svn:externals .
-svn update
-
-cd ${PKI_PWD}/..
-printf "Setting external SVN properties for 'osutil' external components . . .\n"
-svn propset svn:externals "osutil ${SVN_DOGTAG_URL}/osutil" .
-svn propget svn:externals .
-svn update
-
-cd ${PKI_PWD}/..
-printf "Setting external SVN properties for 'selinux' external components . . .\n"
-svn propset svn:externals "selinux ${SVN_DOGTAG_URL}/selinux" .
-svn propget svn:externals .
-svn update
-
-cd ${PKI_PWD}/..
-printf "Setting external SVN properties for 'setup' external components . . .\n"
-svn propset svn:externals "setup ${SVN_DOGTAG_URL}/setup" .
-svn propget svn:externals .
-svn update
-
-cd ${PKI_PWD}/..
-printf "Setting external SVN properties for 'silent' external components . . .\n"
-svn propset svn:externals "silent ${SVN_DOGTAG_URL}/silent" .
-svn propget svn:externals .
-svn update
-
-cd ${PKI_PWD}/..
-printf "Setting external SVN properties for 'symkey' external components . . .\n"
-svn propset svn:externals "symkey ${SVN_DOGTAG_URL}/symkey" .
-svn propget svn:externals .
-svn update
-
-cd ${PKI_PWD}/..
-printf "Setting external SVN properties for 'util' external components . . .\n"
-svn propset svn:externals "util ${SVN_DOGTAG_URL}/util" .
+printf "Setting external SVN properties for 'top-level' external components . . .\n"
+svn propset svn:externals -F "${SVN_EXTERNAL_PROPERTIES_DB}" .
 svn propget svn:externals .
 svn update
 
