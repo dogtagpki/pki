@@ -20,6 +20,19 @@
 #
 #           set(CMAKE_JAVA_INCLUDE_PATH /usr/share/java/shibboleet.jar)
 #
+#       To use a different output name for the target you can set it with:
+#
+#           set(CMAKE_JAVA_TARGET_OUTPUT_NAME shibboleet.jar)
+#           add_jar(foobar foobar.java)
+#
+#       To add a VERSION to the target output name you can set it using
+#       CMAKE_JAVA_TARGET_NAME. This will create a jar file with the name
+#       shibboleet-1.0.0.jar and will create a symlink shibboleet.jar pointing
+#       to the jar with the version information.
+#
+#           set(CMAKE_JAVA_TARGET_VERSION 1.2.0)
+#           add_jar(shibboleet shibbotleet.java)
+#
 #=============================================================================
 # Copyright 2010      Andreas schneider <asn@redhat.com>
 #
@@ -83,10 +96,16 @@ function(ADD_JAR _TARGET_NAME)
 
     add_custom_target(${_TARGET_NAME} ALL)
 
-    get_target_property(_JAVA_OUTPUT_NAME ${_TARGET_NAME} OUTPUT_NAME)
-    if (NOT _JAVA_OUTPUT_NAME)
-        set(_JAVA_OUTPUT_NAME "${_TARGET_NAME}.jar")
-    endif (NOT _JAVA_OUTPUT_NAME)
+    set(_JAVA_TARGET_OUTPUT_NAME "${_TARGET_NAME}.jar")
+    if (CMAKE_JAVA_TARGET_OUTPUT_NAME AND CMAKE_JAVA_TARGET_VERSION)
+        set(_JAVA_TARGET_OUTPUT_NAME "${CMAKE_JAVA_TARGET_OUTPUT_NAME}-${CMAKE_JAVA_TARGET_VERSION}.jar")
+        set(_JAVA_TARGET_OUTPUT_LINK "${CMAKE_JAVA_TARGET_OUTPUT_NAME}.jar")
+    elseif (CMAKE_JAVA_TARGET_VERSION)
+        set(_JAVA_TARGET_OUTPUT_NAME "${_TARGET_NAME}-${CMAKE_JAVA_TARGET_VERSION}.jar")
+        set(_JAVA_TARGET_OUTPUT_LINK "${_TARGET_NAME}.jar")
+    elseif (CMAKE_JAVA_TARGET_OUTPUT_NAME)
+        set(_JAVA_TARGET_OUTPUT_NAME "${CMAKE_JAVA_TARGET_OUTPUT_NAME}.jar")
+    endif (CMAKE_JAVA_TARGET_OUTPUT_NAME AND CMAKE_JAVA_TARGET_VERSION)
 
     set(_JAVA_CLASS_FILES)
     set(_JAVA_COMPILE_FILES)
@@ -110,13 +129,20 @@ function(ADD_JAR _TARGET_NAME)
 
     # Check if we have a local UseJavaClassFilelist.cmake
     if (EXISTS ${CMAKE_MODULE_PATH}/UseJavaClassFilelist.cmake)
-        set(_JAVA_CLASS_FILELIST ${CMAKE_MODULE_PATH}/UseJavaClassFilelist.cmake)
+        set(_JAVA_CLASS_FILELIST_SCRIPT ${CMAKE_MODULE_PATH}/UseJavaClassFilelist.cmake)
     elseif (EXISTS ${CMAKE_ROOT}/Modules/UseJavaClassFilelist.cmake)
-        set(_JAVA_CLASS_FILELIST ${CMAKE_ROOT}/Modules/UseJavaClassFilelist.cmake)
+        set(_JAVA_CLASS_FILELIST_SCRIPT ${CMAKE_ROOT}/Modules/UseJavaClassFilelist.cmake)
     endif (EXISTS ${CMAKE_MODULE_PATH}/UseJavaClassFilelist.cmake)
 
     # create an empty java_class_filelist
     file(WRITE ${CMAKE_JAVA_CLASS_OUTPUT_PATH}/java_class_filelist "")
+
+    # Check if we have a local UseJavaClassFilelist.cmake
+    if (EXISTS ${CMAKE_MODULE_PATH}/UseJavaSymlinks.cmake)
+        set(_JAVA_SYMLINK_SCRIPT ${CMAKE_MODULE_PATH}/UseJavaSymlinks.cmake)
+    elseif (EXISTS ${CMAKE_ROOT}/Modules/UseJavaSymlinks.cmake)
+        set(_JAVA_SYMLINK_SCRIPT ${CMAKE_ROOT}/Modules/UseJavaSymlinks.cmake)
+    endif (EXISTS ${CMAKE_MODULE_PATH}/UseJavaSymlinks.cmake)
 
     if (_JAVA_COMPILE_FILES)
         # Compile the java files and create a list of class files
@@ -129,7 +155,7 @@ function(ADD_JAR _TARGET_NAME)
                 ${_JAVA_COMPILE_FILES}
             COMMAND ${CMAKE_COMMAND}
                 -DCMAKE_JAVA_CLASS_OUTPUT_PATH=${CMAKE_JAVA_CLASS_OUTPUT_PATH}
-                -P ${_JAVA_CLASS_FILELIST}
+                -P ${_JAVA_CLASS_FILELIST_SCRIPT}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Building Java objects for ${_TARGET_NAME}.jar"
         )
@@ -139,9 +165,29 @@ function(ADD_JAR _TARGET_NAME)
     add_custom_command(
         TARGET ${_TARGET_NAME}
         COMMAND ${CMAKE_Java_ARCHIVE}
-            -cf ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_OUTPUT_NAME}
+            -cf ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
             ${_JAVA_RESOURCE_FILES} @java_class_filelist
+        COMMAND ${CMAKE_COMMAND}
+            -D_JAVA_TARGET_DIR=${CMAKE_CURRENT_BINARY_DIR}
+            -D_JAVA_TARGET_OUTPUT_NAME=${_JAVA_TARGET_OUTPUT_NAME}
+            -D_JAVA_TARGET_OUTPUT_LINK=${_JAVA_TARGET_OUTPUT_LINK}
+            -P ${_JAVA_SYMLINK_SCRIPT}
         WORKING_DIRECTORY ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
-        COMMENT "Creating Java archive ${_JAVA_OUTPUT_NAME}"
+        COMMENT "Creating Java archive ${_JAVA_TARGET_OUTPUT_NAME}"
     )
+
+    set(${_TARGET_NAME}_INSTALL_FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
+        PARENT_SCOPE)
+    if (_JAVA_TARGET_OUTPUT_LINK)
+        set(${_TARGET_NAME}_INSTALL_FILES
+            ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
+            ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_LINK}
+            PARENT_SCOPE)
+    endif (_JAVA_TARGET_OUTPUT_LINK)
+    set(${_TARGET_NAME}_JAR_FILE
+        ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME} PARENT_SCOPE)
+    set(${_TARGET_NAME}_CLASS_DIR
+        ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
+         PARENT_SCOPE)
 endfunction(ADD_JAR)
