@@ -1,3 +1,6 @@
+#ifndef _CONFIG_H
+#define _CONFIG_H
+
 /* Name of package */
 #cmakedefine PACKAGE "${APPLICATION_NAME}"
 
@@ -44,3 +47,5 @@
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #cmakedefine WORDS_BIGENDIAN 1
+
+#endif /* _CONFIG_H */
