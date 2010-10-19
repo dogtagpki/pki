@@ -13,7 +13,7 @@ set(osutil_java_SRCS
     com/netscape/osutil/UserID.java
 )
 
-add_library(osutil_java STATIC ${osutil_java_SRCS})
+add_library(osutil_java ${osutil_java_SRCS})
 
 set_target_properties(osutil_java
     PROPERTIES

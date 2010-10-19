@@ -35,7 +35,8 @@ include(MacroCopyFile)
 # search for libraries
 find_package(Java REQUIRED)
 find_package(JNI REQUIRED)
-find_package(ZLIB REQUIRED)
+find_package(NSPR REQUIRED)
+find_package(NSS REQUIRED)
 
 # Find out if we have threading available
 set(CMAKE_THREAD_PREFER_PTHREADS ON)

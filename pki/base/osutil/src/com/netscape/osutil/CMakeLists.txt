@@ -16,7 +16,7 @@ set(osutil_c_SRCS
     UserID.c
 )
 
-include_directories(${JNI_INCLUDE_DIRS})
+include_directories(${JNI_INCLUDE_DIRS} ${NSPR_INCLUDE_DIRS} ${NSS_INCLUDE_DIRS})
 
 add_custom_command(
     OUTPUT
