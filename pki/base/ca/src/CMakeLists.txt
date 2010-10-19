@@ -1,8 +1,5 @@
 project(ca_java Java)
 
-set(CA_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/ca.dir/" PARENT_SCOPE)
-set(CA_JAR "${CMAKE_CURRENT_BINARY_DIR}/ca.jar" CACHE INTERNAL "ca jar file")
-
 find_file(JSS_JAR
     NAMES
         jss4.jar
@@ -33,13 +30,9 @@ set(CMAKE_JAVA_INCLUDE_PATH
     ${JSS_JAR} ${LDAPJDK_JAR} ${NSUTIL_JAR} ${CMSUTIL_JAR}
     ${OSUTIL_JAR} ${SYMKEY_JAR} ${CMS_JAR} ${CMSCORE_JAR}
     ${CERTSRV_JAR})
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(ca ${ca_java_SRCS})
 add_dependencies(ca nsutil cmsutil osutil symkey cms cmscore certsrv)
-
-install(
-    FILES
-        ${CA_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+install_jar(ca ${JAVA_JAR_INSTALL_DIR}/pki)
+set(CA_JAR ${ca_JAR_FILE} CACHE INTERNAL "ca jar file")
