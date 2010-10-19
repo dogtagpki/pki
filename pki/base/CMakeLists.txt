@@ -1,5 +1,6 @@
 project(base)
 
+# The oder is important!
 add_subdirectory(osutil)
 add_subdirectory(symkey)
 add_subdirectory(native-tools)
@@ -8,3 +9,4 @@ add_subdirectory(setup)
 add_subdirectory(common)
 add_subdirectory(java-tools)
 add_subdirectory(console)
+add_subdirectory(selinux)
