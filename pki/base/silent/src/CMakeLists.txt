@@ -1,8 +1,5 @@
 project(silent_java Java)
 
-set(SILENT_JAVA_OBJECT_DIR "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/cmstool.dir/" PARENT_SCOPE)
-set(SILENT_JAR "${CMAKE_CURRENT_BINARY_DIR}/silent.jar" CACHE INTERNAL "silent jar file")
-
 find_file(JSS_JAR
     NAMES
         jss4.jar
@@ -78,13 +75,9 @@ set(silent_java_SRCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${JSS_JAR} ${LDAPJDK_JAR} ${XERCES_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR}
     ${CERTSRV_JAR} ${CMS_JAR} ${CMSUTIL_JAR} ${NSUTIL_JAR})
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(silent ${silent_java_SRCS})
 add_dependencies(silent osutil symkey certsrv cms cmsutil nsutil)
-
-install(
-    FILES
-        ${SILENT_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+install_jar(silent ${JAVA_JAR_INSTALL_DIR}/pki)
+set(SILENT_JAR ${silent_JAR_FILE} CACHE INTERNAL "silent jar file")
