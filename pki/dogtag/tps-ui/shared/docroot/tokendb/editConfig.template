@@ -199,13 +199,16 @@ function doDelete() {
     document.write("<input TYPE=button VALUE=Cancel onClick=\"doCancel();\">");
     document.write("</td>\n");
 
-    document.write("<td align=left>\n");
-    if ((conf_state == "Disabled") && (agent_must_approve == "true")) {
-        document.write("<input name=choice TYPE=submit VALUE=\"Submit For Approval\">");
-    } else {
-        document.write("<input name=choice TYPE=submit VALUE=\"Submit For Approval\" disabled=disabled>");
+    if (agent_must_approve == "true") {
+        document.write("<td align=left>\n");
+        if (conf_state == "Disabled") {
+            document.write("<input name=choice TYPE=submit VALUE=\"Submit For Approval\">");
+        } else {
+            document.write("<input name=choice TYPE=submit VALUE=\"Submit For Approval\" disabled=disabled>");
+        }
+        document.write("</td>\n");
     }
-    document.write("</td>\n");
+
     document.write("</form>\n");
 
     document.write("<td align=left>\n");
