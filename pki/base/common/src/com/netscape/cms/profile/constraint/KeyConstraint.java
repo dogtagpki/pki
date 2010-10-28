@@ -43,36 +43,55 @@ import java.math.BigInteger;
  */
 public class KeyConstraint extends EnrollConstraint {
 
-    public static final String CONFIG_KEY_TYPE = "keyType"; // (DSA, RSA)
-    public static final String CONFIG_KEY_MIN_LEN = "keyMinLength";
-    public static final String CONFIG_KEY_MAX_LEN = "keyMaxLength";
+    public static final String CONFIG_KEY_TYPE = "keyType"; // (EC, RSA)
+    public static final String CONFIG_KEY_PARAMETERS = "keyParameters";
+
+    private static final String[] ecCurves = {"nistp256","nistp384","nistp521","sect163k1","nistk163","sect163r1","sect163r2",
+       "nistb163","sect193r1","sect193r2","sect233k1","nistk233","sect233r1","nistb233","sect239k1","sect283k1","nistk283",
+       "sect283r1","nistb283","sect409k1","nistk409","sect409r1","nistb409","sect571k1","nistk571","sect571r1","nistb571",
+       "secp160k1","secp160r1","secp160r2","secp192k1","secp192r1","nistp192","secp224k1","secp224r1","nistp224","secp256k1",
+       "secp256r1","secp384r1","secp521r1","prime192v1","prime192v2","prime192v3","prime239v1","prime239v2","prime239v3","c2pnb163v1",
+       "c2pnb163v2","c2pnb163v3","c2pnb176v1","c2tnb191v1","c2tnb191v2","c2tnb191v3","c2pnb208w1","c2tnb239v1","c2tnb239v2","c2tnb239v3",
+       "c2pnb272w1","c2pnb304w1","c2tnb359w1","c2pnb368w1","c2tnb431r1","secp112r1","secp112r2","secp128r1","secp128r2","sect113r1","sect113r2",
+       "sect131r1","sect131r2"
+    };
+
+    private static String[] cfgECCurves = null;
+    private static String keyType = "";
+    private static String keyParams = "";
 
     public KeyConstraint() {
         super();
         addConfigName(CONFIG_KEY_TYPE);
-        addConfigName(CONFIG_KEY_MIN_LEN);
-        addConfigName(CONFIG_KEY_MAX_LEN);
+        addConfigName(CONFIG_KEY_PARAMETERS);
     }
 
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
         super.init(profile, config);
+
+        String ecNames = "";
+        try {
+            ecNames = CMS.getConfigStore().getString("keys.ecc.curve.list");
+        } catch (Exception e) {
+        }
+
+        CMS.debug("KeyConstraint.init ecNames: " + ecNames);
+        if (ecNames != null && ecNames.length() != 0) {
+            cfgECCurves = ecNames.split(",");
+       }
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
         if (name.equals(CONFIG_KEY_TYPE)) {
-            return new Descriptor(IDescriptor.CHOICE, "RSA,DSA,EC,-",
-                    "-",
+            return new Descriptor(IDescriptor.CHOICE, "RSA,EC",
+                    "RSA",
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_TYPE"));
-        } else if (name.equals(CONFIG_KEY_MIN_LEN)) {
-            return new Descriptor(IDescriptor.INTEGER, null,
-                    "512",
-                    CMS.getUserMessage(locale, "CMS_PROFILE_KEY_MIN_LEN"));
-        } else if (name.equals(CONFIG_KEY_MAX_LEN)) {
-            return new Descriptor(IDescriptor.INTEGER, null,
-                    "4096",
-                    CMS.getUserMessage(locale, "CMS_PROFILE_KEY_MAX_LEN"));
+        }   else if (name.equals(CONFIG_KEY_PARAMETERS)) {
+            return new Descriptor(IDescriptor.STRING,null,"",
+                    CMS.getUserMessage(locale,"CMS_PROFILE_KEY_PARAMETERS"));
         }
+
         return null;
     }
 
@@ -86,8 +105,10 @@ public class KeyConstraint extends EnrollConstraint {
             CertificateX509Key infokey = (CertificateX509Key)
                 info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) infokey.get(CertificateX509Key.KEY); 
+
             String alg = key.getAlgorithmId().getName().toUpperCase();
             String value = getConfig(CONFIG_KEY_TYPE);
+            String keyType = value;
 
             if (!isOptional(value)) {
                 if (!alg.equals(value)) {
@@ -100,13 +121,14 @@ public class KeyConstraint extends EnrollConstraint {
             }
 
             int keySize = 0;
+            String ecCurve = "";
 
             if (alg.equals("RSA")) { 
                 keySize = getRSAKeyLen(key);
             } else if (alg.equals("DSA")) { 
                 keySize = getDSAKeyLen(key);
             } else if (alg.equals("EC")) { 
-                keySize = getECKeyLen(key);
+                //EC key case.
             } else {
                 throw new ERejectException(	
                         CMS.getUserMessage(
@@ -114,26 +136,31 @@ public class KeyConstraint extends EnrollConstraint {
                             "CMS_PROFILE_INVALID_KEY_TYPE",
                             alg));
             }
-            value = getConfig(CONFIG_KEY_MIN_LEN);
-            if (!isOptional(value)) {
-                if (keySize < Integer.parseInt(value)) {
-                    throw new ERejectException(
-                            CMS.getUserMessage(
-                                getLocale(request),
-                                "CMS_PROFILE_KEY_MIN_LEN_NOT_MATCHED",
-                                value));
-                }
-            }
 
-            value = getConfig(CONFIG_KEY_MAX_LEN);
-            if (!isOptional(value)) {
-                if (keySize > Integer.parseInt(value)) {
+            value = getConfig(CONFIG_KEY_PARAMETERS);
+
+            String[] keyParams = value.split(",");
+
+            if (alg.equals("EC")) {
+                //For now only check for legal EC key type.
+                //We don't have the required EC key class to evaluate curve names.
+                if (!alg.equals(keyType)) {
                     throw new ERejectException(
                             CMS.getUserMessage(
                                 getLocale(request),
-                                "CMS_PROFILE_KEY_MAX_LEN_NOT_MATCHED",
+                                "CMS_PROFILE_KEY_PARAMS_NOT_MATCHED",
                                 value));
                 }
+                CMS.debug("KeyConstraint.validate: EC key constrainst passed.");
+            }  else {
+                if ( !arrayContainsString(keyParams,Integer.toString(keySize))) {
+                     throw new ERejectException(
+                            CMS.getUserMessage(
+                                getLocale(request),
+                                "CMS_PROFILE_KEY_PARAMS_NOT_MATCHED",
+                                value));
+                }
+                CMS.debug("KeyConstraint.validate: RSA key contraints passed.");
             }
         } catch (Exception e) {
             if (e instanceof ERejectException) {
@@ -143,10 +170,6 @@ public class KeyConstraint extends EnrollConstraint {
             throw new ERejectException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_KEY_NOT_FOUND"));
         }
-    }
-
-    public int getECKeyLen(X509Key key) throws Exception {
-        return 256; // XXX
     }
 
     public int getRSAKeyLen(X509Key key) throws Exception {
@@ -178,8 +201,7 @@ public class KeyConstraint extends EnrollConstraint {
     public String getText(Locale locale) {
         String params[] = {
                 getConfig(CONFIG_KEY_TYPE),
-                getConfig(CONFIG_KEY_MIN_LEN),
-                getConfig(CONFIG_KEY_MAX_LEN)
+                getConfig(CONFIG_KEY_PARAMETERS)
             };
 
         return CMS.getUserMessage(locale, 
@@ -193,4 +215,84 @@ public class KeyConstraint extends EnrollConstraint {
             return true;
         return false;
     }
+
+    public void setConfig(String name, String value)
+        throws EPropertyException {
+
+        CMS.debug("KeyConstraint.setConfig name: " + name + " value: " + value);
+        //establish keyType, we don't know which order these params will arrive
+        if (name.equals(CONFIG_KEY_TYPE)) {
+            keyType = value;
+            if(keyParams.equals(""))
+               return;
+        }
+        
+        //establish keyParams
+        if (name.equals(CONFIG_KEY_PARAMETERS)) {
+            CMS.debug("establish keyParams: " + value);
+            keyParams = value;
+
+            if(keyType.equals(""))
+                return;
+        }
+        // All the params we need for validation have been collected, 
+        // we don't know which order they will show up
+        if (keyType.length() > 0  && keyParams.length() > 0) {
+            String[] params = keyParams.split(",");
+            boolean isECCurve = false;
+            int keySize = 0;
+
+            for (int i = 0; i < params.length; i++) {
+                if (keyType.equals("EC")) {
+                    if (cfgECCurves == null) {
+                        //Use the static array as a backup if the config values are not present.
+                        isECCurve = arrayContainsString(ecCurves,params[i]);
+                    } else {
+                        isECCurve = arrayContainsString(cfgECCurves,params[i]);
+                    }
+                    if (isECCurve == false) { //Not a valid EC curve throw exception.
+                        keyType = "";
+                        keyParams = "";
+                        throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", name));
+                    }
+                }  else {
+                    try {
+                        keySize = Integer.parseInt(params[i]);
+                    } catch (Exception e) {
+                        keySize = 0;
+                    }
+                    if (keySize <=  0) {
+                        keyType = "";
+                        keyParams = "";
+                        throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", name));
+                    }
+                }
+            }
+       }
+       //Actually set the configuration in the profile
+       super.setConfig(CONFIG_KEY_TYPE, keyType);
+       super.setConfig(CONFIG_KEY_PARAMETERS, keyParams);
+
+       //Reset the vars for next round.
+       keyType = "";
+       keyParams = "";
+    }
+
+    private boolean arrayContainsString(String[] array, String value) {
+
+        if (array == null || value == null) {
+           return false;
+        } 
+
+        for (int i = 0 ; i < array.length; i++) {
+            if (array[i].equals(value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
+
