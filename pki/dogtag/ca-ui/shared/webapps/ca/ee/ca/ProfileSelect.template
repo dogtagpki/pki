@@ -40,11 +40,9 @@ var dual = 'false';
 var keyList = new Array();
 var key = new Object();
 key.type = "RSA";
-key.size = [512, 1024, 2048, 3072, 4096, 5120, 6144, 7168, 8192];
 keyList[0] = key;
 var key = new Object();
 key.type = "EC";
-key.size = [1024, 2048];
 keyList[1] = key;
 
 function keyTypeOptions (keyPurpose)
@@ -69,9 +67,7 @@ function keyTypeOptions (keyPurpose)
   var keyFound = 0;
   for (var i = 0; i < keyList.length; i++) {
     if (keyList[i].type == keyType) {
-      if (keyList[i].size.length > 0) {
         keyFound = 1;
-      }
     }
   }
   if (keyFound == 0) {
@@ -84,33 +80,30 @@ function keyTypeOptions (keyPurpose)
   return keyType;
 }
 
-function keySizeOptions (keyPurpose)
+function keyLengthsCurvesOptions (keyPurpose)
 {
-  var maxKeyLen = 8192;
-  var minKeyLen = 512;
   var keyType = "RSA";
   var options = "";
+  var lengthsOrCurves = null;
+  var keyLengthsCurves = "";
 
   for (var i = 0; i < policySetListSet.length; i++) {
     for (var j = 0; j < policySetListSet[i].policySet.length; j++) {
       if (typeof(policySetListSet[i].policySet[j].constraintSet) != "undefined") {
         for (var k = 0; k < policySetListSet[i].policySet[j].constraintSet.length; k++) {
-          if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyMinLength") {
-            if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
-              minKeyLen = parseInt(policySetListSet[i].policySet[j].constraintSet[k].value);
-            }
-          }
-          if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyMaxLength") {
-            if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
-              maxKeyLen = parseInt(policySetListSet[i].policySet[j].constraintSet[k].value);
-            }
-          }
           if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyType") {
             if (policySetListSet[i].policySet[j].constraintSet[k].value != "-") {
               if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
                 keyType = policySetListSet[i].policySet[j].constraintSet[k].value;
               }
             }
+          }
+
+          if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
+              if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyParameters") {
+                  keyLengthsCurves = policySetListSet[i].policySet[j].constraintSet[k].value;
+                  lengthsOrCurves = keyLengthsCurves.split(",");
+              }
           }
         }
       }
@@ -119,26 +112,54 @@ function keySizeOptions (keyPurpose)
   if (navigator.appName == "Microsoft Internet Explorer") {
     keyType = "RSA";
   }
-  for (var i = 0; i < keyList.length; i++) {
-    if (keyList[i].type == keyType) {
-      var k = 0;
-      for (var j = 0; j < keyList[i].size.length; j++) {
-        if (keyList[i].size[j] <= maxKeyLen && keyList[i].size[j] >= minKeyLen) {
-          options += '<OPTION VALUE="'+keyList[i].size[j]+'"';
-          if (k == 0) {
-            options += ' SELECTED';
-          }
-          options += '>'+keyList[i].size[j];
-          k++;
-        }
+
+  var value = 0;
+  var included = true;
+  var l = 0;
+  for (l = 0 ; l < lengthsOrCurves.length; l++) {
+
+      value = lengthsOrCurves[l];
+
+      if (keyType != "EC" && !isNumeric(value)) {
+          included = false;
       }
-    }
+
+      if (included) {
+          options += '<OPTION VALUE="' + value + '"';
+          if (i == 0) {
+              options += ' SELECTED';
+          }
+          options += '>' + value;
+     }
   }
+
   if (options.length == 0) {
-    options = "<OPTION VALUE=1024 SELECTED>1024";
+     if (keyType != "EC") {
+         options = '<OPTION VALUE=1024 SELECTED>1024';
+     } else {
+         options = '<OPTION VALUE="nistp256">nistp256';
+     }
   }
 
   return options;
+}
+
+function isNumeric(sText)
+{
+   var validChars = "0123456789";
+   var isNumber=true;
+   var char;
+
+   if( !sText)
+     return false;
+ 
+   for (i = 0; i < sText.length && isNumber == true; i++)  {
+      char = sText.charAt(i); 
+      if (validChars.indexOf(char) == -1)  {
+         isNumber = false;
+      }
+   }
+   return isNumber;
 }
 
 function validate()
@@ -157,7 +178,8 @@ function validate()
         //              "setCRMFRequest();",
         //              512, null, "rsa-ex",
         //              1024, null, "rsa-sign");
-        //
+        // Note: This archival text below only applies to CS 7.1 and earlier:
+
         // To enable key archival feature, this page must be customized with
         // KRA's transport certificate. The transport certificate can be
         // retrieved in the following ways:
@@ -180,6 +202,8 @@ function validate()
         //              512, null, keyGenAlg);
         /////////////////////////////////////////////////////////////////
         var keyTransportCert = null;
+
+
         if (typeof(transportCert) != "undefined" && transportCert != "") {
           // from CS7.2, transport certificate will be 
           // inserted automatically
@@ -190,24 +214,48 @@ function validate()
             var encKeyType = "rsa-ex";
             var signKeyType = "rsa-sign";
             var dualKeyType = "rsa-dual-use";
+            var encKeyParams = null;
+            var encKeySize = 1024; 
+            var signKeyParams = null;
+            var signKeySize = 1024; 
+            var keyParams = null;
+            // Give this default because the ECC crytpo codes requires and integer
+            // for this value even if presenting ECC curve name parameter.
+            var keySize = 1024;
+
             try {
                 if (dual == 'true') {
-                    if (keyTypeOptions("encryption") == "EC")
+                    
+                    if (keyTypeOptions("encryption") == "EC")  {
                         encKeyType = "ec-ex";
-                    if (keyTypeOptions("signing") == "EC")
+                        encKeyParams = "curve=" + encKeyParam.value; 
+                    } else {
+                        encKeySize = parseInt(encKeyParam.value);
+                    }
+
+                    if (keyTypeOptions("signing") == "EC") {
                         signKeyType = "ec-sign";
+                        signKeyParams = "curve=" + signKeyParam.value;
+                    } else {
+                        signKeySize = parseInt(signKeyParam.value);
+                    }
+
                     crmfObject = crypto.generateCRMFRequest(
                         "CN=x", "regToken", "authenticator",
         	        keyTransportCert, "setCRMFRequest();",
-                        parseInt(encKeyLength.value), null, encKeyType,
-                        parseInt(signKeyLength.value), null, signKeyType);
+                        encKeySize, encKeyParams, encKeyType,
+                        signKeySize, signKeyParams, signKeyType);
                 } else {
-                    if (keyTypeOptions("") == "EC")
+                    if (keyTypeOptions("") == "EC") {
                         dualKeyType = "ec-dual-use";
+                        keyParams = "curve=" + keyParam.value;
+                    } else {
+                        keySize = parseInt(keyParam.value);
+                    }
                     crmfObject = crypto.generateCRMFRequest(
                         "CN=x", "regToken", "authenticator",
         	        null, "setCRMFRequest();",
-                        parseInt(keyLength.value), null, dualKeyType);
+                        keySize, keyParams, dualKeyType);
                 }
             } catch (e) {
                 if (typeof(crmfObject) == "undefined" || crmfObject == null) {
@@ -519,10 +567,10 @@ for (var j = 0; j < inputPluginListSet.length; j++) {
       if (navigator.appName == "Microsoft Internet Explorer") { 
         document.writeln('<input type=hidden name=' + inputListSet[i].inputId + '>');
       } else if (typeof(crypto.version) != "undefined") {
-        document.write('<SELECT NAME="encKeyLength">'+keySizeOptions("encryption")+'</SELECT>');
+        document.write('<SELECT NAME="encKeyParam">'+keyLengthsCurvesOptions("encryption")+'</SELECT>');
         document.write('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;&nbsp;');
         document.write(keyTypeOptions("encryption")+'&nbsp;&nbsp;(Encryption),&nbsp;&nbsp;</FONT>');
-        document.write('<SELECT NAME="signKeyLength">'+keySizeOptions("signing")+'</SELECT>');
+        document.write('<SELECT NAME="signKeyParam">'+keyLengthsCurvesOptions("signing")+'</SELECT>');
         document.write('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;&nbsp;');
         document.write(keyTypeOptions("signing")+'&nbsp;&nbsp;(Signing)</FONT>');
         document.writeln('<input type=hidden name=cert_request value="">');
@@ -533,9 +581,9 @@ for (var j = 0; j < inputPluginListSet.length; j++) {
     } else if (inputListSet[i].inputSyntax == 'keygen_request') {
       if (navigator.appName == "Microsoft Internet Explorer") { 
         document.writeln('<input type=hidden name=' + inputListSet[i].inputId + '>');
-        document.writeln('<SELECT NAME="keyLength">'+keySizeOptions("")+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
+        document.writeln('<SELECT NAME="keyLength">'+keyLengthsCurvesOptions("")+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
       } else if (typeof(crypto.version) != "undefined") {
-        document.write('<SELECT NAME="keyLength">'+keySizeOptions("")+'</SELECT>');
+        document.write('<SELECT NAME="keyParam">'+keyLengthsCurvesOptions("")+'</SELECT>');
         document.write('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
         document.write('&nbsp;&nbsp;&nbsp;'+keyTypeOptions("")+'&nbsp;&nbsp;(Encryption and Signing)</FONT>');
         document.writeln('<input type=hidden name=cert_request value="">');
