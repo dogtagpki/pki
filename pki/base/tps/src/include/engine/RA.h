@@ -355,6 +355,10 @@ class RA
           static int InitializeHttpConnections(const char *id, int *len, HttpConnection **conn, RA_Context *ctx);
           static void CleanupPublishers();
         static int Failover(HttpConnection *&conn, int len);   
+
+      TPS_PUBLIC static SECCertificateUsage getCertificateUsage(const char *certusage);
+      TPS_PUBLIC static bool verifySystemCertByNickname(const char *nickname, const char *certUsage);
+      TPS_PUBLIC static bool verifySystemCerts();
    
 };
 

@@ -38,6 +38,8 @@ extern "C"
 #include "plhash.h"
 #include "pk11func.h"
 #include "cert.h"
+#include "certt.h"
+#include "secerr.h"
 #include "tus/tus_db.h"
 #include "secder.h"
 #include "nss.h"
@@ -3156,4 +3158,150 @@ int RA::Failover(HttpConnection *&conn, int len) {
             rc = -1;
     }
     return rc;
+}
+
+TPS_PUBLIC SECCertificateUsage RA::getCertificateUsage(const char *certusage) {
+    SECCertificateUsage cu = 0;
+    if (strcmp(certusage, "SSLServer") == 0)
+         cu = certificateUsageSSLServer;
+    else if (strcmp(certusage, "SSLClient") == 0)
+         cu = certificateUsageSSLClient;
+    else if (strcmp(certusage, "AnyCA") == 0)
+         cu = certificateUsageAnyCA;
+    else if (strcmp(certusage, "EmailSigner") == 0)
+         cu = certificateUsageEmailSigner;
+
+    return cu;
+}
+
+TPS_PUBLIC bool RA::verifySystemCertByNickname(const char *nickname, const char *certusage) {
+    SECStatus rv = SECFailure;
+    CERTCertDBHandle *certdb = CERT_GetDefaultCertDB();
+    if (certdb == NULL) {
+        RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "fatal error:%s", "cert db not found");
+        return false;
+    }
+    CERTCertificate *cert = NULL;
+    PR_ASSERT(certdb != NULL);
+    SECCertificateUsage cu = getCertificateUsage(certusage);
+    if (cu == 0) {
+        RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "error: invalid certificate usage %s for cert %s", certusage, nickname);
+        return false;
+    }
+    SECCertificateUsage usage;
+
+    cert = CERT_FindCertByNickname(certdb, nickname);
+    if (cert == NULL) {
+        RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "nickname not found:%s", 
+            nickname);
+    } else {
+        rv = CERT_VerifyCertificateNow(certdb, cert, true, cu /*NULL*/, NULL, &usage);
+        /*
+         *  to find actual certificate usage, pass NULL as cu in above call
+        if (usage & certificateUsageSSLServer)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLServer"); 
+        if (usage & certificateUsageSSLClient)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLClient"); 
+        if (usage & certificateUsageAnyCA)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is AnyCA"); 
+        if (usage & certificateUsageEmailSigner)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is EmailSigner"); 
+        */
+    }
+
+    if (cert != NULL) {
+        CERT_DestroyCertificate(cert);
+    }
+    if (rv == SECSuccess)
+        return true;
+    else
+        return false;
+}
+
+/*
+ * tps.cert.list=sslserver,subsystem,audit_signing
+ * tps.cert.sslserver.nickname=xxx
+ * tps.cert.sslserver.certusage=SSLServer
+ * tps.cert.subsystem.nickname=xxx
+ * tps.cert.subsystem.certusage=SSLClient
+ * tps.cert.audit_signing.nickname=xxx
+ * tps.cert.audit_signing.certusage=EmailSigner
+ */
+TPS_PUBLIC bool RA::verifySystemCerts() {
+    bool rv = false;
+    char configname[256];
+    char configname_nn[256];
+    char configname_cu[256];
+    char audit_msg[512]="";
+    const char *certList = NULL;
+    ConfigStore *store = RA::GetConfigStore();
+
+    PR_snprintf((char *)configname, 256, "tps.cert.list");
+    certList = store->GetConfigAsString(configname);
+    if (certList == NULL) {
+        RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
+          "config not found:%s", configname);
+        PR_snprintf(audit_msg, 512, "%s undefined in CS.cfg", configname);
+        RA::Audit(EV_CIMC_CERT_VERIFICATION, AUDIT_MSG_FORMAT, "System", "Failure", audit_msg);
+        return false;
+    } else {
+        char *certList_x = PL_strdup(certList);
+        RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
+            "found cert list:%s", certList_x);
+        char *sresult = NULL;
+        char *lasts = NULL;
+        const char *nn = NULL;
+        const char *cu = NULL;
+
+        sresult = PL_strtok_r(certList_x, ",", &lasts);
+        while (sresult != NULL) {
+            PR_snprintf((char *)configname_nn, 256, "tps.cert.%s.nickname",
+                sresult);
+            nn = store->GetConfigAsString(configname_nn);
+            if (nn == NULL) {
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
+                    "cert nickname not found for cert tag:%s", sresult);
+                PR_snprintf(audit_msg, 512, "%s undefined in CS.cfg", configname_nn);
+                RA::Audit(EV_CIMC_CERT_VERIFICATION, AUDIT_MSG_FORMAT, "System", "Failure", audit_msg);
+                rv = false;
+                continue;
+            }
+            PR_snprintf((char *)configname_cu, 256, "tps.cert.%s.certusage",
+                sresult);
+            cu = store->GetConfigAsString(configname_cu);
+            if (cu == NULL) {
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
+                    "certificate usage not found for cert tag:%s", sresult);
+                PR_snprintf(audit_msg, 512, "%s undefined in CS.cfg", configname_cu);
+                RA::Audit(EV_CIMC_CERT_VERIFICATION, AUDIT_MSG_FORMAT, "System", "Failure", audit_msg);
+                rv = false;
+                continue;
+            }
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
+                "Verifying cert tag: %s, nickname:%s, certificate usage:%s"
+                    , sresult, nn, cu);
+
+            rv = verifySystemCertByNickname(nn, cu);
+            if (rv == true) {
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
+                    "cert verification passed on cert nickname:%s", nn);
+                PR_snprintf(audit_msg, 512, "Certificate verification succeeded:%s",
+                    nn);
+                RA::Audit(EV_CIMC_CERT_VERIFICATION, AUDIT_MSG_FORMAT, "System", "Success", audit_msg);
+            } else {
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
+                    "cert verification failed on cert nickname:%s", nn);
+                PR_snprintf(audit_msg, 512, "Certificate verification failed:%s",
+                    nn);
+                RA::Audit(EV_CIMC_CERT_VERIFICATION, AUDIT_MSG_FORMAT, "System", "Failure", audit_msg);
+            }
+            sresult = PL_strtok_r(NULL, ",", &lasts);
+        }
+
+        if (certList_x != NULL) {
+            PL_strfree(certList_x);
+        }
+    }
+
+    return rv;
 }
