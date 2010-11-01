@@ -114,4 +114,18 @@ public interface IRequestNotifier extends INotify {
      * @param r request
      */
     public void addToNotify(IRequest r);
+
+    /**
+     * Sets publishing queue parameters.
+     *
+     * @param isPublishingQueueEnabled publishing queue switch
+     * @param publishingQueuePriorityLevel publishing queue priority level
+     * @param maxNumberOfPublishingThreads maximum number of publishing threads
+     * @param publishingQueuePageSize publishing queue page size
+     */
+    public void setPublishingQueue (boolean isPublishingQueueEnabled,
+                                    int publishingQueuePriorityLevel,
+                                    int maxNumberOfPublishingThreads,
+                                    int publishingQueuePageSize);
+
 }

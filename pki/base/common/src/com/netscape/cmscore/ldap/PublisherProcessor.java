@@ -39,7 +39,7 @@ import com.netscape.certsrv.authority.*;
 import com.netscape.certsrv.ca.*;
 import com.netscape.certsrv.dbs.*;
 import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.*;
 import com.netscape.certsrv.apps.*;
 import com.netscape.certsrv.ldap.*;
 import com.netscape.certsrv.publish.*;
@@ -412,6 +412,22 @@ public class PublisherProcessor implements
             mLdapRequestListener = new LdapRequestListener();
             mLdapRequestListener.init(this, mLdapConfig);
             mAuthority.registerRequestListener(mLdapRequestListener);
+            IConfigStore queueConfig = mConfig.getSubStore(PROP_QUEUE_PUBLISH_SUBSTORE);
+            if (queueConfig != null) {
+                boolean isPublishingQueueEnabled = queueConfig.getBoolean("enable", false);
+                int publishingQueuePriorityLevel = queueConfig.getInteger("priorityLevel", 0);
+                int maxNumberOfPublishingThreads = queueConfig.getInteger("maxNumberOfThreads", 1);
+                int publishingQueuePageSize = queueConfig.getInteger("pageSize", 100);
+                CMS.debug("PublisherProcessor: startup: Publishing Queue Enabled: " + isPublishingQueueEnabled +
+                          "  Priority Level: " + publishingQueuePriorityLevel +
+                          "  Maximum Number of Threads: " + maxNumberOfPublishingThreads +
+                          "  Page Size: "+ publishingQueuePageSize);
+                IRequestNotifier reqNotifier = ((ICertificateAuthority)mAuthority).getRequestNotifier();
+                reqNotifier.setPublishingQueue (isPublishingQueueEnabled,
+                                                publishingQueuePriorityLevel,
+                                                maxNumberOfPublishingThreads,
+                                                publishingQueuePageSize);
+            }
         }
     }
 

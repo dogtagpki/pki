@@ -189,9 +189,9 @@ public interface Constants {
     public static final String PR_LOG_TRANSACTIONS = "Transactions";
     public static final String PR_LOG_SYSTEM = "System";
 
-    public static final String PR_DEBUG_LOG_SHOWCALLER = "debug.showcaller"; 
-    public static final String PR_DEBUG_LOG_ENABLE = "debug.enabled"; 
-    public static final String PR_DEBUG_LOG_LEVEL = "debug.level"; 
+    public static final String PR_DEBUG_LOG_SHOWCALLER = "debug.showcaller";
+    public static final String PR_DEBUG_LOG_ENABLE = "debug.enabled";
+    public static final String PR_DEBUG_LOG_LEVEL = "debug.level";
 
     /*========================================================
      * LDAP Publishing
@@ -246,6 +246,10 @@ public interface Constants {
     public final static String PR_BIND_PASSWD_AGAIN = "bindPasswdAgain";
     public final static String PR_LDAP_MAX_CONNS = "maxConns";
     public final static String PR_LDAP_MIN_CONNS = "minConns";
+    public final static String PR_PUBLISHING_QUEUE_ENABLE = "queue.enable";
+    public final static String PR_PUBLISHING_QUEUE_THREADS = "queue.maxNumberOfThreads";
+    public final static String PR_PUBLISHING_QUEUE_PAGE_SIZE = "queue.pageSize";
+    public final static String PR_PUBLISHING_QUEUE_PRIORITY = "queue.priorityLevel";
 
     public final static String PR_BASE_DN = "baseDN";
     public final static String PR_DNCOMPS = "dnComps";

@@ -423,6 +423,14 @@ public class PublisherAdminServlet extends AdminServlet {
                 continue;
             if (name.equals(Constants.PR_PUBLISHING_ENABLE))
                 continue;
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_ENABLE))
+                continue;
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_THREADS))
+                continue;
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE))
+                continue;
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_PRIORITY))
+                continue;
             if (name.equals(Constants.PR_CERT_NAMES)) {
                 ICryptoSubsystem jss = (ICryptoSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
@@ -444,6 +452,14 @@ public class PublisherAdminServlet extends AdminServlet {
         }
         params.add(Constants.PR_PUBLISHING_ENABLE, 
             publishcfg.getString(IPublisherProcessor.PROP_ENABLE, Constants.FALSE));
+        params.add(Constants.PR_PUBLISHING_QUEUE_ENABLE,
+            publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_ENABLE, Constants.TRUE));
+        params.add(Constants.PR_PUBLISHING_QUEUE_THREADS,
+            publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_THREADS, "3"));
+        params.add(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE,
+            publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE, "40"));
+        params.add(Constants.PR_PUBLISHING_QUEUE_PRIORITY,
+            publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_PRIORITY, "0"));
         params.add(Constants.PR_ENABLE, 
             ldapcfg.getString(IPublisherProcessor.PROP_ENABLE, Constants.FALSE));
         sendResponse(SUCCESS, null, params, resp);
@@ -491,6 +507,22 @@ public class PublisherAdminServlet extends AdminServlet {
                 continue;		// old style password read from config.
             if (name.equals(Constants.PR_DIRECTORY_MANAGER_PWD)) {
                 pwd = req.getParameter(name);
+                continue;
+            }
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_ENABLE)) {
+                publishcfg.putString(name, req.getParameter(name));
+                continue;
+            }
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_THREADS)) {
+                publishcfg.putString(name, req.getParameter(name));
+                continue;
+            }
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE)) {
+                publishcfg.putString(name, req.getParameter(name));
+                continue;
+            }
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_PRIORITY)) {
+                publishcfg.putString(name, req.getParameter(name));
                 continue;
             }
 
@@ -591,6 +623,22 @@ public class PublisherAdminServlet extends AdminServlet {
                 continue;		// old style password read from config.
             if (name.equals(Constants.PR_DIRECTORY_MANAGER_PWD)) {
                 pwd = req.getParameter(name);
+                continue;
+            }
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_ENABLE)) {
+                publishcfg.putString(name, req.getParameter(name));
+                continue;
+            }
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_THREADS)) {
+                publishcfg.putString(name, req.getParameter(name));
+                continue;
+            }
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE)) {
+                publishcfg.putString(name, req.getParameter(name));
+                continue;
+            }
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_PRIORITY)) {
+                publishcfg.putString(name, req.getParameter(name));
                 continue;
             }
 

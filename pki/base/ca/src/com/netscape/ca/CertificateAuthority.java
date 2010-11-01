@@ -1554,32 +1554,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         mService = new CAService(this);
         CMS.debug("CA service inited");
 
-        IConfigStore pubQueueConfig = mConfig.getSubStore(PROP_PUB_QUEUE_SUBSTORE);
-        boolean enablePublishingQueue = false;
-        // Publishing Queue Priority Levels:
-        //    2 - maximum, 1 - higher, 0 - normal, -1 - lower, -2 - minimum
-        int publishingQueuePriorityLevel = 0;
-        int maxNumberOfPublishingThreads = 1;
-        int publishingQueuePageSize = 100;
-        if (pubQueueConfig != null) {
-            try {
-                enablePublishingQueue = pubQueueConfig.getBoolean("enable", false);
-                publishingQueuePriorityLevel = pubQueueConfig.getInteger("priorityLevel", 0);
-                maxNumberOfPublishingThreads = pubQueueConfig.getInteger("maxNumberOfThreads", 1);
-                publishingQueuePageSize = pubQueueConfig.getInteger("pageSize", 100);
-            } catch (EBaseException e) {
-                CMS.debug("Error reading publishing queue parameters: "+e);
-                enablePublishingQueue = false;
-            }
-        }
-        CMS.debug("CA Publishing Queue Enabled: " + enablePublishingQueue+
-                  "  Priority Level: " + publishingQueuePriorityLevel+
-                  "  Maximum Number of Threads: " + maxNumberOfPublishingThreads+
-                  "  Page Size: "+ publishingQueuePageSize);
-        mNotify = new ARequestNotifier (this, enablePublishingQueue,
-                                        publishingQueuePriorityLevel,
-                                        maxNumberOfPublishingThreads,
-                                        publishingQueuePageSize);
+        mNotify = new ARequestNotifier (this);
         CMS.debug("CA notifier inited");
         mPNotify = new ARequestNotifier();
         CMS.debug("CA pending notifier inited");

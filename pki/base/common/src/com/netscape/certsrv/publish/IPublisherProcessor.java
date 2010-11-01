@@ -49,6 +49,7 @@ public interface IPublisherProcessor extends ISubsystem {
 
     public final static String PROP_PUBLISH_SUBSTORE = "publish";
     public final static String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";
+    public final static String PROP_QUEUE_PUBLISH_SUBSTORE = "queue";
 
     public static final String PROP_LOCAL_CA = "cacert";
     public static final String PROP_LOCAL_CRL = "crl";

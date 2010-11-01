@@ -1247,7 +1247,11 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 }
 
                 try { 
-                    profile.getRequestQueue().updateRequest(reqs[k]);
+                    if (errorCode == null) {
+                        profile.getRequestQueue().markAsServiced(reqs[k]);
+                    } else {
+                        profile.getRequestQueue().updateRequest(reqs[k]);
+                    }
                 } catch (EBaseException e) {
                     CMS.debug("ProfileSubmitServlet: updateRequest " +
                         e.toString());
