@@ -52,7 +52,6 @@ if (typeof(uriBase) == "undefined") {
     uri0 += uriBase;
 }
 
-var disp_conf_type = conf_type.replace(/_/g, " ").substring(0, conf_type.length -1);
 document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
                "<a href=\""+uri0+"\">Main Menu</a> : Agent Operations : " + disp_conf_type + " Review </font>\n");
 

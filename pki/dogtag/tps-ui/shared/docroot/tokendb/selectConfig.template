@@ -52,7 +52,6 @@ if (typeof(uriBase) == "undefined") {
     uri0 += uriBase;
 }
 
-var disp_conf_type = conf_type.replace(/_/g, " ").substring(0, conf_type.length -1);
 document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
                "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : " + disp_conf_type + " Configuration </font>\n");
 
@@ -102,7 +101,7 @@ function doCancel() {
 
 
     document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
-    document.write("<tr bgcolor=#e5e5e5> <p>  Use this form to add or modify " + disp_conf_type.toLowerCase() + "s.  <br> Either select an item " + 
+    document.write("<tr bgcolor=#e5e5e5> <p>  Use this form to add or modify " + conf_type.replace(/_/g, " ").toLowerCase() + ".  <br> Either select an item " + 
          " to edit in the drop-down box below and click \"Edit\", <br> or fill in the name of a new " + disp_conf_type.toLowerCase() + 
          " and click the \"Add\" button.</p></tr>");
 

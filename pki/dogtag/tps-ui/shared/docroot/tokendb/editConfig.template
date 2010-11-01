@@ -64,7 +64,6 @@ String.prototype.escapeEntry = function () {
    return this.replace(/\"/g,'&dbquote').replace(/\'/g,'&singlequote').replace(/</g,'&lessthan').replace(/>/g, '&greaterthan');
 };
 
-var disp_conf_type = conf_type.replace(/_/g, " ").substring(0, conf_type.length -1);
 document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
                "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : " + disp_conf_type + " Configuration </font>\n");
 
@@ -211,21 +210,23 @@ function doDelete() {
 
     document.write("</form>\n");
 
-    document.write("<td align=left>\n");
-    document.write("<form name=deleteConfig method=POST onSubmit=\"return doDelete(this);\">\n");
-    document.write("<input type=hidden name=query value=\"op=confirm_delete_config\">");
-    document.write("<input type=hidden name=pname value=\"" + conf_name + "\">");
-    document.write("<input type=hidden name=ptype value=\"" + conf_type + "\">");
-    document.write("<input type=hidden name=pvalues value=\"" + conf_values.escapeEntry() + "\">");
-    document.write("<input type=hidden name=pstate value=\"" + conf_state + "\">");
-    document.write("<input TYPE=hidden NAME=ptimestamp VALUE=\"" + conf_tstamp + "\">");
-    if ((conf_state == "Disabled")|| (agent_must_approve != "true")) {
-        document.write("<input TYPE=submit VALUE=\"Delete\">");
-    } else {
-        document.write("<input TYPE=submit VALUE=\"Delete\" disabled=disabled>");
+    if (conf_type != "Generals") {
+        document.write("<td align=left>\n");
+        document.write("<form name=deleteConfig method=POST onSubmit=\"return doDelete(this);\">\n");
+        document.write("<input type=hidden name=query value=\"op=confirm_delete_config\">");
+        document.write("<input type=hidden name=pname value=\"" + conf_name + "\">");
+        document.write("<input type=hidden name=ptype value=\"" + conf_type + "\">");
+        document.write("<input type=hidden name=pvalues value=\"" + conf_values.escapeEntry() + "\">");
+        document.write("<input type=hidden name=pstate value=\"" + conf_state + "\">");
+        document.write("<input TYPE=hidden NAME=ptimestamp VALUE=\"" + conf_tstamp + "\">");
+        if ((conf_state == "Disabled")|| (agent_must_approve != "true")) {
+            document.write("<input TYPE=submit VALUE=\"Delete\">");
+        } else {
+            document.write("<input TYPE=submit VALUE=\"Delete\" disabled=disabled>");
+        }
+        document.write("</form>");
+        document.write("</td>\n");
     }
-    document.write("</form>");
-    document.write("</td>\n");
     document.write("</tr>\n");
     document.write("</table>\n");
 

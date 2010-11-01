@@ -52,7 +52,6 @@ if (typeof(uriBase) == "undefined") {
     uri0 += uriBase;
 }
 
-var disp_conf_type = conf_type.replace(/_/g, " ").substring(0, conf_type.length -1);
 document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
                "<a href=\""+uri0+"\">Main Menu</a> : Agent Operations : " + disp_conf_type + " Review and Approval </font>\n");
 
@@ -90,7 +89,7 @@ function doCancel() {
 
 
     document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
-    document.write("<tr colspan=3>  <p> Use this form to select " + disp_conf_type.toLowerCase() + "s for review. <br>" + 
+    document.write("<tr colspan=3>  <p> Use this form to select " + conf_type.replace(/_/g, " ").toLowerCase() + " for review. <br>" + 
          "Select an item in the drop-down menu below and click \"Review\". </p></tr>");
 
     document.write("<form NAME =\"selectViewConfigForm\" METHOD=POST onSubmit=\"return doViewConfig(this);\">");
