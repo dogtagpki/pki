@@ -4876,6 +4876,7 @@ mod_tokendb_handler( request_rec *rq )
         char *pvalues = NULL;
         char *large_injection = NULL;
         char *pstate = NULL;
+        char *disp_conf_type = NULL;
 
         ptype = get_post_field(post, "ptype", SHORT_LEN);
         pname = get_post_field(post, "pname", SHORT_LEN);
@@ -4883,12 +4884,16 @@ mod_tokendb_handler( request_rec *rq )
         ptimestamp = get_post_field(post, "ptimestamp", SHORT_LEN);
         pvalues = get_post_field_s(post, "pvalues");
 
+        PR_snprintf( ( char * ) configname, 256, "target.%s.displayname", ptype ); 
+        disp_conf_type = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+
         large_injection = (char *) PR_Malloc(PL_strlen(pvalues) + MAX_INJECTION_SIZE);
         PR_snprintf( large_injection, PL_strlen(pvalues) + MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n",
                      "var conf_type = \"", ptype, "\";\n",
+                     "var disp_conf_type = \"", disp_conf_type, "\";\n",
                      "var conf_name = \"", pname, "\";\n",
                      "var conf_state = \"", pstate,  "\";\n",
                      "var conf_tstamp = \"", ptimestamp,  "\";\n",
@@ -5025,6 +5030,7 @@ mod_tokendb_handler( request_rec *rq )
 
         ConfigStore *store = NULL;
         char *pattern = NULL;
+        char *disp_conf_type = NULL;
         int return_done =0;
 
         ptype = get_post_field(post, "ptype", SHORT_LEN);
@@ -5054,11 +5060,15 @@ mod_tokendb_handler( request_rec *rq )
         PR_snprintf( ( char * ) configname, 256, "target.%s.pattern", ptype );
         pattern = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
 
+        PR_snprintf( ( char * ) configname, 256, "target.%s.displayname", ptype );
+        disp_conf_type = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n", 
                      "var conf_type = \"", ptype, "\";\n",
+                     "var disp_conf_type = \"", disp_conf_type, "\";\n",
                      "var conf_name = \"", pname, "\";\n",
                      "var conf_pattern = \"", pattern, "\";\n");
 
@@ -5183,6 +5193,7 @@ mod_tokendb_handler( request_rec *rq )
         char *pname = NULL;
         char *pstate = NULL;
         char *ptimestamp = NULL;
+        char *disp_conf_type = NULL;
         int return_done = 0;
 
         char *key_values = NULL;
@@ -5220,13 +5231,17 @@ mod_tokendb_handler( request_rec *rq )
         key_values = (char *) store->GetOrderedList();
         escaped = escapeSpecialChars(key_values);
         tokendbDebug( "got ordered list");
-     
+
+        PR_snprintf( ( char * ) configname, 256, "target.%s.displayname", ptype );
+        disp_conf_type = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+
         large_injection = (char *) PR_Malloc(PL_strlen(key_values) + MAX_INJECTION_SIZE);
         PR_snprintf( large_injection, PL_strlen(key_values) + MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n", 
                      "var conf_type = \"", ptype, "\";\n",
+                     "var disp_conf_type = \"", disp_conf_type, "\";\n",
                      "var conf_name = \"", pname, "\";\n",
                      "var conf_state = \"", pstate,  "\";\n",
                      "var conf_tstamp = \"", ptimestamp,  "\";\n",
@@ -5278,6 +5293,7 @@ mod_tokendb_handler( request_rec *rq )
         ConfigStore *store = NULL;
         char *large_injection = NULL;
         char *pattern = NULL;
+        char *disp_conf_type = NULL;
         int return_done = 0;
         
         ptype = get_post_field(post, "ptype", SHORT_LEN);
@@ -5308,13 +5324,17 @@ mod_tokendb_handler( request_rec *rq )
      
         PR_snprintf( ( char * ) configname, 256, "target.%s.pattern", ptype );
         pattern = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+
+        PR_snprintf( ( char * ) configname, 256, "target.%s.displayname", ptype ); 
+        disp_conf_type = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
  
         large_injection = (char *) PR_Malloc(PL_strlen(key_values) + MAX_INJECTION_SIZE);
         PR_snprintf( large_injection, PL_strlen(key_values) + MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n", 
                      "var conf_type = \"", ptype, "\";\n",
+                      "var disp_conf_type = \"", disp_conf_type, "\";\n",
                      "var conf_name = \"", pname, "\";\n",
                      "var conf_state = \"", pstate,  "\";\n",
                      "var conf_tstamp = \"", ptimestamp,  "\";\n",
@@ -5365,6 +5385,7 @@ mod_tokendb_handler( request_rec *rq )
 
         char *large_injection = NULL;
         char *pattern = NULL;
+        char *disp_conf_type = NULL;
         int return_done = 0;
         
         ptype = get_post_field(post, "ptype", SHORT_LEN);
@@ -5381,13 +5402,18 @@ mod_tokendb_handler( request_rec *rq )
 
         PR_snprintf( ( char * ) configname, 256, "target.%s.pattern", ptype );
         pattern = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+
+        PR_snprintf( ( char * ) configname, 256, "target.%s.displayname", ptype ); 
+        disp_conf_type = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+
  
         large_injection = (char *) PR_Malloc(PL_strlen(pvalues) + MAX_INJECTION_SIZE);
         PR_snprintf( large_injection, PL_strlen(pvalues) + MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n", 
                      "var conf_type = \"", ptype, "\";\n",
+                     "var disp_conf_type = \"", disp_conf_type, "\";\n",
                      "var conf_name = \"", pname, "\";\n",
                      "var conf_state = \"", pstate,  "\";\n",
                      "var conf_tstamp = \"", ptimestamp,  "\";\n",
@@ -5440,6 +5466,7 @@ mod_tokendb_handler( request_rec *rq )
         char *escaped_added_str = NULL;
         char *escaped_changed_str = NULL;
         char *escaped_pvalues = NULL;
+        char *disp_conf_type = NULL;
         int return_done=0;
         char flash[512]="";
 
@@ -5538,16 +5565,20 @@ mod_tokendb_handler( request_rec *rq )
         escaped_added_str = escapeString(added_str);
         escaped_changed_str = escapeString(changed_str);
 
+        PR_snprintf( ( char * ) configname, 256, "target.%s.displayname", ptype ); 
+        disp_conf_type = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+
         if ((PL_strlen(escaped_added_str) + PL_strlen(escaped_changed_str) + PL_strlen(escaped_deleted_str))!=0) {
             int injection_size = PL_strlen(escaped_deleted_str) + PL_strlen(escaped_pvalues) + PL_strlen(escaped_added_str) + 
                 PL_strlen(escaped_changed_str) + MAX_INJECTION_SIZE;
             char * large_injection = (char *) PR_Malloc(injection_size);
 
             PR_snprintf( large_injection, injection_size,
-                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n", 
                      "var conf_type = \"", ptype, "\";\n",
+                     "var disp_conf_type = \"", disp_conf_type, "\";\n",
                      "var conf_name = \"", pname, "\";\n",
                      "var conf_tstamp = \"", ptimestamp,  "\";\n",
                      "var conf_state = \"", cur_state, "\";\n",
@@ -7370,6 +7401,7 @@ mod_tokendb_handler( request_rec *rq )
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "agent_select_config", "Success", "Tokendb user authorization");
 
         char *conf_type = NULL;
+        char *disp_conf_type = NULL;
         conf_type = get_field(query, "type=", SHORT_LEN);
 
         if (conf_type == NULL) {
@@ -7392,11 +7424,16 @@ mod_tokendb_handler( request_rec *rq )
 
         PR_snprintf( ( char * ) configname, 256, "target.%s.list", conf_type );
         const char *conf_list = RA::GetConfigStore()->GetConfigAsString( configname );
+
+        PR_snprintf( ( char * ) configname, 256, "target.%s.displayname", conf_type ); 
+        disp_conf_type = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n",
                      "var conf_type = \"", conf_type, "\";\n",
+                     "var disp_conf_type = \"", disp_conf_type, "\";\n",
                      "var conf_list = \"", (conf_list != NULL)? conf_list : "", "\";\n");
 
         do_free(conf_type);
@@ -7430,11 +7467,16 @@ mod_tokendb_handler( request_rec *rq )
         PR_snprintf( ( char * ) configname, 256,
             "target.%s.list", conf_type );
         const char *conf_list = RA::GetConfigStore()->GetConfigAsString( configname );
+
+        PR_snprintf( ( char * ) configname, 256, "target.%s.displayname", conf_type ); 
+        const char *disp_conf_type = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
+
         PR_snprintf( injection, MAX_INJECTION_SIZE,
-                     "%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
+                     "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", JS_START,
                      "var uriBase = \"", uri, "\";\n",
                      "var userid = \"", userid, "\";\n",
                      "var conf_type = \"", conf_type, "\";\n",
+                     "var disp_conf_type = \"", disp_conf_type, "\";\n",
                      "var conf_list = \"", (conf_list != NULL)? conf_list : "", "\";\n");
 
         do_free(conf_type);
