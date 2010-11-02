@@ -3161,13 +3161,31 @@ int RA::Failover(HttpConnection *&conn, int len) {
 }
 
 TPS_PUBLIC SECCertificateUsage RA::getCertificateUsage(const char *certusage) {
-    SECCertificateUsage cu = 0;
-    if (strcmp(certusage, "SSLServer") == 0)
+    SECCertificateUsage cu = -1;
+    if ((certusage == NULL) || *certusage == 0)
+         cu = certificateUsageCheckAllUsages;
+    else if (strcmp(certusage, "CheckAllUsages") == 0)
+         cu = certificateUsageCheckAllUsages;
+    else if (strcmp(certusage, "SSLServer") == 0)
          cu = certificateUsageSSLServer;
+    else if (strcmp(certusage, "SSLServerWithStepUp") == 0)
+         cu = certificateUsageSSLServerWithStepUp;
     else if (strcmp(certusage, "SSLClient") == 0)
          cu = certificateUsageSSLClient;
+    else if (strcmp(certusage, "SSLCA") == 0)
+         cu = certificateUsageSSLCA;
     else if (strcmp(certusage, "AnyCA") == 0)
          cu = certificateUsageAnyCA;
+    else if (strcmp(certusage, "StatusResponder") == 0)
+         cu = certificateUsageStatusResponder;
+    else if (strcmp(certusage, "ObjectSigner") == 0)
+         cu = certificateUsageObjectSigner;
+    else if (strcmp(certusage, "UserCertImport") == 0)
+         cu = certificateUsageUserCertImport;
+    else if (strcmp(certusage, "ProtectedObjectSigner") == 0)
+         cu = certificateUsageProtectedObjectSigner;
+    else if (strcmp(certusage, "VerifyCA") == 0)
+         cu = certificateUsageVerifyCA;
     else if (strcmp(certusage, "EmailSigner") == 0)
          cu = certificateUsageEmailSigner;
 
@@ -3184,8 +3202,8 @@ TPS_PUBLIC bool RA::verifySystemCertByNickname(const char *nickname, const char 
     CERTCertificate *cert = NULL;
     PR_ASSERT(certdb != NULL);
     SECCertificateUsage cu = getCertificateUsage(certusage);
-    if (cu == 0) {
-        RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "error: invalid certificate usage %s for cert %s", certusage, nickname);
+    if (cu == -1) {
+        RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "error: invalid certificate usage %s for cert %s", (certusage !=NULL)? certusage:"", nickname);
         return false;
     }
     SECCertificateUsage usage;
@@ -3195,18 +3213,34 @@ TPS_PUBLIC bool RA::verifySystemCertByNickname(const char *nickname, const char 
         RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "nickname not found:%s", 
             nickname);
     } else {
-        rv = CERT_VerifyCertificateNow(certdb, cert, true, cu /*NULL*/, NULL, &usage);
+        rv = CERT_VerifyCertificateNow(certdb, cert, true, cu , NULL, &usage);
         /*
-         *  to find actual certificate usage, pass NULL as cu in above call
-        if (usage & certificateUsageSSLServer)
+         *  to find actual certificate usage, pass 0 as cu in above call
+         */
+        if (cu == certificateUsageCheckAllUsages) {
+          if (usage & certificateUsageSSLServer)
             RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLServer"); 
-        if (usage & certificateUsageSSLClient)
+          if (usage & certificateUsageSSLServerWithStepUp)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLServerWithStepUp"); 
+          if (usage & certificateUsageSSLClient)
             RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLClient"); 
-        if (usage & certificateUsageAnyCA)
+          if (usage & certificateUsageAnyCA)
             RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is AnyCA"); 
-        if (usage & certificateUsageEmailSigner)
+          if (usage & certificateUsageSSLCA)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLCA"); 
+          if (usage & certificateUsageEmailSigner)
             RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is EmailSigner"); 
-        */
+          if (usage & certificateUsageStatusResponder)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is StatusResponder"); 
+          if (usage & certificateUsageObjectSigner)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is ObjectSigner"); 
+          if (usage & certificateUsageUserCertImport)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is UserCertImport"); 
+          if (usage & certificateUsageProtectedObjectSigner)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is ProtectedObjectSigner"); 
+          if (usage & certificateUsageVerifyCA)
+            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is VerifyCA"); 
+        }
     }
 
     if (cert != NULL) {
@@ -3237,7 +3271,7 @@ TPS_PUBLIC bool RA::verifySystemCerts() {
     ConfigStore *store = RA::GetConfigStore();
 
     PR_snprintf((char *)configname, 256, "tps.cert.list");
-    certList = store->GetConfigAsString(configname);
+    certList = store->GetConfigAsString(configname, NULL);
     if (certList == NULL) {
         RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
           "config not found:%s", configname);
@@ -3257,8 +3291,8 @@ TPS_PUBLIC bool RA::verifySystemCerts() {
         while (sresult != NULL) {
             PR_snprintf((char *)configname_nn, 256, "tps.cert.%s.nickname",
                 sresult);
-            nn = store->GetConfigAsString(configname_nn);
-            if (nn == NULL) {
+            nn = store->GetConfigAsString(configname_nn, NULL);
+            if ((nn == NULL) || *nn==0) {
                 RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
                     "cert nickname not found for cert tag:%s", sresult);
                 PR_snprintf(audit_msg, 512, "%s undefined in CS.cfg", configname_nn);
@@ -3268,18 +3302,17 @@ TPS_PUBLIC bool RA::verifySystemCerts() {
             }
             PR_snprintf((char *)configname_cu, 256, "tps.cert.%s.certusage",
                 sresult);
-            cu = store->GetConfigAsString(configname_cu);
-            if (cu == NULL) {
+            cu = store->GetConfigAsString(configname_cu, NULL);
+            if ((cu == NULL) || *cu==0) {
                 RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
-                    "certificate usage not found for cert tag:%s", sresult);
-                PR_snprintf(audit_msg, 512, "%s undefined in CS.cfg", configname_cu);
-                RA::Audit(EV_CIMC_CERT_VERIFICATION, AUDIT_MSG_FORMAT, "System", "Failure", audit_msg);
-                rv = false;
-                continue;
+                    "certificate usage not found for cert tag:%s not checking certificate usage", sresult);
+            } else {
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
+                    "found certificate usage:%s", cu);
             }
             RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
                 "Verifying cert tag: %s, nickname:%s, certificate usage:%s"
-                    , sresult, nn, cu);
+                    , sresult, nn, (cu!=NULL)? cu: "");
 
             rv = verifySystemCertByNickname(nn, cu);
             if (rv == true) {
