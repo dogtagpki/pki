@@ -52,6 +52,7 @@ sub DoPage
   }
 
   my $error = $q->param('error');
+  $error = "" if !defined $error;
 
   open(FILE, "< search.html");
 

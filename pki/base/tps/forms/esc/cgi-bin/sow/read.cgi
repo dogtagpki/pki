@@ -54,6 +54,7 @@ sub DoPage
 
   my $name = $q->param('name');
   my $uid = $q->param('name_ID');
+  $name = "" if !defined $name;
 
   if ($name eq "") {
     print $q->redirect("/cgi-bin/sow/search.cgi?error=Name cannot be empty");
