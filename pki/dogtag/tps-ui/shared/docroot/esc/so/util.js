@@ -1373,6 +1373,11 @@ function OnCOOLKeyStateError(keyType, keyID, keyState, errorCode)
   typeStr += " \n " + ErrorText;
   MyAlert(typeStr);
   ClearProgressBar(KeyToProgressBarID(keyType, keyID));
+
+  if (UserOnCOOLKeyStateError) {
+    UserOnCOOLKeyStateError(); // call user-level
+  }
+
 }
 
 function OnCOOLKeyStatusUpdate(progMeterID, statusUpdate)

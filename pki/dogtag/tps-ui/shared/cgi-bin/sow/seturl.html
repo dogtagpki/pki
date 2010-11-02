@@ -83,6 +83,14 @@ function UserOnDoneInitializeBindingTable()
   }
 }
 
+function UserOnCOOLKeyStatusUpdate(data)
+{
+  var progress = document.getElementById("progress");
+
+  if(progress)
+      progress.innerHTML = data + "%";
+}
+
 function UserOnCOOLKeyInserted(keyType, keyID)
 {
   var keyStatus = GetStatusForKeyID(keyType, keyID);
@@ -134,7 +142,7 @@ function toggleButton(id, i)
 </div>
 <div id="header">
   <div id="logo">
-     <center><h3><!--<img align=bottom src="/esc/sow/images/logo.gif">-->Security Officer Station</h3></center>
+     <h3>Security Officer Station</h3>
   </div>
 </div>
 
@@ -144,7 +152,7 @@ function toggleButton(id, i)
     | <a href="/cgi-bin/sow/main.cgi">Main</a> |
     </div>
 <br/>
-<blockquote>This will burn a home phone URL on the user token.</blockquote>
+<blockquote>This will burn a phone home URL on the user token.</blockquote>
 <h3><span id="keytext">Please insert new smartcard now!</span></h3>
     <br/>
     <table width="100%">
@@ -152,6 +160,7 @@ function toggleButton(id, i)
 <td>
 <div id="ajax-pb" style="display:none;">
   <img src="/esc/sow/images/indicator.gif">
+  <h2 id="progress" name="progress" value="0%" ></h2>
 </div>
 </td>
         <td align="right">
