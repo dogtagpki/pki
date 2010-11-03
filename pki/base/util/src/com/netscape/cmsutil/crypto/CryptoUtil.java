@@ -166,6 +166,65 @@ public class CryptoUtil {
 
         g.setKeyPairUsages(usage_ops, usage_mask);
         g.initialize(keysize);
+
+        KeyPair pair = g.genKeyPair();
+
+        return pair;
+    }
+
+    /**
+     * Generates an ecc key pair by curve name
+     */
+    public static KeyPair generateECCKeyPair(String token, String curveName)
+        throws CryptoManager.NotInitializedException,
+                NoSuchTokenException,
+                NoSuchAlgorithmException,
+                TokenException {
+        return generateECCKeyPair(token, curveName, null, null);
+    }
+
+    public static KeyPair generateECCKeyPair(CryptoToken token, String curveName)
+        throws CryptoManager.NotInitializedException,
+                NoSuchTokenException,
+                NoSuchAlgorithmException,
+                TokenException {
+        return generateECCKeyPair(token, curveName, null, null);
+    }
+
+    public static KeyPair generateECCKeyPair(String token, String curveName,
+           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
+           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
+        throws CryptoManager.NotInitializedException,
+                NoSuchTokenException,
+                NoSuchAlgorithmException,
+                TokenException {
+        CryptoToken t = getTokenByName(token);
+        return generateECCKeyPair(t, curveName, usage_ops, usage_mask);
+    }
+
+    public static KeyPair generateECCKeyPair(CryptoToken token, String curveName,
+           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
+           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
+        throws CryptoManager.NotInitializedException,
+                NoSuchTokenException,
+                NoSuchAlgorithmException,
+                TokenException {
+        KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
+        KeyPairGenerator g = token.getKeyPairGenerator(alg);
+
+        g.setKeyPairUsages(usage_ops, usage_mask);
+
+        System.out.println("CryptoUtil: generateECCKeyPair: curve = "+ curveName);
+        int curveCode = 0;
+        try {
+            curveCode = g.getCurveCodeByName(curveName);
+        } catch (Exception e) {
+            System.out.println("CryptoUtil: generateECCKeyPair: "+ e.toString());
+            throw new NoSuchAlgorithmException();
+        }
+        g.initialize(curveCode);
+
+        System.out.println("CryptoUtil: generateECCKeyPair: after KeyPairGenerator initialize with:"+ curveName);
         KeyPair pair = g.genKeyPair();
 
         return pair;
