@@ -55,7 +55,7 @@ import com.netscape.certsrv.ocsp.*;
 import com.netscape.certsrv.logging.*;
 import com.netscape.certsrv.request.*;
 import org.mozilla.jss.util.PasswordCallback;
-import org.mozilla.jss.CryptoManager.CertUsage;
+import org.mozilla.jss.CryptoManager.CertificateUsage;
 import com.netscape.certsrv.acls.*;
 
 /**
@@ -759,10 +759,16 @@ public interface ICMSEngine extends ISubsystem {
     public boolean verifySystemCertByTag(String tag);
 
     /**
-     * get the CertUsage as defined in JSS CryptoManager
-     * @returns CertUsage as defined in JSS CryptoManager
+     * Verifies a system certificate by its nickname
+     * @return true if passed, false otherwise
      */
-    public CertUsage getCertUsage(String certusage);
+    public boolean verifySystemCertByNickname(String nickname, String certificateUsage);
+
+    /**
+     * get the CertificateUsage as defined in JSS CryptoManager
+     * @return CertificateUsage as defined in JSS CryptoManager
+     */
+    public CertificateUsage getCertificateUsage(String certusage);
 
     /**
      * Checks if the given certificate is a signing certificate.

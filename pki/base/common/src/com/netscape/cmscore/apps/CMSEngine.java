@@ -99,7 +99,7 @@ import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 
 import org.mozilla.jss.util.PasswordCallback;
-import org.mozilla.jss.CryptoManager.CertUsage;
+import org.mozilla.jss.CryptoManager.CertificateUsage;
 import netscape.security.pkcs.*;
 import com.netscape.cmscore.security.*;
 import com.netscape.cmscore.registry.*;
@@ -1332,8 +1332,12 @@ public class CMSEngine implements ICMSEngine {
         return CertUtils.verifySystemCertByTag(tag);
     }
 
-    public CertUsage getCertUsage(String certusage) {
-        return CertUtils.getCertUsage(certusage);
+    public boolean verifySystemCertByNickname(String nickname, String certificateUsage) {
+        return CertUtils.verifySystemCertByNickname(nickname, certificateUsage);
+    }
+
+    public CertificateUsage getCertificateUsage(String certusage) {
+        return CertUtils.getCertificateUsage(certusage);
     }
 
     public boolean isSigningCert(X509Certificate cert) {

@@ -38,7 +38,7 @@ import java.net.SocketException;
 
 import javax.servlet.http.HttpServletRequest;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.CertUsage;
+import org.mozilla.jss.CryptoManager.CertificateUsage;
 
 /**
  * Utility class with assorted methods to check for 
@@ -782,6 +782,41 @@ public class CertUtils {
     }
 	
     /*
+     * verify a certificate by its nickname
+     * returns true if it verifies; false if any not
+     */
+    public static boolean verifySystemCertByNickname(String nickname, String certusage) {
+        boolean r = true;
+        CertificateUsage  cu = null;
+        cu = getCertificateUsage(certusage);
+
+        if (cu == null) {
+            CMS.debug("CertUtils: verifySystemCertByNickname() failed: "+
+                nickname + " with unsupported certusage ="+ certusage);
+            return false;
+        }
+
+        if (certusage == "")
+            CMS.debug("CertUtils: verifySystemCertByNickname(): certusage not defined, bypassing certusage check");
+        CMS.debug("CertUtils: verifySystemCertByNickname(): calling isCertValid()");
+        try {
+            CryptoManager cm = CryptoManager.getInstance();
+            if (cm.isCertValid(nickname, true, cu)) {
+                r = true;
+                CMS.debug("CertUtils: verifySystemCertByNickname() passed:" + nickname);
+            } else {
+                CMS.debug("CertUtils: verifySystemCertByNickname() failed:" + nickname);
+                r = false;
+            }
+        } catch (Exception e) {
+            CMS.debug("CertUtils: verifySystemCertByNickname() failed: "+
+                e.toString());
+            r = false;
+        }
+        return r;
+    }
+
+    /*
      * verify a certificate by its tag name
      * returns true if it verifies; false if any not
      */
@@ -789,9 +824,7 @@ public class CertUtils {
         String auditMessage = null;
         IConfigStore config = CMS.getConfigStore();
         boolean r = true;
-
         try {
-            CryptoManager cm = CryptoManager.getInstance();
             String subsysType = config.getString("cs.type", "");
             if (subsysType.equals("")) {
                 CMS.debug("CertUtils: verifySystemCertByTag() cs.type not defined in CS.cfg. System certificates verification not done");
@@ -812,29 +845,14 @@ public class CertUtils {
             }
             String nickname = config.getString(subsysType+".cert."+tag+".nickname", "");
             if (nickname.equals("")) {
-                CMS.debug("CertUtils: verifySystemCertByTag() nickname for cert tag" + tag + " not found");
+                CMS.debug("CertUtils: verifySystemCertByTag() nickname for cert tag " + tag + " undefined in CS.cfg");
                 r = false;
             }
             String certusage = config.getString(subsysType+".cert."+tag+".certusage", "");
             if (certusage.equals("")) {
-                CMS.debug("CertUtils: verifySystemCertByTag() certusage for cert tag" + tag + " not found");
-                r = false;
+                CMS.debug("CertUtils: verifySystemCertByTag() certusage for cert tag " + tag + " undefined in CS.cfg, not checking certificate usage");
             }
-
-            CertUsage cu = getCertUsage(certusage);
-            if (cu == null) {
-                CMS.debug("CertUtils: verifySystemCertByTag() failed: "+
-                  nickname + "with unsupported certusage ="+ certusage);
-                r = false;
-            }
-
-            if (cm.isCertValid(nickname, true, cu)) {
-                r = true;
-                CMS.debug("CertUtils: verifySystemCertByTag() passed:" + nickname);
-            } else {
-                CMS.debug("CertUtils: verifySystemCertByTag() failed:" + nickname);
-                r = false;
-            }
+            r = verifySystemCertByNickname(nickname, certusage);
         } catch (Exception e) {
             CMS.debug("CertUtils: verifySystemCertsByTag() failed: "+
                 e.toString());
@@ -844,22 +862,37 @@ public class CertUtils {
         return r;
     }
 
-    public static CertUsage getCertUsage(String certusage) {
-        CertUsage cu = null;
-        if (certusage.equalsIgnoreCase("SSLServer"))
-            cu = CryptoManager.CertUsage.SSLServer;
+    /*
+     * returns CertificateUsage mapping to JSS
+     */
+    public static CertificateUsage getCertificateUsage(String certusage) {
+        CertificateUsage cu = null;
+        if ((certusage == null) || certusage.equals(""))
+            cu = CryptoManager.CertificateUsage.CheckAllUsages;
+        else if (certusage.equalsIgnoreCase("CheckAllUsages"))
+            cu = CryptoManager.CertificateUsage.CheckAllUsages;
+        else if (certusage.equalsIgnoreCase("SSLServer"))
+            cu = CryptoManager.CertificateUsage.SSLServer;
+        else if (certusage.equalsIgnoreCase("SSLServerWithStepUp"))
+            cu = CryptoManager.CertificateUsage.SSLServerWithStepUp;
         else if (certusage.equalsIgnoreCase("SSLClient"))
-            cu = CryptoManager.CertUsage.SSLClient;
+            cu = CryptoManager.CertificateUsage.SSLClient;
+        else if (certusage.equalsIgnoreCase("SSLCA"))
+            cu = CryptoManager.CertificateUsage.SSLCA;
         else if (certusage.equalsIgnoreCase("AnyCA"))
-            cu = CryptoManager.CertUsage.AnyCA;
+            cu = CryptoManager.CertificateUsage.AnyCA;
         else if (certusage.equalsIgnoreCase("StatusResponder"))
-            cu = CryptoManager.CertUsage.StatusResponder;
+            cu = CryptoManager.CertificateUsage.StatusResponder;
         else if (certusage.equalsIgnoreCase("ObjectSigner"))
-            cu = CryptoManager.CertUsage.ObjectSigner;
+            cu = CryptoManager.CertificateUsage.ObjectSigner;
+        else if (certusage.equalsIgnoreCase("UserCertImport"))
+            cu = CryptoManager.CertificateUsage.UserCertImport;
         else if (certusage.equalsIgnoreCase("ProtectedObjectSigner"))
-            cu = CryptoManager.CertUsage.ProtectedObjectSigner;
+            cu = CryptoManager.CertificateUsage.ProtectedObjectSigner;
+        else if (certusage.equalsIgnoreCase("VerifyCA"))
+            cu = CryptoManager.CertificateUsage.VerifyCA;
         else if (certusage.equalsIgnoreCase("EmailSigner"))
-            cu = CryptoManager.CertUsage.ObjectSigner;
+            cu = CryptoManager.CertificateUsage.EmailSigner;
 
         return cu;
     }
