@@ -34,7 +34,9 @@ public class Cert {
     private String mUserFriendlyName = "";
     private String mKeyOption = "";
     private String mCustomKeysize = "";
+    private String mCustomCurvename = "";
     private boolean mEnable = true;
+    private boolean mSigningRequired = false;
     private String mSubsystem = "";
 
     public Cert(String tokenName, String nickName, String certTag) {
@@ -49,6 +51,14 @@ public class Cert {
 
     public boolean isEnable() {
         return mEnable;
+    }
+
+    public void setSigningRequired(boolean required) {
+        mSigningRequired = required;
+    }
+
+    public boolean isSigningRequired() {
+        return mSigningRequired;
     }
 
     public void setNickname(String s) {
@@ -162,5 +172,13 @@ public class Cert {
 
     public void setCustomKeysize(String size) {
         mCustomKeysize = size;
+    }
+
+    public String getCustomCurvename() {
+        return mCustomCurvename;
+    }
+
+    public void setCustomCurvename(String curve) {
+        mCustomCurvename = curve;
     }
 }

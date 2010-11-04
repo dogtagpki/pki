@@ -46,8 +46,10 @@ public class SizePanel extends WizardPanelBase {
     private Vector mCerts = null;
     private WizardServlet mServlet = null;
 
-    public static final String DEFAULT_ECC_KEY_SIZE = "256";
-    public static final String DEFAULT_RSA_KEY_SIZE = "2048";
+    private String default_ecc_curve_name;
+    private String default_rsa_key_size;
+    private boolean mShowSigning = false;
+
     public SizePanel() {}
 
     /**
@@ -111,7 +113,11 @@ public class SizePanel extends WizardPanelBase {
             HttpServletResponse response,
             Context context) {
         CMS.debug("SizePanel: display()");
-        context.put("title", "Key Pairs");
+        try {
+          initParams(request, context);
+        } catch (IOException e) {
+        }
+
         context.put("firsttime", "false");
         String errorString = "";
         mCerts = new Vector();
@@ -123,41 +129,22 @@ public class SizePanel extends WizardPanelBase {
             context.put("firsttime", "true");
         }
 
-        String select = "";
         try {
-            select = config.getString("preop.subsystem.select", "");
+            default_ecc_curve_name = config.getString("keys.ecc.curve.default", "nistp521"); 
         } catch (Exception e) {
         }
 
-        context.put("select", select);
-
-        String ecclist = "";
         try {
-            ecclist = config.getString("preop.ecc.algorithm.list", "SHA256withEC,SHA1withEC,SHA384withEC,SHA512withEC");
-        } catch (Exception e) {
-        }
-        context.put("ecclist", ecclist);
-
-        String rsalist = "";
-        try {
-            rsalist = config.getString("preop.rsa.algorithm.list", "SHA256withRSA,SHA1withRSA,SHA512withRSA,MD5withRSA,MD2withRSA");
+            default_rsa_key_size = config.getString("keys.rsa.keysize.default", "2048"); 
         } catch (Exception e) {
         }
 
-        context.put("rsalist", rsalist);
-
-        String subsystemType = "";
-        try {
-            subsystemType = config.getString("pkicreate.subsystem_type");
-        } catch (Exception e) {
-        }
-        context.put("subsystemtype", subsystemType);
- 
         try {
             // same token for now
             String token = config.getString(PRE_CONF_CA_TOKEN);
             String certTags = config.getString("preop.cert.list");
             StringTokenizer st = new StringTokenizer(certTags, ",");
+            mShowSigning = false;
 
             while (st.hasMoreTokens()) {
                 String certTag = st.nextToken();
@@ -177,8 +164,20 @@ public class SizePanel extends WizardPanelBase {
 
                 s = config.getString(
                         PCERT_PREFIX + certTag + ".keysize.custom_size",
-                        DEFAULT_RSA_KEY_SIZE);
+                        default_rsa_key_size);
                 c.setCustomKeysize(s);
+
+                s = config.getString(
+                        PCERT_PREFIX + certTag + ".curvename.custom_name",
+                        default_ecc_curve_name);
+                c.setCustomCurvename(s);
+
+                boolean signingRequired = config.getBoolean(
+                        PCERT_PREFIX + certTag + ".signing.required",
+                        false);
+                c.setSigningRequired(signingRequired);
+                if (signingRequired) mShowSigning = true;
+
                 String userfriendlyname = config.getString(
                         PCERT_PREFIX + certTag + ".userfriendlyname");
                 c.setUserFriendlyName(userfriendlyname);
@@ -191,10 +190,11 @@ public class SizePanel extends WizardPanelBase {
         }
         CMS.debug("SizePanel: display() 1");
 
+        context.put("show_signing", mShowSigning ? "true" : "false");
         context.put("certs", mCerts);
         context.put("errorString", errorString);
-        context.put("default_keysize", DEFAULT_RSA_KEY_SIZE);
-        context.put("default_ecc_keysize", DEFAULT_ECC_KEY_SIZE);
+        context.put("default_keysize", default_rsa_key_size);
+        context.put("default_ecc_curvename", default_ecc_curve_name);
         context.put("panel", "admin/console/config/sizepanel.vm");
     }
 
@@ -252,14 +252,19 @@ public class SizePanel extends WizardPanelBase {
                     continue;
 
                 String keytype = HttpInput.getKeyType(request, ct + "_keytype"); // rsa or ecc
-                String keyalgorithm = HttpInput.getString(request, ct + "_keyalgorithm");
 
+                String keyalgorithm = HttpInput.getString(request, ct + "_keyalgorithm");
                 if (keyalgorithm == null) {
                     if (keytype != null && keytype.equals("ecc")) {
                         keyalgorithm = "SHA256withEC";
                     } else {
                         keyalgorithm = "SHA256withRSA";
                     }
+                }
+
+                String signingalgorithm = HttpInput.getString(request, ct + "_signingalgorithm");
+                if (signingalgorithm == null) {
+                    signingalgorithm = keyalgorithm;
                 }
 
                 String select = HttpInput.getID(request, ct + "_choice");
@@ -277,53 +282,74 @@ public class SizePanel extends WizardPanelBase {
                   config.getString(PCERT_PREFIX + ct + ".keytype", "");
                 String oldkeyalgorithm = 
                   config.getString(PCERT_PREFIX + ct + ".keyalgorithm", "");
+                String oldsigningalgorithm = 
+                  config.getString(PCERT_PREFIX + ct + ".signingalgorithm", "");
+                String oldcurvename =
+                  config.getString(PCERT_PREFIX + ct + ".curvename.name", "");
 
                 if (select.equals("default")) {
                     // XXXrenaming these...keep for now just in case
                     config.putString("preop.keysize.select", "default");
                     if (keytype != null && keytype.equals("ecc")) {
-                      config.putString("preop.keysize.custom_size",
-                            DEFAULT_ECC_KEY_SIZE);
-                      config.putString("preop.keysize.size", DEFAULT_ECC_KEY_SIZE);
+                      config.putString("preop.curvename.custom_name",
+                            default_ecc_curve_name);
+                      config.putString("preop.curvename.name", default_ecc_curve_name);
                     } else {
                       config.putString("preop.keysize.custom_size",
-                            DEFAULT_RSA_KEY_SIZE);
-                      config.putString("preop.keysize.size", DEFAULT_RSA_KEY_SIZE);
+                            default_rsa_key_size);
+                      config.putString("preop.keysize.size", default_rsa_key_size);
                     }
 
                     config.putString(PCERT_PREFIX + ct + ".keytype", keytype);
                     config.putString(PCERT_PREFIX + ct + ".keyalgorithm", keyalgorithm);
+                    config.putString(PCERT_PREFIX + ct + ".signingalgorithm", signingalgorithm);
                     config.putString(PCERT_PREFIX + ct + ".keysize.select",
                             "default");
                     if (keytype != null && keytype.equals("ecc")) {
                       config.putString(PCERT_PREFIX + ct + 
-                            ".keysize.custom_size",
-                            DEFAULT_ECC_KEY_SIZE);
-                      config.putString(PCERT_PREFIX + ct + ".keysize.size",
-                            DEFAULT_ECC_KEY_SIZE);
+                            ".curvename.custom_name",
+                            default_ecc_curve_name);
+                      config.putString(PCERT_PREFIX + ct + ".curvename.name",
+                            default_ecc_curve_name);
                     } else {
                       config.putString(PCERT_PREFIX + ct + 
                             ".keysize.custom_size",
-                            DEFAULT_RSA_KEY_SIZE);
+                            default_rsa_key_size);
                       config.putString(PCERT_PREFIX + ct + ".keysize.size",
-                            DEFAULT_RSA_KEY_SIZE);
+                            default_rsa_key_size);
                     }
                 } else if (select.equals("custom")) {
                     // XXXrenaming these...keep for now just in case
                     config.putString("preop.keysize.select", "custom");
-                    config.putString("preop.keysize.size", 
+                    if (keytype != null && keytype.equals("ecc")) {
+                        config.putString("preop.curvename.name", 
+                            HttpInput.getString(request, ct + "_custom_curvename"));
+                        config.putString("preop.curvename.custom_name",
+                            HttpInput.getString(request, ct + "_custom_curvename"));
+                    } else {
+                        config.putString("preop.keysize.size", 
                             HttpInput.getKeySize(request, ct + "_custom_size", keytype));
-                    config.putString("preop.keysize.custom_size",
+                        config.putString("preop.keysize.custom_size",
                             HttpInput.getKeySize(request, ct + "_custom_size", keytype));
+                    }
 
                     config.putString(PCERT_PREFIX + ct + ".keytype", keytype);
                     config.putString(PCERT_PREFIX + ct + ".keyalgorithm", keyalgorithm);
+                    config.putString(PCERT_PREFIX + ct + ".signingalgorithm", signingalgorithm);
                     config.putString(PCERT_PREFIX + ct + ".keysize.select",
                             "custom");
-                    config.putString(PCERT_PREFIX + ct + ".keysize.custom_size",
-                            HttpInput.getKeySize(request, ct + "_custom_size", keytype));
-                    config.putString(PCERT_PREFIX + ct + ".keysize.size",
-                            HttpInput.getKeySize(request, ct + "_custom_size", keytype));
+
+                    if (keytype != null && keytype.equals("ecc")) {
+                        config.putString(PCERT_PREFIX + ct + ".curvename.custom_name",
+                            HttpInput.getString(request, ct + "_custom_curvename"));
+                        config.putString(PCERT_PREFIX + ct + ".curvename.name",
+                            HttpInput.getString(request, ct + "_custom_curvename"));
+                    } else {
+                        config.putString(PCERT_PREFIX + ct + ".keysize.custom_size",
+                            HttpInput.getKeySize(request, ct + "_custom_size"));
+                        config.putString(PCERT_PREFIX + ct + ".keysize.size",
+                            HttpInput.getKeySize(request, ct + "_custom_size"));
+                    }
                 } else {
                     CMS.debug("SizePanel: invalid choice " + select);
                     throw new IOException("invalid choice " + select);
@@ -335,9 +361,16 @@ public class SizePanel extends WizardPanelBase {
                   config.getString(PCERT_PREFIX + ct + ".keytype", "");
                 String newkeyalgorithm = 
                   config.getString(PCERT_PREFIX + ct + ".keyalgorithm", "");
+                String newsigningalgorithm = 
+                  config.getString(PCERT_PREFIX + ct + ".signingalgorithm", "");
+                String newcurvename = 
+                  config.getString(PCERT_PREFIX+ct+".curvename.name", "");
+
                 if (!oldkeysize.equals(newkeysize) || 
                   !oldkeytype.equals(newkeytype) ||
-                  !oldkeyalgorithm.equals(newkeyalgorithm))
+                  !oldkeyalgorithm.equals(newkeyalgorithm) ||
+                  !oldsigningalgorithm.equals(newsigningalgorithm) ||
+                  !oldcurvename.equals(newcurvename))
                     hasChanged = true;
             }// while
 
@@ -370,9 +403,11 @@ public class SizePanel extends WizardPanelBase {
         while (c.hasMoreElements()) {
             Cert cert = (Cert) c.nextElement();
             String ct = cert.getCertTag();
+            String friendlyName = ct;
             boolean enable = true;
             try {
-                enable = config.getBoolean(PCERT_PREFIX+ct+".enable", true); 
+                enable = config.getBoolean(PCERT_PREFIX+ct+".enable", true);
+                friendlyName = config.getString(PCERT_PREFIX + ct + ".userfriendlyname", ct);
             } catch (Exception e) {
             }
 
@@ -382,20 +417,23 @@ public class SizePanel extends WizardPanelBase {
             try {
                 String keytype = config.getString(PCERT_PREFIX + ct + ".keytype");
                 String keyalgorithm = config.getString(PCERT_PREFIX + ct + ".keyalgorithm");
-                int keysize = config.getInteger(
-                        PCERT_PREFIX + ct + ".keysize.size");
                                                                                
                 if (keytype.equals("rsa")) {
+                    int keysize = config.getInteger(
+                        PCERT_PREFIX + ct + ".keysize.size");
 
                     createRSAKeyPair(token, keysize, config, ct);
                 } else {
-                    createECCKeyPair(token, keysize, config, ct);
+                    String curveName = config.getString(
+                        PCERT_PREFIX + ct + ".curvename.name", default_ecc_curve_name);
+                    createECCKeyPair(token, curveName, config, ct);
                 }
                 config.commit(false);
             } catch (Exception e) {
                 CMS.debug(e);
                 CMS.debug("SizePanel: key generation failure: " + e.toString());
-                throw new IOException("key generation failure");
+                throw new IOException("key generation failure for the certificate: " + friendlyName + 
+                                      ".  See the logs for details.");
             }
         } // while
 
@@ -413,10 +451,10 @@ public class SizePanel extends WizardPanelBase {
 
     }
 
-    public void createECCKeyPair(String token, int keysize, IConfigStore config, String ct) 
+    public void createECCKeyPair(String token, String curveName, IConfigStore config, String ct) 
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException, CryptoManager.NotInitializedException
     {
-        CMS.debug("Generating ECC key pair with keysize="+ keysize +
+        CMS.debug("Generating ECC key pair with curvename="+ curveName +
                     ", token="+token);
         KeyPair pair = null;
         /*
@@ -452,14 +490,14 @@ public class SizePanel extends WizardPanelBase {
         do {
           if (ct.equals("sslserver") && sslType.equalsIgnoreCase("ECDH")) {
               CMS.debug("SizePanel: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set properly with -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
-              pair = CryptoUtil.generateECCKeyPair(token, keysize,
+              pair = CryptoUtil.generateECCKeyPair(token, curveName,
                     null,
                     ECDH_usages_mask);
           } else {
               if (ct.equals("sslserver")) {
                 CMS.debug("SizePanel: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set properly with +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
               }
-              pair = CryptoUtil.generateECCKeyPair(token, keysize,
+              pair = CryptoUtil.generateECCKeyPair(token, curveName,
                     null,
                     usages_mask);
           }
@@ -485,39 +523,11 @@ public class SizePanel extends WizardPanelBase {
 
         String keyAlgo = "";
         try {
-            keyAlgo = config.getString(PCERT_PREFIX + ct + ".keyalgorithm");
+            keyAlgo = config.getString(PCERT_PREFIX + ct + ".signingalgorithm");
         } catch (Exception e1) {
         }
 
-        // set default signing algorithm for CA
-        String systemType = "";
-        try {
-          systemType = config.getString("preop.system.name");
-        } catch (Exception e1) {
-        }
-
-        if (systemType.equalsIgnoreCase("CA")) {
-          if (ct.equals("signing")) {
-            config.putString("ca.signing.defaultSigningAlgorithm",
-                           keyAlgo);
-            config.putString("ca.crl.MasterCRL.signingAlgorithm",
-                           keyAlgo);
-          } else if (ct.equals("ocsp_signing")) {
-            config.putString("ca.ocsp_signing.defaultSigningAlgorithm",
-                           keyAlgo);
-          }
-        } else if (systemType.equalsIgnoreCase("OCSP")) {
-          if (ct.equals("signing")) {
-             config.putString("ocsp.signing.defaultSigningAlgorithm",
-                           keyAlgo);
-           }
-        } else if (systemType.equalsIgnoreCase("KRA") ||
-               systemType.equalsIgnoreCase("DRM")) {
-           if (ct.equals("transport")) {
-                config.putString("kra.transportUnit.signingAlgorithm", keyAlgo);
-           }
-        }
-
+        setSigningAlgorithm(ct, keyAlgo, config); 
     }
 
     public void createRSAKeyPair(String token, int keysize, IConfigStore config, String ct) 
@@ -549,19 +559,70 @@ public class SizePanel extends WizardPanelBase {
 
         String keyAlgo = "";
         try {
-            keyAlgo = config.getString(PCERT_PREFIX + ct + ".keyalgorithm");
+            keyAlgo = config.getString(PCERT_PREFIX + ct + ".signingalgorithm");
         } catch (Exception e1) {
         }
 
-        if (ct.equals("signing")) {
-          config.putString("ca.signing.defaultSigningAlgorithm",
-                           keyAlgo);
-          config.putString("ca.crl.MasterCRL.signingAlgorithm",
-                           keyAlgo);
+        setSigningAlgorithm(ct, keyAlgo, config); 
+    }
+
+    public void setSigningAlgorithm(String ct, String keyAlgo, IConfigStore config) {
+        String systemType = "";
+        try {
+          systemType = config.getString("preop.system.name");
+        } catch (Exception e1) {
         }
-        if (ct.equals("ocsp_signing")) {
-          config.putString("ca.ocsp_signing.defaultSigningAlgorithm",
+        if (systemType.equalsIgnoreCase("CA")) {
+          if (ct.equals("signing")) {
+            config.putString("ca.signing.defaultSigningAlgorithm",
                            keyAlgo);
+            config.putString("ca.crl.MasterCRL.signingAlgorithm",
+                           keyAlgo);
+          } else if (ct.equals("ocsp_signing")) {
+            config.putString("ca.ocsp_signing.defaultSigningAlgorithm",
+                           keyAlgo);
+          }
+        } else if (systemType.equalsIgnoreCase("OCSP")) {
+          if (ct.equals("signing")) {
+             config.putString("ocsp.signing.defaultSigningAlgorithm",
+                           keyAlgo);
+           }
+        } else if (systemType.equalsIgnoreCase("KRA") ||
+               systemType.equalsIgnoreCase("DRM")) {
+           if (ct.equals("transport")) {
+                config.putString("kra.transportUnit.signingAlgorithm", keyAlgo);
+           }
+        }
+    }
+
+    public void initParams(HttpServletRequest request, Context context)
+                   throws IOException
+    {
+        IConfigStore config = CMS.getConfigStore();
+        String s = "";
+        try {
+            context.put("title", "Key Pairs");
+
+            s = config.getString("preop.subsystem.select", "");
+            context.put("select", s);
+
+            s = config.getString("preop.hierarchy.select", "root");
+            context.put("hselect", s);
+
+            s = config.getString("preop.ecc.algorithm.list", "SHA256withEC,SHA1withEC,SHA384withEC,SHA512withEC");
+            context.put("ecclist", s);
+
+            s = config.getString("preop.rsa.algorithm.list", "SHA256withRSA,SHA1withRSA,SHA512withRSA,MD5withRSA,MD2withRSA");
+            context.put("rsalist", s);
+
+            s = config.getString("keys.ecc.curve.list", "nistp521");
+            context.put("curvelist", s);
+
+            s = config.getString("pkicreate.subsystem_type");
+            context.put("subsystemtype", s);
+
+        } catch (Exception e) {
+            CMS.debug("SizePanel(): initParams: unable to set all initial parameters:" + e);
         }
     }
 
@@ -571,10 +632,16 @@ public class SizePanel extends WizardPanelBase {
     public void displayError(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {
-        context.put("title", "Key Pairs");
+        try {
+          initParams(request, context);
+        } catch (IOException e) {
+        }
+
         context.put("certs", mCerts);
-        context.put("default_keysize", DEFAULT_RSA_KEY_SIZE);
-        context.put("default_ecc_keysize", DEFAULT_ECC_KEY_SIZE);
+        context.put("show_signing", mShowSigning ? "true" : "false");
+        context.put("default_keysize", default_rsa_key_size);
+        context.put("default_ecc_curvename", default_ecc_curve_name);
+
         context.put("panel", "admin/console/config/sizepanel.vm");
     }
 }

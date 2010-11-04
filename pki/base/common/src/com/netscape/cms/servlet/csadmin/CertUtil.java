@@ -406,8 +406,13 @@ public class CertUtil {
             CMS.debug("key algorithm is " + keyAlgo);
             String caSigningKeyType = 
                  config.getString("preop.cert.signing.keytype","rsa");
-            String caSigningKeyAlgo = 
-                 config.getString("preop.cert.signing.keyalgorithm","SHA256withRSA");
+            String caSigningKeyAlgo = ""; 
+            if (type.equals("selfsign")) { 
+                 caSigningKeyAlgo = config.getString("preop.cert.signing.keyalgorithm","SHA256withRSA");
+            } else {
+                 caSigningKeyAlgo = config.getString("preop.cert.signing.signingalgorithm","SHA256withRSA");
+            }
+
             CMS.debug("CA Signing Key type " + caSigningKeyType);
             CMS.debug("CA Signing Key algorithm " + caSigningKeyAlgo);
 
