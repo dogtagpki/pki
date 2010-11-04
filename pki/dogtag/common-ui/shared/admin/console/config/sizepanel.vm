@@ -33,12 +33,16 @@ div#simple
 
 var rsalist="${rsalist}";
 var ecclist="${ecclist}"; 
+var curvelist="${curvelist}";
 
 function myOnLoad() {
    var form = document.forms[0];
    var keyTypeSelect = form.elements['keytype'];
-   setAlgOptions(keyTypeSelect.value, "commontag");
 
+   setSigningAlgOptions(keyTypeSelect.value, "commontag");
+   setAllSigningAlgOptions(keyTypeSelect.value);
+
+   setAlgOptions(keyTypeSelect.value, "commontag");
    setAllAlgOptions(keyTypeSelect.value);
 }
 
@@ -59,11 +63,6 @@ function toggleLayer(whichLayer)
       style2.display = "block";
     }
   }
-
-  var algIndex = document.forms[0].elements['keyalgorithm'].selectedIndex;
-  keyTypeChange("commontag");
-  document.forms[0].elements['keyalgorithm'].selectedIndex = algIndex;
-  keyAlgorithmChange();
 }
 
 function toggleLayer1(whichLayer)
@@ -81,6 +80,22 @@ function toggleLayer1(whichLayer)
   }
 }
 
+function toggleOn(whichLayer)
+{
+  if (document.getElementById) {
+    var style2 = document.getElementById(whichLayer).style;
+    style2.display = "block";
+  }
+}
+
+function toggleOff(whichLayer)
+{
+  if (document.getElementById) {
+    var style2 = document.getElementById(whichLayer).style;
+    style2.display = "none";
+  }
+}
+
 function keyAlgorithmChange()
 {
   var form = document.forms[0];
@@ -88,6 +103,18 @@ function keyAlgorithmChange()
   for (var i = 0; i < form.length; i++) {
     var name = form[i].name;
     if (name.indexOf('_keyalgorithm') != -1) {
+      form.elements[name].selectedIndex = keyTypeSelect.selectedIndex;
+    }
+  }
+}
+
+function signingAlgorithmChange()
+{
+  var form = document.forms[0];
+  var keyTypeSelect = document.forms[0].elements['signingalgorithm'];
+  for (var i = 0; i < form.length; i++) {
+    var name = form[i].name;
+    if (name.indexOf('_signingalgorithm') != -1) {
       form.elements[name].selectedIndex = keyTypeSelect.selectedIndex;
     }
   }
@@ -115,6 +142,9 @@ function setAlgOptions(keyType, certTag)
   } else {
     algSelect = document.forms[0].elements[certTag + '_keyalgorithm'];
   }
+  if (algSelect == undefined) {
+    return;
+  }
   algSelect.options.length=0;
   if (keyType == "rsa") {
     list = rsalist.split(",");
@@ -123,6 +153,78 @@ function setAlgOptions(keyType, certTag)
   }
   for (i=0; i < list.length; i++) {
     algSelect.options[algSelect.options.length] = new Option(list[i], list[i]);
+  }
+}
+
+function setAllSigningAlgOptions(keyType)
+{
+  var form = document.forms[0];
+  for (var i = 0; i < form.length; i++) {
+    var name = form[i].name;
+    var ind = name.indexOf('_signingalgorithm');
+    if (ind != -1) {
+      var tag = name.substring(0,ind);
+      setSigningAlgOptions(keyType, tag);
+    }
+  }
+}
+
+function setSigningAlgOptions(keyType, certTag)
+{
+  var algSelect;
+  var list;
+  if (certTag == "commontag") {
+    algSelect = document.forms[0].elements['signingalgorithm'];
+  } else {
+    algSelect = document.forms[0].elements[certTag + '_signingalgorithm'];
+  }
+  algSelect.options.length=0;
+  if (keyType == "rsa") {
+    list = rsalist.split(",");
+  } else {
+    list = ecclist.split(",");
+  }
+  for (i=0; i < list.length; i++) {
+    algSelect.options[algSelect.options.length] = new Option(list[i], list[i]);
+  }
+}
+
+function toggleKeyCurve(keyType, certTag)
+{
+  if (keyType == "rsa") {
+    toggleOn(certTag + '_custom_display_keysize');
+    toggleOff(certTag + '_custom_display_curvename');
+  } else {
+    toggleOff(certTag + '_custom_display_keysize');
+    toggleOn(certTag + '_custom_display_curvename');
+  }
+}
+
+function toggleAllKeyCurves(keyType)
+{
+  var form = document.forms[0];
+  if (keyType == "rsa") {
+    toggleOn('simple_keysize');
+    toggleOff('simple_curvename');
+  } else {
+    toggleOn('simple_curvename');
+    toggleOff('simple_keysize');
+  } 
+
+  for (var i = 0; i < form.length; i++) {
+    var name = form[i].name;
+    var ind = name.indexOf('_keytype');
+    
+    if (ind != -1) {
+      var tag = name.substring(0,ind);
+      if (keyType =="rsa") {
+          toggleOff(tag + '_custom_display_curvename');
+          toggleOn(tag + '_custom_display_keysize');
+      } else {
+          toggleOn(tag + '_custom_display_curvename');
+          toggleOff(tag + '_custom_display_keysize');
+      }
+    }
   }
 }
 
@@ -139,10 +241,14 @@ function keyTypeChange(certTag)
       }
     }
     setAllAlgOptions(keyTypeSelect.value);
+    setAllSigningAlgOptions(keyTypeSelect.value);
+    toggleAllKeyCurves(keyTypeSelect.value);
   } else {
       keyTypeSelect = document.forms[0].elements[certTag + '_keytype'];
+      toggleKeyCurve(keyTypeSelect.value, certTag);
   }
   setAlgOptions(keyTypeSelect.value, certTag);
+  setSigningAlgOptions(keyTypeSelect.value, certTag);
 }
 
 function defaultChange()
@@ -187,8 +293,50 @@ function textChange()
   }
 }
 
+function matchCurve(curve)
+{
+  var list = curvelist.split(",");
+  for (var i=0; i < list.length; i++) {
+    if (list[i] == curve) return true;
+  }
+  return false;
+}
+
+function curveChange()
+{
+  var customCurve = document.forms[0].elements['custom_curvename'];
+  var check = matchCurve(customCurve.value);
+  if (check == false) {
+    alert("The curve name " + customCurve.value + " is not in the set of allowed curves.\n" +
+          "To see a list of allowed curves, click on Details.");
+    return;
+  }
+  var form = document.forms[0];
+  for (var i = 0; i < form.length; i++) {
+    var name = form[i].name;
+    if (name.indexOf('_custom_curvename') != -1) {
+      form.elements[name].value = customCurve.value;
+    }
+  }
+}
+
+function displayCurveList()
+{
+  var list = curvelist.split(",");
+  var linelen = 0;
+  for (var i=0; i < list.length -1 ; i++) {
+    document.write(list[i] + ",");
+    linelen = linelen + list[i].length;
+    if (linelen >= 60) {
+      document.write("<br/>");
+      linelen=0;
+    }
+  }
+  document.write(list[list.length -1]);
+}
+  
 </SCRIPT>
-Select the key pair type(s) and associated key pair size(s) and hashing algorithm(s) from the pulldown menus. <a href="javascript:toggle_details();">[Details]</a>
+Select the key pair type(s), associated key pair size(s) or curve name(s), and signature algorithm(s) from the pulldown menus. <a href="javascript:toggle_details();">[Details]</a>
 <SCRIPT type="text/JavaScript">
 function toggle_details()
 {
@@ -202,10 +350,30 @@ function toggle_details()
 </script>
 <div id=details style="display: none;">
 <br/>
-Each key pair is comprised of a <b><i>key type</i></b>, <b><i>key size</i></b> and <b><i>hashing algorithm</i></b>. Based upon the key type selected from the first pulldown menu, associated key sizes (in bits) and hashing algorithms will be selectable from the second pulldown menu.  Hashing algorithm selection is disabled for non-CA subsystems.  Please refer to the documentation for details.
-<br/>
-<br/>
-Within each key pair type (but not comparable between two different key pair types), the size of the key is a measure of how secure a given system is (i.e. - the longer the key pair size, the more secure the system). Unfortunately, longer key pair sizes increase the time required to perform operations such as signing certificates.
+<p>
+Each certificate can have its own key pair generated with its own independent settings or common settings can be applied to all key pairs. At minimum, each key pair has to define what <i>type</i> it is by identifying a cipher family and then has to set a <i>strength</i> for that key.
+</p>
+<ul>
+<li>
+<b><i>Key Type</i></b>. Sets the cipher family to use to generate the key pair. RSA and ECC key types have slightly different strength options.
+</li>
+<li>
+<b><i>RSA strength: Key Size</i></b>. Sets the key length for the generated pair. Longer keys are stronger, which makes them more secure. 
+However, longer key pair sizes also increase the time required to perform operations such as signing certificates, so long keys can affect performance.
+</li>
+<li>
+<b><i>ECC strength: Curve Name</i></b>. Sets the curve algorithm to use, which can be any one of the curves listed below.  Note that not all curves may be supported by the token.
+<br/><ul style="list-style:none"><li><i>
+<SCRIPT type="text/JavaScript">
+displayCurveList();
+</SCRIPT></i></li></ul>
+</li>
+<li>
+<b><i>Signing Algorithm</i></b>. <i>Signing certificates only.</i> Sets the signing algorithm which will be used to sign objects issued by the subsystem. This is only displayed for certificates which are used for object signing, such as the CA signing certificate or the OCSP signing certificate.
+</li>
+<li><b><i>Signed With</i></b>. <i>Root CAs only.</i> Sets the signing algorithm used to sign the CA signing certificate itself.
+</li>
+</ul>
 <br/>
 </div>
 #if ($select == "clone")
@@ -234,25 +402,31 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
 </table>
 
 #if ($subsystemtype == "ca")
+#if ($hselect == "root")
 <table width=100% class="details">
       <tr> 
-        <th width="30%">Hashing Algorithm:</th>
+        <th width="30%">Signed With:</th>
         <td><select name="keyalgorithm" onChange="keyAlgorithmChange()">
             </select></td>
       </tr>
 </table>
-#else 
+#end
+#end
+
+#if ($show_signing == "true")
 <table width=100% class="details">
       <tr>
-        <th width="30%">Hashing Algorithm:</th>
-        <td><select disabled="disabled" name="keyalgorithm" onChange="keyAlgorithmChange()">
+        <th width="30%">Signing Algorithm:</th>
+        <td><select name="signingalgorithm" onChange="signingAlgorithmChange()">
             </select></td>
       </tr>
 </table>
 #end
 
+<div id="simple_keysize"> 
 <p>
-    <input checked onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default key size ($default_keysize bits for RSA, $default_ecc_keysize bits for ECC)</b>.
+
+    <input checked onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default key size ($default_keysize bits)</b>.
     <p>
     <input onChange="customChange()" type=radio name="choice" value="custom"><b>Use the following custom key size:</b>
                                                                                 
@@ -265,8 +439,46 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
 </table>
 
 </div>
+
+<div id="simple_curvename" style="display: none;">
 <p>
-<div id="advance">
+
+    <input checked onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default curve ($default_ecc_curvename)</b>.
+    <p>
+    <input onChange="customChange()" type=radio name="choice" value="custom"><b>Use the following curve:</b>
+
+    <p>
+<table width=100% class="details">
+      <tr>
+        <th width=30%>Curve Name:</th>
+        <td><input onChange="curveChange()" type="text" size="20" name="custom_curvename" value="$default_ecc_curvename" /></td>
+      </tr>
+</table>
+
+</div>
+
+<!-- to be used when we can do a google-style horizontal combo-box
+<div id="simple_curvename" style="display: none;">
+
+<table width=100% class="details">
+      <tr>
+        <th width="30%">Curve Name:</th>
+        <td><select name="custom_curvename">
+                #set ($x=0)
+                #foreach ($p in ${curvelist})
+                    <option value="$x">$p</option>
+                    #set ($x=$x+1)
+                #end
+            </select></td>
+      </tr>
+</table>
+</div>
+-->
+
+</div>
+<p>
+
+<div id="advance" style="display: none;">
 <p>
 <table width=100%>
 <tr>
@@ -286,39 +498,45 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
 #end
       </tr>
 </table>
-<br/>
 
 #if ($subsystemtype == "ca")
+#if ($hselect == "root")
+#if ($item.getCertTag() == "signing")
 <table width=100% class="details">
       <tr>
-        <th width="30%">Hashing Algorithm:</th>
+        <th width="30%">Signed With:</th>
         <td><select name="$item.getCertTag()_keyalgorithm">
             </select></td>
       </tr>
 </table>
-#else 
+#end
+#end
+#end
+
+#if ($item.isSigningRequired())
 <table width=100% class="details">
       <tr>
-        <th width="30%">Hashing Algorithm:</th>
-        <td><select disabled="disabled" name="$item.getCertTag()_keyalgorithm">
+        <th width="30%">Signing Algorithm:</th>
+        <td><select name="$item.getCertTag()_signingalgorithm">
             </select></td>
       </tr>
 </table>
 #end
-<br/>
 
+<div id="$item.getCertTag()_custom_display_keysize">
+<br/>
 #if ($item.isEnable())
     <input
 #if ($item.useDefaultKey())
  checked
 #end
- type=radio name=$item.getCertTag()_choice value="default"><b>Use the default key size (2048 bits for RSA, 256 bits for ECC).
+ type=radio name=$item.getCertTag()_choice value="default"><b>Use the default key size ($default_keysize bits).
 #else
     <input
 #if ($item.useDefaultKey())
  checked
 #end
- type=radio name=$item.getCertTag()_choice value="default" disabled="disabled"><b>Use the default key size (2048 bits for RSA, 256 bits for ECC).
+ type=radio name=$item.getCertTag()_choice value="default" disabled="disabled"><b>Use the default key size ($default_keysize bits).
 #end
     <br/>
 #if ($item.isEnable())
@@ -346,6 +564,79 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
 #end
       </tr>
 </table>
+</div>
+
+<div id="$item.getCertTag()_custom_display_curvename" style="display: none;">
+<br/>
+#if ($item.isEnable())
+    <input
+#if ($item.useDefaultKey())
+ checked
+#end
+ type=radio name=$item.getCertTag()_choice value="default"><b>Use the default curve ($default_ecc_curvename).
+#else
+    <input
+#if ($item.useDefaultKey())
+ checked
+#end
+ type=radio name=$item.getCertTag()_choice value="default" disabled="disabled"><b>Use the default curve ($default_ecc_curvename).
+#end
+    <br/>
+#if ($item.isEnable())
+    <input
+#if (!$item.useDefaultKey())
+ checked
+#end
+ type=radio name=$item.getCertTag()_choice value="custom"><b>Use the following curve:</b>
+#else
+    <input
+#if (!$item.useDefaultKey())
+ checked
+#end
+ type=radio name=$item.getCertTag()_choice value="custom" disabled="disabled"><b>Use the following curve:</b>
+#end
+
+    <br/>
+<table width=100% class="details">
+      <tr>
+        <th width=30%>Curve Name:</th>
+#if ($item.isEnable())
+        <td><input type="text" size="20" name=$item.getCertTag()_custom_curvename value=$item.getCustomCurvename() /></td>
+#else
+        <td><input type="text" size="20" name=$item.getCertTag()_custom_curvename value=$item.getCustomCurvename() disabled="disabled"/></td>
+#end
+      </tr>
+</table>
+</div>
+
+<!-- to be used when we can do a google-style combo-box
+<div id="$item.getCertTag()_custom_display_curvename" style="display: none;">
+<table width=100% class="details">
+      <tr>
+        <th width="30%">Curve Name:</th>
+#if ($item.isEnable())
+        <td><select name=$item.getCertTag()_custom_curvename value=$item.getCustomCurvename()>
+                #set ($x=0)
+                #foreach ($p in $curvelist)
+                    <option value="$x">$p</option>
+                    #set ($x=$x+1)
+                #end
+            </select>
+        </td>
+#else
+        <td><select name=$item.getCertTag()_custom_curvename value=$item.getCustomCurvename() disabled="disabled">
+                #set ($x=0)
+                #foreach ($p in $curvelist)
+                    <option value="$x">$p</option>
+                    #set ($x=$x+1)
+                #end
+            </select>
+        </td>
+#end
+      </tr>
+</table>
+</div>
+-->
 
 #end
 </div>
