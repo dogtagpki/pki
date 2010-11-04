@@ -150,6 +150,24 @@ public class KeyCertData extends Properties {
     }
 
     /**
+     * Retrieves key curve name.
+     *
+     * @return key curve name
+     */
+    public String getKeyCurveName() {
+        return (String) get(Constants.PR_KEY_CURVENAME);
+    }
+
+    /**
+     * Sets key curvename.
+     *
+     * @param len key curvename
+     */
+    public void setKeyCurveName(String len) {
+        put(Constants.PR_KEY_CURVENAME, len);
+    }
+
+    /**
      * Retrieves signature algorithm.
      *
      * @return signature algorithm
@@ -165,6 +183,24 @@ public class KeyCertData extends Properties {
      */
     public void setSignatureAlgorithm(SignatureAlgorithm alg) {
         put(Constants.PR_SIGNATURE_ALGORITHM, alg);
+    }
+
+    /**
+     * Retrieves algorithm used to sign the root CA Cert.
+     *
+     * @return signature algorithm
+     */
+    public String getSignedBy() {
+        return (String) get(Constants.PR_SIGNEDBY_TYPE);
+    }
+
+    /**
+     * Sets signature algorithm used to sign root CA cert
+     *
+     * @param alg signature algorithm
+     */
+    public void setSignedBy(String alg) {
+        put(Constants.PR_SIGNEDBY_TYPE, alg);
     }
 
     /**

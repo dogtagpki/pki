@@ -50,4 +50,6 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
     public PrivateKey unwrap_temp(byte wrappedKeyData[], PublicKey
 	  pubKey) throws EBaseException;
     public CryptoToken getToken();
+    public String getSigningAlgorithm() throws EBaseException; 
+    public void setSigningAlgorithm(String str) throws EBaseException; 
 }

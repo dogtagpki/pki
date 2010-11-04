@@ -264,6 +264,8 @@ public final class CMSAdminServlet extends AdminServlet {
                     validateKeyLength(req, resp);
                 else if (scope.equals(ScopeDef.SC_CERTIFICATE_EXTENSION))
                     validateCertExtension(req, resp);
+                else if (scope.equals(ScopeDef.SC_KEY_CURVENAME))
+                    validateCurveName(req, resp);
             }
         } catch (EBaseException e) {
             sendResponse(ERROR, e.toString(getLocale(req)),
@@ -1281,6 +1283,7 @@ private void 	createMasterKey(HttpServletRequest req,
             String serverID = "";
             String otherNickname = "";
             String certSubType = "";
+            String keyCurveName = "";
 
             while (enum1.hasMoreElements()) {
                 String key = (String) enum1.nextElement();
@@ -1303,6 +1306,8 @@ private void 	createMasterKey(HttpServletRequest req,
                     otherNickname = value;
                 } else if (key.equals(Constants.PR_CERTIFICATE_SUBTYPE)) {
                     certSubType = value;
+                } else if (key.equals(Constants.PR_KEY_CURVENAME)) {
+                    keyCurveName = value;
                 }
             }
 
@@ -1348,10 +1353,14 @@ private void 	createMasterKey(HttpServletRequest req,
                 }
                 keypair = jssSubSystem.getKeyPair(nickname);
             } else {
-                if (keyType.equals("DSA"))
-                    pqgParams = jssSubSystem.getPQG(keyLength); 
-                keypair = jssSubSystem.getKeyPair(tokenName, keyType, keyLength, 
-                            pqgParams);
+                if (keyType.equals("ECC")) {
+                    // get ECC keypair
+                    keypair = jssSubSystem.getECCKeyPair(tokenName, keyCurveName, certType);
+                } else { //DSA or RSA
+                    if (keyType.equals("DSA"))
+                        pqgParams = jssSubSystem.getPQG(keyLength); 
+                    keypair = jssSubSystem.getKeyPair(tokenName, keyType, keyLength, pqgParams);
+                }
             }
 
             // reset the "auditPublicKey"
@@ -1761,9 +1770,24 @@ private void 	createMasterKey(HttpServletRequest req,
 
             KeyPair caKeyPair = null;
             String defaultSigningAlg = null;
+            String defaultOCSPSigningAlg = null;
+
+            if (properties.getHashType() != null) {
+                if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
+                    defaultSigningAlg = properties.getHashType();
+                }
+                if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
+                    defaultOCSPSigningAlg = properties.getHashType();
+                }
+            }
     
             // create a new CA certificate or ssl server cert
-            if (properties.getKeyLength() != null) {
+            if (properties.getKeyCurveName() != null) { //new ECC
+                CMS.debug("CMSAdminServlet: issueImportCert: generating ECC keys");
+                pair = jssSubSystem.getECCKeyPair(properties);
+                if (certType.equals(Constants.PR_CA_SIGNING_CERT)) 
+                    caKeyPair = pair;
+            } else if (properties.getKeyLength() != null) { //new RSA or DSA
                 keyType = properties.getKeyType();
                 String keyLen = properties.getKeyLength();
                 PQGParams pqgParams = null;
@@ -1774,11 +1798,8 @@ private void 	createMasterKey(HttpServletRequest req,
                     //properties.put(Constants.PR_PQGPARAMS, pqgParams);
                 }
                 pair = jssSubSystem.getKeyPair(properties);
-                if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
+                if (certType.equals(Constants.PR_CA_SIGNING_CERT)) 
                     caKeyPair = pair;
-                    defaultSigningAlg = getDefaultSigningAlg(keyType,
-                                            properties.getHashType());
-                }
                 // renew the CA certificate or ssl server cert
             } else {
                 pair = jssSubSystem.getKeyPair(nickname);
@@ -1798,10 +1819,20 @@ private void 	createMasterKey(HttpServletRequest req,
                  */
             }
 
+            String alg = properties.getSignedBy();
             if (!certType.equals(Constants.PR_CA_SIGNING_CERT)) {
                 caKeyPair = jssSubSystem.getKeyPair(canickname);
                 updateCASignature(canickname, properties, jssSubSystem);
+            } else if (alg != null) {
+                // self signed CA signing cert, new keys
+                // value provided for signedBy
+                SignatureAlgorithm sigAlg = Cert.mapAlgorithmToJss(alg);
+                properties.setSignatureAlgorithm(sigAlg);
+                properties.setAlgorithmId(jssSubSystem.getAlgorithmId(alg, mConfig));
             }
+
+            if (pair == null) 
+                CMS.debug("CMSAdminServlet: issueImportCert: key pair is null");
 
             BigInteger nextSerialNo = repository.getNextSerialNumber();
 
@@ -1814,6 +1845,9 @@ private void 	createMasterKey(HttpServletRequest req,
             X509CertImpl signedCert = 
                 jssSubSystem.getSignedCert(properties, certType,
                                            caKeyPair.getPrivate());
+
+            if (signedCert == null) 
+                CMS.debug("CMSAdminServlet: issueImportCert: signedCert is null"); 
 
             /* bug 600124
              try {
@@ -1829,6 +1863,7 @@ private void 	createMasterKey(HttpServletRequest req,
             //jss adds the token prefix!!!
             //log(ILogger.LL_DEBUG,"import as alias"+ nicknameWithoutTokenName);
             try {
+                CMS.debug("CMSAdminServlet: issueImportCert: Importing cert: " + nicknameWithoutTokenName);
                 jssSubSystem.importCert(signedCert, nicknameWithoutTokenName,
                                         certType);
             } catch (EBaseException e) {
@@ -1837,6 +1872,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 String newNickname = nicknameWithoutTokenName
                                    + "-" + now.getTime();
 
+                CMS.debug("CMSAdminServlet: issueImportCert: Importing cert with nickname: " + newNickname);
                 jssSubSystem.importCert(signedCert, newNickname,
                                         certType);
                 nicknameWithoutTokenName = newNickname;
@@ -1945,9 +1981,16 @@ private void 	createMasterKey(HttpServletRequest req,
                     }
                 }
             }
-
+  
+            // set signing algorithms if needed
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) 
                 signingUnit.setDefaultAlgorithm(defaultSigningAlg);
+
+            if (defaultOCSPSigningAlg != null) {
+                ISigningUnit ocspSigningUnit = ca.getOCSPSigningUnit();
+                ocspSigningUnit.setDefaultAlgorithm(defaultOCSPSigningAlg);
+            }
+
             properties.clear();
             properties = null;
 
@@ -1963,6 +2006,7 @@ private void 	createMasterKey(HttpServletRequest req,
             mConfig.commit(true);
             sendResponse(SUCCESS, null, null, resp);
         } catch (EBaseException eAudit1) {
+            CMS.debug("CMSAdminServlet: issueImportCert: EBaseException thrown: " + eAudit1.toString());
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
@@ -1975,6 +2019,7 @@ private void 	createMasterKey(HttpServletRequest req,
             // rethrow the specific exception to be handled later
             throw eAudit1;
         } catch (IOException eAudit2) {
+            CMS.debug("CMSAdminServlet: issueImportCert: IOException thrown: " + eAudit2.toString());
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
@@ -2998,6 +3043,36 @@ private void 	createMasterKey(HttpServletRequest req,
             CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
         // jssSubSystem.checkKeyLength(keyType, keyLength, certType, minKey);
+        sendResponse(SUCCESS, null, null, resp);
+    }
+
+    private void validateCurveName(HttpServletRequest req,
+        HttpServletResponse resp) throws ServletException,
+            IOException, EBaseException {
+        Enumeration enum1 = req.getParameterNames();
+        String curveName = null;
+
+        while (enum1.hasMoreElements()) {
+            String key = (String) enum1.nextElement();
+            String value = req.getParameter(key);
+
+            if (key.equals(Constants.PR_KEY_CURVENAME)) {
+                curveName = value;
+            }
+        }
+        // check that the curvename is in the list of supported curves
+        String curveList = mConfig.getString("keys.ecc.curve.list", "nistp521");
+        String[] curves = curveList.split(",");
+        boolean match = false;
+        for (int i=0; i<curves.length; i++) {
+            if (curves[i].equals(curveName)) {
+                match = true;
+            }
+        }
+        if (!match) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ECC_CURVE_NAME"));
+        }
+
         sendResponse(SUCCESS, null, null, resp);
     }
 

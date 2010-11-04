@@ -144,6 +144,26 @@ public interface ICryptoSubsystem extends ISubsystem {
         int keySize, PQGParams pqg) throws EBaseException;
 
     /**
+     * Generates an ECC key pair based on the given parameters.
+     *
+     * @param properties key parameters
+     * @return key pair
+     * @exception EBaseException failed to generate key pair
+     */
+    public KeyPair getECCKeyPair(KeyCertData properties) throws EBaseException;
+
+    /**
+     * Generates an ECC key pair based on the given parameters.
+     *
+     * @param token token name
+     * @param curveName curve name
+     * @param certType type of cert(sslserver etc..)
+     * @return key pair
+     * @exception EBaseException failed to generate key pair
+     */
+    public KeyPair getECCKeyPair(String token, String curveName, String certType) throws EBaseException;
+
+    /**
      * Retrieves the signature algorithm of the certificate named
      * by the given nickname.
      *

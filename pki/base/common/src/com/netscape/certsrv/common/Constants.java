@@ -490,6 +490,8 @@ public interface Constants {
     public final static String PR_TOKEN_NAME = "tokenName";
     public final static String PR_TOKEN_PASSWD = "tokenPwd";
     public final static String PR_KEY_LENGTH = "keyLength";
+    public final static String PR_KEY_CURVENAME = "keyCurveName";
+    public static final String PR_SIGNEDBY_TYPE = "signedBy";
     public final static String PR_KEY_TYPE = "keyType";
     public final static String PR_PQGPARAMS = "pqgParams";
     public final static String PR_CERT_REQUEST = "certReq";
@@ -517,6 +519,9 @@ public interface Constants {
 
     /* SSL Cipher Preferences */
     public final static String PR_CIPHER_PREF = "cipherpref";
+
+    /* SSL EC Type */
+    public final static String PR_ECTYPE = "ectype";
 
     /* values for SSL cipher preferences */
     public final static String 

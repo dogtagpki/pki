@@ -170,6 +170,7 @@ public interface ScopeDef {
 
     // Key Pair
     public final static String SC_KEY_LENGTH = "keyLength";
+    public final static String SC_KEY_CURVENAME = "keyCurveName";
     public final static String SC_CERTIFICATE_EXTENSION = "certificateExt";
     public final static String SC_TOKEN_STATUS = "tokenStatus";
     public final static String SC_TOKEN_LOGON = "tokenLogon";

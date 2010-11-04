@@ -44,12 +44,13 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
     private JRadioButton mExistingKeyBtn;
     private JRadioButton mNewKeyBtn;
     private JComboBox mKeyTypeBox, mDSAKeyTypeBox;
-    private JComboBox mKeyLengthBox, mDSAKeyLengthBox;
+    private JComboBox mKeyLengthBox, mDSAKeyLengthBox, mKeyCurveBox;
     private JComboBox mTokenBox, mNicknameBox;
     private JTextField mKeyLengthText;
-    private JLabel keyHeading, keyTypeLbl, keyLengthLbl, unitLbl,
-      keyLengthCustomLbl, unit1Lbl, mTokenLbl, mNicknameLbl;
-    private JLabel keyLengthCustomText;
+    private JTextField mKeyCurveText;
+    private JLabel keyHeading, keyTypeLbl, keyLengthLbl, keyCurveLbl, unitLbl,
+        unit1Lbl, mTokenLbl, mNicknameLbl;
+    private JLabel keyLengthCustomText, keyCurveCustomText;
     private static final String PANELNAME = "KEYWIZARD";
     private CertSetupWizardInfo wizardInfo;
     private static final String HELPINDEX =
@@ -142,19 +143,12 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
             mKeyTypeBox.setVisible(true);
         }
 
-        String type = "RSA";
+        String type = (String)mKeyTypeBox.getSelectedItem();
         if (mDSAKeyTypeBox.isVisible()) {
             type = (String)mDSAKeyTypeBox.getSelectedItem();
         }
 
-        if (type.equals("RSA")) {
-            mDSAKeyLengthBox.setVisible(false);
-            mKeyLengthBox.setVisible(true);
-        } else {
-            mKeyLengthBox.setVisible(false);
-            mDSAKeyLengthBox.setVisible(true);
-        }
-
+        setLengthCurveFields(type);
         enableKeyLengthFields();
 
         //if (mNewKeyBtn.isSelected() || certType.equals(Constants.PR_OTHER_CERT)) {
@@ -190,7 +184,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
     }
 
     public boolean validatePanel() {
-        if (mKeyLengthText.isEnabled()) {
+        if (mKeyLengthText.isVisible() && mKeyLengthText.isEnabled()) {
             String str = mKeyLengthText.getText().trim();
             if (str.equals("")) {
                 setErrorMessage("BLANKLEN");
@@ -209,6 +203,15 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
             }
         }
 
+        /*
+        if (mKeyCurveText.isVisible() && mKeyCurveText.isEnabled()) {
+            String str = mKeyCurveText.getText().trim();
+            if (str.equals("")) {
+                setErrorMessage("BLANKCURVE");
+                return false;
+            } 
+        }*/
+
         return true;
     }
 
@@ -221,18 +224,31 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
             if (mKeyLengthBox.isVisible()) {
                 val = (String)mKeyLengthBox.getSelectedItem();
+            } else if (mKeyCurveBox.isVisible()) {
+                val = (String)mKeyCurveBox.getSelectedItem();
             } else {
-				if (mDSAKeyLengthBox.isVisible())
-                	val = (String)mDSAKeyLengthBox.getSelectedItem();
-			}
+                if (mDSAKeyLengthBox.isVisible())
+                    val = (String)mDSAKeyLengthBox.getSelectedItem();
+            }
 
             if (val.equals("Custom")) {
-                wizardInfo.addEntry(Constants.PR_KEY_LENGTH, 
-                  mKeyLengthText.getText().trim());
-                nvps.add(Constants.PR_KEY_LENGTH, mKeyLengthText.getText().trim());
+                if (mKeyCurveBox.isVisible()) { // ECC
+                    wizardInfo.addEntry(Constants.PR_KEY_CURVENAME, 
+                      mKeyCurveText.getText().trim());
+                    nvps.add(Constants.PR_KEY_CURVENAME, mKeyCurveText.getText().trim());
+                } else {
+                    wizardInfo.addEntry(Constants.PR_KEY_LENGTH, 
+                      mKeyLengthText.getText().trim());
+                    nvps.add(Constants.PR_KEY_LENGTH, mKeyLengthText.getText().trim());
+                }
             } else {
-                wizardInfo.addEntry(Constants.PR_KEY_LENGTH, val.trim());
-                nvps.add(Constants.PR_KEY_LENGTH, val.trim());
+                if (mKeyCurveBox.isVisible()) { // ECC
+                    wizardInfo.addEntry(Constants.PR_KEY_CURVENAME, val.trim());
+                    nvps.add(Constants.PR_KEY_CURVENAME, val.trim());
+                } else {
+                    wizardInfo.addEntry(Constants.PR_KEY_LENGTH, val.trim());
+                    nvps.add(Constants.PR_KEY_LENGTH, val.trim());
+                }
             }
      
             if (mKeyTypeBox.isVisible()) {
@@ -253,9 +269,14 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         nvps.add(Constants.PR_CERTIFICATE_TYPE, certType);
 
         try {
-            // validate the key length
-            connection.validate(DestDef.DEST_SERVER_ADMIN,
-              ScopeDef.SC_KEY_LENGTH, nvps);
+            // validate the key length or curvename
+            if (mKeyCurveBox.isVisible()) { //ECC
+                connection.validate(DestDef.DEST_SERVER_ADMIN,
+                  ScopeDef.SC_KEY_CURVENAME, nvps);
+            } else {
+                connection.validate(DestDef.DEST_SERVER_ADMIN,
+                  ScopeDef.SC_KEY_LENGTH, nvps);
+            }
 
             NameValuePairs response = null;
             if (!mNewKeyBtn.isSelected()) {
@@ -523,6 +544,23 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         add(mDSAKeyLengthBox, gbc);
         //panel.add(mDSAKeyLengthBox, gbc);
 
+        keyCurveLbl = makeJLabel("KEYCURVE");
+        CMSAdminUtil.resetGBC(gbc);
+        gbc.anchor = gbc.CENTER;
+        gbc.fill = gbc.NONE;
+        gbc.insets = new Insets(0, 4*COMPONENT_SPACE,COMPONENT_SPACE,
+          COMPONENT_SPACE);
+        add(keyCurveLbl, gbc);
+
+        mKeyCurveBox = makeJComboBox("KEYCURVE");
+        CMSAdminUtil.resetGBC(gbc);
+        gbc.anchor = gbc.NORTHWEST;
+        gbc.fill = gbc.NONE;
+        gbc.gridwidth = gbc.REMAINDER;
+        gbc.insets = new Insets(0, COMPONENT_SPACE,COMPONENT_SPACE,
+          COMPONENT_SPACE);
+        add(mKeyCurveBox, gbc);
+
         unitLbl = makeJLabel("UNITS");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.CENTER;
@@ -551,6 +589,14 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
           COMPONENT_SPACE,COMPONENT_SPACE);
         panel1.add(keyLengthCustomText, gbc);
 
+        keyCurveCustomText = makeJLabel("CUSTOMKEYCURVE");
+        CMSAdminUtil.resetGBC(gbc);
+        gbc.anchor = gbc.WEST;
+        gbc.fill = gbc.NONE;
+        gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
+          COMPONENT_SPACE,COMPONENT_SPACE);
+        panel1.add(keyCurveCustomText, gbc);
+
         mKeyLengthText = makeJTextField(7);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;
@@ -559,6 +605,13 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.insets = new Insets(0, COMPONENT_SPACE, 0, 0);
         panel1.add(mKeyLengthText, gbc);
         mActiveColor = mKeyLengthText.getBackground();
+
+        mKeyCurveText = makeJTextField(7);
+        CMSAdminUtil.resetGBC(gbc);
+        gbc.anchor = gbc.WEST;
+        gbc.fill = gbc.NONE;
+        gbc.insets = new Insets(0, COMPONENT_SPACE, 0, 0);
+        panel1.add(mKeyCurveText, gbc);
 
         unit1Lbl = makeJLabel("UNITS");
         CMSAdminUtil.resetGBC(gbc);
@@ -610,8 +663,50 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         CMSAdminUtil.repaintComp(mTokenLbl);
     }
 
+    public void setLengthCurveFields(String type) {
+        if (type.equals("RSA")) {
+                mDSAKeyLengthBox.setVisible(false);
+                mKeyLengthBox.setVisible(true);
+                mKeyCurveBox.setVisible(false);
+                keyLengthCustomText.setVisible(true);
+                keyCurveCustomText.setVisible(false);
+                keyLengthLbl.setVisible(true);
+                keyCurveLbl.setVisible(false);
+                unit1Lbl.setVisible(true);
+                unitLbl.setVisible(true);
+                mKeyLengthText.setVisible(true);
+                mKeyCurveText.setVisible(false);
+            } else if (type.equals("ECC")) {
+                mDSAKeyLengthBox.setVisible(false);
+                mKeyLengthBox.setVisible(false);
+                mKeyCurveBox.setVisible(true);
+                keyLengthCustomText.setVisible(false);
+                keyCurveCustomText.setVisible(true);
+                keyLengthLbl.setVisible(false);
+                keyCurveLbl.setVisible(true);
+                unit1Lbl.setVisible(false);
+                unitLbl.setVisible(false);
+                mKeyLengthText.setVisible(false);
+                mKeyCurveText.setVisible(true);
+            } else {
+                mDSAKeyLengthBox.setVisible(true);
+                mKeyLengthBox.setVisible(false);
+                mKeyCurveBox.setVisible(false);
+                keyLengthCustomText.setVisible(true);
+                keyCurveCustomText.setVisible(false);
+                keyLengthLbl.setVisible(true);
+                keyCurveLbl.setVisible(false);
+                unit1Lbl.setVisible(true);
+                unitLbl.setVisible(true);
+                mKeyLengthText.setVisible(true);
+                mKeyCurveText.setVisible(false);
+            }
+    }
+
+
     public void itemStateChanged(ItemEvent e) {
-        if (e.getSource().equals(mKeyLengthBox) || 
+        if (e.getSource().equals(mKeyLengthBox) ||
+          e.getSource().equals(mKeyCurveBox)    || 
           e.getSource().equals(mDSAKeyLengthBox)) {
             enableKeyLengthFields();
         } else if (e.getSource().equals(mKeyTypeBox) || 
@@ -621,14 +716,8 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
                 type = (String)mKeyTypeBox.getSelectedItem();
             else if (mDSAKeyTypeBox.isVisible())
                 type = (String)mDSAKeyTypeBox.getSelectedItem();
-         
-            if (type.equals("RSA")) {
-                mDSAKeyLengthBox.setVisible(false);
-                mKeyLengthBox.setVisible(true);
-            } else {
-                mDSAKeyLengthBox.setVisible(true);
-                mKeyLengthBox.setVisible(false);
-            }
+            
+            setLengthCurveFields(type);    
             enableKeyLengthFields();
             CMSAdminUtil.repaintComp(this);
         }
@@ -639,16 +728,27 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         
         if (mKeyLengthBox.isVisible())
             value = (String)mKeyLengthBox.getSelectedItem();
+        else if (mKeyCurveBox.isVisible()) 
+            value = (String)mKeyCurveBox.getSelectedItem();
         else
             value = (String)mDSAKeyLengthBox.getSelectedItem();
 
         if (value.equals("Custom") && mNewKeyBtn.isSelected()) {
-            enableFields(keyLengthCustomText, mKeyLengthText, true, mActiveColor);
-            enableFields(unit1Lbl, null, true, mActiveColor);
+            if (mKeyCurveBox.isVisible()) { //ECC
+                enableFields(keyCurveCustomText, mKeyCurveText, true, mActiveColor);
+            } else {
+                enableFields(keyLengthCustomText, mKeyLengthText, true, mActiveColor);
+                enableFields(unit1Lbl, null, true, mActiveColor);
+            }
         } else {
-            enableFields(keyLengthCustomText, mKeyLengthText, false,
-              getBackground());
-            enableFields(unit1Lbl, null, false, getBackground());
+            if (mKeyCurveBox.isVisible()) { //ECC
+                enableFields(keyCurveCustomText, mKeyCurveText, false,
+                  getBackground());
+            } else {
+                enableFields(keyLengthCustomText, mKeyLengthText, false,
+                  getBackground());
+                enableFields(unit1Lbl, null, false, getBackground());
+            }
         }
     }
 
@@ -670,26 +770,36 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         keyHeading.setEnabled(enable);
         keyTypeLbl.setEnabled(enable);
         keyLengthLbl.setEnabled(enable);
+        keyCurveLbl.setEnabled(enable);
         unitLbl.setEnabled(enable);
         unit1Lbl.setEnabled(enable);
         keyLengthCustomText.setEnabled(enable);
+        keyCurveCustomText.setEnabled(enable);
         mKeyLengthText.setEnabled(enable);
         mKeyLengthText.setEditable(enable);
         mKeyLengthText.setBackground(color);
+        mKeyCurveText.setEnabled(enable);
+        mKeyCurveText.setEditable(enable);
+        mKeyCurveText.setBackground(color);
         mKeyTypeBox.setEnabled(enable);
         mDSAKeyTypeBox.setEnabled(enable);
         mKeyLengthBox.setEnabled(enable);
+        mKeyCurveBox.setEnabled(enable);
         mDSAKeyLengthBox.setEnabled(enable);
         repaintComp(keyHeading);
         repaintComp(keyTypeLbl);
         repaintComp(keyLengthLbl);
+        repaintComp(keyCurveLbl);
         repaintComp(unitLbl);
         repaintComp(unit1Lbl);
         repaintComp(keyLengthCustomText);
+        repaintComp(keyCurveCustomText);
         repaintComp(mKeyLengthText);
+        repaintComp(mKeyCurveText);
         repaintComp(mKeyTypeBox);
         repaintComp(mDSAKeyTypeBox);
         repaintComp(mKeyLengthBox);
+        repaintComp(mKeyCurveBox);
         repaintComp(mDSAKeyLengthBox);
     }
 

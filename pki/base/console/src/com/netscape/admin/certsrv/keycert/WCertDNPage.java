@@ -147,8 +147,14 @@ class WCertDNPage extends WBaseDNPage implements IWizardPanel {
         }
 
         if (wizardInfo.isNewKey()) {
-            nvps.add(Constants.PR_KEY_LENGTH, wizardInfo.getKeyLength());
-            nvps.add(Constants.PR_KEY_TYPE, wizardInfo.getKeyType());
+            String type = wizardInfo.getKeyType();
+            if (type.equals("ECC")) {
+                nvps.add(Constants.PR_KEY_CURVENAME, wizardInfo.getKeyCurveName());
+            } else {
+                nvps.add(Constants.PR_KEY_LENGTH, wizardInfo.getKeyLength());
+            }
+
+            nvps.add(Constants.PR_KEY_TYPE, type);
             nvps.add(Constants.PR_TOKEN_NAME, wizardInfo.getTokenName());
         }
 

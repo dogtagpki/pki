@@ -165,6 +165,10 @@ public class CertSetupWizardInfo extends WizardInfo {
         return (String)get(Constants.PR_KEY_LENGTH);
     }
 
+    public String getKeyCurveName() {
+        return (String)get(Constants.PR_KEY_CURVENAME);
+    }
+
     public String getKeyType() {
         return (String)get(Constants.PR_KEY_TYPE);
     }
@@ -306,6 +310,15 @@ public class CertSetupWizardInfo extends WizardInfo {
     public void setHashType(String type) {
         put(ConfigConstants.PR_HASH_TYPE, type);
     }
+
+    public String getSignedByType() {
+        return (String)get(ConfigConstants.PR_SIGNEDBY_TYPE);
+    }
+ 
+    public void setSignedByType(String type) {
+        put(ConfigConstants.PR_SIGNEDBY_TYPE, type);
+    }
+
 
     public boolean isLoggedIn() {
         String value = (String)get(Constants.PR_LOGGED_IN);

@@ -53,6 +53,7 @@ import org.mozilla.jss.pkcs11.PK11SecureRandom;
 import com.netscape.cmscore.cert.*;
 import com.netscape.cmscore.util.Debug;
 import netscape.ldap.util.*;
+import com.netscape.cmsutil.crypto.*;
 
 
 /**
@@ -96,6 +97,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     private static final String PROP_SSL = "ssl";
     private static final String PROP_SSL_CIPHERPREF = Constants.PR_CIPHER_PREF;
+    private static final String PROP_SSL_ECTYPE = Constants.PR_ECTYPE;
 
     private static Hashtable mCipherNames = new Hashtable();
 
@@ -301,6 +303,15 @@ public final class JssSubsystem implements ICryptoSubsystem {
             }
         }
         return cipherpref;
+    }
+
+    public String getECType(String certType) throws EBaseException {
+        if (mSSLConfig != null) {
+            // for SSL server, check the value of jss.ssl.sslserver.ectype
+            return mSSLConfig.getString(certType + "." + PROP_SSL_ECTYPE, "ECDHE");
+        } else {
+            return "ECDHE";
+        }
     }
 
     public String isCipherFortezza() throws EBaseException {
@@ -869,6 +880,72 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         return pair;
     }
+
+    public KeyPair getECCKeyPair(KeyCertData properties) throws EBaseException {
+        String token = Constants.PR_INTERNAL_TOKEN_NAME;
+        String keyType = "ECC";
+        String keyCurve = "nistp512";
+        String certType = null;
+        KeyPair pair = null;
+
+        String tmp = (String) properties.get(Constants.PR_TOKEN_NAME);
+        if (tmp != null) 
+            token = tmp;
+    
+        tmp = (String) properties.get(Constants.PR_KEY_CURVENAME);
+        if (tmp != null)
+            keyCurve = tmp;
+
+        certType = (String) properties.get(Constants.RS_ID);
+
+        pair = getECCKeyPair(token, keyCurve, certType);
+
+        return pair;
+    }
+ 
+    public KeyPair getECCKeyPair(String token, String keyCurve, String certType) throws EBaseException {
+        KeyPair pair = null;
+
+        if ((token == null) || (token.equals("")))
+            token = Constants.PR_INTERNAL_TOKEN_NAME;
+
+        if ((keyCurve == null) || (keyCurve.equals("")))
+             keyCurve = "nistp512";
+
+        String ectype = getECType(certType);
+
+        // ECDHE needs "SIGN" but no "DERIVE"
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[] = {
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
+        };
+
+        // ECDH needs "DERIVE" but no any kind of "SIGN"
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage ECDH_usages_mask[] = {
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER,
+        };
+
+        try {
+            if (ectype.equals("ECDHE")) 
+                pair =  CryptoUtil.generateECCKeyPair(token, keyCurve, null, usages_mask);
+            else
+                pair =  CryptoUtil.generateECCKeyPair(token, keyCurve, null, ECDH_usages_mask);
+        } catch (NotInitializedException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
+        } catch (NoSuchTokenException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
+        } catch (NoSuchAlgorithmException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_SUCH_ALGORITHM", e.toString()));
+        } catch (TokenException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
+        }
+
+        return pair;
+    } 
 
     public void importCert(X509CertImpl signedCert, String nickname,
         String certType) throws EBaseException {

@@ -59,6 +59,7 @@ import com.netscape.certsrv.security.*;
 import com.netscape.cmscore.cert.*;
 import com.netscape.cmscore.util.*;
 import com.netscape.cmscore.dbs.*;
+import com.netscape.cmsutil.crypto.*;
 
 
 /**
@@ -502,6 +503,8 @@ public class KeyCertUtil {
 
         if (pubk instanceof RSAPublicKey) {
             alg = "MD5/RSA";
+        } else if (pubk instanceof PK11ECPublicKey) {
+            alg = "SHA256withEC";
         } else {
             alg = "DSA";
         }
@@ -532,6 +535,8 @@ public class KeyCertUtil {
 
         if (pubk instanceof RSAPublicKey) {
             alg = "MD5/RSA";
+        } else if (pubk instanceof PK11ECPublicKey) {
+            alg = "SHA256withEC";
         } else {
             alg = "DSA";
         }
@@ -575,6 +580,10 @@ public class KeyCertUtil {
             xKey = new netscape.security.provider.RSAPublicKey(
                         new BigInt(rsaKey.getModulus()),
                         new BigInt(rsaKey.getPublicExponent()));
+        } else if (pubk instanceof PK11ECPublicKey) {
+            byte encoded[] = pubk.getEncoded();
+            xKey = CryptoUtil.getPublicX509ECCKey(encoded);
+
         } else {
             DSAPublicKey dsaKey = (DSAPublicKey) pubk;
             DSAParams params = dsaKey.getParams();

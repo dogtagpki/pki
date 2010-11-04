@@ -556,6 +556,10 @@ public class DonePanel extends WizardPanelBase {
                 val = cs.getString("preop.ca.type", "");
                 if (val.compareTo("") != 0) cs.putString("cloning.ca.type", val);
             }
+
+            // save EC type for sslserver cert (if present)
+            cs.putString("jss.ssl.sslserver.ectype", cs.getString("preop.cert.sslserver.ec.type", "ECDHE"));
+
             cs.removeSubStore("preop");
             cs.commit(false);
 

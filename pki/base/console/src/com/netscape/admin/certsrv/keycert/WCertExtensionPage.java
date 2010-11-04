@@ -161,8 +161,13 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
 
         nvps.add(Constants.PR_SUBJECT_NAME, wizardInfo.getSubjectName());
         if (wizardInfo.isNewKey()) {
-            nvps.add(Constants.PR_KEY_LENGTH, wizardInfo.getKeyLength());
-            nvps.add(Constants.PR_KEY_TYPE, wizardInfo.getKeyType());
+            String type = wizardInfo.getKeyType();
+            if (type.equals("ECC")) {
+                nvps.add(Constants.PR_KEY_CURVENAME, wizardInfo.getKeyCurveName());
+            } else {
+                nvps.add(Constants.PR_KEY_LENGTH, wizardInfo.getKeyLength());
+            }
+            nvps.add(Constants.PR_KEY_TYPE, type);
             nvps.add(Constants.PR_TOKEN_NAME, wizardInfo.getTokenName());
         }
         //nvps.add(Constants.PR_VALIDITY_PERIOD, wizardInfo.getValidityPeriod());

@@ -200,6 +200,7 @@ public interface ConfigConstants {
     public static final String PR_SSL_SUBJECT_NAME = "sslSubjectName";
     public static final String PR_KEY_TYPE = "keyType";
     public static final String PR_KEY_LENGTH = "keyLength";
+    public static final String PR_KEY_CURVENAME = "keyCurveName";
     public static final String PR_CERT_REQUEST = "certReq";
     public static final String PR_REQUEST_ID = "ReqID";
     public static final String PR_REQUEST_FORMAT = "ReqFormat";
@@ -272,6 +273,7 @@ public interface ConfigConstants {
     public static final String PR_RSA_MIN_KEYLENGTH = "RSAMinKeyLength";
     public static final String PR_CA_KEYTYPE = "ca_keyType";
     public static final String PR_HASH_TYPE = "hashType";
+    public static final String PR_SIGNEDBY_TYPE = "signedBy";
     public static final String PR_NOTAFTER = "notAfter";
     public static final String PR_CA_O_COMPONENT = "caOComponent";
     public static final String PR_CA_C_COMPONENT = "caCComponent";

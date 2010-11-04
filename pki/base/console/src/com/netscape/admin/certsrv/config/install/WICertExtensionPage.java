@@ -92,6 +92,7 @@ class WICertExtensionPage extends WBaseCertExtensionPage implements
             nvps.add(Constants.PR_TOKEN_NAME, wizardInfo.getTokenName());
             nvps.add(Constants.PR_KEY_LENGTH, wizardInfo.getKeyLength());
             nvps.add(Constants.PR_KEY_TYPE, wizardInfo.getKeyType());
+            nvps.add(Constants.PR_KEY_CURVENAME, wizardInfo.getKeyCurveName());
             addValidityPeriod(wizardInfo, nvps);
 
             if (mBasicCheckBox.isSelected())

@@ -110,8 +110,12 @@ class WExecutePage extends WizardBasePanel implements IWizardPanel {
 
         NameValuePairs nvps = wizardInfo.getNameValuePairs();
 
-        if (wizardInfo.isNewKey())
-            nvps.add(ConfigConstants.PR_HASH_TYPE, wizardInfo.getHashType());
+        if (wizardInfo.isNewKey()) {
+            if (wizardInfo.getHashType() != null) 
+                nvps.add(ConfigConstants.PR_HASH_TYPE, wizardInfo.getHashType());
+            if (wizardInfo.getSignedByType() != null)
+                nvps.add(ConfigConstants.PR_SIGNEDBY_TYPE, wizardInfo.getSignedByType());
+        }
 
         nvps.add("pathname", dir);
         try {

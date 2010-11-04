@@ -492,6 +492,8 @@ public interface Constants {
     public final static String PR_TOKEN_NAME = "tokenName";
     public final static String PR_TOKEN_PASSWD = "tokenPwd";
     public final static String PR_KEY_LENGTH = "keyLength";
+    public final static String PR_KEY_CURVENAME = "keyCurveName";
+    public static final String PR_SIGNEDBY_TYPE = "signedBy";
     public final static String PR_KEY_TYPE = "keyType";
     public final static String PR_PQGPARAMS = "pqgParams";
     public final static String PR_CERT_REQUEST = "certReq";

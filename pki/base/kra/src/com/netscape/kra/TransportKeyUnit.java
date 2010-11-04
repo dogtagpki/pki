@@ -52,6 +52,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
         ISubsystem, ITransportKeyUnit {
 
     public static final String PROP_NICKNAME = "nickName";
+    public static final String PROP_SIGNING_ALGORITHM = "signingAlgorithm";
 
     // private RSAPublicKey mPublicKey = null;
     // private RSAPrivateKey mPrivateKey = null;
@@ -149,6 +150,14 @@ public class TransportKeyUnit extends EncryptionUnit implements
 
     public void setNickName(String str) throws EBaseException {
         mConfig.putString(PROP_NICKNAME, str);
+    }
+
+    public String getSigningAlgorithm() throws EBaseException {
+        return mConfig.getString(PROP_SIGNING_ALGORITHM);
+    }
+
+    public void setSigningAlgorithm(String str) throws EBaseException {
+        mConfig.putString(PROP_SIGNING_ALGORITHM, str);
     }
 
     /**

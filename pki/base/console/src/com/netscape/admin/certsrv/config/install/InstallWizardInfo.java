@@ -833,6 +833,17 @@ public class InstallWizardInfo extends WizardInfo {
         return val;
     }
 
+    public String getKeyCurveName() {
+        String val = (String)get(ConfigConstants.PR_KEY_CURVENAME);
+        if (val ==null) 
+            val = "nistp521";
+        return val;
+    }
+
+    public void setKeyCurveName(String val) {
+        put(ConfigConstants.PR_KEY_CURVENAME, val);
+    }
+
     public String getKeyType() {
         String type = (String)get(ConfigConstants.PR_KEY_TYPE);
 		// work around the historical mistake,
@@ -1403,6 +1414,14 @@ public class InstallWizardInfo extends WizardInfo {
 
     public void setHashType(String type) {
         put(ConfigConstants.PR_HASH_TYPE, type);
+    }
+
+    public String getSignedByType() {
+        return (String)get(ConfigConstants.PR_SIGNEDBY_TYPE);
+    }
+
+    public void setSignedByType(String type) {
+        put(ConfigConstants.PR_SIGNEDBY_TYPE, type);
     }
 
     public String getCAKeyType() {

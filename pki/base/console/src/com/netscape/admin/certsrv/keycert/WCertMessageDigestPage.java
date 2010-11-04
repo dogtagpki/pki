@@ -57,17 +57,35 @@ class WCertMessageDigestPage extends WMessageDigestPage {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
-            return false;
- 
-		if ((wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA))
-			&& !(wizardInfo.isSSLCertLocalCA()))
-			return false;
-        if (!wizardInfo.isNewKey())
-            return false;
+        String certType = wizardInfo.getCertType();
 
         mCAKeyType = (String)wizardInfo.get(Constants.PR_KEY_TYPE);
 
+        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
+            return false;
+ 
+        if ((wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA))
+            && !(wizardInfo.isSSLCertLocalCA()))	
+            return false;
+
+        if (!wizardInfo.isNewKey())
+            return false;
+
+        if (wizardInfo.getCAType().equals(wizardInfo.SELF_SIGNED) &&
+            certType.equals(Constants.PR_CA_SIGNING_CERT)) {
+            enableSignedByFields(true);
+        } else {
+            enableSignedByFields(false);
+        }
+
+        if ((!certType.equals(Constants.PR_CA_SIGNING_CERT)) &&
+            (!certType.equals(Constants.PR_OCSP_SIGNING_CERT))) {
+
+           // (!certType.equals(Constants.PR_KRA_TRANSPORT_CERT))) {
+           // non-signing cert, algorithm specified by CA
+           return false;
+        }
+            
         return super.initializePanel(info); 
     }
 
@@ -75,8 +93,18 @@ class WCertMessageDigestPage extends WMessageDigestPage {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         if (mDSAHashTypeBox.isVisible()) 
             wizardInfo.setHashType((String)mDSAHashTypeBox.getSelectedItem());
-        else
+        else if (mECCHashTypeBox.isVisible()) 
+            wizardInfo.setHashType((String)mECCHashTypeBox.getSelectedItem());
+        else if (mRSAHashTypeBox.isVisible())
             wizardInfo.setHashType((String)mRSAHashTypeBox.getSelectedItem());
+
+        if (mDSASignedByTypeBox.isVisible())
+            wizardInfo.setSignedByType((String)mDSASignedByTypeBox.getSelectedItem());
+        else if (mECCSignedByTypeBox.isVisible())
+            wizardInfo.setSignedByType((String)mECCSignedByTypeBox.getSelectedItem());
+        else if (mRSASignedByTypeBox.isVisible())
+            wizardInfo.setSignedByType((String)mRSASignedByTypeBox.getSelectedItem());
+
     }
 
     public void callHelp() {
