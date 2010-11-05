@@ -94,7 +94,31 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 
 <!-- Define a SSL HTTP/1.1 Connector on port 8443 -->
 [PKI_SECURE_PORT_SERVER_COMMENT]
-<!-- DO NOT REMOVE - Begin define PKI secure port -->
+<!-- DO NOT REMOVE - Begin define PKI secure port 
+    NOTE: The OCSP settings take effect globally, so it should only be set once.
+
+      In setup where SSL clientAuth="true", OCSP can be turned on by
+      setting enableOCSP to true like the following:
+        enableOCSP="true"
+      along with changes to related settings, especially:
+        ocspResponderURL=<see example in connector definition below>
+        ocspResponderCertNickname=<see example in connector definition below>
+      Here are the definition to all the OCSP-related settings:
+        enableOCSP - turns on/off the ocsp check
+        ocspResponderURL - sets the url where the ocsp requests are sent
+        ocspResponderCertNickname - sets the nickname of the cert that is
+            either CA's signing certificate or the OCSP server's signing
+            certificate.
+            The CA's signing certificate should already be in the db, in
+            case of the same security domain.
+            In case of an ocsp signing certificate, one must import the cert
+            into the subsystem's nss db and set trust. e.g.:
+              certutil -d . -A -n "ocspSigningCert cert-pki-ca" -t "C,," -a -i ocspCert.b64
+        ocspCacheSize - sets max cache entries
+        ocspMinCacheEntryDuration - sets minimum seconds to next fetch attempt
+        ocspMaxCacheEntryDuration - sets maximum seconds to next fetch attempt
+        ocspTimeout -sets OCSP timeout in seconds
+-->
 <Connector name="[PKI_SECURE_PORT_CONNECTOR_NAME]" port="[PKI_SECURE_PORT]" maxHttpHeaderSize="8192"
         maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
         enableLookups="false" disableUploadTimeout="true"
@@ -105,6 +129,13 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
         ssl3Ciphers="-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA"
         tls3Ciphers="-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA"
         SSLImplementation="org.apache.tomcat.util.net.jss.JSSImplementation"
+        enableOCSP="false"
+        ocspResponderURL="http://[PKI_MACHINE_NAME]:9080/ca/ocsp"
+        ocspResponderCertNickname="ocspSigningCert cert-pki-ca"
+        ocspCacheSize="1000"
+        ocspMinCacheEntryDuration="60"
+        ocspMaxCacheEntryDuration="120"
+        ocspTimeout="10"
         serverCertNickFile="[PKI_INSTANCE_PATH]/conf/serverCertNick.conf"
         passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
         passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
