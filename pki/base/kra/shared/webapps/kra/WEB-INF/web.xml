@@ -1072,5 +1072,15 @@
       <servlet-name>  kraGetTokenInfo </servlet-name>
       <url-pattern>   /ee/kra/getTokenInfo </url-pattern>
    </servlet-mapping>
+
+   <!-- ==================== Default Session Configuration =============== -->
+   <!-- You can set the default session timeout (in minutes) for all newly -->
+   <!-- created sessions by modifying the value below.                     -->
+   <!--                                                                    -->
+   <!-- To disable session timeouts for this instance, set a value of -1.  -->
+
+   <session-config>
+        <session-timeout>30</session-timeout>
+   </session-config>
 </web-app>
 
