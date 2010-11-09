@@ -353,6 +353,17 @@ public class NamePanel extends WizardPanelBase {
                 // parameters already set
             }
         }
+
+        // audit signing cert
+        String audit_nn = config.getString(cstype + ".audit_signing" + ".nickname", "");
+        String audit_tk = config.getString(cstype + ".audit_signing" + ".tokenname", "");
+	    if (!audit_tk.equals("Internal Key Storage Token") && !audit_tk.equals("")) {
+            config.putString("log.instance.SignedAudit.signedAuditCertNickname",
+                audit_tk + ":" + audit_nn);
+        } else {
+            config.putString("log.instance.SignedAudit.signedAuditCertNickname",
+                audit_nn);
+        }
     }
 
     /*
@@ -408,6 +419,15 @@ public class NamePanel extends WizardPanelBase {
 
         config.putString(subsystem + "." + certTag + ".nickname", nickname);
         config.putString(subsystem + "." + certTag + ".tokenname", token);
+        if (certTag.equals("audit_signing")) {
+	      if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
+            config.putString("log.instance.SignedAudit.signedAuditCertNickname",
+                token + ":" + nickname);
+          } else {
+            config.putString("log.instance.SignedAudit.signedAuditCertNickname",
+                nickname);
+          }
+        }
         /*
         config.putString(CERT_PREFIX + certTag + ".defaultSigningAlgorithm",
                 "SHA1withRSA");

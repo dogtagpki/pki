@@ -226,6 +226,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             try {
                 mSAuditCertNickName = config.getString(
                                           PROP_SIGNED_AUDIT_CERT_NICKNAME);
+                CMS.debug("LogFile: init(): audit log signing enabled. signedAuditCertNickname="+ mSAuditCertNickName);
             } catch (EBaseException e) {
                 throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
                         config.getName() + "."
@@ -510,6 +511,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
             // find CertServer's private key
             X509Certificate cert = cm.findCertByNickname( mSAuditCertNickName );
+            if (cert != null) {
+                CMS.debug("LogFile: setupSignig(): found cert:"+mSAuditCertNickName);
+            } else {
+                CMS.debug("LogFile: setupSignig(): cert not found:"+mSAuditCertNickName);
+            }
             mSigningKey = cm.findPrivKeyByCert(cert);
 
             String sigAlgorithm;
@@ -565,6 +571,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             setupSigningFailure("LOG_UNEXPECTED_EXCEPTION", uee);
         } catch (IOException ioe) {
             setupSigningFailure("LOG_UNEXPECTED_EXCEPTION", ioe);
+        } catch (Exception e) {
+            setupSigningFailure("LOG_UNEXPECTED_EXCEPTION", e);
         }
     }
 
