@@ -521,7 +521,7 @@ public class DonePanel extends WizardPanelBase {
 
             while (st.hasMoreTokens()) {
                 String ss = st.nextToken();
-                if (s.equals("sslserver"))
+                if (ss.equals("sslserver"))
                     continue;
                 cs.putString("cloning." + ss + ".nickname", cs.getString("preop.cert." + ss + ".nickname", ""));
                 cs.putString("cloning." + ss + ".dn", cs.getString("preop.cert." + ss + ".dn", ""));
