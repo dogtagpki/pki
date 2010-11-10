@@ -312,6 +312,14 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         }
         CertificateExtensions exts = null;
 
+        Extension alreadyPresentExtension = getExtension(name,info);
+
+        if (alreadyPresentExtension != null) {
+            String eName = ext.toString();
+            CMS.debug("EnrollDefault.addExtension: duplicate extension attempted! Name:  " + eName);
+            throw new EProfileException(CMS.getUserMessage("CMS_PROFILE_DUPLICATE_EXTENSION",eName));
+        }
+
         try {
             exts = (CertificateExtensions)
                     info.get(X509CertInfo.EXTENSIONS);

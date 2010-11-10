@@ -56,6 +56,8 @@ public abstract class BasicProfile implements IProfile {
     public static final String PROP_PARAMS = "params";
     public static final String PROP_NAME = "name";
     public static final String PROP_DESC = "desc";
+    public static final String PROP_NO_DEFAULT = "noDefaultImpl";
+    public static final String PROP_NO_CONSTRAINT= "noConstraintImpl";
 
     protected IProfileSubsystem mOwner = null;
     protected IConfigStore mConfig = null;
@@ -530,6 +532,8 @@ public abstract class BasicProfile implements IProfile {
 
     public IProfileOutput createProfileOutput(String id, String outputId,
         NameValuePairs nvps, boolean createConfig)
+
+
         throws EProfileException {
         IConfigStore outputStore = mConfig.getSubStore("output");
         String output_list = null;
@@ -741,10 +745,16 @@ public abstract class BasicProfile implements IProfile {
         String defaultClassId, String constraintClassId,
         boolean createConfig)
         throws EProfileException {
+        
+        // String setId ex: policyset.set1
+        // String id    Id of policy : examples: p1,p2,p3 
+        // String defaultClassId : id of the default plugin ex: validityDefaultImpl
+        // String constraintClassId : if of the constraint plugin ex: basicConstraintsExtConstraintImpl
+        // boolean createConfig : true : being called from the console. false: being called from server startup code
+
         Vector policies = (Vector) mPolicySet.get(setId);
 
         IConfigStore policyStore = mConfig.getSubStore("policyset." + setId);
-
         if (policies == null) {
             policies = new Vector();
             mPolicySet.put(setId, policies);
@@ -764,7 +774,6 @@ public abstract class BasicProfile implements IProfile {
                 mConfig.putString("policyset.list", setlist.toString());
             }
         } else {
-            if (createConfig) {
                 String ids = null;
 
                 try {
@@ -778,17 +787,95 @@ public abstract class BasicProfile implements IProfile {
                 }
 
                 StringTokenizer st1 = new StringTokenizer(ids, ",");
+                int appearances = 0;
+                int appearancesTooMany = 0;
+                if (createConfig) 
+                    appearancesTooMany = 1;
+                else
+                    appearancesTooMany = 2;
 
                 while (st1.hasMoreTokens()) {
                     String pid = st1.nextToken();
-
                     if (pid.equals(id)) {
-                        throw new EProfileException("Duplicate policy id: " + id);
+                        appearances++;
+                        if (appearances >= appearancesTooMany) {
+                            CMS.debug("WARNING detected duplicate policy id:   " + id + " Profile: "  + mId);
+                            if (createConfig) {
+                                throw new EProfileException("Duplicate policy id: " + id);
+                            }
+                        }
+                    }
+                }
+        }
+
+        // Now make sure we aren't trying to add a policy that already exists
+        //  Make sure the combo of defaultClassId and constraintClassId does not exist
+        IConfigStore policySetStore = mConfig.getSubStore("policyset");
+        String setlist =  null;
+        try {
+            setlist = policySetStore.getString("list", "");
+        } catch (Exception e) {
+        }
+        StringTokenizer st = new StringTokenizer(setlist, ",");
+
+        int matches = 0; 
+        while (st.hasMoreTokens()) {
+            String sId = (String) st.nextToken();
+
+            //Only search the setId set. Ex: encryptionCertSet
+            if (!sId.equals(setId)) {
+                continue;
+            }
+            IConfigStore pStore = policySetStore.getSubStore(sId);
+           
+            String list = null;
+            try {
+                list =  pStore.getString(PROP_POLICY_LIST, "");
+            } catch (Exception e) {
+                CMS.debug("WARNING, can't get policy id list!");
+            }
+
+            StringTokenizer st1 = new StringTokenizer(list, ",");
+
+            while (st1.hasMoreTokens()) {
+                String curId = (String) st1.nextToken();
+
+                String defaultRoot = curId + "." + PROP_DEFAULT;
+                String curDefaultClassId = null;
+                try {
+                    curDefaultClassId =  pStore.getString(defaultRoot + "." +
+                        PROP_CLASS_ID);
+                } catch(Exception e) {
+                    CMS.debug("WARNING, can't get default plugin id!");
+                }
+
+                String constraintRoot = curId + "." + PROP_CONSTRAINT;
+                String curConstraintClassId = null;
+                try {
+                    curConstraintClassId = pStore.getString(constraintRoot + "." + PROP_CLASS_ID);
+                } catch (Exception e) {
+                    CMS.debug("WARNING, can't get constraint plugin id!");
+                }
+
+                if ((curDefaultClassId.equals(defaultClassId) && !curDefaultClassId.equals(PROP_NO_DEFAULT)) || 
+                    (curConstraintClassId.equals(constraintClassId) && !curConstraintClassId.equals(PROP_NO_CONSTRAINT))) {
+                    matches++;
+                    if (createConfig) {
+                        if (matches == 1) {
+                              CMS.debug("WARNING attempt to add duplicate Policy "  + defaultClassId + ":" + constraintClassId +
+                                  " Contact System Administrator.");
+                             throw new EProfileException("Attempt to add duplicate Policy : " +  defaultClassId + ":" + constraintClassId);
+                        }
+                    } else {
+                        if( matches > 1) {
+                             CMS.debug("WARNING attempt to add duplicate Policy "  + defaultClassId + ":" + constraintClassId +
+                                  " Contact System Administrator.");
+                        }
                     }
                 }
             }
         }
-        
+
         String defaultRoot = id + "." + PROP_DEFAULT;
         String constraintRoot = id + "." + PROP_CONSTRAINT;
         IPluginInfo defInfo = mRegistry.getPluginInfo("defaultPolicy",
@@ -842,7 +929,6 @@ public abstract class BasicProfile implements IProfile {
             conStore = policyStore.getSubStore(constraintRoot);
             constraint.init(this, conStore);
             policy = new ProfilePolicy(id, def, constraint);
-
             policies.addElement(policy);
         }
 
