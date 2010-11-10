@@ -58,6 +58,7 @@ public abstract class BasicProfile implements IProfile {
     public static final String PROP_DESC = "desc";
     public static final String PROP_NO_DEFAULT = "noDefaultImpl";
     public static final String PROP_NO_CONSTRAINT= "noConstraintImpl";
+    public static final String PROP_GENERIC_EXT_DEFAULT= "genericExtDefaultImpl";
 
     protected IProfileSubsystem mOwner = null;
     protected IConfigStore mConfig = null;
@@ -857,8 +858,15 @@ public abstract class BasicProfile implements IProfile {
                     CMS.debug("WARNING, can't get constraint plugin id!");
                 }
 
-                if ((curDefaultClassId.equals(defaultClassId) && !curDefaultClassId.equals(PROP_NO_DEFAULT)) || 
-                    (curConstraintClassId.equals(constraintClassId) && !curConstraintClassId.equals(PROP_NO_CONSTRAINT))) {
+                //Disallow duplicate defaults or constraints with the following exceptions:
+                // noDefaultImpl, genericExtDefaultImpl, noDefaultConstraint
+ 
+                if ((curDefaultClassId.equals(defaultClassId)  && 
+                    !curDefaultClassId.equals(PROP_NO_DEFAULT) && 
+                    !curDefaultClassId.equals(PROP_GENERIC_EXT_DEFAULT)) || 
+                    (curConstraintClassId.equals(constraintClassId) && 
+                    !curConstraintClassId.equals(PROP_NO_CONSTRAINT))) {
+
                     matches++;
                     if (createConfig) {
                         if (matches == 1) {
