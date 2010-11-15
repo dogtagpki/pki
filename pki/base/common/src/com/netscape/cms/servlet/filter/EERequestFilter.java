@@ -56,6 +56,10 @@ public class EERequestFilter implements Filter
         String param_http_port = null;
         String param_https_port = null;
         String msg = null;
+        String param_active = null;
+
+        // CMS.debug("Entering the EE filter");
+        param_active = config.getInitParameter( "active");
 
         if( request instanceof HttpServletRequest ) {
             HttpServletResponse resp = ( HttpServletResponse ) response;
@@ -102,12 +106,18 @@ public class EERequestFilter implements Filter
             // the request and param "https" ports
             if( scheme.equals( HTTP_SCHEME ) ) {
                 if( ! param_http_port.equals( request_port ) ) {
+                    String uri = ((HttpServletRequest) request).getRequestURI();
                     msg = "Use HTTP port '" + param_http_port
                         + "' instead of '" + request_port
                         + "' when performing " + HTTP_ROLE + " tasks!";
                     CMS.debug( filterName + ":  " + msg );
-                    resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
-                    return; 
+                    CMS.debug( filterName + ": uri is " + uri);
+                    if ((param_active != null) &&(param_active.equals("false"))) {
+                        CMS.debug("Filter is disabled .. continuing");
+                    } else {
+                        resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
+                        return;
+                    }
                 }
             } else if( scheme.equals( HTTPS_SCHEME ) ) {
                 if( ! param_https_port.equals( request_port ) ) {
@@ -115,11 +125,16 @@ public class EERequestFilter implements Filter
                         + "' instead of '" + request_port
                         + "' when performing " + HTTPS_ROLE + " tasks!";
                     CMS.debug( filterName + ":  " + msg );
-                    resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
-                    return; 
+                    if ((param_active != null) &&(param_active.equals("false"))) {
+                        CMS.debug("Filter is disabled .. continuing");
+                    } else {
+                        resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
+                        return;
+                    }
                 }
             }
         }
+        // CMS.debug("Exiting the EE filter");
 
         chain.doFilter( request, response );
     }

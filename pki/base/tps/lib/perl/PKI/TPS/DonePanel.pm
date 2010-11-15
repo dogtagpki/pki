@@ -166,7 +166,11 @@ sub register_tps
     $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;
     $content = $1;
 
-    &PKI::TPS::Wizard::debug_log("DonePanel: result " . $content);
+    if (defined $content) {
+        &PKI::TPS::Wizard::debug_log("DonePanel: result " . $content);
+    } else {
+       &PKI::TPS::Wizard::debug_log("DonePanel: result undefined");
+    }
     my $tmp = `rm $instDir/conf/.pwfile`;
 }
 
@@ -285,7 +289,7 @@ sub display
         #         $symbol{port}  = "443";
     &PKI::TPS::Wizard::debug_log("DonePanel: display");
 
-    my $status = $::config->get("preop.done.status");
+    my $status = $::config->get("preop.done.status") || "";
     if ($status eq "done") {
       return 1;
     }

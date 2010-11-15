@@ -52,6 +52,10 @@ public class EEClientAuthRequestFilter implements Filter
         String request_port = null;
         String param_https_port = null;
         String msg = null;
+        String param_active = null;
+
+        // CMS.debug("Entering the EECA filter");
+        param_active = config.getInitParameter( "active");
 
         if( request instanceof HttpServletRequest ) {
             HttpServletResponse resp = ( HttpServletResponse ) response;
@@ -82,14 +86,21 @@ public class EEClientAuthRequestFilter implements Filter
 
             // Compare the request and param "https" ports
             if( ! param_https_port.equals( request_port ) ) {
+                String uri = ((HttpServletRequest) request).getRequestURI();
                 msg = "Use HTTPS port '" + param_https_port
                     + "' instead of '" + request_port
                     + "' when performing " + HTTPS_ROLE + " tasks!";
                 CMS.debug( filterName + ":  " + msg );
-                resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
-                return;
+                CMS.debug( filterName + ": uri is " + msg);
+                if ((param_active != null) &&(param_active.equals("false"))) {
+                    CMS.debug("Filter is disabled .. continuing");
+                } else {
+                    resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
+                    return;
+                }
             }
         }
+       // CMS.debug("exiting the EECA filter");
 
         chain.doFilter( request, response );
     }

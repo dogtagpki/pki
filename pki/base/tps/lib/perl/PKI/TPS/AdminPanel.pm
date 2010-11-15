@@ -89,7 +89,6 @@ sub update
     $cert_request =~ s/%0D%0A//g; # remove carraige return
 
     # submit request to CA
-#    my $cainfo = $::config->get("preop.cainfo.select");
 
     # Admin Certificate should be obtained from the ca selected in the 
     # name panel. If name panel use External CA, the admin certificate

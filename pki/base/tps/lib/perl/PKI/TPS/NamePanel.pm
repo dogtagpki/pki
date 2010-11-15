@@ -493,7 +493,7 @@ sub display
     my $count = 0;
 
     while (1) {
-      my $host = $::config->get("preop.securitydomain.ca$count.host");
+      my $host = $::config->get("preop.securitydomain.ca$count.host") || "";
       if ($host eq "") {
         goto DONE;
       }

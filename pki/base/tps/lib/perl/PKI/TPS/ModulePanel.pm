@@ -144,7 +144,7 @@ sub getTokens {
 # otherwise it is "not logged in"
 sub Login {
     my $tokenname = $_[0];
-    my $pwd = $::pwdconf->get($tokenname);
+    my $pwd = $::pwdconf->get($tokenname) || "";
     if ($pwd ne "") {
         &PKI::TPS::Wizard::debug_log("ModulePanel -> isLoggedIn retrieved pwd from pwdconf");
         return 1;
@@ -213,7 +213,7 @@ sub getModules {
         my $file   = $module->{detail}->{"Library file"};
          &PKI::TPS::Wizard::debug_log("ModulePanel -> getModules Library file = $file");
         my $found = 0;
-        if ($file) {
+        if (defined $file) {
             $found  =  ($file =~ /Internal ONLY module/)  || -e $file;
         }
 

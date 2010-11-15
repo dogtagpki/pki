@@ -59,6 +59,7 @@ public class PassThroughRequestFilter implements Filter
 
         String servlet = null;
         String msg = null;
+        // CMS.debug("Entering the Passthrough filter");
 
         if( request instanceof HttpServletRequest ) {
             HttpServletRequest req = ( HttpServletRequest ) request;
@@ -68,6 +69,7 @@ public class PassThroughRequestFilter implements Filter
             CMS.debug( filterName + ":  " + msg );
         }
 
+        // CMS.debug("Exiting the passthrough filter");
         chain.doFilter( request, response );
     }
     

@@ -120,7 +120,7 @@ sub update
 
     &PKI::RA::Wizard::debug_log("CAInfoPanel: update - host= $host, https_ee_port= $https_ee_port");
 
-    $::config->put("preop.cainfo.select", "https://$host:$https_ee_port");
+    $::config->put("preop.cainfo.select", "https://$host:$https_admin_port");
     my $serverCertNickName = $::config->get("preop.cert.sslserver.nickname");
 
     my $subsystemCertNickName = $::config->get("preop.cert.subsystem.nickname");

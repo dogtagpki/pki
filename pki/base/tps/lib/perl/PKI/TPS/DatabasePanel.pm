@@ -195,27 +195,27 @@ sub display
     my $machineName = $::config->get("service.machineName");
     my $instanceId =  $::config->get("service.instanceID");
 
-    my $host = $::config->get("preop.database.host");
+    my $host = $::config->get("preop.database.host") || "";
     $::symbol{hostname} = "localhost"; # default
     if ($host ne "") {
       $::symbol{hostname} = $host;
     }
-    my $port = $::config->get("preop.database.port");
+    my $port = $::config->get("preop.database.port") || "";
     $::symbol{portStr} = "389";
     if ($port ne "") {
       $::symbol{portStr} = $port;
     }
-    my $basedn = $::config->get("preop.database.basedn");
+    my $basedn = $::config->get("preop.database.basedn") || "";
     $::symbol{basedn} = "dc=" . $machineName . "-" . $instanceId;
     if ($basedn ne "") {
       $::symbol{basedn} = $basedn;
     }
-    my $database = $::config->get("preop.database.database");
+    my $database = $::config->get("preop.database.database") || "";
     $::symbol{database} = $machineName . "-" . $instanceId;
     if ($database ne "") {
       $::symbol{database} = $database;
     }
-    my $binddn = $::config->get("preop.database.binddn");
+    my $binddn = $::config->get("preop.database.binddn") || "";
     $::symbol{binddn} = "cn=directory manager";
     if ($binddn ne "") {
       $::symbol{binddn} = $binddn;

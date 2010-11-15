@@ -75,7 +75,7 @@ sub update
 
     my $instanceDir = $::config->get("service.instanceDir");
     my $done = $::config->get("preop.SizePanel.done");
-    my $genKeyPair = $q->param('generateKeyPair');
+    my $genKeyPair = $q->param('generateKeyPair') || "";
     &PKI::TPS::Wizard::debug_log("SizePanel: update generateKeyPair value=$genKeyPair");
     if ($done eq "true") {
         if ($genKeyPair eq "") {

@@ -76,11 +76,13 @@ sub update
     my ($q) = @_;
     &PKI::TPS::Wizard::debug_log("CAInfoPanel: update");
 
-    my $count = $q->param('urls');
+    my $count = $q->param('urls') || "";
+    if ($count eq "") {
+      $::symbol{errorString} = "No CA information provided.  CA, TKS and optionally DRM must be installed prior to TPS installation";
+      return 0;
+    }
     &PKI::TPS::Wizard::debug_log("CAInfoPanel: update - got urls = $count");
 
-    &PKI::TPS::Wizard::debug_log("CAInfoPanel: update - selected ca= $count");
-    
     my $instanceID = $::config->get("service.instanceID");
     my $host = "";
     my $https_ee_port = "";
@@ -89,9 +91,20 @@ sub update
     my $domain_xml = "";
 
     if ($count =~ /http/) {
+      # this is for pkisilent
       my $info = new URI::URL($count);
-      $host = $info->host;
-      $https_ee_port = $info->port;
+      $host = $info->host || "";
+      if ($host eq "") {
+        $::symbol{errorString} = "No CA host provided.";
+        return 0;
+      }
+
+      $https_ee_port = $info->port || "";
+      if ($https_ee_port eq "") {
+        $::symbol{errorString} = "No CA EE port provided.";
+        return 0;
+      }
+
       $domain_xml = get_domain_xml($host, $https_ee_port);
       if ($domain_xml eq "") {
           $::symbol{errorString} = "missing security domain.  CA, TKS and optionally DRM must be installed prior to TPS installation";
@@ -102,14 +115,14 @@ sub update
       $https_admin_port = get_secure_admin_port_from_domain_xml($domain_xml, $host, $https_ee_port);
 
       if(($https_admin_port eq "") || ($https_agent_port eq "")) {
-          $::symbol{errorString} = "missing secure CA admin or agent port.  CA, TKS and optionally DRM must be installed prior to TPS installation";
+          $::symbol{errorString} = "secure CA admin or agent port information not provided by security domain.";
           return 0;
       }
     } else {
-      $host = $::config->get("preop.securitydomain.ca$count.host");
-      $https_ee_port = $::config->get("preop.securitydomain.ca$count.secureport");
-      $https_agent_port = $::config->get("preop.securitydomain.ca$count.secureagentport");
-      $https_admin_port = $::config->get("preop.securitydomain.ca$count.secureadminport");
+      $host = $::config->get("preop.securitydomain.ca$count.host") || "";
+      $https_ee_port = $::config->get("preop.securitydomain.ca$count.secureport") || "";
+      $https_agent_port = $::config->get("preop.securitydomain.ca$count.secureagentport") || "";
+      $https_admin_port = $::config->get("preop.securitydomain.ca$count.secureadminport") || "";
     }
 
     if (($host eq "") || ($https_ee_port eq "") || ($https_admin_port eq "") || ($https_agent_port eq "")) {
@@ -119,7 +132,7 @@ sub update
 
     &PKI::TPS::Wizard::debug_log("CAInfoPanel: update - host= $host, https_ee_port= $https_ee_port");
 
-    $::config->put("preop.cainfo.select", "https://$host:$https_ee_port");
+    $::config->put("preop.cainfo.select", "https://$host:$https_admin_port");
     my $serverCertNickName = $::config->get("preop.cert.sslserver.nickname");
 
     my $subsystemCertNickName = $::config->get("preop.cert.subsystem.nickname");
@@ -184,7 +197,8 @@ sub display
     my $first = 1;
     my $list = "";
     while (1) {
-      my $host = $::config->get("preop.securitydomain.ca$count.host");
+      my $host = "";
+      $host = $::config->get("preop.securitydomain.ca$count.host");
       if ($host eq "") {
         goto DONE;
       }

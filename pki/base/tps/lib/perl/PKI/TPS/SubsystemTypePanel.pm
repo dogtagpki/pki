@@ -118,7 +118,7 @@ sub display
     $::symbol{urls}        = [];
     my $count = 0;
     while (1) {
-      my $host = $::config->get("preop.securitydomain.tps$count.host");
+      my $host = $::config->get("preop.securitydomain.tps$count.host") || "";
       if ($host eq "") {
         goto DONE;
       }

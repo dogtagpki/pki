@@ -19,6 +19,10 @@
             <param-name>https_port</param-name>
             <param-value>[PKI_AGENT_SECURE_PORT]</param-value>
         </init-param>
+        <init-param>
+            <param-name>active</param-name>
+            <param-value>true</param-value>
+        </init-param>
     </filter>
 
     <filter>
@@ -27,6 +31,10 @@
         <init-param>
             <param-name>https_port</param-name>
             <param-value>[PKI_ADMIN_SECURE_PORT]</param-value>
+        </init-param>
+        <init-param>
+            <param-name>active</param-name>
+            <param-value>true</param-value>
         </init-param>
     </filter>
 
@@ -40,6 +48,10 @@
         <init-param>
             <param-name>https_port</param-name>
             <param-value>[PKI_EE_SECURE_PORT]</param-value>
+        </init-param>
+        <init-param>
+            <param-name>active</param-name>
+            <param-value>true</param-value>
         </init-param>
     </filter>
 

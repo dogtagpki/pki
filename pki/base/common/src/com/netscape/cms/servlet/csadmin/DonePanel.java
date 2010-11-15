@@ -714,7 +714,7 @@ public class DonePanel extends WizardPanelBase {
         int port = -1;
         try {
             host = cs.getString("preop.ca.hostname", "");
-            port = cs.getInteger("preop.ca.httpsport", -1);
+            port = cs.getInteger("preop.ca.httpsadminport", -1);
         } catch (Exception e) {
         }
 
@@ -738,16 +738,14 @@ public class DonePanel extends WizardPanelBase {
       throws IOException {
         IConfigStore cs = CMS.getConfigStore();
         int port = -1;
-        URL urlx = null;
         String url = "";
         String host = null;
         String transportCert = "";
         try {
             url = cs.getString("preop.ca.url", "");
             if (!url.equals("")) {
-              urlx = new URL(url);
-              host = urlx.getHost();
-              port = urlx.getPort();
+              host = cs.getString("preop.ca.hostname", "");
+              port = cs.getInteger("preop.ca.httpsadminport", -1);
               transportCert = cs.getString("kra.transport.cert", "");
             }
         } catch (Exception e) {

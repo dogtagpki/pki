@@ -122,8 +122,7 @@ sub display
     my ($q) = @_;
     &PKI::RA::Wizard::debug_log("ImportAdminCertPanel: display");
 
-#    my $cainfo = $::config->get("preop.cainfo.select");
-    my $cainfo = "https://".$::config->get("conn.ca1.hostadminport");
+    my $cainfo = $::config->get("preop.cainfo.select");
 
     my $cainfo_url = new URI::URL($cainfo);
     my $serialNumber = $::config->get("preop.admincert.serialno.0");
