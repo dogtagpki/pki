@@ -3185,14 +3185,39 @@ private void 	createMasterKey(HttpServletRequest req,
     public void setRootCertTrust(HttpServletRequest req,
         HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
+        String auditMessage = null;
+        String auditSubjectID = auditSubjectID();
         String nickname = req.getParameter(Constants.PR_NICK_NAME);
         String serialno = req.getParameter(Constants.PR_SERIAL_NUMBER);
         String issuername = req.getParameter(Constants.PR_ISSUER_NAME);
         String trust = req.getParameter("trustbit");
 
+        CMS.debug("CMSAdminServlet: setRootCertTrust()");
+
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
             CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
-        jssSubSystem.setRootCertTrust(nickname, serialno, issuername, trust);
+        try {
+            jssSubSystem.setRootCertTrust(nickname, serialno, issuername, trust);
+        } catch  (EBaseException e) {
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditParams(req));
+
+            audit(auditMessage);
+            // rethrow the specific exception to be handled later
+            throw e;
+        }
+
+        // store a message in the signed audit log file
+        auditMessage = CMS.getLogMessage(
+                    LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                    auditSubjectID,
+                    ILogger.SUCCESS,
+                    auditParams(req));
+
+        audit(auditMessage);
 
         sendResponse(SUCCESS, null, null, resp);
     }
@@ -3215,6 +3240,8 @@ private void 	createMasterKey(HttpServletRequest req,
             IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
+
+        CMS.debug("CMSAdminServlet: trustCACert()");
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
