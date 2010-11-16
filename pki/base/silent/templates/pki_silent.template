@@ -373,6 +373,12 @@ pki_silent_tps_log=/tmp/tps.log
 ##             Subject Name:  "cn=CA Audit Signing Certificate,"
 ##                         +  "o=${pki_security_domain_name}"
 ##
+##  NOTE:  The parameters for the signing and key algorithms have the following meaning:
+##         ca_key_algorithm                 - signature algorithm used to sign the CA certificate
+##         ca_signing_algorithm             - signature algorithm used by the CA and OCSP signing certs to sign objects.
+##         ca_signing_signingalgorithm      - optionally specify the algorithm used by the CA signing cert to sign objects
+##         ca_ocsp_signing_signingalgorithm - optionally specify the algorithm used by the CA ocsp signing cert to sign objects
+##
 
 ca_agent_name="CA\ Administrator\ of\ Instance\ ${ca_instance_name}\'s\ ${pki_security_domain_name}\ ID"
 ca_agent_key_size=2048
@@ -383,6 +389,9 @@ ca_db_name="${pki_host}-${ca_instance_name}"
 ca_key_size=2048
 ca_key_type=rsa
 ca_key_algorithm=SHA256withRSA
+ca_signing_algorithm=SHA256withRSA
+ca_signing_signingalgorithm=SHA256withRSA
+ca_ocsp_signing_signingalgorithm=SHA256withRSA
 ca_save_p12=false
 ca_sign_cert_subject_name="cn=Certificate\ Authority,o=${pki_security_domain_name}"
 ca_subsystem_cert_subject_name="cn=CA\ Subsystem\ Certificate,o=${pki_security_domain_name}"
@@ -1079,6 +1088,9 @@ pkisilent ConfigureCA \
 	-key_size ${ca_key_size} \
 	-key_type ${ca_key_type} \
 	-key_algorithm ${ca_key_algorithm} \
+        -signing_algorithm ${ca_signing_algorithm} \
+        -signing_signingalgorithm ${ca_signing_signingalgorithm} \
+        -ocsp_signing_signingalgorithm ${ca_ocsp_signing_signingalgorithm} \
 	-save_p12 ${ca_save_p12} \
 	-subsystem_name ${ca_subsystem_name} \
 	-token_name ${ca_token_name} \
@@ -1205,6 +1217,9 @@ pkisilent ConfigureCA \
 #	-key_size ${ca_key_size} \
 #	-key_type ${ca_key_type} \
 #	-key_algorithm ${ca_key_algorithm} \
+#       -signing_algorithm ${ca_signing_algorithm} \
+#       -signing_signingalgorithm ${ca_signing_signingalgorithm} \
+#       -ocsp_signing_signingalgorithm ${ca_ocsp_signing_signingalgorithm} \
 #	-save_p12 ${ca_save_p12} \
 #	-subsystem_name ${ca_subsystem_name} \
 #	-token_name ${ca_token_name} \
@@ -1272,6 +1287,9 @@ pkisilent ConfigureCA \
 #	-key_size ${ca_key_size} \
 #	-key_type ${ca_key_type} \
 #	-key_algorithm ${ca_key_algorithm} \
+#       -signing_algorithm ${ca_signing_algorithm} \
+#       -signing_signingalgorithm ${ca_signing_signingalgorithm} \
+#       -ocsp_signing_signingalgorithm ${ca_ocsp_signing_signingalgorithm} \
 #	-save_p12 ${ca_save_p12} \
 #	-subsystem_name ${ca_subsystem_name} \
 #	-token_name ${ca_token_name} \

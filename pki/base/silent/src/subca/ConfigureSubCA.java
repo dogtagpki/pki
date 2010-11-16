@@ -98,7 +98,10 @@ public class ConfigureSubCA
 
 	public static String key_size = null;
 	public static String key_type = null;
-	public static String key_algorithm = null;
+        public static String signing_algorithm = null;
+        public static String signing_signingalgorithm = null;
+        public static String ocsp_signing_signingalgorithm = null;
+
 	public static String token_name = null;
 	public static String token_pwd = null;
 
@@ -421,27 +424,24 @@ public class ConfigureSubCA
 
 		String query_string = "p=10" + "&op=next" + "&xml=true" +
 							"&keytype=" + key_type + 
-                                                        "&keyalgorithm=" + key_algorithm +
+                                                        "&signingalgorithm=" + signing_algorithm +
 							"&choice=default"+
 							"&custom_size=" + key_size +
 							"&signing_keytype=" + key_type + 
-                                                        "&signing_keyalgorithm=" + key_algorithm +
+                                                        "&signing_signingalgorithm=" + signing_signingalgorithm +
 							"&signing_choice=default"+
 							"&signing_custom_size=" + key_size +
 							"&ocsp_signing_keytype=" + key_type + 
-                                                        "&ocsp_signing_keyalgorithm=" + key_algorithm +
+                                                        "&ocsp_signing_signingalgorithm=" + ocsp_signing_signingalgorithm +
 							"&ocsp_signing_choice=default"+
 							"&ocsp_signing_custom_size=" + key_size +
 							"&sslserver_keytype=" + key_type + 
-                                                        "&sslserver_keyalgorithm=" + key_algorithm +
 							"&sslserver_choice=default"+
 							"&sslserver_custom_size=" + key_size +
 							"&subsystem_keytype=" + key_type + 
-                                                        "&subsystem_keyalgorithm=" + key_algorithm +
 							"&subsystem_choice=default"+
 							"&subsystem_custom_size=" + key_size +
                             "&audit_signing_keytype=" + key_type +
-                            "&audit_signing_keyalgorithm=" + key_algorithm +
                             "&audit_signing_choice=default" + 
                             "&audit_signing_custom_size=" + key_size + 
 							""; 
@@ -990,7 +990,9 @@ public class ConfigureSubCA
 		// key size
 		StringHolder x_key_size = new StringHolder();
 		StringHolder x_key_type = new StringHolder();
-		StringHolder x_key_algorithm = new StringHolder();
+		StringHolder x_signing_algorithm = new StringHolder();
+		StringHolder x_signing_signingalgorithm = new StringHolder();
+		StringHolder x_ocsp_signing_signingalgorithm = new StringHolder();
 		StringHolder x_token_name = new StringHolder();
 		StringHolder x_token_pwd = new StringHolder();
 
@@ -1073,8 +1075,10 @@ public class ConfigureSubCA
 							x_key_size); 
 		parser.addOption ("-key_type %s #Key type [RSA,ECC]",
 							x_key_type); 
-		parser.addOption ("-key_algorithm %s #Key algorithm",
-							x_key_algorithm); 
+                parser.addOption("-signing_algorithm %s #Signing algorithm", x_signing_algorithm);
+                parser.addOption("-signing_signingalgorithm %s #Algorithm used be CA cert to sign objects (optional)", x_signing_signingalgorithm);
+                parser.addOption("-ocsp_signing_signingalgorithm %s #Algorithm used by the OCSP signing cert to sign objects (optional)", x_ocsp_signing_signingalgorithm);
+
 		parser.addOption ("-token_name %s #HSM/Software Token name",
 							x_token_name); 
 		parser.addOption ("-token_pwd %s #HSM/Software Token password (optional - required for HSM)",
@@ -1154,10 +1158,21 @@ public class ConfigureSubCA
 
 		key_size = x_key_size.value;
 		key_type = x_key_type.value;
-                if ((x_key_algorithm.value == null) || (x_key_algorithm.equals(""))) {
-                    key_algorithm = "SHA256withRSA";
+                if ((x_signing_algorithm.value == null) || (x_signing_algorithm.equals(""))) {
+                    signing_algorithm = "SHA256withRSA";
                 } else {
-                    key_algorithm = x_key_algorithm.value;
+                    signing_algorithm = x_signing_algorithm.value;
+                }
+                if ((x_ocsp_signing_signingalgorithm.value == null) || (x_ocsp_signing_signingalgorithm.equals(""))) {
+                    ocsp_signing_signingalgorithm = signing_algorithm;
+                } else {
+                    ocsp_signing_signingalgorithm = x_ocsp_signing_signingalgorithm.value;
+                }
+
+                if ((x_signing_signingalgorithm.value == null) || (x_signing_signingalgorithm.equals(""))) {
+                    signing_signingalgorithm = signing_algorithm;
+                } else {
+                    signing_signingalgorithm = x_signing_signingalgorithm.value;
                 }
 
 		token_name = x_token_name.value;

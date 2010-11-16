@@ -96,6 +96,9 @@ public class ConfigureCA {
     public static String key_size = null;
     public static String key_type = null;
     public static String key_algorithm = null;
+    public static String signing_algorithm = null;
+    public static String signing_signingalgorithm = null;
+    public static String ocsp_signing_signingalgorithm = null;
     public static String token_name = null;
     public static String token_pwd = null;
 
@@ -515,36 +518,33 @@ public class ConfigureCA {
                     + "&sslserver_custom_size=" + key_size
                     + "&sslserver_choice=custom"
                     + "&sslserver_keytype=" + key_type 
-                    + "&sslserver_keyalgorithm=" + key_algorithm
-                    + "&keyalgorithm=" + key_algorithm
                     + "&choice=default" + "&keytype=" + key_type 
-                    + "&custom_size=" + key_size + "";
+                    + "&custom_size=" + key_size;
             } else {
                 query_string = "p=10" + "&op=next" + "&xml=true"
                     + "&subsystem_custom_size=" + key_size
                     + "&subsystem_keytype=" + key_type
                     + "&subsystem_choice=custom"
-                    + "&subsystem_keyalgorithm=" + key_algorithm
                     + "&sslserver_custom_size=" + key_size
                     + "&sslserver_keytype=" + key_type
                     + "&sslserver_choice=custom"
-                    + "&sslserver_keyalgorithm=" + key_algorithm 
                     + "&signing_custom_size=" + key_size
                     + "&signing_keytype=" + key_type
                     + "&signing_choice=custom"
                     + "&signing_keyalgorithm=" + key_algorithm
+                    + "&signing_signingalgorithm=" + signing_signingalgorithm 
                     + "&ocsp_signing_custom_size=" + key_size
                     + "&ocsp_signing_keytype=" + key_type 
                     + "&ocsp_signing_choice=custom" 
-                    + "&ocsp_signing_keyalgorithm=" + key_algorithm
+                    + "&ocsp_signing_signingalgorithm=" + ocsp_signing_signingalgorithm
                     + "&audit_signing_custom_size=" + key_size
                     + "&audit_signing_keytype=" + key_type
                     + "&audit_signing_choice=custom" 
-                    + "&audit_signing_keyalgorithm=" + key_algorithm
                     + "&custom_size=" + key_size
                     + "&keytype=" + key_type 
                     + "&choice=custom"
-                    + "&keyalgorithm=" + key_algorithm + "";
+                    + "&signingalgorithm=" + signing_algorithm
+                    + "&keyalgorithm=" + key_algorithm;
             }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -1411,6 +1411,9 @@ public class ConfigureCA {
         StringHolder x_key_size = new StringHolder();
         StringHolder x_key_type = new StringHolder();
         StringHolder x_key_algorithm = new StringHolder();
+        StringHolder x_signing_algorithm = new StringHolder();
+        StringHolder x_signing_signingalgorithm = new StringHolder();
+        StringHolder x_ocsp_signing_signingalgorithm = new StringHolder();
         StringHolder x_token_name = new StringHolder();
         StringHolder x_token_pwd = new StringHolder();
 
@@ -1488,7 +1491,10 @@ public class ConfigureCA {
 
         parser.addOption("-key_size %s #Key Size", x_key_size); 
         parser.addOption("-key_type %s #Key type [RSA,ECC]", x_key_type); 
-        parser.addOption("-key_algorithm %s #Key algorithm", x_key_algorithm);
+        parser.addOption("-key_algorithm %s #Key algorithm of the CA certificate", x_key_algorithm);
+        parser.addOption("-signing_algorithm %s #Signing algorithm", x_signing_algorithm);
+        parser.addOption("-signing_signingalgorithm %s #Algorithm used be CA cert to sign objects (optional)", x_signing_signingalgorithm);
+        parser.addOption("-ocsp_signing_signingalgorithm %s #Algorithm used by the OCSP signing cert to sign objects (optional)", x_ocsp_signing_signingalgorithm);
         parser.addOption("-token_name %s #HSM/Software Token name", x_token_name); 
         parser.addOption("-token_pwd %s #HSM/Software Token password (optional - only required for HSM)",
                 x_token_pwd); 
@@ -1578,6 +1584,25 @@ public class ConfigureCA {
         } else {
             key_algorithm = x_key_algorithm.value;
         }
+
+        if ((x_signing_algorithm.value == null) || (x_signing_algorithm.equals(""))) {
+            signing_algorithm = key_algorithm;
+        } else {
+            signing_algorithm = x_signing_algorithm.value;
+        }
+
+        if ((x_ocsp_signing_signingalgorithm.value == null) || (x_ocsp_signing_signingalgorithm.equals(""))) {
+            ocsp_signing_signingalgorithm = signing_algorithm;
+        } else {
+            ocsp_signing_signingalgorithm = x_ocsp_signing_signingalgorithm.value;
+        }
+
+        if ((x_signing_signingalgorithm.value == null) || (x_signing_signingalgorithm.equals(""))) {
+            signing_signingalgorithm = signing_algorithm;
+        } else {
+            signing_signingalgorithm = x_signing_signingalgorithm.value;
+        }
+
         token_name = x_token_name.value;
         token_pwd = x_token_pwd.value;
         save_p12 = x_save_p12.value;
