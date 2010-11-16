@@ -4,7 +4,7 @@
      All rights reserved.
      END COPYRIGHT BLOCK -->
 <!DOCTYPE web-app 
-   PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "file:///usr/share/rhpki/setup/web-app_2_3.dtd">
+   PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "file:///usr/share/pki/setup/web-app_2_3.dtd">
 <web-app>
 
     <filter>
