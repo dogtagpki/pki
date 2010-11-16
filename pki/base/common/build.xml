@@ -260,6 +260,11 @@
                         prefix="usr/share/${product.prefix}/scripts">
                 <include name="**"/>
             </zipfileset>
+            <zipfileset dir="./setup"
+                        filemode="644"
+                        prefix="usr/share/${product.prefix}/setup">
+                <include name="**"/>
+            </zipfileset>
             <zipfileset dir="."
                         filemode="644"
                         prefix="usr/share/doc/${dist.name}">
@@ -285,6 +290,11 @@
             <tarfileset dir="./scripts"
                         mode="755"
                         prefix="${dist.name}/usr/share/${product.prefix}/scripts">
+                <include name="**"/>
+            </tarfileset>
+            <tarfileset dir="./setup"
+                        mode="644"
+                        prefix="usr/share/${product.prefix}/setup">
                 <include name="**"/>
             </tarfileset>
             <tarfileset dir="."
