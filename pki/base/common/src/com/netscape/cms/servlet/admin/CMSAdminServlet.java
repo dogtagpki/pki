@@ -85,6 +85,8 @@ public final class CMSAdminServlet extends AdminServlet {
         "LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC_3";
     private final static String LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION =
         "LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION_2";
+    private final static String LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION =
+            "LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION_3";
 
     // CMS must be instantiated before this admin servlet.
 
@@ -2287,6 +2289,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 } else {
                     nickname = tokenName + ":" + newNickname;
                 }
+                CMS.debug("CMSAdminServlet: installCert(): nickname="+nickname);
             }
 
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
@@ -2404,6 +2407,26 @@ private void 	createMasterKey(HttpServletRequest req,
                 modifyRADMCert(nickname);
             }
 
+            boolean verified = CMS.verifySystemCertByNickname(nickname, null);
+            if (verified == true) {
+                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() succeeded:"+ nickname);
+                auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                        auditSubjectID,
+                        ILogger.SUCCESS,
+                                nickname);
+
+                audit(auditMessage);
+            } else {
+                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() failed:"+ nickname);
+                auditMessage = CMS.getLogMessage(
+                                LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                                auditSubjectID,
+                                ILogger.FAILURE,
+                                nickname);
+
+                audit(auditMessage);
+            }
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
@@ -3170,6 +3193,7 @@ private void 	createMasterKey(HttpServletRequest req,
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
             CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         jssSubSystem.setRootCertTrust(nickname, serialno, issuername, trust);
+
         sendResponse(SUCCESS, null, null, resp);
     }
 

@@ -853,9 +853,35 @@ public class CertUtils {
                 CMS.debug("CertUtils: verifySystemCertByTag() certusage for cert tag " + tag + " undefined in CS.cfg, not checking certificate usage");
             }
             r = verifySystemCertByNickname(nickname, certusage);
+            if (r == true) {
+                // audit here
+                auditMessage = CMS.getLogMessage(
+                    LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                    ILogger.SYSTEM_UID,
+                    ILogger.SUCCESS,
+                            nickname);
+
+                audit(auditMessage);
+            } else {
+                // audit here
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                            ILogger.SYSTEM_UID,
+                            ILogger.FAILURE,
+                            nickname);
+
+                audit(auditMessage);
+            }
         } catch (Exception e) {
             CMS.debug("CertUtils: verifySystemCertsByTag() failed: "+
                 e.toString());
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                        ILogger.SYSTEM_UID,
+                        ILogger.FAILURE,
+                        "");
+
+            audit(auditMessage);
             r = false;
         }
 
@@ -953,25 +979,6 @@ public class CertUtils {
                 tag = tag.trim();
                 CMS.debug("CertUtils: verifySystemCerts() cert tag=" + tag);
                 r = verifySystemCertByTag(tag);
-                if (r == true) {
-                    // audit here
-                    auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
-                        ILogger.SYSTEM_UID,
-                        ILogger.SUCCESS,
-                                tag);
-
-                    audit(auditMessage);
-                } else {
-                    // audit here
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
-                                ILogger.SYSTEM_UID,
-                                ILogger.FAILURE,
-                                tag);
-
-                    audit(auditMessage);
-                }
             }
         } catch (Exception e) {
             // audit here
