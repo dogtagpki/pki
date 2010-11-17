@@ -61,7 +61,7 @@ public class SigningAlgDefault extends EnrollDefault {
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_ALGORITHM)) {
             return new Descriptor(IDescriptor.CHOICE, DEF_CONFIG_ALGORITHMS,
-                    "SHA1withRSA",
+                    "SHA256withRSA",
                     CMS.getUserMessage(locale, "CMS_PROFILE_SIGNING_ALGORITHM"));
         } else {
             return null;

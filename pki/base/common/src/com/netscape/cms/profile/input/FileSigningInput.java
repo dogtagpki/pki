@@ -92,7 +92,7 @@ public class FileSigningInput extends EnrollInput implements IProfileInput {
         throws EProfileException {
         request.setExtData(TEXT, ctx.get(TEXT));
         request.setExtData(URL, ctx.get(URL));
-        request.setExtData(DIGEST_TYPE, "SHA1");
+        request.setExtData(DIGEST_TYPE, "SHA256");
  
         try {
           // retrieve file and calculate the hash
@@ -111,7 +111,7 @@ public class FileSigningInput extends EnrollInput implements IProfileInput {
           is.close();
 
           // calculate digest
-          MessageDigest digester = MessageDigest.getInstance("SHA1");
+          MessageDigest digester = MessageDigest.getInstance("SHA256");
           byte digest[] = digester.digest(data);
           request.setExtData(DIGEST, toHexString(digest));
         } catch (Exception e) { 
