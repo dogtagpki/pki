@@ -61,31 +61,20 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
     private static final String ISSUER_NAME = "Issuer Name";
     private static final String ENABLE = "Enable";
 
-    private static final int DEF_NUM_POINTS = 5;
+    private static final int DEF_NUM_POINTS = 1;
+    private static final int MAX_NUM_POINTS = 100;
 
     public FreshestCRLExtDefault() {
         super();
-        addValueName(VAL_CRITICAL);
-        addValueName(VAL_CRL_DISTRIBUTION_POINTS);
-
-        addConfigName(CONFIG_CRITICAL);
-        int num = getNumPoints();
-
-        for (int i = 0; i < num; i++) {
-            addConfigName(CONFIG_POINT_TYPE + i);
-            addConfigName(CONFIG_POINT_NAME + i);
-            addConfigName(CONFIG_ISSUER_TYPE + i);
-            addConfigName(CONFIG_ISSUER_NAME + i);
-            addConfigName(CONFIG_ENABLE + i);
-        }
     }
 
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
         super.init(profile, config);
-
+        refreshConfigAndValueNames();
     }
 
+    
     protected int getNumPoints() {
         int num = DEF_NUM_POINTS;
         String val = getConfig(CONFIG_NUM_POINTS);
@@ -97,7 +86,58 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                 // ignore
             }
         }
+
+        if (num >= MAX_NUM_POINTS)
+            num = DEF_NUM_POINTS;
+
         return num;
+    }
+
+    public void setConfig(String name, String value)
+        throws EPropertyException {
+        int num = 0;
+        if (name.equals(CONFIG_NUM_POINTS)) {
+          try {
+            num = Integer.parseInt(value);
+
+            if (num >= MAX_NUM_POINTS || num < 0) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_POINTS));
+            }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_POINTS));
+          }
+        }
+        super.setConfig(name, value);
+    }
+
+
+    public Enumeration getConfigNames() {
+        refreshConfigAndValueNames();
+        return super.getConfigNames();
+    }
+
+    protected void refreshConfigAndValueNames() {
+        //refesh our config name list
+
+        super.refreshConfigAndValueNames();
+        addValueName(VAL_CRITICAL);
+        addValueName(VAL_CRL_DISTRIBUTION_POINTS);
+
+        addConfigName(CONFIG_CRITICAL);
+        int num = getNumPoints();
+
+        addConfigName(CONFIG_NUM_POINTS);
+        for (int i = 0; i < num; i++) {
+            addConfigName(CONFIG_POINT_TYPE + i);
+            addConfigName(CONFIG_POINT_NAME + i);
+            addConfigName(CONFIG_ISSUER_TYPE + i);
+            addConfigName(CONFIG_ISSUER_NAME + i);
+            addConfigName(CONFIG_ENABLE + i);
+        }
+
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
@@ -125,6 +165,10 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.BOOLEAN, null, 
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENABLE"));
+        } else if (name.startsWith(CONFIG_NUM_POINTS)) {
+            return new Descriptor(IDescriptor.INTEGER, null,
+                   "1",
+                   CMS.getUserMessage(locale, "CMS_PROFILE_NUM_DIST_POINTS"));
         } else {
             return null;
         }
@@ -301,7 +345,6 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
         ext = (FreshestCRLExtension)
                     getExtension(FreshestCRLExtension.OID,
                         info);
-
         if(ext == null)
         {
             try {
@@ -339,7 +382,6 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
 
             Vector recs = new Vector();
             int num = getNumPoints();
-
             for (int i = 0; i < num; i++) {
                 NameValuePairs pairs = null;
 
@@ -348,7 +390,6 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                     GeneralNames gns = p.getFullName();
 
                     pairs = buildGeneralNames(gns, p);
-                    recs.addElement(pairs);
                 } else {
                     pairs = buildEmptyGeneralNames();
                 }

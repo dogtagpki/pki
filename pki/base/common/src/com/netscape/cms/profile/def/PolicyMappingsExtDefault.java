@@ -56,21 +56,11 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
     private static final String SUBJECT_POLICY_ID = "Subject Policy Id";
     private static final String POLICY_ID_ENABLE = "Enable";
 
-    private static final int DEF_NUM_MAPPINGS = 5;
+    private static final int DEF_NUM_MAPPINGS = 1;
+    private static final int MAX_NUM_MAPPINGS = 100;
 
     public PolicyMappingsExtDefault() {
         super();
-        addValueName(VAL_CRITICAL);
-        addValueName(VAL_DOMAINS);
-
-        addConfigName(CONFIG_CRITICAL);
-        int num = getNumMappings();
-
-        for (int i = 0; i < num; i++) {
-            addConfigName(CONFIG_ISSUER_DOMAIN_POLICY + i);
-            addConfigName(CONFIG_SUBJECT_DOMAIN_POLICY + i);
-            addConfigName(CONFIG_ENABLE + i);
-        }
     }
 
     protected int getNumMappings() {
@@ -90,6 +80,49 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
         super.init(profile, config);
+        refreshConfigAndValueNames();
+    }
+
+     public void setConfig(String name, String value)
+        throws EPropertyException {
+        int num = 0;
+        if (name.equals(CONFIG_NUM_POLICY_MAPPINGS)) {
+          try {
+            num = Integer.parseInt(value);
+
+            if (num >= MAX_NUM_MAPPINGS || num < 0) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_POLICY_MAPPINGS));
+            }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_POLICY_MAPPINGS));
+          }
+        }
+        super.setConfig(name, value);
+    }
+
+    public Enumeration getConfigNames() {
+        refreshConfigAndValueNames();
+        return super.getConfigNames();
+    }
+
+    protected void refreshConfigAndValueNames() {
+        super.refreshConfigAndValueNames();
+
+        addValueName(VAL_CRITICAL);
+        addValueName(VAL_DOMAINS);
+
+        addConfigName(CONFIG_CRITICAL);
+        int num = getNumMappings();
+
+        addConfigName(CONFIG_NUM_POLICY_MAPPINGS);
+        for (int i = 0; i < num; i++) {
+            addConfigName(CONFIG_ISSUER_DOMAIN_POLICY + i);
+            addConfigName(CONFIG_SUBJECT_DOMAIN_POLICY + i);
+            addConfigName(CONFIG_ENABLE + i);
+        }
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
@@ -109,7 +142,12 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENABLE"));
+        } else if (name.startsWith(CONFIG_NUM_POLICY_MAPPINGS)) {
+            return new Descriptor(IDescriptor.INTEGER, null,
+                   "1",
+                   CMS.getUserMessage(locale, "CMS_PROFILE_NUM_POLICY_MAPPINGS"));
         }
+
         return null;
     }
 

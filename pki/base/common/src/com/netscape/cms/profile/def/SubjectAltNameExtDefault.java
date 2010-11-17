@@ -60,20 +60,11 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     private static final String GN_TYPE = "Pattern Type";
     private static final String GN_PATTERN = "Pattern";
 
-    private static final int DEF_NUM_GN = 5;
+    private static final int DEF_NUM_GN = 1;
+    private static final int MAX_NUM_GN = 100;
 
     public SubjectAltNameExtDefault() {
         super();
-        addValueName(VAL_CRITICAL);
-        addValueName(VAL_GENERAL_NAMES);
-
-        addConfigName(CONFIG_CRITICAL);
-        int num = getNumGNs();
-        for (int i = 0; i < num; i++) {
-        addConfigName(CONFIG_TYPE + i);
-        addConfigName(CONFIG_PATTERN + i);
-        addConfigName(CONFIG_GN_ENABLE + i);
-        }
     }
 
     protected int getNumGNs() {
@@ -87,15 +78,18 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                 // ignore
             }
         }
+
+        if (num >= MAX_NUM_GN)
+           num = DEF_NUM_GN;
         return num;
     }
  
 
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
-  
-        CMS.debug("SubjectAltNameExtDefault: init");
 
+        super.init(profile,config);
+        refreshConfigAndValueNames();  
         // migrate old parameters to new parameters
         String old_type = null;
         String old_pattern = null;
@@ -132,9 +126,49 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
              CMS.debug("SubjectAltNameExtDefault: Failed to upgrade " + e);
            }
         }
-        super.init(profile, config);
     }
 
+    public void setConfig(String name, String value)
+        throws EPropertyException {
+        int num = 0;
+        if (name.equals(CONFIG_NUM_GNS)) {
+          try {
+            num = Integer.parseInt(value);
+
+            if (num >= MAX_NUM_GN || num < 0) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_GNS));
+            }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_GNS));
+          }
+        }
+        super.setConfig(name, value);
+    }
+
+    public Enumeration getConfigNames() {
+        refreshConfigAndValueNames();
+        return super.getConfigNames();
+    }
+
+    protected void refreshConfigAndValueNames() {
+        super.refreshConfigAndValueNames();
+
+        addValueName(VAL_CRITICAL);
+        addValueName(VAL_GENERAL_NAMES);
+
+        addConfigName(CONFIG_CRITICAL);
+        int num = getNumGNs();
+        addConfigName(CONFIG_NUM_GNS);
+        for (int i = 0; i < num; i++) {
+        addConfigName(CONFIG_TYPE + i);
+        addConfigName(CONFIG_PATTERN + i);
+        addConfigName(CONFIG_GN_ENABLE + i);
+        }
+    }
+    
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null, 
@@ -154,9 +188,13 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.BOOLEAN, null, 
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_GN_ENABLE"));
-        } else {
-            return null;
+        } else if (name.startsWith(CONFIG_NUM_GNS)) {
+            return new Descriptor(IDescriptor.INTEGER, null,
+                    "1",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_NUM_GNS"));
         }
+
+        return null;
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {

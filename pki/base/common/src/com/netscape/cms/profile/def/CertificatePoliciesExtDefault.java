@@ -1,3 +1,4 @@
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -62,6 +63,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     private static final String SEPARATOR = ".";
     private static final int DEF_NUM_POLICIES = 5;
     private static final int DEF_NUM_QUALIFIERS = 1;
+    private static final int MAX_NUM_POLICIES = 20;
     private static final String POLICY_ID_ENABLE = "Enable";
     private static final String POLICY_ID = "Policy Id";
     private static final String POLICY_QUALIFIER_CPSURI_ENABLE = "CPSuri Enable";
@@ -73,25 +75,6 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
     public CertificatePoliciesExtDefault() {
         super();
-        addValueName(VAL_CRITICAL);
-        addValueName(VAL_POLICY_QUALIFIERS);
-
-        addConfigName(CONFIG_CRITICAL);
-        int num = getNumPolicies();
-        int numQualifiers = getNumQualifiers();
-
-        for (int i = 0; i < num; i++) {
-            addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_ID);
-            addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_ENABLE);
-            for (int j=0; j<numQualifiers; j++) {
-                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_CPSURI_ENABLE);
-                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_ENABLE);
-                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_CPSURI_VALUE);
-                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_ORG);
-                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_NUMBERS);
-                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_TEXT);
-            }
-        }
     }
 
     protected int getNumPolicies() {
@@ -105,6 +88,9 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 // ignore
             }
         }
+
+        if (num >= MAX_NUM_POLICIES)
+            num = DEF_NUM_POLICIES;
         return num;
     }
 
@@ -124,6 +110,61 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
         super.init(profile, config);
+
+        refreshConfigAndValueNames();
+    }
+
+    public void setConfig(String name, String value)
+        throws EPropertyException {
+        int num = 0;
+        if (name.equals(CONFIG_POLICY_NUM)) {
+          try {
+            num = Integer.parseInt(value);
+
+            if (num >= MAX_NUM_POLICIES || num < 0) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_POLICY_NUM));
+            }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_POLICY_NUM));
+          }
+        }
+        super.setConfig(name, value);
+    }
+
+
+    public Enumeration getConfigNames() {
+        refreshConfigAndValueNames();
+        return super.getConfigNames();
+    }
+
+    protected void refreshConfigAndValueNames() {
+
+        super.refreshConfigAndValueNames();
+
+        addValueName(VAL_CRITICAL);
+        addValueName(VAL_POLICY_QUALIFIERS);
+
+        addConfigName(CONFIG_CRITICAL);
+        int num = getNumPolicies();
+        int numQualifiers = getNumQualifiers();
+
+        addConfigName(CONFIG_POLICY_NUM);
+        
+        for (int i = 0; i < num; i++) {
+            addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_ID);
+            addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_ENABLE);
+            for (int j=0; j<numQualifiers; j++) {
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_CPSURI_ENABLE);
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_ENABLE);
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_CPSURI_VALUE);
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_ORG);
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_NUMBERS);
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_TEXT);
+            }
+        }
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
@@ -149,8 +190,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CERTIFICATE_POLICY_ENABLE"));
         } else if (name.indexOf(CONFIG_POLICY_QUALIFIERS_NUM) >= 0) {
-            return new Descriptor(IDescriptor.STRING, null,
-                    null,
+            return new Descriptor(IDescriptor.INTEGER, null,
+                    "1",
                     CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_QUALIFIER_NUM"));
         } else if (name.indexOf(CONFIG_USERNOTICE_ORG) >= 0) {
             return new Descriptor(IDescriptor.STRING, null,
@@ -168,8 +209,11 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_CPSURI"));
+        } else if (name.indexOf(CONFIG_POLICY_NUM) >= 0) {
+            return new Descriptor(IDescriptor.INTEGER, null,
+                   "5",
+                   CMS.getUserMessage(locale, "CMS_PROFILE_NUM_POLICIES"));
         }
-
         return null;
     }
 

@@ -74,6 +74,7 @@ public class CRLDistributionPointsExtension extends Extension
         //throws IOException
     {
       try {
+
         this.extensionId = PKIXExtensions.CRLDistributionPoints_Id;
         this.critical = critical.booleanValue();
         this.extensionValue = (byte[])((byte[])value).clone();
@@ -168,6 +169,13 @@ public class CRLDistributionPointsExtension extends Extension
     // minimal implementation.
     /////////////////////////////////////////////////////////////
     public static final String NAME = "CRLDistributionPoints";
+
+     static {
+         try {
+            OIDMap.addAttribute(CRLDistributionPointsExtension.class.getName(),
+                                OID, NAME);
+        } catch (CertificateException e) {}
+    }
 
     public String toString() {
         return NAME;

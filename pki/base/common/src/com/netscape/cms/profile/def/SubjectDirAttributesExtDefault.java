@@ -50,29 +50,20 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
     public static final String VAL_CRITICAL = "subjDirAttrCritical";
     public static final String VAL_ATTR = "subjDirAttrValue";
 
-    private static final int DEF_NUM_ATTRS = 5;
+    private static final int DEF_NUM_ATTRS = 1;
+    private static final int MAX_NUM_ATTRS = 100;
     private static final String ENABLE = "Enable";
     private static final String ATTR_NAME = "Attribute Name";
     private static final String ATTR_VALUE = "Attribute Value";
 
     public SubjectDirAttributesExtDefault() {
         super();
-        addValueName(VAL_CRITICAL);
-        addValueName(VAL_ATTR);
-
-        addConfigName(CONFIG_CRITICAL);
-        int num = getNumAttrs();
-
-        for (int i = 0; i < num; i++) {
-            addConfigName(CONFIG_ATTR_NAME + i);
-            addConfigName(CONFIG_PATTERN + i);
-            addConfigName(CONFIG_ENABLE + i);
-        }
     }
 
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
         super.init(profile, config);
+        refreshConfigAndValueNames();
     }
 
     protected int getNumAttrs() {
@@ -86,7 +77,53 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
                 // ignore
             }
         }
+
+        if (num >= MAX_NUM_ATTRS)
+            num = DEF_NUM_ATTRS;
+
         return num;
+    }
+
+    public void setConfig(String name, String value)
+        throws EPropertyException {
+        int num = 0;
+        if (name.equals(DEF_NUM_ATTRS)) {
+          try {
+            num = Integer.parseInt(value);
+
+            if (num >= MAX_NUM_ATTRS || num < 0) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_ATTRS));
+            }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_ATTRS));
+          }
+        }
+        super.setConfig(name, value);
+    }
+
+
+    public Enumeration getConfigNames() {
+        refreshConfigAndValueNames();
+        return super.getConfigNames();
+    }
+
+    protected void refreshConfigAndValueNames() {
+        super.refreshConfigAndValueNames();
+
+        addValueName(VAL_CRITICAL);
+        addValueName(VAL_ATTR);
+
+        addConfigName(CONFIG_CRITICAL);
+        int num = getNumAttrs();
+        addConfigName(CONFIG_NUM_ATTRS);
+        for (int i = 0; i < num; i++) {
+            addConfigName(CONFIG_ATTR_NAME + i);
+            addConfigName(CONFIG_PATTERN + i);
+            addConfigName(CONFIG_ENABLE + i);
+        }
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
@@ -110,9 +147,13 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.BOOLEAN, null, 
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENABLE"));
-        } else {
-            return null;
-        }
+        } else if (name.startsWith(CONFIG_NUM_ATTRS)) {
+            return new Descriptor(IDescriptor.INTEGER, null,
+                    "1",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_NUM_ATTRS")); 
+        }  
+
+        return null;
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {

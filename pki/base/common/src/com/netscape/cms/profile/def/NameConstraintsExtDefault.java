@@ -69,39 +69,19 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
     private static final String MAX_VALUE = "Max Value";
     private static final String ENABLE = "Enable";
 
-    protected static final int DEF_NUM_PERMITTED_SUBTREES = 5;
-    protected static final int DEF_NUM_EXCLUDED_SUBTREES = 5;
+    protected static final int DEF_NUM_PERMITTED_SUBTREES = 1;
+    protected static final int DEF_NUM_EXCLUDED_SUBTREES = 1;
+    protected static final int MAX_NUM_EXCLUDED_SUBTREES = 100;
+    protected static final int MAX_NUM_PERMITTED_SUBTREES = 100;
 
     public NameConstraintsExtDefault() {
         super();
-        addValueName(VAL_CRITICAL);
-        addValueName(VAL_PERMITTED_SUBTREES);
-        addValueName(VAL_EXCLUDED_SUBTREES);
-
-        addConfigName(CONFIG_CRITICAL);
-        int num = getNumPermitted();
-
-        for (int i = 0; i < num; i++) {
-            addConfigName(CONFIG_PERMITTED_MIN_VAL + i);
-            addConfigName(CONFIG_PERMITTED_MAX_VAL + i);
-            addConfigName(CONFIG_PERMITTED_NAME_CHOICE + i);
-            addConfigName(CONFIG_PERMITTED_NAME_VAL + i);
-            addConfigName(CONFIG_PERMITTED_ENABLE + i);
-        }
-
-        num = getNumExcluded();
-        for (int i = 0; i < num; i++) {
-            addConfigName(CONFIG_EXCLUDED_MIN_VAL + i);
-            addConfigName(CONFIG_EXCLUDED_MAX_VAL + i);
-            addConfigName(CONFIG_EXCLUDED_NAME_CHOICE + i);
-            addConfigName(CONFIG_EXCLUDED_NAME_VAL + i);
-            addConfigName(CONFIG_EXCLUDED_ENABLE + i);
-        }
     }
 
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
         super.init(profile, config);
+        refreshConfigAndValueNames();
 
     }
 
@@ -116,6 +96,9 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 // ignore
             }
         }
+
+        if (num >= MAX_NUM_PERMITTED_SUBTREES)
+            num = DEF_NUM_PERMITTED_SUBTREES;
         return num;
     }
 
@@ -130,8 +113,88 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 // ignore
             }
         }
+
+        if (num >= MAX_NUM_EXCLUDED_SUBTREES)
+            num = DEF_NUM_EXCLUDED_SUBTREES;
+
         return num;
     }
+
+     public void setConfig(String name, String value)
+        throws EPropertyException {
+        int num = 0;
+        if (name.equals(CONFIG_NUM_PERMITTED_SUBTREES)) {
+          try {
+            num = Integer.parseInt(value);
+
+            if (num >= MAX_NUM_PERMITTED_SUBTREES || num < 0) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_PERMITTED_SUBTREES));
+            }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_PERMITTED_SUBTREES));
+          }
+        } else if(name.equals(CONFIG_NUM_EXCLUDED_SUBTREES)) {
+
+            try {
+              num = Integer.parseInt(value);
+
+            if (num >= MAX_NUM_EXCLUDED_SUBTREES || num < 0) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_EXCLUDED_SUBTREES));
+            }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_EXCLUDED_SUBTREES));
+          }
+        }
+        super.setConfig(name, value);
+    }
+
+
+    public Enumeration getConfigNames() {
+        refreshConfigAndValueNames();
+        return super.getConfigNames();
+    }
+
+    protected void refreshConfigAndValueNames() {
+        //refesh our config name list
+
+        super.refreshConfigAndValueNames();
+
+        addValueName(VAL_CRITICAL);
+        addValueName(VAL_PERMITTED_SUBTREES);
+        addValueName(VAL_EXCLUDED_SUBTREES);
+
+        addConfigName(CONFIG_CRITICAL);
+        int num = getNumPermitted();
+
+        addConfigName(CONFIG_NUM_PERMITTED_SUBTREES);
+
+        for (int i = 0; i < num; i++) {
+            addConfigName(CONFIG_PERMITTED_MIN_VAL + i);
+            addConfigName(CONFIG_PERMITTED_MAX_VAL + i);
+            addConfigName(CONFIG_PERMITTED_NAME_CHOICE + i);
+            addConfigName(CONFIG_PERMITTED_NAME_VAL + i);
+            addConfigName(CONFIG_PERMITTED_ENABLE + i);
+        }
+
+        num = getNumExcluded();
+
+        addConfigName(CONFIG_NUM_EXCLUDED_SUBTREES);
+        for (int i = 0; i < num; i++) {
+            addConfigName(CONFIG_EXCLUDED_MIN_VAL + i);
+            addConfigName(CONFIG_EXCLUDED_MAX_VAL + i);
+            addConfigName(CONFIG_EXCLUDED_NAME_CHOICE + i);
+            addConfigName(CONFIG_EXCLUDED_NAME_VAL + i);
+            addConfigName(CONFIG_EXCLUDED_ENABLE + i);
+        }
+
+    }
+
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
         if (name.equals(CONFIG_CRITICAL)) {
@@ -178,6 +241,14 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.BOOLEAN, null, 
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENABLE"));
+        } else if (name.startsWith(CONFIG_NUM_EXCLUDED_SUBTREES)) {
+            return new Descriptor(IDescriptor.INTEGER, null,
+                    "1",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_NUM_EXCLUDED_SUBTREES"));
+        } else if (name.startsWith(CONFIG_NUM_PERMITTED_SUBTREES)) {
+            return new Descriptor(IDescriptor.INTEGER, null,
+                   "1",
+                   CMS.getUserMessage(locale, "CMS_PROFILE_NUM_PERMITTED_SUBTREES"));
         }
         return null;
     }

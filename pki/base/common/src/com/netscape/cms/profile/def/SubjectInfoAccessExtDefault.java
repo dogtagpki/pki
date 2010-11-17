@@ -57,23 +57,11 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
     private static final String AD_LOCATION = "Location";
     private static final String AD_ENABLE = "Enable";
 
-    private static final int DEF_NUM_AD = 5;
+    private static final int DEF_NUM_AD = 1;
+    private static final int MAX_NUM_AD = 100;
 
     public SubjectInfoAccessExtDefault() {
         super();
-        addValueName(VAL_CRITICAL);
-        addValueName(VAL_GENERAL_NAMES);
-
-        // register configuration names bases on num ads
-        addConfigName(CONFIG_CRITICAL);
-        int num = getNumAds();
-
-        for (int i = 0; i < num; i++) {
-            addConfigName(CONFIG_AD_METHOD + i);
-            addConfigName(CONFIG_AD_LOCATIONTYPE + i);
-            addConfigName(CONFIG_AD_LOCATION + i);
-            addConfigName(CONFIG_AD_ENABLE + i);
-        }
     }
 
     protected int getNumAds() {
@@ -87,13 +75,59 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
                 // ignore
             }
         }
+        if (num >= MAX_NUM_AD)
+            num = DEF_NUM_AD;
+
         return num;
     }
  
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
         super.init(profile, config);
+        refreshConfigAndValueNames();
+    }
 
+    public void setConfig(String name, String value)
+        throws EPropertyException {
+        int num = 0;
+        if (name.equals(CONFIG_NUM_ADS)) {
+          try {
+            num = Integer.parseInt(value);
+
+            if (num >= MAX_NUM_AD || num < 0) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_ADS));
+            }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_ADS));
+          }
+        }
+        super.setConfig(name, value);
+    }
+
+    public Enumeration getConfigNames() {
+        refreshConfigAndValueNames();
+        return super.getConfigNames();
+    }
+
+    protected void refreshConfigAndValueNames() {
+        super.refreshConfigAndValueNames();
+
+        addValueName(VAL_CRITICAL);
+        addValueName(VAL_GENERAL_NAMES);
+
+        // register configuration names bases on num ads
+        addConfigName(CONFIG_CRITICAL);
+        int num = getNumAds();
+        addConfigName(CONFIG_NUM_ADS);
+        for (int i = 0; i < num; i++) {
+            addConfigName(CONFIG_AD_METHOD + i);
+            addConfigName(CONFIG_AD_LOCATIONTYPE + i);
+            addConfigName(CONFIG_AD_LOCATION + i);
+            addConfigName(CONFIG_AD_ENABLE + i);
+        }
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
@@ -117,7 +151,11 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.BOOLEAN, null, 
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_AD_ENABLE"));
-        } 
+        }  else if (name.startsWith(CONFIG_NUM_ADS)) {
+            return new Descriptor(IDescriptor.INTEGER, null,
+                    "1",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_NUM_ADS"));
+        }
         return null;
     }
 
@@ -294,7 +332,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
             if (ext == null)
                 return "";
 
-            int num = DEF_NUM_AD;
+            int num = getNumAds();
 	
             CMS.debug("SubjectInfoAccess num=" + num);
             Vector recs = new Vector();

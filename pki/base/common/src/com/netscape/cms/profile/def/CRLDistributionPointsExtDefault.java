@@ -65,16 +65,55 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
 
     private static final String RELATIVETOISSUER = "RelativeToIssuer";
 
-    private static final int DEF_NUM_POINTS = 5;
+    private static final int DEF_NUM_POINTS = 1;
+    private static final int MAX_NUM_POINTS = 100;
 
     public CRLDistributionPointsExtDefault() {
         super();
+    }
+
+    public void init(IProfile profile, IConfigStore config)
+        throws EProfileException {
+        super.init(profile, config);
+        refreshConfigAndValueNames();
+    }
+
+     public void setConfig(String name, String value)
+        throws EPropertyException {
+        int num = 0;
+        if (name.equals(CONFIG_NUM_POINTS)) {
+          try {
+            num = Integer.parseInt(value);
+
+            if (num >= MAX_NUM_POINTS || num < 0) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_POINTS));
+            }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_POINTS));
+          }
+        }
+        super.setConfig(name, value);
+    }
+
+
+    public Enumeration getConfigNames() {
+        refreshConfigAndValueNames();
+        return super.getConfigNames();
+    }
+
+    protected void refreshConfigAndValueNames() {
+        super.refreshConfigAndValueNames();
+
         addValueName(VAL_CRITICAL);
         addValueName(VAL_CRL_DISTRIBUTION_POINTS);
 
         addConfigName(CONFIG_CRITICAL);
         int num = getNumPoints();
 
+        addConfigName(CONFIG_NUM_POINTS);
         for (int i = 0; i < num; i++) {
             addConfigName(CONFIG_POINT_TYPE + i);
             addConfigName(CONFIG_POINT_NAME + i);
@@ -83,12 +122,6 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             addConfigName(CONFIG_ISSUER_NAME + i);
             addConfigName(CONFIG_ENABLE + i);
         }
-    }
-
-    public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
-        super.init(profile, config);
-
     }
 
     protected int getNumPoints() {
@@ -102,6 +135,10 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                 // ignore
             }
         }
+
+        if (num >= MAX_NUM_POINTS) 
+            num = DEF_NUM_POINTS;
+
         return num;
     }
 
@@ -134,6 +171,11 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.BOOLEAN, null, 
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENABLE"));
+        } else if (name.startsWith(CONFIG_NUM_POINTS)) {
+            return new Descriptor(IDescriptor.INTEGER, null,
+                    "1",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_NUM_DIST_POINTS"));
+
         } else {
             return null;
         }
@@ -590,7 +632,8 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                         addCRLPoint(getLocale(request), cdp, pointType, pointName);
                     if (issuerType != null)
                         addIssuer(getLocale(request), cdp, issuerType, issuerName);
-                    addReasons(getLocale(request), cdp, REASONS, reasons);
+                    if (reasons != null)
+                      addReasons(getLocale(request), cdp, REASONS, reasons);
 
                     if (i == 0) {
                         ext = new CRLDistributionPointsExtension(cdp);

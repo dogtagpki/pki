@@ -133,7 +133,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
             return new Descriptor(IDescriptor.STRING, 
                 null,
                 null,
-                CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_SEARCH_NAME"));
+                CMS.getUserMessage(locale,"CMS_PROFILE_TOKENKEY_LDAP_SEARCH_NAME"));
         } else if (name.equals(CONFIG_LDAP_HOST)) {
             return new Descriptor(IDescriptor.STRING, 
                 null,

@@ -253,6 +253,11 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         return buffer.toString();
     }
 
+    protected void refreshConfigAndValueNames() {
+         mConfigNames.removeAllElements();
+         mValueNames.removeAllElements();
+    }
+
     protected void deleteExtension(String name, X509CertInfo info) {
         CertificateExtensions exts = null;
 
@@ -687,7 +692,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         else if (type == GeneralNameInterface.NAME_URI)
             return "URIName";
         else if (type == GeneralNameInterface.NAME_IP)
-            return "IPAddressName";
+            return "IPAddress";
         else if (type == GeneralNameInterface.NAME_DIRECTORY)
             return "DirectoryName";
         else if (type == GeneralNameInterface.NAME_EDI)
