@@ -16,7 +16,7 @@ BuildRequires:  jpackage-utils
 BuildRequires:  jss >= 4.2.6
 BuildRequires:  ldapjdk
 BuildRequires:  osutil
-#BuildRequires:  pki-symkey
+BuildRequires:  pki-symkey
 BuildRequires:  pki-util
 BuildRequires:  velocity
 BuildRequires:  xalan-j2
