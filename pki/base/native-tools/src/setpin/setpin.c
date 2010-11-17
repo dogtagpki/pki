@@ -112,26 +112,26 @@ RNGContext *rngc = NULL;
 #endif
 
 void exitError(char *errstring) {
-  char *errbuf;
+    char *errbuf;
   
-  errbuf = malloc(strlen(errstring)+strlen(programName)+10);
+    errbuf = malloc(strlen(errstring)+strlen(programName)+10);
 
-  sprintf(errbuf,"%s error : %s\n",programName,errstring);
-  fputs(errbuf,stderr);
-  exit(errcode);
+    sprintf(errbuf,"%s error : %s\n",programName,errstring);
+    fputs(errbuf,stderr);
+    exit(errcode);
 }
 
 
 void exitLDAPError(char *errstring) {
-  char *ldaperr;
-  char *newerror;
-  int err;
+    char *ldaperr;
+    char *newerror;
+    int err;
 
-  err = ldap_get_lderrno(ld, NULL, NULL);
-  ldaperr = ldap_err2string(err);
-  newerror = (char*) malloc((errstring?strlen(errstring):0) + (ldaperr?strlen(ldaperr):0) +5);
-  sprintf(newerror,"%s (%s)",errstring?errstring:"",ldaperr?ldaperr:"");
-  exitError(newerror);
+    err = ldap_get_lderrno(ld, NULL, NULL);
+    ldaperr = ldap_err2string(err);
+    newerror = (char*) malloc((errstring?strlen(errstring):0) + (ldaperr?strlen(ldaperr):0) +5);
+    sprintf(newerror,"%s (%s)",errstring?errstring:"",ldaperr?ldaperr:"");
+    exitError(newerror);
 }
 
 
@@ -140,217 +140,204 @@ void exitLDAPError(char *errstring) {
 
 char * trim_strdup(char *s)
 {
-  	while (*s == ' ' || *s == '\t') {
-		s++;
-		}
-	
-	if (*s == '\0') return NULL;
-
-	return strdup(s);
-
+    while (*s == ' ' || *s == '\t') {
+        s++;
+    }
+    if (*s == '\0') return NULL;
+    return strdup(s);
 }
 
 void readInputFile() {
-  int more_to_read=1;
-  char *thedn, *thepin;
-  int linenum=0;
+    int more_to_read=1;
+    char *thedn, *thepin;
+    int linenum=0;
 
-  pinHashTable = PL_NewHashTable(256, 
-                                 PL_HashString,
-                                 PL_CompareStrings,
-                                 PL_CompareValues,
-                                 NULL,  /* allocOps */
-                                 NULL);
-  if (pinHashTable == NULL) {
-    errcode=9;
-    exitError("Couldn't create dn->pin hashtable");
-  }
+    pinHashTable = PL_NewHashTable(256, 
+                                   PL_HashString,
+                                   PL_CompareStrings,
+                                   PL_CompareValues,
+                                   NULL,  /* allocOps */
+                                   NULL);
+    if (pinHashTable == NULL) {
+        errcode=9;
+        exitError("Couldn't create dn->pin hashtable");
+    }
 
-  if (o_input) {
+    if (o_input) {
 
-    do {
-      char line[4096];
-      char *n;
-      char *checkdn;
+        do {
+            char line[4096];
+            char *n;
+            char *checkdn;
 
+            thedn = NULL;
+            thepin = NULL;
       
-      thedn = NULL;
-      thepin = NULL;
+            do {
+                n = fgets(line,4096,input);
+                linenum++;
+                if (! n) {
+                    more_to_read = 0;
+                    break;
+                }
+        
+                /* replace newline with null byte */
+        
+                line[strlen(line)-1] = 0;
+        
+                if (! strncmp("dn:",line,3)) {
+                    thedn = trim_strdup(&line[3]);
+                    if (thedn == NULL) {
+                        fprintf(stderr,"warning: empty line not allowed at line: %d\n",linenum);
+                    }
+                }
+        
+                if (! strncmp("pin:",line,4)) {
+                    thepin = trim_strdup(&line[4]);
+                }
+        
+            } while (strlen(line));
       
-      do {
-        n = fgets(line,4096,input);
-		linenum++;
-        if (! n) {
-          more_to_read = 0;
-          break;
-        }
-        
-        /* replace newline with null byte */
-        
-        line[strlen(line)-1] = 0;
-        
-        if (! strncmp("dn:",line,3)) {
-          thedn = trim_strdup(&line[3]);
-		  if (thedn == NULL) {
-		  	fprintf(stderr,"warning: empty line not allowed at line: %d\n",linenum);
-		  	}
-        }
-        
-        if (! strncmp("pin:",line,4)) {
-          thepin = trim_strdup(&line[4]);
-        }
-        
-      } while (strlen(line));
-      
-      /* first check to see if that dn is already in the hashtable */
+            /* first check to see if that dn is already in the hashtable */
 
-      if (thepin == NULL) {
-        thepin = strdup("");
-      }
+            if (thepin == NULL) {
+                thepin = strdup("");
+            }
 
-      if (thedn && thepin) {
+            if (thedn && thepin) {
 
-        checkdn = (char*) PL_HashTableLookup(pinHashTable,
-                                             thedn);
-        if (checkdn) {
-          char msg[256];
-          errcode = 10;
-          strcpy(msg,"Duplicate entry in input file for dn=");
-          strcat(msg,thedn);
-          exitError(msg);
-        }
+               checkdn = (char*) PL_HashTableLookup(pinHashTable, thedn);
+               if (checkdn) {
+                   char msg[256];
+                   errcode = 10;
+                   strcpy(msg,"Duplicate entry in input file for dn=");
+                   strcat(msg,thedn);
+                   exitError(msg);
+               }
         
-        PL_HashTableAdd(pinHashTable,
-                        thedn,
-                        thepin);
-          fprintf(stderr, "Reading dn/pin ( %s, %s )\n", thedn, thepin);
-        if (o_debug) {
-          fprintf(stderr, "Reading dn/pin ( %s, %s )\n", thedn, thepin);
-        }
+               PL_HashTableAdd(pinHashTable,
+                           thedn,
+                           thepin);
+               fprintf(stderr, "Reading dn/pin ( %s, %s )\n", thedn, thepin);
+               if (o_debug) {
+                   fprintf(stderr, "Reading dn/pin ( %s, %s )\n", thedn, thepin);
+               }
 
-      }
-	  else {
-	  	if (o_debug) {
-	  		fprintf(stderr," ...ignoring\n");
-			}
-		}
-
-    } while (more_to_read);
-
-  }
+            } else {
+                if (o_debug) {
+                   fprintf(stderr," ...ignoring\n");
+                }
+            }
+        } while (more_to_read);
+    }
 }
   
   
-
-
-
 int main(int ac, char **av) {
-  char *error;
-  LDAPMessage *search_results;
+    char *error;
+    LDAPMessage *search_results;
 
-  programName = av[0];
-  if (strlen(av[0]) == 0) {
-    strcpy(programName, "setpin");
-  }
-  else {
-    strcpy(programName, av[0]);
-  }
-
-  if (ac == 1) {
-    int i=0;
-      fprintf(stderr,"Setpin utility. Version " SETPIN_VERSION "\n"
-	  	"(C) 2005 Fedora Project.\n"
-		"Unauthorized distribution prohibited\n\n");
-      fprintf(stderr,"To set up directory for pin usage, modify setpin.conf, "
-					 "then run:\n   %s optfile=<svr_root>/bin/cert/tools/setpin.conf\n", programName);
-      fprintf(stderr,"\nUsage:  %s option=value ... option=value\n\n", programName);
-
-    for (i=0; i< 200; i+=2) {
-      if (valid_args[i]) {
-        fprintf(stderr,"%13s : %s\n",valid_args[i],valid_args[i+1]);
-      }
-      else {
-        errcode=0;
-        fprintf(stderr,"\n");
-        exit(errcode);
-      }
+    programName = av[0];
+    if (strlen(av[0]) == 0) {
+        strcpy(programName, "setpin");
     }
-  }
-
-  error = OPT_parseOptions(ac, av, valid_args);
-  if (error) {
-    errcode=7;
-    exitError(error);
-  }
-
-  setDefaultOptions();
-
-  getOptions();
-  fprintf(stderr,"\n");
-  if (o_debug) {
-    fprintf(stderr,"about to validateOptions\n");
-  }
-
-  validateOptions();
-
-  /* Initialize random number generator */
-  initrandom();
-
-  if (o_debug) {
-    fprintf(stderr,"about to doLDAPBind\n");
-  }
-
-  if (! o_testpingen) {
-  	doLDAPBind();
-  }
-
-  if (o_setup) {
-	do_setup();
-  }
-
-  if (o_output) {
-    output = fopen(o_output,"w");
-    if (!output) {
-      errcode=5;
-      exitError("Couldn't open output file");
+    else {
+        strcpy(programName, av[0]);
     }
-  }
-  else {
-    output = stdout;
-  }
 
-  if (o_testpingen) {
-	testpingen();
- 	exit(0);
-  }
+    if (ac == 1) {
+        int i=0;
+        fprintf(stderr,"Setpin utility. Version " SETPIN_VERSION "\n"
+            "(C) 2005 Fedora Project.\n"
+            "Unauthorized distribution prohibited\n\n");
+        fprintf(stderr,"To set up directory for pin usage, modify setpin.conf, "
+            "then run:\n   %s optfile=<svr_root>/bin/cert/tools/setpin.conf\n", programName);
+        fprintf(stderr,"\nUsage:  %s option=value ... option=value\n\n", programName);
 
-  if (o_input) {
-    input = fopen(o_input,"r");
-    if (!input) {
-      errcode=8;
-      exitError("Couldn't open input file");
+        for (i=0; i< 200; i+=2) {
+            if (valid_args[i]) {
+                fprintf(stderr,"%13s : %s\n",valid_args[i],valid_args[i+1]);
+            } else {
+                errcode=0;
+                fprintf(stderr,"\n");
+                exit(errcode);
+            }
+        }
     }
-  }
 
-  readInputFile();
+    error = OPT_parseOptions(ac, av, valid_args);
+    if (error) {
+        errcode=7;
+        exitError(error);
+    }
 
-  if (o_debug) {
-    fprintf(stderr,"about to doLDAPSearch\n");
-  }
+    setDefaultOptions();
 
-  doLDAPSearch(&search_results);
+    getOptions();
+    fprintf(stderr,"\n");
+    if (o_debug) {
+        fprintf(stderr,"about to validateOptions\n");
+    }
+
+    validateOptions();
+
+    /* Initialize random number generator */
+    initrandom();
+
+    if (o_debug) {
+        fprintf(stderr,"about to doLDAPBind\n");
+    }
+
+    if (! o_testpingen) {
+        doLDAPBind();
+    }
+
+    if (o_setup) {
+        do_setup();
+    }
+
+    if (o_output) {
+        output = fopen(o_output,"w");
+        if (!output) {
+            errcode=5;
+            exitError("Couldn't open output file");
+        }
+    } else {
+        output = stdout;
+    }
+
+    if (o_testpingen) {
+        testpingen();
+        exit(0);
+    }
+
+    if (o_input) {
+        input = fopen(o_input,"r");
+        if (!input) {
+            errcode=8;
+            exitError("Couldn't open input file");
+        }
+    }
+
+    readInputFile();
+
+    if (o_debug) {
+        fprintf(stderr,"about to doLDAPSearch\n");
+    }
+
+    doLDAPSearch(&search_results);
   
-  if (o_debug) {
-    fprintf(stderr,"about to processSearchResults\n");
-  }
+    if (o_debug) {
+        fprintf(stderr,"about to processSearchResults\n");
+    }
   
-  processSearchResults(search_results);
+    processSearchResults(search_results);
   
-  if (output != stdout) {
-    fclose(output);
-  }
+    if (output != stdout) {
+        fclose(output);
+    }
 
-  return 0;
+    return 0;
 }
 
 
@@ -368,174 +355,172 @@ int main(int ac, char **av) {
 */
 
 void do_setup() {
-  int i;
+    int i;
 
-  char *x_values[]={NULL,NULL,NULL};
-  char *a1_values[]={NULL,NULL};
-  char *a2_values[]={NULL,NULL};
-  char *a3_values[]={NULL,NULL};
-  char *a4_values[]={NULL,NULL};
-  LDAPMod x,a1,a2,a3,a4;
-  LDAPMod *mods[10];
-  char* password=NULL;
-  int err;
+    char *x_values[]={NULL,NULL,NULL};
+    char *a1_values[]={NULL,NULL};
+    char *a2_values[]={NULL,NULL};
+    char *a3_values[]={NULL,NULL};
+    char *a4_values[]={NULL,NULL};
+    LDAPMod x,a1,a2,a3,a4;
+    LDAPMod *mods[10];
+    char* password=NULL;
+    int err;
 
-  x_values[0] = malloc(1024);
+    x_values[0] = malloc(1024);
 
-	doLDAPBind();
-	
-	if (o_schemachange) {
-		
-      sprintf(x_values[0],"( %s-oid NAME '%s' DESC 'User Defined Attribute' SYNTAX '1.3.6.1.4.1.1466.115.121.1.5' SINGLE-VALUE )",
-			o_attribute,
-			o_attribute);
+    doLDAPBind();
+    
+    if (o_schemachange) {   
+        sprintf(x_values[0],"( %s-oid NAME '%s' DESC 'User Defined Attribute' SYNTAX '1.3.6.1.4.1.1466.115.121.1.5' SINGLE-VALUE )",
+            o_attribute,
+            o_attribute);
 
-    fprintf(stderr,"Adding attribute: %s\n",x_values[0]);
-      x_values[1] = NULL;
-      x.mod_op = LDAP_MOD_ADD;
-      x.mod_type = "attributetypes";
-      x.mod_values = x_values;
-      mods[0] = &x;
-      mods[1] = NULL;
+        fprintf(stderr,"Adding attribute: %s\n",x_values[0]);
+        x_values[1] = NULL;
+        x.mod_op = LDAP_MOD_ADD;
+        x.mod_type = "attributetypes";
+        x.mod_values = x_values;
+        mods[0] = &x;
+        mods[1] = NULL;
       
-      i = ldap_modify_s(ld, "cn=schema", mods);
-	
-      if (i != LDAP_SUCCESS) {
+        i = ldap_modify_s(ld, "cn=schema", mods);
+    
+        if (i != LDAP_SUCCESS) {
+            err = ldap_get_lderrno(ld, NULL, NULL);
+            if (err != LDAP_TYPE_OR_VALUE_EXISTS) {
+                exitLDAPError("couldn't modify schema when creating pin attribute");
+            } else {
+                fprintf(stderr," .. successful\n\n");
+            }
+        }
 
-  err = ldap_get_lderrno(ld, NULL, NULL);
-	  	if (err != LDAP_TYPE_OR_VALUE_EXISTS) {
-         	exitLDAPError("couldn't modify schema when creating pin attribute");
-	     }
-		else fprintf(stderr," .. successful\n\n");
-      }
+        sprintf(x_values[0],"( %s-oid NAME '%s' DESC 'User Defined ObjectClass' SUP 'top' MUST ( objectclass ) MAY ( aci $ %s )",
+           o_objectclass,o_objectclass,
+           o_attribute);
 
-      sprintf(x_values[0],"( %s-oid NAME '%s' DESC 'User Defined ObjectClass' SUP 'top' MUST ( objectclass ) MAY ( aci $ %s )",
-		  o_objectclass,o_objectclass,
-		  o_attribute);
+        fprintf(stderr,"Adding objectclass: %s\n",x_values[0]);
 
-    fprintf(stderr,"Adding objectclass: %s\n",x_values[0]);
-
-      x_values[1] = NULL;
-      x.mod_op = LDAP_MOD_ADD;
-      x.mod_type = "objectclasses";
-      x.mod_values = x_values;
-      mods[0] = &x;
-      mods[1] = NULL;
+        x_values[1] = NULL;
+        x.mod_op = LDAP_MOD_ADD;
+        x.mod_type = "objectclasses";
+        x.mod_values = x_values;
+        mods[0] = &x;
+        mods[1] = NULL;
 
       
-      i = ldap_modify_s(ld, "cn=schema", mods);
-	
-      if (i != LDAP_SUCCESS) {
-  		err = ldap_get_lderrno(ld, NULL, NULL);
-	  	if (err != LDAP_TYPE_OR_VALUE_EXISTS) {
-          exitLDAPError("couldn't modify schema when creating objectclass");
-		}
-		else fprintf(stderr," .. successful\n\n");
-       }
+        i = ldap_modify_s(ld, "cn=schema", mods);
+    
+        if (i != LDAP_SUCCESS) {
+            err = ldap_get_lderrno(ld, NULL, NULL);
+            if (err != LDAP_TYPE_OR_VALUE_EXISTS) {
+                exitLDAPError("couldn't modify schema when creating objectclass");
+            } else {
+                fprintf(stderr," .. successful\n\n");
+            }
+        }
     }
 
     if (o_pinmanager) {
 
-	  if (o_pinmanagerpwd == NULL) {
-    		exitError("missing pinmanagerpwd argument");
-	  }
-	  if (o_basedn == NULL) {
-			exitError("missing basedn argument");
-	  }
-			
-	  password = sha1_pw_enc( o_pinmanagerpwd );
-		
-      fprintf(stderr,"Adding user: %s\n",o_pinmanager);
-
-      a1_values[0] = "pinmanager";
-      a1_values[1] = NULL;
-      a1.mod_op = 0;
-      a1.mod_type = "sn";
-      a1.mod_values = a1_values;
-
-      a2_values[0] = "pinmanager";
-      a2_values[1] = NULL;
-      a2.mod_op = 0;
-      a2.mod_type = "cn";
-      a2.mod_values = a2_values;
-
-      a3_values[0] = password;
-      a3_values[1] = NULL;
-      a3.mod_op = 0;
-      a3.mod_type = "userPassword";
-      a3.mod_values = a3_values;
-
-      a4_values[0] = "person";
-      a4_values[1] = NULL;
-      a4.mod_op = 0;
-      a4.mod_type = "objectclass";
-      a4.mod_values = a4_values;
-
-      mods[0] = &a1;
-      mods[1] = &a2;
-      mods[2] = &a3;
-      mods[3] = &a4;
-	  mods[4] = NULL;
-
-	  
-      i = ldap_add_s(ld, o_pinmanager, mods);
-
-      if (i != LDAP_SUCCESS) {
-  		err = ldap_get_lderrno(ld, NULL, NULL);
-	  	if (!( err == LDAP_TYPE_OR_VALUE_EXISTS || err == LDAP_ALREADY_EXISTS)) {
-          exitLDAPError("couldn't create new user");
+        if (o_pinmanagerpwd == NULL) {
+            exitError("missing pinmanagerpwd argument");
         }
-		else fprintf(stderr," .. successful\n\n");
-       }
+        if (o_basedn == NULL) {
+            exitError("missing basedn argument");
+        }
+            
+        password = sha1_pw_enc( o_pinmanagerpwd );
+        
+        fprintf(stderr,"Adding user: %s\n",o_pinmanager);
+
+        a1_values[0] = "pinmanager";
+        a1_values[1] = NULL;
+        a1.mod_op = 0;
+        a1.mod_type = "sn";
+        a1.mod_values = a1_values;
+
+        a2_values[0] = "pinmanager";
+        a2_values[1] = NULL;
+        a2.mod_op = 0;
+        a2.mod_type = "cn";
+        a2.mod_values = a2_values;
+
+        a3_values[0] = password;
+        a3_values[1] = NULL;
+        a3.mod_op = 0;
+        a3.mod_type = "userPassword";
+        a3.mod_values = a3_values;
+
+        a4_values[0] = "person";
+        a4_values[1] = NULL;
+        a4.mod_op = 0;
+        a4.mod_type = "objectclass";
+        a4.mod_values = a4_values;
+
+        mods[0] = &a1;
+        mods[1] = &a2;
+        mods[2] = &a3;
+        mods[3] = &a4;
+        mods[4] = NULL;
+
+      
+        i = ldap_add_s(ld, o_pinmanager, mods);
+
+        if (i != LDAP_SUCCESS) {
+            err = ldap_get_lderrno(ld, NULL, NULL);
+            if (!( err == LDAP_TYPE_OR_VALUE_EXISTS || err == LDAP_ALREADY_EXISTS)) {
+                exitLDAPError("couldn't create new user");
+            } else {
+                fprintf(stderr," .. successful\n\n");
+            }
+        }
 
 
-/* modify aci on basedn to allow pinmanager to modify pin attr */
-		
-      fprintf(stderr,"modifying ACI for: %s\n",o_basedn);
+        /* modify aci on basedn to allow pinmanager to modify pin attr */
+        
+        fprintf(stderr,"modifying ACI for: %s\n",o_basedn);
 
-      sprintf(x_values[0],"(target=\"ldap:///%s\")"
-					 "(targetattr=\"pin\")"
-             		 "(version 3.0; acl \"Pin attribute\"; "
-             		  "allow (all) userdn = \"ldap:///%s\"; "
-             		  "deny(proxy,selfwrite,compare,add,write,delete,search) "
-             		  "userdn = \"ldap:///self\"; ) ",
-				o_basedn,
-				o_pinmanager);
+        sprintf(x_values[0],"(target=\"ldap:///%s\")"
+                   "(targetattr=\"pin\")"
+                   "(version 3.0; acl \"Pin attribute\"; "
+                   "allow (all) userdn = \"ldap:///%s\"; "
+                   "deny(proxy,selfwrite,compare,add,write,delete,search) "
+                   "userdn = \"ldap:///self\"; ) ",
+                o_basedn,
+                o_pinmanager);
 
-	  x_values[1] = malloc(1024);
+        x_values[1] = malloc(1024);
 
-      sprintf(x_values[1],"(target=\"ldap:///%s\")"
-					 "(targetattr=\"objectclass\")"
-             		 "(version 3.0; acl \"Pin Objectclass\"; "
-             		  "allow (all) userdn = \"ldap:///%s\"; "
-             		  " ) ",
-				o_basedn,
-				o_pinmanager);
+        sprintf(x_values[1],"(target=\"ldap:///%s\")"
+                   "(targetattr=\"objectclass\")"
+                   "(version 3.0; acl \"Pin Objectclass\"; "
+                   "allow (all) userdn = \"ldap:///%s\"; "
+                   " ) ",
+                o_basedn,
+                o_pinmanager);
 
-      x_values[2] = NULL;
-      x.mod_op = LDAP_MOD_ADD;
-      x.mod_type = "aci";
-      x.mod_values = x_values;
+        x_values[2] = NULL;
+        x.mod_op = LDAP_MOD_ADD;
+        x.mod_type = "aci";
+        x.mod_values = x_values;
 
-      mods[0] = &x;
-      mods[1] = NULL;
-	  
-      i = ldap_modify_s(ld, o_basedn, mods);
+        mods[0] = &x;
+        mods[1] = NULL;
+      
+        i = ldap_modify_s(ld, o_basedn, mods);
 
-      if (i != LDAP_SUCCESS) {
-  		err = ldap_get_lderrno(ld, NULL, NULL);
-	  	if (!( err == LDAP_TYPE_OR_VALUE_EXISTS || err == LDAP_ALREADY_EXISTS)) {
-          exitLDAPError("couldn't modify aci on basedn");
-		}
-		else fprintf(stderr," .. successful\n\n");
-       }
-   }
-		
-exit(0);
-
+        if (i != LDAP_SUCCESS) {
+            err = ldap_get_lderrno(ld, NULL, NULL);
+            if (!( err == LDAP_TYPE_OR_VALUE_EXISTS || err == LDAP_ALREADY_EXISTS)) {
+                exitLDAPError("couldn't modify aci on basedn");
+            } else {
+                fprintf(stderr," .. successful\n\n");
+            }
+        }
+    }
+    exit(0);
 }
-
-
 
 int ldif_base64_encode(
    unsigned char *src, char *dst, int srclen, int lenused );
@@ -556,7 +541,7 @@ sha1_pw_enc( char *pwd )
 
     /* SHA1 hash the user's key */
     PK11_HashBuf(SEC_OID_SHA1,hash,pwd,strlen(pwd));
-	enc = malloc(256);
+    enc = malloc(256);
 
     sprintf( enc, "{SHA}");
 
@@ -566,451 +551,429 @@ sha1_pw_enc( char *pwd )
     return( enc );
 }
 
-
-
-
 /* check the first 8 characters to see if this is a string */
 
 int isstring(char *s) {
-  int i=0;
+    int i=0;
 
-  for (i=0;i<8;i++) {
-    if (*s == 0) return 1;
-    if (! isprint(*s)) return 0;
-    s++;
-  }
-  return 1;
+    for (i=0;i<8;i++) {
+        if (*s == 0) return 1;
+        if (! isprint(*s)) return 0;
+        s++;
+    }
+    return 1;
 }
 
 
 void doLDAPBind() {
-  char errbuf[1024];
-  int port=389;
-  int r;
+    char errbuf[1024];
+    int port=389;
+    int r;
 
-  if (o_port == NULL) {
+    if (o_port == NULL) {
+        if (o_ssl) {
+            port = 636;
+            /* fprintf(stderr,"o_ssl = %0x, o_certdb = %0x, o_nickname= %0x\n",o_ssl,o_certdb,o_nickname); */
+        } else {
+            port = 389;
+        }
+    } else {
+        port = atoi(o_port);
+    }
+
+    if (o_debug) {
+        fprintf(stderr,"# connecting to %s:%d\n",o_host,port);
+    }
+
     if (o_ssl) {
-      port = 636;
-	  /* fprintf(stderr,"o_ssl = %0x, o_certdb = %0x, o_nickname= %0x\n",o_ssl,o_certdb,o_nickname); */
+        printf("SSL not currently supported.\n");
+        exit(0);
+        /* ld = ldapssl_init(o_host,port,LDAPSSL_AUTH_CNCHECK); */
+    } else {
+        ld = prldap_init(o_host,port,1);
     }
-    else {
-      port = 389;
+
+    if (ld == NULL) {
+        errcode=4;
+        exitError("could not connect to directory server");
     }
-  }
-  else {
-    port = atoi(o_port);
-  }
 
-  if (o_debug) {
-    fprintf(stderr,"# connecting to %s:%d\n",o_host,port);
-  }
-
-  if (o_ssl) {
-	printf("SSL not currently supported.\n");
-	exit(0);
-  	/* ld = ldapssl_init(o_host,port,LDAPSSL_AUTH_CNCHECK); */
-  }
-  else {
-  	ld = prldap_init(o_host,port,1);
-  }
-  if (ld == NULL) {
-    errcode=4;
-    exitError("could not connect to directory server");
-  }
-
-  if (o_debug) {
-    fprintf(stderr,"# prldap_init completed\n");
-  }
+    if (o_debug) {
+        fprintf(stderr,"# prldap_init completed\n");
+    }
     
-  r = ldap_simple_bind_s(ld,o_binddn,o_bindpw);
-  if (r != LDAP_SUCCESS) {
-    sprintf(errbuf,"could not bind to %s:%d as %s",o_host,port,o_binddn);
-    if (strstr(o_binddn,"=") == NULL) {
-      strcat(errbuf,". Perhaps you missed the 'CN=' part of the bin DN?");
+    r = ldap_simple_bind_s(ld,o_binddn,o_bindpw);
+    if (r != LDAP_SUCCESS) {
+        sprintf(errbuf,"could not bind to %s:%d as %s",o_host,port,o_binddn);
+        if (strstr(o_binddn,"=") == NULL) {
+            strcat(errbuf,". Perhaps you missed the 'CN=' part of the bin DN?");
+        }
+        exitLDAPError(errbuf);
     }
-    exitLDAPError(errbuf);
-  }
 
-  if (o_debug) {
-    fprintf(stderr,"# ldap_simple_bind_s completed\n");
-  }
-
+    if (o_debug) {
+        fprintf(stderr,"# ldap_simple_bind_s completed\n");
+    }
 }
   
 
 void doLDAPSearch(LDAPMessage **result ) {
-  int r;
-  char errbuf[1024];
+    int r;
+    char errbuf[1024];
 
-  r = ldap_search_s( ld, o_basedn, LDAP_SCOPE_SUBTREE,
+    r = ldap_search_s( ld, o_basedn, LDAP_SCOPE_SUBTREE,
                      o_filter, NULL, 0, result );
 
-  if (r != LDAP_SUCCESS ) {
-    sprintf(errbuf,"could not complete search with that filter. Check filter and basedn");
-    exitLDAPError(errbuf);
-  }
+    if (r != LDAP_SUCCESS ) {
+        sprintf(errbuf,"could not complete search with that filter. Check filter and basedn");
+        exitLDAPError(errbuf);
+    }
 
-  if (o_debug) {
-    fprintf(stderr,"# ldap_search_s completed\n");
-  }
-
+    if (o_debug) {
+        fprintf(stderr,"# ldap_search_s completed\n");
+    }
 }
 
 void doLDAPUnbind(){
-  ldap_unbind(ld);
+    ldap_unbind(ld);
 }
 
 
 void processSearchResults(LDAPMessage *r) {
-  LDAPMessage *e;
-  char *dn;
-  char *a;
-  char **vals;
+    LDAPMessage *e;
+    char *dn;
+    char *a;
+    char **vals;
 #ifdef USE_NSS_GEN_HASH
-  /* HASHContext *hcx;
-  HASH_HashType ht; */
+    /* HASHContext *hcx;
+       HASH_HashType ht; */
 #else
 #endif
-  int i;
-  BerElement *ber;
-  char *objectclass_values[]={NULL,NULL};
-  int change=0;
-  int pin_objectclass_exists=0;
-  LDAPMod objectclass, pinattribute;
-  LDAPMod *mods[3];
-  SECStatus status = SECFailure;
+    int i;
+    BerElement *ber;
+    char *objectclass_values[]={NULL,NULL};
+    int change=0;
+    int pin_objectclass_exists=0;
+    LDAPMod objectclass, pinattribute;
+    LDAPMod *mods[3];
+    SECStatus status = SECFailure;
 
-  char *saltval;
-  int action;
-  char *hashbuf_source = NULL;
-  char hashbuf_dest[256];
-  char errbuf[1024];
-  int pindatasize= 0;
-  char *pindata = NULL;
-  char *generatedPassword = NULL;
-  struct berval *bvals[2];
-  struct berval bval;
+    char *saltval;
+    int action;
+    char *hashbuf_source = NULL;
+    char hashbuf_dest[256];
+    char errbuf[1024];
+    int pindatasize= 0;
+    char *pindata = NULL;
+    char *generatedPassword = NULL;
+    struct berval *bvals[2];
+    struct berval bval;
 
-  bvals[0] = &bval;
-  bvals[1] = NULL;
+    bvals[0] = &bval;
+    bvals[1] = NULL;
 
-  /* Check whether any results were found. */
-  i = ldap_count_entries( ld, r );
+    /* Check whether any results were found. */
+    i = ldap_count_entries( ld, r );
 
-  fprintf(stderr,"filter %s found %d matching results.\n", o_filter,i);
+    fprintf(stderr,"filter %s found %d matching results.\n", o_filter,i);
   
-  /* for each entry print out name + all attrs and values */
-  for ( e = ldap_first_entry( ld, r ); e != NULL;
-        e = ldap_next_entry( ld, e ) ) {
+    /* for each entry print out name + all attrs and values */
+    for ( e = ldap_first_entry( ld, r ); e != NULL;
+          e = ldap_next_entry( ld, e ) ) {
     
-    generatedPassword = NULL;
+        generatedPassword = NULL;
 
-    if ( (dn = ldap_get_dn( ld, e )) != NULL ) {
-      fprintf(stderr, "Processing: %s\n", dn );
-      if (o_input) {
-        generatedPassword = (char*) PL_HashTableLookup(pinHashTable,dn);
-        if (generatedPassword) {
-          fprintf(stderr, " found user from input file\n");
+        if ( (dn = ldap_get_dn( ld, e )) != NULL ) {
+            fprintf(stderr, "Processing: %s\n", dn );
+            if (o_input) {
+                generatedPassword = (char*) PL_HashTableLookup(pinHashTable,dn);
+                if (generatedPassword) {
+                    fprintf(stderr, " found user from input file\n");
+                }
+                if (! generatedPassword) {
+                    fprintf(stderr, " Skipping (not in input file)\n");
+                    continue;
+                }
+            }
         }
-        if (! generatedPassword) {
-          fprintf(stderr, " Skipping (not in input file)\n");
-          continue;
-        }
-      }
-    }
 
 
-    /* what we do here is go through all the entries looking for
-       'objectclass'.
-    */
+        /* what we do here is go through all the entries looking for
+           'objectclass'.
+        */
 
-    pin_objectclass_exists = 0;
-    change = 0;
+        pin_objectclass_exists = 0;
+        change = 0;
 
 #define ACTION_NONE    0
 #define ACTION_REPLACE 1
 #define ACTION_ADD     2
 
-    action = ACTION_ADD;
+        action = ACTION_ADD;
 
-    saltval = NULL;
-    /* loop through the entries */
-    for ( a = ldap_first_attribute( ld, e, &ber );
-          a != NULL; a = ldap_next_attribute( ld, e, ber ) ) {
+        saltval = NULL;
+        /* loop through the entries */
+        for ( a = ldap_first_attribute( ld, e, &ber );
+              a != NULL; a = ldap_next_attribute( ld, e, ber ) ) {
 
-      if ((vals = ldap_get_values( ld, e, a)) != NULL ) {
+            if ((vals = ldap_get_values( ld, e, a)) != NULL ) {
 
-        if (o_debug && (! strcasecmp(o_debug,"attrs"))) {
-          for ( i = 0; vals[i] != NULL; i++ ) {
-            char *bin;
-            bin = "<binary>";
-            if (isstring(vals[i])) {
-              bin = vals[i];
-            }
+                if (o_debug && (! strcasecmp(o_debug,"attrs"))) {
+                    for ( i = 0; vals[i] != NULL; i++ ) {
+                        char *bin;
+                        bin = "<binary>";
+                        if (isstring(vals[i])) {
+                            bin = vals[i];
+                        }
 
-            fprintf(stderr, " %s: %s\n",a,bin);
-          }
-        }
-
-        if (o_debug) {
-		fprintf(stderr," examining attribute: %s\n",a);
-          	for ( i = 0; vals[i] != NULL; i++ ) {
-			fprintf(stderr,"   val[%d]: %s\n",i,vals[i]);
-		}
-	}
-
-        if (o_saltattribute != NULL) {
-          if (!strcasecmp(a,o_saltattribute)) {
-            saltval = vals[0];
-            if (o_debug) {
-              fprintf(stderr," setting salt value to: %s\n",saltval);
-            }
-          }
-        }
-	
-        if (!strcasecmp(a,"objectclass")) {
-          /* check if we have a pin objectclass already */
-          /* Cycle through all the values for this 
-             entry, looking for the one which matches the 
-             objectclass we specified */
-
-          /* if user specified objectclass= on the commandline,
-             without any value, then the objectclass is assumed to
-             exist already */
-          if (strlen(o_objectclass) == 0) {
-	    if (o_debug) { fprintf(stderr, " user objectclass assumed to already exist\n"); }
-            pin_objectclass_exists=1;
-          }
-          else {
-            for ( i = 0; vals[i] != NULL; i++ ) {
-	      if (o_debug) { fprintf(stderr, " checking vals[%d]=%s == objectclass=%s  -> %d \n",
-				i,vals[i], o_objectclass, strcasecmp(vals[i],o_objectclass)); }
-              if (!strcasecmp(vals[i],o_objectclass)) {
-                if (o_debug) {
-                  fprintf(stderr, " %s: %s found\n", a, vals[i] );
+                        fprintf(stderr, " %s: %s\n",a,bin);
+                    }
                 }
-                pin_objectclass_exists = 1;
-              }
+
+                if (o_debug) {
+                    fprintf(stderr," examining attribute: %s\n",a);
+                    for ( i = 0; vals[i] != NULL; i++ ) {
+                        fprintf(stderr,"   val[%d]: %s\n",i,vals[i]);
+                    }
+                }
+
+                if (o_saltattribute != NULL) {
+                    if (!strcasecmp(a,o_saltattribute)) {
+                        saltval = vals[0];
+                        if (o_debug) {
+                            fprintf(stderr," setting salt value to: %s\n",saltval);
+                        }
+                    }
+                }
+    
+                if (!strcasecmp(a,"objectclass")) {
+                    /* check if we have a pin objectclass already */
+                    /* Cycle through all the values for this 
+                       entry, looking for the one which matches the 
+                       objectclass we specified */
+
+                    /* if user specified objectclass= on the commandline,
+                       without any value, then the objectclass is assumed to
+                       exist already */
+                    if (strlen(o_objectclass) == 0) {
+                        if (o_debug) { fprintf(stderr, " user objectclass assumed to already exist\n"); }
+                        pin_objectclass_exists=1;
+                    } else {
+                        for ( i = 0; vals[i] != NULL; i++ ) {
+                            if (o_debug) { 
+                                fprintf(stderr, " checking vals[%d]=%s == objectclass=%s  -> %d \n",
+                                    i,vals[i], o_objectclass, strcasecmp(vals[i],o_objectclass)); 
+                            }
+                            if (!strcasecmp(vals[i],o_objectclass)) {
+                                if (o_debug) {
+                                    fprintf(stderr, " %s: %s found\n", a, vals[i] );
+                                }
+                                pin_objectclass_exists = 1;
+                            }
+                        }   
+                    }
+                } else if (!strcasecmp(a,o_attribute)) {
+                    if (o_clobber) {
+                        action = ACTION_REPLACE;
+                    } else {
+                        action = ACTION_NONE;
+                    }
+                }
+
+                ldap_value_free( vals );
             }
-          }
-        }
-        else if (!strcasecmp(a,o_attribute)) {
-          if (o_clobber) {
-            action = ACTION_REPLACE;
-          }
-          else {
-            action = ACTION_NONE;
-          }
+            ldap_memfree( a );
         }
 
-        ldap_value_free( vals );
-      }
-      ldap_memfree( a );
-    }
+        if (o_debug) { fprintf(stderr, " Did the objectclass exist? %d\n", pin_objectclass_exists); }
 
-    if (o_debug) { fprintf(stderr, " Did the objectclass exist? %d\n", pin_objectclass_exists); }
+        /* add the objectclass attribute if it doesn't already exist */
 
-    /* add the objectclass attribute if it doesn't already exist */
-
-    if (! pin_objectclass_exists) {
-      if (o_debug) {
-        fprintf(stderr,"objectclass: %s doesn't exist, adding\n",o_objectclass);
-      }
-      objectclass_values[0] = o_objectclass;
-      objectclass_values[1] = NULL;
-      objectclass.mod_op = LDAP_MOD_ADD;
-      objectclass.mod_type = "objectclass";
-      objectclass.mod_values = objectclass_values;
-      mods[0] = &objectclass;
-      mods[1] = NULL;
+        if (! pin_objectclass_exists) {
+            if (o_debug) {
+                fprintf(stderr,"objectclass: %s doesn't exist, adding\n",o_objectclass);
+            }
+            objectclass_values[0] = o_objectclass;
+            objectclass_values[1] = NULL;
+            objectclass.mod_op = LDAP_MOD_ADD;
+            objectclass.mod_type = "objectclass";
+            objectclass.mod_values = objectclass_values;
+            mods[0] = &objectclass;
+            mods[1] = NULL;
       
-      if (o_write) {
-        i = ldap_modify_s(ld, dn, mods);
-	
-        if (i != LDAP_SUCCESS) {
-          exitLDAPError("couldn't modify attribute"); 
+            if (o_write) {
+                i = ldap_modify_s(ld, dn, mods);
+    
+                if (i != LDAP_SUCCESS) {
+                    exitLDAPError("couldn't modify attribute"); 
+                }
+            }
         }
-      }
-    }
 
-    pinattribute.mod_type = o_attribute;
+        pinattribute.mod_type = o_attribute;
 
-    /* password could have been set from input file. If not, set it now */
-    if (generatedPassword == NULL || (strlen(generatedPassword) == 0)) {
-      generatedPassword = newPassword();
-    }
-
-    /* should we hash the password? */
-    if (o_hash) {
-
-      /* we hash the DN of the user and the PIN together */
-
-      if (hashbuf_source) {
-        free(hashbuf_source);
-      }
-      if (o_debug) {
-	  	fprintf(stderr,"checking salt attribute...\n");
-		}
-      if (saltval == NULL) {
-        if (o_saltattribute != NULL) {
-		  errcode = 11;
-          exitError("specified salt attribute not found for this user");
+        /* password could have been set from input file. If not, set it now */
+        if (generatedPassword == NULL || (strlen(generatedPassword) == 0)) {
+            generatedPassword = newPassword();
         }
-      if (o_debug) {
-	  	fprintf(stderr,"setting salt attribute to dn...\n");
-		}
-        saltval = dn;
-      }
 
-      hashbuf_source =
-        malloc(strlen(saltval) + strlen(generatedPassword) + 10);
+        /* should we hash the password? */
+        if (o_hash) {
+
+            /* we hash the DN of the user and the PIN together */
+
+            if (hashbuf_source) {
+                free(hashbuf_source);
+            }
+            if (o_debug) {
+                fprintf(stderr,"checking salt attribute...\n");
+            }
+            if (saltval == NULL) {
+                if (o_saltattribute != NULL) {
+                    errcode = 11;
+                    exitError("specified salt attribute not found for this user");
+                }
+                if (o_debug) {
+                    fprintf(stderr,"setting salt attribute to dn...\n");
+                }
+                saltval = dn;
+            }
+
+            hashbuf_source =
+                malloc(strlen(saltval) + strlen(generatedPassword) + 10);
       
-      strcpy(hashbuf_source,saltval);
-      strcat(hashbuf_source,generatedPassword);
+            strcpy(hashbuf_source,saltval);
+            strcat(hashbuf_source,generatedPassword);
 
-      if (o_debug) {
-	  	fprintf(stderr,"hashing this: %s\n",hashbuf_source);
-		}
+            if (o_debug) {
+                fprintf(stderr,"hashing this: %s\n",hashbuf_source);
+            }
 
-      saltval = NULL;
+            saltval = NULL;
 
-      /* We leave one byte at the beginning of the hash
-         buffer, to support the hash type */
+            /* We leave one byte at the beginning of the hash
+               buffer, to support the hash type */
 
 #define SENTINEL_SHA1 0
 #define SENTINEL_MD5  1
 #define SENTINEL_NONE '-' 
 
-      if ((!strcmp(o_hash,"SHA1")) || (!strcmp(o_hash,"sha1")) ) {
-        status = PK11_HashBuf(SEC_OID_SHA1,
-                              (unsigned char *)hashbuf_dest+1,
-                              (unsigned char *)hashbuf_source,
-                              strlen(hashbuf_source)
-                              );
-        hashbuf_dest[0] = SENTINEL_SHA1;
-        pindatasize = SHA1_LENGTH + 1;
-      }
-      else if ((!strcmp(o_hash,"MD5")) || (!strcmp(o_hash,"md5")) ) {
-	
-        status = PK11_HashBuf(SEC_OID_MD5,
-                              (unsigned char *)hashbuf_dest+1,
-                              (unsigned char *)hashbuf_source,
-                              strlen(hashbuf_source)
-                              );
-        hashbuf_dest[0] = SENTINEL_MD5;
-        pindatasize = MD5_LENGTH + 1;
-      }
-      else if ((!strcmp(o_hash,"NONE")) || (!strcmp(o_hash,"none")) ) {
-
-	    hashbuf_dest[0] = SENTINEL_NONE;
-		status = SECSuccess;
-		memcpy(hashbuf_dest+1,
-			hashbuf_source,
-			strlen(hashbuf_source)
-			);
-		}
-	  else {
-	  	sprintf(errbuf,"Unsupported hash type '%s'. Must be one of 'sha1', 'md5' or 'none",o_hash);
-		errcode = 7;
-		exitError(errbuf);
-		}
+            if ((!strcmp(o_hash,"SHA1")) || (!strcmp(o_hash,"sha1")) ) {
+                status = PK11_HashBuf(SEC_OID_SHA1,
+                                  (unsigned char *)hashbuf_dest+1,
+                                  (unsigned char *)hashbuf_source,
+                                  strlen(hashbuf_source)
+                                  );
+                hashbuf_dest[0] = SENTINEL_SHA1;
+                pindatasize = SHA1_LENGTH + 1;
+            } else if ((!strcmp(o_hash,"MD5")) || (!strcmp(o_hash,"md5")) ) {
+                status = PK11_HashBuf(SEC_OID_MD5,
+                                  (unsigned char *)hashbuf_dest+1,
+                                  (unsigned char *)hashbuf_source,
+                                  strlen(hashbuf_source)
+                                  );
+                hashbuf_dest[0] = SENTINEL_MD5;
+                pindatasize = MD5_LENGTH + 1;
+            } else if ((!strcmp(o_hash,"NONE")) || (!strcmp(o_hash,"none")) ) {
+                hashbuf_dest[0] = SENTINEL_NONE;
+                status = SECSuccess;
+                memcpy(hashbuf_dest+1,
+                       hashbuf_source,
+                       strlen(hashbuf_source)
+                      );
+            } else {
+                sprintf(errbuf,"Unsupported hash type '%s'. Must be one of 'sha1', 'md5' or 'none",o_hash);
+                errcode = 7;
+                exitError(errbuf);
+            }
       
-      if (status != SECSuccess) {
-        sprintf(errbuf,"Error hashing pin (%d)",PR_GetError());
-		errcode = 9;
-        exitError(errbuf);
-      }
+            if (status != SECSuccess) {
+                sprintf(errbuf,"Error hashing pin (%d)",PR_GetError());
+                errcode = 9;
+                exitError(errbuf);
+            }
       
-      pindata = hashbuf_dest;
-    }
-    else {
-      pindata = generatedPassword;
-      pindatasize = strlen(generatedPassword);
-    }
+            pindata = hashbuf_dest;
+        } else {
+            pindata = generatedPassword;
+            pindatasize = strlen(generatedPassword);
+        }
     
-    bval.bv_len = pindatasize;
-    bval.bv_val = pindata;
+        bval.bv_len = pindatasize;
+        bval.bv_val = pindata;
 
-    fprintf(stderr," Adding new %s\n",o_attribute);
+        fprintf(stderr," Adding new %s\n",o_attribute);
 
-    if (! o_write) {
-        fprintf(stderr, " [NOTE: 'write' was not specified, so no changes will be made to the directory]\n");
-    }
+        if (! o_write) {
+            fprintf(stderr, " [NOTE: 'write' was not specified, so no changes will be made to the directory]\n");
+        }
       
-    pinattribute.mod_bvalues = bvals;
-    if (action == ACTION_REPLACE) {
-      pinattribute.mod_op = LDAP_MOD_REPLACE|LDAP_MOD_BVALUES;
-      if (o_debug) {
-        fprintf(stderr," %s exists, replacing\n",o_attribute);
-      }
-    }
-    else if (action == ACTION_ADD) {
-      if (o_debug) {
-        fprintf(stderr," %s doesn't exist, adding\n",o_attribute);
-      }
-      pinattribute.mod_op = LDAP_MOD_ADD|LDAP_MOD_BVALUES;
-    }
-    else if (action == ACTION_NONE) {
-      if (o_debug) {
-        fprintf(stderr," %s exists. not replacing\n",o_attribute);
-      }
-      goto skip_write;
-    }
-    mods[0] = &pinattribute;
-    mods[1] = NULL;
+        pinattribute.mod_bvalues = bvals;
+        if (action == ACTION_REPLACE) {
+            pinattribute.mod_op = LDAP_MOD_REPLACE|LDAP_MOD_BVALUES;
+            if (o_debug) {
+                fprintf(stderr," %s exists, replacing\n",o_attribute);
+            }
+        } else if (action == ACTION_ADD) {
+            if (o_debug) {
+                fprintf(stderr," %s doesn't exist, adding\n",o_attribute);
+            }
+            pinattribute.mod_op = LDAP_MOD_ADD|LDAP_MOD_BVALUES;
+        } else if (action == ACTION_NONE) {
+            if (o_debug) {
+                fprintf(stderr," %s exists. not replacing\n",o_attribute);
+            }
+            goto skip_write;
+        }
+        mods[0] = &pinattribute;
+        mods[1] = NULL;
 
-
-    if (o_write) {
-      i = ldap_modify_s(ld, dn, mods);
+        if (o_write) {
+            i = ldap_modify_s(ld, dn, mods);
       
-      if (i != LDAP_SUCCESS) {
-        exitLDAPError("couldn't modify attribute");
-      }
-    }
-
+            if (i != LDAP_SUCCESS) {
+                exitLDAPError("couldn't modify attribute");
+            }
+        }
     
         skip_write:
     
-    fprintf(output,"dn:%s\n",dn);
-    fprintf(output,"%s:%s\n",o_attribute,generatedPassword);
-	if (o_debug) {
-		fprintf(stderr,"o_write = %0x\n",(unsigned int)o_write);
-		}
-    if (! o_write) {
-      fprintf(output,"status:notwritten\n");
-    }
-    else {
-      if (action == ACTION_NONE) {
-        fprintf(output,"status:notreplaced\n");
+        fprintf(output,"dn:%s\n",dn);
+        fprintf(output,"%s:%s\n",o_attribute,generatedPassword);
+        if (o_debug) {
+            fprintf(stderr,"o_write = %0x\n",(unsigned int)o_write);
         }
-      else {
-        if (i != LDAP_SUCCESS) {
-          fprintf(output,"status:writefailed\n");
+        if (! o_write) {
+            fprintf(output,"status:notwritten\n");
+        } else {
+            if (action == ACTION_NONE) {
+                fprintf(output,"status:notreplaced\n");
+            } else {
+                if (i != LDAP_SUCCESS) {
+                    fprintf(output,"status:writefailed\n");
+                } else {
+                    if (action == ACTION_ADD) {
+                        fprintf(output,"status:added\n");
+                    } else if (action == ACTION_REPLACE) {
+                        fprintf(output,"status:replaced\n");
+                    }
+                }
+            }
         }
-        else {
-			if (action == ACTION_ADD) {
-            fprintf(output,"status:added\n");
-            }
-            else if (action == ACTION_REPLACE) {
-              fprintf(output,"status:replaced\n");
-              }
-            }
-		}
-      }
 
-    fprintf(output,"\n");
+        fprintf(output,"\n");
 
-    if (dn) {
-      ldap_memfree( dn );
-      dn = NULL;
+        if (dn) {
+            ldap_memfree( dn );
+            dn = NULL;
+        }
+
+        if ( ber != NULL ) {
+            ber_free( ber, 0 );
+        }
+        fprintf(stderr, "\n" );
     }
-
-    if ( ber != NULL ) {
-      ber_free( ber, 0 );
-    }
-    fprintf(stderr, "\n" );
-  }
-  ldap_msgfree( r );
+    ldap_msgfree( r );
 }
 
 
@@ -1035,43 +998,41 @@ static char *RNG_ALPHANUM = "RNG-alphanum";
 /* build the pool of characters we can use for the password */
 
 void buildCharpool() {
-  char err_buf[1024];
-  charpool = (char*) malloc(256);
+    char err_buf[1024];
+    charpool = (char*) malloc(256);
 
-  charpool[0] = '\0';
+    charpool[0] = '\0';
     
-  if ( o_case == NULL) {
-    strcat(charpool,LCalpha);       /* then add the lowercase */
-  }
-  else {
-    if (strcmp(o_case,"upperonly")) {
-	  errcode = 7;
-      exitError("Illegal value for case=");
+    if ( o_case == NULL) {
+        strcat(charpool,LCalpha);       /* then add the lowercase */
+    } else {
+        if (strcmp(o_case,"upperonly")) {
+            errcode = 7;
+            exitError("Illegal value for case=");
+        }
     }
-  }
   
   
-  if ( !strcmp(o_gen,RNG_ALPHA) ||
-       !strcmp(o_gen,RNG_ALPHANUM) ||
-       !strcmp(o_gen,RNG_PRINTABLEASCII) ) {
-    strcat(charpool,UCalpha);        /* add uppercase chars */
-  }
-  else {
-    sprintf(err_buf,"invalid value '%s' for gen= option",o_gen);
-	errcode = 7;
-    exitError(err_buf);
-  }
+    if ( !strcmp(o_gen,RNG_ALPHA) ||
+         !strcmp(o_gen,RNG_ALPHANUM) ||
+         !strcmp(o_gen,RNG_PRINTABLEASCII) ) {
+        strcat(charpool,UCalpha);        /* add uppercase chars */
+    } else {
+        sprintf(err_buf,"invalid value '%s' for gen= option",o_gen);
+        errcode = 7;
+        exitError(err_buf);
+    }
   
-  if ( strcmp(o_gen,"RNG-alpha")) { /* not alpha-only */
-    strcat(charpool,numbers);
-  }
-  if (! strcmp(o_gen,"RNG-printableascii")) {  
-    strcat(charpool, punc);
-  }
-  if (o_debug) {
-    fprintf(stderr,"Character pool: %s\n",charpool);
-  }
-  charpoolsize = strlen(charpool);
+    if ( strcmp(o_gen,"RNG-alpha")) { /* not alpha-only */
+        strcat(charpool,numbers);
+    }
+    if (! strcmp(o_gen,"RNG-printableascii")) {  
+        strcat(charpool, punc);
+    }
+    if (o_debug) {
+        fprintf(stderr,"Character pool: %s\n",charpool);
+    }
+    charpoolsize = strlen(charpool);
 }
   
 
@@ -1080,19 +1041,19 @@ void buildCharpool() {
 void initrandom() {
   char err_buf[1024];
 #ifdef USE_NSS_RANDOM
-  if( NSS_Initialize( "",
-                      "",
-                      "",
-                      "",
-                      NSS_INIT_NOCERTDB |
-                      NSS_INIT_NOMODDB  |
-                      NSS_INIT_FORCEOPEN ) != SECSuccess ) {
-    sprintf(err_buf,"Couldn't initialize NSS (error code %d)\n",PR_GetError());
-    errcode = 9; 
-    exitError(err_buf);
-  }
+    if( NSS_Initialize( "",
+                        "",
+                        "",
+                        "",
+                        NSS_INIT_NOCERTDB |
+                        NSS_INIT_NOMODDB  |
+                        NSS_INIT_FORCEOPEN ) != SECSuccess ) {
+        sprintf(err_buf,"Couldn't initialize NSS (error code %d)\n",PR_GetError());
+        errcode = 9; 
+        exitError(err_buf);
+    }
 #else
-  srand(time(NULL));
+    srand(time(NULL));
 #endif
 
 }
@@ -1101,13 +1062,13 @@ void initrandom() {
 unsigned short getRandomShort() {
   unsigned short r;
 #ifdef USE_NSS_RANDOM
-  PK11_GenerateRandom( ( unsigned char * ) &r, sizeof( r ) );
-  if (o_debug) {
-    /* fprintf(stderr,"Random: %d\n",r); */
-  }
-  return r;
+    PK11_GenerateRandom( ( unsigned char * ) &r, sizeof( r ) );
+    if (o_debug) {
+        /* fprintf(stderr,"Random: %d\n",r); */
+    }
+    return r;
 #else 
-  return (unsigned short) rand();
+    return (unsigned short) rand();
 #endif
 }
 
@@ -1141,117 +1102,111 @@ unsigned short getRandomShort() {
 */
 
 unsigned short getRandomInRange(unsigned short max) {
-  unsigned short rno;
-  unsigned short result;
+    unsigned short rno;
+    unsigned short result;
 
-  unsigned short max_allowed_rno =
-    ((65536 / max) * max) -1;
+    unsigned short max_allowed_rno =
+        ((65536 / max) * max) -1;
 
-  do {
-    rno = getRandomShort();
+    do {
+        rno = getRandomShort();
+    } while (rno >max_allowed_rno);
+
+    result = rno % max;
+
+    assert(result < max);
     
-  } while (rno >max_allowed_rno);
-
-  result = rno % max;
-
-  assert(result < max);
-    
-  return result;
-
+    return result;
 }
 
 
 char * newPassword() {
-  static char *pw_buf=NULL;
-  unsigned short l;
-  unsigned short r;
-  int i;
+    static char *pw_buf=NULL;
+    unsigned short l;
+    unsigned short r;
+    int i;
 
-  if (pw_buf == NULL) {
-    pw_buf = (char *) malloc(i_maxlength+5);
-  }
+    if (pw_buf == NULL) {
+        pw_buf = (char *) malloc(i_maxlength+5);
+    }
 
-  if (charpool == NULL) {
-    buildCharpool();
-  }
+    if (charpool == NULL) {
+        buildCharpool();
+    }
 
-  /* decide how long the password should be */
-  /* It must be between i_minlength and i_maxlength */
+    /* decide how long the password should be */
+    /* It must be between i_minlength and i_maxlength */
 
-  if (i_minlength == i_maxlength) {
-    l = i_minlength;
-  }
-  else {
-    l = getRandomInRange((unsigned short)(1 + i_maxlength - i_minlength));
-    l += i_minlength;
-  }
+    if (i_minlength == i_maxlength) {
+        l = i_minlength;
+    } else {
+        l = getRandomInRange((unsigned short)(1 + i_maxlength - i_minlength));
+        l += i_minlength;
+    }
   
-  for (i=0; i<l; i++) {
-    r = getRandomInRange((unsigned short)(charpoolsize));
-    pw_buf[i] = charpool[r];
-  }
-  pw_buf[l] = '\0';
-
-  return pw_buf;
-
+    for (i=0; i<l; i++) {
+        r = getRandomInRange((unsigned short)(charpoolsize));
+        pw_buf[i] = charpool[r];
+    }
+    pw_buf[l] = '\0';
+    return pw_buf;
 }
 
 
 void testpingen() {
-	int count=25;
-	int i,j;
-	int pwlen;
-	char *pw;
-	unsigned int index[256];
-	unsigned int *totals;
-	char c;
+    int count=25;
+    int i,j;
+    int pwlen;
+    char *pw;
+    unsigned int index[256];
+    unsigned int *totals;
+    char c;
 
- 	if (! equals(o_testpingen,"")) {
-		count = atoi(o_testpingen);
-	}
+    if (! equals(o_testpingen,"")) {
+        count = atoi(o_testpingen);
+    }
 
-  	if (charpool == NULL) {
-    	buildCharpool();
-  	}
+    if (charpool == NULL) {
+        buildCharpool();
+    }
 
-	/* last spot is used to hold invalid chars */
-	totals = malloc(sizeof(int)*(charpoolsize+1));
-	for (i=0;i<(charpoolsize);i++) {
-		totals[i] = 0;
-	}
-	totals[charpoolsize]=0;
-	for (i=0;i<256;i++) {
-		index[i] = 255;  /* indicates->invalid */
-	}
-	for (i=0;i<charpoolsize;i++) {
-		index[(int)(charpool[i])] = i;
-	}
+    /* last spot is used to hold invalid chars */
+    totals = malloc(sizeof(int)*(charpoolsize+1));
+    for (i=0;i<(charpoolsize);i++) {
+        totals[i] = 0;
+    }
+    totals[charpoolsize]=0;
+    for (i=0;i<256;i++) {
+        index[i] = 255;  /* indicates->invalid */
+    }
+    for (i=0;i<charpoolsize;i++) {
+        index[(int)(charpool[i])] = i;
+    }
 
-	for (i=0;i<count;i++) {
-		pw = newPassword();
-		if (o_debug) {
-			fprintf(output,"%d:%s\n",i+1,pw);
-		}
-		pwlen = strlen(pw);
-		for (j=0;j<pwlen;j++) {
-			c = pw[j];
-			if (index[(int)c] == 255) {
-				printf("\ninvalid char found: %02x %c\n",c,c);
-				totals[charpoolsize]++;
-			}
-			else {
-				totals[index[(int)c]]++;
-			}
-		}
-		free(pw);
-	}
+    for (i=0;i<count;i++) {
+        pw = newPassword();
+        if (o_debug) {
+            fprintf(output,"%d:%s\n",i+1,pw);
+        }
+        pwlen = strlen(pw);
+        for (j=0;j<pwlen;j++) {
+            c = pw[j];
+            if (index[(int)c] == 255) {
+                printf("\ninvalid char found: %02x %c\n",c,c);
+                totals[charpoolsize]++;
+            }
+            else {
+                totals[index[(int)c]]++;
+            }
+        }
+        free(pw);
+    }
 
-	for (i=0;i<charpoolsize;i++) {
-		fprintf(output,"%c: %10d\n",charpool[i],totals[i]);
-	}
-	fprintf(output,"invalid: %10d\n",totals[charpoolsize]);
-		
+    for (i=0;i<charpoolsize;i++) {
+        fprintf(output,"%c: %10d\n",charpool[i],totals[i]);
+    }
+    fprintf(output,"invalid: %10d\n",totals[charpoolsize]);
 }
-	
+    
   
 
