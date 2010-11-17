@@ -144,7 +144,7 @@ sub getTokens {
 # otherwise it is "not logged in"
 sub Login {
     my $tokenname = $_[0];
-    my $pwd = $::pwdconf->get($tokenname) || "";
+    my $pwd = defined($::pwdconf->get($tokenname)) ? $::pwdconf->get($tokenname) : "";
     if ($pwd ne "") {
         &PKI::TPS::Wizard::debug_log("ModulePanel -> isLoggedIn retrieved pwd from pwdconf");
         return 1;

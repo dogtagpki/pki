@@ -77,7 +77,7 @@ sub update
     $::config->put("preop.krainfo.keygen", $choice);
 
     if ($choice eq "keygen") {
-      my $count = $q->param('urls') || "";
+      my $count = defined($q->param('urls')) ? $q->param('urls') : "";
       if ($count eq "") {
         $::symbol{errorString} = "no DRM information provided.  CA, TKS and DRM must be installed prior to TPS installation";
         return 0;
@@ -92,14 +92,18 @@ sub update
       if ($count =~ /http/) {
         # this is for pkisilent
         my $info = new URI::URL($count);
-        $host = $info->host || "";
-        $https_agent_port = $info->port || "";
-        $https_admin_port = $q->param('adminport') || "";
+        $host = defined($info->host) ? $info->host : "";
+        $https_agent_port = defined($info->port) ? $info->port : "";
+        $https_admin_port = defined($q->param('adminport'))? $q->param('adminport') : "";
       } else {
-        $host = $::config->get("preop.securitydomain.kra$count.host") || "";
-        $https_agent_port = $::config->get("preop.securitydomain.kra$count.secureagentport") || "";
-        $https_admin_port = $::config->get("preop.securitydomain.kra$count.secureadminport") || "";
+        $host = defined($::config->get("preop.securitydomain.kra$count.host")) ? 
+            $::config->get("preop.securitydomain.kra$count.host") : "";
+        $https_agent_port = defined($::config->get("preop.securitydomain.kra$count.secureagentport")) ? 
+            $::config->get("preop.securitydomain.kra$count.secureagentport") : "";
+        $https_admin_port = defined($::config->get("preop.securitydomain.kra$count.secureadminport")) ? 
+            $::config->get("preop.securitydomain.kra$count.secureadminport") : "";
       }
+
 
       if (($host eq "") || ($https_agent_port eq "")) {
         $::symbol{errorString} = "no DRM found.  CA, TKS and DRM must be installed prior to TPS installation";

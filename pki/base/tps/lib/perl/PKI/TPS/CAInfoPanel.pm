@@ -76,7 +76,7 @@ sub update
     my ($q) = @_;
     &PKI::TPS::Wizard::debug_log("CAInfoPanel: update");
 
-    my $count = $q->param('urls') || "";
+    my $count = defined($q->param('urls')) ? $q->param('urls') : "";
     if ($count eq "") {
       $::symbol{errorString} = "No CA information provided.  CA, TKS and optionally DRM must be installed prior to TPS installation";
       return 0;
@@ -93,13 +93,13 @@ sub update
     if ($count =~ /http/) {
       # this is for pkisilent
       my $info = new URI::URL($count);
-      $host = $info->host || "";
+      $host = defined($info->host) ? $info->host : "";
       if ($host eq "") {
         $::symbol{errorString} = "No CA host provided.";
         return 0;
       }
 
-      $https_ee_port = $info->port || "";
+      $https_ee_port = defined($info->port) ? $info->port : "";
       if ($https_ee_port eq "") {
         $::symbol{errorString} = "No CA EE port provided.";
         return 0;
@@ -119,10 +119,14 @@ sub update
           return 0;
       }
     } else {
-      $host = $::config->get("preop.securitydomain.ca$count.host") || "";
-      $https_ee_port = $::config->get("preop.securitydomain.ca$count.secureport") || "";
-      $https_agent_port = $::config->get("preop.securitydomain.ca$count.secureagentport") || "";
-      $https_admin_port = $::config->get("preop.securitydomain.ca$count.secureadminport") || "";
+      $host = defined($::config->get("preop.securitydomain.ca$count.host")) ?
+          $::config->get("preop.securitydomain.ca$count.host") : "";
+      $https_ee_port = defined($::config->get("preop.securitydomain.ca$count.secureport")) ?
+          $::config->get("preop.securitydomain.ca$count.secureport") : "";
+      $https_agent_port = defined($::config->get("preop.securitydomain.ca$count.secureagentport")) ?
+          $::config->get("preop.securitydomain.ca$count.secureagentport") : "";
+      $https_admin_port = defined($::config->get("preop.securitydomain.ca$count.secureadminport")) ?
+          $::config->get("preop.securitydomain.ca$count.secureadminport") : "";
     }
 
     if (($host eq "") || ($https_ee_port eq "") || ($https_admin_port eq "") || ($https_agent_port eq "")) {

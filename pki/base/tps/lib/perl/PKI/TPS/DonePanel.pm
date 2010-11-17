@@ -289,7 +289,7 @@ sub display
         #         $symbol{port}  = "443";
     &PKI::TPS::Wizard::debug_log("DonePanel: display");
 
-    my $status = $::config->get("preop.done.status") || "";
+    my $status = defined($::config->get("preop.done.status"))? $::config->get("preop.done.status") : "";
     if ($status eq "done") {
       return 1;
     }
