@@ -45,7 +45,7 @@ endif
 #------------------------
 # Linker Flags
 #------------------------
-LDAPSDK_LINK = @ldapsdk_lib@ -lssldap60 -lprldap60 -lldap60 -lldif60
+LDAPSDK_LINK = @ldapsdk_lib@ -lldap -lldap_r -llber
 SVRCORE_LINK = @svrcore_lib@ -lsvrcore
 SASL_LINK = @sasl_lib@ -lsasl2
 NSS_LINK = @nss_lib@ -lnss3 -lssl3 -lsmime3 -lsoftokn3

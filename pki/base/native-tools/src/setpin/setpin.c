@@ -46,8 +46,6 @@
 #include <assert.h>
 
 #include <ldap.h>
-#include <ldap_ssl.h>
-#include <ldappr.h>
 
 #define USE_NSS_RANDOM
 
@@ -127,7 +125,7 @@ void exitLDAPError(char *errstring) {
     char *newerror;
     int err;
 
-    err = ldap_get_lderrno(ld, NULL, NULL);
+    ldap_get_option(ld, LDAP_OPT_ERROR_NUMBER, &err);
     ldaperr = ldap_err2string(err);
     newerror = (char*) malloc((errstring?strlen(errstring):0) + (ldaperr?strlen(ldaperr):0) +5);
     sprintf(newerror,"%s (%s)",errstring?errstring:"",ldaperr?ldaperr:"");
@@ -384,10 +382,10 @@ void do_setup() {
         mods[0] = &x;
         mods[1] = NULL;
       
-        i = ldap_modify_s(ld, "cn=schema", mods);
+        i = ldap_modify_ext_s(ld, "cn=schema", mods, NULL, NULL);
     
         if (i != LDAP_SUCCESS) {
-            err = ldap_get_lderrno(ld, NULL, NULL);
+            ldap_get_option(ld, LDAP_OPT_ERROR_NUMBER, &err);
             if (err != LDAP_TYPE_OR_VALUE_EXISTS) {
                 exitLDAPError("couldn't modify schema when creating pin attribute");
             } else {
@@ -409,10 +407,10 @@ void do_setup() {
         mods[1] = NULL;
 
       
-        i = ldap_modify_s(ld, "cn=schema", mods);
+        i = ldap_modify_ext_s(ld, "cn=schema", mods, NULL, NULL);
     
         if (i != LDAP_SUCCESS) {
-            err = ldap_get_lderrno(ld, NULL, NULL);
+            ldap_get_option(ld, LDAP_OPT_ERROR_NUMBER, &err);
             if (err != LDAP_TYPE_OR_VALUE_EXISTS) {
                 exitLDAPError("couldn't modify schema when creating objectclass");
             } else {
@@ -465,10 +463,10 @@ void do_setup() {
         mods[4] = NULL;
 
       
-        i = ldap_add_s(ld, o_pinmanager, mods);
+        i = ldap_add_ext_s(ld, o_pinmanager, mods, NULL, NULL);
 
         if (i != LDAP_SUCCESS) {
-            err = ldap_get_lderrno(ld, NULL, NULL);
+            ldap_get_option(ld, LDAP_OPT_ERROR_NUMBER, &err);
             if (!( err == LDAP_TYPE_OR_VALUE_EXISTS || err == LDAP_ALREADY_EXISTS)) {
                 exitLDAPError("couldn't create new user");
             } else {
@@ -508,10 +506,10 @@ void do_setup() {
         mods[0] = &x;
         mods[1] = NULL;
       
-        i = ldap_modify_s(ld, o_basedn, mods);
+        i = ldap_modify_ext_s(ld, o_basedn, mods, NULL, NULL);
 
         if (i != LDAP_SUCCESS) {
-            err = ldap_get_lderrno(ld, NULL, NULL);
+            ldap_get_option(ld, LDAP_OPT_ERROR_NUMBER, &err);
             if (!( err == LDAP_TYPE_OR_VALUE_EXISTS || err == LDAP_ALREADY_EXISTS)) {
                 exitLDAPError("couldn't modify aci on basedn");
             } else {
@@ -567,8 +565,10 @@ int isstring(char *s) {
 
 void doLDAPBind() {
     char errbuf[1024];
+    char ldapuri[1024];
     int port=389;
     int r;
+    int status;
 
     if (o_port == NULL) {
         if (o_ssl) {
@@ -590,19 +590,24 @@ void doLDAPBind() {
         exit(0);
         /* ld = ldapssl_init(o_host,port,LDAPSSL_AUTH_CNCHECK); */
     } else {
-        ld = prldap_init(o_host,port,1);
+        snprintf(ldapuri, 1024, "ldap://%s:%i", o_host, port);
+        status = ldap_initialize(&ld, ldapuri);
     }
 
-    if (ld == NULL) {
+    if ((status != LDAP_SUCCESS) || (ld == NULL)) {
         errcode=4;
         exitError("could not connect to directory server");
     }
 
     if (o_debug) {
-        fprintf(stderr,"# prldap_init completed\n");
+        fprintf(stderr,"# ldap_init completed\n");
     }
-    
-    r = ldap_simple_bind_s(ld,o_binddn,o_bindpw);
+   
+    struct berval credential; 
+    credential.bv_val = o_bindpw;
+    credential.bv_len= strlen(o_bindpw);
+
+    r = ldap_sasl_bind_s(ld, o_binddn, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);  
     if (r != LDAP_SUCCESS) {
         sprintf(errbuf,"could not bind to %s:%d as %s",o_host,port,o_binddn);
         if (strstr(o_binddn,"=") == NULL) {
@@ -621,8 +626,8 @@ void doLDAPSearch(LDAPMessage **result ) {
     int r;
     char errbuf[1024];
 
-    r = ldap_search_s( ld, o_basedn, LDAP_SCOPE_SUBTREE,
-                     o_filter, NULL, 0, result );
+    r = ldap_search_ext_s( ld, o_basedn, LDAP_SCOPE_SUBTREE,
+                     o_filter, NULL, 0, NULL, NULL, NULL, 0, result );
 
     if (r != LDAP_SUCCESS ) {
         sprintf(errbuf,"could not complete search with that filter. Check filter and basedn");
@@ -635,7 +640,7 @@ void doLDAPSearch(LDAPMessage **result ) {
 }
 
 void doLDAPUnbind(){
-    ldap_unbind(ld);
+    ldap_unbind_ext_s(ld, NULL, NULL);
 }
 
 
@@ -643,7 +648,7 @@ void processSearchResults(LDAPMessage *r) {
     LDAPMessage *e;
     char *dn;
     char *a;
-    char **vals;
+    struct berval **vals;
 #ifdef USE_NSS_GEN_HASH
     /* HASHContext *hcx;
        HASH_HashType ht; */
@@ -716,14 +721,14 @@ void processSearchResults(LDAPMessage *r) {
         for ( a = ldap_first_attribute( ld, e, &ber );
               a != NULL; a = ldap_next_attribute( ld, e, ber ) ) {
 
-            if ((vals = ldap_get_values( ld, e, a)) != NULL ) {
+            if ((vals = ldap_get_values_len( ld, e, a)) != NULL ) {
 
                 if (o_debug && (! strcasecmp(o_debug,"attrs"))) {
                     for ( i = 0; vals[i] != NULL; i++ ) {
                         char *bin;
                         bin = "<binary>";
-                        if (isstring(vals[i])) {
-                            bin = vals[i];
+                        if (isstring(vals[i]->bv_val)) {
+                            bin = vals[i]->bv_val;
                         }
 
                         fprintf(stderr, " %s: %s\n",a,bin);
@@ -733,13 +738,13 @@ void processSearchResults(LDAPMessage *r) {
                 if (o_debug) {
                     fprintf(stderr," examining attribute: %s\n",a);
                     for ( i = 0; vals[i] != NULL; i++ ) {
-                        fprintf(stderr,"   val[%d]: %s\n",i,vals[i]);
+                        fprintf(stderr,"   val[%d]: %s\n",i,vals[i]->bv_val);
                     }
                 }
 
                 if (o_saltattribute != NULL) {
                     if (!strcasecmp(a,o_saltattribute)) {
-                        saltval = vals[0];
+                        saltval = vals[0]->bv_val;
                         if (o_debug) {
                             fprintf(stderr," setting salt value to: %s\n",saltval);
                         }
@@ -762,11 +767,11 @@ void processSearchResults(LDAPMessage *r) {
                         for ( i = 0; vals[i] != NULL; i++ ) {
                             if (o_debug) { 
                                 fprintf(stderr, " checking vals[%d]=%s == objectclass=%s  -> %d \n",
-                                    i,vals[i], o_objectclass, strcasecmp(vals[i],o_objectclass)); 
+                                    i,vals[i]->bv_val, o_objectclass, strcasecmp(vals[i]->bv_val,o_objectclass)); 
                             }
-                            if (!strcasecmp(vals[i],o_objectclass)) {
+                            if (!strcasecmp(vals[i]->bv_val,o_objectclass)) {
                                 if (o_debug) {
-                                    fprintf(stderr, " %s: %s found\n", a, vals[i] );
+                                    fprintf(stderr, " %s: %s found\n", a, vals[i]->bv_val );
                                 }
                                 pin_objectclass_exists = 1;
                             }
@@ -780,7 +785,8 @@ void processSearchResults(LDAPMessage *r) {
                     }
                 }
 
-                ldap_value_free( vals );
+                /* use ldap_value_free_len */
+                ldap_value_free_len( vals );
             }
             ldap_memfree( a );
         }
@@ -802,7 +808,7 @@ void processSearchResults(LDAPMessage *r) {
             mods[1] = NULL;
       
             if (o_write) {
-                i = ldap_modify_s(ld, dn, mods);
+                i = ldap_modify_ext_s(ld, dn, mods, NULL, NULL);
     
                 if (i != LDAP_SUCCESS) {
                     exitLDAPError("couldn't modify attribute"); 
@@ -929,7 +935,7 @@ void processSearchResults(LDAPMessage *r) {
         mods[1] = NULL;
 
         if (o_write) {
-            i = ldap_modify_s(ld, dn, mods);
+            i = ldap_modify_ext_s(ld, dn, mods, NULL, NULL);
       
             if (i != LDAP_SUCCESS) {
                 exitLDAPError("couldn't modify attribute");
