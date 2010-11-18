@@ -1,6 +1,6 @@
 Name:           pki-native-tools
 Version:        2.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Native Tools
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -9,12 +9,12 @@ Group:          System Environment/Base
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  cyrus-sasl-devel
-BuildRequires:  mozldap-devel
+BuildRequires:  openldap-devel
 BuildRequires:  nspr-devel >= 4.6.99
 BuildRequires:  nss-devel >= 3.12.3.99
 BuildRequires:  svrcore-devel
 
-Requires:       mozldap-tools
+Requires:       openldap-clients
 Requires:       nss >= 3.12.3.99
 Requires:       nss-tools >= 3.12.3.99
 
@@ -73,5 +73,8 @@ rm -rf %{buildroot}
 %{_libdir}/pki
 
 %changelog
+* Thu Nov 18 2010 Ade Lee <alee@redhat.com> 2.0.0-2
+- Bugzilla BZ606946 - Convert Native Tools to use ldapAPI from OpenLDAP instead of Mozldap
+
 * Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
 - Updated Dogtag 1.3.x --> Dogtag 2.0.0.
