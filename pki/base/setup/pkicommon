@@ -285,6 +285,401 @@ my $logfd = new FileHandle;
 
 
 ##############################################################
+# Routines & data structures used to track & 
+# manage installation information
+##############################################################
+
+# Basename of the installation info file.
+$install_info_basename = "install_info";
+
+# Basename of the old clean up file.
+$cleanup_basename = ".cleanup.dat";
+
+# Global hash table of installation actions
+# Each filesystem path which is modified during installation
+# is entered into this table as a key. The value associated
+# with the key is an anonymous hash table of key/value pairs,
+# e.g. the installation metadata associated with the path.
+# This table should not be directly modified, rather use
+# the utility subroutines which know how to operate on
+# on an installation info table. The utility routines can
+# operate on any installation table, but default to using
+# this single global table.
+%installation_info = ();
+
+# Table to validate an installation type
+%valid_install_types = ('file'    => true,
+                        'symlink' => true,
+                        'dir'     => true);
+
+# Table to validate a install action
+%valid_install_action = ('create' => true,
+                         'move'   => true,
+                         'remove' => true); 
+
+# Table to validate an uninstall action
+%valid_uninstall_action = ('remove'   => true,
+                           'preserve' => true); 
+
+# Capture information about items modified during installation
+#
+# add_install_info(path, [type='file'], [uninstall_action='remove],
+#                        [install_action='create])
+#
+# path               the path name of the object
+# type               what kind of object
+#                    (file, symlink, dir)
+# uninstall_action - during uninstall what should be done
+#                    (remove, preserve)
+# install_action     what was done during install
+#                    (create, move, remove)
+#
+# The data structure used to capture the information is a hash
+# table whose keys are path names and whose value is a hash
+# table of key/value attributes belonging to the path object.
+sub add_install_info {
+    my($path, $type, $uninstall_action, $install_action) = @_;
+    my($install_info) = \%installation_info;
+    $type             = 'file'   unless defined($type);
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+    $install_action   = 'create' unless defined($install_action);
+
+    die "invalid install type ($type) for path ($path)"
+        if (!exists($valid_install_types{$type}));
+
+    die "invalid uninstall action ($uninstall_action) for path ($path)"
+        if (!exists($valid_uninstall_action{$uninstall_action}));
+
+    die "invalid install action ($install_action) for path ($path)"
+        if (!exists($valid_install_action{$install_action}));
+
+    if (exists($install_info->{$path})) {
+        $info = $install_info->{$path};
+    } else {
+        $install_info->{$path} = $info = {};
+    }
+
+    $info->{'type'}             = $type;
+    $info->{'install_action'}   = $install_action;
+    $info->{'uninstall_action'} = $uninstall_action;
+}
+
+# Removes the install info for the given path.
+# Used primarily after an error occurs.
+sub remove_install_info {
+    my($path) = @_;
+    my($install_info) = \%installation_info;
+
+    delete $install_info->{$path};
+}
+
+# return text description of installed files and directories
+sub get_install_description
+{
+    my($install_info) = \%installation_info;
+
+    return get_install_info_description($install_info);
+}
+
+# Given a hash of installation information format it into text.
+# Each path name is in brackets at the beginning of a line
+# followed by the path's attributes, which is an indented line of 
+# key = value, for each attribute
+#
+# The formatted text is referred to as a "Installation Manifest".
+#
+# returns formatted text
+#
+# Example:
+#
+# [/etc/pki-ca]
+#     install_action = create
+#     type = dir
+#     uninstall_action = remove
+# [/etc/pki-ca/CS.cfg]
+#     install_action = create
+#     type = file
+#     uninstall_action = remove
+#
+sub format_install_info
+{
+    my ($install_info) = @_;
+    my $text = "";
+
+    @paths = sort(keys %$install_info);
+    foreach $path (@paths) {
+        $info = $install_info->{$path};
+        $text .= sprintf("[%s]\n", $path);
+        @key_names = sort(keys %$info);
+        foreach $key (@key_names) {
+            $value = $info->{$key};
+            $text .= sprintf("    %s = %s\n", $key, $value);
+        }
+    }
+    return $text;
+}
+
+# Given a hash of installation information format it into
+# into friendly description of what was installed.
+#
+# Brief Example:
+#
+# Installed Files:
+#     /etc/pki-ca/CS.cfg
+#     /var/log/pki-ca-install.log
+# Installed Directories:
+#     /etc/pki-ca
+#     /var/log/pki-ca
+# Installed Symbolic Links:
+#     /var/lib/pki-ca/logs
+# Removed Items:
+#     /etc/pki-ca/noise
+# 
+sub get_install_info_description
+{
+    my($install_info) = @_;
+    my($text, @paths, @filtered_paths, $path);
+
+    $text = '';
+    @paths = sort(keys %$install_info);
+    
+    @filtered_paths = grep {my ($info) = $install_info->{$_};
+                            $info->{'type'} eq 'file' &&
+                            $info->{'install_action'} ne 'remove'} @paths;
+    if (@filtered_paths) {
+        $text .= "Installed Files:\n";
+        foreach $path (@filtered_paths) {
+            $text .= "    ${path}\n";
+        }
+    }
+
+    @filtered_paths = grep {my ($info) = $install_info->{$_};
+                            $info->{'type'} eq 'dir' &&
+                            $info->{'install_action'} ne 'remove'} @paths;
+    if (@filtered_paths) {
+        $text .= "Installed Directories:\n";
+        foreach $path (@filtered_paths) {
+            $text .= "    ${path}\n";
+        }
+    }
+
+    @filtered_paths = grep {my ($info) = $install_info->{$_};
+                            $info->{'type'} eq 'symlink' &&
+                            $info->{'install_action'} ne 'remove'} @paths;
+    if (@filtered_paths) {
+        $text .= "Installed Symbolic Links:\n";
+        foreach $path (@filtered_paths) {
+            $text .= "    ${path}\n";
+        }
+    }
+
+    @filtered_paths = grep {my ($info) = $install_info->{$_};
+                            $info->{'install_action'} eq 'remove'} @paths;
+    if (@filtered_paths) {
+        $text .= "Removed Items:\n";
+        foreach $path (@filtered_paths) {
+            $text .= "    ${path}\n";
+        }
+    }
+
+    return $text;
+
+}
+
+# Given text as formatted by format_install_info() parse it into
+# a install info hash table where each key is a path name and whose
+# value is a hash table of key/value pairs.
+#
+# E.g. this routine parses an "Installation Manifest".
+#
+# Returns pointer to an install info hash table
+sub parse_install_info
+{
+    my($text) = @_;
+    my($install_info, @lines, $line, $line_num, $path, $info, $key, $value);
+
+    $install_info = {};
+    @lines = split(/\n/, $text);
+    $line_num = 0;
+    $path = undef;
+    $info = undef;
+
+    foreach $line (@lines) {
+        $line_num++;
+        $line =~ s/#.*//;       # nuke comments
+        $line =~ s/\s+$//;      # strip trailing whitespace
+        next if !$line;         # skip blank lines
+
+        # Look for quoted path at beginning of line
+        if ($line =~ /^\s*\[(.+)\]\s*$/) {
+            $path = $1;
+            $info = {};
+            $install_info->{$path} = $info;
+            next;
+        }
+
+        if (defined($path)) {
+            # Look for key = value in section, must be preceded by whitespace
+            undef($key);
+            if ($line =~ /^\s+(\w+)\s*=\s*(.*)/) {
+                # quoted name followed by a colon followed by an action
+                $key = $1;
+                $value = $2;
+                $info->{$key} = $value;
+            }
+        }
+    }
+    return $install_info;
+}
+
+# Formerly the installation info was written as an ini style
+# file, a section for files and a section for directories.
+# Everything in the file was meant to be removed upon uninstall.
+#
+# Returns an install info style hash table (see parse_install_info)
+sub parse_old_cleanup
+{
+    my($text) = @_;
+    my($install_info, @lines, $line, $section, $info, $path);
+
+    $install_info = {};
+    @lines = split(/\n/, $text);
+
+    foreach $line (@lines) {
+        $line =~ s/#.*//;       # nuke comments
+        $line =~ s/^\s+//;      # strip leading whitespace
+        $line =~ s/\s+$//;      # strip trailing whitespace
+        next if !$line;         # skip blank lines
+
+        # Look for section markers
+        if ($line =~ /^\s*\[\s*(\w+)\s*\]\s*$/) {
+            $section = $1;
+            next;
+        }
+
+        # Must be path name
+        $path = $line;
+        $info = {};
+        $install_info->{$path} = $info;
+        $info->{'uninstall_action'} = 'remove';
+        if ($section eq 'files') {
+            $info->{'type'} = 'file';
+        } elsif ($section eq 'directories') {
+            $info->{'type'} = 'dir';
+        } else {
+            die "unknown cleanup section = \"$section\"\n";
+        }
+    }
+    return $install_info;
+}
+
+# Get the contents of the old cleanup file
+sub read_old_cleanup
+{
+    my($path) = @_;
+    my($text);
+
+    $text = read_file($path);
+    return parse_old_cleanup($text);
+}
+
+# Get the contents of an install info file
+sub read_install_info
+{
+    my($path) = @_;
+    my($text);
+
+    $text = read_file($path);
+    return parse_install_info($text);
+}
+
+# Get the contents of installation info from a directory.
+# Supports both the new install info format and the older
+# cleanup format. First checks for the presence of the newer
+# install info format file, if that's absent reads the older
+# cleanup format but returns it as the new install info hash table.
+sub read_install_info_from_dir
+{
+    my($dir) = @_;
+    my($path);
+
+    $path = "${dir}/${install_info_basename}";
+    if (-e $path) {
+        return read_install_info($path);
+    }
+
+    $path = "${dir}/${cleanup_basename}";
+    if (-e $path) {
+        return read_old_cleanup($path);
+    }
+
+    return undef;
+}
+
+# Give an install info hash table writes it formated as a
+# "Installation Manifest" into specified directory under
+# the name $install_info_basename
+sub write_install_info_to_dir
+{
+    my($dir, $install_info) = @_;
+    my($path, $formatted);
+
+    $path = "${dir}/${install_info_basename}";
+    $formatted = format_install_info($install_info);
+    write_file($path, \$formatted);
+}
+
+# Given an Installation Manifest (e.g. install_info) remove the items in
+# the manifest marked for removal.
+#
+# 1) Remove all files and symlinks we created.
+#
+# 2) Attempt to remove all directories we created, even if they are non-empty.
+#
+sub uninstall
+{
+    my($install_info) = @_;
+    my($result, @paths, @filtered_paths, $path, @dirs);
+
+    $result = 1;
+
+    @paths = sort(keys %$install_info);
+    
+    # Get a list of files marked for removal.
+    @filtered_paths = grep {my ($info) = $install_info->{$_};
+                            ($info->{'type'} eq 'file' || $info->{'type'} eq 'symlink') &&
+                            $info->{'install_action'} ne 'remove' &&
+                            $info->{'uninstall_action'} eq 'remove'} @paths;
+    # Remove the files
+    if (@filtered_paths) {
+        foreach $path (@filtered_paths) {
+            $result = 0 if !remove_file($path);
+        }
+    }
+
+    # Get a list of directories marked for removal.
+    @filtered_paths = grep {my ($info) = $install_info->{$_};
+                            $info->{'type'} eq 'dir' &&
+                            $info->{'uninstall_action'} eq 'remove'} @paths;
+
+    # We need to removed directories starting at the deepest level
+    # and progressively work upward, otherwise the directory might
+    # not be empty. To accomplish this we sort the directory array
+    # based on the number of path components.
+    
+    # Primary sort by number of path components, longest first.
+    # When the number of path components is the same the secondary sort
+    # is lexical string comparision.
+    @dirs = sort {my $r = split("/", $b) <=> split("/", $a); $r == 0 ? $a cmp $b : $r} @filtered_paths;
+
+    foreach $path (@dirs) {
+        $result = 0 if !remove_directory($path, 1);
+    }
+
+    return $result;
+}
+
+##############################################################
 # Generic "platform" Subroutines
 ##############################################################
 
