@@ -803,7 +803,7 @@ sub create_user
 
     emit(sprintf("create_user(%s)\n", join(", ", @_)), "debug");
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     if (($username eq $PKI_USER) &&
         ($groupname eq $PKI_GROUP)) {
@@ -886,7 +886,7 @@ sub create_group
 
     emit(sprintf("create_group(%s)\n", join(", ", @_)), "debug");
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     if ($groupname eq $PKI_GROUP) {
         # Attempt to create $PKI_GROUP with $PKI_GID
@@ -1010,7 +1010,7 @@ sub add_user_as_a_member_of_group
 
     emit(sprintf("add_user_as_a_member_of_group(%s)\n", join(", ", @_)), "debug");
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     return 0 if !user_exists($username);
     return 0 if !group_exists($groupname);
@@ -1412,7 +1412,7 @@ sub LDAP_add
 
     emit(sprintf("LDAP_add(%s)\n", join(", ", @_)), "debug");
 
-    return if ($dry_run);
+    return if $dry_run;
 
     set_library_path([$default_security_libraries,
                       $default_system_user_libraries,
@@ -1450,7 +1450,7 @@ sub LDAP_modify
 
     emit(sprintf("LDAP_modify(%s)\n", join(", ", @_)), "debug");
 
-    return if ($dry_run);
+    return if $dry_run;
 
     set_library_path([$default_security_libraries,
                       $default_system_user_libraries,
@@ -1489,7 +1489,7 @@ sub certutil_create_databases
 
     emit(sprintf("certutil_create_databases(%s)\n", join(", ", @_)), "debug");
 
-    return if ($dry_run);
+    return if $dry_run;
 
     set_library_path([$default_security_libraries,
                       $default_system_user_libraries,
@@ -1530,7 +1530,7 @@ sub certutil_delete_cert
 
     emit(sprintf("certutil_delete_cert(%s)\n", join(", ", @_)), "debug");
 
-    return if ($dry_run);
+    return if $dry_run;
 
     set_library_path([$default_security_libraries,
                       $default_system_user_libraries,
@@ -1566,7 +1566,7 @@ sub certutil_generate_CSR
 
     emit(sprintf("certutil_generate_CSR(%s)\n", join(", ", @_)), "debug");
 
-    return if ($dry_run);
+    return if $dry_run;
 
     set_library_path([$default_security_libraries,
                       $default_system_user_libraries,
@@ -1631,7 +1631,7 @@ sub certutil_generate_self_signed_cert
 
     emit(sprintf("certutil_generate_self_signed_cert(%s)\n", join(", ", @_)), "debug");
 
-    return if ($dry_run);
+    return if $dry_run;
 
     set_library_path([$default_security_libraries,
                       $default_system_user_libraries,
@@ -1703,7 +1703,7 @@ sub certutil_import_cert
 
     emit(sprintf("certutil_import_cert(%s)\n", join(", ", @_)), "debug");
 
-    return if ($dry_run);
+    return if $dry_run;
 
     set_library_path([$default_security_libraries,
                       $default_system_user_libraries,
@@ -1742,7 +1742,7 @@ sub certutil_print_cert
 
     emit(sprintf("certutil_print_cert(%s)\n", join(", ", @_)), "debug");
 
-    return if ($dry_run);
+    return if $dry_run;
 
     set_library_path([$default_security_libraries,
                       $default_system_user_libraries,
@@ -1787,7 +1787,7 @@ sub certutil_list_certs
 
     emit(sprintf("certutil_list_certs(%s)\n", join(", ", @_)), "debug");
 
-    return if ($dry_run);
+    return if $dry_run;
 
     set_library_path([$default_security_libraries,
                       $default_system_user_libraries,
@@ -1822,7 +1822,7 @@ sub modutil_add_token
 
     emit(sprintf("modutil_add_token(%s)\n", join(", ", @_)), "debug");
 
-    return if ($dry_run);
+    return if $dry_run;
 
     set_library_path([$default_security_libraries,
                       $default_system_user_libraries,
@@ -2231,7 +2231,7 @@ sub remove_file
 
     add_install_info($path, 'file', 'remove', 'remove');
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     if (!unlink($path)) {
         emit("remove_file(): failed to remove file \"$path\" ($!)\n", "error");
@@ -2256,7 +2256,7 @@ sub set_permissions
                  $path_glob,
                  defined($permissions) ? sprintf("%o", $permissions) : ""), "debug");
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     @paths = glob($path_glob);
 
@@ -2283,7 +2283,7 @@ sub set_owner_group
 
     emit(sprintf("set_owner_group(%s)\n", join(", ", @_)), "debug");
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     $uid   = getpwnam($owner);
     $gid   = getgrnam($group);
@@ -2312,7 +2312,7 @@ sub set_file_props
                  defined($permissions) ? sprintf("%o", $permissions) : "",
                  $owner, $group), "debug");
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     $tmp_result = set_permissions($path_glob, $permissions);
     $result = 0 if !$tmp_result;
@@ -2668,7 +2668,7 @@ sub create_directory
     $uninstall_action = 'remove' unless defined($uninstall_action);
     add_install_info($dir, 'dir', $uninstall_action);
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     if (!directory_exists($dir)) {
         make_path($dir, {error => \$errors});
@@ -2794,7 +2794,7 @@ sub remove_directory
 
     add_install_info($dir, 'dir', 'remove', 'remove');
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     if (!is_path_valid($dir)) {
         emit("remove_directory(): specified invalid directory $dir.\n",
@@ -2849,7 +2849,7 @@ sub set_owner_group_on_directory_contents
 
     emit(sprintf("set_owner_group_on_directory_contents(%s)\n", join(", ", @_)), "debug");
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     if ($dir eq "" || !directory_exists($dir)) {
         emit("set_owner_group_on_directory_contents(): invalid directory specified.\n",
@@ -2911,7 +2911,7 @@ sub create_symlink
     $uninstall_action = 'remove' unless defined($uninstall_action);
     add_install_info($symlink, 'symlink', $uninstall_action);
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     if (symlink_exists($symlink)) {
         # delete symbolic link so that we can recreate link for upgrades
@@ -2959,7 +2959,7 @@ sub remove_symlink
 
     add_install_info($symlink, 'symlink', 'remove', 'remove');
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     if ($symlink eq "") {
         # symlink is NULL
@@ -2986,7 +2986,7 @@ sub set_owner_group_on_symlink
 
     emit(sprintf("set_owner_group_on_symlink(%s)\n", join(", ", @_)), "debug");
 
-    return 1 if ($dry_run);
+    return 1 if $dry_run;
 
     if ($symlink eq "" || !symlink_exists($symlink)) {
         emit("set_owner_group_on_symlink(): invalid symbolic link specified \"$symlink\"\n",
@@ -3103,7 +3103,7 @@ sub run_command
 
     emit(sprintf("run_command(%s)\n", join(", ", @_)), "debug");
 
-    return 0 if ($dry_run);
+    return 1 if $dry_run;
 
     # Perl backtick only captures stdout.
     # stderr goes to the existing stderr file descriptor, probably the console.

@@ -2856,6 +2856,8 @@ sub check_selinux_port
 {
     my ($setype, $seport) = @_;
 
+    return $SELINUX_PORT_UNDEFINED if $dry_run;
+
     if (defined $selinux_ports{$seport}) {
         if ($selinux_ports{$seport} eq $setype) {
             return $SELINUX_PORT_DEFINED;
@@ -2889,7 +2891,7 @@ sub add_selinux_file_context
    
    emit(sprintf("add_selinux_file_context(%s)\n", join(", ", @_)), "debug");
 
-   return if ($dry_run);
+   return if $dry_run;
    
    #check if fcontext has already been set
    if (`$semanage fcontext -l -n |grep $fname |grep ":$fcontext:" | wc -l` == 1) {
