@@ -198,33 +198,23 @@ $pki_registry_path = $default_registry_path
 # no return value
 sub usage()
 {
-    print( STDOUT
-           "Usage:  pkiremove -pki_instance_root=<pki_instance_root> "
-         . "# Instance root\n"
-         . "                                                         "
-         . "# directory\n"
-         . "                                                         "
-         . "# destination\n\n"
-         . "                  -pki_instance_name=<pki_instance_id>   "
-         . "# Unique PKI\n"
-         . "                                                         "
-         . "# subsystem\n"
-         . "                                                         "
-         . "# instance name\n"
-         . "                                                         "
-         . "# (e. g. - pki-pki1)\n\n"
-         . "                  [-force]                               "
-         . "# Don't ask\n"
-         . "                                                         "
-         . "# any questions\n\n" );
+    print STDOUT <<'EOF';
+Usage:  pkiremove -pki_instance_root=<pki_instance_root> # Instance root
+                                                         # directory
+                                                         # destination
 
-    print( STDOUT
-           "Example:  pkiremove -pki_instance_root=/var/lib "
-         . "-pki_instance_name=pki-ca\n\n " );
+                  -pki_instance_name=<pki_instance_id>   # Unique PKI
+                                                         # subsystem
+                                                         # instance name
+                                                         # (e. g. - pki-pki1)
 
-    print( STDOUT
-           "IMPORTANT:  Must be run as root!\n\n" );
+                  [-force]                               # Don't ask
+                                                         # any questions
 
+Example:  pkiremove -pki_instance_root=/var/lib -pki_instance_name=pki-ca
+
+IMPORTANT:  Must be run as root!
+EOF
     return;
 }
 
