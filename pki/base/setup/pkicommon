@@ -14,7 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2007 Red Hat, Inc.
+# Copyright (C) 2007-2010 Red Hat, Inc.
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
@@ -255,6 +255,10 @@ $logfile = "";
 
 # Whether or not to do verbose mode
 $verbose = 0;
+
+# Controls whether actions are executed (dry_run == false)
+# or if actions are only reported (dry_run == true).
+$dry_run = 0;
 
 # chkconfig parameters (Linux ONLY)
 if( $^O eq "linux" ) {

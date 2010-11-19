@@ -14,7 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2007 Red Hat, Inc.
+# Copyright (C) 2007-2010 Red Hat, Inc.
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
@@ -134,9 +134,6 @@ require( 'pkicommon' );
 # Local Constants
 ##############################################################
 
-my $saved_cleanup_file_name = ".cleanup.dat";
-my $saved_file_marker       = "[files]";
-my $saved_directory_marker  = "[directories]";
 my $semanage = "/usr/sbin/semanage";
 
 ##############################################################
@@ -212,6 +209,9 @@ Usage:  pkiremove -pki_instance_root=<pki_instance_root> # Instance root
 
 [-verbose] # Display detailed information. May be specified multiple times,
            # each time increasing the verbosity level.
+
+[-dry_run] # Do not perform any actions.
+           # Just report what would have been done.
 
 Example:  pkiremove -pki_instance_root=/var/lib -pki_instance_name=pki-ca
 
@@ -746,6 +746,7 @@ sub main()
     $result = GetOptions( "pki_instance_root=s" => \$pki_instance_root,
                           "pki_instance_name=s" => \$pki_instance_name,
                           "verbose+" => \$verbose,
+                          "dry_run" => \$dry_run,
                           "force" => \$force );
 
     # Always disallow root to be the pki_instance_root.
@@ -776,7 +777,7 @@ sub main()
         exit 255;
     }
 
-    $pki_instance_path = $pki_instance_root . "/" . $pki_instance_name;
+    $pki_instance_path = "${pki_instance_root}/${pki_instance_name}";
 
     if( !directory_exists( "$pki_instance_path" ) ) {
         print( STDERR
@@ -785,6 +786,26 @@ sub main()
         usage();
         exit 255;
     }
+
+    # capture installation information in a log file
+    # (always overwrite this file)
+    $logfile = "/var/log/${pki_instance_name}-uninstall.log";
+    open_logfile($logfile);
+    set_permissions($logfile, $default_file_permissions);
+
+    emit("Capturing installation information in $logfile.\n");
+
+    if ($verbose) {
+        emit("    verbose mode ENABLED (level=$verbose)\n");
+    }
+
+    if ($dry_run) {
+        emit("    dry run mode ENABLED, system will not be modified, log to $logfile\n");
+    }
+
+    emit("    pki_instance_root   $pki_instance_root\n");
+    emit("    pki_instance_name   $pki_instance_name\n");
+    emit("    pki_instance_path   $pki_instance_path\n");
 
     # Remove the specified instance
     $result = remove_instance();

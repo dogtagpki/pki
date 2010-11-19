@@ -14,7 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2007 Red Hat, Inc.
+# Copyright (C) 2007-2010 Red Hat, Inc.
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
@@ -831,6 +831,10 @@ pkicreate -pki_instance_root=<pki_instance_root>   # Instance root directory
                                                    # Specify multiple times
                                                    # to increase verbosity.
 
+          [-dry_run]                               # Do not perform any actions.
+                                                   # Just report what would have
+                                                   # been done.
+
           [-help]                                  # Print out this screen
 
 
@@ -883,6 +887,10 @@ pkicreate -pki_instance_root=<pki_instance_root>   # Instance root directory
                                                    # during 'pkicreate'.
                                                    # Specify multiple times
                                                    # to increase verbosity.
+
+          [-dry_run]                               # Do not perform any actions.
+                                                   # Just report what would have
+                                                   # been done.
 
           [-help]                                  # Print out this screen
 
@@ -1065,6 +1073,7 @@ sub parse_arguments()
                           "user=s" => \$username,
                           "group=s" => \$groupname,
                           "verbose+" => \$verbose,
+                          "dry_run" => \$dry_run,
                           "redirect=s" => \%redirects );
 
 
@@ -1148,8 +1157,7 @@ sub parse_arguments()
         return 0;
     }
 
-    $pki_instance_path  = $pki_instance_root
-                        . "/" . $pki_instance_name;
+    $pki_instance_path  = "${pki_instance_root}/${pki_instance_name}";
 
     if( directory_exists( $pki_instance_path ) ) {
         usage();
@@ -1174,8 +1182,13 @@ sub parse_arguments()
         emit( "    verbose mode is ENABLED\n" );
     }
 
+    if ($dry_run) {
+        emit("    dry run mode ENABLED, system will not be modified, log to $logfile\n");
+    }
+
     emit( "    pki_instance_root   $pki_instance_root\n" );
     emit( "    pki_instance_name   $pki_instance_name\n" );
+    emit( "    pki_instance_path   $pki_instance_path\n" );
 
     ## Mandatory "-secure_port=<secure_port>" option
     if( $l_secure_port >= 0 ) {
