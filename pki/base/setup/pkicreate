@@ -57,6 +57,8 @@ my $perl_version_error_message = "ERROR:  Using Perl version $] ...\n"
 die $perl_version_error_message if $] < $MINIMUM_PERL_VERSION;
 
 
+use File::Slurp;
+
 ##############################################################
 # Execution Check
 ##############################################################
@@ -2328,70 +2330,96 @@ sub process_pki_directories()
 }
 
 
+# process_file_template
+#
+# template_name
+#     Used to identify the template.
+# src_path
+#     The file pathname of the template.
+# dst_path
+#     The file pathname the processed template will be written to.
+# substitutions
+#     Pointer to a hash. Each key is a substitution name, the key's
+#     value is the string to substitute.
+#
+# Given a template file, read it's contents in. Then perform text
+# replacements on any string of the form "[name]". name will be used
+# as a key in the substitutions hash, if the key exists in the hash then
+# it's value will replace the string "[name]".
+#
+# Example, if the src template contained this line:
+#
+#     Open port [PORT] on your firewall.
+#
+# And the substitutions hash was this {'PORT' => '1234'}
+# 
+# Then the dst file contents will look like this:
+#
+#     Open port 1234 on your firewall.
+#
 # Return 1 if success, 0 if failure
+
 sub process_file_template
 {
-    my ($source_file_path, $dest_file_path, $l_slot_hash) = @_;
+    my ($template_name, $src_path, $dst_path, $substitutions) = @_;
 
-    my $result = 0;
-    my $inf = new FileHandle;
-    my $buff = "";
-    my $ouf = new FileHandle;
+    my $buf = "";
+    my $num_subs = 0;
+    my $total_subs = 0;
 
-    emit("    Converting '$source_file_path' ==> '$dest_file_path' ...\n");
+    emit("    Template ($template_name) \"${src_path}\" ==> \"${dst_path}\" ...\n");
 
-    # check for a valid source file
-    if (!is_path_valid($source_file_path)) {
-        emit("process_file_template():  invalid source path "
-            . "$source_file_path!\n",
-              "error");
-        return $result;
+    # Check for a valid source file
+    if (!is_path_valid($src_path)) {
+        emit("process_file_template():  invalid source path ${src_path}!\n", "error");
+        return 0;
     }
 
-    # check for a valid destination file
-    if (!is_path_valid($dest_file_path)) {
-        emit("process_file_template():  invalid destination path "
-            . "$dest_file_path!\n",
-              "error");
-        return $result;
+    # Check for a valid destination file
+    if (!is_path_valid($dst_path)) {
+        emit("process_file_template():  invalid destination path ${dst_path}!\n", "error");
+        return 0;
     }
 
-    # read in contents of source file
-    $inf->open("<$source_file_path") or
-    die "Could not open $source_file_path\n";
-    while (<$inf>) {
-        my $line = $_;
-        chomp($line);
-        $buff = $buff . "$line\n";
-    }
-    $inf->close();
+    # Read in contents of source file
+    $buf = read_file($src_path);
 
-
-    # process each line substituting each [KEY]
+    # Process each line substituting each [KEY]
     # with its corresponding slot hash value
-    while (my ($key, $value) = each(%$l_slot_hash)) {
-        if ($key eq $PKI_CERT_DB_PASSWORD_SLOT) {
-            # Although this is nothing more than a random number
-            # used for initialization, for consistency, as with ALL
-            # other password/pin values (with one notable EXCEPTION),
-            # the word "(sensitive)" is printed out rather than the
-            # contents of $value.
-            emit("        replacing: $key with: (sensitive)\n");
-        } else {
-            emit("        replacing: $key with: $value\n");
+    while(my ($key, $value) = each(%$substitutions)) {
+        # Perform global substitution on buffer and
+        # get count of how many substitutions were actually performed.
+        $num_subs = $buf =~ s/\[$key\]/$value/g;
+        $total_subs += $num_subs;
+
+        # If any substitutions were performed then log what was done.
+        if ($num_subs > 0) {
+            # Hide sensitive information by emitting the word "(sensitive)"
+            # rather rather than the substituted value.
+            if ($key eq $PKI_CERT_DB_PASSWORD_SLOT) {
+                emit(sprintf("        %3d substitutions: %s ==> (sensitive)\n", $num_subs, $key));
+            } else {
+                emit(sprintf("        %3d substitutions: %s ==> \"%s\"\n", $num_subs, $key, $value));
+            }
         }
-        $buff =~ s/\[$key\]/$value/g;
     }
 
+    emit("    $total_subs substitutions were made in '$dst_path'\n");
 
-    # write out these modified contents to the destination file
-    $ouf->open(">$dest_file_path") or die "Could not open $dest_file_path\n";
-    $ouf->print($buff);
-    $ouf->close();
+    # Record that we've installed this file.
+    add_install_info($dst_path, 'file');
 
-    $result = 1;
+    if ($verbose > 2) {
+        # For debugging, emit the contents after substitution.
+        emit(sprintf(">> $dst_path\n%s<< $dst_path\n", $buf));
+    }
 
-    return $result;
+    if (!$dry_run) {
+        # Write out these modified contents to the destination file.
+        write_file($dst_path, \$buf);
+    }
+
+    return 1;
 }
 
 
@@ -2434,10 +2462,8 @@ sub process_pki_templates()
         $slot_hash{$TPS_DIR}               = $pki_subsystem_path;
         $slot_hash{$USERID}                = $pki_user;
         $slot_hash{$PKI_FLAVOR_SLOT}       = $pki_flavor;
-        $slot_hash{$PKI_RANDOM_NUMBER_SLOT}    = $random;
-        $slot_hash{$REQUIRE_CFG_PL}        = "require \""
-                                           . $cgi_sow_instance_cfg_pl_path
-                                           . "\";";
+        $slot_hash{$PKI_RANDOM_NUMBER_SLOT} = $random;
+        $slot_hash{$REQUIRE_CFG_PL}        = "require \"${cgi_sow_instance_cfg_pl_path}\";";
         if (is_Fedora() || (is_RHEL() && (! is_RHEL4()))) {
             $slot_hash{$FORTITUDE_APACHE}  = "Apache2";
             $slot_hash{$FORTITUDE_DIR}     = "/usr";
@@ -2561,57 +2587,36 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         $slot_hash{$PKI_FLAVOR_SLOT}           = $pki_flavor;
     }
 
-
     ## Process templates (instance independent)
     #
     #  NOTE:  The values substituted may differ across subsystems.
     #
 
     # process "CS.cfg" template
-    $result = process_file_template($pki_cfg_subsystem_file_path,
+    return 0 if !process_file_template("pki_cfg",
+                                       $pki_cfg_subsystem_file_path,
                                      $pki_cfg_instance_file_path,
                                      \%slot_hash);
-    if (!$result) {
-        return 0;
-    }
-
-    # fix ownership for "CS.cfg"
-    $result = give_file_to($pki_cfg_instance_file_path,
-                            $pki_user,
-                            $pki_group);
-    if (!$result) {
-        emit("Can't change ownership of $pki_cfg_instance_file_path.\n",
-              "error");
-        return 0;
-    }
-
-    chmod($default_file_permissions,
-           $pki_cfg_instance_file_path);
+    return 0 if !set_file_props($pki_cfg_instance_file_path,
+                                $default_file_permissions, $pki_user, $pki_group);
 
     if ($^O eq "linux") {
         # process "config.desktop" template
-        $result = process_file_template($setup_config_subsystem_file_path,
+        return 0 if !process_file_template("setup_config",
+                                           $setup_config_subsystem_file_path,
                                          $setup_config_instance_file_path,
                                          \%slot_hash);
-        if (! $result) {
-            return 0;
         }
 
-        push(@installed_files,
-              $setup_config_instance_file_path);
-    }
 
 
     ## Process templates (CA instances)
     if ($subsystem_type eq $CA) {
         # process ProfileSelect.template
-        $result = process_file_template($profile_select_template_subsystem_file_path,
-                                         $profile_select_template_instance_file_path,
-                                         \%slot_hash);
-        if (! $result) {
-            return 0;
-        }
- 
+        return 0 if !process_file_template("profile_select_template",
+                                           $profile_select_template_subsystem_file_path,
+                                           $profile_select_template_instance_file_path,
+                                           \%slot_hash);
      }
 
 
@@ -2621,275 +2626,165 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         if ($subsystem_type eq $TPS) {
 
           # process "apachectl" template
-          $result = process_file_template($apachectl_subsystem_file_path,
-                                           $apachectl_instance_file_path,
-                                           \%slot_hash);
-          if (!$result) {
-              return 0;
-          }
-
-          chmod($default_exe_permissions,
-                 $apachectl_instance_file_path);
+          return 0 if !process_file_template("apachectl",
+                                             $apachectl_subsystem_file_path,
+                                             $apachectl_instance_file_path,
+                                             \%slot_hash);
+          set_permissions($apachectl_instance_file_path, $default_exe_permissions);
 
 
           # process "cgi" template
-          $result = process_file_template($cgi_home_subsystem_file_path,
-                                           $cgi_home_instance_file_path,
-                                           \%slot_hash);
-          if (!$result) {
-              return 0;
-          }
+          return 0 if !process_file_template("cgi_home",
+                                             $cgi_home_subsystem_file_path,
+                                             $cgi_home_instance_file_path,
+                                             \%slot_hash);
 
-          $result = process_file_template($cgi_demo_subsystem_file_path,
-                                           $cgi_demo_instance_file_path,
-                                           \%slot_hash);
-          if (!$result) {
-              return 0;
-          }
+          return 0 if !process_file_template("cgi_demo",
+                                             $cgi_demo_subsystem_file_path,
+                                             $cgi_demo_instance_file_path,
+                                             \%slot_hash);
 
-          $result = process_file_template($cgi_so_subsystem_file_path,
-                                           $cgi_so_instance_file_path,
-                                           \%slot_hash);
-          if (!$result) {
-              return 0;
-          }
+          return 0 if !process_file_template("cgi_so",
+                                             $cgi_so_subsystem_file_path,
+                                             $cgi_so_instance_file_path,
+                                             \%slot_hash);
 
-          $result = process_file_template($cgi_so_subsystem_enroll_file_path,
-                                           $cgi_so_instance_enroll_file_path,
-                                           \%slot_hash);
-          if (!$result) {
-              return 0;
-          }
+          return 0 if !process_file_template("cgi_so_enroll",
+                                             $cgi_so_subsystem_enroll_file_path,
+                                             $cgi_so_instance_enroll_file_path,
+                                             \%slot_hash);
 
           # process each "*.cgi" file in subsystem "sow" directory
           opendir(SUBSYSTEM_DIR, $cgi_sow_subsystem_file_path);
           while (defined(my $entity = readdir(SUBSYSTEM_DIR))) {
               if ($entity =~ m/.cgi$/) {
                   # build complete "sow" subystem ".cgi" file name
-                  $cgi_sow_subsystem_cgi_file_path = $cgi_sow_subsystem_file_path
-                                                  . "/"
-                                                  . $entity;
+                  $cgi_sow_subsystem_cgi_file_path = "${cgi_sow_subsystem_file_path}/${entity}";
                   # build complete "sow" instance ".cgi" file name
-                  $cgi_sow_instance_cgi_file_path = $cgi_sow_instance_file_path
-                                                  . "/"
-                                                  . $entity;
+                  $cgi_sow_instance_cgi_file_path = "${cgi_sow_instance_file_path}/${entity}";
                   # process complete "sow" instance ".cgi" file name
-                  $result = process_file_template($cgi_sow_subsystem_cgi_file_path,
-                                                   $cgi_sow_instance_cgi_file_path,
-                                                   \%slot_hash);
-                  if (!$result) {
-                      return 0;
-                  }
+                  return 0 if !process_file_template("cgi_sow",
+                                                     $cgi_sow_subsystem_cgi_file_path,
+                                                     $cgi_sow_instance_cgi_file_path,
+                                                     \%slot_hash);
               }
           }
           closedir(SUBSYSTEM_DIR);
 
           # process "addAgents.ldif" template
-          $result = process_file_template($addAgents_ldif_subsystem_file_path,
-                                           $addAgents_ldif_instance_file_path,
-                                           \%slot_hash);
-          if (!$result) {
-              return 0;
-          }
-
+          return 0 if !process_file_template("addAgents_ldif",
+                                             $addAgents_ldif_subsystem_file_path,
+                                             $addAgents_ldif_instance_file_path,
+                                             \%slot_hash);
 
           # process "addIndexes.ldif" template
-          $result = process_file_template($addIndexes_ldif_subsystem_file_path,
-                                           $addIndexes_ldif_instance_file_path,
-                                           \%slot_hash);
-          if (!$result) {
-              return 0;
-          }
-
+          return 0 if !process_file_template("addIndexes_ldif",
+                                             $addIndexes_ldif_subsystem_file_path,
+                                             $addIndexes_ldif_instance_file_path,
+                                             \%slot_hash);
 
           # process "addTokens.ldif" template
-          $result = process_file_template($addTokens_ldif_subsystem_file_path,
-                                           $addTokens_ldif_instance_file_path,
-                                           \%slot_hash);
-          if (!$result) {
-              return 0;
-          }
-
+          return 0 if !process_file_template("addTokens_ldif",
+                                             $addTokens_ldif_subsystem_file_path,
+                                             $addTokens_ldif_instance_file_path,
+                                             \%slot_hash);
 
           # process "addVLVIndexes.ldif" template
-          $result = process_file_template(
-                        $addVLVIndexes_ldif_subsystem_file_path,
-                        $addVLVIndexes_ldif_instance_file_path,
-                        \%slot_hash);
-          if (!$result) {
-              return 0;
-          }
+          return 0 if !process_file_template("addVLVIndexes_ldif",
+                                             $addVLVIndexes_ldif_subsystem_file_path,
+                                             $addVLVIndexes_ldif_instance_file_path,
+                                             \%slot_hash);
 
           # process "schemaMods.ldif" template
-          $result = process_file_template($schemaMods_ldif_subsystem_file_path,
-                                           $schemaMods_ldif_instance_file_path,
-                                           \%slot_hash);
-          if (!$result) {
-              return 0;
-          }
-
+          return 0 if !process_file_template("schemaMods_ldif",
+                                             $schemaMods_ldif_subsystem_file_path,
+                                             $schemaMods_ldif_instance_file_path,
+                                             \%slot_hash);
         }
 
 
         # process "httpd.conf" template
-        $result = process_file_template($httpd_conf_subsystem_file_path,
-                                         $httpd_conf_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
-
-        # fix ownership for httpd.conf
-        $result = give_file_to($httpd_conf_instance_file_path,
-                                $pki_user,
-                                $pki_group);
-        if (!$result) {
-            emit("Can't change ownership of "
-                . "$httpd_conf_instance_file_path.\n",
-                  "error");
-            return 0;
-        }
-
-        chmod($default_file_permissions,
-               $httpd_conf_instance_file_path);
+        return 0 if !process_file_template("httpd_conf",
+                                           $httpd_conf_subsystem_file_path,
+                                           $httpd_conf_instance_file_path,
+                                           \%slot_hash);
+        return 0 if !set_file_props($httpd_conf_instance_file_path,
+                                    $default_file_permissions, $pki_user, $pki_group);
 
 
         # process "nss.conf" template
-        $result = process_file_template($nss_conf_subsystem_file_path,
-                                         $nss_conf_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
-
-        # fix ownership for nss.conf
-        $result = give_file_to($nss_conf_instance_file_path,
-                                $pki_user,
-                                $pki_group);
-        if (!$result) {
-            emit("Can't change ownership of "
-                . "$nss_conf_instance_file_path.\n",
-                  "error");
-            return 0;
-        }
-
-        chmod($default_file_permissions,
-               $nss_conf_instance_file_path);
-
+        return 0 if !process_file_template("nss_conf",
+                                           $nss_conf_subsystem_file_path,
+                                           $nss_conf_instance_file_path,
+                                           \%slot_hash);
+        return 0 if !set_file_props($nss_conf_instance_file_path,
+                                    $default_file_permissions, $pki_user, $pki_group);
 
         # process "perl.conf" template
-        $result = process_file_template($perl_conf_subsystem_file_path,
-                                         $perl_conf_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
+        return 0 if !process_file_template("perl_conf",
+                                           $perl_conf_subsystem_file_path,
+                                           $perl_conf_instance_file_path,
+                                           \%slot_hash);
 
-        # fix ownership for perl.conf
-        $result = give_file_to($perl_conf_instance_file_path,
-                                $pki_user,
-                                $pki_group);
-        if (!$result) {
-            emit("Can't change ownership of "
-                . "$perl_conf_instance_file_path.\n",
-                  "error");
-            return 0;
-        }
-
-        chmod($default_file_permissions,
-               $perl_conf_instance_file_path);
+        return 0 if !set_file_props($perl_conf_instance_file_path,
+                                    $default_file_permissions, $pki_user, $pki_group);
 
 
         # process "nss_pcache" template
-        $result = process_file_template($nss_pcache_subsystem_file_path,
-                                         $nss_pcache_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
+        return 0 if !process_file_template("nss_pcache",
+                                           $nss_pcache_subsystem_file_path,
+                                           $nss_pcache_instance_file_path,
+                                           \%slot_hash);
 
-        chmod($default_exe_permissions,
-               $nss_pcache_instance_file_path);
+        return 0 if !set_permissions($nss_pcache_instance_file_path,
+                                     $default_exe_permissions);
 
 
     } else {
         ## Process templates (CA, KRA, OCSP, TKS instances)
         # process "catalina.sh" (aka dtomcat5) template
-        $result = process_file_template($catalina_sh_subsystem_file_path,
-                                         $catalina_sh_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
-
-        $result = give_file_to($catalina_sh_instance_file_path,
-                                $pki_user,
-                                $pki_group);
-        if (!$result) {
-            emit("Can't change ownership of "
-                . "$catalina_sh_instance_file_path.\n",
-                  "error");
-            return 0;
-        }
-
-        chmod($default_exe_permissions,
-               $catalina_sh_instance_file_path);
-
-        push(@installed_files,
-              $catalina_sh_instance_file_path);
-
+        return 0 if !process_file_template("catalina_sh",
+                                           $catalina_sh_subsystem_file_path,
+                                           $catalina_sh_instance_file_path,
+                                           \%slot_hash);
+        return 0 if !set_file_props($catalina_sh_instance_file_path,
+                                    $default_exe_permissions, $pki_user, $pki_group);
 
         # process "index.html" template
-        $result = process_file_template($index_html_subsystem_file_path,
-                                         $index_html_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
-
+        return 0 if !process_file_template("index_html",
+                                           $index_html_subsystem_file_path,
+                                           $index_html_instance_file_path,
+                                           \%slot_hash);
 
         # process "server.xml" template
-        $result = process_file_template($server_xml_subsystem_file_path,
-                                         $server_xml_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
-
+        return 0 if !process_file_template("server_xml",
+                                           $server_xml_subsystem_file_path,
+                                           $server_xml_instance_file_path,
+                                           \%slot_hash);
 
         # process "serverCertNick.conf" template
-        $result = process_file_template($servercertnick_conf_subsystem_file_path,
-                                         $servercertnick_conf_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
+        return 0 if !process_file_template("servercertnick_conf",
+                                           $servercertnick_conf_subsystem_file_path,
+                                           $servercertnick_conf_instance_file_path,
+                                           \%slot_hash);
 
         # process "tomcat5.conf" template
-        $result = process_file_template($tomcat5_conf_subsystem_file_path,
-                                         $tomcat5_conf_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
-
+        return 0 if !process_file_template("tomcat5_conf",
+                                           $tomcat5_conf_subsystem_file_path,
+                                           $tomcat5_conf_instance_file_path,
+                                           \%slot_hash);
 
         # process "velocity.properties" template
-        $result = process_file_template($velocity_prop_subsystem_file_path,
-                                         $velocity_prop_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
-
+        return 0 if !process_file_template("velocity_prop",
+                                           $velocity_prop_subsystem_file_path,
+                                           $velocity_prop_instance_file_path,
+                                           \%slot_hash);
 
         # process "web.xml" template
-        $result = process_file_template($web_xml_subsystem_file_path,
-                                         $web_xml_instance_file_path,
-                                         \%slot_hash);
-        if (!$result) {
-            return 0;
-        }
+        return 0 if !process_file_template("web_xml",
+                                           $web_xml_subsystem_file_path,
+                                           $web_xml_instance_file_path,
+                                           \%slot_hash);
     }
 
     return 1;
