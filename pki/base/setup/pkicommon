@@ -3301,5 +3301,86 @@ if ($^O eq "linux") {
     }
 }
 
+##############################################################
+# Generic Subprocess Subroutines
+##############################################################
+
+# Runs the supplied command in a sub-shell. The command is subject
+# to shell interpretation.
+#
+# WARNING: Do not supply shell IO redirection in the command.
+#
+# Return 1 if success, 0 if failure
+#
+# The critical aspect of running a command is determining if the
+# command succeeded or failed. The proper way to determine this is by
+# checking exit status of command. Perl's subprocess mechansims are
+# less than ideal. In simplicity you would want to run the subprocess,
+# indpendently capture stdout & stderr, wait for termination and then
+# get the exit status. However most of the mechanisms discard
+# stderr. The advantages & disadvantages of each approach is nicely
+# documented here:
+#
+# http://blog.0x1fff.com/2009/09/howto-execute-system-commands-in-perl.html
+#
+# Ideally we would like to capture stdout and stderr
+# independently. The best way to do this is with Perl's IPC::Cmd
+# package which is part of the standard Perl distribution (whose
+# installation may be optional on a given system. RPM can detect our
+# use of this package and force it's installation as a
+# dependency). One disadvantage of IPC::Cmd is that it does not return
+# the actual exit status, just an indication if it was non-zero or not
+# (e.g. success). If we chose to use IPC::Cmd at a future date the
+# implementation would look like this:
+#
+#    # Note: IPC::Cmd is in the perl-IPC-Cmd RPM
+#    use IPC::Cmd qw[run];
+#
+#    my ($success, $error_code, $full_buf, $stdout_buf, $stderr_buf) =
+#	run(command => $cmd, verbose => 0);
+#
+#    if (!$success) {
+#        my ($err_msg);
+#        
+#        $err_msg = join("", @$stderr_buf);
+#        chomp($err_msg);
+#
+#	emit(sprintf("FAILED run_command(\"%s\"), output=\"%s\"\n",
+#                     $cmd, $err_msg), "error");
+#
+#	return 0;
+#    }
+#
+sub run_command
+{
+    my ($cmd) = @_;
+    my ($output, $wait_status, $exit_status);
+
+    emit(sprintf("run_command(%s)\n", join(", ", @_)), "debug");
+
+    return 0 if ($dry_run);
+
+    # Perl backtick only captures stdout.
+    # stderr goes to the existing stderr file descriptor, probably the console.
+    # Capture stderr along with stdout via shell redirection (e.g. 2>&1)
+
+    $output = `$cmd 2>&1`;
+    $wait_status = $?;
+
+    # The low order 8 bits of the status is the terminating signal
+    # for the process, the actual exit status is obtained by 
+    # shifting the low order 8 bits out.
+    $exit_status = $wait_status >> 8;
+
+    if ($exit_status != 0) {
+	chomp($output);
+	emit(sprintf("FAILED run_command(\"%s\"), exit status=%d output=\"%s\"\n",
+		     $cmd, $exit_status, $output), "error");
+        return 0;
+    }
+
+    return 1;
+}
+
 1;
 
