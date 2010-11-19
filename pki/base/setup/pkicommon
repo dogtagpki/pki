@@ -849,15 +849,7 @@ sub user_exists
 {
     my ($username) = @_;
 
-    my $result = 0;
-
-    my $uid = getpwnam($username);
-
-    if ($uid ne "") {
-        $result = 1;
-    }
-
-    return $result;
+    return defined(getpwnam($username));
 }
 
 
@@ -947,15 +939,7 @@ sub group_exists
 {
     my ($groupname) = @_;
 
-    my $result = 0;
-
-    my $gid = getgrnam($groupname);
-
-    if ($gid ne "") {
-        $result = 1;
-    }
-
-    return $result;
+    return defined(getgrnam($groupname));
 }
 
 
@@ -964,10 +948,9 @@ sub create_group
 {
     my ($groupname) = @_;
 
-    my $command = "";
-    my $report = "";
+    emit(sprintf("create_group(%s)\n", join(", ", @_)), "debug");
 
-    my $result = 0;
+    return 1 if ($dry_run);
 
     if ($groupname eq $PKI_GROUP) {
         # Attempt to create $PKI_GROUP with $PKI_GID
@@ -1003,14 +986,8 @@ sub create_group
         }
     }
 
-    $report = `$command`;
-    if ($report ne "") {
-        emit($report, "error");
-    }
-
-    $result = group_exists($groupname);
-
-    return $result;
+    return 0 if !run_command($command);
+    return group_exists($groupname);
 }
 
 
@@ -1063,25 +1040,28 @@ sub user_is_a_member_of_group
 {
     my ($username, $groupname) = @_;
 
-    my $result = 0;
+    return 0 if !user_exists($username);
+    return 0 if !group_exists($groupname);
 
-    if (!user_exists($username)) {
-        return $result;
+    # The members list returned by getgrname may not contain the user's primary group.
+    # This is OS dependent and is typically the case when the primary gid is a
+    # "user private group". Therefore testing the group member list is insufficient,
+    # we must also test the primary group.
+    my ($pw_name, $pw_passwd, $pw_uid, $pw_gid) = getpwnam($username);
+    if (defined $pw_gid) {
+        my $primary_groupname = getgrgid($pw_gid);
+
+        return 1 if $primary_groupname eq $groupname;
     }
 
-    if (!group_exists($groupname)) {
-        return $result;
+    # Now get the list of users in the specified group
+    # and test to see if the specified user is in that list.
+    my ($gr_name, $gr_passwd, $gr_gid, $gr_members) = getgrnam($groupname);
+    for my $member (split(' ', $gr_members)) {
+        return 1 if $member eq $username;
     }
 
-    my ($name, $passwd, $gid, $members) = getgrnam($groupname);
-
-    my $groupuser = $members =~ m/$username/;
-
-    if ($groupuser >= 1) {
-        $result = 1;
-    }
-
-    return $result;
+    return 0;
 }
 
 
@@ -1092,26 +1072,16 @@ sub add_user_as_a_member_of_group
     my ($username, $groupname) = @_;
 
     my $command = "";
-    my $report = "";
-
     my $result = 0;
 
-    if (!user_exists($username)) {
-        return $result;
-    }
+    emit(sprintf("add_user_as_a_member_of_group(%s)\n", join(", ", @_)), "debug");
 
-    if (!group_exists($groupname)) {
-        return $result;
-    }
+    return 1 if ($dry_run);
 
-    my ($name, $passwd, $gid, $members) = getgrnam($groupname);
+    return 0 if !user_exists($username);
+    return 0 if !group_exists($groupname);
+    return 1 if user_is_a_member_of_group($username, $groupname);
 
-    my $groupuser = $members =~ m/$username/;
-
-    if ($groupuser >= 1) {
-        # user is already a member of group
-        $result = 1;
-    } else {
         # Attempt to add user to be a member of group
         emit("Adding user '$username' to be a member of group "
             . "'$groupname'.\n", "debug");
@@ -1129,16 +1099,8 @@ sub add_user_as_a_member_of_group
                      . $username;
         }
 
-        $report = `$command`;
-        if ($report ne "") {
-            emit($report, "error");
-        } else {
-            # successfully added user to be a member of group
-            $result = 1;
-        }
-    }
-
-    return $result;
+    return 0 if !run_command($command);
+    return user_is_a_member_of_group($username, $groupname);
 }
 
 
@@ -1147,22 +1109,13 @@ sub add_user_as_a_member_of_group
 # return (-1) - user is not in password file
 sub get_UID_from_username
 {
-    my ($user) = @_;
+    my ($username) = @_;
 
-    my $my_username;
-    my $my_passwd;
-    my $my_uid;
+    my ($name, $passwd, $uid) = getpwnam($username);
 
-    ($my_username, $my_passwd, $my_uid) = getpwnam($user);
-    
-    if ($my_username ne "") {
-        # return UID (0 implies root user)
-        return $my_uid;
-    } else {
-        # username '$user' is NOT in the password file
+    return $uid if defined($uid);
         return (-1);
     }
-}
 
 
 # Return fully-qualified domain name (FQDN) given
