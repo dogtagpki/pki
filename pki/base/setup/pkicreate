@@ -239,7 +239,6 @@ my $addTokens_ldif_base_name     = "addTokens.ldif";       # TPS
 my $addVLVIndexes_ldif_base_name = "addVLVIndexes.ldif";   # TPS
 my $apachectl_base_name          = "apachectl";            # TPS
 my $nss_pcache_base_name         = "nss_pcache";           # RA, TPS
-my $catalina_sh_base_name        = "dtomcat5";             # CA, KRA, OCSP, TKS
 my $certsrv_jar_base_name        = "certsrv.jar";          # CA, KRA, OCSP, TKS
 my $nsutil_jar_base_name         = "nsutil.jar";           # CA, KRA, OCSP, TKS
 my $cmsutil_jar_base_name        = "cmsutil.jar";          # CA, KRA, OCSP, TKS
@@ -503,8 +502,6 @@ my $addVLVIndexes_ldif_instance_file_path     = "";  # TPS
 my $addVLVIndexes_ldif_subsystem_file_path    = "";  # TPS
 my $apachectl_instance_file_path              = "";  # TPS
 my $apachectl_subsystem_file_path             = "";  # TPS
-my $catalina_sh_instance_file_path            = "";  # CA, KRA, OCSP, TKS
-my $catalina_sh_subsystem_file_path           = "";  # CA, KRA, OCSP, TKS
 my $certsrv_jar_file_path                     = "";  # CA, KRA, OCSP, TKS
 my $certsrv_jar_symlink_path                  = "";  # CA, KRA, OCSP, TKS
 my $cms_jar_file_path                         = "";  # CA, KRA, OCSP, TKS
@@ -1808,11 +1805,6 @@ sub initialize_subdirectory_paths()
                                          . "/" . $lib_base_instance_dir;
         $java_pki_flavor_jar_path           = $default_java_path
                                             . "/" . $pki_flavor;
-        $catalina_sh_instance_file_path    = $default_system_user_binaries
-                                           . "/" . $catalina_sh_base_name
-                                           . "-" . $pki_instance_name;
-        $catalina_sh_subsystem_file_path   = $conf_subsystem_path
-                                           . "/" . $catalina_sh_base_name;
         $certsrv_jar_file_path             = $java_pki_flavor_jar_path
                                            . "/" . $certsrv_jar_base_name;
         $certsrv_jar_symlink_path          = $webinf_lib_instance_path
@@ -2742,14 +2734,6 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
 
     } else {
         ## Process templates (CA, KRA, OCSP, TKS instances)
-        # process "catalina.sh" (aka dtomcat5) template
-        return 0 if !process_file_template("catalina_sh",
-                                           $catalina_sh_subsystem_file_path,
-                                           $catalina_sh_instance_file_path,
-                                           \%slot_hash);
-        return 0 if !set_file_props($catalina_sh_instance_file_path,
-                                    $default_exe_permissions, $pki_user, $pki_group);
-
         # process "index.html" template
         return 0 if !process_file_template("index_html",
                                            $index_html_subsystem_file_path,
@@ -3681,16 +3665,6 @@ sub process_pki_selinux_setup()
     }
     emit("Restorecon file context for /usr/share/pki\n");
     system("$restorecon -F -R /usr/share/pki");
-
-    # set file context for /usr/bin/dtomcat5-$pki_instance_name
-    if ($java_component) {
-        if ($pki_instance_name ne $default_inst_name) {
-            &add_selinux_file_context($setype . "_exec_t",  
-                "/usr/bin/dtomcat5-$pki_instance_name", "f");
-        } 
-        emit("restorecon file context for /usr/bin/dtomcat5-$pki_instance_name\n");
-        system("$restorecon -F -R /usr/bin/dtomcat5-$pki_instance_name");
-    }
  
     # set file context for $pki_instance_root/$pki_instance_name
     if (($pki_instance_name ne $default_inst_name) || ($pki_instance_root ne $default_inst_root)) {
