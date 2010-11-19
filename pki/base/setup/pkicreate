@@ -344,6 +344,14 @@ my $PKI_SUBSYSTEM_TYPE_SLOT   = "PKI_SUBSYSTEM_TYPE";
 my $PKI_UNSECURE_PORT_SLOT    = "PKI_UNSECURE_PORT";
 my $PKI_USER_SLOT             = "PKI_USER";
 my $TOMCAT_SERVER_PORT_SLOT   = "TOMCAT_SERVER_PORT";
+my $TOMCAT_PIDFILE            = "TOMCAT_PIDFILE";
+my $TOMCAT_CFG                = "TOMCAT_CFG";
+my $TOMCAT_SSL_OPTIONS        = "TOMCAT_SSL_OPTIONS";
+my $TOMCAT_SSL2_CIPHERS       = "TOMCAT_SSL2_CIPHERS";
+my $TOMCAT_SSL3_CIPHERS       = "TOMCAT_SSL3_CIPHERS";
+my $TOMCAT_TLS3_CIPHERS       = "TOMCAT_TLS3_CIPHERS";
+my $TOMCAT_INSTANCE_COMMON_LIB = "TOMCAT_INSTANCE_COMMON_LIB";
+my $INSTANCE_INIT_SCRIPT      = "INSTANCE_INIT_SCRIPT";
 my $PKI_FLAVOR_SLOT           = "PKI_FLAVOR";
 my $PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT     = "PKI_UNSECURE_PORT_CONNECTOR_NAME";
 my $PKI_SECURE_PORT_CONNECTOR_NAME_SLOT       = "PKI_SECURE_PORT_CONNECTOR_NAME";
@@ -2395,8 +2403,30 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
 
         $slot_hash{$PKI_WEBAPPS_NAME}          = $webapps_base_subsystem_dir; 
         $slot_hash{$PKI_USER_SLOT}             = $pki_user;
-        $slot_hash{$TOMCAT_SERVER_PORT_SLOT}   = $tomcat_server_port;
         $slot_hash{$PKI_FLAVOR_SLOT}           = $pki_flavor;
+        $slot_hash{$TOMCAT_SERVER_PORT_SLOT}   = $tomcat_server_port;
+        $slot_hash{$TOMCAT_PIDFILE}            = $tomcat6_instance_pid_file_path;
+        $slot_hash{$TOMCAT_CFG}                = $tomcat6_conf_instance_file_path;
+        $slot_hash{$TOMCAT_SSL_OPTIONS}        = "ssl2=true,ssl3=true,tls=true";
+        $slot_hash{$TOMCAT_SSL2_CIPHERS}       = "-SSL2_RC4_128_WITH_MD5,-SSL2_RC4_128_EXPORT40_WITH_MD5,"
+                                          . "-SSL2_RC2_128_CBC_WITH_MD5,-SSL2_RC2_128_CBC_EXPORT40_WITH_MD5,"
+                                          . "-SSL2_DES_64_CBC_WITH_MD5,-SSL2_DES_192_EDE3_CBC_WITH_MD5";
+        $slot_hash{$TOMCAT_SSL3_CIPHERS}       = "-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,"
+                                          . "+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,"
+                                          . "+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,"
+                                          . "-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,"
+                                          . "-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,"
+                                          . "-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,"
+                                          . "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA";
+        $slot_hash{$TOMCAT_TLS3_CIPHERS}       = "-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,"
+                                          . "+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,"
+                                          . "+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,"
+                                          . "-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,"
+                                          . "-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,"
+                                          . "-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,"
+                                          . "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA";
+        $slot_hash{$TOMCAT_INSTANCE_COMMON_LIB} = "$tomcat_instance_common_lib_path/*.jar";
+        $slot_hash{$INSTANCE_INIT_SCRIPT}       = $pki_instance_initscript_path;
     }
 
     ## Process templates (instance independent)
