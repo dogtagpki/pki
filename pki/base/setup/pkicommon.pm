@@ -230,8 +230,7 @@ if ($^O eq "linux") {
 $default_security_libraries = "$default_system_user_libraries/dirsec";
 
 $default_certutil_command   = "$default_system_user_binaries/certutil";
-$default_ldapmodify_command = "$default_system_user_libraries/"
-                            . "mozldap/ldapmodify";
+$default_ldapmodify_command = "$default_system_user_binaries/ldapmodify";
 $default_modutil_command    = "$default_system_user_binaries/modutil";
 
 
