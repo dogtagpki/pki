@@ -2112,12 +2112,13 @@ sub create_empty_file
 {
     my ($path, $permissions, $owner, $group, $uninstall_action) = @_;
 
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+
     emit(sprintf("create_empty_file(%s, %s, %s, %s, %s)\n",
                  $path,
                  defined($permissions) ? sprintf("%o", $permissions) : "",
                  $owner, $group, $uninstall_action), "debug");
 
-    $uninstall_action = 'remove' unless defined($uninstall_action);
     add_install_info($path, 'file', $uninstall_action);
 
     if (!$dry_run) {
@@ -2145,12 +2146,13 @@ sub create_file
 {
     my ($path, $contents, $permissions, $owner, $group, $uninstall_action) = @_;
 
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+
     emit(sprintf("create_file(%s, %s, %s, %s, %s)\n",
                  $path,
                  defined($permissions) ? sprintf("%o", $permissions) : "",
                  $owner, $group, $uninstall_action), "debug");
 
-    $uninstall_action = 'remove' unless defined($uninstall_action);
     add_install_info($path, 'file', $uninstall_action);
 
     if (!$dry_run) {
@@ -2179,12 +2181,13 @@ sub copy_file
 {
     my ($src_path, $dst_path, $permissions, $owner, $group, $uninstall_action) = @_;
 
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+
     emit(sprintf("copy_file(%s, %s, %s, %s, %s, %s)\n",
                  $src_path, $dst_path,
                  defined($permissions) ? sprintf("%o", $permissions) : "",
                  $owner, $group, $uninstall_action), "debug");
 
-    $uninstall_action = 'remove' unless defined($uninstall_action);
     add_install_info($dst_path, 'file', $uninstall_action);
 
     if (!is_path_valid($src_path)) {
@@ -2660,12 +2663,13 @@ sub create_directory
     my $result = 1;
     my $errors;
 
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+
     emit(sprintf("create_directory(%s, %s, %s, %s, %s)\n",
                  $dir,
                  defined($permissions) ? sprintf("%o", $permissions) : "",
                  $owner, $group, $uninstall_action), "debug");
 
-    $uninstall_action = 'remove' unless defined($uninstall_action);
     add_install_info($dir, 'dir', $uninstall_action);
 
     return 1 if $dry_run;
@@ -2906,9 +2910,10 @@ sub create_symlink
 {
     my ($symlink, $dst_path, $owner, $group, $uninstall_action) = @_;
 
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+
     emit(sprintf("create_symlink(%s)\n", join(", ", @_)), "debug");
 
-    $uninstall_action = 'remove' unless defined($uninstall_action);
     add_install_info($symlink, 'symlink', $uninstall_action);
 
     return 1 if $dry_run;
