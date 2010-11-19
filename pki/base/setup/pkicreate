@@ -2891,8 +2891,7 @@ sub add_selinux_port()
 
     if ($status == $SELINUX_PORT_UNDEFINED) {
         emit("Setting selinux context $setype for $seport\n");
-        system("$semanage port -a -t $setype -p tcp $seport\n");
-        if ($? != 0) {
+        if (!run_command("$semanage port -a -t $setype -p tcp $seport\n")) {
             print STDERR "Error in setting selinux context $setype for $seport\n";
             print STDOUT "\n";
         }
@@ -2906,6 +2905,11 @@ sub add_selinux_port()
 sub add_selinux_file_context()
 {
    my ($fcontext, $fname, $ftype) = @_;
+   my ($result);
+   
+   emit(sprintf("add_selinux_file_context(%s)\n", join(", ", @_)), "debug");
+
+   return if ($dry_run);
    
    #check if fcontext has already been set
    if (`$semanage fcontext -l -n |grep $fname |grep ":$fcontext:" | wc -l` == 1) {
@@ -2914,11 +2918,11 @@ sub add_selinux_file_context()
    }
    emit("Setting selinux file context for $fname\n");
    if ($ftype eq "f") {
-       system("$semanage fcontext -a -t $fcontext -f -- $fname");
+       $result = run_command("$semanage fcontext -a -t $fcontext -f -- $fname");
    } else {
-       system("$semanage fcontext -a -t $fcontext $fname");
+       $result = run_command("$semanage fcontext -a -t $fcontext $fname");
    }
-   if ($? != 0) {
+   if (!$result) {
        print STDERR "Error in setting selinux file context $fcontext for $fname\n";
        print STDOUT ("\n");
    }
@@ -2927,7 +2931,6 @@ sub add_selinux_file_context()
 
 sub process_pki_selinux_setup()
 {
-    my $result = 0;
     my $setype = "pki_" . $subsystem_type;
     my $setype_p = $setype . "_port_t";
     my $default_inst_name = "pki-" . $subsystem_type;
@@ -2940,6 +2943,8 @@ sub process_pki_selinux_setup()
     my $log_path;
     my $ftype;
     my $java_component = 0;
+
+    emit("configuring SELinux ...\n");
 
     if ($redirected_logs_path eq "") {
         $log_path = $logs_instance_path;
@@ -2963,18 +2968,19 @@ sub process_pki_selinux_setup()
     # set file contexts
     if ($java_component) {
         emit("Restorecon file context for /usr/share/java/pki\n");
-        system("$restorecon -F -R /usr/share/java/pki");
+        run_command("$restorecon -F -R /usr/share/java/pki");
     }
     emit("Restorecon file context for /usr/share/pki\n");
-    system("$restorecon -F -R /usr/share/pki");
+    run_command("$restorecon -F -R /usr/share/pki");
  
     # set file context for $pki_instance_root/$pki_instance_name
     if (($pki_instance_name ne $default_inst_name) || ($pki_instance_root ne $default_inst_root)) {
         &add_selinux_file_context($setype . "_var_lib_t", 
-            "\"$pki_instance_root/$pki_instance_name(/.*)?\"", "a");
+            "\"${pki_instance_root}/${pki_instance_name}(/.*)?\"", "a");
     }
     emit("Restorecon file context for $pki_instance_root/$pki_instance_name\n");
-    system("$restorecon -F -R $pki_instance_root/$pki_instance_name");
+    run_command("$restorecon -F -R $pki_instance_root/$pki_instance_name");
+
 
     if ($java_component) {
         # set file context for instance pid file
@@ -2985,13 +2991,13 @@ sub process_pki_selinux_setup()
         }
         if (-e $pidfile) {
             emit("Restorecon file context for $pidfile\n");
-            system("$restorecon -F $pidfile");
+            run_command("$restorecon -F $pidfile");
         }
 
         my $pidpath = $default_apache_pids_path;
         if (-e $pidpath) {
             emit("Restorecon file context for $pidpath\n");
-            system("$restorecon -F -R $pidpath");
+            run_command("$restorecon -F -R $pidpath");
         }
     }
 
@@ -3005,7 +3011,7 @@ sub process_pki_selinux_setup()
                 "\"$log_path(/.*)?\"", "a");
         }
         emit("Restorecon file context for $log_path\n");
-        system("$restorecon -F -R $log_path");
+        run_command("$restorecon -F -R $log_path");
     }
 
     # set file context for $conf_path
@@ -3018,13 +3024,12 @@ sub process_pki_selinux_setup()
                 "\"$conf_path(/.*)?\"", "a");
         } 
         emit("Restorecon $conf_path\n");
-        system("$restorecon -F -R $conf_path");
+        run_command("$restorecon -F -R $conf_path");
     }
     
-
     if (! $java_component) {
         emit("Restorecon file context for /usr/sbin/httpd.worker \n");
-        system("$restorecon -F -R /usr/sbin/httpd.worker");
+        run_command("$restorecon -F -R /usr/sbin/httpd.worker");
     }    
 
     # add ports
@@ -3053,6 +3058,8 @@ sub process_pki_selinux_setup()
     if ($admin_secure_port != -1) {
         &add_selinux_port($setype_p, $admin_secure_port);
     }
+
+    return 1;
 }
 
 # no args
