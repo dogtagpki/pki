@@ -1860,18 +1860,14 @@ sub initialize_pki_creation_values()
 # return 0 - failure
 sub process_pki_directories()
 {
-    my $result = 0;
     my $remove_dir="";
 
     emit("Processing PKI directories for '$pki_instance_path' ...\n");
 
     ## Populate instance directory paths (instance independent)
-    $result = copy_directory($alias_subsystem_path,
-                              $alias_instance_path);
-    if (!$result) {
-        emit("Failed to copy directory $alias_subsystem_path to $alias_instance_path ...\n");
-        return 0;
-    }
+    return 0 if !copy_directory($alias_subsystem_path, $alias_instance_path,
+                                $default_dir_permissions, $default_file_permissions,
+                                $pki_user, $pki_group);
 
     # Check for an optionally redirected "conf" directory path ...
     if ($redirected_conf_path eq "") {
@@ -1899,46 +1895,25 @@ sub process_pki_directories()
                                              . "/" . $pwcache_conf_base_name;
 
             # create instance directory
-            $result = create_directory($conf_instance_path);
-            if (!$result) {
-                emit("Failed to create directory $conf_instance_path ...\n");
-                return 0;
-            }
+            return 0 if !create_directory($conf_instance_path,
+                                          $default_dir_permissions, $pki_user, $pki_group);
 
             # only copy selected files
-            $result = copy_file($magic_subsystem_file_path,
-                                 $magic_instance_file_path);
-            if (!$result) {
-                emit("Failed to copy file $magic_subsystem_file_path to $magic_instance_file_path ...\n");
-                return 0;
-            }
+            return 0 if !copy_file($magic_subsystem_file_path, $magic_instance_file_path,
+                                   $default_file_permissions);
 
-            $result = copy_file($mime_types_subsystem_file_path,
-                                 $mime_types_instance_file_path);
-            if (!$result) {
-                emit("Failed to copy file $mime_types_subsystem_file_path to $mime_types_instance_file_path ...\n");
-                return 0;
-            }
+            return 0 if !copy_file($mime_types_subsystem_file_path, $mime_types_instance_file_path,
+                                   $default_file_permissions);
 
-            # fix permissions
-            if (!is_Windows()) {
-                chmod($default_file_permissions,
-                       $magic_instance_file_path);
-                chmod($default_file_permissions,
-                       $mime_types_instance_file_path);
-            }
         } else {
             $server_xml_instance_file_path   = $conf_instance_path
                                              . "/" . $server_xml_base_name;
             $servercertnick_conf_instance_file_path   = $conf_instance_path
                                              . "/" . $servercertnick_conf_base_name;
 
-            $result = copy_directory($conf_subsystem_path,
-                                      $conf_instance_path);
-            if (!$result) {
-                emit("Failed to copy directory $conf_subsystem_path to $conf_instance_path ...\n");
-                return 0;
-            }
+            return 0 if !copy_directory($conf_subsystem_path, $conf_instance_path,
+                                        $default_dir_permissions, $default_file_permissions,
+                                        $pki_user, $pki_group);
         }
     } else {
         $noise_instance_file_path         = $redirected_conf_path
@@ -1967,59 +1942,30 @@ sub process_pki_directories()
                                              . "/" . $pwcache_conf_base_name;
 
             # create redirected instance directory
-            $result = create_directory($redirected_conf_path);
-            if (!$result) {
-                emit("Failed to create directory $redirected_conf_path ...\n");
-                return 0;
-            }
+            return 0 if !create_directory($redirected_conf_path,
+                                          $default_dir_permissions, $pki_user, $pki_group);
 
             # only copy selected files
-            $result = copy_file($magic_subsystem_file_path,
-                                 $magic_instance_file_path);
-            if (!$result) {
-                emit("Failed to copy file $magic_subsystem_file_path to $magic_instance_file_path ...\n");
-                return 0;
-            }
+            return 0 if !copy_file($magic_subsystem_file_path, $magic_instance_file_path,
+                $default_file_permissions);
 
-            $result = copy_file($mime_types_subsystem_file_path,
-                                 $mime_types_instance_file_path);
-            if (!$result) {
-                emit("Failed to copy file $mime_types_subsystem_file_path to $mime_types_instance_file_path ...\n");
-                return 0;
-            }
+            return 0 if !copy_file($mime_types_subsystem_file_path, $mime_types_instance_file_path,
+                                   $default_file_permissions);
 
-            # fix permissions
-            if (!is_Windows()) {
-                chmod($default_file_permissions,
-                       $magic_instance_file_path);
-                chmod($default_file_permissions,
-                       $mime_types_instance_file_path);
-            }
         } else {
             $server_xml_instance_file_path   = $redirected_conf_path
                                              . "/" . $server_xml_base_name;
             $servercertnick_conf_instance_file_path   = $redirected_conf_path
                                              . "/" . $servercertnick_conf_base_name;
 
-        $result = create_symbolic_link($conf_instance_symlink_path,
-                                        $redirected_conf_path);
-        if (!$result) {
-            emit("Failed to create symlink $conf_instance_symlink_path ...\n");
-            return 0;
+            return 0 if !copy_directory($conf_subsystem_path, $redirected_conf_path,
+                                        $default_dir_permissions, $default_file_permissions,
+                                        $pki_user, $pki_group);
         }
 
-        $result = give_symbolic_link_to($conf_instance_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$conf_instance_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
+        return 0 if !create_symlink($conf_instance_symlink_path, $redirected_conf_path,
+                                    $pki_user, $pki_group);
 
-        give_directory_to($redirected_conf_path,
-                           $pki_user,
-                           $pki_group);
     }
 
 
@@ -2027,85 +1973,44 @@ sub process_pki_directories()
     if ($redirected_logs_path eq "") {
         if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
             # create instance directory
-            $result = create_directory($logs_instance_path);
-            if (!$result) {
-                emit("Failed to create directory $logs_instance_path ...\n");
-                return 0;
-            }
+            return 0 if !create_directory($logs_instance_path,
+                                          $default_dir_permissions, $pki_user, $pki_group);
         }
 
-        $result = copy_directory($logs_subsystem_path,
-                                  $logs_instance_path);
-        if (!$result) {
-            emit("Failed to copy directory $logs_subsystem_path to $logs_instance_path ...\n");
-            return 0;
-        }
+        return 0 if !copy_directory($logs_subsystem_path, $logs_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
 
         ## (CA, KRA, OCSP, TKS instances)
         if ($subsystem_type ne $RA) {
             ## Create a "signedAudit" directory
-            $result = create_directory("$logs_instance_path/$signed_audit_base_instance_dir");
-            if (!$result) {
-                emit("Failed to create directory $logs_instance_path/$signed_audit_base_instance_dir ...\n");
-                return 0;
-            }
-
-            ## Fix permissions of "signedAudit" directory
-            chmod($default_dir_permissions,
-                   "$logs_instance_path/$signed_audit_base_instance_dir");
+            return 0 if !create_directory("${logs_instance_path}/${signed_audit_base_instance_dir}",
+                                          $default_dir_permissions, $pki_user, $pki_group);
         }
     } else {
         if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
             # create redirected instance directory
-            $result = create_directory($redirected_logs_path);
-            if (!$result) {
-                emit("Failed to create directory $redirected_logs_path ...\n");
-                return 0;
-            }
+            return 0 if !create_directory($redirected_logs_path,
+                                          $default_dir_permissions, $pki_user, $pki_group);
         }
 
         # Populate optionally redirected instance directory path
         # and setup a symlink in the standard area
-        $result = copy_directory($logs_subsystem_path,
-                                  $redirected_logs_path);
-        if (!$result) {
-            emit("Failed to copy directory $logs_subsystem_path to $redirected_logs_path ...\n");
-            return 0;
-        }
+        return 0 if !copy_directory($logs_subsystem_path, $redirected_logs_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
 
         ## (CA, KRA, OCSP, TKS instances)
         if ($subsystem_type ne $RA) {
             ## Create a "signedAudit" directory
-            $result = create_directory("$redirected_logs_path/$signed_audit_base_instance_dir");
-            if (!$result) {
-                emit("Failed to create directory $redirected_logs_path/$signed_audit_base_instance_dir ...\n");
-                return 0;
-            }
-
-            ## Fix permissions of "signedAudit" directory
-            chmod($default_dir_permissions,
-                   "$redirected_logs_path/$signed_audit_base_instance_dir");
+            return 0 if !create_directory("${redirected_logs_path}/${signed_audit_base_instance_dir}",
+                                          $default_dir_permissions, $pki_user, $pki_group);
         }
 
-        $result = create_symbolic_link($logs_instance_symlink_path,
-                                        $redirected_logs_path);
-        if (!$result) {
-            emit("Failed to create symlink $logs_instance_symlink_path ...\n");
-            return 0;
-        }
+        return 0 if !create_symlink($logs_instance_symlink_path, $redirected_logs_path,
+                                    $pki_user, $pki_group);
 
-        $result = give_symbolic_link_to($logs_instance_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$logs_instance_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
-
-        give_directory_to($redirected_logs_path,
-                           $pki_user,
-                           $pki_group);
+        return 0 if !set_owner_group_on_directory_contents($redirected_logs_path, $pki_user, $pki_group);
     }
 
 
@@ -2114,14 +2019,16 @@ sub process_pki_directories()
     return 0 if !create_directory("${pki_registry_subsystem_path}",
                                   $default_dir_permissions, $pki_user, $pki_group);
 
+
     ## Populate instance directory paths (CA instances)
     if ($subsystem_type eq $CA) {
-        $result = copy_directory($emails_subsystem_path,
-                                  $emails_instance_path);
-        if (!$result) {
-            emit("Failed to copy directory $emails_subsystem_path to $emails_instance_path ...\n");
-            return 0;
-        }
+        return 0 if !copy_directory($emails_subsystem_path, $emails_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
+
+        return 0 if !copy_directory($profiles_subsystem_path, $profiles_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
     }
 
 
@@ -2129,151 +2036,91 @@ sub process_pki_directories()
     if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
 
         if ($subsystem_type eq $TPS) {
-            $result = create_directory($bin_instance_path);
-            if (!$result) {
-                emit("Failed to create directory $bin_instance_path ...\n");
-                return 0;
-            }
+            return 0 if !create_directory($bin_instance_path,
+                                          $default_dir_permissions, $pki_user, $pki_group);
         }
 
-        $result = create_directory($lib_instance_path);
-        if (!$result) {
-            emit("Failed to create directory $lib_instance_path ...\n");
-            return 0;
-        }
+        return 0 if !create_directory($lib_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
 
-        $result = create_directory($scripts_instance_path);
-        if (!$result) {
-            emit("Failed to create directory $scripts_instance_path ...\n");
-            return 0;
-        }
+        return 0 if !create_directory($scripts_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
 
         # Apache Specific
         if ($subsystem_type eq $TPS) {
-            $result = copy_directory($cgibin_subsystem_path,
-                                      $cgibin_instance_path);
-            if (!$result) {
-                emit("Failed to copy directory $cgibin_subsystem_path ...\n");
-                return 0;
-            }
+            return 0 if !copy_directory($cgibin_subsystem_path, $cgibin_instance_path,
+                                        $default_dir_permissions, $default_file_permissions,
+                                        $pki_user, $pki_group);
         }
 
         # Apache Specific
-        $result = copy_directory($docroot_subsystem_path,
-                                  $docroot_instance_path);
-        if (!$result) {
-            emit("Failed to copy directory $docroot_subsystem_path ...\n");
-            return 0;
-        }
+        return 0 if !copy_directory($docroot_subsystem_path, $docroot_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
 
-        $result = copy_directory($ui_subsystem_path,
-                                  $pki_instance_path);
-        if (!$result) {
-            emit("Failed to copy directory $ui_subsystem_path ...\n");
-            return 0;
-        }
+
+        return 0 if !copy_directory($ui_subsystem_path, $pki_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
 
         # fix permissions
         if (!is_Windows()) {
             # Apache Specific
             if ($subsystem_type eq $TPS) {
-                chmod($default_dir_permissions,
-                       "$cgibin_instance_path/demo");
-                chmod($default_exe_permissions,
-                       "$cgibin_instance_path/demo/*.cgi");
-                chmod($default_file_permissions,
-                       "$cgibin_instance_path/demo/*.html");
-                chmod($default_dir_permissions,
-                       "$cgibin_instance_path/home");
-                chmod($default_exe_permissions,
-                       "$cgibin_instance_path/home/*.cgi");
-                chmod($default_file_permissions,
-                       "$cgibin_instance_path/home/*.html");
-                chmod($default_dir_permissions,
-                       "$cgibin_instance_path/so");
-                chmod($default_exe_permissions,
-                       "$cgibin_instance_path/so/*.cgi");
-                chmod($default_file_permissions,
-                       "$cgibin_instance_path/so/*.html");
-                chmod($default_dir_permissions,
-                       "$cgibin_instance_path/sow");
-                chmod($default_exe_permissions,
-                       "$cgibin_instance_path/sow/*.cgi");
-                chmod($default_file_permissions,
-                       "$cgibin_instance_path/sow/*.html");
-                chmod($default_exe_permissions,
-                       "$cgibin_instance_path/sow/*.pl");
+                set_permissions("${cgibin_instance_path}/demo",        $default_dir_permissions);
+                set_permissions("${cgibin_instance_path}/demo/*.cgi",  $default_exe_permissions);
+                set_permissions("${cgibin_instance_path}/demo/*.html", $default_file_permissions);
+                set_permissions("${cgibin_instance_path}/home",        $default_dir_permissions);
+                set_permissions("${cgibin_instance_path}/home/*.cgi",  $default_exe_permissions);
+                set_permissions("${cgibin_instance_path}/home/*.html", $default_file_permissions);
+                set_permissions("${cgibin_instance_path}/so",          $default_dir_permissions);
+                set_permissions("${cgibin_instance_path}/so/*.cgi",    $default_exe_permissions);
+                set_permissions("${cgibin_instance_path}/so/*.html",   $default_file_permissions);
+                set_permissions("${cgibin_instance_path}/sow",         $default_dir_permissions);
+                set_permissions("${cgibin_instance_path}/sow/*.cgi",   $default_exe_permissions);
+                set_permissions("${cgibin_instance_path}/sow/*.html",  $default_file_permissions);
+                set_permissions("${cgibin_instance_path}/sow/*.pl",    $default_exe_permissions);
             }
 
             # Apache Specific
-            chmod($default_file_permissions,
-                   "$docroot_instance_path/GenericAuth.html");
-            chmod($default_file_permissions,
-                   "$docroot_instance_path/style.css");
+            set_permissions("${docroot_instance_path}/GenericAuth.html", $default_file_permissions);
+            set_permissions("${docroot_instance_path}/style.css",        $default_file_permissions);
         }
     } else {
         ## Populate instance directory paths (CA, KRA, OCSP, TKS instances)
-        $result = copy_directory($acl_subsystem_path,
-                                  $acl_instance_path);
-        if (!$result) {
-            emit("Failed to copy directory $acl_subsystem_path ...\n");
-            return 0;
-        }
+        return 0 if !copy_directory($acl_subsystem_path, $acl_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
 
-        $result = copy_directory($profiles_subsystem_path,
-                                  $profiles_instance_path);
-        if (!$result) {
-            emit("Failed to copy directory $profiles_subsystem_path ...\n");
-            return 0;
-        }
+        return 0 if !copy_directory($webapps_subsystem_path, $webapps_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
 
-        $result = copy_directory($webapps_subsystem_path,
-                                  $webapps_instance_path);
-        if (!$result) {
-            emit("Failed to copy directory $webapps_subsystem_path ...\n");
-            return 0;
-        }
+        return 0 if !copy_directory($common_ui_subsystem_path, $webapps_subsystem_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
 
-        $result = copy_directory($common_ui_subsystem_path,
-                                  $webapps_subsystem_instance_path);
-        if (!$result) {
-            emit("Failed to copy directory $webapps_subsystem_path ...\n");
-            return 0;
-        }
-
-        $result = copy_directory($ui_subsystem_path,
-                                  $pki_instance_path);
-        if (!$result) {
-            emit("Failed to copy directory $webapps_subsystem_path ...\n");
-            return 0;
-        }
+        return 0 if !copy_directory($ui_subsystem_path, $pki_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
         
-        ##
-        # Tomcat Specific
-        $result = copy_directory($shared_subsystem_path,
-                                  $shared_instance_path);
-        if (!$result) {
-            emit("Failed to copy directory $shared_subsystem_path ...\n");
-            return 0;
-        }
+        ## Tomcat Specific
+        return 0 if !copy_directory($shared_subsystem_path, $shared_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
 
-        $result = create_directory($temp_instance_path);
-        if (!$result) {
-            emit("Failed to create directory $temp_instance_path ...\n");
-            return 0;
-        }
+        return 0 if !create_directory($tomcat_instance_common_lib_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
 
-        $result = create_directory($work_instance_path);
-        if (!$result) {
-            emit("Failed to create directory $work_instance_path ...\n");
-            return 0;
-        }
+        return 0 if !create_directory($temp_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        return 0 if !create_directory($work_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
     }
 
     ## Set appropriate permissions
-    give_directory_to($pki_instance_path,
-                       $pki_user,
-                       $pki_group);
+    return 0 if !set_owner_group_on_directory_contents($pki_instance_path, $pki_user, $pki_group);
 
     return 1;
 }
@@ -2744,10 +2591,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
 # return 0 - failure
 sub process_pki_files_and_symlinks()
 {
-    my $result = 0;
-
-    emit("Processing PKI files and symbolic links for "
-        . "'$pki_instance_path' ...\n");
+    emit("Processing PKI files and symbolic links for '$pki_instance_path' ...\n");
 
     ## Populate instances (instance independent)
 
@@ -2755,190 +2599,40 @@ sub process_pki_files_and_symlinks()
     # file for this instance
     my $noise = generate_random_string(1024);
 
-    create_file($noise_instance_file_path,
-                 $noise);
-
-    $result = give_file_to($noise_instance_file_path,
-                            $pki_user,
-                            $pki_group);
-    if (!$result) {
-        emit("Can't change ownership of $noise_base_name.\n",
-              "error");
-        return 0;
-    }
-
-    chmod($default_file_permissions,
-           $noise_instance_file_path);
-
+    return 0 if !create_file($noise_instance_file_path,
+                             $noise,
+                             $default_file_permissions, $pki_user, $pki_group);
 
     # create a filled in empty "password.conf"
     # password file for this instance
-    create_file($password_conf_instance_file_path,
-                 "$default_security_token:$db_password");
-
-    $result = give_file_to($password_conf_instance_file_path,
-                            $pki_user,
-                            $pki_group);
-    if (!$result) {
-        emit("Can't change ownership of $password_conf_base_name.\n",
-              "error");
-        return 0;
-    }
-
-    chmod($default_file_permissions,
-           $password_conf_instance_file_path);
+    return 0 if !create_file($password_conf_instance_file_path,
+                             "${default_security_token}:$db_password",
+                             $default_file_permissions, $pki_user, $pki_group);
 
 
     # create a filled in empty temporary "pfile"
     # password file for this instance
-    create_file($pfile_instance_file_path,
-                 $db_password);
-
-    $result = give_file_to($pfile_instance_file_path,
-                            $pki_user,
-                            $pki_group);
-    if (!$result) {
-        emit("Can't change ownership of $pfile_base_name.\n",
-              "error");
-        return 0;
-    }
-
-    chmod($default_file_permissions,
-           $pfile_instance_file_path);
-
-    # generate a local init script for this PKI instance
-    my $local_pki_init_script         = new FileHandle;
-    my $local_pki_init_script_name    = $pki_instance_path
-                                      . "/" . $pki_instance_name;
-    my $local_pki_init_script_command = "";
-
-    # create this PKI instance's local init script
-    $local_pki_init_script->open(">$local_pki_init_script_name") or
-    die "Could not open $local_pki_init_script_name\n";
-
-    # publish the appropriate contents to this
-    # PKI instance's local init script
-    $local_pki_init_script->print("#!/bin/bash\n");
-    $local_pki_init_script->print("if [ \$# -ne 1 ]; then\n");
-    $local_pki_init_script->print("    echo \"Usage: \$0 {start|stop|"
-                                 . "restart|condrestart|force-restart|"
-                                 . "try-restart|reload|status}\"\n");
-    $local_pki_init_script->print("    exit 3\n");
-    $local_pki_init_script->print("fi\n\n");
-
-    if ($^O eq "linux") {
-        $local_pki_init_script_command = "/sbin/service"
-                                       . " " . $pki_init_script
-                                       . " " . "\$1"
-                                       . " " . $pki_instance_name;
-    } else {
-        # default case:  e. g. - ($^O eq "solaris")
-        $local_pki_init_script_command = $default_init_scripts_path
-                                       . "/" . $pki_init_script
-                                       . " " . "\$1"
-                                       . " " . $pki_instance_name;
-    }
-
-    $local_pki_init_script->print("$local_pki_init_script_command\n\n");
-
-    # close and save this PKI instance's local init script
-    $local_pki_init_script->close();
-
-    #
-    # NOTE:  This PKI instance's local init script requires
-    #        "$root_user:$root_group" ownership since the
-    #        destination that it refers to is owned by
-    #        "$root_user:$root_group".
-    #
-    $result = give_file_to($local_pki_init_script_name,
-                            $root_user,
-                            $root_group);
-    if (!$result) {
-        emit("$local_pki_init_script_name ownership problems!",
-              "error");
-        return 0;
-    }
-
-    chmod($default_exe_permissions,
-           $local_pki_init_script_name);
+    return 0 if !create_file($pfile_instance_file_path,
+                             $db_password,
+                             $default_file_permissions, $pki_user, $pki_group);
 
     ## Populate instances (RA, TPS instances)
     if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
-        # create an empty file called "pwcache.conf" for this instance
-        create_empty_file($pwcache_conf_instance_file_path);
-
-        $result = give_file_to($pwcache_conf_instance_file_path,
-                                $pki_user,
-                                $pki_group);
-        if (!$result) {
-            emit("Can't change ownership of $pwcache_conf_base_name.\n",
-                  "error");
-            return 0;
-        }
-
-        chmod($default_file_permissions,
-               $pwcache_conf_instance_file_path);
-
-        # Subdirectory Specific symbolic links
+        # create an empty file called "pwcache.conf" for this
+        return 0 if !create_empty_file($pwcache_conf_instance_file_path,
+                                       $default_file_permissions, $pki_user, $pki_group);
 
         # create instance symlink to subsystem "perl" subdirectory
-        $result = create_symbolic_link($perl_instance_symlink_path,
-                                        $perl_subsystem_path);
-        if (!$result) {
-            return 0;
-        }
+        return 0 if !create_symlink($perl_instance_symlink_path, $perl_subsystem_path,
+                                    $pki_user, $pki_group);
 
-        $result = give_symbolic_link_to($perl_instance_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$perl_instance_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
+        return 0 if !create_symlink($run_instance_symlink_path,
+                                    "${default_apache_pids_path}/${subsystem_type}",
+                                    $pki_user, $pki_group);
 
-
-        # Apache Specific symbolic links
-
-        # create instance symlink to apache "run" subdirectory
-        $result = create_symbolic_link($run_instance_symlink_path,
-                                        ($default_apache_pids_path
-                                        . "/" . $subsystem_type));
-        if (!$result) {
-            return 0;
-        }
-
-        $result = give_symbolic_link_to($run_instance_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$run_base_instance_symlink ownership problems!",
-                  "error");
-            return 0;
-        }
     } else {
         ## Populate instances (CA, KRA, OCSP, TKS instances)
         # create instance "webapps/$subsystem_type/WEB-INF/lib" subdirectory
-        $result = create_directory($webinf_lib_instance_path);
-        if (!$result) {
-            return 0;
-        }
-
-        # create instance symlink to "$subsystem_type.jar"
-        $result = create_symbolic_link($subsystem_jar_symlink_path,
-                                        $subsystem_jar_file_path);
-        if (!$result) {
-            return 0;
-        }
-
-        $result = give_symbolic_link_to($subsystem_jar_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$subsystem_jar_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
 
         # Create symlink of pki_instance_name pointing to tomcat6 init script.
         # This is our per instance init script, tomcat6 will use the basename
@@ -2946,120 +2640,8 @@ sub process_pki_files_and_symlinks()
         return 0 if !create_symlink($pki_instance_initscript_path, $tomcat6_initscript_path,
                                     $root_user, $root_group);
 
-        # create instance symlink to "certsrv.jar"
-        $result = create_symbolic_link($certsrv_jar_symlink_path,
-                                        $certsrv_jar_file_path);
-        if (!$result) {
-            return 0;
-        }
-
-        $result = give_symbolic_link_to($certsrv_jar_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$certsrv_jar_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
-
-        # create instance symlink to "cmsutil.jar"
-        $result = create_symbolic_link($cmsutil_jar_symlink_path,
-                                        $cmsutil_jar_file_path);
-        if (!$result) {
-            return 0;
-        }
-
-        $result = give_symbolic_link_to($cmsutil_jar_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$cms_jar_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
-
-        # create instance symlink to "nsutil.jar"
-        $result = create_symbolic_link($nsutil_jar_symlink_path,
-                                        $nsutil_jar_file_path);
-        if (!$result) {
-            return 0;
-        }
-
-        $result = give_symbolic_link_to($nsutil_jar_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$cms_jar_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
-
-        # create instance symlink to "cms.jar"
-        $result = create_symbolic_link($cms_jar_symlink_path,
-                                        $cms_jar_file_path);
-        if (!$result) {
-            return 0;
-        }
-
-        $result = give_symbolic_link_to($cms_jar_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$cms_jar_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
-
-
-        # create instance symlink to "cmsbundle.jar"
-        $result = create_symbolic_link($cmsbundle_jar_symlink_path,
-                                        $cmsbundle_jar_file_path);
-        if (!$result) {
-            return 0;
-        }
-
-        $result = give_symbolic_link_to($cmsbundle_jar_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$cmsbundle_jar_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
-
-
-        # create instance symlink to "cmscore.jar"
-        $result = create_symbolic_link($cmscore_jar_symlink_path,
-                                        $cmscore_jar_file_path);
-        if (!$result) {
-            return 0;
-        }
-
-        $result = give_symbolic_link_to($cmscore_jar_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$cmscore_jar_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
-
-
-        # create instance symlink to "osutil.jar"
-        $result = create_symbolic_link($osutil_jar_symlink_path,
-                                        $osutil_jar_file_path);
-        if (!$result) {
-            return 0;
-        }
-
-        $result = give_symbolic_link_to($osutil_jar_symlink_path,
-                                         $pki_user,
-                                         $pki_group);
-        if (!$result) {
-            emit("$osutil_jar_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
+        return 0 if !create_directory($webinf_lib_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
 
     }
 
@@ -3118,8 +2700,6 @@ sub process_pki_security_databases()
     remove_file($noise_instance_file_path);
 
     remove_file($pfile_instance_file_path);
-
-    give_directory_to($alias_instance_path, $pki_user, $pki_group);
 
     return 1;
 }
