@@ -71,16 +71,13 @@ if (($^O ne 'Windows_NT') && ($^O ne 'MSWin32')) {
 # Perl Modules
 ##############################################################
 
-# "File/Copy.pm", "FileHandle.pm", "Getopt/Long.pm",
-# "Socket.pm", and "Sys/Long.pm" are all part of the
-# standard Perl library and should therefore always be
-# available
-use File::Copy;
+use Sys::Hostname;
 use FileHandle;
 use Getopt::Long;
 use Socket;
-use Sys::Hostname;
-
+use File::Copy;
+use File::Basename;
+use File::Path qw(make_path remove_tree);
 
 ##############################################################
 # Shared Default Values
@@ -259,12 +256,6 @@ $verbose = 0;
 # Controls whether actions are executed (dry_run == false)
 # or if actions are only reported (dry_run == true).
 $dry_run = 0;
-
-# chkconfig parameters (Linux ONLY)
-if ($^O eq "linux") {
-    @chkconfig_fields = ();
-}
-
 
 ##############################################################
 # Local Variables
@@ -776,7 +767,6 @@ sub setup_platform_dependent_parameters()
 }
 
 
-# arg0 Library Path
 # no return value
 sub set_library_path
 {
@@ -858,10 +848,9 @@ sub create_user
 {
     my ($username, $groupname) = @_;
 
-    my $command = "";
-    my $report = "";
+    emit(sprintf("create_user(%s)\n", join(", ", @_)), "debug");
 
-    my $result = 0;
+    return 1 if ($dry_run);
 
     if (($username eq $PKI_USER) &&
         ($groupname eq $PKI_GROUP)) {
@@ -922,14 +911,8 @@ sub create_user
         }
     }
 
-    $report = `$command`;
-    if ($report ne "") {
-        emit($report, "error");
-    }
-
-    $result = user_exists($username);
-
-    return $result;
+    return 0 if !run_command($command);
+    return user_exists($username);
 }
 
 
@@ -1104,7 +1087,6 @@ sub add_user_as_a_member_of_group
 }
 
 
-# arg0 username
 # return UID, or
 # return (-1) - user is not in password file
 sub get_UID_from_username
@@ -1145,7 +1127,6 @@ sub get_FQDN
 # Generic "availability" Subroutines
 ##############################################################
 
-# arg0 URL prefix
 # return 1 - URL prefix is known (success)
 # return 0 - URL prefix is unknown (failure)
 sub check_for_valid_url_prefix
@@ -1164,11 +1145,6 @@ sub check_for_valid_url_prefix
     return 0;
 }
 
-# arg0 secure_port
-# arg1 unsecure_port
-# arg2 agent_secure_port
-# arg3 ee_secure_port
-# arg4 admin_secure_port 
 # return 1 - ports are valid (success)
 # return 0 - ports have a conflict (failure)
 sub AreConnectorPortsValid 
@@ -1210,8 +1186,6 @@ sub AreConnectorPortsValid
 }
 
 
-# arg0 username
-# arg1 port
 # return 1 - port is available (success)
 # return 0 - port is unavailable; report an error (failure)
 sub IsLocalPortAvailable
@@ -1316,9 +1290,6 @@ sub IsLocalPortAvailable
 }
 
 
-# arg0 HTTP or LDAP prefix
-# arg1 host
-# arg2 port
 # return 2 - warn that server is unreachable (continue)
 # return 1 - server is reachable (success)
 # return 0 - server is unreachable; report an error (failure)
@@ -1450,7 +1421,6 @@ sub generate_random_string()
 # Generic "password" Subroutines
 ##############################################################
 
-# arg0 password
 # return 1 - success
 # return 0 - failure; report an error
 sub password_quality_checker
@@ -1511,10 +1481,10 @@ sub password_quality_checker
 # Generic "LDAP" Subroutines
 ##############################################################
 
-# arg0 tokendb hostname - LDAP server name or IP address (default: localhost)
-# arg1 tokendb port - LDAP server TCP port number (default: 389)
-# arg2 tokendb password - bind passwd (for simple authentication)
-# arg3 tokendb file - read modifications from file (default: standard input)
+# hostname - LDAP server name or IP address (default: localhost)
+# port - LDAP server TCP port number (default: 389)
+# password - bind passwd (for simple authentication)
+# file - read modifications from file (default: standard input)
 # no return value
 sub LDAP_add
 {
@@ -1523,6 +1493,10 @@ sub LDAP_add
     my $command = "";
 
     my $original_library_path = get_library_path();
+
+    emit(sprintf("LDAP_add(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
 
     set_library_path($default_security_libraries . $path_sep
                     . $default_system_user_libraries . $path_sep
@@ -1545,10 +1519,10 @@ sub LDAP_add
 }
 
 
-# arg0 tokendb hostname - LDAP server name or IP address (default: localhost)
-# arg1 tokendb port - LDAP server TCP port number (default: 389)
-# arg2 tokendb password - bind passwd (for simple authentication)
-# arg3 tokendb file - read modifications from file (default: standard input)
+# hostname - LDAP server name or IP address (default: localhost)
+# port - LDAP server TCP port number (default: 389)
+# password - bind passwd (for simple authentication)
+# file - read modifications from file (default: standard input)
 # no return value
 sub LDAP_modify
 {
@@ -1557,6 +1531,10 @@ sub LDAP_modify
     my $command = "";
 
     my $original_library_path = get_library_path();
+
+    emit(sprintf("LDAP_modify(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
 
     set_library_path($default_security_libraries . $path_sep
                     . $default_system_user_libraries . $path_sep
@@ -1582,8 +1560,8 @@ sub LDAP_modify
 # Generic "Security Databases" Subroutines
 ##############################################################
 
-# arg0 instance path - Security databases directory (default is ~/.netscape)
-# arg1 password file - Specify the password file
+# instance path - Security databases directory (default is ~/.netscape)
+# password file - Specify the password file
 # no return value
 sub certutil_create_databases
 {
@@ -1592,6 +1570,10 @@ sub certutil_create_databases
     my $command = "";
 
     my $original_library_path = get_library_path();
+
+    emit(sprintf("certutil_create_databases(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
 
     set_library_path($default_security_libraries . $path_sep
                     . $default_system_user_libraries . $path_sep
@@ -1617,10 +1599,10 @@ sub certutil_create_databases
 }
 
 
-# arg0 instance path - Security databases directory (default is ~/.netscape)
-# arg1 token - Name of token in which to look for cert (default is internal,
+# instance path - Security databases directory (default is ~/.netscape)
+# token - Name of token in which to look for cert (default is internal,
 #              use "all" to look for cert on all tokens)
-# arg2 nickname - The nickname of the cert to delete
+# nickname - The nickname of the cert to delete
 # no return value
 sub certutil_delete_cert
 {
@@ -1629,6 +1611,10 @@ sub certutil_delete_cert
     my $command = "";
 
     my $original_library_path = get_library_path();
+
+    emit(sprintf("certutil_delete_cert(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
 
     set_library_path($default_security_libraries . $path_sep
                     . $default_system_user_libraries . $path_sep
@@ -1649,10 +1635,10 @@ sub certutil_delete_cert
 }
 
 
-# arg0 instance path - Security databases directory (default is ~/.netscape)
-# arg1 token - Name of token in which to generate key (default is internal)
-# arg2 subject - Specify the subject name (using RFC1485)
-# arg3 password file - Specify the password file
+# instance path - Security databases directory (default is ~/.netscape)
+# token - Name of token in which to generate key (default is internal)
+# subject - Specify the subject name (using RFC1485)
+# password file - Specify the password file
 # no return value
 sub certutil_generate_CSR
 {
@@ -1661,6 +1647,10 @@ sub certutil_generate_CSR
     my $command = "";
 
     my $original_library_path = get_library_path();
+
+    emit(sprintf("certutil_generate_CSR(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
 
     set_library_path($default_security_libraries . $path_sep
                     . $default_system_user_libraries . $path_sep
@@ -1692,15 +1682,15 @@ sub certutil_generate_CSR
 }
 
 
-# arg0 instance path - Security databases directory (default is ~/.netscape)
-# arg1 token - Name of token in which to store the certificate
+# instance path - Security databases directory (default is ~/.netscape)
+# token - Name of token in which to store the certificate
 #              (default is internal)
-# arg2 serial number - Cert serial number
-# arg3 validity period - Months valid (default is 3)
-# arg4 subject - Specify the subject name (using RFC1485)
-# arg5 issuer name - The nickname of the issuer cert
-# arg6 nickname - Specify the nickname of the server certificate
-# arg7 trust args - Set the certificate trust attributes:
+# serial number - Cert serial number
+# validity period - Months valid (default is 3)
+# subject - Specify the subject name (using RFC1485)
+# issuer name - The nickname of the issuer cert
+# nickname - Specify the nickname of the server certificate
+# trust args - Set the certificate trust attributes:
 #                        p      valid peer
 #                        P      trusted peer (implies p)
 #                        c      valid CA
@@ -1709,9 +1699,9 @@ sub certutil_generate_CSR
 #                        u      user cert
 #                        w      send warning
 #                        g      make step-up cert
-# arg8 noise file - Specify the noise file to be used
+# noise file - Specify the noise file to be used
 #                   (to introduce randomness during key generation)
-# arg9 password file - Specify the password file
+# password file - Specify the password file
 # no return value
 sub certutil_generate_self_signed_cert
 {
@@ -1722,6 +1712,10 @@ sub certutil_generate_self_signed_cert
     my $command = "";
 
     my $original_library_path = get_library_path();
+
+    emit(sprintf("certutil_generate_self_signed_cert(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
 
     set_library_path($default_security_libraries . $path_sep
                     . $default_system_user_libraries . $path_sep
@@ -1769,11 +1763,11 @@ sub certutil_generate_self_signed_cert
 }
 
 
-# arg0 instance path - Security databases directory (default is ~/.netscape)
-# arg1 token - Name of token in which to store the certificate
+# instance path - Security databases directory (default is ~/.netscape)
+# token - Name of token in which to store the certificate
 #              (default is internal)
-# arg2 nickname - Specify the nickname of the server certificate
-# arg3 trust args - Set the certificate trust attributes:
+# nickname - Specify the nickname of the server certificate
+# trust args - Set the certificate trust attributes:
 #                        p      valid peer
 #                        P      trusted peer (implies p)
 #                        c      valid CA
@@ -1783,13 +1777,17 @@ sub certutil_generate_self_signed_cert
 #                        w      send warning
 #                        g      make step-up cert
 #                    (e. g. - Server Cert 'u,u,u', CA Cert 'CT,CT,CT')
-# arg4 cert - The certificate encoded in ASCII (RFC1113)
+# cert - The certificate encoded in ASCII (RFC1113)
 # no return value
 sub certutil_import_cert
 {
     my ($instance_path, $token, $nickname, $trustargs, $cert) = @_;
 
     my $original_library_path = get_library_path();
+
+    emit(sprintf("certutil_import_cert(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
 
     set_library_path($default_security_libraries . $path_sep
                     . $default_system_user_libraries . $path_sep
@@ -1813,10 +1811,10 @@ sub certutil_import_cert
 }
 
 
-# arg0 instance path - Security databases directory (default is ~/.netscape)
-# arg1 token - Name of token in which to look for cert (default is internal,
+# instance path - Security databases directory (default is ~/.netscape)
+# token - Name of token in which to look for cert (default is internal,
 #              use "all" to look for cert on all tokens)
-# arg2 nickname - Pretty print named cert (list all if unspecified)
+# nickname - Pretty print named cert (list all if unspecified)
 # no return value
 sub certutil_print_cert
 {
@@ -1825,6 +1823,10 @@ sub certutil_print_cert
     my $command = "";
 
     my $original_library_path = get_library_path();
+
+    emit(sprintf("certutil_print_cert(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
 
     set_library_path($default_security_libraries . $path_sep
                     . $default_system_user_libraries . $path_sep
@@ -1856,8 +1858,8 @@ sub certutil_print_cert
 
 
 # no return value
-# arg0 instance path - Security databases directory (default is ~/.netscape)
-# arg1 token - Name of token in which to look for certs (default is internal,
+# instance path - Security databases directory (default is ~/.netscape)
+# token - Name of token in which to look for certs (default is internal,
 #              use "all" to list certs on all tokens)
 sub certutil_list_certs
 {
@@ -1866,6 +1868,10 @@ sub certutil_list_certs
     my $command = "";
 
     my $original_library_path = get_library_path();
+
+    emit(sprintf("certutil_list_certs(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
 
     set_library_path($default_security_libraries . $path_sep
                     . $default_system_user_libraries . $path_sep
@@ -1885,9 +1891,9 @@ sub certutil_list_certs
 }
 
 
-# arg0 instance path - Security databases directory (default is ~/.netscape)
-# arg1 token   - Add the named token to the module database
-# arg2 library - The name of the file (.so or .dll) containing the
+# instance path - Security databases directory (default is ~/.netscape)
+# token   - Add the named token to the module database
+# library - The name of the file (.so or .dll) containing the
 #                implementation of PKCS #11
 # no return value
 sub modutil_add_token
@@ -1897,6 +1903,10 @@ sub modutil_add_token
     my $command = "";
 
     my $original_library_path = get_library_path();
+
+    emit(sprintf("modutil_add_token(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
 
     set_library_path($default_security_libraries . $path_sep
                     . $default_system_user_libraries . $path_sep
@@ -2011,17 +2021,13 @@ sub emit
     my $force_emit = 0;
     my $log_entry = "";
 
+    $type = "debug" if !defined($type);
+
     if ($type eq "error" || $type eq "info") {
         $force_emit = 1;
     }
 
-    if ($type eq "") {
-        $type = "debug";
-    }
-
-    if ($string eq "") {
-        return;
-    }
+    return if !$string;
 
     my $stamp = get_time_stamp();
 
@@ -2187,186 +2193,219 @@ sub is_file_empty
 # Return 1 if success, 0 if failure
 sub create_empty_file
 {
-    my ($file) = @_;
+    my ($path, $permissions, $owner, $group, $uninstall_action) = @_;
 
-    if (is_Windows()) {
-        open(FILE, "> $file");
+    emit(sprintf("create_empty_file(%s, %s, %s, %s, %s)\n",
+                 $path,
+                 defined($permissions) ? sprintf("%o", $permissions) : "",
+                 $owner, $group, $uninstall_action), "debug");
+
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+    add_install_info($path, 'file', $uninstall_action);
+
+    if (!$dry_run) {
+        if (!open(FILE, "> $path")) {
+            emit("Cannot create empty file \"$path\" ($!)", 'error');
+            return 0;
+        }
         close(FILE);
-    } else {
-        my $rv = 0;
-
-        $rv = `touch $file`;
     }
 
-    return;
+    if (defined($permissions)) {
+        return 0 if !set_permissions($path, $permissions);
+    }
+
+    if (defined($owner) && defined($group)) {
+        return 0 if !set_owner_group($path, $owner, $group);
+    }
+
+    return 1;
 }
 
 
 # Return 1 if success, 0 if failure
 sub create_file
 {
-    my ($file, $message) = @_;
+    my ($path, $contents, $permissions, $owner, $group, $uninstall_action) = @_;
 
-    $command = "";
+    emit(sprintf("create_file(%s, %s, %s, %s, %s)\n",
+                 $path,
+                 defined($permissions) ? sprintf("%o", $permissions) : "",
+                 $owner, $group, $uninstall_action), "debug");
 
-    if (is_Windows()) {
-        if ($message eq "") {
-            open(FILE, "> $file");
-            close(FILE);
-        } else {
-            open(FILE, "> $file");
-            print(FILE $message);
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+    add_install_info($path, 'file', $uninstall_action);
+
+    if (!$dry_run) {
+        if (!open(FILE, "> $path")) {
+            emit("could not create file \"$path\" ($!)\n", 'error');
+            return 0;
+        }
+        print(FILE $contents);
             close(FILE);
         }
-    } else {
-        my $rv = 0;
 
-        if ($message eq "") {
-            $rv = `touch $file`;
-            if (!$rv) {
-                emit("create_file():  unable to create empty file called "
-                    . "$file.\n",
-                      "error");
+    if (defined($permissions)) {
+        return 0 if !set_permissions($path, $permissions);
             }
-        } else {
-            $command = "echo '$message' > $file";
 
-            system($command);
-        }
+    if (defined($owner) && defined($group)) {
+        return 0 if !set_owner_group($path, $owner, $group);
     }
 
-    return;
-}
-
-
-# Return 1 if success, 0 if failure
-sub move_file
-{
-    my ($file, $dest) = @_;
-
-    my $result = 0;
-
-    if (!is_path_valid($file)) {
-        emit("move_file():  illegal source path => $file.\n",
-              "error");
-        return 0;
-    }
-
-    if (!is_path_valid($dest)) {
-        emit("move_file():  illegal destination path => $dest.\n",
-              "error");
-        return 0;
-    }
-
-    $result = `mv $file $dest`;
-    if ($result == 0) {
-        return 1;
-    }
-
-    emit("move_file():  failed moving file $file to $dest.\n",
-          "error");
-
-    return 0;
+    return 1;
 }
 
 
 # Return 1 if success, 0 if failure
 sub copy_file
 {
-    my ($source_path, $dest_path) = @_;
+    my ($src_path, $dst_path, $permissions, $owner, $group, $uninstall_action) = @_;
 
-    my $result = 0;
+    emit(sprintf("copy_file(%s, %s, %s, %s, %s, %s)\n",
+                 $src_path, $dst_path,
+                 defined($permissions) ? sprintf("%o", $permissions) : "",
+                 $owner, $group, $uninstall_action), "debug");
 
-    if (!is_path_valid($source_path)) {
-        emit("copy_file():  illegal source path => $source_path.\n",
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+    add_install_info($dst_path, 'file', $uninstall_action);
+
+    if (!is_path_valid($src_path)) {
+        emit("copy_file():  illegal src path => \"$src_path\".\n",
               "error");
+        remove_install_info($dst_path);
         return 0;
     }
 
-    if (!is_path_valid($dest_path)) {
-        emit("copy_file():  illegal destination path => $dest_path.\n",
+    if (!is_path_valid($dst_path)) {
+        emit("copy_file():  illegal dst path => \"$dst_path\".\n",
               "error");
+        remove_install_info($dst_path);
         return 0;
     }
 
-    $result = `cp -f $source_path $dest_path`;
-    if ($result == 0) {
-        return 1;
+    if (!$dry_run) {
+        if (!copy($src_path, $dst_path)) {
+            emit("copy_file(): \"$src_path\" => \"$dst_path\" ($!)\n", "error");
+            remove_install_info($dst_path);
+        return 0;
+    }
     }
 
-    emit("copy_file():  failed copying file from $source_path to "
-        . "$dest_path.\n",
-          "error");
+    if (defined($permissions)) {
+        return 0 if !set_permissions($dst_path, $permissions);
+    }
 
-    return 0;
+    if (defined($owner) && defined($group)) {
+        return 0 if !set_owner_group($dst_path, $owner, $group);
+    }
+
+    return 1;
 }
 
 
 # Return 1 if success, 0 if failure
 sub remove_file
 {
-    my ($file) = @_;
-
+    my ($path) = @_;
     my $result = 0;
 
-    if ($file eq "") {
-        # file is NULL
+    emit(sprintf("remove_file(%s)\n", join(", ", @_)), "debug");
+
+    add_install_info($path, 'file', 'remove', 'remove');
+
+    return 1 if ($dry_run);
+
+    if (!unlink($path)) {
+        emit("remove_file(): failed to remove file \"$path\" ($!)\n", "error");
+        return 0;
+    }
+
         return 1;
     }
 
-    if (!file_exists($file)) {
-        return 1;
-    }
-
-    $result = `rm -f $file`;
-    if ($result == 0) {
-        return 1;
-    }
-
-    emit("remove_file():  failed to remove file $file.\n",
-          "error");
-
-    return 0;
-}
-
-
+# set_permissions(path_glob, permissions)
 # Return 1 if success, 0 if failure
-sub give_file_to
+sub set_permissions
 {
-    my ($file, $new_user, $new_group) = @_;
+    my ($path_glob, $permissions) = @_;
+    my (@paths, $errstr, $result, $count);
 
-    my $result = 0;
+    $errstr = undef;
+    $count = 0;
+    $result = 1;
 
-    if ($file eq "" || !file_exists($file)) {
-        emit("give_file_to():  invalid file specified.\n",
-              "error");
-        return 0;
+    emit(sprintf("set_permissions(%s, %s)\n",
+                 $path_glob,
+                 defined($permissions) ? sprintf("%o", $permissions) : ""), "debug");
+
+    return 1 if ($dry_run);
+
+    @paths = glob($path_glob);
+
+    if (($count = chmod($permissions, @paths)) != @paths) {
+        $errstr = "$!";
+        $result = 0;
+        emit(sprintf("failed to set permission (%o) on \"%s\" => (%s), %d out of %d failed, \"%s\"\n",
+                     $permissions, $path_glob, "@paths", @paths - $count, @paths+0, $errstr), 'error');
+    }
+    return $result;
     }
 
-    if ($new_user eq "" || $new_group eq "") {
-        emit("give_file_to():  file $file needs a user and group!\n",
-              "error");
-        return 0;
-    }
+# set_owner_group(path_glob, owner, group)
+# Return 1 if success, 0 if failure
+sub set_owner_group
+{
+    my ($path_glob, $owner, $group) = @_;
+    my (@paths, $errstr, $result, $count);
+    my ($uid, $gid);
 
-    $result = `chgrp $new_group $file`;
-    if ($result) {
-        emit("give_file_to():  can't change file $file ownership to "
-            . "group $new_group!\n",
-              "error");
-        return 0;
-    }
+    $errstr = undef;
+    $count = 0;
+    $result = 1;
 
-    $result = `chown $new_user $file`;
-    if ($result) {
-        emit("give_file_to():  can't change file $file ownership to "
-            . "user $new_user!\n",
-              "error");
-        return 0;
-    }
+    emit(sprintf("set_owner_group(%s)\n", join(", ", @_)), "debug");
 
-    return 1;
+    return 1 if ($dry_run);
+
+    $uid   = getpwnam($owner);
+    $gid   = getgrnam($group);
+    @paths = glob($path_glob);
+
+    if (($count = chown($uid, $gid, @paths)) != @paths) {
+        $errstr = "$!";
+        $result = 0;
+        emit(sprintf("failed to set ownership (%s) on \"%s\" => (%s), %d out of %d failed, \"%s\"\n",
+                     "${owner}:${group}", $path_glob, "@paths", @paths - $count, @paths+0, $errstr), 'error');
+    }
+    return $result;
 }
+
+# set_file_props(path_glob, permissions, owner, group)
+# Return 1 if success, 0 if failure
+sub set_file_props
+{
+    my ($path_glob, $permissions, $owner, $group) = @_;
+    my (@paths, $tmp_result, $result);
+
+    $result = 1;
+
+    emit(sprintf("set_file_props(%s %s %s %s)\n",
+                 $path_glob,
+                 defined($permissions) ? sprintf("%o", $permissions) : "",
+                 $owner, $group), "debug");
+
+    return 1 if ($dry_run);
+
+    $tmp_result = set_permissions($path_glob, $permissions);
+    $result = 0 if !$tmp_result;
+
+    $tmp_result = set_owner_group($path_glob, $owner, $group);
+    $result = 0 if !$tmp_result;
+
+    return $result;
+    }
+
 
 
 ##############################################################
@@ -2700,77 +2739,59 @@ sub is_directory_empty
 # Return 1 if success, 0 if failure
 sub create_directory
 {
-    my ($dir) = @_;
+    my ($dir, $permissions, $owner, $group, $uninstall_action) = @_;
+    my $result = 1;
+    my $errors;
 
-    my $result = 0;
+    emit(sprintf("create_directory(%s, %s, %s, %s, %s)\n",
+                 $dir,
+                 defined($permissions) ? sprintf("%o", $permissions) : "",
+                 $owner, $group, $uninstall_action), "debug");
 
-    if ($dir eq "") {
-        # directory is NULL
-        # Just return success
-        return 1;
-    }
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+    add_install_info($dir, 'dir', $uninstall_action);
 
-    $result = `mkdir -p $dir`;
-    if ($result == 0) {
-        return 1;
-    }
+    return 1 if ($dry_run);
 
-    emit("create_directory():  failed creating directory $dir.\n",
-          "error");
-
-    return 0;
+    if (!directory_exists($dir)) {
+        make_path($dir, {error => \$errors});
+        if (@$errors) {
+            my ($error, $path, $errstr);
+            $result = 0;
+            for $error (@$errors) {
+                ($path, $errstr) = %$error;
+                if ($path eq '') {
+                    emit("create_directory(): dir=\"$dir\" \"$errstr\"\n", "error");
 }
-
-
-# Return 1 if success, 0 if failure
-sub move_directory
-{
-    my ($dir, $dest) = @_;
-
-    my $result = 0;
-
-    if (!is_path_valid($dir)) {
-        emit("move_directory():  illegal source path => $dir.\n",
-              "error");
-        return 0;
-    }
-
-    if (!is_path_valid($dest)) {
-        emit("move_directory():  illegal destination path => $dest.\n",
-              "error");
-        return 0;
-    }
-
-    if (!directory_exists($dest)) {
-        $result = create_directory($dest);
-        if (!$result) {
-          emit("move_directory():  failed moving dir $dir to new $dest.\n",
-                "error");
-          return 0;
+                else {
+                    remove_install_info($path);
+                    emit("create_directory(): dir=\"$dir\" path=\"$path\" \"$errstr\"\n", "error");
+                }
+            }
         }
     }
 
-    $result = `mv $dir $dest`;
-    if ($result == 0) {
-        return 1;
+    if ($result) {
+        if (defined($permissions)) {
+            return 0 if !set_permissions($dir, $permissions);
+        }
+
+        if (defined($owner) && defined($group)) {
+            return 0 if !set_owner_group($dir, $owner, $group);
+        }
     }
 
-    emit("move_directory():  failed moving dir $dir to $dest.\n",
-          "error");
-
-    return 0;
+    return $result;
 }
 
-# arg0 src directory
-# arg1 dst path
-# return 1 - successfully copied directory, or
-# return 0 - failed copying directory
+# Return 1 if success, 0 if failure
 sub copy_directory
 {
-    my($src_dir_path, $dst_dir_path, $uninstall_action) = @_;
+    my ($src_dir_path, $dst_dir_path,
+       $dir_permissions, $file_permissions,
+       $owner, $group, $uninstall_action) = @_;
     my($result);
-    my($paths, $path, $src_path, $dst_path);
-    my(%dst_dirs, $dst_dir);
+    my ($files, $sub_dirs, $path, $src_path, $dst_path);
 
     $uninstall_action = 'remove' unless defined($uninstall_action);
     $result = 1;
@@ -2778,11 +2799,12 @@ sub copy_directory
     $src_dir_path = normalize_path($src_dir_path);
     $dst_dir_path = normalize_path($dst_dir_path);
 
-    if ($verbose > 1) {
-        emit(sprintf("%s(%s)\n", (caller(0))[3], join(', ', @_)));
-    }
+    emit(sprintf("copy_directory(%s, %s, %s, %s, %s, %s, %s)\n",
+                 $src_dir_path, $dst_dir_path,
+                 defined($dir_permissions) ? sprintf("%o", $dir_permissions) : "",
+                 defined($dir_permissions) ? sprintf("%o", $dir_permissions) : "",
+                 $owner, $group, $uninstall_action), "debug");
 
-    emit("copy_directory(): $src_dir_path => $dst_dir_path\n", "debug");
     if (!is_path_valid($src_dir_path)) {
         emit("copy_directory():  illegal src path => $src_dir_path.\n",
               "error");
@@ -2801,27 +2823,29 @@ sub copy_directory
         return 1;
     }
 
-    # Get list of files under the src dir
-    $paths = get_directory_files($src_dir_path, {'strip_dir' => 1});
+    # Get list of directories under the src dir
+    $sub_dirs = get_directory_files($src_dir_path,
+                                    {'strip_dir' => 1, 'include_dirs' => 1, 'include_files' => 0});
     
+    # Get list of files under the src dir
+    $files = get_directory_files($src_dir_path,
+                                 {'strip_dir' => 1, 'include_dirs' => 0, 'include_files' => 1});
     
     # Assure each destination directory exists
-    $dst_dirs{$dst_dir_path}++;
-    for $path (@$paths) {
+    return 0 if !create_directory($dst_dir_path,
+                                  $dir_permissions, $owner, $group, $uninstall_action);
+    for $path (@$sub_dirs) {
         $dst_path = "${dst_dir_path}/${path}";
-        $dst_dir = dirname($dst_path);
-        $dst_dirs{$dst_dir}++;
-    }
-
-    for $dst_dir (keys %dst_dirs) {
-        return 0 if !create_directory($dst_dir);
+        return 0 if !create_directory($dst_path, $dir_permissions,
+                                      $owner, $group, $uninstall_action);
     }
 
     # Copy each file
-    for $path (@$paths) {
+    for $path (@$files) {
         $src_path = "${src_dir_path}/${path}";
         $dst_path = "${dst_dir_path}/${path}";
-        if (!copy_file($src_path, $dst_path)) {
+        if (!copy_file($src_path, $dst_path, 
+                       $file_permissions, $owner, $group, $uninstall_action)) {
             $result = 0;
         }
     }
@@ -2846,16 +2870,14 @@ sub remove_directory
     my($dir, $remove_contents) = @_;
     my($errors, $result);
 
+    emit(sprintf("remove_directory(%s)\n", join(", ", @_)), "debug");
+
     $remove_contents = 0 unless defined($remove_contents);
     $result = 1;
 
-    emit("remove_directory(): \"$dir\"\n", "debug");
     add_install_info($dir, 'dir', 'remove', 'remove');
 
-    if ($dry_run || $verbose > 1) {
-        emit(sprintf("%s(%s)\n", (caller(0))[3], join(', ', @_)));
-        return 1 if ($dry_run);
-    }
+    return 1 if ($dry_run);
 
     if (!is_path_valid($dir)) {
         emit("remove_directory(): specified invalid directory $dir.\n",
@@ -2900,42 +2922,38 @@ sub remove_directory
 
 
 # Return 1 if success, 0 if failure
-sub give_directory_to
+sub set_owner_group_on_directory_contents
 {
-    my ($directory, $new_user, $new_group) = @_;
+    my ($dir, $owner, $group, $recursive) = @_;
+    my ($result, $paths, $path);
 
-    my $result = 0;
+    $recursive = $recursive // 1;
+    $result = 1;
 
-    if ($directory eq "" || !directory_exists($directory)) {
-        emit("give_directory_to():  invalid directory specified.\n",
+    emit(sprintf("set_owner_group_on_directory_contents(%s)\n", join(", ", @_)), "debug");
+
+    return 1 if ($dry_run);
+
+    if ($dir eq "" || !directory_exists($dir)) {
+        emit("set_owner_group_on_directory_contents(): invalid directory specified.\n",
               "error");
         return 0;
     }
 
-    if ($new_user eq "" || $new_group eq "") {
-        emit("give_directory_to():  directory $directory needs a user "
-            . "and group!\n",
+    if ($owner eq "" || $group eq "") {
+        emit("set_owner_group_on_directory_contents(): directory $dir needs a user and group!\n",
               "error");
         return 0;
     }
 
-    $result = `chgrp -R $new_group $directory`;
-    if ($result) {
-        emit("give_directory_to():  can't change directory $directory "
-            . "ownership to group $new_group!\n",
-              "error");
-        return 0;
+    $paths = get_directory_files($dir, {'recursive'    => $recursive,
+                                        'include_dirs' => 1});
+
+    for $path (@$paths) {
+        $result = 0 if !set_owner_group($path, $owner, $group);
     }
 
-    $result = `chown -R $new_user $directory`;
-    if ($result) {
-        emit("give_directory_to():  can't change directory $directory "
-            . "ownership to user $new_user!\n",
-              "error");
-        return 0;
-    }
-
-    return 1;
+    return $result;
 }
 
 
@@ -2945,7 +2963,7 @@ sub give_directory_to
 
 # return 1 - exists, or
 # return 0 - DOES NOT exist
-sub symbolic_link_exists
+sub symlink_exists
 {
     my ($symlink) = @_;
 
@@ -2967,110 +2985,107 @@ sub symbolic_link_exists
 
 
 # Return 1 if success, 0 if failure
-sub create_symbolic_link
+sub create_symlink
 {
-    my ($symlink, $dest_path) = @_;
+    my ($symlink, $dst_path, $owner, $group, $uninstall_action) = @_;
 
-    my $result = 0;
+    emit(sprintf("create_symlink(%s)\n", join(", ", @_)), "debug");
 
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+    add_install_info($symlink, 'symlink', $uninstall_action);
 
-    if (symbolic_link_exists($symlink)) {
+    return 1 if ($dry_run);
+
+    if (symlink_exists($symlink)) {
         # delete symbolic link so that we can recreate link for upgrades
-        $result = `rm -rf $symlink`;
+        if (unlink($symlink) != 1) {
+            emit("create_symlink(): could not remove existing link \"$symlink\"\n", 'error');
+            remove_install_info($symlink);
+            return 0;
+        }
     }
 
     if (!is_path_valid($symlink)) {
-        emit("create_symbolic_link():  invalid source path => $symlink.\n",
-              "error");
+        emit("create_symlink(): invalid path \"$symlink\"\n", "error");
+        remove_install_info($symlink);
         return 0;
     }
 
-    if (!is_path_valid($dest_path) || !entity_exists($dest_path)) {
-        emit("create_symbolic_link():  illegal destination path => "
-            . "$dest_path.\n",
-              "error");
+    if (!is_path_valid($dst_path) || !entity_exists($dst_path)) {
+        emit("create_symlink(): illegal dst path \"$dst_path\"\n", "error");
+        remove_install_info($symlink);
         return 0;
     }
 
-    $result = `ln -s $dest_path $symlink`;
-    if ($result == 0) {
-        return 1;
+    if (!symlink($dst_path, $symlink)) {
+        emit("create_symlink(): failed \"$symlink\" => \"$dst_path\" ($!)\n", "error");
+        remove_install_info($symlink);
+        return 0;
     }
 
-    emit("create_symbolic_link():  failed creating symbolic link "
-        . "$symlink to destination directory $dest_path.\n",
-          "error");
-
-    return 0;
+    if (defined($owner) && defined($group)) {
+        # The Perl Lchown package implements lchown, but it's not currently available
+        # as an RPM so use a system command instead. :-(
+        return 0 if !set_owner_group_on_symlink($symlink, $owner, $group);
+    }
+    return 1;
 }
 
 
 # Return 1 if success, 0 if failure
-sub remove_symbolic_link
+sub remove_symlink
 {
     my ($symlink) = @_;
-
     my $result = 0;
+
+    emit(sprintf("remove_symlink(%s)\n", join(", ", @_)), "debug");
+
+    add_install_info($symlink, 'symlink', 'remove', 'remove');
+
+    return 1 if ($dry_run);
 
     if ($symlink eq "") {
         # symlink is NULL
         return 1;
     }
 
-    if (!symbolic_link_exists($symlink)) {
+    if (!symlink_exists($symlink)) {
         return 1;
     }
 
-    $result = `rm -f $symlink`;
-    if ($result == 0) {
-        return 1;
-    }
-
-    emit("remove_symbolic_link():  failed to remove symbolic_link "
-        . "$symlink.\n",
-          "error");
-
-    return 0;
-}
-
-
-# Return 1 if success, 0 if failure
-sub give_symbolic_link_to
-{
-    my ($symlink, $new_user, $new_group) = @_;
-
-    my $result = 0;
-
-    if ($symlink eq "" || !symbolic_link_exists($symlink)) {
-        emit("give_symbolic_link_to():  invalid symbolic link specified.\n",
-              "error");
-        return 1;
-    }
-
-    if ($new_user eq "" || $new_group eq "") {
-        emit("give_symbolic_link_to():  symbolic link $symlink needs a "
-            . "user and group!\n",
-              "error");
-        return 0;
-    }
-
-    $result = `chgrp -h $new_group $symlink`;
-    if ($result) {
-        emit("give_symbolic_link_to():  can't change symbolic link $symlink "
-            . "ownership to group $new_group!\n",
-              "error");
-        return 0;
-    }
-
-    $result = `chown -h $new_user $symlink`;
-    if ($result) {
-        emit("give_symbolic_link_to():  can't change symbolic link $symlink "
-            . "ownership to user $new_user!\n",
-              "error");
+    if (unlink($symlink) != 1) {
+        emit("remove_symlink(): failed \"$symlink\" ($!)\n", "error");
         return 0;
     }
 
     return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub set_owner_group_on_symlink
+{
+    my ($symlink, $owner, $group) = @_;
+
+    emit(sprintf("set_owner_group_on_symlink(%s)\n", join(", ", @_)), "debug");
+
+    return 1 if ($dry_run);
+
+    if ($symlink eq "" || !symlink_exists($symlink)) {
+        emit("set_owner_group_on_symlink(): invalid symbolic link specified \"$symlink\"\n",
+              "error");
+        return 1;
+    }
+
+    if ($owner eq "" || $group eq "") {
+        emit("set_owner_group_on_symlink(): symbolic link \"$symlink\" needs a user and group!\n",
+              "error");
+        return 0;
+    }
+
+    # The Perl Lchown package implements lchown, but it's not currently available
+    # as an RPM so use a system command instead. :-(
+    return run_command("chown --no-dereference ${owner}:${group} $symlink");
 }
 
 
@@ -3079,85 +3094,38 @@ sub give_symbolic_link_to
 ##############################################################
 
 if ($^O eq "linux") {
-    # return ($runtime, $start_priority, $stop_priority)
-    sub extract_chkconfig_parameters_from_start_stop_script
-    {
-        my ($pki_start_stop_script_instance_file_path) = @_;
-
-        # Extract "chkconfig" options from start/stop script
-        my $inf = new FileHandle;
-
-        $inf->open("<$pki_start_stop_script_instance_file_path") or
-        die "Could not open $pki_start_stop_script_instance_file_path\n";
-
-        while (<$inf>) {
-            my $line = $_;
-            chomp($line);
-            if ($line =~ "^#.*chkconfig:") {
-                # "# chkconfig: <runlevel> <start_priority> <stop_priority>"
-                @chkconfig_fields = split(' ', $line);
-
-                # determine instance runlevel
-                if (("$chkconfig_fields[2]" ne $DEFAULT_RUNLEVEL) &&
-                    (substr("$chkconfig_fields[2]", 0) != "0")    &&
-                    (substr("$chkconfig_fields[2]", 0) != "1")    &&
-                    (substr("$chkconfig_fields[2]", 0) != "2")    &&
-                    (substr("$chkconfig_fields[2]", 0) != "3")    &&
-                    (substr("$chkconfig_fields[2]", 0) != "4")    &&
-                    (substr("$chkconfig_fields[2]", 0) != "5")    &&
-                    (substr("$chkconfig_fields[2]", 0) != "6")) {
-                    $chkconfig_fields[2] = $DEFAULT_RUNLEVEL;
-                }
-
-                # determine instance start priority
-                if (($chkconfig_fields[3] < 0) && 
-                    ($chkconfig_fields[3] > $DEFAULT_START_PRIORITY)) {
-                    $chkconfig_fields[3] = $DEFAULT_START_PRIORITY;
-                }
-
-                # determine instance stop priority
-                if (($chkconfig_fields[4] < 0) && 
-                    ($chkconfig_fields[4] > $DEFAULT_STOP_PRIORITY)) {
-                    $chkconfig_fields[4] = $DEFAULT_STOP_PRIORITY;
-                }
-            }
-        }
-
-        return($chkconfig_fields[2],
-                $chkconfig_fields[3],
-                $chkconfig_fields[4]);
-    }
-
-
-    # no return
+    # Return 1 if success, 0 if failure
     sub register_pki_instance_with_chkconfig
     {
         my ($pki_instance_name) = @_;
+        my ($command, $exit_status, $result);
 
-        my $command = "";
-
-        $command = "/sbin/chkconfig" . " "
-                 . "--add" . " "
-                 . $pki_instance_name;
-
-        system($command);
-
+        $result = 1;
+        $command = "/sbin/chkconfig --add $pki_instance_name";
+        if (run_command($command)) {
         emit("Registered '$pki_instance_name' with '/sbin/chkconfig'.\n");
+        } else {
+            $result = 0;
+            emit("Failed to register '$pki_instance_name' with '/sbin/chkconfig'.\n", 'error');
+        }
+        return $result;
     }
 
-
-    # no return
+    # Return 1 if success, 0 if failure
     sub deregister_pki_instance_with_chkconfig
     {
         my ($pki_instance_name) = @_;
+        my ($command, $exit_status, $result);
 
-        my $command = "";
-
-        $command = "/sbin/chkconfig" . " "
-                 . "--del" . " "
-                 . $pki_instance_name;
-
-        system($command);
+        $result = 1;
+        $command = "/sbin/chkconfig --del $pki_instance_name";
+        if (run_command($command)) {
+            emit("Registered '$pki_instance_name' with '/sbin/chkconfig'.\n");
+        } else {
+            $result = 0;
+            emit("Failed to deregister '$pki_instance_name' with '/sbin/chkconfig'.\n", 'error');
+        }
+        return $result;
     }
 }
 
@@ -3242,5 +3210,31 @@ sub run_command
     return 1;
 }
 
-1;
+##############################################################
+# Generic PKI Subroutines
+##############################################################
 
+sub get_registry_initscript_name
+{
+    my ($subsystem_type) = @_;
+    my ($pki_initscript);
+
+    if ($subsystem_type eq $CA) {
+        $pki_initscript = $CA_INIT_SCRIPT;
+    } elsif($subsystem_type eq $KRA) {
+        $pki_initscript = $KRA_INIT_SCRIPT;
+    } elsif($subsystem_type eq $OCSP) {
+        $pki_initscript = $OCSP_INIT_SCRIPT;
+    } elsif($subsystem_type eq $RA) {
+        $pki_initscript = $RA_INIT_SCRIPT;
+    } elsif($subsystem_type eq $TKS) {
+        $pki_initscript = $TKS_INIT_SCRIPT;
+    } elsif($subsystem_type eq $TPS) {
+        $pki_initscript = $TPS_INIT_SCRIPT;
+    } else {
+        die "unknown subsystem type \"$subsystem_type\"";
+    }
+
+}
+
+1;
