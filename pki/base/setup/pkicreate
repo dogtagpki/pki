@@ -1526,7 +1526,8 @@ sub initialize_instance_paths
                                      . "/" . $pki_instance_name;
     ## Initialize tomcat6 pid file
     $tomcat6_instance_pid_file_path = $default_tomcat_pids_path
-                                    . "/" . $pki_instance_name.pid;
+                                    . "/" . $pki_instance_name
+                                    . ".pid";
 
     ## Initialize instance directory paths (RA, TPS instances)
     if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
