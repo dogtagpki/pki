@@ -19,6 +19,12 @@
 # --- END COPYRIGHT BLOCK ---
 #
 
+use strict;
+use warnings;
+
+use File::Slurp qw(read_file write_file);
+use Getopt::Long qw(GetOptions);
+
 ##############################################################
 # This script is used to create a new instance of a
 # subsystem within a PKI installation.
@@ -42,22 +48,6 @@
 #
 ##############################################################
 
-
-##############################################################
-# Perl Version
-##############################################################
-
-my $MINIMUM_PERL_VERSION = "5.006001";
-
-my $perl_version_error_message = "ERROR:  Using Perl version $] ...\n"
-                               . "        Must use Perl version "
-                               . "$MINIMUM_PERL_VERSION or later to "
-                               . "run this script!\n";
-
-die $perl_version_error_message if $] < $MINIMUM_PERL_VERSION;
-
-
-use File::Slurp;
 
 ##############################################################
 # Execution Check
@@ -109,7 +99,7 @@ my $ARGS = ($#ARGV + 1);
 ##############################################################
 
 # Compute "flavor" of Operating System
-my $pki_flavor = "";
+my $pki_flavor = undef;
 if ($^O eq "linux") {
     $pki_flavor = "pki";
 } else {
@@ -121,22 +111,9 @@ $pki_flavor =~ s/\s+$//g;
 
 # Establish path to scripts
 my $pki_subsystem_common_area = "/usr/share/$pki_flavor";
-my $common_path = "/usr/share/$pki_flavor/scripts";
 
-if (! -d $common_path) {
-    emit("The path '$common_path' does not exist! " 
-         . "Unable to load shared Common Perl Data and Subroutines!\n", "error");
-    exit 255;
-}
-
-if (! -e "$common_path/pkicommon") {
-    emit("The file '$common_path/pkicommon' does not exist! "
-         . "Unable to load shared Common Perl Data and Subroutines!\n", "error");
-    exit 255;
-}
-
-eval("use lib '" . $common_path . "'");
-require('pkicommon');
+use lib "/usr/share/pki/scripts";
+use pkicommon;
 
 # make -w happy by suppressing warnings of Global variables used only once
 my $suppress = "";
@@ -174,22 +151,22 @@ my $webapps_base_subsystem_dir  = "webapps";   # CA, KRA, OCSP, TKS
 my $work_base_subsystem_dir     = "work";      # CA, KRA, OCSP, TKS (Tomcat)
 
 # Base instance directory names
-my $acl_base_instance_dir      = "acl";       # CA, KRA, OCSP, TKS
-my $alias_base_instance_dir    = "alias";     # CA, KRA, OCSP, TKS, RA, TPS
-my $bin_base_instance_dir      = "bin";       # TPS
-my $cgibin_base_instance_dir   = "cgi-bin";   # TPS (Apache)
-my $conf_base_instance_dir     = "conf";      # CA, KRA, OCSP, TKS, RA, TPS
-my $docroot_base_instance_dir  = "docroot";   # RA, TPS (Apache)
-my $emails_base_instance_dir   = "emails";    # CA
-my $lib_base_instance_dir      = "lib";       # RA, TPS
-my $logs_base_instance_dir     = "logs";      # CA, KRA, OCSP, TKS, RA, TPS
-my $profiles_base_instance_dir = "profiles";  # CA, KRA, OCSP, TKS
-my $scripts_base_instance_dir  = "scripts";   # RA, TPS
-my $tomcat_instance_common_lib_dir = "common/lib";    # CA, KRA, OCSP, TKS (Tomcat)
-my $shared_base_instance_dir   = "shared";    # CA, KRA, OCSP, TKS (Tomcat)
-my $temp_base_instance_dir     = "temp";      # CA, KRA, OCSP, TKS (Tomcat)
-my $webapps_base_instance_dir  = "webapps";   # CA, KRA, OCSP, TKS
-my $work_base_instance_dir     = "work";      # CA, KRA, OCSP, TKS (Tomcat)
+my $acl_base_instance_dir          = "acl";        # CA, KRA, OCSP, TKS
+my $alias_base_instance_dir        = "alias";      # CA, KRA, OCSP, TKS, RA, TPS
+my $bin_base_instance_dir          = "bin";        # TPS
+my $cgibin_base_instance_dir       = "cgi-bin";    # TPS (Apache)
+my $conf_base_instance_dir         = "conf";       # CA, KRA, OCSP, TKS, RA, TPS
+my $docroot_base_instance_dir      = "docroot";    # RA, TPS (Apache)
+my $emails_base_instance_dir       = "emails";     # CA
+my $lib_base_instance_dir          = "lib";        # RA, TPS
+my $logs_base_instance_dir         = "logs";       # CA, KRA, OCSP, TKS, RA, TPS
+my $profiles_base_instance_dir     = "profiles";   # CA, KRA, OCSP, TKS
+my $scripts_base_instance_dir      = "scripts";    # RA, TPS
+my $tomcat_instance_common_lib_dir = "common/lib"; # CA, KRA, OCSP, TKS (Tomcat)
+my $shared_base_instance_dir       = "shared";     # CA, KRA, OCSP, TKS (Tomcat)
+my $temp_base_instance_dir         = "temp";       # CA, KRA, OCSP, TKS (Tomcat)
+my $webapps_base_instance_dir      = "webapps";    # CA, KRA, OCSP, TKS
+my $work_base_instance_dir         = "work";       # CA, KRA, OCSP, TKS (Tomcat)
 
 # Base instance symbolic link names
 my $common_base_instance_symlink  = "common";   # CA, KRA, OCSP, TKS
@@ -220,41 +197,40 @@ my $conf_base_name               = "conf";                 # CA, KRA, OCSP, TKS,
 
 my $jakarta_commons_collections_jar_base_name = "jakarta-commons-collections.jar"; # CA, KRA, OCSP, TKS
 my $jakarta_commons_logging_jar_base_name = "jakarta-commons-logging.jar"; # CA, KRA, OCSP, TKS
-my $jss_jar_base_name            = "jss4.jar";             # CA, KRA, OCSP, TKS
-my $ldapjdk_jar_base_name        = "ldapjdk.jar";          # CA, KRA, OCSP, TKS
-my $tomcatjss_jar_base_name      = "tomcatjss.jar";        # CA, KRA, OCSP, TKS
-my $velocity_jar_base_name       = "velocity.jar";         # CA, KRA, OCSP, TKS
-my $xerces_jar_base_name         = "xerces-j2.jar";        # CA, KRA, OCSP, TKS
+my $jss_jar_base_name             = "jss4.jar";            # CA, KRA, OCSP, TKS
+my $ldapjdk_jar_base_name         = "ldapjdk.jar";         # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
+my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
+my $xerces_jar_base_name          = "xerces-j2.jar";       # CA, KRA, OCSP, TKS
 my $catalina_properties_base_name = "catalina.properties"; # CA, KRA, OCSP, TKS
 
-                                                           # RA, TPS
-my $httpd_conf_base_name         = "httpd.conf";           # RA, TPS
-my $index_html_base_name         = "index.html";           # CA, KRA, OCSP, TKS
-my $logs_base_name               = "logs";                 # CA, KRA, OCSP, TKS,
-                                                           # RA, TPS
-my $magic_base_name              = "magic";                # RA, TPS
-my $mime_types_base_name         = "mime.types";           # RA, TPS
-my $noise_base_name              = "noise";                # CA, KRA, OCSP, TKS,
-                                                           # RA, TPS
-my $nss_conf_base_name           = "nss.conf";             # RA, TPS
-my $perl_conf_base_name          = "perl.conf";            # RA, TPS
-my $osutil_jar_base_name         = "osutil.jar";           # CA, KRA, OCSP, TKS
-my $password_conf_base_name      = "password.conf";        # CA, KRA, OCSP, TKS,
-                                                           # RA, TPS
-my $pfile_base_name              = "pfile";                # CA, KRA, OCSP, TKS,
-                                                           # RA, TPS
-my $pwcache_conf_base_name       = "pwcache.conf";         # RA, TPS
-my $pki_cfg_base_name            = "CS.cfg";               # CA, KRA, OCSP, TKS,
-                                                           # RA, TPS
-my $schemaMods_ldif_base_name    = "schemaMods.ldif";      # RA, TPS
-my $server_xml_base_name         = "server.xml";           # CA, KRA, OCSP, TKS
-my $servercertnick_conf_base_name         = "serverCertNick.conf";           # CA, KRA, OCSP, TKS
-my $tomcat6_conf_base_name       = "tomcat6.conf";         # CA, KRA, OCSP, TKS
-my $velocity_prop_base_name      = "velocity.properties";  # CA, KRA, OCSP, TKS
-my $web_xml_base_name            = "web.xml";              # CA, KRA, OCSP, TKS
-my $profile_select_base_name     = "ProfileSelect.template"; #CA
+my $httpd_conf_base_name          = "httpd.conf";             # RA, TPS
+my $index_html_base_name          = "index.html";             # CA, KRA, OCSP, TKS
+my $logs_base_name                = "logs";                   # CA, KRA, OCSP, TKS,
+                                                              # RA, TPS
+my $magic_base_name               = "magic";                  # RA, TPS
+my $mime_types_base_name          = "mime.types";             # RA, TPS
+my $noise_base_name               = "noise";                  # CA, KRA, OCSP, TKS,
+                                                              # RA, TPS
+my $nss_conf_base_name            = "nss.conf";               # RA, TPS
+my $perl_conf_base_name           = "perl.conf";              # RA, TPS
+my $osutil_jar_base_name          = "osutil.jar";             # CA, KRA, OCSP, TKS
+my $password_conf_base_name       = "password.conf";          # CA, KRA, OCSP, TKS,
+                                                              # RA, TPS
+my $pfile_base_name               = "pfile";                  # CA, KRA, OCSP, TKS,
+                                                              # RA, TPS
+my $pwcache_conf_base_name        = "pwcache.conf";           # RA, TPS
+my $pki_cfg_base_name             = "CS.cfg";                 # CA, KRA, OCSP, TKS,
+                                                              # RA, TPS
+my $schemaMods_ldif_base_name     = "schemaMods.ldif";        # RA, TPS
+my $server_xml_base_name          = "server.xml";             # CA, KRA, OCSP, TKS
+my $servercertnick_conf_base_name = "serverCertNick.conf";    # CA, KRA, OCSP, TKS
+my $tomcat6_conf_base_name        = "tomcat6.conf";           # CA, KRA, OCSP, TKS
+my $velocity_prop_base_name       = "velocity.properties";    # CA, KRA, OCSP, TKS
+my $web_xml_base_name             = "web.xml";                # CA, KRA, OCSP, TKS
+my $profile_select_base_name      = "ProfileSelect.template"; # CA
 
-my $registry_template_base_name  = "registry_instance";    # CA, KRA, OCSP, TKS, RA, TPS
+my $registry_template_base_name   = "registry_instance";      # CA, KRA, OCSP, TKS, RA, TPS
 
 # Subdirectory names
 my $perl_base_instance_symlink      = "perl";        # RA, TPS
@@ -270,9 +246,6 @@ my $default_tomcat_pids_path       = "/var/run";
 my $default_tomcat_lib_path        = "/usr/share/tomcat6/lib";
 my $default_java_path              = "/usr/share/java";
 my $default_system_jni_java_path   = "/usr/lib/java";
-my $default_dir_permissions        = 00770;
-my $default_exe_permissions        = 00770;
-my $default_file_permissions       = 00660;
 my $default_security_token         = "internal";
 my $default_nfast_group            = "nfast";
 
@@ -285,101 +258,101 @@ my $db_password_low  = 100000000000;
 my $db_password_high = 999999999999;
 
 # Template slot constants (RA, TPS)
-my $GROUPID                = "GROUPID";
-my $HTTPD_CONF             = "HTTPD_CONF";
-my $INSTANCE_ID            = "INSTANCE_ID";
-my $INSTANCE_ROOT          = "INSTANCE_ROOT";
-my $LIB_PREFIX             = "LIB_PREFIX";
-my $NSS_CONF               = "NSS_CONF";
-my $OBJ_EXT                = "OBJ_EXT";
-my $PORT                   = "PORT";
-my $PROCESS_ID             = "PROCESS_ID";
-my $SECURE_PORT            = "SECURE_PORT";
+my $GROUPID                    = "GROUPID";
+my $HTTPD_CONF                 = "HTTPD_CONF";
+my $INSTANCE_ID                = "INSTANCE_ID";
+my $INSTANCE_ROOT              = "INSTANCE_ROOT";
+my $LIB_PREFIX                 = "LIB_PREFIX";
+my $NSS_CONF                   = "NSS_CONF";
+my $OBJ_EXT                    = "OBJ_EXT";
+my $PORT                       = "PORT";
+my $PROCESS_ID                 = "PROCESS_ID";
+my $SECURE_PORT                = "SECURE_PORT";
 my $NON_CLIENTAUTH_SECURE_PORT = "NON_CLIENTAUTH_SECURE_PORT";
-my $SECURITY_LIBRARIES     = "SECURITY_LIBRARIES";
-my $SERVER_NAME            = "SERVER_NAME";
-my $SERVER_ROOT            = "SERVER_ROOT";
-my $SUBSYSTEM_TYPE         = "SUBSYSTEM_TYPE";
-my $SYSTEM_LIBRARIES       = "SYSTEM_LIBRARIES";
-my $SYSTEM_USER_LIBRARIES  = "SYSTEM_USER_LIBRARIES";
-my $TMP_DIR                = "TMP_DIR";
-my $TPS_DIR                = "TPS_DIR";
-my $USERID                 = "USERID";
-my $FORTITUDE_APACHE       = "FORTITUDE_APACHE";
-my $FORTITUDE_DIR          = "FORTITUDE_DIR";
-my $FORTITUDE_MODULE       = "FORTITUDE_MODULE";
-my $FORTITUDE_LIB_DIR      = "FORTITUDE_LIB_DIR";
-my $FORTITUDE_AUTH_MODULES = "FORTITUDE_AUTH_MODULES";
-my $FORTITUDE_NSS_MODULES  = "FORTITUDE_NSS_MODULES";
-my $REQUIRE_CFG_PL         = "REQUIRE_CFG_PL";
+my $SECURITY_LIBRARIES         = "SECURITY_LIBRARIES";
+my $SERVER_NAME                = "SERVER_NAME";
+my $SERVER_ROOT                = "SERVER_ROOT";
+my $SUBSYSTEM_TYPE             = "SUBSYSTEM_TYPE";
+my $SYSTEM_LIBRARIES           = "SYSTEM_LIBRARIES";
+my $SYSTEM_USER_LIBRARIES      = "SYSTEM_USER_LIBRARIES";
+my $TMP_DIR                    = "TMP_DIR";
+my $TPS_DIR                    = "TPS_DIR";
+my $USERID                     = "USERID";
+my $FORTITUDE_APACHE           = "FORTITUDE_APACHE";
+my $FORTITUDE_DIR              = "FORTITUDE_DIR";
+my $FORTITUDE_MODULE           = "FORTITUDE_MODULE";
+my $FORTITUDE_LIB_DIR          = "FORTITUDE_LIB_DIR";
+my $FORTITUDE_AUTH_MODULES     = "FORTITUDE_AUTH_MODULES";
+my $FORTITUDE_NSS_MODULES      = "FORTITUDE_NSS_MODULES";
+my $REQUIRE_CFG_PL             = "REQUIRE_CFG_PL";
 
 # Template slot constants (CA, KRA, OCSP, TKS)
-my $INSTALL_TIME              = "INSTALL_TIME";
-my $PKI_AGENT_CLIENTAUTH_SLOT = "PKI_AGENT_CLIENTAUTH";
-my $PKI_CERT_DB_PASSWORD_SLOT = "PKI_CERT_DB_PASSWORD";
-my $PKI_CFG_PATH_NAME_SLOT    = "PKI_CFG_PATH_NAME";
-my $PKI_GROUP_SLOT            = "PKI_GROUP";
-my $PKI_INSTANCE_ID_SLOT      = "PKI_INSTANCE_ID";
-my $PKI_INSTANCE_PATH_SLOT    = "PKI_INSTANCE_PATH";
-my $PKI_INSTANCE_ROOT_SLOT    = "PKI_INSTANCE_ROOT";
-my $PKI_MACHINE_NAME_SLOT     = "PKI_MACHINE_NAME";
-my $PKI_RANDOM_NUMBER_SLOT    = "PKI_RANDOM_NUMBER";
-my $PKI_SECURE_PORT_SLOT      = "PKI_SECURE_PORT";
-my $PKI_EE_SECURE_PORT_SLOT   = "PKI_EE_SECURE_PORT";
-my $PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT   = "PKI_EE_SECURE_CLIENT_AUTH_PORT";
-my $PKI_AGENT_SECURE_PORT_SLOT = "PKI_AGENT_SECURE_PORT";
-my $PKI_ADMIN_SECURE_PORT_SLOT = "PKI_ADMIN_SECURE_PORT";
-my $PKI_SERVER_XML_CONF       = "PKI_SERVER_XML_CONF";
-my $PKI_SUBSYSTEM_TYPE_SLOT   = "PKI_SUBSYSTEM_TYPE";
-my $PKI_UNSECURE_PORT_SLOT    = "PKI_UNSECURE_PORT";
-my $PKI_USER_SLOT             = "PKI_USER";
-my $TOMCAT_SERVER_PORT_SLOT   = "TOMCAT_SERVER_PORT";
-my $TOMCAT_PIDFILE            = "TOMCAT_PIDFILE";
-my $TOMCAT_CFG                = "TOMCAT_CFG";
-my $TOMCAT_SSL_OPTIONS        = "TOMCAT_SSL_OPTIONS";
-my $TOMCAT_SSL2_CIPHERS       = "TOMCAT_SSL2_CIPHERS";
-my $TOMCAT_SSL3_CIPHERS       = "TOMCAT_SSL3_CIPHERS";
-my $TOMCAT_TLS3_CIPHERS       = "TOMCAT_TLS3_CIPHERS";
-my $TOMCAT_INSTANCE_COMMON_LIB = "TOMCAT_INSTANCE_COMMON_LIB";
-my $INSTANCE_INIT_SCRIPT      = "INSTANCE_INIT_SCRIPT";
-my $PKI_FLAVOR_SLOT           = "PKI_FLAVOR";
-my $PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT     = "PKI_UNSECURE_PORT_CONNECTOR_NAME";
-my $PKI_SECURE_PORT_CONNECTOR_NAME_SLOT       = "PKI_SECURE_PORT_CONNECTOR_NAME";
-my $PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT = "PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME";
-my $PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT    = "PKI_EE_SECURE_PORT_CONNECTOR_NAME";
-my $PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT    = "PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME";
-my $PKI_UNSECURE_PORT_COMMENT_SERVER_SLOT     = "PKI_UNSECURE_PORT_SERVER_COMMENT";
-my $PKI_SECURE_PORT_COMMENT_SERVER_SLOT       = "PKI_SECURE_PORT_SERVER_COMMENT";
-my $PKI_ADMIN_SECURE_PORT_COMMENT_SERVER_SLOT = "PKI_ADMIN_SECURE_PORT_SERVER_COMMENT";
-my $PKI_EE_SECURE_PORT_COMMENT_SERVER_SLOT    = "PKI_EE_SECURE_PORT_SERVER_COMMENT";
+my $INSTALL_TIME                        = "INSTALL_TIME";
+my $PKI_AGENT_CLIENTAUTH_SLOT           = "PKI_AGENT_CLIENTAUTH";
+my $PKI_CERT_DB_PASSWORD_SLOT           = "PKI_CERT_DB_PASSWORD";
+my $PKI_CFG_PATH_NAME_SLOT              = "PKI_CFG_PATH_NAME";
+my $PKI_GROUP_SLOT                      = "PKI_GROUP";
+my $PKI_INSTANCE_ID_SLOT                = "PKI_INSTANCE_ID";
+my $PKI_INSTANCE_PATH_SLOT              = "PKI_INSTANCE_PATH";
+my $PKI_INSTANCE_ROOT_SLOT              = "PKI_INSTANCE_ROOT";
+my $PKI_MACHINE_NAME_SLOT               = "PKI_MACHINE_NAME";
+my $PKI_RANDOM_NUMBER_SLOT              = "PKI_RANDOM_NUMBER";
+my $PKI_SECURE_PORT_SLOT                = "PKI_SECURE_PORT";
+my $PKI_EE_SECURE_PORT_SLOT             = "PKI_EE_SECURE_PORT";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT";
+my $PKI_AGENT_SECURE_PORT_SLOT          = "PKI_AGENT_SECURE_PORT";
+my $PKI_ADMIN_SECURE_PORT_SLOT          = "PKI_ADMIN_SECURE_PORT";
+my $PKI_SERVER_XML_CONF                 = "PKI_SERVER_XML_CONF";
+my $PKI_SUBSYSTEM_TYPE_SLOT             = "PKI_SUBSYSTEM_TYPE";
+my $PKI_UNSECURE_PORT_SLOT              = "PKI_UNSECURE_PORT";
+my $PKI_USER_SLOT                       = "PKI_USER";
+my $TOMCAT_SERVER_PORT_SLOT             = "TOMCAT_SERVER_PORT";
+my $TOMCAT_PIDFILE                      = "TOMCAT_PIDFILE";
+my $TOMCAT_CFG                          = "TOMCAT_CFG";
+my $TOMCAT_SSL_OPTIONS                  = "TOMCAT_SSL_OPTIONS";
+my $TOMCAT_SSL2_CIPHERS                 = "TOMCAT_SSL2_CIPHERS";
+my $TOMCAT_SSL3_CIPHERS                 = "TOMCAT_SSL3_CIPHERS";
+my $TOMCAT_TLS3_CIPHERS                 = "TOMCAT_TLS3_CIPHERS";
+my $TOMCAT_INSTANCE_COMMON_LIB          = "TOMCAT_INSTANCE_COMMON_LIB";
+my $INSTANCE_INIT_SCRIPT                = "INSTANCE_INIT_SCRIPT";
+my $PKI_FLAVOR_SLOT                     = "PKI_FLAVOR";
+my $PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT              = "PKI_UNSECURE_PORT_CONNECTOR_NAME";
+my $PKI_SECURE_PORT_CONNECTOR_NAME_SLOT                = "PKI_SECURE_PORT_CONNECTOR_NAME";
+my $PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT          = "PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME";
+my $PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT             = "PKI_EE_SECURE_PORT_CONNECTOR_NAME";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME";
+my $PKI_UNSECURE_PORT_COMMENT_SERVER_SLOT              = "PKI_UNSECURE_PORT_SERVER_COMMENT";
+my $PKI_SECURE_PORT_COMMENT_SERVER_SLOT                = "PKI_SECURE_PORT_SERVER_COMMENT";
+my $PKI_ADMIN_SECURE_PORT_COMMENT_SERVER_SLOT          = "PKI_ADMIN_SECURE_PORT_SERVER_COMMENT";
+my $PKI_EE_SECURE_PORT_COMMENT_SERVER_SLOT             = "PKI_EE_SECURE_PORT_SERVER_COMMENT";
 my $PKI_EE_SECURE_CLIENT_AUTH_PORT_COMMENT_SERVER_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT_SERVER_COMMENT";
-my $PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT  = "PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT";
-my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT = "PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT";
-my $PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT  = "PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT";
-my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT = "PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT";
-my $PKI_UNSECURE_PORT_NAME      = "Unsecure";
-my $PKI_AGENT_SECURE_PORT_NAME  = "Agent";
-my $PKI_ADMIN_SECURE_PORT_NAME  = "Admin";
-my $PKI_EE_SECURE_PORT_NAME     = "EE";
+my $PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT        = "PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT";
+my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT       = "PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT";
+my $PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT           = "PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT";
+my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT          = "PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT";
+my $PKI_UNSECURE_PORT_NAME                  = "Unsecure";
+my $PKI_AGENT_SECURE_PORT_NAME              = "Agent";
+my $PKI_ADMIN_SECURE_PORT_NAME              = "Admin";
+my $PKI_EE_SECURE_PORT_NAME                 = "EE";
 my $PKI_EE_SECURE_CLIENT_AUTH_PORT_NAME     = "EEClientAuth";
-my $PKI_SECURE_PORT_NAME        = "Secure";
-my $PKI_UNUSED_SECURE_PORT_NAME = "Unused";
-my $PKI_UNSECURE_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  Unsecure Port Connector -->";
+my $PKI_SECURE_PORT_NAME                    = "Secure";
+my $PKI_UNUSED_SECURE_PORT_NAME             = "Unused";
+my $PKI_UNSECURE_SEPARATE_PORTS_COMMENT     = "<!-- Port Separation:  Unsecure Port Connector -->";
 my $PKI_AGENT_SECURE_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  Agent Secure Port Connector -->";
 my $PKI_ADMIN_SECURE_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  Admin Secure Port Connector -->";
-my $PKI_EE_SECURE_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  EE Secure Port Connector -->";
+my $PKI_EE_SECURE_SEPARATE_PORTS_COMMENT    = "<!-- Port Separation:  EE Secure Port Connector -->";
 my $PKI_EE_SECURE_CLIENT_AUTH_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  EE Secure Client Auth Port Connector -->";
 my $PKI_UNSECURE_SHARED_PORTS_COMMENT = "<!-- Shared Ports:  Unsecure Port Connector -->";
-my $PKI_SECURE_SHARED_PORTS_COMMENT = "<!-- Shared Ports:  Agent, EE, and Admin Secure Port Connector -->";
-my $PKI_OPEN_COMMENT          = "<!--";
-my $PKI_CLOSE_COMMENT         = "-->";
-my $PKI_WEBAPPS_NAME         = "PKI_WEBAPPS_NAME";
+my $PKI_SECURE_SHARED_PORTS_COMMENT   = "<!-- Shared Ports:  Agent, EE, and Admin Secure Port Connector -->";
+my $PKI_OPEN_COMMENT                  = "<!--";
+my $PKI_CLOSE_COMMENT                 = "-->";
+my $PKI_WEBAPPS_NAME                  = "PKI_WEBAPPS_NAME";
 
 #selinux constants
-my $semanage = "/usr/sbin/semanage";
-my $restorecon = "/sbin/restorecon";
-my $SELINUX_PORT_UNDEFINED = 0;
-my $SELINUX_PORT_DEFINED = 1;
+my $semanage                     = "/usr/sbin/semanage";
+my $restorecon                   = "/sbin/restorecon";
+my $SELINUX_PORT_UNDEFINED       = 0;
+my $SELINUX_PORT_DEFINED         = 1;
 my $SELINUX_PORT_WRONGLY_DEFINED = 2;
 
 ##############################################################
@@ -387,201 +360,212 @@ my $SELINUX_PORT_WRONGLY_DEFINED = 2;
 ##############################################################
 
 # Useful pki references
-%redirects = ();
+my %redirects = ();
 
 my %selinux_ports = ();
 
+my %supported_sec_modules_hash = ();
 
 ##############################################################
 # Local Variables
 ##############################################################
 
 # Command-line variables (mandatory)
-my $pki_instance_root  = "";
-my $pki_instance_name  = "";
-my $subsystem_type     = "";
-my $secure_port        = -1;
+my $pki_instance_root          = undef;
+my $pki_instance_name          = undef;
+my $subsystem_type             = undef;
+my $secure_port                = -1;
 my $non_clientauth_secure_port = -1;
-my $unsecure_port      = -1;
-my $tomcat_server_port = -1;
+my $unsecure_port              = -1;
+my $tomcat_server_port         = -1;
 
 # Command-line variables (optional)
-my $agent_secure_port    = -1;
-my $ee_secure_port       = -1;
+my $agent_secure_port          = -1;
+my $ee_secure_port             = -1;
 my $ee_secure_client_auth_port = -1;
-my $admin_secure_port    = -1;
-my $username             = "";
-my $groupname            = "";
-my $redirected_conf_path = "";
-my $redirected_logs_path = "";
+my $admin_secure_port          = -1;
+my $username                   = undef;
+my $groupname                  = undef;
+my $redirected_conf_path       = undef;
+my $redirected_logs_path       = undef;
 
 # Base subsystem directory paths
-my $pki_subsystem_path      = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $acl_subsystem_path      = "";  # CA, KRA, OCSP, TKS
-my $alias_subsystem_path    = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $applets_subsystem_path  = "";  # TPS
-my $bin_subsystem_path      = "";  # TPS
-my $cgibin_subsystem_path   = "";  # TPS (Apache)
-my $conf_subsystem_path     = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $docroot_subsystem_path  = "";  # RA, TPS (Apache)
-my $emails_subsystem_path   = "";  # CA
-my $etc_subsystem_path      = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $lib_subsystem_path      = "";  # RA, TPS
-my $logs_subsystem_path     = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $profiles_subsystem_path = "";  # CA, KRA, OCSP, TKS
-my $samples_subsystem_path  = "";  # TPS
-my $scripts_subsystem_path  = "";  # RA, TPS
-my $shared_subsystem_path   = "";  # CA, KRA, OCSP, TKS (Tomcat)
-my $temp_subsystem_path     = "";  # CA, KRA, OCSP, TKS (Tomcat)
-my $webapps_subsystem_path  = "";  # CA, KRA, OCSP, TKS
-my $common_ui_subsystem_path = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $ui_subsystem_path       = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $work_subsystem_path     = "";  # CA, KRA, OCSP, TKS (Tomcat)
+my $pki_subsystem_path       = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $acl_subsystem_path       = undef;  # CA, KRA, OCSP, TKS
+my $alias_subsystem_path     = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $applets_subsystem_path   = undef;  # TPS
+my $bin_subsystem_path       = undef;  # TPS
+my $cgibin_subsystem_path    = undef;  # TPS (Apache)
+my $conf_subsystem_path      = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $docroot_subsystem_path   = undef;  # RA, TPS (Apache)
+my $emails_subsystem_path    = undef;  # CA
+my $etc_subsystem_path       = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $lib_subsystem_path       = undef;  # RA, TPS
+my $logs_subsystem_path      = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $profiles_subsystem_path  = undef;  # CA, KRA, OCSP, TKS
+my $samples_subsystem_path   = undef;  # TPS
+my $scripts_subsystem_path   = undef;  # RA, TPS
+my $shared_subsystem_path    = undef;  # CA, KRA, OCSP, TKS (Tomcat)
+my $temp_subsystem_path      = undef;  # CA, KRA, OCSP, TKS (Tomcat)
+my $webapps_subsystem_path   = undef;  # CA, KRA, OCSP, TKS
+my $common_ui_subsystem_path = undef; # CA, KRA, OCSP, TKS, RA, TPS
+my $ui_subsystem_path        = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $work_subsystem_path      = undef;  # CA, KRA, OCSP, TKS (Tomcat)
 
 # Base instance directory paths
-my $pki_instance_path      = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $acl_instance_path      = "";  # CA, KRA, OCSP, TKS
-my $alias_instance_path    = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $bin_instance_path      = "";  # TPS
-my $cgibin_instance_path   = "";  # TPS (Apache)
-my $conf_instance_path     = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $docroot_instance_path  = "";  # RA, TPS (Apache)
-my $emails_instance_path   = "";  # CA
-my $lib_instance_path      = "";  # RA, TPS
-my $logs_instance_path     = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $profiles_instance_path = "";  # CA, KRA, OCSP, TKS
-my $scripts_instance_path  = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $tomcat_instance_common_lib_path   = "";  # CA, KRA, OCSP, TKS (Tomcat)
-my $shared_instance_path   = "";  # CA, KRA, OCSP, TKS (Tomcat)
-my $temp_instance_path     = "";  # CA, KRA, OCSP, TKS (Tomcat)
-my $webapps_instance_path  = "";  # CA, KRA, OCSP, TKS
-my $webapps_subsystem_instance_path  = "";  # CA, KRA, OCSP, TKS
-my $work_instance_path     = "";  # CA, KRA, OCSP, TKS (Tomcat)
+my $pki_instance_path               = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $acl_instance_path               = undef;  # CA, KRA, OCSP, TKS
+my $alias_instance_path             = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $bin_instance_path               = undef;  # TPS
+my $cgibin_instance_path            = undef;  # TPS (Apache)
+my $conf_instance_path              = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $docroot_instance_path           = undef;  # RA, TPS (Apache)
+my $emails_instance_path            = undef;  # CA
+my $lib_instance_path               = undef;  # RA, TPS
+my $logs_instance_path              = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $profiles_instance_path          = undef;  # CA, KRA, OCSP, TKS
+my $scripts_instance_path           = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $tomcat_instance_common_lib_path = undef;  # CA, KRA, OCSP, TKS (Tomcat)
+my $shared_instance_path            = undef;  # CA, KRA, OCSP, TKS (Tomcat)
+my $temp_instance_path              = undef;  # CA, KRA, OCSP, TKS (Tomcat)
+my $webapps_instance_path           = undef;  # CA, KRA, OCSP, TKS
+my $webapps_subsystem_instance_path = undef;  # CA, KRA, OCSP, TKS
+my $work_instance_path              = undef;  # CA, KRA, OCSP, TKS (Tomcat)
 
 # Base instance symbolic link paths
-my $conf_instance_symlink_path    = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $logs_instance_symlink_path    = "";  # CA, KRA, OCSP, TKS, RA, TPS
-my $run_instance_symlink_path     = "";  # RA, TPS
+my $conf_instance_symlink_path    = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $logs_instance_symlink_path    = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $run_instance_symlink_path     = undef;  # RA, TPS
 
 # Subdirectory paths
-my $cgi_home_instance_file_path               = "";  # TPS
-my $cgi_home_subsystem_file_path              = "";  # TPS
-my $cgi_demo_instance_file_path               = "";  # TPS
-my $cgi_demo_subsystem_file_path              = "";  # TPS
-my $cgi_so_instance_file_path                 = "";  # TPS
-my $cgi_so_subsystem_file_path                = "";  # TPS
-my $cgi_so_instance_enroll_file_path          = "";  # TPS
-my $cgi_so_subsystem_enroll_file_path         = "";  # TPS
-my $cgi_sow_instance_file_path                = "";  # TPS
-my $cgi_sow_subsystem_file_path               = "";  # TPS
-my $cgi_sow_instance_cgi_file_path            = "";  # TPS
-my $cgi_sow_subsystem_cgi_file_path           = "";  # TPS
-my $cgi_sow_instance_cfg_pl_path              = "";  # TPS
-my $addAgents_ldif_instance_file_path         = "";  # TPS
-my $addAgents_ldif_subsystem_file_path        = "";  # TPS
-my $addIndexes_ldif_instance_file_path        = "";  # TPS
-my $addIndexes_ldif_subsystem_file_path       = "";  # TPS
-my $addTokens_ldif_instance_file_path         = "";  # TPS
-my $addTokens_ldif_subsystem_file_path        = "";  # TPS
-my $addVLVIndexes_ldif_instance_file_path     = "";  # TPS
-my $addVLVIndexes_ldif_subsystem_file_path    = "";  # TPS
-my $apachectl_instance_file_path              = "";  # TPS
-my $apachectl_subsystem_file_path             = "";  # TPS
-my $jss_jar_file_path                         = "";  # CA, KRA, OCSP, TKS
-my $jss_jar_symlink_path                      = "";  # CA, KRA, OCSP, TKS
-my $tomcatjss_jar_file_path                   = "";  # CA, KRA, OCSP, TKS
-my $tomcatjss_jar_symlink_path                = "";  # CA, KRA, OCSP, TKS
-my $xerces_jar_file_path                      = "";  # CA, KRA, OCSP, TKS
-my $xerces_jar_symlink_path                   = "";  # CA, KRA, OCSP, TKS
-my $certsrv_jar_file_path                     = "";  # CA, KRA, OCSP, TKS
-my $certsrv_jar_symlink_path                  = "";  # CA, KRA, OCSP, TKS
-my $cms_jar_file_path                         = "";  # CA, KRA, OCSP, TKS
-my $cms_jar_symlink_path                      = "";  # CA, KRA, OCSP, TKS
-my $nsutil_jar_file_path                      = "";  # CA, KRA, OCSP, TKS
-my $nsutil_jar_symlink_path                   = "";  # CA, KRA, OCSP, TKS
-my $cmsutil_jar_file_path                     = "";  # CA, KRA, OCSP, TKS
-my $cmsutil_jar_symlink_path                  = "";  # CA, KRA, OCSP, TKS
-my $cmsbundle_jar_file_path                   = "";  # CA, KRA, OCSP, TKS
-my $cmsbundle_jar_symlink                     = "";  # CA, KRA, OCSP, TKS
-my $cmscore_jar_file_path                     = "";  # CA, KRA, OCSP, TKS
-my $cmscore_jar_symlink_path                  = "";  # CA, KRA, OCSP, TKS
-my $httpd_conf_instance_file_path             = "";  # RA, TPS
-my $httpd_conf_subsystem_file_path            = "";  # RA, TPS
-my $index_html_instance_file_path             = "";  # CA, KRA, OCSP, TKS
-my $index_html_subsystem_file_path            = "";  # CA, KRA, OCSP, TKS
-my $java_pki_flavor_jar_path                  = "";  # CA, KRA, OCSP, TKS
-my $magic_instance_file_path                  = "";  # RA, TPS
-my $magic_subsystem_file_path                 = "";  # RA, TPS
-my $mime_types_instance_file_path             = "";  # RA, TPS
-my $mime_types_subsystem_file_path            = "";  # RA, TPS
-my $noise_instance_file_path                  = "";  # CA, KRA, OCSP, TKS,
-                                                     # RA, TPS
-my $nss_conf_instance_file_path               = "";  # RA, TPS
-my $nss_conf_subsystem_file_path              = "";  # RA, TPS
-my $perl_conf_instance_file_path              = "";  # RA, TPS
-my $perl_conf_subsystem_file_path             = "";  # RA, TPS
-my $osutil_jar_file_path                      = "";  # CA, KRA, OCSP, TKS
-my $osutil_jar_symlink_path                   = "";  # CA, KRA, OCSP, TKS
-my $password_conf_instance_file_path          = "";  # CA, KRA, OCSP, TKS,
-                                                     # RA, TPS
-my $perl_instance_symlink_path                = "";  # RA, TPS
-my $perl_subsystem_path                       = "";  # RA, TPS
-my $pfile_instance_file_path                  = "";  # CA, KRA, OCSP, TKS,
-                                                     # RA, TPS
-my $pwcache_conf_instance_file_path           = "";  # RA, TPS
-my $pki_cfg_instance_file_path                = "";  # CA, KRA, OCSP, TKS,
-                                                     # RA, TPS
-my $pki_cfg_subsystem_file_path               = "";  # CA, KRA, OCSP, TKS,
-                                                     # RA, TPS
-my $schemaMods_ldif_instance_file_path        = "";  # RA, TPS
-my $schemaMods_ldif_subsystem_file_path       = "";  # RA, TPS
-my $server_xml_instance_file_path             = "";  # CA, KRA, OCSP, TKS
-my $server_xml_subsystem_file_path            = "";  # CA, KRA, OCSP, TKS
-my $servercertnick_conf_instance_file_path    = "";  # CA, KRA, OCSP, TKS
-my $servercertnick_conf_subsystem_file_path   = "";  # CA, KRA, OCSP, TKS
-my $subsystem_jar_file_path                   = "";  # CA, KRA, OCSP, TKS
-my $subsystem_jar_symlink_path                = "";  # CA, KRA, OCSP, TKS
-my $tomcat6_conf_subsystem_file_path          = "";  # CA, KRA, OCSP, TKS
-my $tomcat6_conf_instance_file_path           = "";  # CA, KRA, OCSP, TKS
-my $tomcat6_instance_pid_file_path            = "";  # CA, KRA, OCSP, TKS
-my $velocity_prop_instance_file_path          = "";  # CA, KRA, OCSP, TKS
-my $velocity_prop_subsystem_file_path         = "";  # CA, KRA, OCSP, TKS
-my $web_xml_instance_file_path                = "";  # CA, KRA, OCSP, TKS
-my $web_xml_subsystem_file_path               = "";  # CA, KRA, OCSP, TKS
-my $catalina_properties_instance_file_path    = "";  # CA, KRA, OCSP, TKS
-my $catalina_properties_subsystem_file_path   = "";  # CA, KRA, OCSP, TKS
-my $webapps_root_instance_path                = "";  # CA, KRA, OCSP, TKS
-my $webapps_root_subsystem_path               = "";  # CA, KRA, OCSP, TKS
-my $webinf_instance_path                      = "";  # CA, KRA, OCSP, TKS
-my $webinf_lib_instance_path                  = "";  # CA, KRA, OCSP, TKS
-my $webinf_subsystem_path                     = "";  # CA, KRA, OCSP, TKS
-my $profile_select_template_subsystem_file_path = ""; #CA
-my $profile_select_template_instance_file_path = "";  #CA
+my $cgi_home_instance_file_path                  = undef;  # TPS
+my $cgi_home_subsystem_file_path                 = undef;  # TPS
+my $cgi_demo_instance_file_path                  = undef;  # TPS
+my $cgi_demo_subsystem_file_path                 = undef;  # TPS
+my $cgi_so_instance_file_path                    = undef;  # TPS
+my $cgi_so_subsystem_file_path                   = undef;  # TPS
+my $cgi_so_instance_enroll_file_path             = undef;  # TPS
+my $cgi_so_subsystem_enroll_file_path            = undef;  # TPS
+my $cgi_sow_instance_file_path                   = undef;  # TPS
+my $cgi_sow_subsystem_file_path                  = undef;  # TPS
+my $cgi_sow_instance_cgi_file_path               = undef;  # TPS
+my $cgi_sow_subsystem_cgi_file_path              = undef;  # TPS
+my $cgi_sow_instance_cfg_pl_path                 = undef;  # TPS
+my $addAgents_ldif_instance_file_path            = undef;  # TPS
+my $addAgents_ldif_subsystem_file_path           = undef;  # TPS
+my $addIndexes_ldif_instance_file_path           = undef;  # TPS
+my $addIndexes_ldif_subsystem_file_path          = undef;  # TPS
+my $addTokens_ldif_instance_file_path            = undef;  # TPS
+my $addTokens_ldif_subsystem_file_path           = undef;  # TPS
+my $addVLVIndexes_ldif_instance_file_path        = undef;  # TPS
+my $addVLVIndexes_ldif_subsystem_file_path       = undef;  # TPS
+my $apachectl_instance_file_path                 = undef;  # TPS
+my $apachectl_subsystem_file_path                = undef;  # TPS
+my $jakarta_commons_collections_jar_file_path    = undef;  # CA, KRA, OCSP, TKS
+my $jakarta_commons_collections_jar_symlink_path = undef;  # CA, KRA, OCSP, TKS
+my $jakarta_commons_logging_jar_file_path        = undef;  # CA, KRA, OCSP, TKS
+my $jakarta_commons_logging_jar_symlink_path     = undef;  # CA, KRA, OCSP, TKS
+my $jss_jar_file_path                            = undef;  # CA, KRA, OCSP, TKS
+my $jss_jar_symlink_path                         = undef;  # CA, KRA, OCSP, TKS
+my $ldapjdk_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
+my $ldapjdk_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
+my $xerces_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $xerces_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $certsrv_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
+my $certsrv_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $cms_jar_file_path                            = undef;  # CA, KRA, OCSP, TKS
+my $cms_jar_symlink_path                         = undef;  # CA, KRA, OCSP, TKS
+my $nsutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $nsutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $cmsutil_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
+my $cmsutil_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $cmsbundle_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
+my $cmsbundle_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
+my $cmscore_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
+my $cmscore_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $velocity_jar_file_path                       = undef;  # CA, KRA, OCSP, TKS
+my $velocity_jar_symlink_path                    = undef;  # CA, KRA, OCSP, TKS
+my $httpd_conf_instance_file_path                = undef;  # RA, TPS
+my $httpd_conf_subsystem_file_path               = undef;  # RA, TPS
+my $index_html_instance_file_path                = undef;  # CA, KRA, OCSP, TKS
+my $index_html_subsystem_file_path               = undef;  # CA, KRA, OCSP, TKS
+my $java_pki_flavor_jar_path                     = undef;  # CA, KRA, OCSP, TKS
+my $magic_instance_file_path                     = undef;  # RA, TPS
+my $magic_subsystem_file_path                    = undef;  # RA, TPS
+my $mime_types_instance_file_path                = undef;  # RA, TPS
+my $mime_types_subsystem_file_path               = undef;  # RA, TPS
+my $noise_instance_file_path                     = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $nss_conf_instance_file_path                  = undef;  # RA, TPS
+my $nss_conf_subsystem_file_path                 = undef;  # RA, TPS
+my $nss_pcache_instance_file_path                = undef;  # RA, TPS
+my $nss_pcache_subsystem_file_path               = undef;  # RA, TPS
+my $perl_conf_instance_file_path                 = undef;  # RA, TPS
+my $perl_conf_subsystem_file_path                = undef;  # RA, TPS
+my $osutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $osutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $password_conf_instance_file_path             = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $perl_instance_symlink_path                   = undef;  # RA, TPS
+my $perl_subsystem_path                          = undef;  # RA, TPS
+my $pfile_instance_file_path                     = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $pwcache_conf_instance_file_path              = undef;  # RA, TPS
+my $pki_cfg_instance_file_path                   = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $pki_cfg_subsystem_file_path                  = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $schemaMods_ldif_instance_file_path           = undef;  # RA, TPS
+my $schemaMods_ldif_subsystem_file_path          = undef;  # RA, TPS
+my $server_xml_instance_file_path                = undef;  # CA, KRA, OCSP, TKS
+my $server_xml_subsystem_file_path               = undef;  # CA, KRA, OCSP, TKS
+my $servercertnick_conf_instance_file_path       = undef;  # CA, KRA, OCSP, TKS
+my $servercertnick_conf_subsystem_file_path      = undef;  # CA, KRA, OCSP, TKS
+my $subsystem_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
+my $subsystem_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
+my $tomcat6_conf_subsystem_file_path             = undef;  # CA, KRA, OCSP, TKS
+my $tomcat6_conf_instance_file_path              = undef;  # CA, KRA, OCSP, TKS
+my $tomcat6_instance_pid_file_path               = undef;  # CA, KRA, OCSP, TKS
+my $velocity_prop_instance_file_path             = undef;  # CA, KRA, OCSP, TKS
+my $velocity_prop_subsystem_file_path            = undef;  # CA, KRA, OCSP, TKS
+my $web_xml_instance_file_path                   = undef;  # CA, KRA, OCSP, TKS
+my $web_xml_subsystem_file_path                  = undef;  # CA, KRA, OCSP, TKS
+my $catalina_properties_instance_file_path       = undef;  # CA, KRA, OCSP, TKS
+my $catalina_properties_subsystem_file_path      = undef;  # CA, KRA, OCSP, TKS
+my $webapps_root_instance_path                   = undef;  # CA, KRA, OCSP, TKS
+my $webapps_root_subsystem_path                  = undef;  # CA, KRA, OCSP, TKS
+my $webinf_instance_path                         = undef;  # CA, KRA, OCSP, TKS
+my $webinf_lib_instance_path                     = undef;  # CA, KRA, OCSP, TKS
+my $webinf_subsystem_path                        = undef;  # CA, KRA, OCSP, TKS
+my $profile_select_template_subsystem_file_path  = undef; #CA
+my $profile_select_template_instance_file_path   = undef;  #CA
 
 # PKI init script variables
-my $default_initscripts_path                  = "";  # CA, KRA, OCSP, TKS
-                                                     # RA, TPS
-my $pki_registry_initscript                   = "";  # CA, KRA, OCSP, TKS,
-                                                     # RA, TPS
-my $pki_registry_initscript_command           = "";  # CA, KRA, OCSP, TKS,
-                                                     # RA, TPS
+my $default_initscripts_path                  = undef;  # CA, KRA, OCSP, TKS RA, TPS
+my $pki_registry_initscript                   = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $pki_registry_initscript_command           = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 
 # PKI registry variables
-my $default_registry_path                     = "";  # CA, KRA, OCSP, TKS
-                                                     # RA, TPS
-my $pki_registry_path                         = "";  # CA, KRA, OCSP, TKS
-                                                     # RA, TPS
-my $pki_registry_subsystem_path               = "";  # CA, KRA, OCSP, TKS
-                                                     # RA, TPS
-my $pki_registry_subsystem_file_path          = "";  # CA, KRA, OCSP, TKS
-                                                     # RA, TPS
-my $pki_registry_instance_file_path           = "";  # CA, KRA, OCSP, TKS
-                                                     # RA, TPS
+my $default_registry_path                     = undef;  # CA, KRA, OCSP, TKS RA, TPS
+my $pki_registry_path                         = undef;  # CA, KRA, OCSP, TKS RA, TPS
+my $pki_registry_subsystem_path               = undef;  # CA, KRA, OCSP, TKS RA, TPS
+my $pki_registry_subsystem_file_path          = undef;  # CA, KRA, OCSP, TKS RA, TPS
+my $pki_registry_instance_file_path           = undef;  # CA, KRA, OCSP, TKS RA, TPS
 
 # PKI creation variables
-my $host = "";
-my $db_password = 0;
-my $random = 0;
+my $host        = undef;
+my $db_password = undef;
+my $random      = undef;
+
+# Linux specific variables
+my $setup_base_subsystem_dir         = "setup";
+my $setup_subsystem_path             = undef;
+my $setup_config_instance_file_path  = undef;
+my $setup_config_subsystem_file_path = undef;
+my $setup_config_area                = undef;
+my $setup_config_name                = undef;
+my $tomcat6_initscript_path          = undef;
+my $tomcat6_instance_config_path     = undef;
+my $root_user                        = undef;
+my $root_group                       = undef;
+my $pki_instance_initscript_path     = undef;
 
 
 ##############################################################
@@ -589,11 +573,6 @@ my $random = 0;
 ##############################################################
 
 if ($^O eq "linux") {
-    $setup_base_subsystem_dir         = "setup";  # CA, KRA, OCSP, TKS, RA, TPS
-    $setup_subsystem_path             = "";       # CA, KRA, OCSP, TKS, RA, TPS
-    $setup_config_instance_file_path  = "";       # CA, KRA, OCSP, TKS, RA, TPS
-    $setup_config_subsystem_file_path = "";       # CA, KRA, OCSP, TKS, RA, TPS
-
     # Linux required desktop files
     $setup_config_area = "/usr/share/applications";
     $setup_config_name = "config.desktop";
@@ -627,20 +606,14 @@ if ($^O eq "linux") {
         # 32-bit Linux
 
         # Supported hardware token PKCS #11 modules
-        %supported_sec_modules_hash = ("lunasa",
-                                       "/usr/lunasa/lib/libCryptoki2.so",
-                                       "nfast",
-                                       "/opt/nfast/toolkits/pkcs11/libcknfast.so"
-            );
+        %supported_sec_modules_hash = ("lunasa" => "/usr/lunasa/lib/libCryptoki2.so",
+                                       "nfast"  => "/opt/nfast/toolkits/pkcs11/libcknfast.so");
     } elsif ($default_hardware_platform eq "x86_64") {
         # 64-bit Linux
 
         # Supported hardware token PKCS #11 modules
-        %supported_sec_modules_hash = ("lunasa",
-                                       "/usr/lunasa/lib/libCryptoki2.so",
-                                       "nfast",
-                                       "/opt/nfast/toolkits/pkcs11/libcknfast.so"
-            );
+        %supported_sec_modules_hash = ("lunasa" => "/usr/lunasa/lib/libCryptoki2.so",
+                                       "nfast"  => "/opt/nfast/toolkits/pkcs11/libcknfast.so");
     } else {
         emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!\n", "error");
         exit 255;
@@ -981,23 +954,23 @@ sub parse_arguments
     my $l_admin_secure_port  = -1;
     my $show_help            = 0;
 
-    my $result = GetOptions("help" => \$show_help,
-                            "pki_instance_root=s" => \$pki_instance_root,
-                            "pki_instance_name=s" => \$pki_instance_name,
-                            "subsystem_type=s" => \$subsystem_type,
-                            "secure_port:i" => \$l_secure_port,
+    my $result = GetOptions("help"                         => \$show_help,
+                            "pki_instance_root=s"          => \$pki_instance_root,
+                            "pki_instance_name=s"          => \$pki_instance_name,
+                            "subsystem_type=s"             => \$subsystem_type,
+                            "secure_port:i"                => \$l_secure_port,
                             "non_clientauth_secure_port:i" => \$l_non_clientauth_secure_port,
-                            "unsecure_port:i" => \$l_unsecure_port,
-                            "agent_secure_port:i" => \$l_agent_secure_port,
-                            "ee_secure_port:i" => \$l_ee_secure_port,
+                            "unsecure_port:i"              => \$l_unsecure_port,
+                            "agent_secure_port:i"          => \$l_agent_secure_port,
+                            "ee_secure_port:i"             => \$l_ee_secure_port,
                             "ee_secure_client_auth_port:i" => \$l_ee_secure_client_auth_port,
-                            "admin_secure_port:i" => \$l_admin_secure_port, 
-                            "tomcat_server_port:i" => \$l_tomcat_server_port,
-                            "user=s" => \$username,
-                            "group=s" => \$groupname,
-                            "verbose+" => \$verbose,
-                            "dry_run" => \$dry_run,
-                            "redirect=s" => \%redirects);
+                            "admin_secure_port:i"          => \$l_admin_secure_port, 
+                            "tomcat_server_port:i"         => \$l_tomcat_server_port,
+                            "user=s"                       => \$username,
+                            "group=s"                      => \$groupname,
+                            "verbose+"                     => \$verbose,
+                            "dry_run"                      => \$dry_run,
+                            "redirect=s"                   => \%redirects);
 
 
     ## Optional "-help" option - no "mandatory" options are required
@@ -1400,9 +1373,9 @@ EOF
 
 ASK_CONTINUE_NONSTD_INSTANCE_ROOT:
 
-        $confirm  = prompt("You have chosen the following value for pki_instance_root instead: "
-                           .  $pki_instance_root
-                           . "\nDo you wish to proceed with this value (Y/N)?");
+        my $confirm  = prompt("You have chosen the following value for pki_instance_root instead: "
+                              .  $pki_instance_root
+                              . "\nDo you wish to proceed with this value (Y/N)?");
 
         if ($confirm eq "N" || $confirm eq "n") {
             return 0;
@@ -2945,8 +2918,10 @@ sub process_pki_selinux_setup
         $conf_path =$redirected_conf_path;
     }
 
-    if (($subsystem_type eq $CA) || ($subsystem_type eq $KRA) || ($subsystem_type eq $OCSP) 
-        || ($subsystem_type eq $TKS)) {
+    if ($subsystem_type eq $CA   ||
+        $subsystem_type eq $KRA  ||
+        $subsystem_type eq $OCSP ||
+        $subsystem_type eq $TKS) {
         $java_component =1;
     }
 

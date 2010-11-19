@@ -19,6 +19,61 @@
 # --- END COPYRIGHT BLOCK ---
 #
 
+package pkicommon;
+use strict;
+use warnings;
+
+use Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT = qw(
+ $lib_prefix $obj_ext $path_sep $tmp_dir $logfile
+ $verbose $dry_run $hostname $default_hardware_platform
+ $default_system_binaries $default_system_libraries $default_system_user_binaries
+ $default_system_user_libraries $default_system_jni_java_path
+ $default_security_libraries $default_certutil_command
+ $default_ldapmodify_command $default_modutil_command
+ $default_dir_permissions $default_exe_permissions $default_file_permissions
+ $ROOTUID $MAX_WELL_KNOWN_PORT $MAX_RESERVED_PORT $MAX_REGISTERED_PORT $MAX_DYNAMIC_PORT
+ $FILE_PREFIX $FTP_PREFIX $HTTP_PREFIX $HTTPS_PREFIX $LDAP_PREFIX $LDAPS_PREFIX
+ $PKI_USER $PKI_GROUP $PKI_UID $PKI_GID
+ $CA $KRA $OCSP $TKS $RA $TPS
+ $CA_INIT_SCRIPT $KRA_INIT_SCRIPT $OCSP_INIT_SCRIPT
+ $TKS_INIT_SCRIPT $RA_INIT_SCRIPT $TPS_INIT_SCRIPT
+ $install_info_basename $cleanup_basename %installation_info
+
+ add_install_info remove_install_info get_install_description
+ format_install_info get_install_info_description
+ parse_install_info parse_old_cleanup read_old_cleanup
+ read_install_info read_install_info_from_dir write_install_info_to_dir uninstall
+ is_Windows is_Linux is_Fedora is_RHEL is_RHEL4 setup_platform_dependent_parameters
+ set_library_path get_library_path
+ check_for_root_UID user_disallows_shell
+ user_exists create_user
+ group_exists create_group user_is_a_member_of_group add_user_as_a_member_of_group
+ get_UID_from_username
+ get_FQDN check_for_valid_url_prefix
+ AreConnectorPortsValid IsLocalPortAvailable IsServerReachable
+ get_time_stamp generate_random generate_random_string password_quality_checker
+ LDAP_add LDAP_modify
+ certutil_create_databases certutil_delete_cert certutil_generate_CSR
+ certutil_generate_self_signed_cert certutil_import_cert
+ certutil_print_cert certutil_list_certs modutil_add_token
+ open_logfile print_to_logfile close_logfile
+ prompt printFile emit
+ is_path_valid is_name_valid entity_type entity_exists
+ file_exists is_file_empty create_empty_file create_file copy_file remove_file
+ set_permissions set_owner_group set_file_props
+ get_directory_files normalize_path
+ directory_exists is_directory_empty create_directory copy_directory remove_directory
+ set_owner_group_on_directory_contents
+ symlink_exists create_symlink remove_symlink set_owner_group_on_symlink
+ run_command get_registry_initscript_name 
+ register_pki_instance_with_chkconfig deregister_pki_instance_with_chkconfig
+ );
+
+
+use File::Slurp qw(read_file write_file);
+
 ##############################################################
 # This file contains shared data and subroutines for
 # the "pkicreate" and "pkiremove" Perl scripts.
@@ -72,26 +127,52 @@ if (($^O ne 'Windows_NT') && ($^O ne 'MSWin32')) {
 
 use Sys::Hostname;
 use FileHandle;
-use Getopt::Long;
 use Socket;
 use File::Copy;
 use File::Basename;
 use File::Path qw(make_path remove_tree);
 
 ##############################################################
+# Global Variables
+##############################################################
+
+# Platform-dependent parameters
+our $lib_prefix = undef;
+our $obj_ext    = undef;
+our $path_sep   = undef;
+our $tmp_dir    = undef;
+
+# "logging" parameters
+our $logfile = undef;
+
+# Whether or not to do verbose mode
+our $verbose = 0;
+
+# Controls whether actions are executed (dry_run == false)
+# or if actions are only reported (dry_run == true).
+our $dry_run = 0;
+
+our $hostname = undef;
+
+##############################################################
 # Shared Default Values
 ##############################################################
 
-$default_hardware_platform     = "";
-$default_system_binaries       = "";
-$default_system_libraries      = "";
-$default_system_user_binaries  = "";
-$default_system_user_libraries = "";
-$default_system_jni_java_path  = "";
-$default_security_libraries    = "";
-$default_certutil_command      = "";
-$default_ldapmodify_command    = "";
-$default_modutil_command       = "";
+our $default_hardware_platform     = undef;
+our $default_system_binaries       = undef;
+our $default_system_libraries      = undef;
+our $default_system_user_binaries  = undef;
+our $default_system_user_libraries = undef;
+our $default_system_jni_java_path  = undef;
+our $default_security_libraries    = undef;
+our $default_certutil_command      = undef;
+our $default_ldapmodify_command    = undef;
+our $default_modutil_command       = undef;
+
+our $default_dir_permissions       = 00770;
+our $default_exe_permissions       = 00770;
+our $default_file_permissions      = 00660;
+
 
 # Use a local variable to denote IPv6
 my $is_IPv6 = 0;
@@ -103,15 +184,15 @@ if ($^O eq "linux") {
     chomp($default_hardware_platform);
     if ($default_hardware_platform eq "i386") {
         # 32-bit Linux
-        $default_system_binaries      = "/bin";
-        $default_system_libraries     = "/lib";
+        $default_system_binaries       = "/bin";
+        $default_system_libraries      = "/lib";
         $default_system_user_binaries  = "/usr/bin";
         $default_system_user_libraries = "/usr/lib";
         $default_system_jni_java_path  = "/usr/lib/java";
     } elsif ($default_hardware_platform eq "x86_64") {
         # 64-bit Linux
-        $default_system_binaries      = "/bin";
-        $default_system_libraries     = "/lib64";
+        $default_system_binaries       = "/bin";
+        $default_system_libraries      = "/lib64";
         $default_system_user_binaries  = "/usr/bin";
         $default_system_user_libraries = "/usr/lib64";
         $default_system_jni_java_path  = "/usr/lib/java";
@@ -147,74 +228,49 @@ $default_modutil_command    = "$default_system_user_binaries/modutil";
 # Global Constants
 ##############################################################
 
-$ROOTUID = 0;
+our $ROOTUID = 0;
 
-$MAX_RUNLEVEL = 6;
-$DEFAULT_RUNLEVEL = "-";
-$DEFAULT_START_PRIORITY = 99;
-$DEFAULT_STOP_PRIORITY = 99;
+our $MAX_WELL_KNOWN_PORT = 511;    #      well-known ports =     0 through   511
+our $MAX_RESERVED_PORT   = 1023;   #        reserved ports =   512 through  1023
+our $MAX_REGISTERED_PORT = 49151;  #      registered ports =  1024 through 49151
+our $MAX_DYNAMIC_PORT    = 65535;  # dynamic/private ports = 49152 through 65535
 
-$MAX_WELL_KNOWN_PORT = 511;    #      well-known ports =     0 through   511
-$MAX_RESERVED_PORT   = 1023;   #        reserved ports =   512 through  1023
-$MAX_REGISTERED_PORT = 49151;  #      registered ports =  1024 through 49151
-$MAX_DYNAMIC_PORT    = 65535;  # dynamic/private ports = 49152 through 65535
-
-$FILE_PREFIX         = "file://";
-$FTP_PREFIX          = "ftp://";
-$HTTP_PREFIX         = "http://";
-$HTTPS_PREFIX        = "https://";
-$LDAP_PREFIX         = "ldap://";
-$LDAPS_PREFIX        = "ldaps://";
+our $FILE_PREFIX         = "file://";
+our $FTP_PREFIX          = "ftp://";
+our $HTTP_PREFIX         = "http://";
+our $HTTPS_PREFIX        = "https://";
+our $LDAP_PREFIX         = "ldap://";
+our $LDAPS_PREFIX        = "ldaps://";
 
 # Identity values
-$PKI_USER  = "pkiuser";
-$PKI_GROUP = "pkiuser";
-$PKI_UID   = 17;
-$PKI_GID   = 17;
+our $PKI_USER  = "pkiuser";
+our $PKI_GROUP = "pkiuser";
+our $PKI_UID   = 17;
+our $PKI_GID   = 17;
 
 # Subsystem names
-$CA   = "ca";
-$KRA  = "kra";
-$OCSP = "ocsp";
-$TKS  = "tks";
-$RA   = "ra";
-$TPS  = "tps";
+our $CA   = "ca";
+our $KRA  = "kra";
+our $OCSP = "ocsp";
+our $TKS  = "tks";
+our $RA   = "ra";
+our $TPS  = "tps";
 
 # Subsystem init scripts
-$CA_INIT_SCRIPT   = "pki-cad";
-$KRA_INIT_SCRIPT  = "pki-krad";
-$OCSP_INIT_SCRIPT = "pki-ocspd";
-$TKS_INIT_SCRIPT  = "pki-tksd";
-$RA_INIT_SCRIPT   = "pki-rad";
-$TPS_INIT_SCRIPT  = "pki-tpsd";
+our $CA_INIT_SCRIPT   = "pki-cad";
+our $KRA_INIT_SCRIPT  = "pki-krad";
+our $OCSP_INIT_SCRIPT = "pki-ocspd";
+our $TKS_INIT_SCRIPT  = "pki-tksd";
+our $RA_INIT_SCRIPT   = "pki-rad";
+our $TPS_INIT_SCRIPT  = "pki-tpsd";
 
-
-##############################################################
-# Global Variables
-##############################################################
-
-# Platform-dependent parameters
-$lib_prefix = "";
-$obj_ext    = "";
-$path_sep   = "";
-$tmp_dir    = "";
-
-# "logging" parameters
-$logfile = "";
-
-# Whether or not to do verbose mode
-$verbose = 0;
-
-# Controls whether actions are executed (dry_run == false)
-# or if actions are only reported (dry_run == true).
-$dry_run = 0;
 
 ##############################################################
 # Local Variables
 ##############################################################
 
 # "identity" parameters
-my $fqdn = "";
+my $fqdn = undef;
 
 # "logging" parameters
 my $logfd = new FileHandle;
@@ -226,10 +282,10 @@ my $logfd = new FileHandle;
 ##############################################################
 
 # Basename of the installation info file.
-$install_info_basename = "install_info";
+our $install_info_basename = "install_info";
 
 # Basename of the old clean up file.
-$cleanup_basename = ".cleanup.dat";
+our $cleanup_basename = ".cleanup.dat";
 
 # Global hash table of installation actions
 # Each filesystem path which is modified during installation
@@ -241,21 +297,21 @@ $cleanup_basename = ".cleanup.dat";
 # on an installation info table. The utility routines can
 # operate on any installation table, but default to using
 # this single global table.
-%installation_info = ();
+our %installation_info = ();
 
 # Table to validate an installation type
-%valid_install_types = ('file'    => 1,
-                        'symlink' => 1,
-                        'dir'     => 1);
+my %valid_install_types = ('file'    => 1,
+                           'symlink' => 1,
+                           'dir'     => 1);
 
 # Table to validate a install action
-%valid_install_action = ('create' => 1,
-                         'move'   => 1,
-                         'remove' => 1); 
+my %valid_install_action = ('create' => 1,
+                            'move'   => 1,
+                            'remove' => 1); 
 
 # Table to validate an uninstall action
-%valid_uninstall_action = ('remove'   => 1,
-                           'preserve' => 1); 
+my %valid_uninstall_action = ('remove'   => 1,
+                              'preserve' => 1); 
 
 # Capture information about items modified during installation
 #
@@ -279,6 +335,7 @@ sub add_install_info {
     $type             = 'file'   unless defined($type);
     $uninstall_action = 'remove' unless defined($uninstall_action);
     $install_action   = 'create' unless defined($install_action);
+    my $info;
 
     die "invalid install type ($type) for path ($path)"
         if (!exists($valid_install_types{$type}));
@@ -340,8 +397,9 @@ sub get_install_description
 sub format_install_info
 {
     my ($install_info) = @_;
-    my $text = "";
+    my ($text, @paths, $path, $info, @key_names, $key, $value);
 
+    $text = "";
     @paths = sort(keys %$install_info);
     foreach $path (@paths) {
         $info = $install_info->{$path};
@@ -681,7 +739,7 @@ sub is_RHEL4 {
     if (is_RHEL()) {
         my $releasefd = new FileHandle;
         if ($releasefd->open("< /etc/redhat-release")) {
-            while (defined($line = <$releasefd>)) {
+            while (defined(my $line = <$releasefd>)) {
                 if ($line =~ /Nahant/i) {
                     return 1;
                 }
@@ -800,6 +858,7 @@ sub user_exists
 sub create_user
 {
     my ($username, $groupname) = @_;
+    my $command;
 
     emit(sprintf("create_user(%s)\n", join(", ", @_)), "debug");
 
@@ -883,6 +942,7 @@ sub group_exists
 sub create_group
 {
     my ($groupname) = @_;
+    my $command;
 
     emit(sprintf("create_group(%s)\n", join(", ", @_)), "debug");
 
@@ -1342,6 +1402,7 @@ sub generate_random_string
 sub password_quality_checker
 {
     my ($password) = @_;
+    my ($i, $letter);
 
     # Test #1:  $password MUST be > 8 characters
     if (length($password) < 8) {
@@ -1865,7 +1926,7 @@ sub print_to_logfile
 {
     my ($logfile_name, $message) = @_;
 
-    if ($logfile_name ne "") {
+    if (defined($logfile_name)) {
         $logfd->print($message);
     }
 

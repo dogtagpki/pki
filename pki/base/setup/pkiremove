@@ -19,6 +19,11 @@
 # --- END COPYRIGHT BLOCK ---
 #
 
+use strict;
+use warnings;
+
+use Getopt::Long qw(GetOptions);
+
 ##############################################################
 # This script is used to remove an existing PKI instance.
 #
@@ -35,20 +40,6 @@
 #                                                      # questions
 #
 ##############################################################
-
-
-##############################################################
-# Perl Version
-##############################################################
-
-my $MINIMUM_PERL_VERSION = "5.006001";
-
-my $perl_version_error_message = "ERROR:  Using Perl version $] ...\n"
-                               . "        Must use Perl version "
-                               . "$MINIMUM_PERL_VERSION or later to "
-                               . "run this script!\n";
-
-die $perl_version_error_message if $] < $MINIMUM_PERL_VERSION;
 
 
 ##############################################################
@@ -89,7 +80,7 @@ my $ARGS = ($#ARGV + 1);
 ##############################################################
 
 # Compute "flavor" of Operating System
-my $pki_flavor = "";
+my $pki_flavor = undef;
 if ($^O eq "linux") {
     $pki_flavor = "pki";
 } elsif ($^O eq "solaris") {
@@ -101,23 +92,8 @@ if ($^O eq "linux") {
 
 $pki_flavor =~ s/\s+$//g;
 
-# Establish path to scripts
-my $common_path = "/usr/share/pki/scripts";
-
-if (! -d $common_path) {
-    emit("The path '$common_path' does not exist! "
-         . "Unable to load shared Common Perl Data and Subroutines!\n", "error");
-    exit 255;
-}
-
-if (! -e "$common_path/pkicommon") {
-    emit("The file '$common_path/pkicommon' does not exist! "
-         . "Unable to load shared Common Perl Data and Subroutines!\n", "error");
-    exit 255;
-}
-
-eval("use lib '" . $common_path . "'");
-require('pkicommon');
+use lib "/usr/share/pki/scripts";
+use pkicommon;
 
 # make -w happy by suppressing warnings of Global variables used only once
 my $suppress = "";
@@ -138,22 +114,22 @@ my $semanage = "/usr/sbin/semanage";
 # Local Variables
 ##############################################################
 
-my $pki_instance_root = "";
-my $pki_instance_name = "";
-my $force             = 0;
+my $pki_instance_root               = undef;
+my $pki_instance_name               = undef;
+my $force                           = 0;
 
-my $pki_instance_path = "";
-my $subsystem_type = "";
+my $pki_instance_path               = undef;
+my $subsystem_type                  = undef;
 
 # PKI init script variables
-my $default_initscripts_path = "";
-my $pki_registry_initscript = "";
-my $pki_registry_initscript_command = "";
+my $default_initscripts_path        = undef;
+my $pki_registry_initscript         = undef;
+my $pki_registry_initscript_command = undef;
 
 # PKI registry variables
-my $default_registry_path = "";
-my $pki_registry_path = "";
-my $pki_registry_subsystem_path = "";
+my $default_registry_path           = undef;
+my $pki_registry_path               = undef;
+my $pki_registry_subsystem_path     = undef;
 
 ##############################################################
 # Platform-Dependent Data Initialization
@@ -211,6 +187,7 @@ sub update_domain
     my $conf_file = $pki_instance_path . "/conf/CS.cfg";
     my $sport;
     my $ncsport;
+    my $sechost;
     my $httpport;
     my $seceeport;
     my $secagentport;
@@ -218,9 +195,11 @@ sub update_domain
     my $adminsport;
     my $agentsport;
     my $secselect;
+    my $subsystemnick;
     my $typeval;
     my $machinename;
     my $subsytemnick;
+    my $url;
     
     open(DAT, $conf_file) or die "Could not open CS.cfg file to update security domain";
     my @conf_data=<DAT>;
@@ -310,15 +289,15 @@ sub update_domain
 
         my $response = $browser->post($url, 
             [
-                'name' => $pki_instance_name,
-                'type' => $typeval,
-                'list' => $listval,
-                'host' => $machinename,
-                'sport' => $sport,
-                'ncsport' => $ncsport,
+                'name'       => $pki_instance_name,
+                'type'       => $typeval,
+                'list'       => $listval,
+                'host'       => $machinename,
+                'sport'      => $sport,
+                'ncsport'    => $ncsport,
                 'adminsport' => $adminsport,
                 'agentsport' => $agentsport,
-                'operation' => 'remove'
+                'operation'  => 'remove'
             ],
 );
  
@@ -348,16 +327,16 @@ sub remove_fcontext
 
 sub remove_selinux_fcontexts
 {
-    my $setype = "pki_" . $subsystem_type;
+    my $setype                = "pki_" . $subsystem_type;
     my $default_instance_name = "pki-" . $subsystem_type;
     my $default_instance_root = "/var/lib";
-    my $default_log_path = "/var/log/" . $default_instance_name;
-    my $default_conf_path = "/etc/" . $default_instance_name;
+    my $default_log_path      = "/var/log/" . $default_instance_name;
+    my $default_conf_path     = "/etc/" . $default_instance_name;
 
-    my $log_path = "$pki_instance_path/logs";
-    my $conf_path = "$pki_instance_path/conf";
+    my $log_path              = "$pki_instance_path/logs";
+    my $conf_path             = "$pki_instance_path/conf";
     my $ftype;
-    my $java_component=0;
+    my $java_component        = 0;
 
     if (($subsystem_type eq "ca") || ($subsystem_type eq "kra") || ($subsystem_type eq "ocsp")
         || ($subsystem_type eq "tks")) {
@@ -588,11 +567,11 @@ sub main
     }
 
     # Parse command-line arguments.
-    $result = GetOptions("pki_instance_root=s" => \$pki_instance_root,
+    $result = GetOptions("pki_instance_root=s"  => \$pki_instance_root,
                           "pki_instance_name=s" => \$pki_instance_name,
-                          "verbose+" => \$verbose,
-                          "dry_run" => \$dry_run,
-                          "force" => \$force);
+                          "verbose+"            => \$verbose,
+                          "dry_run"             => \$dry_run,
+                          "force"               => \$force);
 
     # Always disallow root to be the pki_instance_root.
     if ($pki_instance_root eq "/") {
