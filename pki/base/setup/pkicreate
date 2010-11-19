@@ -827,7 +827,9 @@ pkicreate -pki_instance_root=<pki_instance_root>   # Instance root directory
                                                    # 'logs' directory
 
           [-verbose]                               # Print out liberal info
-                                                   # during 'pkicreate'
+                                                   # during 'pkicreate'.
+                                                   # Specify multiple times
+                                                   # to increase verbosity.
 
           [-help]                                  # Print out this screen
 
@@ -878,7 +880,9 @@ pkicreate -pki_instance_root=<pki_instance_root>   # Instance root directory
                                                    # 'logs' directory
 
           [-verbose]                               # Print out liberal info
-                                                   # during 'pkicreate'
+                                                   # during 'pkicreate'.
+                                                   # Specify multiple times
+                                                   # to increase verbosity.
 
           [-help]                                  # Print out this screen
 
@@ -1060,7 +1064,7 @@ sub parse_arguments()
                           "tomcat_server_port:i" => \$l_tomcat_server_port,
                           "user=s" => \$username,
                           "group=s" => \$groupname,
-                          "verbose" => \$verbose,
+                          "verbose+" => \$verbose,
                           "redirect=s" => \%redirects );
 
 

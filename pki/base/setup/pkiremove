@@ -208,8 +208,10 @@ Usage:  pkiremove -pki_instance_root=<pki_instance_root> # Instance root
                                                          # instance name
                                                          # (e. g. - pki-pki1)
 
-                  [-force]                               # Don't ask
-                                                         # any questions
+[-force]   # Don't ask any questions
+
+[-verbose] # Display detailed information. May be specified multiple times,
+           # each time increasing the verbosity level.
 
 Example:  pkiremove -pki_instance_root=/var/lib -pki_instance_name=pki-ca
 
@@ -743,6 +745,7 @@ sub main()
     # Parse command-line arguments.
     $result = GetOptions( "pki_instance_root=s" => \$pki_instance_root,
                           "pki_instance_name=s" => \$pki_instance_name,
+                          "verbose+" => \$verbose,
                           "force" => \$force );
 
     # Always disallow root to be the pki_instance_root.
