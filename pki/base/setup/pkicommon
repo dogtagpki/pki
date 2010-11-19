@@ -2083,6 +2083,278 @@ sub give_file_to
 # Generic "directory" Subroutines
 ##############################################################
 
+# Callback for walk_dir(), see walk_dir() for documentation
+sub walk_callback {
+  my($dir, $basename, $is_dir, $prune, $opts) = @_;
+
+    if ($is_dir) {
+	my($include_dirs, $mark_dir, $add_to_list, $regexp, $regexps);
+	
+	# Don't descend into directories unless recursive.
+	$$prune = ! $opts->{'recursive'};
+
+	# If include filter is provided, basename must match
+	# at least one regexp in filter list.
+	if (defined($regexps = $opts->{'dir_includes'})) {
+	    $add_to_list = 0;
+	    for $regexp (@$regexps) {
+		if ($basename =~ /$regexp/) {
+		    $add_to_list = 1;
+		    last;
+		}
+	    }
+	} else {
+	    $add_to_list = 1;
+	}
+
+	if (!$add_to_list) {
+	    $$prune = 1;
+	    return;
+	}
+
+	# If exclude filter is provided, basename cannot match
+	# any regexp in filter list.
+	if (defined($regexps = $opts->{'dir_excludes'})) {
+	    for $regexp (@$regexps) {
+		if ($basename =~ /$regexp/) {
+		    $add_to_list = 0;
+		    last;
+		}
+	    }
+	}
+
+	if (!$add_to_list) {
+	    $$prune = 1;
+	    return;
+	}
+
+	# Are we collecting directories?
+	$include_dirs = $opts->{'include_dirs'} // 0;
+	return if ! $include_dirs;
+
+	if ($opts->{'mark_dir'}) {
+	    push(@{$opts->{'file_list'}}, "${dir}/${basename}/");
+	} else {
+	    push(@{$opts->{'file_list'}}, "${dir}/${basename}");
+	}
+    }
+    else {
+	my($include_files, $add_to_list, $regexp, $regexps);
+	
+	# If include filter is provided, basename must match
+	# at least one regexp in filter list.
+	if (defined($regexps = $opts->{'file_includes'})) {
+	    $add_to_list = 0;
+	    for $regexp (@$regexps) {
+		if ($basename =~ /$regexp/) {
+		    $add_to_list = 1;
+		    last;
+		}
+	    }
+	} else {
+	    $add_to_list = 1;
+	}
+
+	return if !$add_to_list;
+
+	# If exclude filter is provided, basename cannot match
+	# any regexp in filter list.
+	if (defined($regexps = $opts->{'file_excludes'})) {
+	    for $regexp (@$regexps) {
+		if ($basename =~ /$regexp/) {
+		    $add_to_list = 0;
+		    last;
+		}
+	    }
+	}
+
+	return if !$add_to_list;
+
+	# Are we collecting files?
+	$include_files = $opts->{'include_files'} // 0;
+	return if ! $include_files;
+
+	push(@{$opts->{'file_list'}}, "${dir}/${basename}");
+    }
+}
+
+# Walk directory structure invoking a callback on each
+# item found. Optionally prune traversal.
+#
+# walk_dir($dir, $callback, $prune, $user_data)
+#
+# dir      Path of directory to examine.
+# callback Pointer to callback function.
+# prune    Pointer to boolean variable.
+#          Callback can set to avoid descending into a directory.
+#          Ignored for non-directory callback invocations.
+# opts     Hash table of key/value pairs which controls execution and
+#          can be used to pass user values to the walk callback.
+#          See get_directory_files() for definitions.
+#
+# The signature of the callback is:
+#
+# callback($dir, $basename, $is_dir, $prune, $user_data)
+#
+# dir      Current directory path.
+# basename Entry in directory.
+# is_dir   Boolean, true if basename is a directory
+# prune    Pointer to boolean variable.
+#          Callback can set to avoid descending into a directory.
+#          Ignored for non-directory callback invocations.
+# opts     Hash table of key/value pairs which controls execution and
+#          can be used to pass user values to the walk callback.
+#          See get_directory_files() for definitions.
+#
+sub walk_dir {
+  my($dir, $callback, $prune, $opts) = @_;
+  my($basename);
+
+  # Get the list of files in the current directory.
+  opendir(DIR, $dir) || (warn "Can't open $dir: $!\n", return);
+  my(@entries) = sort readdir(DIR);
+  closedir(DIR);
+    
+  foreach $basename (@entries) {
+    next if $basename eq '.';
+    next if $basename eq '..';
+    $$prune = 0;
+	
+    if (-d "${dir}/${basename}") {	# yes it is a directory
+      &$callback($dir, $basename, 1, $prune, $opts);
+      if (!$$prune) {
+	&walk_dir("${dir}/${basename}", $callback, $prune, $opts);
+      }
+    }
+    else {		# not a directory
+      &$callback($dir, $basename, 0, $prune, $opts);
+      last if $$prune;
+    }
+  }
+}
+
+# Given a directory path return a sorted array of it's contents.
+# The opts parameter is a hash of key/value pairs which controls
+# execution and can be used to pass user values to the walk callback.
+#
+# The options are:
+#
+# strip_dir (default = false)
+#     If true strip the leading $dir from returned paths,
+#     otherwise preserve $dir in each returned path.
+# recursive (default = true)
+#     If true then recusively descend into each directory,
+#     otherwise just examine the starting directory
+# include_dirs (default = false)
+#     If true include directories in the returned array,
+#     otherwise directories are omitted.
+# include_files (default = true)
+#     If true include files in the returned array,
+#     otherwise files are omitted.
+# mark_dir (default = false)
+#     If true paths which are directories (include_dirs must be true)
+#     are indicated by a trailing slash, otherwise the basename of
+#     the directory is left bare.
+#
+# Filtering
+#
+# You may specify a set of include/exclude filters on both directories and
+# files. An entry will be added to the returned list if it's in the include
+# list and not in the exclude list. If either the include or exclude list
+# is undefined it has no effect. Each filter is an array of regular
+# expressions. The basename (directory entry) is tested against the regular
+# expression. For the include filter the basename must match at least one
+# of the regular expressions. For the exclude filter if the basename
+# matches any of the regular expressions it will be excluded.
+#
+# In addition if the traversal is recursive and a directory is excluded via
+# filtering then that directory is not descended into during the recursive
+# traversal.
+#
+# dir_includes (default = undef)
+#     Array of regular expressions. If defined a directory must match at
+#     least one regular expression in the array to be included.
+# dir_excludes (default = undef)
+#     Array of regular expressions. If defined a directory will be excluded
+#     if it matches any regular expression in the array.
+# file_includes (default = undef)
+#     Array of regular expressions. If defined a file must match at
+#     least one regular expression in the array to be included.
+# file_excludes (default = undef)
+#     Array of regular expressions. If defined a file will be excluded
+#     if it matches any regular expression in the array.
+#
+sub get_directory_files
+{
+    my($dir, $opts) = @_;
+    my($strip_dir, $mark_dir, $recursive, $include_dirs, $include_files);
+    my($dir_includes, $dir_excludes, $file_includes, $file_excludes);
+    my($files, $prune, $pat);
+
+    $strip_dir      = $opts->{'strip_dir'}      // 0;
+    $mark_dir       = $opts->{'mark_dir'}       // 0;
+    $recursive      = $opts->{'recursive'}      // 1;
+    $include_dirs   = $opts->{'include_dirs'}   // 0;
+    $include_files  = $opts->{'include_files'}  // 1;
+    $dir_includes   = $opts->{'dir_includes'}   // undef;
+    $dir_excludes   = $opts->{'dir_excludes'}   // undef;
+    $file_includes  = $opts->{'file_includes'}  // undef;
+    $file_excludes  = $opts->{'file_excludes'}  // undef;
+
+    $files = [];
+    $prune = 0;
+
+    walk_dir($dir, \&walk_callback, \$prune,
+	     {'file_list'      => $files,
+	      'mark_dir'       => $mark_dir,
+	      'recursive'      => $recursive,
+	      'include_dirs'   => $include_dirs,
+	      'include_files'  => $include_files,
+	      'dir_includes'   => $dir_includes,
+	      'dir_excludes'   => $dir_excludes,
+	      'file_includes'  => $file_includes,
+	      'file_excludes'  => $file_excludes,
+	     });
+
+    if ($strip_dir) {
+        $pat = "^${dir}/";
+        map {s/$pat//; $_} @$files;
+    }
+        
+    return $files;
+}
+
+# Normalize paths such that:
+#     Multiple slashes are collapsed into one slash
+#     Trailing slash is stripped.
+#     Strip "." path components.
+#     Strip previous path component for ".."
+# Returns normalized path.
+sub normalize_path
+{
+    my($path) = @_;
+    my(@src_components, @dst_components, $component, $leading_slash, $new_path);
+
+    $leading_slash = $path =~ m!^/! ? "/" : "";
+
+    @src_components = split("/", $path);
+    
+    foreach $component (@src_components) {
+        next if !$component;
+        next if $component eq ".";
+        if ($component eq "..") {
+            die "no directory component to pop \"..\" for in \"$path\"" if !@dst_components;
+            pop @dst_components;
+            next;
+        }
+        push @dst_components, $component;
+    }
+
+    $new_path = join("/", @dst_components);
+
+    return $leading_slash . $new_path;
+}
+
 # arg0 directory candidate
 # return 1 - exists, or
 # return 0 - DOES NOT exist
