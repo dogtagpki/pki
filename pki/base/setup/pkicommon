@@ -27,18 +27,20 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(
  $lib_prefix $obj_ext $path_sep $tmp_dir $logfile
+ $pki_flavor $pki_registry_path
  $verbose $dry_run $hostname $default_hardware_platform
  $default_system_binaries $default_system_libraries $default_system_user_binaries
  $default_system_user_libraries $default_system_jni_java_path
  $default_security_libraries $default_certutil_command
  $default_ldapmodify_command $default_modutil_command
  $default_dir_permissions $default_exe_permissions $default_file_permissions
+ $default_initscripts_path $default_registry_path
  $ROOTUID $MAX_WELL_KNOWN_PORT $MAX_RESERVED_PORT $MAX_REGISTERED_PORT $MAX_DYNAMIC_PORT
  $FILE_PREFIX $FTP_PREFIX $HTTP_PREFIX $HTTPS_PREFIX $LDAP_PREFIX $LDAPS_PREFIX
  $PKI_USER $PKI_GROUP $PKI_UID $PKI_GID
  $CA $KRA $OCSP $TKS $RA $TPS
- $CA_INIT_SCRIPT $KRA_INIT_SCRIPT $OCSP_INIT_SCRIPT
- $TKS_INIT_SCRIPT $RA_INIT_SCRIPT $TPS_INIT_SCRIPT
+ $CA_INITSCRIPT $KRA_INITSCRIPT $OCSP_INITSCRIPT
+ $TKS_INITSCRIPT $RA_INITSCRIPT $TPS_INITSCRIPT
  $install_info_basename $cleanup_basename %installation_info
 
  add_install_info remove_install_info get_install_description
@@ -158,6 +160,9 @@ our $hostname = undef;
 # Shared Default Values
 ##############################################################
 
+our $pki_flavor                    = undef;
+our $pki_registry_path             = undef;
+
 our $default_hardware_platform     = undef;
 our $default_system_binaries       = undef;
 our $default_system_libraries      = undef;
@@ -168,10 +173,13 @@ our $default_security_libraries    = undef;
 our $default_certutil_command      = undef;
 our $default_ldapmodify_command    = undef;
 our $default_modutil_command       = undef;
+our $default_initscripts_path      = undef;
+our $default_registry_path         = undef;
 
 our $default_dir_permissions       = 00770;
 our $default_exe_permissions       = 00770;
 our $default_file_permissions      = 00660;
+
 
 
 # Use a local variable to denote IPv6
@@ -179,6 +187,10 @@ my $is_IPv6 = 0;
 
 # Compute "hardware platform" of Operating System
 if ($^O eq "linux") {
+    $pki_flavor = "pki";
+    $default_registry_path = "/etc/sysconfig";
+    $pki_registry_path = "$default_registry_path/$pki_flavor";
+    $default_initscripts_path = "/etc/rc.d/init.d";
     $default_hardware_platform = `uname -i`;
     $default_hardware_platform =~ s/\s+$//g;
     chomp($default_hardware_platform);
@@ -257,12 +269,12 @@ our $RA   = "ra";
 our $TPS  = "tps";
 
 # Subsystem init scripts
-our $CA_INIT_SCRIPT   = "pki-cad";
-our $KRA_INIT_SCRIPT  = "pki-krad";
-our $OCSP_INIT_SCRIPT = "pki-ocspd";
-our $TKS_INIT_SCRIPT  = "pki-tksd";
-our $RA_INIT_SCRIPT   = "pki-rad";
-our $TPS_INIT_SCRIPT  = "pki-tpsd";
+our $CA_INITSCRIPT   = "pki-cad";
+our $KRA_INITSCRIPT  = "pki-krad";
+our $OCSP_INITSCRIPT = "pki-ocspd";
+our $TKS_INITSCRIPT  = "pki-tksd";
+our $RA_INITSCRIPT   = "pki-rad";
+our $TPS_INITSCRIPT  = "pki-tpsd";
 
 
 ##############################################################
@@ -3203,17 +3215,17 @@ sub get_registry_initscript_name
     my ($pki_initscript);
 
     if ($subsystem_type eq $CA) {
-        $pki_initscript = $CA_INIT_SCRIPT;
+        $pki_initscript = $CA_INITSCRIPT;
     } elsif($subsystem_type eq $KRA) {
-        $pki_initscript = $KRA_INIT_SCRIPT;
+        $pki_initscript = $KRA_INITSCRIPT;
     } elsif($subsystem_type eq $OCSP) {
-        $pki_initscript = $OCSP_INIT_SCRIPT;
+        $pki_initscript = $OCSP_INITSCRIPT;
     } elsif($subsystem_type eq $RA) {
-        $pki_initscript = $RA_INIT_SCRIPT;
+        $pki_initscript = $RA_INITSCRIPT;
     } elsif($subsystem_type eq $TKS) {
-        $pki_initscript = $TKS_INIT_SCRIPT;
+        $pki_initscript = $TKS_INITSCRIPT;
     } elsif($subsystem_type eq $TPS) {
-        $pki_initscript = $TPS_INIT_SCRIPT;
+        $pki_initscript = $TPS_INITSCRIPT;
     } else {
         die "unknown subsystem type \"$subsystem_type\"";
     }

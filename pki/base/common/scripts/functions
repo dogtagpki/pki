@@ -103,10 +103,9 @@ TOTAL_PKI_REGISTRY_ENTRIES=0
 TOTAL_UNCONFIGURED_PKI_ENTRIES=0
 
 # Gather ALL registered instances of this PKI subsystem type
-for FILE in `/bin/ls -1 ${PKI_REGISTRY}/* 2>/dev/null`; do
+for FILE in ${PKI_REGISTRY}/*; do
     if [ -f "$FILE" ] ; then
-        inst=`echo "$FILE"`
-        PKI_REGISTRY_ENTRIES="${PKI_REGISTRY_ENTRIES} $inst"
+        PKI_REGISTRY_ENTRIES="${PKI_REGISTRY_ENTRIES} $FILE"
         TOTAL_PKI_REGISTRY_ENTRIES=`expr ${TOTAL_PKI_REGISTRY_ENTRIES} + 1`
     fi
 done
@@ -140,8 +139,9 @@ usage()
 list_instances()
 {
     echo
-    for FILE in `/bin/ls -1 ${PKI_REGISTRY}/* 2>/dev/null`; do
-        echo "    ${FILE}"
+    for PKI_REGISTRY_ENTRY in $PKI_REGISTRY_ENTRIES; do
+	instance_name=`basename $PKI_REGISTRY_ENTRY`
+        echo "    $instance_name"
     done
     echo
 }
@@ -181,7 +181,15 @@ fi
 
 # If an "instance" was supplied, check that it is a "valid" instance
 if [ -n "${pki_instance}" ]; then
-    if [ "${PKI_REGISTRY}/${pki_instance}" != "${PKI_REGISTRY_ENTRIES}" ]; then
+    valid=0
+    for PKI_REGISTRY_ENTRY in $PKI_REGISTRY_ENTRIES; do
+	instance_name=`basename $PKI_REGISTRY_ENTRY`
+        if [ $pki_instance == $instance_name ]; then
+	    valid=1
+	    break
+	fi
+    done
+    if [ $valid -eq 0 ]; then
         echo -n "${pki_instance} is an invalid '${PKI_TYPE}' instance"
         echo_failure
         echo
@@ -512,13 +520,13 @@ display_instance_status()
     rv=0
 
     # Verify there is an initscript for this instance
-    if [ ! -f /etc/init.d/${PKI_INSTANCE_ID} ]; then
+    if [ ! -f $PKI_INSTANCE_INITSCRIPT ]; then
         # 4 program or service status is unknown
 	return 4
     fi
 
     # Invoke the initscript for this instance
-    $SERVICE_PROG $PKI_INSTANCE_ID status
+    $PKI_INSTANCE_INITSCRIPT status
     rv=$?
 
     if [ $rv -eq 0 ] ; then
@@ -537,7 +545,7 @@ start_instance()
     fi
 
     # Invoke the initscript for this instance
-    $SERVICE_PROG $PKI_INSTANCE_ID start
+    $PKI_INSTANCE_INITSCRIPT start
     rv=$?
 
     if [ $rv -eq 0 ] ; then
@@ -567,7 +575,7 @@ stop_instance()
     rv=0
 
     # Invoke the initscript for this instance
-    $SERVICE_PROG $PKI_INSTANCE_ID stop
+    $PKI_INSTANCE_INITSCRIPT stop
     rv=$?
 
     return $rv

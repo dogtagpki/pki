@@ -79,19 +79,6 @@ my $ARGS = ($#ARGV + 1);
 # Shared Common Perl Data and Subroutines
 ##############################################################
 
-# Compute "flavor" of Operating System
-my $pki_flavor = undef;
-if ($^O eq "linux") {
-    $pki_flavor = "pki";
-} elsif ($^O eq "solaris") {
-    $pki_flavor = "pki";
-} else {
-    emit("Unsupported platform '$^O'!\n", "error");
-    exit 255;
-}
-
-$pki_flavor =~ s/\s+$//g;
-
 use lib "/usr/share/pki/scripts";
 use pkicommon;
 
@@ -122,13 +109,10 @@ my $pki_instance_path               = undef;
 my $subsystem_type                  = undef;
 
 # PKI init script variables
-my $default_initscripts_path        = undef;
 my $pki_registry_initscript         = undef;
 my $pki_registry_initscript_command = undef;
 
 # PKI registry variables
-my $default_registry_path           = undef;
-my $pki_registry_path               = undef;
 my $pki_registry_subsystem_path     = undef;
 
 ##############################################################
@@ -136,8 +120,6 @@ my $pki_registry_subsystem_path     = undef;
 ##############################################################
 
 if ($^O eq "linux") {
-    $default_initscripts_path = '/etc/rc.d/init.d';
-    $default_registry_path = "/etc/sysconfig";
 } else {
     emit("Unsupported platform '$^O'!\n", "error");
     exit 255;
@@ -146,9 +128,6 @@ if ($^O eq "linux") {
 ##############################################################
 # Local Data Initialization
 ##############################################################
-
-# Establish PKI-level registry
-$pki_registry_path = "$default_registry_path/$pki_flavor";
 
 ##############################################################
 # PKI Instance Removal Subroutines
@@ -520,9 +499,11 @@ ASK_AGAIN:
         if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
             $pki_registry_initscript_command = "/sbin/service $pki_instance_name stop";
         } else {
-	    emit("Unsupported platform '$^O'!\n", "error");
-	    exit 255;
+            $pki_registry_initscript_command = "/sbin/service $pki_registry_initscript stop $pki_instance_name";
         }
+    } else {
+        emit("Unsupported platform '$^O'!\n", "error");
+        exit 255;
     }
     run_command($pki_registry_initscript_command);
 

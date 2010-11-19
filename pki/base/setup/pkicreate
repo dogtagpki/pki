@@ -98,22 +98,11 @@ my $ARGS = ($#ARGV + 1);
 # Shared Common Perl Data and Subroutines
 ##############################################################
 
-# Compute "flavor" of Operating System
-my $pki_flavor = undef;
-if ($^O eq "linux") {
-    $pki_flavor = "pki";
-} else {
-    emit("Unsupported platform '$^O'!\n", "error");
-    exit 255;
-}
-
-$pki_flavor =~ s/\s+$//g;
+use lib "/usr/share/pki/scripts";
+use pkicommon;
 
 # Establish path to scripts
 my $pki_subsystem_common_area = "/usr/share/$pki_flavor";
-
-use lib "/usr/share/pki/scripts";
-use pkicommon;
 
 # make -w happy by suppressing warnings of Global variables used only once
 my $suppress = "";
@@ -314,7 +303,7 @@ my $TOMCAT_SSL2_CIPHERS                 = "TOMCAT_SSL2_CIPHERS";
 my $TOMCAT_SSL3_CIPHERS                 = "TOMCAT_SSL3_CIPHERS";
 my $TOMCAT_TLS3_CIPHERS                 = "TOMCAT_TLS3_CIPHERS";
 my $TOMCAT_INSTANCE_COMMON_LIB          = "TOMCAT_INSTANCE_COMMON_LIB";
-my $INSTANCE_INIT_SCRIPT                = "INSTANCE_INIT_SCRIPT";
+my $PKI_INSTANCE_INITSCRIPT             = "PKI_INSTANCE_INITSCRIPT";
 my $PKI_FLAVOR_SLOT                     = "PKI_FLAVOR";
 my $PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT              = "PKI_UNSECURE_PORT_CONNECTOR_NAME";
 my $PKI_SECURE_PORT_CONNECTOR_NAME_SLOT                = "PKI_SECURE_PORT_CONNECTOR_NAME";
@@ -538,13 +527,10 @@ my $profile_select_template_subsystem_file_path  = undef; #CA
 my $profile_select_template_instance_file_path   = undef;  #CA
 
 # PKI init script variables
-my $default_initscripts_path                  = undef;  # CA, KRA, OCSP, TKS RA, TPS
 my $pki_registry_initscript                   = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $pki_registry_initscript_command           = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 
 # PKI registry variables
-my $default_registry_path                     = undef;  # CA, KRA, OCSP, TKS RA, TPS
-my $pki_registry_path                         = undef;  # CA, KRA, OCSP, TKS RA, TPS
 my $pki_registry_subsystem_path               = undef;  # CA, KRA, OCSP, TKS RA, TPS
 my $pki_registry_subsystem_file_path          = undef;  # CA, KRA, OCSP, TKS RA, TPS
 my $pki_registry_instance_file_path           = undef;  # CA, KRA, OCSP, TKS RA, TPS
@@ -578,11 +564,7 @@ if ($^O eq "linux") {
     $setup_config_name = "config.desktop";
 
     # Linux init scripts
-    $default_initscripts_path = "/etc/rc.d/init.d";
     $tomcat6_initscript_path = "${default_initscripts_path}/tomcat6";
-
-    # Linux registry
-    $default_registry_path = "/etc/sysconfig";
 
     # Tomcat instance config directory
     $tomcat6_instance_config_path = "/etc/sysconfig";
@@ -894,31 +876,6 @@ EOF
 
 
 # arg0 instance name
-# return 1 - in use
-# return 0 - NOT in use
-sub pki_instance_name_in_use
-{
-    my $name = $_[0];
-    my $result = 0;
-    my $path = "";
-
-    $path = "${tomcat6_instance_config_path}/${pki_instance_name}";
-
-    if (-e $path) {
-        return 1;
-    }
-
-    $path = "${default_initscripts_path}/${pki_instance_name}";
-
-    if (-e $path) {
-        return 1;
-    }
-
-    return 0;
-}
-
-
-# arg0 instance name
 # return 1 - exists, or
 # return 0 - DOES NOT exist
 sub pki_instance_already_exists
@@ -1046,7 +1003,7 @@ sub parse_arguments
         return 0;
     }
 
-    if (pki_instance_name_in_use($pki_instance_name) && !$dry_run) {
+    if (pki_instance_already_exists($pki_instance_name) && !$dry_run) {
         usage();
         emit("An instance named $pki_instance_name "
             . "already exists; please try again.\n", "error");
@@ -1404,8 +1361,6 @@ sub initialize_subsystem_paths
     $setup_subsystem_path    = $pki_subsystem_path
                              . "/" . $setup_base_subsystem_dir;
 
-    $pki_registry_path                = $default_registry_path
-                                      . "/" . $pki_flavor;
     $pki_registry_subsystem_path      = $pki_registry_path
                                       . "/" . $subsystem_type;
     $pki_registry_subsystem_file_path = $setup_subsystem_path
@@ -1491,7 +1446,7 @@ sub initialize_instance_paths
                                      . "/" . $pki_instance_name;
 
     ## Initialize path to per instance init script
-    $pki_instance_initscript_path = $default_initscripts_path
+    $pki_instance_initscript_path = $pki_instance_path
                                   . "/" . $pki_instance_name;
 
     ## Initialize tomcat6 instance conf
@@ -1997,7 +1952,7 @@ sub process_pki_directories
 
     ## Populate pki instance registry
     # create pki registry for this subsystem
-    return 0 if !create_directory("${pki_registry_subsystem_path}",
+    return 0 if !create_directory($pki_registry_subsystem_path,
                                   $default_dir_permissions, $pki_user, $pki_group);
 
 
@@ -2383,7 +2338,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
                                           . "-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,"
                                           . "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA";
         $slot_hash{$TOMCAT_INSTANCE_COMMON_LIB} = "$tomcat_instance_common_lib_path/*.jar";
-        $slot_hash{$INSTANCE_INIT_SCRIPT}       = $pki_instance_initscript_path;
+        $slot_hash{$PKI_INSTANCE_INITSCRIPT}    = $pki_instance_initscript_path;
     }
 
     ## Process templates (instance independent)
