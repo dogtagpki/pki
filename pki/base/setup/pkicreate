@@ -2915,8 +2915,8 @@ sub process_pki_selinux_setup
 {
     my $setype = "pki_" . $subsystem_type;
     my $setype_p = $setype . "_port_t";
-    my $default_inst_name = "pki-" . $subsystem_type;
-    my $default_inst_root = "/var/lib";
+    my $default_instance_name = "pki-" . $subsystem_type;
+    my $default_instance_root = "/var/lib";
     my $default_log_path = "/var/log/" . $default_instance_name;
     my $default_conf_path = "/etc/" . $default_instance_name;
     my $status = 0;
@@ -2956,7 +2956,7 @@ sub process_pki_selinux_setup
     run_command("$restorecon -F -R /usr/share/pki");
  
     # set file context for $pki_instance_root/$pki_instance_name
-    if (($pki_instance_name ne $default_inst_name) || ($pki_instance_root ne $default_inst_root)) {
+    if (($pki_instance_name ne $default_instance_name) || ($pki_instance_root ne $default_instance_root)) {
         add_selinux_file_context($setype . "_var_lib_t", 
                                  "\"${pki_instance_root}/${pki_instance_name}(/.*)?\"", "a");
     }
@@ -2967,7 +2967,7 @@ sub process_pki_selinux_setup
     if ($java_component) {
         # set file context for instance pid file
         my $pidfile = $tomcat6_instance_pid_file_path;
-        if ($pki_instance_name ne $default_inst_name) {
+        if ($pki_instance_name ne $default_instance_name) {
             add_selinux_file_context($setype . "_var_run_t",
                 $pidfile, "f");
         }
