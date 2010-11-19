@@ -673,7 +673,7 @@ if ($^O eq "linux") {
 
 # no args
 # no return value
-sub usage()
+sub usage
 {
     print STDOUT <<'EOF';
 ###############################################################################
@@ -986,7 +986,7 @@ sub pki_instance_already_exists
 # no args
 # return 1 - success, or
 # return 0 - failure
-sub parse_arguments()
+sub parse_arguments
 {
     my $l_secure_port        = -1;
     my $l_non_clientauth_secure_port = -1;
@@ -1434,7 +1434,7 @@ ASK_CONTINUE_NONSTD_INSTANCE_ROOT:
 
 # no args
 # no return value
-sub initialize_subsystem_paths()
+sub initialize_subsystem_paths
 {
     ## Initialize subsystem directory paths (subsystem independent)
     $alias_subsystem_path    = $pki_subsystem_path
@@ -1519,7 +1519,7 @@ sub initialize_subsystem_paths()
 
 # no args
 # no return value
-sub initialize_instance_paths()
+sub initialize_instance_paths
 {
     ## Initialize instance directory paths (instance independent)
     $alias_instance_path = $pki_instance_path
@@ -1596,7 +1596,7 @@ sub initialize_instance_paths()
 
 # no args
 # no return value
-sub initialize_instance_symlink_paths()
+sub initialize_instance_symlink_paths
 {
     ## Initialize instance symlinks (instance independent)
     $conf_instance_symlink_path = $pki_instance_path
@@ -1623,7 +1623,7 @@ sub initialize_instance_symlink_paths()
 
 # no args
 # no return value
-sub initialize_subdirectory_paths()
+sub initialize_subdirectory_paths
 {
     ## Initialize subdirectory paths (subsystem independent)
     $pki_cfg_subsystem_file_path      = $conf_subsystem_path
@@ -1851,7 +1851,7 @@ sub initialize_subdirectory_paths()
 
 # no args
 # no return value
-sub initialize_paths()
+sub initialize_paths
 {
     initialize_subsystem_paths();
     initialize_instance_paths();
@@ -1862,7 +1862,7 @@ sub initialize_paths()
 
 # no args
 # no return value
-sub initialize_pki_creation_values()
+sub initialize_pki_creation_values
 {
     # obtain the fully-qualified domain name of this host
     $host = get_FQDN($hostname);
@@ -1878,7 +1878,7 @@ sub initialize_pki_creation_values()
 # no args
 # return 1 - success, or
 # return 0 - failure
-sub process_pki_directories()
+sub process_pki_directories
 {
     my $remove_dir="";
 
@@ -2246,7 +2246,7 @@ sub process_file_template
 # no args
 # return 1 - success, or
 # return 0 - failure
-sub process_pki_templates()
+sub process_pki_templates
 {
     my $use_port_separation = 0;
     if ($agent_secure_port >= 0 &&
@@ -2641,7 +2641,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
 # no args
 # return 1 - success, or
 # return 0 - failure
-sub process_pki_files_and_symlinks()
+sub process_pki_files_and_symlinks
 {
     emit("Processing PKI files and symbolic links for '$pki_instance_path' ...\n");
 
@@ -2767,7 +2767,7 @@ sub process_pki_files_and_symlinks()
 # no args
 # return 1 - success, or
 # return 0 - failure
-sub process_pki_security_databases()
+sub process_pki_security_databases
 {
     my $result          = 0;
     my $serial_number   = 0;
@@ -2823,7 +2823,7 @@ sub process_pki_security_databases()
 # no args
 # return 1 - success, or
 # return 0 - failure
-sub process_pki_security_modules()
+sub process_pki_security_modules
 {
     my $result = 0;
 
@@ -2849,7 +2849,7 @@ sub process_pki_security_modules()
     return 1;
 }
 
-sub parse_selinux_ports()
+sub parse_selinux_ports
 {
     open SM, '/usr/sbin/semanage port -l |grep tcp |sed \'s/tcp/___/g\'|sed \'s/\s//g\'|';
     while (<SM>) {
@@ -2869,7 +2869,7 @@ sub parse_selinux_ports()
     close(SM);
 }
 
-sub check_selinux_port()
+sub check_selinux_port
 {
     my ($setype, $seport) = @_;
 
@@ -2884,10 +2884,10 @@ sub check_selinux_port()
     }
 }
 
-sub add_selinux_port()
+sub add_selinux_port
 {
     my ($setype, $seport) = @_;
-    my $status = &check_selinux_port($setype, $seport);
+    my $status = check_selinux_port($setype, $seport);
 
     if ($status == $SELINUX_PORT_UNDEFINED) {
         emit("Setting selinux context $setype for $seport\n");
@@ -2902,7 +2902,7 @@ sub add_selinux_port()
     }
 }
 
-sub add_selinux_file_context()
+sub add_selinux_file_context
 {
    my ($fcontext, $fname, $ftype) = @_;
    my ($result);
@@ -2929,7 +2929,7 @@ sub add_selinux_file_context()
 }
 
 
-sub process_pki_selinux_setup()
+sub process_pki_selinux_setup
 {
     my $setype = "pki_" . $subsystem_type;
     my $setype_p = $setype . "_port_t";
@@ -2975,8 +2975,8 @@ sub process_pki_selinux_setup()
  
     # set file context for $pki_instance_root/$pki_instance_name
     if (($pki_instance_name ne $default_inst_name) || ($pki_instance_root ne $default_inst_root)) {
-        &add_selinux_file_context($setype . "_var_lib_t", 
-            "\"${pki_instance_root}/${pki_instance_name}(/.*)?\"", "a");
+        add_selinux_file_context($setype . "_var_lib_t", 
+                                 "\"${pki_instance_root}/${pki_instance_name}(/.*)?\"", "a");
     }
     emit("Restorecon file context for $pki_instance_root/$pki_instance_name\n");
     run_command("$restorecon -F -R $pki_instance_root/$pki_instance_name");
@@ -2986,7 +2986,7 @@ sub process_pki_selinux_setup()
         # set file context for instance pid file
         my $pidfile = $tomcat6_instance_pid_file_path;
         if ($pki_instance_name ne $default_inst_name) {
-            &add_selinux_file_context($setype . "_var_run_t",
+            add_selinux_file_context($setype . "_var_run_t",
                 $pidfile, "f");
         }
         if (-e $pidfile) {
@@ -3007,8 +3007,8 @@ sub process_pki_selinux_setup()
         emit("Error: Cannot set selinux context $setype" . "_log_t for directory /");
     } else {
         if ($log_path ne $default_log_path) {
-            &add_selinux_file_context($setype . "_log_t", 
-                "\"$log_path(/.*)?\"", "a");
+            add_selinux_file_context($setype . "_log_t", 
+                                     "\"$log_path(/.*)?\"", "a");
         }
         emit("Restorecon file context for $log_path\n");
         run_command("$restorecon -F -R $log_path");
@@ -3019,10 +3019,8 @@ sub process_pki_selinux_setup()
     if ($conf_path eq "") {
         emit("Error: Cannot set selinux context $setype" . "_etc_rw_t for directory /");
     } else {
-        if ($conf_path ne $default_conf_path) {
-            &add_selinux_file_context($setype . "_etc_rw_t", 
-                "\"$conf_path(/.*)?\"", "a");
-        } 
+        add_selinux_file_context($setype . "_etc_rw_t", 
+                                  "\"$conf_path(/.*)?\"", "a");
         emit("Restorecon $conf_path\n");
         run_command("$restorecon -F -R $conf_path");
     }
@@ -3035,28 +3033,28 @@ sub process_pki_selinux_setup()
     # add ports
     parse_selinux_ports();
     if ($secure_port != -1) {
-        &add_selinux_port($setype_p, $secure_port);
+        add_selinux_port($setype_p, $secure_port);
     }
     if ($non_clientauth_secure_port != -1) {
-        &add_selinux_port($setype_p, $non_clientauth_secure_port);
+        add_selinux_port($setype_p, $non_clientauth_secure_port);
     }
     if ($unsecure_port != -1) {
-        &add_selinux_port($setype_p, $unsecure_port);
+        add_selinux_port($setype_p, $unsecure_port);
     }
     if ($tomcat_server_port != -1) {
-        &add_selinux_port($setype_p, $tomcat_server_port);
+        add_selinux_port($setype_p, $tomcat_server_port);
     }
     if ($agent_secure_port != -1) {
-        &add_selinux_port($setype_p, $agent_secure_port);
+        add_selinux_port($setype_p, $agent_secure_port);
     }
     if ($ee_secure_port != -1) {
-        &add_selinux_port($setype_p, $ee_secure_port);
+        add_selinux_port($setype_p, $ee_secure_port);
     }
     if ($ee_secure_client_auth_port != -1) {
-        &add_selinux_port($setype_p, $ee_secure_client_auth_port);
+        add_selinux_port($setype_p, $ee_secure_client_auth_port);
     }
     if ($admin_secure_port != -1) {
-        &add_selinux_port($setype_p, $admin_secure_port);
+        add_selinux_port($setype_p, $admin_secure_port);
     }
 
     return 1;
@@ -3065,7 +3063,7 @@ sub process_pki_selinux_setup()
 # no args
 # return 1 - success, or
 # return 0 - failure
-sub install_pki_instance()
+sub install_pki_instance
 {
     emit("Installing PKI instance ...\n");
 
@@ -3092,14 +3090,13 @@ sub install_pki_instance()
 
 
 # Return 1 if success, 0 if failure
-sub cleanup()
+sub cleanup
 {
     my $result = 0;
 
     emit(sprintf("cleanup(%s)\n", join(", ", @_)), "debug");
 
-    print(STDOUT
-           "\n\nPKI instance creation Cleanup Utility cleaning up on error ...\n\n");
+    emit("PKI instance creation Cleanup Utility cleaning up on error ...", "info");
 
     $result = uninstall(\%installation_info);
 
@@ -3113,7 +3110,7 @@ sub cleanup()
 
 # no args
 # no return value
-sub main()
+sub main
 {
     my $result = 0;
     my $parse_result = 0;

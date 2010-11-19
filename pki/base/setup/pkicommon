@@ -632,7 +632,7 @@ sub uninstall
 # no args
 # return 1 - true, or
 # return 0 - false
-sub is_Windows()
+sub is_Windows
 {
     if (($^O eq "Windows_NT") || ($^O eq "MSWin32")) {
         return 1;
@@ -645,7 +645,7 @@ sub is_Windows()
 # no args
 # return 1 - true, or
 # return 0 - false
-sub is_Linux()
+sub is_Linux
 {
     if ($^O eq "linux") {
         return 1;
@@ -658,7 +658,7 @@ sub is_Linux()
 # no args
 # return 1 - true, or
 # return 0 - false
-sub is_Fedora()
+sub is_Fedora
 {
     if (is_Linux() && (-e "/etc/fedora-release")) {
         return 1;
@@ -671,7 +671,7 @@ sub is_Fedora()
 # no args
 # return 1 - true, or
 # return 0 - false
-sub is_RHEL() {
+sub is_RHEL {
     if ((! is_Fedora()) && (-e "/etc/redhat-release")) {
         return 1;
     }
@@ -683,7 +683,7 @@ sub is_RHEL() {
 # no args
 # return 1 - true, or
 # return 0 - false
-sub is_RHEL4() {
+sub is_RHEL4 {
     if (is_RHEL()) {
         my $releasefd = new FileHandle;
         if ($releasefd->open("< /etc/redhat-release")) {
@@ -701,7 +701,7 @@ sub is_RHEL4() {
 
 # no args
 # no return value
-sub setup_platform_dependent_parameters()
+sub setup_platform_dependent_parameters
 {
     # Setup path separators, et. al., based upon platform
     if (is_Windows()) {
@@ -768,7 +768,7 @@ sub get_library_path
 # no args
 # return 1 - success, or
 # return 0 - failure
-sub check_for_root_UID()
+sub check_for_root_UID
 {
     my $result = 0;
 
@@ -1331,7 +1331,7 @@ sub IsServerReachable
 
 # no args
 # return time stamp
-sub get_time_stamp()
+sub get_time_stamp
 {
     my ($sec, $min, $hour, $mday,
         $mon, $year, $wday, $yday, $isdst) = localtime(time);
@@ -1365,7 +1365,7 @@ sub generate_random
 
 
 # return random string of specified length
-sub generate_random_string()
+sub generate_random_string
 {
     my ($length_of_randomstring) = @_;
 
@@ -2515,7 +2515,7 @@ sub walk_dir {
     if (-d "${dir}/${basename}") {	# yes it is a directory
       &$callback($dir, $basename, 1, $prune, $opts);
       if (!$$prune) {
-	&walk_dir("${dir}/${basename}", $callback, $prune, $opts);
+	walk_dir("${dir}/${basename}", $callback, $prune, $opts);
       }
     }
     else {		# not a directory
