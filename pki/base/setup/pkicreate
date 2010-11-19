@@ -195,6 +195,7 @@ my $lib_base_instance_dir      = "lib";       # RA, TPS
 my $logs_base_instance_dir     = "logs";      # CA, KRA, OCSP, TKS, RA, TPS
 my $profiles_base_instance_dir = "profiles";  # CA, KRA, OCSP, TKS
 my $scripts_base_instance_dir  = "scripts";   # RA, TPS
+my $tomcat_instance_common_lib_dir = "common/lib";    # CA, KRA, OCSP, TKS (Tomcat)
 my $shared_base_instance_dir   = "shared";    # CA, KRA, OCSP, TKS (Tomcat)
 my $temp_base_instance_dir     = "temp";      # CA, KRA, OCSP, TKS (Tomcat)
 my $webapps_base_instance_dir  = "webapps";   # CA, KRA, OCSP, TKS
@@ -226,6 +227,16 @@ my $cms_jar_base_name            = "cms.jar";              # CA, KRA, OCSP, TKS
 my $cmsbundle_jar_base_name      = "cmsbundle.jar";        # CA, KRA, OCSP, TKS
 my $cmscore_jar_base_name        = "cmscore.jar";          # CA, KRA, OCSP, TKS
 my $conf_base_name               = "conf";                 # CA, KRA, OCSP, TKS,
+
+my $jakarta_commons_collections_jar_base_name = "jakarta-commons-collections.jar"; # CA, KRA, OCSP, TKS
+my $jakarta_commons_logging_jar_base_name = "jakarta-commons-logging.jar"; # CA, KRA, OCSP, TKS
+my $jss_jar_base_name            = "jss4.jar";             # CA, KRA, OCSP, TKS
+my $ldapjdk_jar_base_name        = "ldapjdk.jar";          # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_base_name      = "tomcatjss.jar";        # CA, KRA, OCSP, TKS
+my $velocity_jar_base_name       = "velocity.jar";         # CA, KRA, OCSP, TKS
+my $xerces_jar_base_name         = "xerces-j2.jar";        # CA, KRA, OCSP, TKS
+my $catalina_properties_base_name = "catalina.properties"; # CA, KRA, OCSP, TKS
+
                                                            # RA, TPS
 my $httpd_conf_base_name         = "httpd.conf";           # RA, TPS
 my $index_html_base_name         = "index.html";           # CA, KRA, OCSP, TKS
@@ -268,6 +279,7 @@ my $default_apache_pids_path       = "/var/run/pki";
 my $default_tomcat_pids_path       = "/var/run";
 my $default_tomcat_lib_path        = "/usr/share/tomcat6/lib";
 my $default_java_path              = "/usr/share/java";
+my $default_system_jni_java_path   = "/usr/lib/java";
 my $default_dir_permissions        = 00770;
 my $default_exe_permissions        = 00770;
 my $default_file_permissions       = 00660;
@@ -441,6 +453,7 @@ my $lib_instance_path      = "";  # RA, TPS
 my $logs_instance_path     = "";  # CA, KRA, OCSP, TKS, RA, TPS
 my $profiles_instance_path = "";  # CA, KRA, OCSP, TKS
 my $scripts_instance_path  = "";  # CA, KRA, OCSP, TKS, RA, TPS
+my $tomcat_instance_common_lib_path   = "";  # CA, KRA, OCSP, TKS (Tomcat)
 my $shared_instance_path   = "";  # CA, KRA, OCSP, TKS (Tomcat)
 my $temp_instance_path     = "";  # CA, KRA, OCSP, TKS (Tomcat)
 my $webapps_instance_path  = "";  # CA, KRA, OCSP, TKS
@@ -476,6 +489,12 @@ my $addVLVIndexes_ldif_instance_file_path     = "";  # TPS
 my $addVLVIndexes_ldif_subsystem_file_path    = "";  # TPS
 my $apachectl_instance_file_path              = "";  # TPS
 my $apachectl_subsystem_file_path             = "";  # TPS
+my $jss_jar_file_path                         = "";  # CA, KRA, OCSP, TKS
+my $jss_jar_symlink_path                      = "";  # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_file_path                   = "";  # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_symlink_path                = "";  # CA, KRA, OCSP, TKS
+my $xerces_jar_file_path                      = "";  # CA, KRA, OCSP, TKS
+my $xerces_jar_symlink_path                   = "";  # CA, KRA, OCSP, TKS
 my $certsrv_jar_file_path                     = "";  # CA, KRA, OCSP, TKS
 my $certsrv_jar_symlink_path                  = "";  # CA, KRA, OCSP, TKS
 my $cms_jar_file_path                         = "";  # CA, KRA, OCSP, TKS
@@ -531,6 +550,8 @@ my $velocity_prop_instance_file_path          = "";  # CA, KRA, OCSP, TKS
 my $velocity_prop_subsystem_file_path         = "";  # CA, KRA, OCSP, TKS
 my $web_xml_instance_file_path                = "";  # CA, KRA, OCSP, TKS
 my $web_xml_subsystem_file_path               = "";  # CA, KRA, OCSP, TKS
+my $catalina_properties_instance_file_path    = "";  # CA, KRA, OCSP, TKS
+my $catalina_properties_subsystem_file_path   = "";  # CA, KRA, OCSP, TKS
 my $webapps_root_instance_path                = "";  # CA, KRA, OCSP, TKS
 my $webapps_root_subsystem_path               = "";  # CA, KRA, OCSP, TKS
 my $webinf_instance_path                      = "";  # CA, KRA, OCSP, TKS
@@ -1553,6 +1574,8 @@ sub initialize_instance_paths()
         # Tomcat Specific
         $shared_instance_path = $pki_instance_path
                               . "/" . $shared_base_instance_dir;
+        $tomcat_instance_common_lib_path = $pki_instance_path
+                                         . "/" . $tomcat_instance_common_lib_dir;
         $temp_instance_path   = $pki_instance_path
                               . "/" . $temp_base_instance_dir;
         $work_instance_path   = $pki_instance_path
@@ -1783,6 +1806,37 @@ sub initialize_subdirectory_paths()
                                            . "/" . $web_xml_base_name;
         $web_xml_subsystem_file_path       = $webinf_subsystem_path
                                            . "/" . $web_xml_base_name;
+        $catalina_properties_subsystem_file_path = $conf_subsystem_path
+                                                 . "/" . $catalina_properties_base_name;
+        $jakarta_commons_collections_jar_file_path    = $default_java_path
+                                                      . "/" . $jakarta_commons_collections_jar_base_name;
+        $jakarta_commons_collections_jar_symlink_path = $webinf_lib_instance_path
+                                                      . "/" . $jakarta_commons_collections_jar_base_name;
+        $jakarta_commons_logging_jar_file_path        = $default_java_path
+                                                      . "/" . $jakarta_commons_logging_jar_base_name;
+        $jakarta_commons_logging_jar_symlink_path     = $tomcat_instance_common_lib_path
+                                                      . "/" . $jakarta_commons_logging_jar_base_name;
+        $jss_jar_file_path                  = $default_system_jni_java_path
+                                            . "/" . $jss_jar_base_name;
+        $jss_jar_symlink_path               = $tomcat_instance_common_lib_path
+                                            . "/" . $jss_jar_base_name;
+        $ldapjdk_jar_file_path              = $default_java_path
+                                            . "/" . $ldapjdk_jar_base_name;
+        $ldapjdk_jar_symlink_path           = $webinf_lib_instance_path
+                                            . "/" . $ldapjdk_jar_base_name;
+        $tomcatjss_jar_file_path           = $default_java_path
+                                           . "/" . $tomcatjss_jar_base_name;
+        $tomcatjss_jar_symlink_path        = $tomcat_instance_common_lib_path
+                                           . "/" . $tomcatjss_jar_base_name;
+        $velocity_jar_file_path            = $default_java_path
+                                           . "/" . $velocity_jar_base_name;
+        $velocity_jar_symlink_path         = $webinf_lib_instance_path
+                                           . "/" . $velocity_jar_base_name;
+        $xerces_jar_file_path              = $default_java_path
+                                           . "/" . $xerces_jar_base_name;
+        $xerces_jar_symlink_path           = $webinf_lib_instance_path
+                                           . "/" . $xerces_jar_base_name;
+
     }
 }
 
@@ -1837,6 +1891,8 @@ sub process_pki_directories()
                                           . "/" . $pfile_base_name;
         $pki_cfg_instance_file_path       = $conf_instance_path
                                           . "/" . $pki_cfg_base_name;
+        $catalina_properties_instance_file_path = $conf_instance_path
+                                                . "/" . $catalina_properties_base_name;
 
         if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
             $httpd_conf_instance_file_path = $conf_instance_path
@@ -1882,6 +1938,8 @@ sub process_pki_directories()
                                           . "/" . $pfile_base_name;
         $pki_cfg_instance_file_path       = $redirected_conf_path
                                           . "/" . $pki_cfg_base_name;
+        $catalina_properties_instance_file_path = $redirected_conf_path
+                                                . "/" . $catalina_properties_base_name;
 
         # Populate optionally redirected instance directory path
         # and setup a symlink in the standard area
@@ -2538,6 +2596,12 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
                                            $web_xml_subsystem_file_path,
                                            $web_xml_instance_file_path,
                                            \%slot_hash);
+
+        # process "catalina.properties" template
+        return 0 if !process_file_template("catalina_properties",
+                                           $catalina_properties_subsystem_file_path,
+                                           $catalina_properties_instance_file_path,
+                                           \%slot_hash);
     }
 
     return 1;
@@ -2600,6 +2664,69 @@ sub process_pki_files_and_symlinks()
 
         return 0 if !create_directory($webinf_lib_instance_path,
                                       $default_dir_permissions, $pki_user, $pki_group);
+
+        # create instance symlink to "${subsystem_type}.jar"
+        return 0 if !create_symlink($subsystem_jar_symlink_path, $subsystem_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "certsrv.jar"
+        return 0 if !create_symlink($certsrv_jar_symlink_path, $certsrv_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "cms.jar"
+        return 0 if !create_symlink($cms_jar_symlink_path, $cms_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "cmsbundle.jar"
+        return 0 if !create_symlink($cmsbundle_jar_symlink_path, $cmsbundle_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "cmscore.jar"
+        return 0 if !create_symlink($cmscore_jar_symlink_path, $cmscore_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "cmsutil.jar"
+        return 0 if !create_symlink($cmsutil_jar_symlink_path, $cmsutil_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to "jakarta-commons-collections.jar"
+        return 0 if !create_symlink($jakarta_commons_collections_jar_symlink_path,
+                                    $jakarta_commons_collections_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to "jakarta-commons-logging.jar"
+        # this is needed by tomcatjss
+        return 0 if !create_symlink($jakarta_commons_logging_jar_symlink_path,
+                                    $jakarta_commons_logging_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to "jss.jar"
+        return 0 if !create_symlink($jss_jar_symlink_path, $jss_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to "ldapjdk.jar"
+        return 0 if !create_symlink($ldapjdk_jar_symlink_path, $ldapjdk_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "nsutil.jar"
+        return 0 if !create_symlink($nsutil_jar_symlink_path, $nsutil_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "osutil.jar"
+        return 0 if !create_symlink($osutil_jar_symlink_path, $osutil_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to "tomcatjss.jar"
+        return 0 if !create_symlink($tomcatjss_jar_symlink_path, $tomcatjss_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "velocity.jar"
+        return 0 if !create_symlink($velocity_jar_symlink_path, $velocity_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "xerces.jar"
+        return 0 if !create_symlink($xerces_jar_symlink_path, $xerces_jar_file_path,
+                                    $pki_user, $pki_group);
 
     }
 
