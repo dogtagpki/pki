@@ -2800,6 +2800,9 @@ sub process_pki_security_databases
 
     remove_file($pfile_instance_file_path);
 
+    set_owner_group_on_directory_contents($alias_instance_path,
+                                          $pki_user, $pki_group);
+
     return 1;
 }
 
