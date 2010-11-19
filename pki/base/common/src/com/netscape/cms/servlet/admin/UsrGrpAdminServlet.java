@@ -77,7 +77,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
     private IAuthzSubsystem mAuthz = null;
 
     private static String [] mMultiRoleGroupEnforceList = null;
+    private final static String MULTI_ROLE_ENABLE= "multiroles.enable";
     private final static String MULTI_ROLE_ENFORCE_GROUP_LIST = "multiroles.false.groupEnforceList";
+
 
     /**
      * Constructs User/Group manager servlet.
@@ -1969,7 +1971,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 boolean multiRole = true;
 
                 try {
-                    multiRole = mConfig.getBoolean(Constants.PR_MULTIROLES);
+                    multiRole = mConfig.getBoolean(MULTI_ROLE_ENABLE);
                 } catch (Exception eee) {
                 }
                 while (st.hasMoreTokens()) {
