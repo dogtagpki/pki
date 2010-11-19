@@ -725,10 +725,15 @@ sub setup_platform_dependent_parameters()
 }
 
 
+# Takes an array reference containing a list of paths.
+# Any item in the list which is undefined will be ignored.
 # no return value
 sub set_library_path
 {
-    my ($path) = @_;
+    my ($paths) = @_;
+    my ($path);
+
+    $path = join($path_sep, grep(defined($_), @$paths));
 
     if (is_Windows()) {
         $ENV{'PATH'} = $path;
@@ -1456,10 +1461,10 @@ sub LDAP_add
 
     return if ($dry_run);
 
-    set_library_path($default_security_libraries . $path_sep
-                    . $default_system_user_libraries . $path_sep
-                    . $default_system_libraries . $path_sep
-                    . $original_library_path);
+    set_library_path([$default_security_libraries,
+                      $default_system_user_libraries,
+                      $default_system_libraries,
+                      $original_library_path]);
 
     $command = "$default_ldapmodify_command "
              . "-h '$tokendb_hostname' "
@@ -1471,7 +1476,7 @@ sub LDAP_add
 
     system($command);
 
-    set_library_path($original_library_path);
+    set_library_path([$original_library_path]);
 
     return;
 }
@@ -1494,10 +1499,10 @@ sub LDAP_modify
 
     return if ($dry_run);
 
-    set_library_path($default_security_libraries . $path_sep
-                    . $default_system_user_libraries . $path_sep
-                    . $default_system_libraries . $path_sep
-                    . $original_library_path);
+    set_library_path([$default_security_libraries,
+                      $default_system_user_libraries,
+                      $default_system_libraries,
+                      $original_library_path]);
 
     $command = "$default_ldapmodify_command "
              . "-h '$tokendb_hostname' "
@@ -1508,7 +1513,7 @@ sub LDAP_modify
 
     system($command);
 
-    set_library_path($original_library_path);
+    set_library_path([$original_library_path]);
 
     return;
 }
@@ -1533,10 +1538,10 @@ sub certutil_create_databases
 
     return if ($dry_run);
 
-    set_library_path($default_security_libraries . $path_sep
-                    . $default_system_user_libraries . $path_sep
-                    . $default_system_libraries . $path_sep
-                    . $original_library_path);
+    set_library_path([$default_security_libraries,
+                      $default_system_user_libraries,
+                      $default_system_libraries,
+                      $original_library_path]);
 
     if ($pwdfile eq "") {
         $command = "$default_certutil_command "
@@ -1551,7 +1556,7 @@ sub certutil_create_databases
 
     system($command);
 
-    set_library_path($original_library_path);
+    set_library_path([$original_library_path]);
 
     return;
 }
@@ -1574,10 +1579,10 @@ sub certutil_delete_cert
 
     return if ($dry_run);
 
-    set_library_path($default_security_libraries . $path_sep
-                    . $default_system_user_libraries . $path_sep
-                    . $default_system_libraries . $path_sep
-                    . $original_library_path);
+    set_library_path([$default_security_libraries,
+                      $default_system_user_libraries,
+                      $default_system_libraries,
+                      $original_library_path]);
 
     $command = "$default_certutil_command "
              . "-D "
@@ -1587,7 +1592,7 @@ sub certutil_delete_cert
 
     system($command);
 
-    set_library_path($original_library_path);
+    set_library_path([$original_library_path]);
 
     return;
 }
@@ -1610,10 +1615,10 @@ sub certutil_generate_CSR
 
     return if ($dry_run);
 
-    set_library_path($default_security_libraries . $path_sep
-                    . $default_system_user_libraries . $path_sep
-                    . $default_system_libraries . $path_sep
-                    . $original_library_path);
+    set_library_path([$default_security_libraries,
+                      $default_system_user_libraries,
+                      $default_system_libraries,
+                      $original_library_path]);
 
     if ($pwdfile eq "") {
         $command = "$default_certutil_command "
@@ -1634,7 +1639,7 @@ sub certutil_generate_CSR
 
     system($command);
 
-    set_library_path($original_library_path);
+    set_library_path([$original_library_path]);
 
     return;
 }
@@ -1675,10 +1680,10 @@ sub certutil_generate_self_signed_cert
 
     return if ($dry_run);
 
-    set_library_path($default_security_libraries . $path_sep
-                    . $default_system_user_libraries . $path_sep
-                    . $default_system_libraries . $path_sep
-                    . $original_library_path);
+    set_library_path([$default_security_libraries,
+                      $default_system_user_libraries,
+                      $default_system_libraries,
+                      $original_library_path]);
 
     if ($pwdfile eq "") {
         $command = "$default_certutil_command "
@@ -1715,7 +1720,7 @@ sub certutil_generate_self_signed_cert
 
     system($command);
 
-    set_library_path($original_library_path);
+    set_library_path([$original_library_path]);
 
     return;
 }
@@ -1747,10 +1752,10 @@ sub certutil_import_cert
 
     return if ($dry_run);
 
-    set_library_path($default_security_libraries . $path_sep
-                    . $default_system_user_libraries . $path_sep
-                    . $default_system_libraries . $path_sep
-                    . $original_library_path);
+    set_library_path([$default_security_libraries,
+                      $default_system_user_libraries,
+                      $default_system_libraries,
+                      $original_library_path]);
 
     open(F,
           "|$default_certutil_command "
@@ -1763,7 +1768,7 @@ sub certutil_import_cert
     print(F $cert);
     close(F);
 
-    set_library_path($original_library_path);
+    set_library_path([$original_library_path]);
 
     return;
 }
@@ -1786,10 +1791,10 @@ sub certutil_print_cert
 
     return if ($dry_run);
 
-    set_library_path($default_security_libraries . $path_sep
-                    . $default_system_user_libraries . $path_sep
-                    . $default_system_libraries . $path_sep
-                    . $original_library_path);
+    set_library_path([$default_security_libraries,
+                      $default_system_user_libraries,
+                      $default_system_libraries,
+                      $original_library_path]);
 
     if ($token ne "") {
         # Raidzilla Bug #57616 - certutil is not being consistent, nickname 
@@ -1809,7 +1814,7 @@ sub certutil_print_cert
 
     system($command);
 
-    set_library_path($original_library_path);
+    set_library_path([$original_library_path]);
 
     return;
 }
@@ -1831,10 +1836,10 @@ sub certutil_list_certs
 
     return if ($dry_run);
 
-    set_library_path($default_security_libraries . $path_sep
-                    . $default_system_user_libraries . $path_sep
-                    . $default_system_libraries . $path_sep
-                    . $original_library_path);
+    set_library_path([$default_security_libraries,
+                      $default_system_user_libraries,
+                      $default_system_libraries,
+                      $original_library_path]);
 
     $command = "$default_certutil_command "
              . "-L "
@@ -1843,7 +1848,7 @@ sub certutil_list_certs
 
     system($command);
 
-    set_library_path($original_library_path);
+    set_library_path([$original_library_path]);
 
     return;
 }
@@ -1866,10 +1871,10 @@ sub modutil_add_token
 
     return if ($dry_run);
 
-    set_library_path($default_security_libraries . $path_sep
-                    . $default_system_user_libraries . $path_sep
-                    . $default_system_libraries . $path_sep
-                    . $original_library_path);
+    set_library_path([$default_security_libraries,
+                      $default_system_user_libraries,
+                      $default_system_libraries,
+                      $original_library_path]);
 
     $command = "$default_modutil_command "
              . "-force "
@@ -1880,7 +1885,7 @@ sub modutil_add_token
 
     system("$command > /dev/null 2>&1");
 
-    set_library_path($original_library_path);
+    set_library_path([$original_library_path]);
 
     return;
 }
