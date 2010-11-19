@@ -36,7 +36,7 @@ my $perl_version_error_message = "ERROR:  Using Perl version $] ...\n"
                                . "$MINIMUM_PERL_VERSION or later to "
                                . "run this script!\n";
 
-die "$perl_version_error_message" if $] < $MINIMUM_PERL_VERSION;
+die $perl_version_error_message if $] < $MINIMUM_PERL_VERSION;
 
 
 ##############################################################
@@ -47,7 +47,7 @@ die "$perl_version_error_message" if $] < $MINIMUM_PERL_VERSION;
 # invocation directory has not been deleted!
 my $cwd = `/bin/pwd`;
 chomp $cwd;
-if ("$cwd" eq "") {
+if ($cwd eq "") {
     print(STDERR "Cannot invoke '$0' from non-existent directory!\n");
     print(STDOUT "\n");
     exit 255;
@@ -880,7 +880,7 @@ sub create_user
                      . "-c 'Certificate System' "
                      . "-u $PKI_UID "
                      . "-r "
-                     . "$username";
+                     . $username;
         } elsif ($^O eq "solaris") {
             $command = "/usr/sbin/useradd "
                      . "-g $groupname "
@@ -888,7 +888,7 @@ sub create_user
                      . "-s /bin/false "
                      . "-c 'Certificate System' "
                      . "-u $PKI_UID "
-                     . "$username";
+                     . $username;
         } else {
             $command = "/usr/sbin/useradd "
                      . "-g $groupname "
@@ -896,7 +896,7 @@ sub create_user
                      . "-s '' "
                      . "-c 'Certificate System' "
                      . "-u $PKI_UID "
-                     . "$username";
+                     . $username;
         }
     } else {
         # Attempt to create $username with random UID
@@ -908,27 +908,27 @@ sub create_user
                      . "-d /usr/share/pki "
                      . "-s /sbin/nologin "
                      . "-c 'Certificate System' "
-                     . "$username";
+                     . $username;
         } elsif ($^O eq "solaris") {
             $command = "/usr/sbin/useradd "
                      . "-g $groupname "
                      . "-d /usr/share/pki "
                      . "-s /bin/false "
                      . "-c 'Certificate System' "
-                     . "$username";
+                     . $username;
         } else {
             $command = "/usr/sbin/useradd "
                      . "-g $groupname "
                      . "-d /usr/share/pki "
                      . "-s '' "
                      . "-c 'Certificate System' "
-                     . "$username";
+                     . $username;
         }
     }
 
     $report = `$command`;
     if ($report ne "") {
-        emit("$report", "error");
+        emit($report, "error");
     }
 
     $result = user_exists($username);
@@ -973,15 +973,15 @@ sub create_group
             $command = "/usr/sbin/groupadd "
                      . "-g $PKI_GID "
                      . "-r "
-                     . "$groupname";
+                     . $groupname;
         } elsif ($^O eq "solaris") {
             $command = "/usr/sbin/groupadd "
                      . "-g $PKI_GID "
-                     . "$groupname";
+                     . $groupname;
         } else {
             $command = "/usr/sbin/groupadd "
                      . "-g $PKI_GID "
-                     . "$groupname";
+                     . $groupname;
         }
     } else {
         # Attempt to create $groupname with random GID
@@ -989,19 +989,19 @@ sub create_group
             . "(gid=random) to '/etc/group'.\n", "debug");
         if ($^O eq "linux") {
             $command = "/usr/sbin/groupadd "
-                     . "$groupname";
+                     . $groupname;
         } elsif ($^O eq "solaris") {
             $command = "/usr/sbin/groupadd "
-                     . "$groupname";
+                     . $groupname;
         } else {
             $command = "/usr/sbin/groupadd "
-                     . "$groupname";
+                     . $groupname;
         }
     }
 
     $report = `$command`;
     if ($report ne "") {
-        emit("$report", "error");
+        emit($report, "error");
     }
 
     $result = group_exists($groupname);
@@ -1114,20 +1114,20 @@ sub add_user_as_a_member_of_group
         if ($^O eq "linux") {
             $command = "/usr/sbin/usermod "
                      . "-G $groupname "
-                     . "$username";
+                     . $username;
         } elsif ($^O eq "solaris") {
             $command = "/usr/sbin/usermod "
                      . "-G $groupname "
-                     . "$username";
+                     . $username;
         } else {
             $command = "/usr/sbin/usermod "
                      . "-G $groupname "
-                     . "$username";
+                     . $username;
         }
 
         $report = `$command`;
         if ($report ne "") {
-            emit("$report", "error");
+            emit($report, "error");
         } else {
             # successfully added user to be a member of group
             $result = 1;
@@ -1195,12 +1195,12 @@ sub check_for_valid_url_prefix
 {
     my ($url_prefix) = @_;
 
-    if (("$url_prefix" eq $FILE_PREFIX) || 
-        ("$url_prefix" eq $FTP_PREFIX) || 
-        ("$url_prefix" eq $HTTP_PREFIX) || 
-        ("$url_prefix" eq $HTTPS_PREFIX) || 
-        ("$url_prefix" eq $LDAP_PREFIX) || 
-        ("$url_prefix" eq $LDAPS_PREFIX)) {
+    if (($url_prefix eq $FILE_PREFIX) || 
+        ($url_prefix eq $FTP_PREFIX) || 
+        ($url_prefix eq $HTTP_PREFIX) || 
+        ($url_prefix eq $HTTPS_PREFIX) || 
+        ($url_prefix eq $LDAP_PREFIX) || 
+        ($url_prefix eq $LDAPS_PREFIX)) {
         return 1;
     }
 
@@ -1384,7 +1384,7 @@ sub IsServerReachable
     }
 
     # create a URL from the passed-in parameters
-    my $url = $prefix . "$host" . ":" . "$port";
+    my $url = $prefix . $host . ":" . $port;
 
     # initialize the state of the Server referred to by this URL
     my $rv = 0;
@@ -1580,7 +1580,7 @@ sub LDAP_add
              . "-a "
              . "-f '$file'";
 
-    system("$command");
+    system($command);
 
     set_library_path($original_library_path);
 
@@ -1613,7 +1613,7 @@ sub LDAP_modify
              . "-w '$tokendb_password' "
              . "-f '$file'";
 
-    system("$command");
+    system($command);
 
     set_library_path($original_library_path);
 
@@ -1641,7 +1641,7 @@ sub certutil_create_databases
                     . $default_system_libraries . $path_sep
                     . $original_library_path);
 
-    if ("$pwdfile" eq "") {
+    if ($pwdfile eq "") {
         $command = "$default_certutil_command "
                  . "-N "
                  . "-d $instance_path";
@@ -1652,7 +1652,7 @@ sub certutil_create_databases
                  . "-f $pwdfile";
     }
 
-    system("$command");
+    system($command);
 
     set_library_path($original_library_path);
 
@@ -1684,7 +1684,7 @@ sub certutil_delete_cert
              . "-h '$token' "
              . "-n '$nickname'";
 
-    system("$command");
+    system($command);
 
     set_library_path($original_library_path);
 
@@ -1710,7 +1710,7 @@ sub certutil_generate_CSR
                     . $default_system_libraries . $path_sep
                     . $original_library_path);
 
-    if ("$pwdfile" eq "") {
+    if ($pwdfile eq "") {
         $command = "$default_certutil_command "
                  . "-R "
                  . "-d $instance_path "
@@ -1727,7 +1727,7 @@ sub certutil_generate_CSR
                  . "-f $pwdfile";
     }
 
-    system("$command");
+    system($command);
 
     set_library_path($original_library_path);
 
@@ -1771,7 +1771,7 @@ sub certutil_generate_self_signed_cert
                     . $default_system_libraries . $path_sep
                     . $original_library_path);
 
-    if ("$pwdfile" eq "") {
+    if ($pwdfile eq "") {
         $command = "$default_certutil_command "
                  . "-S "
                  . "-d $instance_path "
@@ -1804,7 +1804,7 @@ sub certutil_generate_self_signed_cert
                  . "2>&1";
     }
 
-    system("$command");
+    system($command);
 
     set_library_path($original_library_path);
 
@@ -1890,7 +1890,7 @@ sub certutil_print_cert
                  . "-n '$nickname'";
     }
 
-    system("$command");
+    system($command);
 
     set_library_path($original_library_path);
 
@@ -1920,7 +1920,7 @@ sub certutil_list_certs
              . "-d $instance_path "
              . "-h '$token'";
 
-    system("$command");
+    system($command);
 
     set_library_path($original_library_path);
 
@@ -1982,8 +1982,8 @@ sub print_to_logfile
 {
     my ($logfile_name, $message) = @_;
 
-    if ("$logfile_name" ne "") {
-        $logfd->print("$message");
+    if ($logfile_name ne "") {
+        $logfd->print($message);
     }
 
     return;
@@ -1995,7 +1995,7 @@ sub close_logfile
 {
     my ($logfile_name) = @_;
 
-    if ("$logfile_name" ne "") {
+    if ($logfile_name ne "") {
         $logfd->close();
     }
 
@@ -2079,7 +2079,7 @@ sub emit
     # ("debug", "error", "info", or "log")
     # to this specified log file
     $log_entry = "[$stamp] [$type] $string";
-    print_to_logfile("$logfile", "$log_entry");
+    print_to_logfile($logfile, $log_entry);
 
     return;
 }
@@ -2253,18 +2253,18 @@ sub create_file
     $command = "";
 
     if (is_Windows()) {
-        if ("$message" eq "") {
+        if ($message eq "") {
             open(FILE, "> $file");
             close(FILE);
         } else {
             open(FILE, "> $file");
-            print(FILE "$message");
+            print(FILE $message);
             close(FILE);
         }
     } else {
         my $rv = 0;
 
-        if ("$message" eq "") {
+        if ($message eq "") {
             $rv = `touch $file`;
             if (!$rv) {
                 emit("create_file():  unable to create empty file called "
@@ -2274,7 +2274,7 @@ sub create_file
         } else {
             $command = "echo '$message' > $file";
 
-            system("$command");
+            system($command);
         }
     }
 
@@ -3141,7 +3141,7 @@ if ($^O eq "linux") {
                 @chkconfig_fields = split(' ', $line);
 
                 # determine instance runlevel
-                if (("$chkconfig_fields[2]" ne "$DEFAULT_RUNLEVEL") &&
+                if (("$chkconfig_fields[2]" ne $DEFAULT_RUNLEVEL) &&
                     (substr("$chkconfig_fields[2]", 0) != "0")    &&
                     (substr("$chkconfig_fields[2]", 0) != "1")    &&
                     (substr("$chkconfig_fields[2]", 0) != "2")    &&
@@ -3183,7 +3183,7 @@ if ($^O eq "linux") {
                  . "--add" . " "
                  . $pki_instance_name;
 
-        system("$command");
+        system($command);
 
         emit("Registered '$pki_instance_name' with '/sbin/chkconfig'.\n");
     }
@@ -3200,7 +3200,7 @@ if ($^O eq "linux") {
                  . "--del" . " "
                  . $pki_instance_name;
 
-        system("$command");
+        system($command);
     }
 }
 

@@ -48,7 +48,7 @@ my $perl_version_error_message = "ERROR:  Using Perl version $] ...\n"
                                . "$MINIMUM_PERL_VERSION or later to "
                                . "run this script!\n";
 
-die "$perl_version_error_message" if $] < $MINIMUM_PERL_VERSION;
+die $perl_version_error_message if $] < $MINIMUM_PERL_VERSION;
 
 
 ##############################################################
@@ -59,7 +59,7 @@ die "$perl_version_error_message" if $] < $MINIMUM_PERL_VERSION;
 # invocation directory has not been deleted!
 my $cwd = `/bin/pwd`;
 chomp $cwd;
-if ("$cwd" eq "") {
+if ($cwd eq "") {
     print(STDERR "Cannot invoke '$0' from non-existent directory!\n");
     print(STDOUT "\n");
     exit 255;
@@ -107,7 +107,7 @@ $pki_flavor =~ s/\s+$//g;
 # Establish path to scripts
 my $common_path = "/usr/share/pki/scripts";
 
-if (! -d "$common_path") {
+if (! -d $common_path) {
     print(STDERR
            "ERROR:  The path '$common_path' does not exist!\n"
          . "        Unable to load shared Common Perl Data "
@@ -257,7 +257,7 @@ sub update_domain()
     }
     close(DAT);
 
-    # NOTE:  Don't check for the existence of "$httpport", as this will
+    # NOTE:  Don't check for the existence of $httpport, as this will
     #        be undefined for a Security Domain that has been migrated!
     if ((!defined($sechost))      ||
         (!defined($seceeport))    ||
@@ -547,7 +547,7 @@ ASK_AGAIN:
        goto ASK_AGAIN;
     }
 
-    if (!file_exists("$source_file_path")) {
+    if (!file_exists($source_file_path)) {
         print(STDERR
                "ERROR:  Can't remove instance, "
              . "cleanup file does not exist!\n");
@@ -675,9 +675,9 @@ ASK_AGAIN:
         }
     }
 
-    $command = "$pki_init_script_command";
+    $command = $pki_init_script_command;
 
-    system("$command");
+    system($command);
 
     my $size = @directories;
 
@@ -778,7 +778,7 @@ sub main()
 
     $pki_instance_path = "${pki_instance_root}/${pki_instance_name}";
 
-    if (!directory_exists("$pki_instance_path")) {
+    if (!directory_exists($pki_instance_path)) {
         print(STDERR
                "$0:  Target directory $pki_instance_path "
              . "is not a legal directory.\n\n");

@@ -54,7 +54,7 @@ my $perl_version_error_message = "ERROR:  Using Perl version $] ...\n"
                                . "$MINIMUM_PERL_VERSION or later to "
                                . "run this script!\n";
 
-die "$perl_version_error_message" if $] < $MINIMUM_PERL_VERSION;
+die $perl_version_error_message if $] < $MINIMUM_PERL_VERSION;
 
 
 ##############################################################
@@ -68,7 +68,7 @@ umask 00002;
 # invocation directory has not been deleted!
 my $cwd = `/bin/pwd`;
 chomp $cwd;
-if ("$cwd" eq "") {
+if ($cwd eq "") {
     print(STDERR "Cannot invoke '$0' from non-existent directory!\n");
     print(STDOUT "\n");
     exit 255;
@@ -137,7 +137,7 @@ $pki_flavor =~ s/\s+$//g;
 my $pki_subsystem_common_area = "/usr/share/$pki_flavor";
 my $common_path = "/usr/share/$pki_flavor/scripts";
 
-if (! -d "$common_path") {
+if (! -d $common_path) {
     print(STDERR
            "ERROR:  The path '$common_path' does not exist!\n"
          . "        Unable to load shared Common Perl Data "
@@ -1124,7 +1124,7 @@ sub parse_arguments()
     $pki_subsystem_path = $pki_subsystem_common_area
                         . "/" . $subsystem_type;
 
-    if (!(-d "$pki_subsystem_path")) {
+    if (!(-d $pki_subsystem_path)) {
         usage();
         emit("$pki_subsystem_path not present.  "
             . "Please install the corresponding subsystem RPM first!\n",
@@ -1353,7 +1353,7 @@ sub parse_arguments()
     }
 
 
-    # At this point in time, ALWAYS check that "$pki_group" exists!
+    # At this point in time, ALWAYS check that $pki_group exists!
     if (!group_exists($pki_group)) {
         if (!create_group($pki_group)) {
             usage();
@@ -1387,7 +1387,7 @@ sub parse_arguments()
     }
 
 
-    # At this point in time, ALWAYS check that "$pki_user" exists!
+    # At this point in time, ALWAYS check that $pki_user exists!
     if (!user_exists($pki_user)) {
         if (!create_user($pki_user, $pki_group)) {
             usage();
@@ -1398,7 +1398,7 @@ sub parse_arguments()
     }
 
 
-    # At this point in time, ALWAYS check that shell access for "$pki_user" is
+    # At this point in time, ALWAYS check that shell access for $pki_user is
     # disallowed; for now, simply notify the user performing the installation
     # and continue
     if (!user_disallows_shell($pki_user)) {
@@ -1407,8 +1407,8 @@ sub parse_arguments()
     }
 
 
-    # At this point in time, ALWAYS check that "$pki_user"
-    # is a valid member of "$pki_group"
+    # At this point in time, ALWAYS check that $pki_user
+    # is a valid member of $pki_group
     #
     # NOTE:  Uncomment the following code to enforce a strict policy of
     #        requiring $pki_user to be a member of $pki_group . . .
@@ -1421,8 +1421,8 @@ sub parse_arguments()
     # }
 
 
-    # At this point in time, ALWAYS attempt to add "$pki_user" as a
-    # valid member of "$default_nfast_group" (presuming one exists)
+    # At this point in time, ALWAYS attempt to add $pki_user as a
+    # valid member of $default_nfast_group (presuming one exists)
     if (group_exists($default_nfast_group)) {
         # Ignore failures as this should be considered a 'benign' error
         if (add_user_as_a_member_of_group($pki_user,
@@ -1938,15 +1938,15 @@ sub process_pki_directories()
                                           . "/" . $pki_cfg_base_name;
 
         if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
-            $httpd_conf_instance_file_path = "$conf_instance_path"
+            $httpd_conf_instance_file_path = $conf_instance_path
                                            . "/" . $httpd_conf_base_name;
-            $magic_instance_file_path      = "$conf_instance_path"
+            $magic_instance_file_path      = $conf_instance_path
                                            . "/" . $magic_base_name;
             $mime_types_instance_file_path = $conf_instance_path
                                            . "/" . $mime_types_base_name;
-            $nss_conf_instance_file_path   = "$conf_instance_path"
+            $nss_conf_instance_file_path   = $conf_instance_path
                                            . "/" . $nss_conf_base_name;
-            $perl_conf_instance_file_path  = "$conf_instance_path"
+            $perl_conf_instance_file_path  = $conf_instance_path
                                            . "/" . $perl_conf_base_name;
             $pwcache_conf_instance_file_path = $conf_instance_path
                                              . "/" . $pwcache_conf_base_name;
@@ -2008,15 +2008,15 @@ sub process_pki_directories()
         # Populate optionally redirected instance directory path
         # and setup a symlink in the standard area
         if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
-            $httpd_conf_instance_file_path = "$redirected_conf_path"
+            $httpd_conf_instance_file_path = $redirected_conf_path
                                            . "/" . $httpd_conf_base_name;
-            $magic_instance_file_path      = "$redirected_conf_path"
+            $magic_instance_file_path      = $redirected_conf_path
                                            . "/" . $magic_base_name;
             $mime_types_instance_file_path = $redirected_conf_path
                                            . "/" . $mime_types_base_name;
-            $nss_conf_instance_file_path   = "$redirected_conf_path"
+            $nss_conf_instance_file_path   = $redirected_conf_path
                                            . "/" . $nss_conf_base_name;
-            $perl_conf_instance_file_path  = "$redirected_conf_path"
+            $perl_conf_instance_file_path  = $redirected_conf_path
                                            . "/" . $perl_conf_base_name;
             $pwcache_conf_instance_file_path = $redirected_conf_path
                                              . "/" . $pwcache_conf_base_name;
@@ -2392,7 +2392,7 @@ sub process_file_template
             # used for initialization, for consistency, as with ALL
             # other password/pin values (with one notable EXCEPTION),
             # the word "(sensitive)" is printed out rather than the
-            # contents of "$value".
+            # contents of $value.
             emit("        replacing: $key with: (sensitive)\n");
         } else {
             emit("        replacing: $key with: $value\n");
@@ -3364,9 +3364,9 @@ sub build_pki_registry_subsystem_path()
     $pki_registry_subsystem_path = $pki_registry_path
                                  . "/" . $subsystem_type;
 
-    if (!directory_exists("$pki_registry_subsystem_path")) {
+    if (!directory_exists($pki_registry_subsystem_path)) {
         # create pki registry for this subsystem
-        $result = create_directory("$pki_registry_subsystem_path");
+        $result = create_directory($pki_registry_subsystem_path);
         if (!$result) {
             emit("Failed to create directory "
                 . "$pki_registry_subsystem_path ...\n");
@@ -3827,7 +3827,7 @@ sub process_pki_selinux_setup()
         my $pidfile = "/var/run/${pki_instance_name}.pid";
         if ($pki_instance_name ne $default_inst_name) {
             &add_selinux_file_context($setype . "_var_run_t",
-                "$pidfile", "f");
+                $pidfile, "f");
         }
         if (-e $pidfile) {
             emit("Restorecon file context for $pidfile\n");
@@ -3919,11 +3919,11 @@ sub install_pki_instance()
 
     emit("Installing PKI instance ...\n");
 
-    if (!directory_exists("$pki_instance_path")) {
-        $result = create_directory("$pki_instance_path");
+    if (!directory_exists($pki_instance_path)) {
+        $result = create_directory($pki_instance_path);
 
         push(@installed_stray_directories,
-              "$pki_instance_path");
+              $pki_instance_path);
         if (!$result) {
             return 0;
         }
@@ -4036,7 +4036,7 @@ sub cleanup()
            "\n\nPKI instance creation Cleanup Utility "
          . "cleaning up on error ...\n\n");
 
-    $result = remove_directory("$pki_instance_path");
+    $result = remove_directory($pki_instance_path);
 
     my $size = @installed_files;
 
@@ -4176,9 +4176,9 @@ ASK_AGAIN:
                                  . " " . $pki_instance_name;
     }
 
-    $command = "$pki_init_script_command";
+    $command = $pki_init_script_command;
 
-    system("$command");
+    system($command);
 
     # Notify user to check firewall settings . . .
     print(STDOUT
