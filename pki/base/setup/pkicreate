@@ -176,9 +176,6 @@ $suppress = $install_info_basename;
 # Local Constants
 ##############################################################
 
-# Script used to complete setting up the PKI framework
-my $pkicomplete = "$pki_subsystem_common_area/scripts/pkicomplete";
-
 # Base subsystem directory names
 my $acl_base_subsystem_dir      = "acl";       # CA, KRA, OCSP, TKS
 my $alias_base_subsystem_dir    = "alias";     # CA, KRA, OCSP, TKS, RA, TPS
@@ -3479,15 +3476,6 @@ sub main()
     initialize_paths();
 
     initialize_pki_creation_values();
-
-    if ($subsystem_type eq $CA   ||
-        $subsystem_type eq $KRA  ||
-        $subsystem_type eq $OCSP ||
-        $subsystem_type eq $TKS) {
-        if (-e $pkicomplete) {
-            `$pkicomplete`;
-        }
-    }
 
     $result = install_pki_instance();
     if (!$result) {
