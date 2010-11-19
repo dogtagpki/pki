@@ -15,7 +15,7 @@ install(
 
 install(
     FILES
-        pkicommon
+        pkicommon.pm
     DESTINATION
         ${DATA_INSTALL_DIR}/scripts/
     PERMISSIONS

@@ -98,30 +98,8 @@ if( $^O eq "linux" ) {
 
 $pki_flavor =~ s/\s+$//g;
 
-# Establish path to scripts
-my $pki_subsystem_common_area = "/usr/share/$pki_flavor";
-my $common_path = "/usr/share/pki/scripts";
-
-if( ! -d "$common_path" ) {
-    print( STDERR
-           "ERROR:  The path '$common_path' does not exist!\n"
-         . "        Unable to load shared Common Perl Data "
-         . "and Subroutines!\n" );
-    print( STDOUT "\n" );
-    exit 255;
-}
-
-if( ! -e "$common_path/pkicommon" ) {
-    print( STDERR
-           "ERROR:  The file '$common_path/pkicommon' does not exist!\n"
-         . "        Unable to load shared Common Perl Data "
-         . "and Subroutines!\n" );
-    print( STDOUT "\n" );
-    exit 255;
-}
-
-eval( "use lib '" . $common_path . "'" );
-require( 'pkicommon' );
+use lib "/usr/share/pki/scripts";
+use pkicommon;
 
 # make -w happy by suppressing warnings of Global variables used only once
 my $suppress = "";

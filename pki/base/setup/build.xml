@@ -146,7 +146,7 @@
             <zipfileset dir="."
                         filemode="755"
                         prefix="usr/share/${product.prefix}/scripts">
-                <include name="pkicommon"/>
+                <include name="pkicommon.pm"/>
             </zipfileset>
             <zipfileset dir="."
                         filemode="644"
@@ -170,7 +170,7 @@
             <tarfileset dir="."
                         mode="755"
                         prefix="${dist.name}/usr/share/${product.prefix}/scripts">
-                <include name="pkicommon"/>
+                <include name="pkicommon.pm"/>
             </tarfileset>
             <tarfileset dir="."
                         mode="644"
@@ -224,7 +224,7 @@
                 <include name="build.xml"/>
                 <include name="config/product*.xml"/>
                 <include name="config/release*.xml"/>
-                <exclude name="pkicommon"/>
+                <exclude name="pkicommon.pm"/>
                 <exclude name="pkicreate"/>
                 <exclude name="pkihost"/>
                 <exclude name="pkiremove"/>
@@ -233,7 +233,7 @@
             <zipfileset dir="."
                         filemode="755"
                         prefix="${src.dist.name}">
-                <include name="pkicommon"/>
+                <include name="pkicommon.pm"/>
                 <include name="pkicreate"/>
                 <include name="pkihost"/>
                 <include name="pkiremove"/>
@@ -253,7 +253,7 @@
                 <include name="build.xml"/>
                 <include name="config/product*.xml"/>
                 <include name="config/release*.xml"/>
-                <exclude name="pkicommon"/>
+                <exclude name="pkicommon.pm"/>
                 <exclude name="pkicreate"/>
                 <exclude name="pkihost"/>
                 <exclude name="pkiremove"/>
@@ -262,7 +262,7 @@
             <tarfileset dir="."
                         mode="755"
                         prefix="${src.dist.name}">
-                <include name="pkicommon"/>
+                <include name="pkicommon.pm"/>
                 <include name="pkicreate"/>
                 <include name="pkihost"/>
                 <include name="pkiremove"/>
