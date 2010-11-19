@@ -96,8 +96,7 @@ if ($^O eq "linux") {
 } elsif ($^O eq "solaris") {
     $pki_flavor = "pki";
 } else {
-    print(STDERR
-           "ERROR:  Unsupported platform '$^O'!\n");
+    print(STDERR "ERROR: Unsupported platform '$^O'!\n");
     print(STDOUT "\n");
     exit 255;
 }
@@ -155,9 +154,9 @@ my $pki_instance_path = "";
 my $subsystem_type = "";
 
 # PKI init script variables
-my $default_init_scripts_path = "";
-my $pki_init_script = "";
-my $pki_init_script_command = "";
+my $default_initscripts_path = "";
+my $pki_registry_initscript = "";
+my $pki_registry_initscript_command = "";
 
 # PKI registry variables
 my $default_registry_path = "";
@@ -169,14 +168,10 @@ my $pki_registry_subsystem_path = "";
 ##############################################################
 
 if ($^O eq "linux") {
-    $default_init_scripts_path = "/etc/rc\\.d/init\\.d";
+    $default_initscripts_path = '/etc/rc.d/init.d';
     $default_registry_path = "/etc/sysconfig";
-} elsif ($^O eq "solaris") {
-    $default_init_scripts_path = "/etc/init\\.d";
-    $default_registry_path = "/etc/inet";
 } else {
-    print(STDERR
-           "ERROR:  Unsupported platform '$^O'!\n");
+    print(STDERR "ERROR: Unsupported platform '$^O'!\n");
     print(STDOUT "\n");
     exit 255;
 }
@@ -186,8 +181,7 @@ if ($^O eq "linux") {
 ##############################################################
 
 # Establish PKI-level registry
-$pki_registry_path = $default_registry_path
-                   . "/" . $pki_flavor;
+$pki_registry_path = "$default_registry_path/$pki_flavor";
 
 ##############################################################
 # PKI Instance Removal Subroutines
@@ -201,7 +195,6 @@ sub usage()
 Usage:  pkiremove -pki_instance_root=<pki_instance_root> # Instance root
                                                          # directory
                                                          # destination
-
                   -pki_instance_name=<pki_instance_id>   # Unique PKI
                                                          # subsystem
                                                          # instance name
@@ -349,6 +342,11 @@ sub remove_fcontext()
 {
     my ($fcontext, $fname, $ftype) = @_;
     my $errs;
+
+    emit(sprintf("remove_fcontext(%s)\n", join(", ", @_)), "debug");
+
+    return if ($dry_run);
+
     if ($ftype eq "f") {
         $errs = `$semanage fcontext -d -t $fcontext -f -- $fname 2>&1`
     } else {
@@ -389,16 +387,10 @@ sub remove_selinux_fcontexts()
 
     print STDOUT "Removing selinux file contexts.\n";
 
-    # remove context for /usr/bin/dtomcat5-$pki_instance_name
-    if (($java_component) && ($pki_instance_name ne $default_inst_name)) {
-        &remove_fcontext($setype . "_exec_t", 
-            "/usr/bin/dtomcat5-$pki_instance_name", "f");
-    }
-
     # For backwards compatibility, support removal of instances
     # which use the legacy start/stop implementation
-    if (entity_exists("$default_init_scripts_path/$pki_instance_name")) {
-        # remove context for "$default_init_scripts_path/$pki_instance_name"
+    if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
+        # remove context for "$default_initscripts_path/$pki_instance_name"
         if ($pki_instance_name ne $default_inst_name) {
             &remove_fcontext($setype . "_script_exec_t", 
                               "/etc/rc\\.d/init\\.d/$pki_instance_name", "f");
@@ -421,13 +413,6 @@ sub remove_selinux_fcontexts()
     if ($log_path ne $default_log_path) {
         &remove_fcontext($setype . "_log_t",
             "\"$log_path(/.*)?\"", "a"); 
-    }
-
-    # remove context for  $conf_path/tomcat5.conf
-    if (($java_component) && ($conf_path ne $default_conf_path)) {
-        $ftype = $setype . "_tomcat_exec_t";
-        &remove_fcontext($setype . "_tomcat_exec_t", 
-            "$conf_path/tomcat5\\.conf", "f");    
     }
 
     # remove context for $conf_path
@@ -500,6 +485,7 @@ sub remove_selinux_ports()
         my $setype = "pki_" . lc($typeval) . "_port_t";
         my $errs;
         print STDOUT "Removing port $port from selinux policy.\n";
+	next if $dry_run;
         $errs = `$semanage port -d -t $setype -ptcp $port 2>&1`;
         if ($? != 0)  {
             if ($errs !~ /defined in policy, cannot be deleted/) {
@@ -513,34 +499,19 @@ sub remove_selinux_ports()
 }
 
 
-# no args
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub remove_instance()
 {
-    my $command = "";
+    my ($result, $confirm, $install_info);
 
-    print(STDOUT
-           "PKI instance Deletion Utility "
-         . "cleaning up instance ...\n\n");
+    $result = 1;
 
-    my $result = 0;
-    my $cleanup = new FileHandle;
-    my $source_file_path = $pki_instance_path
-                         . "/" . $saved_cleanup_file_name;
-    my @files;
-    my @directories;
-    my $confirm = "Y";
-
-    # For backwards compatibility, support removal of instances
-    # which use the legacy start/stop implementation
-    my $pki_start_stop_script_instance_file_path = "";
+    print(STDOUT "PKI instance Deletion Utility cleaning up instance ...\n\n");
 
 ASK_AGAIN:
     if (!$force) {
         $confirm  = prompt("You have elected to remove the instance "
-                          . "installed in "
-                          . "$pki_instance_path.\n"
+                          . "installed in $pki_instance_path.\n"
                           . "Are you sure (Y/N)? ");
     }
 
@@ -550,16 +521,13 @@ ASK_AGAIN:
        goto ASK_AGAIN;
     }
 
-    if (!file_exists($source_file_path)) {
-        print(STDERR
-               "ERROR:  Can't remove instance, "
-             . "cleanup file does not exist!\n");
+    $install_info = read_install_info_from_dir($pki_instance_path);
+    if (!defined($install_info)) {
+        print(STDERR "ERROR: Can't remove instance, installation manifest does not exist!\n");
         return $result;
     }
 
-    $cleanup->open("<$source_file_path") or die "Could not open file!\n";
-
-    eval { update_domain(); };
+    eval { update_domain(); } if !$dry_run; # FIXME so update_domain shows what it would do
     warn "Error updating security domain: " . $@ if $@;
 
     if (($^O eq "linux") && (is_Fedora() || (is_RHEL() && (! is_RHEL4())))) {
@@ -570,145 +538,36 @@ ASK_AGAIN:
         warn "Error removing selinux file contexts: " . $@ if $@;
     }
 
-    my $file_mode = "file";
-    my @file_split;
-
-    while (<$cleanup>)
-    {
-        my $line = $_;
-        chomp($line);
-
-        if ($line eq $saved_file_marker) {
-            $file_mode = "file";
-            next;
-        }
-
-        if ($line eq $saved_directory_marker) {
-           $file_mode = "directory";
-           next;
-        }
-
-        if ($file_mode eq "file") {
-            push(@files, $line);
-
-            @file_split = split('/', $line);
-            my $last = @file_split;
-
-            # For backwards compatibility, support removal of instances
-            # which use the legacy start/stop implementation
-            if (entity_exists("$default_init_scripts_path/$pki_instance_name")) {
-                if ($file_split[$last -1] eq $pki_instance_name) {
-                    $pki_start_stop_script_instance_file_path = $line;
-                }
-            }
-        }
-
-        if ($file_mode eq "directory") {
-            push(@directories, $line);
-        }
-    }
-
-    $cleanup->close();
-
-    # For backwards compatibility, support removal of instances
-    # which use the legacy start/stop implementation
-    if (entity_exists("$default_init_scripts_path/$pki_instance_name")) {
-        if ($pki_start_stop_script_instance_file_path eq "") {
-            print(STDERR
-                   "ERROR:  Can't locate start script of "
-                 . "instance to be cleaned up!\n");
-            return $result;
-        }
-    }
-
     # De-register this instance with "chkconfig"
     if ($^O eq "linux") {
-        # For backwards compatibility, support removal of instances
-        # which use the legacy start/stop implementation
-        if (entity_exists("$default_init_scripts_path/$pki_instance_name")) {
+        if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
             # De-register this instance with '/sbin/chkconfig'
-            print(STDOUT "\n");
-            print(STDOUT
-                   "De-registering '$pki_instance_name' from "
-                 . "'/sbin/chkconfig'.\n");
+            print(STDOUT "Removing '$pki_instance_name' from chkconfig.\n");
             deregister_pki_instance_with_chkconfig($pki_instance_name);
         }
     }
 
-    if ($subsystem_type eq $CA) {
-        $pki_init_script = $CA_INIT_SCRIPT;
-    } elsif ($subsystem_type eq $KRA) {
-        $pki_init_script = $KRA_INIT_SCRIPT;
-    } elsif ($subsystem_type eq $OCSP) {
-        $pki_init_script = $OCSP_INIT_SCRIPT;
-    } elsif ($subsystem_type eq $RA) {
-        $pki_init_script = $RA_INIT_SCRIPT;
-    } elsif ($subsystem_type eq $TKS) {
-        $pki_init_script = $TKS_INIT_SCRIPT;
-    } elsif ($subsystem_type eq $TPS) {
-        $pki_init_script = $TPS_INIT_SCRIPT;
-    }
+    $pki_registry_initscript = get_registry_initscript_name($subsystem_type);
 
     # Shutdown this instance
     if ($^O eq "linux") {
-        if (entity_exists("$default_init_scripts_path/$pki_instance_name")) {
-            # For backwards compatibility, support removal of instances
-            # which use the legacy start/stop implementation
-            $pki_init_script_command = "/sbin/service"
-                                     . " " . $pki_instance_name
-                                     . " " . "stop";
+        if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
+            $pki_registry_initscript_command = "/sbin/service $pki_instance_name stop";
         } else {
-            $pki_init_script_command = "/sbin/service"
-                                     . " " . $pki_init_script
-                                     . " " . "stop"
-                                     . " " . $pki_instance_name;
-        }
-    } else {
-        # default case:  e. g. - ($^O eq "solaris")
-        if (entity_exists("$default_init_scripts_path/$pki_instance_name")) {
-            # For backwards compatibility, support removal of instances
-            # which use the legacy start/stop implementation
-            $pki_init_script_command = $pki_start_stop_script_instance_file_path
-                                     . " " . "stop";
-        } else {
-            $pki_init_script_command = $default_init_scripts_path
-                                     . "/" . $pki_init_script
-                                     . " " . "stop"
-                                     . " " . $pki_instance_name;
+	    print(STDERR "ERROR: Unsupported platform '$^O'!\n");
+	    print(STDOUT "\n");
+	    exit 255;
         }
     }
-
-    $command = $pki_init_script_command;
-
-    system($command);
-
-    my $size = @directories;
+    run_command($pki_registry_initscript_command);
 
     print(STDOUT "\n");
 
-    if ($size) {
-        my $i = 0;
-        for ($i = 0; $i < $size; $i ++) {
-            print(STDOUT
-                   "Removing dir $directories[$i]\n");
-            remove_directory($directories[$i]);
-        }
-    }
-
-    $size = @files;
-
-    if ($size) {
-        my $i = 0;
-        for ($i = 0; $i < $size; $i++) {
-            print(STDOUT
-                   "Removing file $files[$i]\n");
-            remove_file($files[$i]);
-        }
-    }
+    # Remove all installed files and directories.
+    $result = 0 if !uninstall($install_info);
 
     print(STDOUT "\n");
 
-    $result = 1;
     return $result;
 }
 
@@ -760,8 +619,7 @@ sub main()
         exit 255;
     }
 
-    # Remove all trailing directory separators ('/')
-    $pki_instance_root =~ s/\/+$//;
+    $pki_instance_root = normalize_path($pki_instance_root);
 
     # Check for valid content of command-line arguments.
     if ($pki_instance_root eq "") {
@@ -803,6 +661,7 @@ sub main()
 
     if ($dry_run) {
         emit("    dry run mode ENABLED, system will not be modified, log to $logfile\n");
+        print STDOUT "dry run mode ENABLED, system will not be modified\n";
     }
 
     emit("    pki_instance_root   $pki_instance_root\n");
@@ -816,8 +675,7 @@ sub main()
     }
 
     # Establish PKI subsystem-level registry
-    $pki_registry_subsystem_path = $pki_registry_path
-                                 . "/" . $subsystem_type;
+    $pki_registry_subsystem_path = "$pki_registry_path/$subsystem_type";
 
     # If empty, remove the PKI subsystem-level registry
     if (directory_exists($pki_registry_subsystem_path)) {
@@ -831,6 +689,10 @@ sub main()
         if (is_directory_empty($pki_registry_path)) {
             remove_directory($pki_registry_path);
         }
+    }
+
+    if ($dry_run) {
+        print STDOUT "dry run mode ENABLED, system was not modified\n";
     }
 
     return $result;

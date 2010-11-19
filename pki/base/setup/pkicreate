@@ -380,11 +380,6 @@ my $PKI_OPEN_COMMENT          = "<!--";
 my $PKI_CLOSE_COMMENT         = "-->";
 my $PKI_WEBAPPS_NAME         = "PKI_WEBAPPS_NAME";
 
-# PKI removal constants
-my $saved_cleanup_file_name = ".cleanup.dat";
-my $saved_file_marker       = "[files]";
-my $saved_directory_marker  = "[directories]";
-
 #selinux constants
 my $semanage = "/usr/sbin/semanage";
 my $restorecon = "/sbin/restorecon";
@@ -397,9 +392,6 @@ my $SELINUX_PORT_WRONGLY_DEFINED = 2;
 ##############################################################
 
 # Useful pki references
-@installed_files = ();
-@installed_stray_directories = ();
-
 %redirects = ();
 
 my %selinux_ports = ();
@@ -1131,24 +1123,24 @@ sub parse_arguments()
     # (always overwrite this file)
     $logfile = "/var/log/$pki_instance_name-install.log";
     open_logfile($logfile);
-    chmod($default_file_permissions, $logfile);
-    push(@installed_files, $logfile);
+    set_permissions($logfile, $default_file_permissions);
+    add_install_info($logfile, 'file', 'preserve');
 
-    emit("Capturing installation information in $logfile.\n");
+    print(STDOUT "Capturing installation information in $logfile.\n");
 
     emit("Parsing PKI creation arguments ...\n");
 
     if ($verbose) {
-        emit("    verbose mode is ENABLED\n");
+        emit("    verbose mode ENABLED (level=$verbose)\n");
     }
 
     if ($dry_run) {
-        emit("    dry run mode ENABLED, system will not be modified, log to $logfile\n");
+        emit("    dry run mode ENABLED, system will not be modified\n");
+        print STDOUT "dry run mode ENABLED, system will not be modified\n";
     }
 
     emit("    pki_instance_root   $pki_instance_root\n");
     emit("    pki_instance_name   $pki_instance_name\n");
-    emit("    pki_instance_path   $pki_instance_path\n");
 
     ## Mandatory "-secure_port=<secure_port>" option
     if ($l_secure_port >= 0) {
@@ -2012,9 +2004,6 @@ sub process_pki_directories()
             $servercertnick_conf_instance_file_path   = $redirected_conf_path
                                              . "/" . $servercertnick_conf_base_name;
 
-        push(@installed_stray_directories,
-              $redirected_conf_path);
-
         $result = create_symbolic_link($conf_instance_symlink_path,
                                         $redirected_conf_path);
         if (!$result) {
@@ -2100,9 +2089,6 @@ sub process_pki_directories()
             chmod($default_dir_permissions,
                    "$redirected_logs_path/$signed_audit_base_instance_dir");
         }
-
-        push(@installed_stray_directories,
-              $redirected_logs_path);
 
         $result = create_symbolic_link($logs_instance_symlink_path,
                                         $redirected_logs_path);
@@ -3102,25 +3088,19 @@ sub process_pki_security_databases()
 
     # now create and configure pki security databases,
     # cert3.db, key3.db, secmod.db ...
-    if (!file_exists($default_certutil_command)) {
-        emit("process_pki_security_databases():  $default_certutil_command "
-            . "does not exist!\n",
-              "error");
+    if (!file_exists($default_certutil_command) && !$dry_run) {
+        emit("process_pki_security_databases():  $default_certutil_command does not exist!\n", "error");
         return $result;
 
     }
 
-    if (!file_exists($noise_instance_file_path)) {
-        emit("process_pki_security_databases():  Can't find "
-            . "temp noise file!\n",
-              "error");
+    if (!file_exists($noise_instance_file_path) && !$dry_run) {
+        emit("process_pki_security_databases():  Can't find temp noise file!\n", "error");
         return $result;
     }
 
-    if (!file_exists($pfile_instance_file_path)) {
-        emit("process_pki_security_databases():  Can't find temp file "
-            . "with password!\n",
-              "error");
+    if (!file_exists($pfile_instance_file_path) && !$dry_run) {
+        emit("process_pki_security_databases():  Can't find temp file with password!\n", "error");
         return $result;
     }
 
@@ -3157,15 +3137,12 @@ sub process_pki_security_modules()
 
     emit("Processing PKI security modules for '$pki_instance_path' ...\n");
 
-    if (!file_exists($default_modutil_command)) {
-        emit("process_pki_security_modules():  $default_modutil_command "
-            . "must be installed on system!\n",
-              "error");
+    if (!file_exists($default_modutil_command) && !$dry_run) {
+        emit("process_pki_security_modules():  $default_modutil_command must be installed on system!\n", "error");
         return $result;
     }
 
-    emit("    Attempting to add hardware security modules to system if "
-        . "applicable ...\n");
+    emit("    Attempting to add hardware security modules to system if applicable ...\n");
 
     while (my ($key, $value) = each(%supported_sec_modules_hash)) {
         if (!file_exists($value)) {
@@ -3203,6 +3180,7 @@ sub parse_selinux_ports()
 sub check_selinux_port()
 {
     my ($setype, $seport) = @_;
+
     if (defined $selinux_ports{$seport}) {
         if ($selinux_ports{$seport} eq $setype) {
             return $SELINUX_PORT_DEFINED;
@@ -3218,6 +3196,7 @@ sub add_selinux_port()
 {
     my ($setype, $seport) = @_;
     my $status = &check_selinux_port($setype, $seport);
+
     if ($status == $SELINUX_PORT_UNDEFINED) {
         emit("Setting selinux context $setype for $seport\n");
         system("$semanage port -a -t $setype -p tcp $seport\n");
@@ -3396,8 +3375,6 @@ sub install_pki_instance()
     if (!directory_exists($pki_instance_path)) {
         $result = create_directory($pki_instance_path);
 
-        push(@installed_stray_directories,
-              $pki_instance_path);
         if (!$result) {
             return 0;
         }
@@ -3448,105 +3425,20 @@ sub install_pki_instance()
 # PKI Instance Removal Subroutines
 ##############################################################
 
-# no args
-# return 1 - success, or
-# return 0 - failure
-sub save_cleanup_file()
-{
-    my $result = 0;
 
-    my $cleanup = new FileHandle;
-
-    my $source_file_path = $pki_instance_path
-                         . "/" . $saved_cleanup_file_name;
-
-    my $files_size = @installed_files;
-    my $directories_size = @installed_stray_directories;
-
-    if ($files_size == 0 && $installed_stray_directories == 0) {
-        emit("No files or directories created in save_cleanup_file!",
-              "error");
-        return $result;
-    }
-
-    $cleanup->open(">$source_file_path") or
-    die "Could not open $source_file_path\n";
-
-    my $buff = "";
-
-    $cleanup->print("$saved_file_marker\n");
-
-    if ($files_size) {
-        my $i = 0;
-
-        for ($i = 0; $i < $files_size; $i++) {
-            $cleanup->print("$installed_files[$i]\n");
-        }
-    }
-
-    $cleanup->print("$saved_directory_marker\n");
-
-    if ($directories_size) {
-        my $i = 0;
-
-        for ($i = 0; $i < $directories_size; $i++) {
-            $cleanup->print("$installed_stray_directories[$i]\n");
-        }
-    }
-
-    $cleanup->close();
-
-    return 1;
-}
-
-
-# no args
-# no return value
+# Return 1 if success, 0 if failure
 sub cleanup()
 {
     my $result = 0;
 
+    emit(sprintf("cleanup(%s)\n", join(", ", @_)), "debug");
+
     print(STDOUT
-           "\n\nPKI instance creation Cleanup Utility "
-         . "cleaning up on error ...\n\n");
+           "\n\nPKI instance creation Cleanup Utility cleaning up on error ...\n\n");
 
-    $result = remove_directory($pki_instance_path);
+    $result = uninstall(\%installation_info);
 
-    my $size = @installed_files;
-
-    if ($size) {
-        my $i = 0;
-
-        for ($i = 0; $i < $size; $i ++) {
-            remove_file($installed_files[$i]);
-        }
-    }
-
-    $size = @installed_stray_directories;
-
-    if ($size) {
-        my $i = 0;
-
-        for ($i = 0; $i < $size; $i++) {
-            remove_directory($installed_stray_directories[$i]);
-        }
-    }
-
-    # If empty, remove the PKI subsystem-level registry
-    if (directory_exists($pki_registry_subsystem_path)) {
-        if (is_directory_empty($pki_registry_subsystem_path)) {
-            remove_directory($pki_registry_subsystem_path);
-        }
-    }
-
-    # If empty, remove the PKI-level registry
-    if (directory_exists($pki_registry_path)) {
-        if (is_directory_empty($pki_registry_path)) {
-            remove_directory($pki_registry_path);
-        }
-    }
-
-    return;
+    return $result;
 }
 
 
@@ -3601,9 +3493,11 @@ sub main()
     if (!$result) {
         print(STDOUT "\n");
 
+        my $install_description = get_install_description();
+        emit(sprintf("The following was performed\n%s\n\n", $install_description));
+
 ASK_AGAIN:
-        my $confirm  = prompt("Error detected would you like to clean up "
-                             . "$pki_instance_path (Y/N)? ");
+        my $confirm  = prompt("Error detected would you like to clean up ${pki_instance_path} (Y/N)? ");
 
         if ($confirm eq "Y" || $confirm eq "y") {
             cleanup();
@@ -3622,19 +3516,16 @@ ASK_AGAIN:
            "PKI instance creation completed ...\n\n");
 
 
-    $result = save_cleanup_file();
-    if (!$result) {
-        emit("Unable to create "
-            . $pki_instance_path
-            . "/" . $saved_cleanup_file_name
-            . "!\n",
-              "error");
-
-        # If it exists, close the log file
-        close_logfile($logfile);
-
-        exit 255;
+    my $install_info_file_path = "${pki_instance_path}/${install_info_basename}";
+    my $install_description = get_install_description();
+    if (!$dry_run) {
+        write_install_info_to_dir($pki_instance_path, \%installation_info);
     }
+
+    emit(sprintf("The following was performed (recorded in \"%s\")\n%s\n",
+                 $install_info_file_path, $install_description));
+
+    print(STDOUT "Installation information recorded in $logfile.\n");
 
     # Activate this instance
     if ($^O eq "linux") {
@@ -3644,7 +3535,9 @@ ASK_AGAIN:
     $command = "${pki_registry_initscript_command}";
     run_command($command);
 
-    system($command);
+    if ($dry_run) {
+        print STDOUT "dry run mode ENABLED, system was not modified\n";
+    } else {
 
     # Notify user to check firewall settings . . .
     print(STDOUT
@@ -3699,6 +3592,7 @@ ASK_AGAIN:
     emit("After configuration, the server can be operated by the command:\n"
              . "${pki_registry_initscript_command}\n",
           "log");
+    }
 
     # If it exists, close the log file
     close_logfile($logfile);
