@@ -19,6 +19,13 @@ Requires:       policycoreutils
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
+# This package provides and uses a PRIVATE Perl module (pkicommon.pm).
+# RPM erroneously believes there should be a requires perl(pkicommon)
+# from the public perl library path. Use the documented macros to
+# correct RPM's incorrect automatic dependency generation.
+%filter_from_requires /perl(pkicommon)/d
+%filter_setup
+
 %description
 Public Key Infrastructure (PKI) setup scripts used to create and remove
 instances from Dogtag PKI deployments.
