@@ -76,6 +76,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
     private IAuthzSubsystem mAuthz = null;
 
+    private static String [] mMultiRoleGroupEnforceList = null;
+    private final static String MULTI_ROLE_ENFORCE_GROUP_LIST = "multiroles.false.groupEnforceList";
+
     /**
      * Constructs User/Group manager servlet.
      */
@@ -1971,17 +1974,10 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 }
                 while (st.hasMoreTokens()) {
                     String memberName = st.nextToken();
-                   
                     if (multiRole) {
                         group.addMemberName(memberName);
                     } else {
-                        if (groupName.equals("Administrators") || 
-                            groupName.equals("Auditors") ||
-                            groupName.equals("Trusted Managers") ||
-                            groupName.equals("Certificate Manager Agents") ||
-                            groupName.equals("Registration Manager Agents") ||
-                            groupName.equals("Data Recovery Manager Agents") ||
-                            groupName.equals("Online Certificate Status Manager Agents")) {
+                        if( isGroupInMultiRoleEnforceList(groupName)) {
                             if (!isDuplicate(groupName, memberName)) {
                                 group.addMemberName(memberName);
                             } else {
@@ -2075,9 +2071,51 @@ public class UsrGrpAdminServlet extends AdminServlet {
         }
     }
 
+    private boolean isGroupInMultiRoleEnforceList(String groupName)
+    {
+        String groupList = null;
+
+        if (groupName == null || groupName.equals("")) {
+            return true;
+        }
+        if (mMultiRoleGroupEnforceList == null) {
+           try {
+               groupList = mConfig.getString(MULTI_ROLE_ENFORCE_GROUP_LIST); 
+           } catch (Exception e) {
+           }
+
+           if (groupList != null && !groupList.equals("")) {
+               mMultiRoleGroupEnforceList = groupList.split(",");
+               for (int j = 0 ; j < mMultiRoleGroupEnforceList.length; j++) {
+                   mMultiRoleGroupEnforceList[j] = mMultiRoleGroupEnforceList[j].trim();
+               }
+           }
+       }
+
+       if (mMultiRoleGroupEnforceList == null)
+           return true;
+
+       for (int i = 0; i < mMultiRoleGroupEnforceList.length; i++) {
+           if (groupName.equals(mMultiRoleGroupEnforceList[i])) {
+               return true;
+           }
+       }
+       return false;
+    }
+
     private boolean isDuplicate(String groupName, String memberName) {
         Enumeration groups = null;
 
+        // Let's not mess with users that are already a member of this group
+        boolean isMember = false;
+        try {
+            isMember = mMgr.isMemberOf(memberName,groupName);
+        } catch (Exception e) {
+        }
+
+        if (isMember == true) {
+            return false;
+        }
         try {
             groups = mMgr.listGroups("*");
             while (groups.hasMoreElements()) {
@@ -2085,20 +2123,11 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 String name = group.getName();
                 Enumeration g = mMgr.findGroups(name);
                 IGroup g1 = (IGroup) g.nextElement();
-
                 if (!name.equals(groupName)) {
-                    if (name.equals("Administrators") || 
-                        name.equals("Auditors") ||
-                        name.equals("Trusted Managers") ||
-                        name.equals("Certificate Manager Agents") ||
-                        name.equals("Registration Manager Agents") ||
-                        name.equals("Data Recovery Manager Agents") ||
-                        name.equals("Online Certificate Status Manager Agents")) {
+                    if (isGroupInMultiRoleEnforceList(name)) {
                         Enumeration members = g1.getMemberNames();
-
                         while (members.hasMoreElements()) {
                             String m1 = (String) members.nextElement();
-
                             if (m1.equals(memberName))
                                 return true;
                         }
