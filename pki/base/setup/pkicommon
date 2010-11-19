@@ -273,17 +273,6 @@ if ($^O eq "linux") {
 # "identity" parameters
 my $fqdn = "";
 
-# "time" parameters
-my $sec   = 0;
-my $min   = 0;
-my $hour  = 0;
-my $mday  = 0;
-my $mon   = 0;
-my $year  = 0;
-my $wday  = 0;
-my $yday  = 0;
-my $isdst = 0;
-
 # "logging" parameters
 my $logfd = new FileHandle;
 
@@ -1469,6 +1458,9 @@ sub IsServerReachable
 # return time stamp
 sub get_time_stamp()
 {
+    my ($sec, $min, $hour, $mday,
+        $mon, $year, $wday, $yday, $isdst) = localtime(time);
+
     my $stamp = sprintf "%4d-%02d-%02d %02d:%02d:%02d",
                         $year+1900, $mon+1, $mday, $hour, $min, $sec;
 
@@ -2103,9 +2095,6 @@ sub emit
     if ($string eq "") {
         return;
     }
-
-    ($sec, $min, $hour, $mday,
-      $mon, $year, $wday, $yday, $isdst) = localtime(time);
 
     my $stamp = get_time_stamp();
 
