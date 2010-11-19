@@ -179,11 +179,6 @@ $suppress = $install_info_basename;
 # Script used to complete setting up the PKI framework
 my $pkicomplete = "$pki_subsystem_common_area/scripts/pkicomplete";
 
-# Links created via initial "tomcat" installation that MUST be removed!!!
-my $jdbc_stdext_link = "/var/lib/tomcat5/common/lib/\[jdbc-stdext\].jar";
-my $jndi_link        = "/var/lib/tomcat5/common/lib/\[jndi\].jar";
-my $jaas_link        = "/var/lib/tomcat5/server/lib/\[jaas\].jar";
-
 # Base subsystem directory names
 my $acl_base_subsystem_dir      = "acl";       # CA, KRA, OCSP, TKS
 my $alias_base_subsystem_dir    = "alias";     # CA, KRA, OCSP, TKS, RA, TPS
@@ -268,7 +263,7 @@ my $pki_cfg_base_name            = "CS.cfg";               # CA, KRA, OCSP, TKS,
 my $schemaMods_ldif_base_name    = "schemaMods.ldif";      # RA, TPS
 my $server_xml_base_name         = "server.xml";           # CA, KRA, OCSP, TKS
 my $servercertnick_conf_base_name         = "serverCertNick.conf";           # CA, KRA, OCSP, TKS
-my $tomcat5_conf_base_name       = "tomcat5.conf";         # CA, KRA, OCSP, TKS
+my $tomcat6_conf_base_name       = "tomcat6.conf";         # CA, KRA, OCSP, TKS
 my $velocity_prop_base_name      = "velocity.properties";  # CA, KRA, OCSP, TKS
 my $web_xml_base_name            = "web.xml";              # CA, KRA, OCSP, TKS
 my $profile_select_base_name     = "ProfileSelect.template"; #CA
@@ -283,12 +278,13 @@ my $webinf_base_instance_dir        = "WEB-INF";     # CA, KRA, OCSP, TKS
 
 # Defaults
 my $default_apache_pids_path       = "/var/run/pki";
+my $default_tomcat_pids_path       = "/var/run";
+my $default_tomcat_lib_path        = "/usr/share/tomcat6/lib";
 my $default_java_path              = "/usr/share/java";
 my $default_dir_permissions        = 00770;
 my $default_exe_permissions        = 00770;
 my $default_file_permissions       = 00660;
 my $default_security_token         = "internal";
-my $default_tomcat_common_path     = "/var/lib/tomcat5/common";
 my $default_nfast_group            = "nfast";
 
 # Default PKI user and group to give to PKI installed files
@@ -473,7 +469,6 @@ my $webapps_subsystem_instance_path  = "";  # CA, KRA, OCSP, TKS
 my $work_instance_path     = "";  # CA, KRA, OCSP, TKS (Tomcat)
 
 # Base instance symbolic link paths
-my $common_instance_symlink_path  = "";  # CA, KRA, OCSP, TKS
 my $conf_instance_symlink_path    = "";  # CA, KRA, OCSP, TKS, RA, TPS
 my $logs_instance_symlink_path    = "";  # CA, KRA, OCSP, TKS, RA, TPS
 my $run_instance_symlink_path     = "";  # RA, TPS
@@ -550,8 +545,9 @@ my $servercertnick_conf_instance_file_path    = "";  # CA, KRA, OCSP, TKS
 my $servercertnick_conf_subsystem_file_path   = "";  # CA, KRA, OCSP, TKS
 my $subsystem_jar_file_path                   = "";  # CA, KRA, OCSP, TKS
 my $subsystem_jar_symlink_path                = "";  # CA, KRA, OCSP, TKS
-my $tomcat5_conf_subsystem_file_path          = "";  # CA, KRA, OCSP, TKS
-my $tomcat5_conf_instance_file_path           = "";  # CA, KRA, OCSP, TKS
+my $tomcat6_conf_subsystem_file_path          = "";  # CA, KRA, OCSP, TKS
+my $tomcat6_conf_instance_file_path           = "";  # CA, KRA, OCSP, TKS
+my $tomcat6_instance_pid_file_path            = "";  # CA, KRA, OCSP, TKS
 my $velocity_prop_instance_file_path          = "";  # CA, KRA, OCSP, TKS
 my $velocity_prop_subsystem_file_path         = "";  # CA, KRA, OCSP, TKS
 my $web_xml_instance_file_path                = "";  # CA, KRA, OCSP, TKS
@@ -565,11 +561,11 @@ my $profile_select_template_subsystem_file_path = ""; #CA
 my $profile_select_template_instance_file_path = "";  #CA
 
 # PKI init script variables
-my $default_init_scripts_path                 = "";  # CA, KRA, OCSP, TKS
+my $default_initscripts_path                  = "";  # CA, KRA, OCSP, TKS
                                                      # RA, TPS
-my $pki_init_script                           = "";  # CA, KRA, OCSP, TKS,
+my $pki_registry_initscript                   = "";  # CA, KRA, OCSP, TKS,
                                                      # RA, TPS
-my $pki_init_script_command                   = "";  # CA, KRA, OCSP, TKS,
+my $pki_registry_initscript_command           = "";  # CA, KRA, OCSP, TKS,
                                                      # RA, TPS
 
 # PKI registry variables
@@ -605,10 +601,14 @@ if ($^O eq "linux") {
     $setup_config_name = "config.desktop";
 
     # Linux init scripts
-    $default_init_scripts_path = "/etc/rc.d/init.d";
+    $default_initscripts_path = "/etc/rc.d/init.d";
+    $tomcat6_initscript_path = "${default_initscripts_path}/tomcat6";
 
     # Linux registry
     $default_registry_path = "/etc/sysconfig";
+
+    # Tomcat instance config directory
+    $tomcat6_instance_config_path = "/etc/sysconfig";
 
     # Superuser and group to give to PKI installed files
     $root_user = "root";
@@ -693,40 +693,6 @@ if ($^O eq "linux") {
            "ERROR:  Unsupported platform '$^O'!\n");
     print("\n");
     exit 255;
-}
-
-# Links created via initial "tomcat" installation that MUST be removed!!!
-if (-l $jdbc_stdext_link) {
-    my $rv = `rm -f $jdbc_stdext_link`;
-    if ($rv) {
-        print(STDERR
-               "ERROR:  Unable to remove symbolic link called "
-             . "$jdbc_stdext_link!\n");
-        print("\n");
-        exit 255;
-    }
-}
-
-if (-l $jndi_link) {
-    my $rv = `rm -f $jndi_link`;
-    if ($rv) {
-        print(STDERR
-               "ERROR:  Unable to remove symbolic link called "
-             . "$jndi_link!\n");
-        print("\n");
-        exit 255;
-    }
-}
-
-if (-l $jaas_link) {
-    my $rv = `rm -f $jaas_link`;
-    if ($rv) {
-        print(STDERR
-               "ERROR:  Unable to remove symbolic link called "
-             . "$jaas_link!\n");
-        print("\n");
-        exit 255;
-    }
 }
 
 # Establish PKI-level registry
@@ -1004,6 +970,32 @@ EOF
 }
 
 
+# arg0 instance name
+# return 1 - in use
+# return 0 - NOT in use
+sub pki_instance_name_in_use
+{
+    my $name = $_[0];
+    my $result = 0;
+    my $path = "";
+
+    $path = "${tomcat6_instance_config_path}/${pki_instance_name}";
+
+    if (-e $path) {
+        return 1;
+    }
+
+    $path = "${default_initscripts_path}/${pki_instance_name}";
+
+    if (-e $path) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# arg0 instance name
 # return 1 - exists, or
 # return 0 - DOES NOT exist
 sub pki_instance_already_exists
@@ -1131,7 +1123,7 @@ sub parse_arguments()
         return 0;
     }
 
-    if (pki_instance_already_exists($pki_instance_name)) {
+    if (pki_instance_name_in_use($pki_instance_name) && !$dry_run) {
         usage();
         emit("An instance named $pki_instance_name "
             . "already exists; please try again.\n", "error");
@@ -1140,7 +1132,7 @@ sub parse_arguments()
 
     $pki_instance_path  = "${pki_instance_root}/${pki_instance_name}";
 
-    if (directory_exists($pki_instance_path)) {
+    if (directory_exists($pki_instance_path) && !$dry_run) {
         usage();
         emit("Target directory $pki_instance_path "
             . "already exists; clean up and "
@@ -1565,12 +1557,16 @@ sub initialize_instance_paths()
                          . "/" . $logs_base_instance_dir;
 
 
-    ## Initialize instance directory paths (CA instances)
-    if ($subsystem_type eq $CA) {
-        $emails_instance_path = $pki_instance_path
-                              . "/" . $emails_base_instance_dir;
-    }
+    ## Initialize path to per instance init script
+    $pki_instance_initscript_path = $default_initscripts_path
+                                  . "/" . $pki_instance_name;
 
+    ## Initialize tomcat6 instance conf
+    $tomcat6_conf_instance_file_path = $tomcat6_instance_config_path
+                                     . "/" . $pki_instance_name;
+    ## Initialize tomcat6 pid file
+    $tomcat6_instance_pid_file_path = $default_tomcat_pids_path
+                                    . "/" . $pki_instance_name.pid;
 
     ## Initialize instance directory paths (RA, TPS instances)
     if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
@@ -1595,6 +1591,8 @@ sub initialize_instance_paths()
                                 . "/" . $docroot_base_instance_dir;
     } else {
         ## Initialize instance directory paths (CA, KRA, OCSP, TKS instances)
+        $emails_instance_path   = $pki_instance_path
+                                . "/" . $emails_base_instance_dir;
         $acl_instance_path      = $pki_instance_path
                                 . "/" . $acl_base_instance_dir;
         $profiles_instance_path = $pki_instance_path
@@ -1638,10 +1636,6 @@ sub initialize_instance_symlink_paths()
         # Apache Specific
         $run_instance_symlink_path     = $pki_instance_path
                                        . "/" . $run_base_instance_symlink;
-    } else {
-       ## Initialize instance symlinks (CA, KRA, OCSP, TKS instances)
-        $common_instance_symlink_path = $pki_instance_path
-                                      . "/" . $common_base_instance_symlink;
     }
 
     return;
@@ -1663,19 +1657,7 @@ sub initialize_subdirectory_paths()
                                           . "/" . $setup_config_name;
     }
 
-    if ($subsystem_type eq $CA) {
-        $pki_init_script = $CA_INIT_SCRIPT;
-    } elsif ($subsystem_type eq $KRA) {
-        $pki_init_script = $KRA_INIT_SCRIPT;
-    } elsif ($subsystem_type eq $OCSP) {
-        $pki_init_script = $OCSP_INIT_SCRIPT;
-    } elsif ($subsystem_type eq $RA) {
-        $pki_init_script = $RA_INIT_SCRIPT;
-    } elsif ($subsystem_type eq $TKS) {
-        $pki_init_script = $TKS_INIT_SCRIPT;
-    } elsif ($subsystem_type eq $TPS) {
-        $pki_init_script = $TPS_INIT_SCRIPT;
-    }
+    $pki_registry_initscript = get_registry_initscript_name($subsystem_type);
 
     ## Initialize subdirectory paths (CA subsystems)
     if ($subsystem_type eq $CA) {
@@ -1845,8 +1827,8 @@ sub initialize_subdirectory_paths()
                                            . "/" . $subsystem_type . ".jar";
         $subsystem_jar_symlink_path        = $webinf_lib_instance_path
                                            . "/" . $subsystem_type . ".jar";
-        $tomcat5_conf_subsystem_file_path  = $conf_subsystem_path
-                                           . "/" . $tomcat5_conf_base_name;
+        $tomcat6_conf_subsystem_file_path  = $conf_subsystem_path
+                                           . "/" . $tomcat6_conf_base_name;
         $velocity_prop_instance_file_path  = $webinf_instance_path
                                            . "/" . $velocity_prop_base_name;
         $velocity_prop_subsystem_file_path = $webinf_subsystem_path
@@ -1962,8 +1944,6 @@ sub process_pki_directories()
                                              . "/" . $server_xml_base_name;
             $servercertnick_conf_instance_file_path   = $conf_instance_path
                                              . "/" . $servercertnick_conf_base_name;
-            $tomcat5_conf_instance_file_path = $conf_instance_path
-                                             . "/" . $tomcat5_conf_base_name;
 
             $result = copy_directory($conf_subsystem_path,
                                       $conf_instance_path);
@@ -2032,16 +2012,6 @@ sub process_pki_directories()
                                              . "/" . $server_xml_base_name;
             $servercertnick_conf_instance_file_path   = $redirected_conf_path
                                              . "/" . $servercertnick_conf_base_name;
-            $tomcat5_conf_instance_file_path = $redirected_conf_path
-                                             . "/" . $tomcat5_conf_base_name;
-
-            $result = copy_directory($conf_subsystem_path,
-                                      $redirected_conf_path);
-            if (!$result) {
-                emit("Failed to copy directory $conf_subsystem_path to $redirected_conf_path ...\n");
-                return 0;
-            }
-        }
 
         push(@installed_stray_directories,
               $redirected_conf_path);
@@ -2752,10 +2722,10 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
                                            $servercertnick_conf_instance_file_path,
                                            \%slot_hash);
 
-        # process "tomcat5.conf" template
-        return 0 if !process_file_template("tomcat5_conf",
-                                           $tomcat5_conf_subsystem_file_path,
-                                           $tomcat5_conf_instance_file_path,
+        # process "tomcat6.conf" template
+        return 0 if !process_file_template("tomcat6_conf",
+                                           $tomcat6_conf_subsystem_file_path,
+                                           $tomcat6_conf_instance_file_path,
                                            \%slot_hash);
 
         # process "velocity.properties" template
@@ -2976,6 +2946,11 @@ sub process_pki_files_and_symlinks()
             return 0;
         }
 
+        # Create symlink of pki_instance_name pointing to tomcat6 init script.
+        # This is our per instance init script, tomcat6 will use the basename
+        # to find our tomcat6 configuration file in /etc/sysconfig
+        return 0 if !create_symlink($pki_instance_initscript_path, $tomcat6_initscript_path,
+                                    $root_user, $root_group);
 
         # create instance symlink to "certsrv.jar"
         $result = create_symbolic_link($certsrv_jar_symlink_path,
@@ -3092,27 +3067,6 @@ sub process_pki_files_and_symlinks()
             return 0;
         }
 
-        # Tomcat Specific
-
-        # create instance symlink to tomcat "common" directory
-        #
-        # NOTE:  This symlink requires "$root_user:$root_group" ownership
-        #        since the destination that it refers to is owned by
-        #        "$root_user:$root_group".
-        #
-        $result = create_symbolic_link($common_instance_symlink_path,
-                                        $default_tomcat_common_path);
-        if (!$result) {
-            return 0;
-        }
-        $result = give_symbolic_link_to($common_instance_symlink_path,
-                                         $root_user,
-                                         $root_group);
-        if (!$result) {
-            emit("$common_instance_symlink_path ownership problems!",
-                  "error");
-            return 0;
-        }
     }
 
     return 1;
@@ -3675,8 +3629,8 @@ sub process_pki_selinux_setup()
     system("$restorecon -F -R $pki_instance_root/$pki_instance_name");
 
     if ($java_component) {
-        # set file context for /var/run/$pki_instance_name.pid
-        my $pidfile = "/var/run/${pki_instance_name}.pid";
+        # set file context for instance pid file
+        my $pidfile = $tomcat6_instance_pid_file_path;
         if ($pki_instance_name ne $default_inst_name) {
             &add_selinux_file_context($setype . "_var_run_t",
                 $pidfile, "f");
@@ -3686,7 +3640,7 @@ sub process_pki_selinux_setup()
             system("$restorecon -F $pidfile");
         }
 
-        my $pidpath = "/var/run/pki";
+        my $pidpath = $default_apache_pids_path;
         if (-e $pidpath) {
             emit("Restorecon file context for $pidpath\n");
             system("$restorecon -F -R $pidpath");
@@ -3719,15 +3673,6 @@ sub process_pki_selinux_setup()
         system("$restorecon -F -R $conf_path");
     }
     
-    # set file context for $conf_path/tomcat5.conf
-    if ($java_component) {
-        if ($conf_path ne $default_conf_path) {
-            &add_selinux_file_context($setype . "_tomcat_exec_t", 
-                "$conf_path/tomcat5\\.conf", "f");
-        } 
-        emit("Restorecon file context for $conf_path/tomcat5.conf\n");
-        system("$restorecon -F -R $conf_path/tomcat5.conf");
-    }
 
     if (! $java_component) {
         emit("Restorecon file context for /usr/sbin/httpd.worker \n");
@@ -4081,7 +4026,7 @@ ASK_AGAIN:
 
     print(STDOUT
            "After configuration, the server can be operated by the command:\n\n"
-         . "    $pki_init_script_command\n\n");
+              . "    $pki_registry_initscript_command\n\n");
     emit("After configuration, the server can be operated by the command:\n"
         . "$pki_init_script_command\n",
           "log");
