@@ -60,8 +60,7 @@ die $perl_version_error_message if $] < $MINIMUM_PERL_VERSION;
 my $cwd = `/bin/pwd`;
 chomp $cwd;
 if ($cwd eq "") {
-    print(STDERR "Cannot invoke '$0' from non-existent directory!\n");
-    print(STDOUT "\n");
+    emit("Cannot invoke '$0' from non-existent directory!\n", "error");
     exit 255;
 }
 
@@ -96,8 +95,7 @@ if ($^O eq "linux") {
 } elsif ($^O eq "solaris") {
     $pki_flavor = "pki";
 } else {
-    print(STDERR "ERROR: Unsupported platform '$^O'!\n");
-    print(STDOUT "\n");
+    emit("Unsupported platform '$^O'!\n", "error");
     exit 255;
 }
 
@@ -107,20 +105,14 @@ $pki_flavor =~ s/\s+$//g;
 my $common_path = "/usr/share/pki/scripts";
 
 if (! -d $common_path) {
-    print(STDERR
-           "ERROR:  The path '$common_path' does not exist!\n"
-         . "        Unable to load shared Common Perl Data "
-         . "and Subroutines!\n");
-    print(STDOUT "\n");
+    emit("The path '$common_path' does not exist! "
+         . "Unable to load shared Common Perl Data and Subroutines!\n", "error");
     exit 255;
 }
 
 if (! -e "$common_path/pkicommon") {
-    print(STDERR
-           "ERROR:  The file '$common_path/pkicommon' does not exist!\n"
-         . "        Unable to load shared Common Perl Data "
-         . "and Subroutines!\n");
-    print(STDOUT "\n");
+    emit("The file '$common_path/pkicommon' does not exist! "
+         . "Unable to load shared Common Perl Data and Subroutines!\n", "error");
     exit 255;
 }
 
@@ -171,8 +163,7 @@ if ($^O eq "linux") {
     $default_initscripts_path = '/etc/rc.d/init.d';
     $default_registry_path = "/etc/sysconfig";
 } else {
-    print(STDERR "ERROR: Unsupported platform '$^O'!\n");
-    print(STDOUT "\n");
+    emit("Unsupported platform '$^O'!\n", "error");
     exit 255;
 }
 
@@ -306,9 +297,7 @@ sub update_domain
 
         my $errs = `pk12util -d $dbpath -o $tempfile -n "$subsystemnick" -K $intpw -W $p12pw 2>&1`;
         if ($? != 0) {
-            print STDERR $errs;
-            print $errs;
-            print STDOUT "\n";
+            emit($errs, "error");
             die "Could not generate pk12 file for client authentication.";
         }
 
@@ -353,9 +342,7 @@ sub remove_fcontext
         $errs = `$semanage fcontext -d -t $fcontext $fname 2>&1`
     }
     if (($? != 0)  && ($errs !~ /defined in policy, cannot be deleted/)) {
-        print STDERR "ERROR: Error in setting selinux file context $fcontext for $fname\n";
-        print $errs;
-        print STDOUT "\n";
+        emit("Failed setting selinux file context $fcontext for $fname ($errs)", "error");
     }
 }
 
@@ -523,7 +510,7 @@ ASK_AGAIN:
 
     $install_info = read_install_info_from_dir($pki_instance_path);
     if (!defined($install_info)) {
-        print(STDERR "ERROR: Can't remove instance, installation manifest does not exist!\n");
+        emit("Can't remove instance, installation manifest does not exist!", "error");
         return $result;
     }
 
@@ -554,8 +541,7 @@ ASK_AGAIN:
         if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
             $pki_registry_initscript_command = "/sbin/service $pki_instance_name stop";
         } else {
-	    print(STDERR "ERROR: Unsupported platform '$^O'!\n");
-	    print(STDOUT "\n");
+	    emit("Unsupported platform '$^O'!\n", "error");
 	    exit 255;
         }
     }
@@ -585,8 +571,7 @@ sub main
 
     my $result = 0;
 
-    print(STDOUT
-           "PKI instance Deletion Utility ...\n\n");
+    print(STDOUT "PKI instance Deletion Utility ...\n\n");
 
     # On Linux/UNIX, insure that this script is being run as "root".
     $result = check_for_root_UID();
@@ -597,8 +582,7 @@ sub main
 
     # Check for a valid number of command-line arguments.
     if ($ARGS < 2) {
-        print(STDERR
-               "$0:  Insufficient arguments!\n\n");
+        emit("$0:  Insufficient arguments!", "error");
         usage();
         exit 255;
     }
@@ -612,9 +596,8 @@ sub main
 
     # Always disallow root to be the pki_instance_root.
     if ($pki_instance_root eq "/") {
-        print(STDERR
-               "$0:  Don't even think about making root "
-             . "the pki_instance_root!\n\n");
+        emit("$0:  Don't even think about making root "
+             . "the pki_instance_root!", "error");
         usage();
         exit 255;
     }
@@ -623,16 +606,14 @@ sub main
 
     # Check for valid content of command-line arguments.
     if ($pki_instance_root eq "") {
-        print(STDERR
-               "$0:  Must have value for -pki_instance_root!\n\n");
+        emit("$0:  Must have value for -pki_instance_root!", "error");
         usage();
         exit 255;
     }
 
     if ($pki_instance_name eq "") {
-        print(STDERR
-               "$0:  The instance ID of the PKI instance "
-             . "to be removed is required!\n\n");
+        emit("$0:  The instance ID of the PKI instance "
+             . "to be removed is required!", "error");
         usage();
         exit 255;
     }
@@ -640,9 +621,8 @@ sub main
     $pki_instance_path = "${pki_instance_root}/${pki_instance_name}";
 
     if (!directory_exists($pki_instance_path)) {
-        print(STDERR
-               "$0:  Target directory $pki_instance_path "
-             . "is not a legal directory.\n\n");
+        emit("$0:  Target directory $pki_instance_path "
+             . "is not a legal directory.", "error");
         usage();
         exit 255;
     }

@@ -48,8 +48,7 @@ die $perl_version_error_message if $] < $MINIMUM_PERL_VERSION;
 my $cwd = `/bin/pwd`;
 chomp $cwd;
 if ($cwd eq "") {
-    print(STDERR "Cannot invoke '$0' from non-existent directory!\n");
-    print(STDOUT "\n");
+    emit("Cannot invoke '$0' from non-existent directory!\n", "error");
     exit 255;
 }
 
@@ -117,10 +116,7 @@ if ($^O eq "linux") {
         $default_system_user_libraries = "/usr/lib64";
         $default_system_jni_java_path  = "/usr/lib/java";
     } else {
-        print(STDERR
-               "ERROR:  Unsupported '$^O' hardware platform "
-             . "'$default_hardware_platform'!\n");
-        print("\n");
+        emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!", "error");
         exit 255;
     }
 
@@ -134,9 +130,7 @@ if ($^O eq "linux") {
         $hostname = hostname;
     }
 } else {
-    print(STDERR
-           "ERROR:  Unsupported platform '$^O'!\n");
-    print("\n");
+    emit("Unsupported platform '$^O'!\n", "error");
     exit 255;
 }
 
@@ -777,18 +771,14 @@ sub check_for_root_UID
     if (!is_Windows()) {
         if (($< != $ROOTUID) &&
             ($> != $ROOTUID)) {
-            print(STDERR
-                   "ERROR:  This script must be run as root!\n");
-            print(STDOUT "\n");
+            emit("This script must be run as root!\n", "error");
             $result = 0;
         } else {
             # Success -- running script as root
             $result = 1;
         }
     } else {
-        print(STDERR
-               "ERROR:  Root UID makes no sense on Windows machines!\n");
-        print(STDOUT "\n");
+        emit("Root UID makes no sense on Windows machines!\n", "error");
         $result = 0;
     }
 
@@ -970,10 +960,8 @@ sub user_disallows_shell
         $result = 1;
     } else {
         # issue a warning and continue
-        print(STDERR
-               "WARNING:  Potential security hole - user '$username' is\n"
-             . "          using '$shell' instead of '$sans_shell'!\n");
-        print("\n");
+        emit("WARNING:  Potential security hole - user '$username' is\n"
+           . "          using '$shell' instead of '$sans_shell'!\n", "warning");
     }
 
     return $result;
@@ -1163,52 +1151,37 @@ sub IsLocalPortAvailable
         # retrieve the UID given the username
         $uid = get_UID_from_username($user);
         if ($uid == -1) {
-            print("\n");
-            print(STDERR
-                   "User '$user' is NOT in the password file!\n");
-            print("\n");
+            emit("User '$user' is NOT in the password file!\n", "error");
             return 0;
         }
 
         # insure that well-known ports cannot be used by a non-root user
         if (($port <= $MAX_WELL_KNOWN_PORT) && ($uid != $ROOTUID)) {
-            print("\n");
-            print(STDERR
-                   "ERROR:  User '$user' is not allowed to bind to well-known "
-                 . "port $port!\n");
-            print("\n");
+            emit("User '$user' is not allowed to bind to well-known "
+                 . "port $port!\n", "error");
             return 0;
         }
 
         # insure that reserved ports cannot be used by a non-root user
         if (($port <= $MAX_RESERVED_PORT) && ($uid != $ROOTUID)) {
-            print("\n");
-            print(STDERR
-                   "ERROR:  User '$user' is not allowed to bind to reserved "
-                 . "port $port!\n");
-            print("\n");
+            emit("User '$user' is not allowed to bind to reserved "
+                 . "port $port!\n", "error");
             return 0;
         }
 
         # insure that the user has not specified a port greater than
         # the number of dynamic/private ports
         if ($port > $MAX_DYNAMIC_PORT) {
-            print("\n");
-            print(STDERR
-                   "ERROR:  User '$user' is not allowed to bind to a "
-                 . "port greater than $MAX_DYNAMIC_PORT!\n");
-            print("\n");
+            emit("User '$user' is not allowed to bind to a "
+                 . "port greater than $MAX_DYNAMIC_PORT!\n", "error");
             return 0;
         }
 
         # if the user has specified a port greater than the number
         # of registered ports, issue a warning and continue
         if ($port > $MAX_REGISTERED_PORT) {
-            print("\n");
-            print(STDERR
-                   "WARNING:  User '$user' is binding to port $port; use of "
-                 . "a dynamic/private port is discouraged!\n");
-            print("\n");
+            emit("WARNING:  User '$user' is binding to port $port; use of "
+                 . "a dynamic/private port is discouraged!\n", "warning");
         }
     }
 
@@ -1232,16 +1205,10 @@ sub IsLocalPortAvailable
         # this port is inactive
         $rv = 1;
     } elsif ($status eq "Address already in use") {
-        print("\n");
-        print(STDERR
-               "ERROR:  Unable to bind to local port $port :  $status\n");
-        print("\n");
+        emit("Unable to bind to local port $port :  $status\n", "error");
         $rv = 0;
     } else {
-        print("\n");
-        print(STDERR
-               "ERROR:  Unable to bind to local port $port :  $status\n");
-        print("\n");
+        emit("Unable to bind to local port $port :  $status\n", "error");
         $rv = 0;
     }
 
@@ -1266,11 +1233,7 @@ sub IsServerReachable
 
     $result = check_for_valid_url_prefix($prefix);
     if (!$result) {
-        print("\n");
-        print(STDERR
-               "ERROR:  Specified unknown url prefix\n"
-             . "        '$prefix'!\n");
-        print("\n");
+        emit("Specified unknown url prefix '$prefix'!\n", "error");
         return $result;
     }
 
@@ -1284,12 +1247,7 @@ sub IsServerReachable
     # retrieve the remote host IP address
     my $iaddr = inet_aton($host) or $status = $!;
     if ($status ne "ACTIVE") {
-        print("\n");
-        print(STDERR
-               "ERROR:  Unable to contact the Server at\n"
-             . "        '$url' :\n"
-             . "        $status\n");
-        print("\n");
+        emit("Unable to contact the Server at '$url' ($status)", "error");
         return $rv;
     }
 
@@ -1309,12 +1267,7 @@ sub IsServerReachable
         # this '$host:$port' is reachable
         $rv = 1;
     } else {
-        print("\n");
-        print(STDERR
-               "WARNING:  Unable to contact the Server at\n"
-             . "          '$url' :\n"
-             . "          $status\n");
-        print("\n");
+        emit("WARNING:  Unable to contact the Server at '$url' ($status)", "warning");
     }
 
     # close local client socket
@@ -1986,25 +1939,26 @@ sub emit
 
     $type = "debug" if !defined($type);
 
-    if ($type eq "error" || $type eq "info") {
+    if ($type eq "error" || $type eq "warning" || $type eq "info") {
         $force_emit = 1;
     }
 
     return if !$string;
 
+    chomp($string);
     my $stamp = get_time_stamp();
 
     if ($verbose || $force_emit) {
         # print to stdout
         if ($type ne "log") {
-            print(STDOUT "[$stamp] [$type] $string");
+            print(STDERR "[$type] $string\n");
         }
     }
 
     # If a log file exists, write all types
     # ("debug", "error", "info", or "log")
     # to this specified log file
-    $log_entry = "[$stamp] [$type] $string";
+    $log_entry = "[$stamp] [$type] $string\n";
     print_to_logfile($logfile, $log_entry);
 
     return;
@@ -3066,7 +3020,7 @@ if ($^O eq "linux") {
         $result = 1;
         $command = "/sbin/chkconfig --add $pki_instance_name";
         if (run_command($command)) {
-        emit("Registered '$pki_instance_name' with '/sbin/chkconfig'.\n");
+            emit("Registered '$pki_instance_name' with '/sbin/chkconfig'.\n");
         } else {
             $result = 0;
             emit("Failed to register '$pki_instance_name' with '/sbin/chkconfig'.\n", 'error');

@@ -71,8 +71,7 @@ umask 00002;
 my $cwd = `/bin/pwd`;
 chomp $cwd;
 if ($cwd eq "") {
-    print(STDERR "Cannot invoke '$0' from non-existent directory!\n");
-    print(STDOUT "\n");
+    emit("Cannot invoke '$0' from non-existent directory!\n", "error");
     exit 255;
 }
 
@@ -84,8 +83,7 @@ if ($cwd eq "") {
 # option to not run this script.
 if (defined($ENV{'DONT_RUN_PKICREATE'})) {
     if ($ENV{'DONT_RUN_PKICREATE'} == 1) {
-        print(STDERR "Env. variable DONT_RUN_PKICREATE is set. Exiting.\n");
-        print(STDOUT "\n");
+        emit("Env. variable DONT_RUN_PKICREATE is set. Exiting.\n", "error");
         exit 0;
     }
 }
@@ -115,9 +113,7 @@ my $pki_flavor = "";
 if ($^O eq "linux") {
     $pki_flavor = "pki";
 } else {
-    print(STDERR
-           "ERROR:  Unsupported platform '$^O'!\n");
-    print(STDOUT "\n");
+    emit("Unsupported platform '$^O'!\n", "error");
     exit 255;
 }
 
@@ -128,20 +124,14 @@ my $pki_subsystem_common_area = "/usr/share/$pki_flavor";
 my $common_path = "/usr/share/$pki_flavor/scripts";
 
 if (! -d $common_path) {
-    print(STDERR
-           "ERROR:  The path '$common_path' does not exist!\n"
-         . "        Unable to load shared Common Perl Data "
-         . "and Subroutines!\n");
-    print(STDOUT "\n");
+    emit("The path '$common_path' does not exist! " 
+         . "Unable to load shared Common Perl Data and Subroutines!\n", "error");
     exit 255;
 }
 
 if (! -e "$common_path/pkicommon") {
-    print(STDERR
-           "ERROR:  The file '$common_path/pkicommon' does not exist!\n"
-         . "        Unable to load shared Common Perl Data "
-         . "and Subroutines!\n");
-    print(STDOUT "\n");
+    emit("The file '$common_path/pkicommon' does not exist! "
+         . "Unable to load shared Common Perl Data and Subroutines!\n", "error");
     exit 255;
 }
 
@@ -622,9 +612,7 @@ if ($^O eq "linux") {
     $root_user = "root";
     $root_group = "root";
 } else {
-    print(STDERR
-           "ERROR:  Unsupported platform '$^O'!\n");
-    print(STDOUT "\n");
+    emit("Unsupported platform '$^O'!\n", "error");
     exit 255;
 }
 
@@ -654,16 +642,11 @@ if ($^O eq "linux") {
                                        "/opt/nfast/toolkits/pkcs11/libcknfast.so"
             );
     } else {
-        print(STDERR
-              "ERROR:  Unsupported '$^O' hardware platform "
-              . "'$default_hardware_platform'!\n");
-        print("\n");
+        emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!\n", "error");
         exit 255;
     }
 } else {
-    print(STDERR
-           "ERROR:  Unsupported platform '$^O'!\n");
-    print("\n");
+    emit("Unsupported platform '$^O'!\n", "error");
     exit 255;
 }
 
@@ -2891,14 +2874,11 @@ sub add_selinux_port
 
     if ($status == $SELINUX_PORT_UNDEFINED) {
         emit("Setting selinux context $setype for $seport\n");
-        if (!run_command("$semanage port -a -t $setype -p tcp $seport\n")) {
-            print STDERR "Error in setting selinux context $setype for $seport\n";
-            print STDOUT "\n";
+        if (!run_command("$semanage port -a -t $setype -p tcp $seport")) {
+            emit("Failed setting selinux context $setype for $seport\n", "error");
         }
-    }
-    elsif ($status == $SELINUX_PORT_WRONGLY_DEFINED) {
-        print STDERR "Error in setting selinux context $setype for $seport\n";
-        print STDOUT "\n";
+    } elsif ($status == $SELINUX_PORT_WRONGLY_DEFINED) {
+        emit("Failed setting selinux context $setype for $seport\n", "error");
     }
 }
 
@@ -2923,8 +2903,7 @@ sub add_selinux_file_context
        $result = run_command("$semanage fcontext -a -t $fcontext $fname");
    }
    if (!$result) {
-       print STDERR "Error in setting selinux file context $fcontext for $fname\n";
-       print STDOUT ("\n");
+       emit("Failed setting selinux file context $fcontext for $fname", "error");
    }
 }
 
@@ -3118,8 +3097,7 @@ sub main
 
     chdir("/tmp");
 
-    print(STDOUT
-           "PKI instance creation Utility ...\n\n");
+    print(STDOUT "PKI instance creation Utility ...\n\n");
 
     # On Linux/UNIX, insure that this script is being run as "root".
     $result = check_for_root_UID();
