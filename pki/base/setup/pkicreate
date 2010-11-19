@@ -1022,12 +1022,11 @@ EOF
 }
 
 
-# arg0 instance name
 # return 1 - exists, or
 # return 0 - DOES NOT exist
 sub pki_instance_already_exists
 {
-    my $name = $_[0];
+    my ($name) = @_;
     my $result = 0;
     my $instance = "";
 
@@ -2346,16 +2345,10 @@ sub process_pki_directories()
 }
 
 
-# arg0 source file path
-# arg1 dest file path
-# arg2 %slot_hash
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub process_file_template
 {
-    my ($source_file_path) = $_[0];
-    my ($dest_file_path) = $_[1];
-    my ($l_slot_hash) = $_[2];
+    my ($source_file_path, $dest_file_path, $l_slot_hash) = @_;
 
     my $result = 0;
     my $inf = new FileHandle;

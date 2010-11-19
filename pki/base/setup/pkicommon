@@ -839,12 +839,11 @@ sub check_for_root_UID()
 }
 
 
-# arg0 username
 # return 1 - exists, or
 # return 0 - DOES NOT exist
 sub user_exists
 {
-    my ($username) = $_[0];
+    my ($username) = @_;
 
     my $result = 0;
 
@@ -858,14 +857,10 @@ sub user_exists
 }
 
 
-# arg0 username
-# arg1 groupname
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub create_user
 {
-    my ($username) = $_[0];
-    my ($groupname) = $_[1];
+    my ($username, $groupname) = @_;
 
     my $command = "";
     my $report = "";
@@ -942,12 +937,11 @@ sub create_user
 }
 
 
-# arg0 groupname
 # return 1 - exists, or
 # return 0 - DOES NOT exist
 sub group_exists
 {
-    my ($groupname) = $_[0];
+    my ($groupname) = @_;
 
     my $result = 0;
 
@@ -961,12 +955,10 @@ sub group_exists
 }
 
 
-# arg0 groupname
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub create_group
 {
-    my ($groupname) = $_[0];
+    my ($groupname) = @_;
 
     my $command = "";
     my $report = "";
@@ -1018,14 +1010,11 @@ sub create_group
 }
 
 
-# arg0 username
-# arg1 groupname
 # return 1 - disallows shell, or
 # return 0 - allows shell
 sub user_disallows_shell
 {
-    my ($username) = $_[0];
-    my ($groupname) = $_[1];
+    my ($username) = @_;
 
     my $result = 0;
     my $sans_shell = "";
@@ -1064,14 +1053,11 @@ sub user_disallows_shell
 }
 
 
-# arg0 username
-# arg1 groupname
 # return 1 - is a member, or
 # return 0 - is NOT a member
 sub user_is_a_member_of_group
 {
-    my ($username) = $_[0];
-    my ($groupname) = $_[1];
+    my ($username, $groupname) = @_;
 
     my $result = 0;
 
@@ -1095,14 +1081,11 @@ sub user_is_a_member_of_group
 }
 
 
-# arg0 username
-# arg1 groupname
 # return 1 - success, or
 # return 0 - failure
 sub add_user_as_a_member_of_group
 {
-    my ($username) = $_[0];
-    my ($groupname) = $_[1];
+    my ($username, $groupname) = @_;
 
     my $command = "";
     my $report = "";
@@ -1178,22 +1161,23 @@ sub get_UID_from_username
 }
 
 
-# arg0 hostname, or
-# arg0 IP address
-# return fully-qualified domain name (FQDN)
+# Return fully-qualified domain name (FQDN) given
+# either a hostname or an IP address
 sub get_FQDN
 {
+    my ($addr) = @_;
+
     if (!$is_IPv6) {
-        if ($_[0] !~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/) {
+        if ($addr !~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/) {
             # Retrieve FQDN via a "mnemonic" hostname
-            ($fqdn) = gethostbyname($_[0]);
+            ($fqdn) = gethostbyname($addr);
         } else {
             # Retrieve FQDN via a "4-tuple" IP address
             $fqdn = gethostbyaddr(pack('C4', $1, $2, $3, $4), 2);
         }
     } else {
         # IPv6:  Don't rely upon "Socket6.pm" being present!
-        $fqdn = $_[0];
+        $fqdn = $addr;
     }
 
     return($fqdn);
@@ -1472,13 +1456,10 @@ sub get_time_stamp()
 # Generic "random" Subroutines
 ##############################################################
 
-# arg0 low watermark value
-# arg1 high watermark value
-# return random number
+# return random number between low & high
 sub generate_random
 {
-    my $low = $_[0];
-    my $high = $_[1];
+    my ($low, $high) = @_;
 
     my $number = 0;
 
@@ -1492,11 +1473,10 @@ sub generate_random
 }
 
 
-# arg0 length of string
-# return random string
+# return random string of specified length
 sub generate_random_string()
 {
-    my $length_of_randomstring=shift;  # the length of the string
+    my ($length_of_randomstring) = @_;
 
     my @chars=('a'..'z','A'..'Z','0'..'9');
     my $random_string;
@@ -1985,11 +1965,10 @@ sub modutil_add_token
 # Generic "logging" Subroutines
 ##############################################################
 
-# arg0 logfile name
 # no return value
 sub open_logfile
 {
-    my $logfile_name = $_[0];
+    my ($logfile_name) = @_;
 
     $logfd->open(">$logfile_name") or
     die "Could not open $logfile_name\n";
@@ -1998,13 +1977,10 @@ sub open_logfile
 }
 
 
-# arg0 logfile name
-# arg1 message
 # no return value
 sub print_to_logfile
 {
-    my $logfile_name = $_[0];
-    my $message = $_[1];
+    my ($logfile_name, $message) = @_;
 
     if ("$logfile_name" ne "") {
         $logfd->print("$message");
@@ -2014,11 +1990,10 @@ sub print_to_logfile
 }
 
 
-# arg0 logfile name
 # no return value
 sub close_logfile
 {
-    my $logfile_name = $_[0];
+    my ($logfile_name) = @_;
 
     if ("$logfile_name" ne "") {
         $logfd->close();
@@ -2032,11 +2007,10 @@ sub close_logfile
 # Generic "response" Subroutines
 ##############################################################
 
-# arg0 question
 # return answer
 sub prompt
 {
-    my $promptStr = $_[0];
+    my ($promptStr) = @_;
 
     my $answer = "";
 
@@ -2057,11 +2031,10 @@ sub prompt
 # Generic "reply" Subroutines
 ##############################################################
 
-# arg0 file handle
 # no return value
 sub printFile
 {
-    my $fileHandle = $_[0];
+    my ($fileHandle) = @_;
 
     while (<$fileHandle>) {
         my $line = $_;
@@ -2073,13 +2046,10 @@ sub printFile
 }
 
 
-# arg0 message
-# arg1 message type
 # no return value
 sub emit
 {
-    my $string  = $_[0];
-    my $type = $_[1];
+    my ($string, $type) = @_;
 
     my $force_emit = 0;
     my $log_entry = "";
@@ -2119,12 +2089,11 @@ sub emit
 # Generic "validity" Subroutines
 ##############################################################
 
-# arg0 path
 # return 1 - valid, or
 # return 0 - invalid
 sub is_path_valid
 {
-    my $path = $_[0];
+    my ($path) = @_;
 
     my @pathname = split("/", $path);
 
@@ -2148,12 +2117,11 @@ sub is_path_valid
 }
 
 
-# arg0 name
 # return 1 - valid, or
 # return 0 - invalid
 sub is_name_valid
 {
-    my $name = $_[0];
+    my ($name) = @_;
 
     my $result = 0;
 
@@ -2169,11 +2137,10 @@ sub is_name_valid
 # Generic "entity" Subroutines
 ##############################################################
 
-# arg0 entity
 # return type of entity
 sub entity_type
 {
-    my ($entity) = $_[0];
+    my ($entity) = @_;
 
     if (-b $entity) {
         return "block special file";
@@ -2201,12 +2168,11 @@ sub entity_type
 }
 
 
-# arg0 entity
 # return 1 - exists, or
 # return 0 - DOES NOT exist
 sub entity_exists
 {
-    my ($entity) = $_[0];
+    my ($entity) = @_;
 
     my $result = 0;
 
@@ -2223,12 +2189,11 @@ sub entity_exists
 # Generic "file" Subroutines
 ##############################################################
 
-# arg0 file candidate
 # return 1 - exists, or
 # return 0 - DOES NOT exist
 sub file_exists
 {
-    my ($file) = $_[0];
+    my ($file) = @_;
 
     my $result = 0;
 
@@ -2246,12 +2211,11 @@ sub file_exists
 }
 
 
-# arg0 file
 # return 1 - empty, or
 # return 0 - NOT empty
 sub is_file_empty
 {
-    my ($file) = $_[0];
+    my ($file) = @_;
 
     my $result = 0;
 
@@ -2263,8 +2227,7 @@ sub is_file_empty
 }
 
 
-# arg0 file
-# no return value
+# Return 1 if success, 0 if failure
 sub create_empty_file
 {
     my ($file) = @_;
@@ -2282,9 +2245,7 @@ sub create_empty_file
 }
 
 
-# arg0 file
-# arg1 message
-# no return value
+# Return 1 if success, 0 if failure
 sub create_file
 {
     my ($file, $message) = @_;
@@ -2321,14 +2282,10 @@ sub create_file
 }
 
 
-# arg0 file
-# arg1 destination path
-# return 1 - successfully moved file, or
-# return 0 - failed moving file
+# Return 1 if success, 0 if failure
 sub move_file
 {
-    my ($file) = $_[0];
-    my ($dest) = $_[1];
+    my ($file, $dest) = @_;
 
     my $result = 0;
 
@@ -2356,14 +2313,10 @@ sub move_file
 }
 
 
-# arg0 source path
-# arg1 destination path
-# return 1 - successfully copied file, or
-# return 0 - failed copying file
+# Return 1 if success, 0 if failure
 sub copy_file
 {
-    my $source_path = $_[0];
-    my $dest_path = $_[1];
+    my ($source_path, $dest_path) = @_;
 
     my $result = 0;
 
@@ -2392,12 +2345,10 @@ sub copy_file
 }
 
 
-# arg0 file
-# return 1 - successfully removed file, or
-# return 0 - failed removing file
+# Return 1 if success, 0 if failure
 sub remove_file
 {
-    my ($file) = $_[0];
+    my ($file) = @_;
 
     my $result = 0;
 
@@ -2422,16 +2373,10 @@ sub remove_file
 }
 
 
-# arg0 file
-# arg1 user
-# arg2 group
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub give_file_to
 {
-    my $file = $_[0];
-    my $new_user = $_[1];
-    my $new_group = $_[2];
+    my ($file, $new_user, $new_group) = @_;
 
     my $result = 0;
 
@@ -2743,12 +2688,11 @@ sub normalize_path
     return $leading_slash . $new_path;
 }
 
-# arg0 directory candidate
 # return 1 - exists, or
 # return 0 - DOES NOT exist
 sub directory_exists
 {
-    my ($dir) = $_[0];
+    my ($dir) = @_;
 
     my $result = 0;
 
@@ -2765,12 +2709,11 @@ sub directory_exists
 }
 
 
-# arg0 directory
 # return 1 - empty, or
 # return 0 - NOT empty
 sub is_directory_empty
 {
-    my $dir = $_[0];
+    my ($dir) = @_;
 
     my $empty = 1;
     my $entity = "";
@@ -2797,12 +2740,10 @@ sub is_directory_empty
 }
 
 
-# arg0 directory
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub create_directory
 {
-    my ($dir) = $_[0];
+    my ($dir) = @_;
 
     my $result = 0;
 
@@ -2824,14 +2765,10 @@ sub create_directory
 }
 
 
-# arg0 directory
-# arg1 destination path
-# return 1 - successfully moved directory, or
-# return 0 - failed moving directory
+# Return 1 if success, 0 if failure
 sub move_directory
 {
-    my ($dir) = $_[0];
-    my ($dest) = $_[1];
+    my ($dir, $dest) = @_;
 
     my $result = 0;
 
@@ -3005,16 +2942,10 @@ sub remove_directory
 }
 
 
-# arg0 directory
-# arg1 user
-# arg2 group
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub give_directory_to
 {
-    my $directory = $_[0];
-    my $new_user = $_[1];
-    my $new_group = $_[2];
+    my ($directory, $new_user, $new_group) = @_;
 
     my $result = 0;
 
@@ -3055,12 +2986,11 @@ sub give_directory_to
 # Generic "symbolic link" Subroutines
 ##############################################################
 
-# arg0 symbolic link candidate
 # return 1 - exists, or
 # return 0 - DOES NOT exist
 sub symbolic_link_exists
 {
-    my ($symlink) = $_[0];
+    my ($symlink) = @_;
 
     my $result = 0;
 
@@ -3079,14 +3009,10 @@ sub symbolic_link_exists
 }
 
 
-# arg0 symbolic link
-# arg1 destination path
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub create_symbolic_link
 {
-    my $symlink = $_[0];
-    my $dest_path = $_[1];
+    my ($symlink, $dest_path) = @_;
 
     my $result = 0;
 
@@ -3122,12 +3048,10 @@ sub create_symbolic_link
 }
 
 
-# arg0 symbolic link
-# return 1 - successfully removed symbolic link, or
-# return 0 - failed removing symbolic link
+# Return 1 if success, 0 if failure
 sub remove_symbolic_link
 {
-    my ($symlink) = $_[0];
+    my ($symlink) = @_;
 
     my $result = 0;
 
@@ -3153,16 +3077,10 @@ sub remove_symbolic_link
 }
 
 
-# arg0 file
-# arg1 user
-# arg2 group
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub give_symbolic_link_to
 {
-    my $symlink = $_[0];
-    my $new_user = $_[1];
-    my $new_group = $_[2];
+    my ($symlink, $new_user, $new_group) = @_;
 
     my $result = 0;
 
@@ -3204,12 +3122,10 @@ sub give_symbolic_link_to
 ##############################################################
 
 if ($^O eq "linux") {
-    # arg0 start/stop script instance file path
-    # arg1 pki instance name
     # return ($runtime, $start_priority, $stop_priority)
     sub extract_chkconfig_parameters_from_start_stop_script
     {
-        my $pki_start_stop_script_instance_file_path = $_[0];
+        my ($pki_start_stop_script_instance_file_path) = @_;
 
         # Extract "chkconfig" options from start/stop script
         my $inf = new FileHandle;
@@ -3256,11 +3172,10 @@ if ($^O eq "linux") {
     }
 
 
-    # arg0 pki instance name
     # no return
     sub register_pki_instance_with_chkconfig
     {
-        my $pki_instance_name = $_[0];
+        my ($pki_instance_name) = @_;
 
         my $command = "";
 
@@ -3274,11 +3189,10 @@ if ($^O eq "linux") {
     }
 
 
-    # arg0 pki instance name
     # no return
     sub deregister_pki_instance_with_chkconfig
     {
-        my $pki_instance_name = $_[0];
+        my ($pki_instance_name) = @_;
 
         my $command = "";
 
