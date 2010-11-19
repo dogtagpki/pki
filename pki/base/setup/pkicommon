@@ -63,7 +63,7 @@ if (($^O ne 'Windows_NT') && ($^O ne 'MSWin32')) {
     $> = $<;   # set effective user ID to real UID
     $) = $(;   # set effective group ID to real GID
     $ENV{'PATH'} = '/bin:/usr/bin';
-    $ENV{'ENV'} = '' if $ENV{'ENV'} ne '';
+    $ENV{'ENV'} = '' if !defined($ENV{'ENV'});
 }
 
 
@@ -301,18 +301,18 @@ $cleanup_basename = ".cleanup.dat";
 %installation_info = ();
 
 # Table to validate an installation type
-%valid_install_types = ('file'    => true,
-                        'symlink' => true,
-                        'dir'     => true);
+%valid_install_types = ('file'    => 1,
+                        'symlink' => 1,
+                        'dir'     => 1);
 
 # Table to validate a install action
-%valid_install_action = ('create' => true,
-                         'move'   => true,
-                         'remove' => true); 
+%valid_install_action = ('create' => 1,
+                         'move'   => 1,
+                         'remove' => 1); 
 
 # Table to validate an uninstall action
-%valid_uninstall_action = ('remove'   => true,
-                           'preserve' => true); 
+%valid_uninstall_action = ('remove'   => 1,
+                           'preserve' => 1); 
 
 # Capture information about items modified during installation
 #
@@ -663,7 +663,11 @@ sub uninstall
     # Primary sort by number of path components, longest first.
     # When the number of path components is the same the secondary sort
     # is lexical string comparision.
-    @dirs = sort {my $r = split("/", $b) <=> split("/", $a); $r == 0 ? $a cmp $b : $r} @filtered_paths;
+    @dirs = sort {my ($r, @a, @b);
+                  @a = split("/", $a);
+                  @b = split("/", $b);
+                  $r = @b <=> @a;
+                  $r == 0 ? $a cmp $b : $r} @filtered_paths;
 
     foreach $path (@dirs) {
         $result = 0 if !remove_directory($path, 1);
@@ -2922,7 +2926,7 @@ sub remove_directory
             my($error, $path, $errstr);
             $result = 0;
             for $error (@$errors) {
-                $path, $errstr = %$error;
+                ($path, $errstr) = %$error;
                 if ($path eq '') {
                     emit("remove_directory(): tree=\"$dir\" ($errstr)\n", "error");
                 }

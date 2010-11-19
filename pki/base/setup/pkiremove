@@ -74,7 +74,7 @@ if (($^O ne 'Windows_NT') && ($^O ne 'MSWin32')) {
     $> = $<;   # set effective user ID to real UID
     $) = $(;   # set effective group ID to real GID
     $ENV{'PATH'} = '/bin:/usr/bin';
-    $ENV{'ENV'} = '' if $ENV{'ENV'} ne '';
+    $ENV{'ENV'} = '' if !defined($ENV{'ENV'});
 }
 
 
@@ -128,6 +128,9 @@ if (! -e "$common_path/pkicommon") {
 eval("use lib '" . $common_path . "'");
 require('pkicommon');
 
+# make -w happy by suppressing warnings of Global variables used only once
+my $suppress = "";
+$suppress = $default_file_permissions;
 
 ##############################################################
 # Local Constants
@@ -263,14 +266,14 @@ sub update_domain()
         (!defined($seceeport))    ||
         (!defined($secagentport)) ||
         (!defined($secadminport))) {
-        print (STDOUT "No security domain defined.\nIf this is an unconfigured instance, then that is OK.\n" .
+        print(STDOUT "No security domain defined.\nIf this is an unconfigured instance, then that is OK.\n" .
             "Otherwise, manually delete the entry from the security domain master.\n"); 
         return;
     }
 
     if ($secselect ne "new") {
         # This is not a domain master, so we need to update the master
-        print (STDOUT "Contacting the security domain master to update the security domain\n");
+        print(STDOUT "Contacting the security domain master to update the security domain\n");
         my $listval = $typeval . "List";
         my $urlheader = "https://" . $sechost . ":" . $seceeport; 
         my $urlagentheader = "https://" . $sechost . ":" . $secagentport; 

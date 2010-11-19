@@ -103,7 +103,7 @@ if (($^O ne 'Windows_NT') && ($^O ne 'MSWin32')) {
     $> = $<;   # set effective user ID to real UID
     $) = $(;   # set effective group ID to real GID
     $ENV{'PATH'} = '/bin:/usr/bin';
-    $ENV{'ENV'} = '' if $ENV{'ENV'} ne '';
+    $ENV{'ENV'} = '' if !defined($ENV{'ENV'});
 }
 
 
@@ -166,8 +166,9 @@ $suppress = $tmp_dir;
 $suppress = $default_security_libraries;
 $suppress = $default_system_libraries;
 $suppress = $lib_prefix;
-$suppress = $default_system_user_binaries;
-
+$suppress = $PKI_USER;
+$suppress = $PKI_GROUP;
+$suppress = $install_info_basename;
 
 ##############################################################
 # Local Constants
@@ -558,7 +559,6 @@ my $web_xml_instance_file_path                = "";  # CA, KRA, OCSP, TKS
 my $web_xml_subsystem_file_path               = "";  # CA, KRA, OCSP, TKS
 my $webapps_root_instance_path                = "";  # CA, KRA, OCSP, TKS
 my $webapps_root_subsystem_path               = "";  # CA, KRA, OCSP, TKS
-my $webapps_subsystem_instance_path           = "";  # CA, KRA, OCSP, TKS
 my $webinf_instance_path                      = "";  # CA, KRA, OCSP, TKS
 my $webinf_lib_instance_path                  = "";  # CA, KRA, OCSP, TKS
 my $webinf_subsystem_path                     = "";  # CA, KRA, OCSP, TKS
@@ -611,27 +611,10 @@ if ($^O eq "linux") {
     # Linux registry
     $default_registry_path = "/etc/sysconfig";
 
-    # Platform-specific directories
-    @pki_static_directories = ("temp",
-                                "shared",
-                                "shared/lib",
-                                "shared/common",
-                                "shared/lib",
-                                "work",
-                                "setup");
-
     # Superuser and group to give to PKI installed files
     $root_user = "root";
     $root_group = "root";
 } elsif ($^O eq "solaris") {
-    # Platform-specific directories
-    @pki_static_directories = ("temp",
-                                "shared",
-                                "shared/lib",
-                                "shared/common",
-                                "shared/lib",
-                                "work");
-
     # Solaris init scripts
     $default_init_scripts_path      = "/etc/init.d";
 
@@ -1057,23 +1040,23 @@ sub parse_arguments()
     my $l_admin_secure_port  = -1;
     my $show_help            = 0;
 
-    $result = GetOptions("help" => \$show_help,
-                          "pki_instance_root=s" => \$pki_instance_root,
-                          "pki_instance_name=s" => \$pki_instance_name,
-                          "subsystem_type=s" => \$subsystem_type,
-                          "secure_port:i" => \$l_secure_port,
-                          "non_clientauth_secure_port:i" => \$l_non_clientauth_secure_port,
-                          "unsecure_port:i" => \$l_unsecure_port,
-                          "agent_secure_port:i" => \$l_agent_secure_port,
-                          "ee_secure_port:i" => \$l_ee_secure_port,
-                          "ee_secure_client_auth_port:i" => \$l_ee_secure_client_auth_port,
-                          "admin_secure_port:i" => \$l_admin_secure_port, 
-                          "tomcat_server_port:i" => \$l_tomcat_server_port,
-                          "user=s" => \$username,
-                          "group=s" => \$groupname,
-                          "verbose+" => \$verbose,
-                          "dry_run" => \$dry_run,
-                          "redirect=s" => \%redirects);
+    my $result = GetOptions("help" => \$show_help,
+                            "pki_instance_root=s" => \$pki_instance_root,
+                            "pki_instance_name=s" => \$pki_instance_name,
+                            "subsystem_type=s" => \$subsystem_type,
+                            "secure_port:i" => \$l_secure_port,
+                            "non_clientauth_secure_port:i" => \$l_non_clientauth_secure_port,
+                            "unsecure_port:i" => \$l_unsecure_port,
+                            "agent_secure_port:i" => \$l_agent_secure_port,
+                            "ee_secure_port:i" => \$l_ee_secure_port,
+                            "ee_secure_client_auth_port:i" => \$l_ee_secure_client_auth_port,
+                            "admin_secure_port:i" => \$l_admin_secure_port, 
+                            "tomcat_server_port:i" => \$l_tomcat_server_port,
+                            "user=s" => \$username,
+                            "group=s" => \$groupname,
+                            "verbose+" => \$verbose,
+                            "dry_run" => \$dry_run,
+                            "redirect=s" => \%redirects);
 
 
     ## Optional "-help" option - no "mandatory" options are required
@@ -2450,7 +2433,7 @@ sub process_pki_templates()
         $slot_hash{$TMP_DIR}               = $tmp_dir;
         $slot_hash{$TPS_DIR}               = $pki_subsystem_path;
         $slot_hash{$USERID}                = $pki_user;
-        $slot_hash{$PKI_FLAVOR}            = $pki_flavor;
+        $slot_hash{$PKI_FLAVOR_SLOT}       = $pki_flavor;
         $slot_hash{$PKI_RANDOM_NUMBER_SLOT}    = $random;
         $slot_hash{$REQUIRE_CFG_PL}        = "require \""
                                            . $cgi_sow_instance_cfg_pl_path
@@ -3714,7 +3697,7 @@ sub check_selinux_port()
         if ($selinux_ports{$seport} eq $setype) {
             return $SELINUX_PORT_DEFINED;
         } else {
-            return $SELINUX_PORT_WONGLY_DEFINED;
+            return $SELINUX_PORT_WRONGLY_DEFINED;
         }
     } else {
         return $SELINUX_PORT_UNDEFINED;
