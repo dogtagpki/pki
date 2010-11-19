@@ -3067,53 +3067,19 @@ sub process_pki_selinux_setup()
 # return 0 - failure
 sub install_pki_instance()
 {
-    my $result = 0;
-
     emit("Installing PKI instance ...\n");
 
-    if (!directory_exists($pki_instance_path)) {
-        $result = create_directory($pki_instance_path);
+    return 0 if !create_directory($pki_instance_path,
+                                  $default_dir_permissions, $pki_user, $pki_group);
 
-        if (!$result) {
-            return 0;
-        }
-    }
-
-    $result = process_pki_directories();
-    if (!$result) {
-        return 0;
-    }
-
-    $result = process_pki_templates();
-    if (!$result) {
-        return 0;
-    }
-
-    $result = process_pki_files_and_symlinks();
-    if (!$result) {
-        return 0;
-    }
-
-    $result = process_pki_security_databases();
-    if (!$result) {
-        return 0;
-    }
-
-    $result = process_pki_security_modules();
-    if (!$result) {
-        return 0;
-    }
-
-    $result = register_pki_instance();
-    if (!$result) {
-        return 0;
-    }
+    return 0 if !process_pki_directories();
+    return 0 if !process_pki_templates();
+    return 0 if !process_pki_files_and_symlinks();
+    return 0 if !process_pki_security_databases();
+    return 0 if !process_pki_security_modules();
 
     if (($^O eq "linux") && (is_Fedora() || (is_RHEL() && (! is_RHEL4())))){
-        $result = process_pki_selinux_setup();
-        if (!result) {
-            return 0;
-        }
+        return 0 if !process_pki_selinux_setup();
     }
 
     return 1;
