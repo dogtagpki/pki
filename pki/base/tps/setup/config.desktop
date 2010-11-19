@@ -21,7 +21,7 @@
 [Desktop Entry]
 Version=1.0.0
 Encoding=UTF-8
-Name=Token Processing System Configuration - [INSTANCE_ID]
+Name=Token Processing System Configuration - [PKI_INSTANCE_ID]
 GenericName=Token Processing System Configuration
 Comment=Configure Token Processing System
 Exec=firefox https://[SERVER_NAME]:[SECURE_PORT]/tps/admin/console/config/login?pin=[PKI_RANDOM_NUMBER]

@@ -152,7 +152,12 @@
                 <include name="lib/**"/>
                 <include name="logs/**"/>
                 <include name="scripts/schema.sql"/>
-                <include name="setup/config.desktop"/>
+            </zipfileset>
+            <zipfileset dir="./setup"
+                        filemode="644"
+                        prefix="usr/share/${product.prefix}/${product}/setup">
+                <include name="config.desktop"/>
+                <include name="registry_instance"/>
             </zipfileset>
             <zipfileset dir="./etc/init.d"
                         filemode="755"
@@ -204,7 +209,12 @@
                 <include name="lib/**"/>
                 <include name="logs/**"/>
                 <include name="scripts/schema.sql"/>
-                <include name="setup/config.desktop"/>
+            </tarfileset>
+            <tarfileset dir="./setup"
+                        mode="644"
+                        prefix="${dist.name}/usr/share/${product.prefix}/${product}/setup">
+                <include name="config.desktop"/>
+                <include name="registry_instance"/>
             </tarfileset>
             <tarfileset dir="./etc/init.d"
                         mode="755"

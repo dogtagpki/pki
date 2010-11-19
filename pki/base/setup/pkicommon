@@ -29,7 +29,7 @@ our @EXPORT = qw(
  $lib_prefix $obj_ext $path_sep $tmp_dir $logfile
  $pki_flavor $pki_registry_path
  $verbose $dry_run $hostname $default_hardware_platform
- $default_system_binaries $default_system_libraries $default_system_user_binaries
+ $default_system_binaries $default_lockdir $default_system_libraries $default_system_user_binaries
  $default_system_user_libraries $default_system_jni_java_path
  $default_security_libraries $default_certutil_command
  $default_ldapmodify_command $default_modutil_command
@@ -69,7 +69,7 @@ our @EXPORT = qw(
  directory_exists is_directory_empty create_directory copy_directory remove_directory
  set_owner_group_on_directory_contents
  symlink_exists create_symlink remove_symlink set_owner_group_on_symlink
- run_command get_registry_initscript_name 
+ run_command get_cs_cfg get_registry_initscript_name 
  register_pki_instance_with_chkconfig deregister_pki_instance_with_chkconfig
  );
 
@@ -165,6 +165,7 @@ our $pki_registry_path             = undef;
 
 our $default_hardware_platform     = undef;
 our $default_system_binaries       = undef;
+our $default_lockdir               = undef;
 our $default_system_libraries      = undef;
 our $default_system_user_binaries  = undef;
 our $default_system_user_libraries = undef;
@@ -191,6 +192,7 @@ if ($^O eq "linux") {
     $default_registry_path = "/etc/sysconfig";
     $pki_registry_path = "$default_registry_path/$pki_flavor";
     $default_initscripts_path = "/etc/rc.d/init.d";
+    $default_lockdir = "/var/lock/$pki_flavor";
     $default_hardware_platform = `uname -i`;
     $default_hardware_platform =~ s/\s+$//g;
     chomp($default_hardware_platform);
@@ -3208,6 +3210,90 @@ sub run_command
 ##############################################################
 # Generic PKI Subroutines
 ##############################################################
+
+# Get parameter value(s) from CS.cfg file
+#
+# get_cs_cfg(config_path, search)
+#
+# There are 3 ways the parameters can be returned, as a string, as a
+# set of variables, or as a hash table depending on the search
+# parameter type.
+#
+# If search is string then the parameter value is returned as a string
+# if it was found, otherwise if it wasn't found then undef is
+# returned.
+#
+# If search is a reference to a hash then each key in the hash will be
+# searched for and the key's value will be used as a reference to
+# assign the value of the parameter to. If the key was not found then
+# the reference will be assigned the value of undef.
+#
+# If search is reference to an array then every parameter in the
+# array will be searched for and a hash will be returned with a key
+# for every parameter found, the key's value is the parameter value.
+#
+# Examples:
+#  
+# my ($subsystem_type, $uri, $table);
+#
+# # Get a single string: $subsystem_type is assigned the string "CA"
+# $subsystem_type = get_cs_cfg("/etc/pki-ca/CS.cfg", "cs.type");
+#
+# # Assign a set of variables: $subsystem_type and $uri are assigned
+# get_cs_cfg($config_path, {"cs.type" => \$subsystem_type,
+#                           "ee.interface.uri" => \$uri});
+# 
+# # Get a lookup table:
+# $table = get_cs_cfg("/etc/pki-ca/CS.cfg", ["cs.type", "ee.interface.uri"]);
+# # returns the hash:
+# # {"cs.type"          => "CA",
+# #  "ee.interface.uri" => "ca/ee/ca"}
+#
+sub get_cs_cfg
+{
+    my ($config_path, $search) = @_;
+    my ($text, $key, $value, $num_found);
+
+    $text = read_file($config_path);
+
+    if (ref($search) eq "HASH") {
+        my $num_found = 0;
+        while (my ($key, $ref) = each(%$search)) {
+            if ($text =~ /^\s*\Q$key\E\s*=\s*(.*)/m) {
+                $value = $1;
+                $$ref = $value;
+                $num_found += 1;
+            } else {
+                $$ref = undef;
+            }
+        }
+        return $num_found;
+    } elsif (ref($search) eq "ARRAY") {
+        my $result = {};
+        my $keys = $search;
+
+        foreach $key (@$keys) {
+            if ($text =~ /^\s*\Q$key\E\s*=\s*(.*)/m) {
+                $value = $1;
+                $result->{$key} = $value;
+            }
+        }
+
+        return $result;
+
+    } else {
+        my $result = undef;
+        $key = $search;
+
+        if ($text =~ /^\s*\Q$key\E\s*=\s*(.*)/m) {
+            $value = $1;
+            $result = $value;
+        }
+
+        return $result;
+
+    }
+}
 
 sub get_registry_initscript_name
 {

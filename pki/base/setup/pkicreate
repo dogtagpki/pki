@@ -174,7 +174,6 @@ my $addAgents_ldif_base_name     = "addAgents.ldif";       # TPS
 my $addIndexes_ldif_base_name    = "addIndexes.ldif";      # TPS
 my $addTokens_ldif_base_name     = "addTokens.ldif";       # TPS
 my $addVLVIndexes_ldif_base_name = "addVLVIndexes.ldif";   # TPS
-my $apachectl_base_name          = "apachectl";            # TPS
 my $nss_pcache_base_name         = "nss_pcache";           # RA, TPS
 my $certsrv_jar_base_name        = "certsrv.jar";          # CA, KRA, OCSP, TKS
 my $nsutil_jar_base_name         = "nsutil.jar";           # CA, KRA, OCSP, TKS
@@ -220,6 +219,7 @@ my $web_xml_base_name             = "web.xml";                # CA, KRA, OCSP, T
 my $profile_select_base_name      = "ProfileSelect.template"; # CA
 
 my $registry_template_base_name   = "registry_instance";      # CA, KRA, OCSP, TKS, RA, TPS
+my $pki_apache_initscript_base_name = "pki_apache_initscript"; # RA, TPS
 
 # Subdirectory names
 my $perl_base_instance_symlink      = "perl";        # RA, TPS
@@ -247,10 +247,7 @@ my $db_password_low  = 100000000000;
 my $db_password_high = 999999999999;
 
 # Template slot constants (RA, TPS)
-my $GROUPID                    = "GROUPID";
 my $HTTPD_CONF                 = "HTTPD_CONF";
-my $INSTANCE_ID                = "INSTANCE_ID";
-my $INSTANCE_ROOT              = "INSTANCE_ROOT";
 my $LIB_PREFIX                 = "LIB_PREFIX";
 my $NSS_CONF                   = "NSS_CONF";
 my $OBJ_EXT                    = "OBJ_EXT";
@@ -261,12 +258,10 @@ my $NON_CLIENTAUTH_SECURE_PORT = "NON_CLIENTAUTH_SECURE_PORT";
 my $SECURITY_LIBRARIES         = "SECURITY_LIBRARIES";
 my $SERVER_NAME                = "SERVER_NAME";
 my $SERVER_ROOT                = "SERVER_ROOT";
-my $SUBSYSTEM_TYPE             = "SUBSYSTEM_TYPE";
 my $SYSTEM_LIBRARIES           = "SYSTEM_LIBRARIES";
 my $SYSTEM_USER_LIBRARIES      = "SYSTEM_USER_LIBRARIES";
 my $TMP_DIR                    = "TMP_DIR";
 my $TPS_DIR                    = "TPS_DIR";
-my $USERID                     = "USERID";
 my $FORTITUDE_APACHE           = "FORTITUDE_APACHE";
 my $FORTITUDE_DIR              = "FORTITUDE_DIR";
 my $FORTITUDE_MODULE           = "FORTITUDE_MODULE";
@@ -274,6 +269,12 @@ my $FORTITUDE_LIB_DIR          = "FORTITUDE_LIB_DIR";
 my $FORTITUDE_AUTH_MODULES     = "FORTITUDE_AUTH_MODULES";
 my $FORTITUDE_NSS_MODULES      = "FORTITUDE_NSS_MODULES";
 my $REQUIRE_CFG_PL             = "REQUIRE_CFG_PL";
+my $PKI_PIDDIR                 = "PKI_PIDDIR";
+my $PKI_LOCKDIR                = "PKI_LOCKDIR";
+
+# Template slot constants (CA, KRA, OCSP, TKS, RA, TPS)
+my $PKI_INSTANCE_ID_SLOT       = "PKI_INSTANCE_ID";
+my $PKI_REGISTRY_FILE_SLOT     = "PKI_REGISTRY_FILE";
 
 # Template slot constants (CA, KRA, OCSP, TKS)
 my $INSTALL_TIME                        = "INSTALL_TIME";
@@ -281,7 +282,6 @@ my $PKI_AGENT_CLIENTAUTH_SLOT           = "PKI_AGENT_CLIENTAUTH";
 my $PKI_CERT_DB_PASSWORD_SLOT           = "PKI_CERT_DB_PASSWORD";
 my $PKI_CFG_PATH_NAME_SLOT              = "PKI_CFG_PATH_NAME";
 my $PKI_GROUP_SLOT                      = "PKI_GROUP";
-my $PKI_INSTANCE_ID_SLOT                = "PKI_INSTANCE_ID";
 my $PKI_INSTANCE_PATH_SLOT              = "PKI_INSTANCE_PATH";
 my $PKI_INSTANCE_ROOT_SLOT              = "PKI_INSTANCE_ROOT";
 my $PKI_MACHINE_NAME_SLOT               = "PKI_MACHINE_NAME";
@@ -397,7 +397,7 @@ my $scripts_subsystem_path   = undef;  # RA, TPS
 my $shared_subsystem_path    = undef;  # CA, KRA, OCSP, TKS (Tomcat)
 my $temp_subsystem_path      = undef;  # CA, KRA, OCSP, TKS (Tomcat)
 my $webapps_subsystem_path   = undef;  # CA, KRA, OCSP, TKS
-my $common_ui_subsystem_path = undef; # CA, KRA, OCSP, TKS, RA, TPS
+my $common_ui_subsystem_path = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $ui_subsystem_path        = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $work_subsystem_path      = undef;  # CA, KRA, OCSP, TKS (Tomcat)
 
@@ -420,6 +420,8 @@ my $temp_instance_path              = undef;  # CA, KRA, OCSP, TKS (Tomcat)
 my $webapps_instance_path           = undef;  # CA, KRA, OCSP, TKS
 my $webapps_subsystem_instance_path = undef;  # CA, KRA, OCSP, TKS
 my $work_instance_path              = undef;  # CA, KRA, OCSP, TKS (Tomcat)
+my $pki_piddir_path                 = undef;  # RA, TPS
+my $pki_lockdir_path                = undef;  # RA, TPS
 
 # Base instance symbolic link paths
 my $conf_instance_symlink_path    = undef;  # CA, KRA, OCSP, TKS, RA, TPS
@@ -448,8 +450,6 @@ my $addTokens_ldif_instance_file_path            = undef;  # TPS
 my $addTokens_ldif_subsystem_file_path           = undef;  # TPS
 my $addVLVIndexes_ldif_instance_file_path        = undef;  # TPS
 my $addVLVIndexes_ldif_subsystem_file_path       = undef;  # TPS
-my $apachectl_instance_file_path                 = undef;  # TPS
-my $apachectl_subsystem_file_path                = undef;  # TPS
 my $jakarta_commons_collections_jar_file_path    = undef;  # CA, KRA, OCSP, TKS
 my $jakarta_commons_collections_jar_symlink_path = undef;  # CA, KRA, OCSP, TKS
 my $jakarta_commons_logging_jar_file_path        = undef;  # CA, KRA, OCSP, TKS
@@ -499,8 +499,9 @@ my $perl_instance_symlink_path                   = undef;  # RA, TPS
 my $perl_subsystem_path                          = undef;  # RA, TPS
 my $pfile_instance_file_path                     = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $pwcache_conf_instance_file_path              = undef;  # RA, TPS
-my $pki_cfg_instance_file_path                   = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $pki_cfg_subsystem_file_path                  = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $pki_cfg_instance_file_path                   = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $pki_apache_initscript_file_path              = undef;  # RA, TPS
 my $schemaMods_ldif_instance_file_path           = undef;  # RA, TPS
 my $schemaMods_ldif_subsystem_file_path          = undef;  # RA, TPS
 my $server_xml_instance_file_path                = undef;  # CA, KRA, OCSP, TKS
@@ -1561,14 +1562,19 @@ sub initialize_subdirectory_paths
     }
 
     ## Initialize subdirectory paths (RA, TPS subsystems)
+    if ($subsystem_type eq $TPS) {
+            $cgi_sow_subsystem_file_path           = $cgibin_subsystem_path
+                                                   . "/"
+                                                   . $cgi_sow_dir_name;
+            $cgi_sow_instance_cfg_pl_path          = $cgibin_instance_path
+                                                   . "/"
+                                                   . $cgi_sow_cfg_pl_name;
+    }
+
     if ($subsystem_type eq $RA  || $subsystem_type eq $TPS) {
 
         if ($subsystem_type eq $TPS) {
 
-            $apachectl_instance_file_path          = $bin_instance_path
-                                                   . "/" . $apachectl_base_name;
-            $apachectl_subsystem_file_path         = $bin_subsystem_path
-                                                   . "/" . $apachectl_base_name;
             $cgi_home_instance_file_path           = $cgibin_instance_path
                                                    . "/"
                                                    . $cgi_home_base_name;
@@ -1596,12 +1602,6 @@ sub initialize_subdirectory_paths
             $cgi_sow_instance_file_path            = $cgibin_instance_path
                                                    . "/"
                                                    . $cgi_sow_dir_name;
-            $cgi_sow_subsystem_file_path           = $cgibin_subsystem_path
-                                                   . "/"
-                                                   . $cgi_sow_dir_name;
-            $cgi_sow_instance_cfg_pl_path          = $cgibin_instance_path
-                                                   . "/"
-                                                   . $cgi_sow_cfg_pl_name;
             $addAgents_ldif_instance_file_path     = $scripts_instance_path
                                                    . "/"
                                                    . $addAgents_ldif_base_name;
@@ -1634,6 +1634,13 @@ sub initialize_subdirectory_paths
                                                    . $schemaMods_ldif_base_name;
         }
 
+        $pki_piddir_path                        = $default_apache_pids_path
+                                                . "/" . $subsystem_type;
+        $pki_lockdir_path                       = $default_lockdir
+                                                . "/" . $subsystem_type;
+        $pki_apache_initscript_file_path        = $pki_subsystem_common_area
+                                                . "/" . $scripts_base_subsystem_dir
+                                                . "/" . $pki_apache_initscript_base_name;
         $nss_pcache_instance_file_path          = $scripts_instance_path
                                                 . "/"
                                                 . $nss_pcache_base_name;
@@ -1834,10 +1841,10 @@ sub process_pki_directories
 
             # only copy selected files
             return 0 if !copy_file($magic_subsystem_file_path, $magic_instance_file_path,
-                                   $default_file_permissions);
+                                   $default_file_permissions, $pki_user, $pki_group);
 
             return 0 if !copy_file($mime_types_subsystem_file_path, $mime_types_instance_file_path,
-                                   $default_file_permissions);
+                                   $default_file_permissions, $pki_user, $pki_group);
 
         } else {
             $server_xml_instance_file_path   = $conf_instance_path
@@ -1883,10 +1890,10 @@ sub process_pki_directories
 
             # only copy selected files
             return 0 if !copy_file($magic_subsystem_file_path, $magic_instance_file_path,
-                $default_file_permissions);
+                                   $default_file_permissions, $pki_user, $pki_group);
 
             return 0 if !copy_file($mime_types_subsystem_file_path, $mime_types_instance_file_path,
-                                   $default_file_permissions);
+                                   $default_file_permissions, $pki_user, $pki_group);
 
         } else {
             $server_xml_instance_file_path   = $redirected_conf_path
@@ -2017,10 +2024,6 @@ sub process_pki_directories
                 set_permissions("${cgibin_instance_path}/sow/*.html",  $default_file_permissions);
                 set_permissions("${cgibin_instance_path}/sow/*.pl",    $default_exe_permissions);
             }
-
-            # Apache Specific
-            set_permissions("${docroot_instance_path}/GenericAuth.html", $default_file_permissions);
-            set_permissions("${docroot_instance_path}/style.css",        $default_file_permissions);
         }
     } else {
         ## Populate instance directory paths (CA, KRA, OCSP, TKS instances)
@@ -2098,7 +2101,9 @@ sub process_file_template
     my $buf = "";
     my $num_subs = 0;
     my $total_subs = 0;
-
+    my @keys;
+    my $key;
+    my $value;
     emit("    Template ($template_name) \"${src_path}\" ==> \"${dst_path}\" ...\n");
 
     # Check for a valid source file
@@ -2118,7 +2123,9 @@ sub process_file_template
 
     # Process each line substituting each [KEY]
     # with its corresponding slot hash value
-    while(my ($key, $value) = each(%$substitutions)) {
+    @keys = sort(keys %$substitutions);
+    foreach $key (@keys) {
+        $value = $substitutions->{$key};
         # Perform global substitution on buffer and
         # get count of how many substitutions were actually performed.
         $num_subs = $buf =~ s/\[$key\]/$value/g;
@@ -2138,10 +2145,16 @@ sub process_file_template
 
     emit("    $total_subs substitutions were made in '$dst_path'\n");
 
+    # Sanity check, are there any strings left in the buffer which look
+    # like a substitution.
+    foreach my $match ($buf =~ /\[[A-Z_]+\]/g) {
+        emit("WARNING: Possible missed substitution \"$match\" in $src_path");
+    }
+
     # Record that we've installed this file.
     add_install_info($dst_path, 'file');
 
-    if ($verbose > 2) {
+    if ($verbose >= 2) {
         # For debugging, emit the contents after substitution.
         emit(sprintf(">> $dst_path\n%s<< $dst_path\n", $buf));
     }
@@ -2171,12 +2184,21 @@ sub process_pki_templates
 
     emit("Processing PKI templates for '$pki_instance_path' ...\n");
 
+    $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
+    $slot_hash{$PKI_INSTANCE_ID_SLOT}      = $pki_instance_name;
+    $slot_hash{$PKI_INSTANCE_ROOT_SLOT}    = $pki_instance_root;
+    $slot_hash{$PKI_INSTANCE_INITSCRIPT}   = $pki_instance_initscript_path;
+    $slot_hash{$PKI_REGISTRY_FILE_SLOT}    = $pki_registry_instance_file_path;
+    $slot_hash{$PKI_USER_SLOT}             = $pki_user;
+    $slot_hash{$PKI_GROUP_SLOT}            = $pki_group;
+
+    if ($subsystem_type eq $TPS) {
+        $slot_hash{$REQUIRE_CFG_PL}        = "require \"${cgi_sow_instance_cfg_pl_path}\";";
+    }
+
     if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
         # Setup templates (RA, TPS)
-        $slot_hash{$GROUPID}               = $pki_group;
         $slot_hash{$HTTPD_CONF}            = $httpd_conf_instance_file_path;
-        $slot_hash{$INSTANCE_ID}           = $pki_instance_name;
-        $slot_hash{$INSTANCE_ROOT}         = $pki_instance_root;
         $slot_hash{$LIB_PREFIX}            = $lib_prefix;
         $slot_hash{$NSS_CONF}              = $nss_conf_instance_file_path;
         $slot_hash{$OBJ_EXT}               = $obj_ext;
@@ -2187,15 +2209,14 @@ sub process_pki_templates
         $slot_hash{$SECURITY_LIBRARIES}    = $default_security_libraries;
         $slot_hash{$SERVER_NAME}           = $host;
         $slot_hash{$SERVER_ROOT}           = $pki_instance_path;
-        $slot_hash{$SUBSYSTEM_TYPE}        = $subsystem_type;
         $slot_hash{$SYSTEM_LIBRARIES}      = $default_system_libraries;
         $slot_hash{$SYSTEM_USER_LIBRARIES} = $default_system_user_libraries;
         $slot_hash{$TMP_DIR}               = $tmp_dir;
         $slot_hash{$TPS_DIR}               = $pki_subsystem_path;
-        $slot_hash{$USERID}                = $pki_user;
         $slot_hash{$PKI_FLAVOR_SLOT}       = $pki_flavor;
         $slot_hash{$PKI_RANDOM_NUMBER_SLOT} = $random;
-        $slot_hash{$REQUIRE_CFG_PL}        = "require \"${cgi_sow_instance_cfg_pl_path}\";";
+        $slot_hash{$PKI_PIDDIR}            = $pki_piddir_path;
+        $slot_hash{$PKI_LOCKDIR}           = $pki_lockdir_path;
         if (is_Fedora() || (is_RHEL() && (! is_RHEL4()))) {
             $slot_hash{$FORTITUDE_APACHE}  = "Apache2";
             $slot_hash{$FORTITUDE_DIR}     = "/usr";
@@ -2234,19 +2255,14 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         $slot_hash{$INSTALL_TIME}              = localtime;
         $slot_hash{$PKI_CERT_DB_PASSWORD_SLOT} = $db_password;
         $slot_hash{$PKI_CFG_PATH_NAME_SLOT}    = $pki_cfg_instance_file_path;
-        $slot_hash{$PKI_GROUP_SLOT}            = $pki_group;
-        $slot_hash{$PKI_INSTANCE_ID_SLOT}      = $pki_instance_name;
         $slot_hash{$PKI_INSTANCE_PATH_SLOT}    = $pki_instance_path;
-        $slot_hash{$PKI_INSTANCE_ROOT_SLOT}    = $pki_instance_root;
         $slot_hash{$PKI_MACHINE_NAME_SLOT}     = $host;
         $slot_hash{$PKI_RANDOM_NUMBER_SLOT}    = $random;
         $slot_hash{$PKI_SERVER_XML_CONF}       = $server_xml_instance_file_path;
-        $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
         $slot_hash{$PKI_UNSECURE_PORT_SLOT}    = $unsecure_port;
 
         # Define "Port Separation" (default) versus "Shared Ports" (legacy)
-        if ($use_port_separation) 
-        {
+        if ($use_port_separation) {
             # Establish "Port Separation" Connector Names
             $slot_hash{$PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT}     = $PKI_UNSECURE_PORT_NAME;
             $slot_hash{$PKI_SECURE_PORT_CONNECTOR_NAME_SLOT}       = $PKI_AGENT_SECURE_PORT_NAME;
@@ -2314,7 +2330,6 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         } 
 
         $slot_hash{$PKI_WEBAPPS_NAME}          = $webapps_base_subsystem_dir; 
-        $slot_hash{$PKI_USER_SLOT}             = $pki_user;
         $slot_hash{$PKI_FLAVOR_SLOT}           = $pki_flavor;
         $slot_hash{$TOMCAT_SERVER_PORT_SLOT}   = $tomcat_server_port;
         $slot_hash{$TOMCAT_PIDFILE}            = $tomcat6_instance_pid_file_path;
@@ -2338,7 +2353,6 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
                                           . "-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,"
                                           . "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA";
         $slot_hash{$TOMCAT_INSTANCE_COMMON_LIB} = "$tomcat_instance_common_lib_path/*.jar";
-        $slot_hash{$PKI_INSTANCE_INITSCRIPT}    = $pki_instance_initscript_path;
     }
 
     ## Process templates (instance independent)
@@ -2349,8 +2363,8 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
     # process "CS.cfg" template
     return 0 if !process_file_template("pki_cfg",
                                        $pki_cfg_subsystem_file_path,
-                                     $pki_cfg_instance_file_path,
-                                     \%slot_hash);
+                                       $pki_cfg_instance_file_path,
+                                       \%slot_hash);
     return 0 if !set_file_props($pki_cfg_instance_file_path,
                                 $default_file_permissions, $pki_user, $pki_group);
 
@@ -2385,14 +2399,6 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
     if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
 
         if ($subsystem_type eq $TPS) {
-
-          # process "apachectl" template
-          return 0 if !process_file_template("apachectl",
-                                             $apachectl_subsystem_file_path,
-                                             $apachectl_instance_file_path,
-                                             \%slot_hash);
-          set_permissions($apachectl_instance_file_path, $default_exe_permissions);
-
 
           # process "cgi" template
           return 0 if !process_file_template("cgi_home",
@@ -2498,6 +2504,15 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
                                            \%slot_hash);
 
         return 0 if !set_permissions($nss_pcache_instance_file_path,
+                                     $default_exe_permissions);
+
+        # process "pki_apache_initscript" template
+        return 0 if !process_file_template("pki_apache_initscript",
+                                           $pki_apache_initscript_file_path,
+                                           $pki_instance_initscript_path,
+                                           \%slot_hash);
+
+        return 0 if !set_permissions($pki_instance_initscript_path,
                                      $default_exe_permissions);
 
 

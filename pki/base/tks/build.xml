@@ -191,6 +191,7 @@
                         filemode="644"
                         prefix="usr/share/${product.prefix}/${product}/setup">
                 <include name="config.desktop"/>
+                <include name="registry_instance"/>
             </zipfileset>
             <zipfileset dir="./shared/etc/init.d"
                         filemode="755"
@@ -198,15 +199,9 @@
                 <include name="pki-tksd"/>
             </zipfileset>
             <zipfileset dir="./shared"
-                        filemode="755"
-                        prefix="usr/share/${product.prefix}/${product}">
-                <include name="conf/dtomcat5"/>
-            </zipfileset>
-            <zipfileset dir="./shared"
                         filemode="644"
                         prefix="usr/share/${product.prefix}/${product}">
                 <include name="**"/>
-                <exclude name="conf/dtomcat5"/>
                 <exclude name="etc/init.d/pki-tksd"/>
             </zipfileset>
             <zipfileset dir="."
@@ -230,6 +225,7 @@
                         mode="644"
                         prefix="${dist.name}/usr/share/${product.prefix}/${product}/setup">
                 <include name="config.desktop"/>
+                <include name="registry_instance"/>
             </tarfileset>
             <tarfileset dir="./shared/etc/init.d"
                         mode="755"
@@ -237,15 +233,9 @@
                 <include name="pki-tksd"/>                 
             </tarfileset>
             <tarfileset dir="./shared"
-                        mode="755"
-                        prefix="${dist.name}/usr/share/${product.prefix}/${product}">
-                <include name="conf/dtomcat5"/>
-            </tarfileset>
-            <tarfileset dir="./shared"
                         mode="644"
                         prefix="${dist.name}/usr/share/${product.prefix}/${product}">
                 <include name="**"/>
-                <exclude name="conf/dtomcat5"/>
                 <exclude name="etc/init.d/pki-tksd"/>
             </tarfileset>
             <tarfileset dir="."

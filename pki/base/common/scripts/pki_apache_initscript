@@ -1,0 +1,248 @@
+#!/bin/bash
+
+# FIXME: needed to add -r system_r to runcon, not sure why or if it's right
+
+command="$1"
+
+# Source function library.
+. /etc/init.d/functions
+
+PKI_REGISTRY_FILE=[PKI_REGISTRY_FILE]
+
+# Enable nullglob, if set then shell pattern globs which do not match any
+# file returns the empty string rather than the unmodified glob pattern.
+shopt -s nullglob
+
+OS=`uname -s`
+ARCHITECTURE=`uname -i`
+
+# Source values associated with this particular PKI instance
+if [ -f $PKI_REGISTRY_FILE ]; then
+    . ${PKI_REGISTRY_FILE}
+else
+    echo "No PKI registry file ($PKI_REGISTRY_FILE)"
+    case $command in
+        status)
+            exit 4
+            ;;
+        *)
+            exit 1
+            ;;
+    esac
+fi
+
+prog=$PKI_INSTANCE_ID
+lockfile=$PKI_LOCK_FILE
+pidfile=$PKI_PID_FILE
+
+
+STARTUP_WAIT=30
+SHUTDOWN_WAIT=30
+
+start()
+{
+    rv=0
+
+    echo -n $"Starting ${prog}: "
+
+    if [ -f ${lockfile} ] ; then
+	if [ -f ${pidfile} ]; then
+	    read kpid < ${pidfile}
+	    if checkpid $kpid 2>&1; then
+		echo
+		echo "${PKI_INSTANCE_ID} (pid ${kpid}) is already running ..."
+		echo
+                return 0
+	    else
+		echo
+		echo -n "lock file found but no process "
+		echo -n "running for pid $kpid, continuing"
+		echo
+		echo
+		rm -f ${lockfile}
+	    fi
+	fi
+    fi
+
+    touch ${pidfile}
+    chown ${PKI_USER}:${PKI_GROUP} ${pidfile}
+    chmod 00600 ${pidfile}
+    [ -x /sbin/restorecon ] && /sbin/restorecon  ${pidfile}
+
+    # restore context for ncipher hsm
+    [ -x /sbin/restorecon ] && [ -d /dev/nfast ] && /sbin/restorecon -R /dev/nfast
+    
+    /usr/sbin/selinuxenabled
+    rv=$?
+    if [ ${rv} = 0 ] ; then	
+	if [ ${ARCHITECTURE} = "i386" ] ; then
+	    LANG=${PKI_HTTPD_LANG} daemon runcon -r system_r -t ${PKI_SELINUX_TYPE} -- ${httpd} ${PKI_OPTIONS}
+            rv=$?
+	    # overwrite output from "daemon"
+	    echo -n $"Starting ${prog}: "
+	elif [ ${ARCHITECTURE} = "x86_64" ] ; then
+	    # NOTE:  "daemon" is incompatible with "httpd" on 64-bit architectures
+	    LANG=${PKI_HTTPD_LANG} runcon -r system_r -t ${PKI_SELINUX_TYPE} -- ${httpd} ${PKI_OPTIONS}
+            rv=$?
+	fi
+    else
+	LANG=${PKI_HTTPD_LANG} daemon ${httpd} ${PKI_OPTIONS}
+        rv=$?
+	# overwrite output from "daemon"
+	echo -n $"Starting ${prog}: "
+    fi
+
+    if [ ${rv} = 0 ] ; then
+	touch ${lockfile}
+	chown ${PKI_USER}:${PKI_GROUP} ${lockfile}
+	chmod 00600 ${lockfile}
+
+	count=0;
+
+	let swait=$STARTUP_WAIT
+	until	[ -s ${pidfile} ] ||
+	[ $count -gt $swait ]
+	do
+	    echo -n "."
+	    sleep 1
+	    let count=$count+1;
+	done
+
+	echo_success
+        echo
+
+	# Set permissions of log files
+	for file in ${pki_logs_directory}/*; do
+            if [ `basename $file` != "signedAudit" ]; then
+	        echo "chown ${PKI_USER}:${PKI_GROUP} ${file}"
+	        echo "chmod 00640 ${file}"
+            fi
+	done
+
+        if [ -d ${pki_logs_directory}/signedAudit ]; then
+	    for file in ${pki_logs_directory}/signedAudit/*; do
+		echo "chown ${PKI_USER} ${file}"
+		echo "chmod 00640 ${file}"
+            done
+        fi
+
+    else
+	echo_failure
+        echo
+    fi
+
+	
+    return ${rv}
+}
+
+stop()
+{
+    rv=0
+
+    echo -n "Stopping ${prog}: "
+
+    if [ -f ${lockfile} ] ; then
+	${httpd} ${PKI_OPTIONS} -k stop
+	rv=$?
+
+	if [ ${rv} = 0 ]; then
+	    count=0;
+            
+	    if [ -f ${pidfile} ]; then
+		read kpid < ${pidfile}
+		let kwait=$SHUTDOWN_WAIT
+                
+		until	[ `ps -p $kpid | grep -c $kpid` = '0' ] ||
+		[ $count -gt $kwait ]
+		do
+		    echo -n "."
+		    sleep 1
+		    let count=$count+1;
+		done
+                
+		if [ $count -gt $kwait ]; then
+		    kill -9 $kpid
+		fi
+	    fi
+            
+	    rm -f ${lockfile}
+	    rm -f ${pidfile}
+            
+	    echo_success
+            echo
+	else
+	    echo_failure
+            echo
+	    rv=${default_error}
+	fi
+    else
+	echo
+	echo "process already stopped"
+	rv=0
+    fi
+    
+    return ${rv}
+}
+
+reload()
+{
+    rv=0
+    
+    echo -n $"Reloading ${prog}: "
+    
+    if ! LANG=${PKI_HTTPD_LANG} ${httpd} ${PKI_OPTIONS} -t >&/dev/null; then
+	rv=$?
+	echo $"not reloading due to configuration syntax error"
+	failure $"not reloading ${httpd} due to configuration syntax error"
+    else
+	killproc -p ${pidfile} ${httpd} -HUP
+	rv=$?
+    fi
+    echo
+
+    return ${rv}
+}
+
+instance_status()
+{
+    status -p ${pidfile} ${prog}
+    rv=$?
+    return $rv
+}
+
+# See how we were called.
+case $command in
+    status)
+        instance_status
+        exit $?
+        ;;
+    start)
+	start
+	exit $?
+	;;
+    restart)
+	restart
+	exit $?
+	;;
+    stop)
+	stop
+	exit $?
+	;;
+    condrestart|force-restart|try-restart)
+        [ ! -f ${lockfile} ] || restart
+        exit $?
+        ;;
+    reload)
+        echo "The 'reload' action is an unimplemented feature."
+        exit 3
+        ;;
+    condrestart|force-restart|try-restart)
+	[ ! -f ${lockfile} ] || restart
+	exit $?
+	;;
+    *)
+	echo "unknown action ($command)"
+	exit 2
+	;;
+esac
+

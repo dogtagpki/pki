@@ -726,7 +726,7 @@ scripts_DATA = $(srcdir)/scripts/schemaMods.ldif \
 				$(srcdir)/scripts/addVLVIndexes.ldif
 
 scripts_SCRIPTS = $(srcdir)/scripts/nss_pcache
-@LINUX_TRUE@setup_DATA = $(srcdir)/setup/config.desktop
+@LINUX_TRUE@setup_DATA = $(srcdir)/setup/config.desktop $(srcdir)/setup/registry_instance
 templates_DATA = $(srcdir)/apache/pki_instance_command_wrapper \
 					$(srcdir)/apache/pki_subsystem_command_wrapper
 

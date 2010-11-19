@@ -184,7 +184,12 @@
                 <include name="lib/**"/>
                 <include name="samples/**"/>
                 <include name="scripts/**"/>
-                <include name="setup/config.desktop"/>
+            </zipfileset>
+            <zipfileset dir="./setup"
+                        filemode="644"
+                        prefix="usr/share/${product.prefix}/${product}/setup">
+                <include name="config.desktop"/>
+                <include name="registry_instance"/>
             </zipfileset>
             <zipfileset dir="."
                         filemode="755"
@@ -230,7 +235,12 @@
                 <include name="lib/**"/>
                 <include name="samples/**"/>
                 <include name="scripts/**"/>
-                <include name="setup/config.desktop"/>
+            </tarfileset>
+            <tarfileset dir="./setup"
+                        mode="644"
+                        prefix="usr/share/${product.prefix}/${product}/setup">
+                <include name="config.desktop"/>
+                <include name="registry_instance"/>
             </tarfileset>
             <tarfileset dir="."
                         mode="755"

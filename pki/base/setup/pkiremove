@@ -105,6 +105,7 @@ my $pki_instance_root               = undef;
 my $pki_instance_name               = undef;
 my $force                           = 0;
 
+my $conf_file                       = undef;
 my $pki_instance_path               = undef;
 my $subsystem_type                  = undef;
 
@@ -163,7 +164,6 @@ EOF
 
 sub update_domain
 {
-    my $conf_file = $pki_instance_path . "/conf/CS.cfg";
     my $sport;
     my $ncsport;
     my $sechost;
@@ -175,32 +175,23 @@ sub update_domain
     my $agentsport;
     my $secselect;
     my $subsystemnick;
-    my $typeval;
     my $machinename;
     my $subsytemnick;
     my $url;
     
-    open(DAT, $conf_file) or die "Could not open CS.cfg file to update security domain";
-    my @conf_data=<DAT>;
-    foreach my $line (@conf_data) {
-        chomp($line);
-        (my $varname, my $valname) = split(/=/, $line);
+    get_cs_cfg($conf_file, {"service.machineName"               => \$machinename,
+                            "service.securityDomainPort"        => \$sport,
+                            "service.non_clientauth_securePort" => \$ncsport,
+                            "securitydomain.host"               => \$sechost,
+                            "securitydomain.httpport"           => \$httpport,
+                            "securitydomain.httpseeport"        => \$seceeport,
+                            "securitydomain.httpsagentport"     => \$secagentport,
+                            "securitydomain.httpsadminport"     => \$secadminport,
+                            "securitydomain.select"             => \$secselect,
+                            "pkiremove.cert.subsystem.nickname" => \$subsystemnick,
+                            "pkicreate.admin_secure_port"       => \$adminsport,
+                            "pkicreate.agent_secure_port"       => \$agentsport});
 
-        if ($varname eq "cs.type") { $typeval = $valname; }
-        if ($varname eq "service.machineName") { $machinename = $valname; }
-        if ($varname eq "service.securityDomainPort") { $sport = $valname; }
-        if ($varname eq "service.non_clientauth_securePort") { $ncsport = $valname; }
-        if ($varname eq "securitydomain.host") { $sechost = $valname; }
-        if ($varname eq "securitydomain.httpport") { $httpport = $valname; }
-        if ($varname eq "securitydomain.httpseeport") { $seceeport = $valname; }
-        if ($varname eq "securitydomain.httpsagentport") { $secagentport = $valname; }
-        if ($varname eq "securitydomain.httpsadminport") { $secadminport = $valname; }
-        if ($varname eq "securitydomain.select") { $secselect = $valname; }
-        if ($varname eq "pkiremove.cert.subsystem.nickname") { $subsystemnick = $valname; }
-        if ($varname eq "pkicreate.admin_secure_port") { $adminsport = $valname; }
-        if ($varname eq "pkicreate.agent_secure_port") { $agentsport = $valname; }
-    }
-    close(DAT);
 
     # NOTE:  Don't check for the existence of $httpport, as this will
     #        be undefined for a Security Domain that has been migrated!
@@ -216,7 +207,7 @@ sub update_domain
     if ($secselect ne "new") {
         # This is not a domain master, so we need to update the master
         print(STDOUT "Contacting the security domain master to update the security domain\n");
-        my $listval = $typeval . "List";
+        my $listval = $subsystem_type . "List";
         my $urlheader = "https://" . $sechost . ":" . $seceeport; 
         my $urlagentheader = "https://" . $sechost . ":" . $secagentport; 
         my $urladminheader = "https://" . $sechost . ":" . $secadminport; 
@@ -235,10 +226,11 @@ sub update_domain
         my @pw_data=<DAT>;
         foreach my $line (@pw_data) {
             chomp($line);
-            if (($typeval eq "CA")   ||
-                ($typeval eq "KRA")  ||
-                ($typeval eq "OCSP") ||
-                ($typeval eq "TKS")) {
+
+            if (($subsystem_type eq $CA)   ||
+                ($subsystem_type eq $KRA)  ||
+                ($subsystem_type eq $OCSP) ||
+                ($subsystem_type eq $TKS)) {
                 (my $varname, my $valname) = split(/=/, $line);
                 if ($varname eq "internal") { $intpw = $valname; }
             } else {  # TPS, RA
@@ -269,7 +261,7 @@ sub update_domain
         my $response = $browser->post($url, 
             [
                 'name'       => $pki_instance_name,
-                'type'       => $typeval,
+                'type'       => $subsystem_type,
                 'list'       => $listval,
                 'host'       => $machinename,
                 'sport'      => $sport,
@@ -317,8 +309,10 @@ sub remove_selinux_fcontexts
     my $ftype;
     my $java_component        = 0;
 
-    if (($subsystem_type eq "ca") || ($subsystem_type eq "kra") || ($subsystem_type eq "ocsp")
-        || ($subsystem_type eq "tks")) {
+    if (($subsystem_type eq $CA)   ||
+        ($subsystem_type eq $KRA)  ||
+        ($subsystem_type eq $OCSP) ||
+        ($subsystem_type eq $TKS)) {
         $java_component=1;
     }
 
@@ -373,30 +367,19 @@ sub remove_selinux_ports
 {
     my $status;
     my $semanage = "/usr/sbin/semanage";
-    my $conf_file = $pki_instance_path . "/conf/CS.cfg";
-    my $typeval;
     my $secure_port;
     my $non_clientauth_secure_port;
     my $unsecure_port;
     my @ports = ();
 
-    # get cs type
-    open(DAT, $conf_file) or die "Could not open CS.cfg file.";
-    my @conf_data=<DAT>;
-    foreach my $line (@conf_data) {
-        chomp($line);
-        (my $varname, my $valname) = split(/=/, $line);
-        if ($varname eq "cs.type") { $typeval = $valname; }
-        if ($varname eq "service.securePort") { $secure_port = $valname; }
-        if ($varname eq "service.non_clientauth_securePort") { $non_clientauth_secure_port = $valname; }
-        if ($varname eq "service.unsecurePort") { $unsecure_port = $valname; }
-    }
-    close(DAT);
+    get_cs_cfg($conf_file, {"service.securePort"                => \$secure_port,
+                            "service.non_clientauth_securePort" => \$non_clientauth_secure_port,
+                            "service.unsecurePort"              => \$unsecure_port});
 
-    # for use in other routines
-    $subsystem_type =  lc($typeval);
-
-    if (($typeval eq "CA") || ($typeval eq "KRA") || ($typeval eq "OCSP") || ($typeval eq "TKS")) {
+    if (($subsystem_type eq $CA)   ||
+        ($subsystem_type eq $KRA)  ||
+        ($subsystem_type eq $OCSP) ||
+        ($subsystem_type eq $TKS)) {
         use XML::LibXML;
         my $parser = XML::LibXML->new();
         my $config = $parser->parse_file($pki_instance_path . "/conf/server.xml") 
@@ -427,7 +410,7 @@ sub remove_selinux_ports
 
     print(STDOUT "\n");
     foreach my $port (@ports) {
-        my $setype = "pki_" . lc($typeval) . "_port_t";
+        my $setype = "pki_" . $subsystem_type . "_port_t";
         my $errs;
         print STDOUT "Removing port $port from selinux policy.\n";
 	next if $dry_run;
@@ -548,11 +531,11 @@ sub main
     }
 
     # Parse command-line arguments.
-    $result = GetOptions("pki_instance_root=s"  => \$pki_instance_root,
-                          "pki_instance_name=s" => \$pki_instance_name,
-                          "verbose+"            => \$verbose,
-                          "dry_run"             => \$dry_run,
-                          "force"               => \$force);
+    $result = GetOptions("pki_instance_root=s" => \$pki_instance_root,
+                         "pki_instance_name=s" => \$pki_instance_name,
+                         "verbose+"            => \$verbose,
+                         "dry_run"             => \$dry_run,
+                         "force"               => \$force);
 
     # Always disallow root to be the pki_instance_root.
     if ($pki_instance_root eq "/") {
@@ -607,6 +590,14 @@ sub main
     emit("    pki_instance_root   $pki_instance_root\n");
     emit("    pki_instance_name   $pki_instance_name\n");
     emit("    pki_instance_path   $pki_instance_path\n");
+
+    $conf_file = $pki_instance_path . "/conf/CS.cfg";
+    $subsystem_type = get_cs_cfg($conf_file, "cs.type");
+    if (!defined($subsystem_type)) {
+        emit("Could not determine the subsystem type from the file \"$conf_file\"\n", "error");
+        exit 1;
+    }
+    $subsystem_type =  lc($subsystem_type);
 
     # Remove the specified instance
     $result = remove_instance();

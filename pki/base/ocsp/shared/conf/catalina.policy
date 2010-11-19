@@ -1,5 +1,26 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// Copyright (C) 2006-2010 Red Hat, Inc.
+// All rights reserved.
+// Modifications: configuration parameters
+// --- END COPYRIGHT BLOCK ---
+
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // ============================================================================
-// catalina.corepolicy - Security Policy Permissions for Tomcat 5
+// catalina.corepolicy - Security Policy Permissions for Tomcat 6
 //
 // This file contains a default set of security policies to be enforced (by the
 // JVM) when Catalina is executed with the "-security" option.  In addition
@@ -40,35 +61,16 @@ grant codeBase "file:${java.home}/lib/ext/-" {
 // ========== CATALINA CODE PERMISSIONS =======================================
 
 
-// These permissions apply to the launcher code
-grant codeBase "file:${catalina.home}/bin/commons-launcher.jar" {
-        permission java.security.AllPermission;
-};
-
 // These permissions apply to the daemon code
 grant codeBase "file:${catalina.home}/bin/commons-daemon.jar" {
         permission java.security.AllPermission;
 };
 
-// These permissions apply to the commons-logging API
-grant codeBase "file:${catalina.home}/bin/commons-logging-api.jar" {
-        permission java.security.AllPermission;
-};
-
-// These permissions apply to the server startup code
-grant codeBase "file:${catalina.home}/bin/bootstrap.jar" {
-        permission java.security.AllPermission;
-};
-
-// These permissions apply to the JMX server
-grant codeBase "file:${catalina.home}/bin/jmx.jar" {
-        permission java.security.AllPermission;
-};
-
-// These permissions apply to JULI
+// These permissions apply to the logging API
 grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
         permission java.util.PropertyPermission "java.util.logging.config.class", "read";
         permission java.util.PropertyPermission "java.util.logging.config.file", "read";
+        permission java.io.FilePermission "${java.home}${file.separator}lib${file.separator}logging.properties", "read"; 
         permission java.lang.RuntimePermission "shutdownHooks";
         permission java.io.FilePermission "${catalina.base}${file.separator}conf${file.separator}logging.properties", "read";
         permission java.util.PropertyPermission "catalina.base", "read";
@@ -82,24 +84,19 @@ grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
         // permission java.io.FilePermission "${catalina.base}${file.separator}webapps${file.separator}examples${file.separator}WEB-INF${file.separator}classes${file.separator}logging.properties", "read";
 };
 
+// These permissions apply to the server startup code
+grant codeBase "file:${catalina.home}/bin/bootstrap.jar" {
+        permission java.security.AllPermission;
+};
+
 // These permissions apply to the servlet API classes
 // and those that are shared across all class loaders
-// located in the "common" directory
-grant codeBase "file:${catalina.home}/common/-" {
+// located in the "lib" directory
+grant codeBase "file:${catalina.home}/lib/-" {
         permission java.security.AllPermission;
 };
 
-// These permissions apply to the container's core code, plus any additional
-// libraries installed in the "server" directory
-grant codeBase "file:${catalina.home}/server/-" {
-        permission java.security.AllPermission;
-};
 
-// The permissions granted to the balancer WEB-INF/classes and WEB-INF/lib directory
-grant codeBase "file:${catalina.home}/webapps/balancer/-" {
-        permission java.lang.RuntimePermission "accessClassInPackage.org.apache.tomcat.util.digester";
-        permission java.lang.RuntimePermission "accessClassInPackage.org.apache.tomcat.util.digester.*";
-};
 // ========== WEB APPLICATION PERMISSIONS =====================================
 
 
@@ -147,6 +144,9 @@ grant {
     permission java.lang.RuntimePermission "accessClassInPackage.org.apache.jasper.runtime";
     permission java.lang.RuntimePermission "accessClassInPackage.org.apache.jasper.runtime.*";
     
+    // Precompiled JSPs need access to this system property.
+    permission java.util.PropertyPermission "org.apache.jasper.runtime.BodyContentImpl.LIMIT_BUFFER", "read";
+
 };
 
 
@@ -181,59 +181,4 @@ grant {
 // grant codeBase "jar:file:${catalina.home}/webapps/examples/WEB-INF/lib/scrape.jar!/-" {
 //      permission java.net.SocketPermission "*.noaa.gov:80", "connect";
 // };
-
-
-
-// These permissions apply to Tomcat5 java
-grant codeBase "file:/usr/share/java/tomcat5/-" {
-        permission java.security.AllPermission;
-};
-grant codeBase "file:/usr/share/java/jakarta-commons-modeler.jar" {
-        permission java.security.AllPermission;
-};
-grant codeBase "file:/usr/share/java/jasper5-compiler.jar" {
-        permission java.security.AllPermission;
-};
-grant codeBase "file:/usr/share/java/jasper5-runtime.jar" {
-        permission java.security.AllPermission;
-};
-
-
-
-// These permissions apply to PKI configuration
-grant codeBase "file:/usr/share/java/velocity.jar" {
-        permission java.security.AllPermission;
-};
-grant codeBase "file:/usr/share/java/tomcat5-servlet-2.4-api.jar" {
-        permission java.security.AllPermission;
-};
-
-
-
-
-// These permissions apply to PKI support
-grant codeBase "file:/usr/share/java/ldapjdk.jar" {
-        permission java.security.AllPermission;
-};
-
-
-
-// These permissions apply to PKI
-grant codeBase "file:/usr/lib/java/jss4.jar" {
-        permission java.security.AllPermission;
-};
-grant codeBase "file:/usr/share/java/tomcatjss.jar" {
-        permission java.security.AllPermission;
-};
-grant codeBase "file:/usr/lib/java/osutil.jar" {
-        permission java.security.AllPermission;
-};
-grant codeBase "file:/usr/lib/java/symkey.jar" {
-        permission java.security.AllPermission;
-};
-grant codeBase "file:/usr/share/java/pki/-" {
-        permission java.security.AllPermission;
-};
-
-
 

@@ -14,9 +14,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2007 Red Hat, Inc.
+# Copyright (C) 2007-2010 Red Hat, Inc.
 # All rights reserved.
-# --- END COPYRIGHT BLOCK ### ---
+# --- END COPYRIGHT BLOCK ---
 #
 # pki-cad    Startup script for pki-ca with tomcat6
 #
@@ -47,11 +47,23 @@ pki_instance="$2"
 . /usr/share/pki/scripts/functions
 
 # See how we were called.
-case "${command}" in
-    start|stop|restart|status)
-        ${command}
-        exit $?
-        ;;
+case $command in
+    status)
+	registry_status
+	exit $?
+	;;
+    start)
+	start
+	exit $?
+	;;
+    restart)
+	restart
+	exit $?
+	;;
+    stop)
+	stop
+	exit $?
+	;;
     condrestart|force-restart|try-restart)
         [ ! -f ${lockfile} ] || restart
         exit $?
@@ -61,13 +73,11 @@ case "${command}" in
         exit ${default_error}
         ;;
     *)
-        # 3 unimplemented feature (for example, "reload")
-        #     [invalid command - should never be reached]
-        echo
+	echo "unknown action ($command)"
         usage
         echo "where valid instance names include:"
         list_instances
-        exit 3
+        exit ${default_error}
         ;;
 esac
 

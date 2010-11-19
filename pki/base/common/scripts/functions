@@ -35,7 +35,7 @@ lockfile="/var/lock/subsys/${SERVICE_NAME}"
 
 default_error=0
 
-case "${command}" in
+case $command in
     start|stop|restart|condrestart|force-restart|try-restart)
         # 1 generic or unspecified error (current practice)
         default_error=1
@@ -52,6 +52,13 @@ case "${command}" in
         default_error=2
         ;;
 esac
+
+# Enable nullglob, if set then shell pattern globs which do not match any
+# file returns the empty string rather than the unmodified glob pattern.
+shopt -s nullglob
+
+OS=`uname -s`
+ARCHITECTURE=`uname -i`
 
 # Check to insure that this script's original invocation directory
 # has not been deleted!
@@ -239,6 +246,145 @@ check_pki_configuration_status()
 }
 
 get_pki_status_definitions()
+{
+    case $PKI_SUBSYSTEM_TYPE in
+	ca|kra|ocsp|tks)
+	    get_pki_status_definitions_tomcat
+	    return $?
+	    ;;
+	ra)
+	    get_pki_status_definitions_ra
+	    return $?
+	    ;;
+	tps)
+	    get_pki_status_definitions_tps
+	    return $?
+	    ;;
+	*)
+	    echo "Unknown subsystem type ($PKI_SUBSYSTEM_TYPE)"
+	    exit ${default_error}
+	    ;;
+    esac
+}
+
+get_pki_status_definitions_ra()
+{
+    # establish well-known strings
+    total_ports=0
+    UNSECURE_PORT=""
+    CLIENTAUTH_PORT=""
+    NON_CLIENTAUTH_PORT=""
+
+    # check to see that an instance-specific "httpd.conf" file exists
+    if [ ! -f ${PKI_HTTPD_CONF} ] ; then
+	echo "File '${PKI_HTTPD_CONF}' does not exist!"
+	exit ${default_error}
+    fi
+
+    # check to see that an instance-specific "nss.conf" file exists
+    if [ ! -f ${PKI_NSS_CONF} ] ; then
+	echo "File '${PKI_NSS_CONF}' does not exist!"
+	exit ${default_error}
+    fi
+
+    # Iterate over Listen statements
+    for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_HTTPD_CONF}`; do
+	UNSECURE_PORT=$port
+	if [ $total_ports -eq 0 ]; then
+	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}"
+        else
+            echo "ERROR: extra Unsecure Port = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}"
+        fi
+	total_ports=`expr ${total_ports} + 1`
+
+    done
+
+    # Iterate over Listen statements
+    for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_NSS_CONF}`; do
+	UNSECURE_PORT=$port
+	if [ $total_ports -eq 1 ]; then
+	    CLIENTAUTH_PORT=$port
+	    echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}"
+        fi
+	if [ $total_ports -eq 2 ]; then
+	    NON_CLIENTAUTH_PORT=$port
+	    echo "    Secure Non-Clientauth Port = https://${PKI_SERVER_NAME}:${NON_CLIENTAUTH_PORT}"
+        fi
+	total_ports=`expr ${total_ports} + 1`
+
+    done
+
+    if [ ${total_ports} -eq $PKI_TOTAL_PORTS ] ; then
+        return 0
+    else
+        return ${default_error}
+    fi
+}
+
+get_pki_status_definitions_tps()
+{
+    # establish well-known strings
+    total_ports=0
+    UNSECURE_PORT=""
+    CLIENTAUTH_PORT=""
+    NON_CLIENTAUTH_PORT=""
+
+    # check to see that an instance-specific "httpd.conf" file exists
+    if [ ! -f ${PKI_HTTPD_CONF} ] ; then
+	echo "File '${PKI_HTTPD_CONF}' does not exist!"
+	exit ${default_error}
+    fi
+
+    # check to see that an instance-specific "nss.conf" file exists
+    if [ ! -f ${PKI_NSS_CONF} ] ; then
+	echo "File '${PKI_NSS_CONF}' does not exist!"
+	exit ${default_error}
+    fi
+
+    # Iterate over Listen statements
+    for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_HTTPD_CONF}`; do
+	UNSECURE_PORT=$port
+	if [ $total_ports -eq 0 ]; then
+	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}/cgi-bin/so/enroll.cgi"
+	    echo "                                 (ESC Security Officer Enrollment)"
+	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}/cgi-bin/home/index.cgi"
+	    echo "                                 (ESC Phone Home)"
+        else
+            echo "ERROR: extra Unsecure Port = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}"
+        fi
+	total_ports=`expr ${total_ports} + 1`
+
+    done
+
+    # Iterate over Listen statements
+    for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_NSS_CONF}`; do
+	UNSECURE_PORT=$port
+	if [ $total_ports -eq 1 ]; then
+	    CLIENTAUTH_PORT=$port
+	    echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}/cgi-bin/sow/welcome.cgi"
+	    echo "                                 (ESC Security Officer Workstation)"
+	    echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}/tus"
+	    echo "                                 (TPS Roles - Operator/Administrator/Agent)"
+        fi
+	if [ $total_ports -eq 2 ]; then
+	    NON_CLIENTAUTH_PORT=$port
+	    echo "    Secure Non-Clientauth Port = https://${PKI_SERVER_NAME}:${NON_CLIENTAUTH_PORT}/cgi-bin/so/enroll.cgi"
+	    echo "                                 (ESC Security Officer Enrollment)"
+	    echo "    Secure Non-Clientauth Port = https://${PKI_SERVER_NAME}:${NON_CLIENTAUTH_PORT}/cgi-bin/home/index.cgi"
+	    echo "                                 (ESC Phone Home)"
+        fi
+	total_ports=`expr ${total_ports} + 1`
+
+    done
+
+    if [ ${total_ports} -eq $PKI_TOTAL_PORTS ] ; then
+        return 0
+    else
+        return ${default_error}
+    fi
+}
+
+get_pki_status_definitions_tomcat()
 {
     # establish well-known strings
     begin_pki_status_comment="<!-- DO NOT REMOVE - Begin PKI Status Definitions -->"
@@ -749,7 +895,7 @@ restart()
     return $?
 }
 
-status()
+registry_status()
 {
     error_rv=0
     rv=0

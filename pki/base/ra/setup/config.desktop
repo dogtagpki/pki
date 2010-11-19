@@ -19,7 +19,7 @@
 [Desktop Entry]
 Version=1.0.0
 Encoding=UTF-8
-Name=Registration Authority Configuration - [INSTANCE_ID]
+Name=Registration Authority Configuration - [PKI_INSTANCE_ID]
 GenericName=Registration Authority Configuration
 Comment=Configure Registration Authority 
 Exec=firefox https://[SERVER_NAME]:[SECURE_PORT]/ra/admin/console/config/login?pin=[PKI_RANDOM_NUMBER]
