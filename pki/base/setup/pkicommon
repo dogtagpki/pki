@@ -2878,82 +2878,110 @@ sub move_directory
     return 0;
 }
 
-
-# arg0 source directory
-# arg1 destination path
+# arg0 src directory
+# arg1 dst path
 # return 1 - successfully copied directory, or
 # return 0 - failed copying directory
 sub copy_directory
 {
-    my $source_dir_path = $_[0];
-    my $dest_dir_path = $_[1];
+    my($src_dir_path, $dst_dir_path, $uninstall_action) = @_;
+    my($result);
+    my($paths, $path, $src_path, $dst_path);
+    my(%dst_dirs, $dst_dir);
 
-    my $result = 0;
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+    $result = 1;
 
-    emit("copy_directory():  source=> $source_dir_path dest=> $dest_dir_path \n","debug");
-    if (!is_path_valid($source_dir_path)) {
-        emit("copy_directory():  illegal source path => $source_dir_path.\n",
+    $src_dir_path = normalize_path($src_dir_path);
+    $dst_dir_path = normalize_path($dst_dir_path);
+
+    if ($verbose > 1) {
+        emit(sprintf("%s(%s)\n", (caller(0))[3], join(', ', @_)));
+    }
+
+    emit("copy_directory(): $src_dir_path => $dst_dir_path\n", "debug");
+    if (!is_path_valid($src_dir_path)) {
+        emit("copy_directory():  illegal src path => $src_dir_path.\n",
               "error");
         return 0;
     }
 
-    if (!is_path_valid($dest_dir_path)) {
-        emit("copy_directory():  illegal destination path => "
-            . "$dest_dir_path.\n",
-              "error");
+    if (!is_path_valid($dst_dir_path)) {
+        emit("copy_directory(): illegal dst path ($dst_dir_path)\n", "error");
         return 0;
     }
 
-    if (!directory_exists($source_dir_path)) {
+    if (!directory_exists($src_dir_path)) {
         # Take the case where this directory does not exist
         # Just return true
+        emit("copy_directory(): non-existent src path ($src_dir_path)\n", "error");
         return 1;
     }
 
-    if (!directory_exists($dest_dir_path)) {
-        $result = create_directory($dest_dir_path);
-        if (!$result) {
-            return 0;
+    # Get list of files under the src dir
+    $paths = get_directory_files($src_dir_path, {'strip_dir' => 1});
+    
+    
+    # Assure each destination directory exists
+    $dst_dirs{$dst_dir_path}++;
+    for $path (@$paths) {
+        $dst_path = "${dst_dir_path}/${path}";
+        $dst_dir = dirname($dst_path);
+        $dst_dirs{$dst_dir}++;
+    }
+
+    for $dst_dir (keys %dst_dirs) {
+        return 0 if !create_directory($dst_dir);
+    }
+
+    # Copy each file
+    for $path (@$paths) {
+        $src_path = "${src_dir_path}/${path}";
+        $dst_path = "${dst_dir_path}/${path}";
+        if (!copy_file($src_path, $dst_path)) {
+            $result = 0;
         }
     }
 
-    if (!is_directory_empty($source_dir_path)) {
-        $result = `cp -fr $source_dir_path/* $dest_dir_path`;
-    } else {
-        $result = 0;
+    if (!$result) {
+        emit("copy_directory(): failed $src_dir_path => $dst_dir_path.\n",
+             "error");
     }
 
-    # System call returns 0 on success.
-    if ($result == 0) {
-        return 1;
-    }
-
-    emit("copy_directory():  failed copying directory from $source_dir_path "
-        . "to $dest_dir_path.\n",
-          "error");
-
-    return 0;
+    return $result;
 }
 
 
-# arg0 directory
-# return 1 - successfully removed directory, or
-# return 0 - failed removing directory
+# Removes given directory. By default only the directory is removed and
+# only if it is empty. To remove the directory and all of it's contents
+# you must provide the $remove_contents parameter and set it to true,
+# it defaults to false.
+#
+# Return 1 if success, 0 if failure
 sub remove_directory
 {
-    my ($dir) = $_[0];
+    my($dir, $remove_contents) = @_;
+    my($errors, $result);
 
-    emit("remove_directory(): " . $dir . "\n","debug");
-    my $result = 0;
+    $remove_contents = 0 unless defined($remove_contents);
+    $result = 1;
+
+    emit("remove_directory(): \"$dir\"\n", "debug");
+    add_install_info($dir, 'dir', 'remove', 'remove');
+
+    if ($dry_run || $verbose > 1) {
+        emit(sprintf("%s(%s)\n", (caller(0))[3], join(', ', @_)));
+        return 1 if ($dry_run);
+    }
 
     if (!is_path_valid($dir)) {
-        emit("remove_directory():  specified invalid directory $dir.\n",
+        emit("remove_directory(): specified invalid directory $dir.\n",
               "error");
         return 0;
     }
 
     if ($dir eq "/") {
-       emit("remove_directory():  don't even think about removing root!.\n",
+       emit("remove_directory(): don't even think about removing root!.\n",
              "error");
        return 0;
     }
@@ -2962,15 +2990,29 @@ sub remove_directory
         return 1;
     }
 
-    $result = `rm -rf $dir`;
-    if ($result == 0) {
-        return 1;
+    if ($remove_contents) {
+        remove_tree($dir, {error => \$errors});
+        if (@$errors) {
+            my($error, $path, $errstr);
+            $result = 0;
+            for $error (@$errors) {
+                $path, $errstr = %$error;
+                if ($path eq '') {
+                    emit("remove_directory(): tree=\"$dir\" ($errstr)\n", "error");
+                }
+                else {
+                    emit("remove_directory(): tree=\"$dir\" path=\"$path\" ($errstr)\n", "error");
+                }
+            }
+        }
+    } else {
+        if (!rmdir($dir)) {
+            $result = 0;
+            emit("remove_directory(): dir=\"$dir\" ($!) \n", "error");
+        }
     }
 
-    emit("remove_directory():  failed to remove directory $dir.\n",
-          "error");
-
-    return 0;
+    return $result;
 }
 
 
