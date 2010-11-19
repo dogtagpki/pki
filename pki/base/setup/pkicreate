@@ -90,16 +90,6 @@ if (defined($ENV{'DONT_RUN_PKICREATE'})) {
     }
 }
 
-# additional option to not run this script on Solaris
-# (unfortunately, pkgadd doesn't process all environment variables)
-if ($^O eq "solaris") {
-    if (-f "/tmp/DONT_RUN_PKICREATE") {
-        print(STDERR "File DONT_RUN_PKICREATE exists. Exiting.\n");
-        print(STDOUT "\n");
-        exit 0;
-    }
-}
-
 # untaint called subroutines
 if (($^O ne 'Windows_NT') && ($^O ne 'MSWin32')) {
     $> = $<;   # set effective user ID to real UID
@@ -123,8 +113,6 @@ my $ARGS = ($#ARGV + 1);
 # Compute "flavor" of Operating System
 my $pki_flavor = "";
 if ($^O eq "linux") {
-    $pki_flavor = "pki";
-} elsif ($^O eq "solaris") {
     $pki_flavor = "pki";
 } else {
     print(STDERR
@@ -623,49 +611,23 @@ if ($^O eq "linux") {
 
         # Supported hardware token PKCS #11 modules
         %supported_sec_modules_hash = ("lunasa",
-                                        "/usr/lunasa/lib/libCryptoki2.so",
-                                        "nfast",
-                                        "/opt/nfast/toolkits/pkcs11/libcknfast.so"
-);
+                                       "/usr/lunasa/lib/libCryptoki2.so",
+                                       "nfast",
+                                       "/opt/nfast/toolkits/pkcs11/libcknfast.so"
+            );
     } elsif ($default_hardware_platform eq "x86_64") {
         # 64-bit Linux
 
         # Supported hardware token PKCS #11 modules
         %supported_sec_modules_hash = ("lunasa",
-                                        "/usr/lunasa/lib/libCryptoki2.so",
-                                        "nfast",
-                                        "/opt/nfast/toolkits/pkcs11/libcknfast.so"
-);
+                                       "/usr/lunasa/lib/libCryptoki2.so",
+                                       "nfast",
+                                       "/opt/nfast/toolkits/pkcs11/libcknfast.so"
+            );
     } else {
         print(STDERR
-               "ERROR:  Unsupported '$^O' hardware platform "
-             . "'$default_hardware_platform'!\n");
-        print("\n");
-        exit 255;
-    }
-} elsif ($^O eq "solaris") {
-    if ($default_hardware_platform eq "sparc") {
-        # 32-bit Solaris
-
-        # Supported hardware token PKCS #11 modules
-        %supported_sec_modules_hash = ("lunasa",
-                                        "/usr/lunasa/lib/libCryptoki2.so",
-                                        "nfast",
-                                        "/opt/nfast/toolkits/pkcs11/libcknfast-32.so"
-);
-    } elsif ($default_hardware_platform eq "sparcv9") {
-        # 64-bit Solaris
-
-        # Supported hardware token PKCS #11 modules
-        %supported_sec_modules_hash = ("lunasa",
-                                        "/usr/lunasa/lib/libCryptoki2.so",
-                                        "nfast",
-                                        "/opt/nfast/toolkits/pkcs11/libcknfast-64.so"
-);
-    } else {
-        print(STDERR
-               "ERROR:  Unsupported '$^O' hardware platform "
-             . "'$default_hardware_platform'!\n");
+              "ERROR:  Unsupported '$^O' hardware platform "
+              . "'$default_hardware_platform'!\n");
         print("\n");
         exit 255;
     }
@@ -1454,10 +1416,8 @@ sub initialize_subsystem_paths()
                              . "/" . $etc_base_subsystem_dir;
     $logs_subsystem_path     = $pki_subsystem_path
                              . "/" . $logs_base_subsystem_dir;
-    if ($^O eq "linux") {
-        $setup_subsystem_path = $pki_subsystem_path
-                              . "/" . $setup_base_subsystem_dir;
-    }
+    $setup_subsystem_path    = $pki_subsystem_path
+                             . "/" . $setup_base_subsystem_dir;
 
     $pki_registry_path                = $default_registry_path
                                       . "/" . $pki_flavor;
@@ -1635,15 +1595,13 @@ sub initialize_instance_symlink_paths()
 sub initialize_subdirectory_paths()
 {
     ## Initialize subdirectory paths (subsystem independent)
-    $pki_cfg_subsystem_file_path               = $conf_subsystem_path
-                                               . "/" . $pki_cfg_base_name;
-    if ($^O eq "linux") {
-        $setup_config_instance_file_path  = $setup_config_area
-                                          . "/" . $pki_instance_name
-                                          . "-" . $setup_config_name;
-        $setup_config_subsystem_file_path = $setup_subsystem_path
-                                          . "/" . $setup_config_name;
-    }
+    $pki_cfg_subsystem_file_path      = $conf_subsystem_path
+                                      . "/" . $pki_cfg_base_name;
+    $setup_config_instance_file_path  = $setup_config_area
+                                      . "/" . $pki_instance_name
+                                      . "-" . $setup_config_name;
+    $setup_config_subsystem_file_path = $setup_subsystem_path
+                                      . "/" . $setup_config_name;
 
     $pki_registry_initscript = get_registry_initscript_name($subsystem_type);
 
@@ -2400,8 +2358,8 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         # process "config.desktop" template
         return 0 if !process_file_template("setup_config",
                                            $setup_config_subsystem_file_path,
-                                         $setup_config_instance_file_path,
-                                         \%slot_hash);
+                                           $setup_config_instance_file_path,
+                                           \%slot_hash);
         }
 
 
@@ -3095,10 +3053,7 @@ ASK_AGAIN:
 
     print(STDOUT "Installation information recorded in $logfile.\n");
 
-    # Activate this instance
-    if ($^O eq "linux") {
-        $pki_registry_initscript_command = "/sbin/service $pki_registry_initscript restart $pki_instance_name";
-    }
+    $pki_registry_initscript_command = "/sbin/service $pki_registry_initscript restart $pki_instance_name";
 
     $command = "${pki_registry_initscript_command}";
     run_command($command);
