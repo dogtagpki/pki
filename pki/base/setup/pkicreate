@@ -268,6 +268,8 @@ my $velocity_prop_base_name      = "velocity.properties";  # CA, KRA, OCSP, TKS
 my $web_xml_base_name            = "web.xml";              # CA, KRA, OCSP, TKS
 my $profile_select_base_name     = "ProfileSelect.template"; #CA
 
+my $registry_template_base_name  = "registry_instance";    # CA, KRA, OCSP, TKS, RA, TPS
+
 # Subdirectory names
 my $perl_base_instance_symlink      = "perl";        # RA, TPS
 my $perl_base_subsystem_dir         = "perl";        # RA, TPS
@@ -575,9 +577,9 @@ my $pki_registry_path                         = "";  # CA, KRA, OCSP, TKS
                                                      # RA, TPS
 my $pki_registry_subsystem_path               = "";  # CA, KRA, OCSP, TKS
                                                      # RA, TPS
-my $pki_instance_registry                     = "";  # CA, KRA, OCSP, TKS
+my $pki_registry_subsystem_file_path          = "";  # CA, KRA, OCSP, TKS
                                                      # RA, TPS
-my $pki_instance_registry_entry               = "";  # CA, KRA, OCSP, TKS
+my $pki_registry_instance_file_path           = "";  # CA, KRA, OCSP, TKS
                                                      # RA, TPS
 
 # PKI creation variables
@@ -613,16 +615,6 @@ if ($^O eq "linux") {
     # Superuser and group to give to PKI installed files
     $root_user = "root";
     $root_group = "root";
-} elsif ($^O eq "solaris") {
-    # Solaris init scripts
-    $default_init_scripts_path      = "/etc/init.d";
-
-    # Solaris registry
-    $default_registry_path = "/etc/inet";
-
-    # Superuser and group to give to PKI installed files
-    $root_user = "root";
-    $root_group = "other";
 } else {
     print(STDERR
            "ERROR:  Unsupported platform '$^O'!\n");
@@ -694,11 +686,6 @@ if ($^O eq "linux") {
     print("\n");
     exit 255;
 }
-
-# Establish PKI-level registry
-$pki_registry_path = $default_registry_path
-                   . "/" . $pki_flavor;
-
 
 ##############################################################
 # PKI Instance Creation Subroutines
@@ -1483,6 +1470,14 @@ sub initialize_subsystem_paths()
                               . "/" . $setup_base_subsystem_dir;
     }
 
+    $pki_registry_path                = $default_registry_path
+                                      . "/" . $pki_flavor;
+    $pki_registry_subsystem_path      = $pki_registry_path
+                                      . "/" . $subsystem_type;
+    $pki_registry_subsystem_file_path = $setup_subsystem_path
+                                      . "/" . $registry_template_base_name;
+
+
     ## Initialize subsystem directory paths (CA subsystems)
     if ($subsystem_type eq $CA) {
         $emails_subsystem_path = $pki_subsystem_path
@@ -1556,6 +1551,10 @@ sub initialize_instance_paths()
     $logs_instance_path  = $pki_instance_path
                          . "/" . $logs_base_instance_dir;
 
+
+    ## Initialize the pki registry instance
+    $pki_registry_instance_file_path = $pki_registry_subsystem_path
+                                     . "/" . $pki_instance_name;
 
     ## Initialize path to per instance init script
     $pki_instance_initscript_path = $default_initscripts_path
@@ -2127,6 +2126,11 @@ sub process_pki_directories()
     }
 
 
+    ## Populate pki instance registry
+    # create pki registry for this subsystem
+    return 0 if !create_directory("${pki_registry_subsystem_path}",
+                                  $default_dir_permissions, $pki_user, $pki_group);
+
     ## Populate instance directory paths (CA instances)
     if ($subsystem_type eq $CA) {
         $result = copy_directory($emails_subsystem_path,
@@ -2571,6 +2575,13 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         }
 
 
+    ## Process registry instance template
+    return 0 if !process_file_template("pki_registry_template",
+                                       $pki_registry_subsystem_file_path,
+                                       $pki_registry_instance_file_path, 
+                                       \%slot_hash);
+    return 0 if !set_file_props($pki_registry_instance_file_path,
+                                $default_file_permissions, $root_user, $root_group);
 
     ## Process templates (CA instances)
     if ($subsystem_type eq $CA) {
@@ -3169,340 +3180,6 @@ sub process_pki_security_modules()
     return 1;
 }
 
-# no args
-# return 1 - success, or
-# return 0 - failure
-sub build_pki_registry_subsystem_path()
-{
-    my $result = 0;
-
-    # Establish PKI subsystem-level registry
-    $pki_registry_subsystem_path = $pki_registry_path
-                                 . "/" . $subsystem_type;
-
-    if (!directory_exists($pki_registry_subsystem_path)) {
-        # create pki registry for this subsystem
-        $result = create_directory($pki_registry_subsystem_path);
-        if (!$result) {
-            emit("Failed to create directory "
-                . "$pki_registry_subsystem_path ...\n");
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-# no args
-# return 1 - success, or
-# return 0 - failure
-sub construct_pki_instance_registry()
-{
-    my $result = 0;
-
-    # generate a registry entry for this PKI instance
-    $pki_instance_registry       = new FileHandle;
-    $pki_instance_registry_entry = $pki_registry_subsystem_path
-                                 . "/" . $pki_instance_name;
-
-    # create this PKI instance's registry entry
-    $pki_instance_registry->open(">$pki_instance_registry_entry") or
-    die "Could not open $pki_instance_registry_entry\n";
-
-    # publish the appropriate contents to this PKI instance's registry entry
-    if ($subsystem_type eq $CA   ||
-        $subsystem_type eq $KRA  ||
-        $subsystem_type eq $OCSP ||
-        $subsystem_type eq $TKS) {
-        $pki_instance_registry->print("# Establish PKI Variable \"Slot\" "
-                                     . "Substitutions\n\n");
-        $pki_instance_registry->print("PKI_FLAVOR=$pki_flavor\n");
-        $pki_instance_registry->print("export PKI_FLAVOR\n\n");
-        $pki_instance_registry->print("PKI_GROUP=$pki_group\n");
-        $pki_instance_registry->print("export PKI_GROUP\n\n");
-        $pki_instance_registry->print("PKI_INSTANCE_ID=$pki_instance_name\n");
-        $pki_instance_registry->print("export PKI_INSTANCE_ID\n\n");
-        $pki_instance_registry->print("PKI_INSTANCE_PATH="
-                                     . "$pki_instance_path\n");
-        $pki_instance_registry->print("export PKI_INSTANCE_PATH\n\n");
-        $pki_instance_registry->print("PKI_SERVER_XML_CONF="
-                                     . "$server_xml_instance_file_path\n");
-        $pki_instance_registry->print("export PKI_SERVER_XML_CONF\n\n");
-        $pki_instance_registry->print("PKI_SUBSYSTEM_TYPE=$subsystem_type\n");
-        $pki_instance_registry->print("export PKI_SUBSYSTEM_TYPE\n\n");
-        $pki_instance_registry->print("PKI_USER=$pki_user\n");
-        $pki_instance_registry->print("export PKI_USER\n\n");
-        $pki_instance_registry->print("# Use CATALINA_BASE\n\n");
-        $pki_instance_registry->print("CATALINA_BASE="
-                                     . "\${PKI_INSTANCE_PATH}\n");
-        $pki_instance_registry->print("export CATALINA_BASE\n\n");
-        $pki_instance_registry->print("# Get Tomcat config\n\n");
-        $pki_instance_registry->print("TOMCAT_CFG=\"\${PKI_INSTANCE_PATH}/"
-                                     . "conf/tomcat5.conf\"\n");
-        $pki_instance_registry->print("export TOMCAT_CFG\n\n");
-        $pki_instance_registry->print("[ -r \"\$TOMCAT_CFG\" ] && "
-                                     . ". \"\${TOMCAT_CFG}\"\n\n");
-        $pki_instance_registry->print("# Path to the tomcat launch script "
-                                     . "(direct don't use wrapper)\n");
-        $pki_instance_registry->print("TOMCAT_SCRIPT=/usr/bin/"
-                                     . "dtomcat5-\${PKI_INSTANCE_ID}\n");
-        $pki_instance_registry->print("export TOMCAT_SCRIPT\n\n");
-        $pki_instance_registry->print("# Path to the script that will "
-                                     . "refresh jar symlinks on startup\n");
-        $pki_instance_registry->print("if [ \${OS} = \"Linux\" ] ; then\n");
-        $pki_instance_registry->print("    TOMCAT_RELINK_SCRIPT=\"/usr/share/"
-                                     . "tomcat5/bin/relink\"\n");
-        $pki_instance_registry->print("    export TOMCAT_RELINK_SCRIPT\n");
-        $pki_instance_registry->print("fi\n\n");
-        $pki_instance_registry->print("# Tomcat name :)\n");
-        $pki_instance_registry->print("TOMCAT_PROG=\${PKI_INSTANCE_ID}\n");
-        $pki_instance_registry->print("export TOMCAT_PROG\n\n");
-        $pki_instance_registry->print("# if TOMCAT_USER is not set, use "
-                                     . "tomcat5 like Apache HTTP server\n");
-        $pki_instance_registry->print("if [ -z \"\$TOMCAT_USER\" ]; then\n");
-        $pki_instance_registry->print("    TOMCAT_USER=\"\${PKI_USER}\"\n");
-        $pki_instance_registry->print("    export TOMCAT_USER\n");
-        $pki_instance_registry->print("fi\n\n");
-        $pki_instance_registry->print("# if TOMCAT_GROUP is not set, use "
-                                     . "tomcat5 like Apache HTTP server\n");
-        $pki_instance_registry->print("if [ -z \"\$TOMCAT_GROUP\" ]; then\n");
-        $pki_instance_registry->print("    TOMCAT_GROUP=\"\${PKI_GROUP}\"\n");
-        $pki_instance_registry->print("    export TOMCAT_GROUP\n");
-        $pki_instance_registry->print("fi\n\n");
-        $pki_instance_registry->print("# Since the daemon function will "
-                                     . "sandbox \$tomcat\n");
-        $pki_instance_registry->print("# no environment stuff should be "
-                                     . "defined here anymore.\n");
-        $pki_instance_registry->print("# Please use the "
-                                     . "\${PKI_INSTANCE_PATH}/conf/"
-                                     . "tomcat5.conf\n");
-        $pki_instance_registry->print("# file instead ; it will be read by "
-                                     . "the \$tomcat script\n\n");
-        $pki_instance_registry->print("PKI_LOCKDIR="
-                                     . "\"/var/lock/$pki_flavor/"
-                                     . "$subsystem_type\"\n");
-        $pki_instance_registry->print("export PKI_LOCKDIR\n");
-        $pki_instance_registry->print("PKI_LOCKFILE="
-                                     . "\"\${PKI_LOCKDIR}/"
-                                     . "\${PKI_INSTANCE_ID}.pid\"\n");
-        $pki_instance_registry->print("export PKI_LOCKFILE\n");
-        $pki_instance_registry->print("PKI_PIDFILE="
-                                     . "\"\${PKI_INSTANCE_ID}.pid\"\n");
-        $pki_instance_registry->print("export PKI_PIDFILE\n");
-        $pki_instance_registry->print("pki_instance_configuration_file="
-                                     . "\${PKI_INSTANCE_PATH}/conf/CS.cfg\n");
-        $pki_instance_registry->print("export "
-                                     . "pki_instance_configuration_file\n\n");
-        $pki_instance_registry->print("RESTART_SERVER=\${PKI_INSTANCE_PATH}/"
-                                     . "conf/"
-                                     . "restart_server_after_configuration\n");
-        $pki_instance_registry->print("export RESTART_SERVER\n\n");
-    } elsif ($subsystem_type eq $RA ||
-             $subsystem_type eq $TPS) {
-        $pki_instance_registry->print("# Establish PKI Variable \"Slot\" "
-                                     . "Substitutions\n\n");
-        $pki_instance_registry->print("PKI_INSTANCE_ID=$pki_instance_name\n");
-        $pki_instance_registry->print("export PKI_INSTANCE_ID\n\n");
-        $pki_instance_registry->print("PKI_HTTPD_CONF="
-                                     . "$httpd_conf_instance_file_path\n");
-        $pki_instance_registry->print("export PKI_HTTPD_CONF\n\n");
-        $pki_instance_registry->print("PKI_SERVER_ROOT=$pki_instance_path\n");
-        $pki_instance_registry->print("export PKI_SERVER_ROOT\n\n");
-        $pki_instance_registry->print("PKI_SYSTEM_USER_LIBRARIES="
-                                     . "$default_system_user_libraries\n");
-        $pki_instance_registry->print("export PKI_SYSTEM_USER_LIBRARIES\n\n");
-        if (is_Fedora() || (is_RHEL() && (! is_RHEL4()))) {
-            $pki_instance_registry->print("PKI_FORTITUDE_DIR=\"/usr\"\n");
-        } else {
-            $pki_instance_registry->print("PKI_FORTITUDE_DIR="
-                                         . "\"/opt/fortitude\"\n");
-        }
-        $pki_instance_registry->print("export PKI_FORTITUDE_DIR\n\n");
-        $pki_instance_registry->print("PKI_NSS_CONF="
-                                     . "$nss_conf_instance_file_path\n");
-        $pki_instance_registry->print("export PKI_NSS_CONF\n\n");
-        $pki_instance_registry->print("PKI_SERVER_NAME=$host\n");
-        $pki_instance_registry->print("export PKI_SERVER_NAME\n\n");
-        $pki_instance_registry->print("PKI_GROUP=$pki_group\n");
-        $pki_instance_registry->print("export PKI_GROUP\n\n");
-        $pki_instance_registry->print("PKI_USER=$pki_user\n");
-        $pki_instance_registry->print("export PKI_USER\n\n");
-        $pki_instance_registry->print("##################"
-                                     . "##################"
-                                     . "##################"
-                                     . "##################\n");
-        $pki_instance_registry->print("#   This section contains "
-                                     . "modified content of "
-                                     . "\"/etc/sysconfig/httpd\"   #\n");
-        $pki_instance_registry->print("##################"
-                                     . "##################"
-                                     . "##################"
-                                     . "##################\n");
-        $pki_instance_registry->print("# Configuration file for the "
-                                     . "\${PKI_INSTANCE_ID} service.\n\n");
-        $pki_instance_registry->print("#\n");
-        $pki_instance_registry->print("# The default processing model (MPM) "
-                                     . "is the process-based\n");
-        $pki_instance_registry->print("# 'prefork' model.  A thread-based "
-                                     . "model, 'worker', is also\n");
-        $pki_instance_registry->print("# available, but does not work with "
-                                     . "some modules (such as PHP).\n");
-        $pki_instance_registry->print("# The service must be stopped before "
-                                     . "changing this variable.\n");
-        $pki_instance_registry->print("#\n");
-        $pki_instance_registry->print("PKI_HTTPD="
-                                     . "\${PKI_FORTITUDE_DIR}"
-                                     . "/sbin/httpd.worker\n");
-        $pki_instance_registry->print("export PKI_HTTPD\n\n");
-        $pki_instance_registry->print("#\n");
-        $pki_instance_registry->print("# To pass additional options (for "
-                                     . "instance, -D definitions) to the\n");
-        $pki_instance_registry->print("# httpd binary at startup, "
-                                     . "set PKI_OPTIONS here.\n");
-        $pki_instance_registry->print("#\n");
-        $pki_instance_registry->print("PKI_OPTIONS="
-                                     . "\"-f \${PKI_HTTPD_CONF}\"\n");
-        $pki_instance_registry->print("export PKI_OPTIONS\n\n");
-        $pki_instance_registry->print("#\n");
-        $pki_instance_registry->print("# By default, the httpd process "
-                                     . "is started in the C locale; to\n");
-        $pki_instance_registry->print("# change the locale in which the "
-                                     . "server runs, the PKI_HTTPD_LANG\n");
-        $pki_instance_registry->print("# variable can be set.\n");
-        $pki_instance_registry->print("#\n");
-        $pki_instance_registry->print("PKI_HTTPD_LANG=C\n");
-        $pki_instance_registry->print("export PKI_HTTPD_LANG\n");
-        $pki_instance_registry->print("##################"
-                                     . "##################"
-                                     . "##################"
-                                     . "##################\n");
-        $pki_instance_registry->print("#                 "
-                                     . "                  "
-                                     . "                  "
-                                     . "                 #\n");
-        $pki_instance_registry->print("##################"
-                                     . "##################"
-                                     . "##################"
-                                     . "##################\n\n");
-        $pki_instance_registry->print("# This will prevent initlog from "
-                                     . "swallowing up a pass-phrase prompt "
-                                     . "if\n");
-        $pki_instance_registry->print("# mod_ssl needs a pass-phrase from "
-                                     . "the user.\n");
-        $pki_instance_registry->print("PKI_INITLOG_ARGS=\"\"\n");
-        $pki_instance_registry->print("export PKI_INITLOG_ARGS\n\n");
-        $pki_instance_registry->print("# Set PKI_HTTPD=/usr/sbin/httpd.worker "
-                                     . "in /etc/sysconfig/httpd to use a "
-                                     . "server\n");
-        $pki_instance_registry->print("# with the thread-based \"worker\" "
-                                     . "MPM; BE WARNED that some modules "
-                                     . "may not\n");
-        $pki_instance_registry->print("# work correctly with a "
-                                     . "thread-based MPM; notably "
-                                     . "PHP will refuse to start.\n\n");
-        $pki_instance_registry->print("# Path to the server binary and "
-                                     . "short-form for messages.\n");
-        $pki_instance_registry->print("httpd=\${PKI_HTTPD}\n");
-        $pki_instance_registry->print("export httpd\n");
-        $pki_instance_registry->print("prog=\${PKI_INSTANCE_ID}\n");
-        $pki_instance_registry->print("export prog\n");
-        $pki_instance_registry->print("PKI_LOCKDIR="
-                                     . "\"/var/lock/$pki_flavor/"
-                                     . "$subsystem_type\"\n");
-        $pki_instance_registry->print("export PKI_LOCKDIR\n");
-        $pki_instance_registry->print("PKI_LOCKFILE="
-                                     . "\"\${PKI_LOCKDIR}/"
-                                     . "\${PKI_INSTANCE_ID}.pid\"\n");
-        $pki_instance_registry->print("export PKI_LOCKFILE\n");
-        $pki_instance_registry->print("PKI_PIDFILE="
-                                     . "\"\${PKI_INSTANCE_ID}.pid\"\n");
-        $pki_instance_registry->print("export PKI_PIDFILE\n");
-        $pki_instance_registry->print("pki_instance_configuration_file="
-                                     . "\${PKI_SERVER_ROOT}/conf/CS.cfg\n");
-        $pki_instance_registry->print("export "
-                                     . "pki_instance_configuration_file\n");
-        $pki_instance_registry->print("pki_logs_directory="
-                                     . "\${PKI_SERVER_ROOT}/logs\n");
-        $pki_instance_registry->print("export "
-                                     . "pki_logs_directory\n");
-        $pki_instance_registry->print("RESTART_SERVER=\${PKI_SERVER_ROOT}/"
-                                     . "conf/"
-                                     . "restart_server_after_configuration\n");
-        $pki_instance_registry->print("export RESTART_SERVER\n");
-        $pki_instance_registry->print("RETVAL=0\n");
-        $pki_instance_registry->print("export RETVAL\n\n");
-        $pki_instance_registry->print("# see if httpd is linked with the "
-                                     . "openldap libraries - we need to "
-                                     . "override them\n");
-        $pki_instance_registry->print("if [ \${OS} = \"Linux\" ]; then\n");
-        $pki_instance_registry->print("    hasopenldap=0\n\n");
-        $pki_instance_registry->print("    /usr/bin/ldd \${httpd} 2>&1 | "
-                                     . "grep libldap- > /dev/null 2>&1 && "
-                                     . "hasopenldap=1\n\n");
-        $pki_instance_registry->print("    if [ \${hasopenldap} -eq 1 ] ; "
-                                     . "then\n");
-        $pki_instance_registry->print("        LD_PRELOAD="
-                                     . "\"\${PKI_SYSTEM_USER_LIBRARIES}/"
-                                     . "libldap60.so\"\n");
-        $pki_instance_registry->print("        LD_PRELOAD="
-                                     . "\"\${PKI_SYSTEM_USER_LIBRARIES}/"
-                                     . "libssl3.so:"
-                                     . "\${LD_PRELOAD}\"\n");
-        $pki_instance_registry->print("        export LD_PRELOAD\n");
-        $pki_instance_registry->print("    fi\n");
-        $pki_instance_registry->print("elif [ \${OS} = \"SunOS\" ]; then\n");
-        $pki_instance_registry->print("    LD_PRELOAD_64="
-                                     . "\"\${PKI_SYSTEM_USER_LIBRARIES}/"
-                                     . "libldap60.so\"\n");
-        $pki_instance_registry->print("    LD_PRELOAD_64="
-                                     . "\"\${PKI_SYSTEM_USER_LIBRARIES}/"
-                                     . "dirsec/libssl3.so:"
-                                     . "\${LD_PRELOAD_64}\"\n");
-        $pki_instance_registry->print("    export LD_PRELOAD_64\n");
-        $pki_instance_registry->print("fi\n");
-    }
-
-    # close and save this PKI instance's registry entry
-    $pki_instance_registry->close();
-
-    $result = give_file_to($pki_instance_registry_entry,
-                            $root_user,
-                            $root_group);
-    if (!$result) {
-        emit("$pki_instance_registry_entry ownership problems!",
-              "error");
-        return 0;
-    }
-
-    chmod($default_file_permissions,
-           $pki_instance_registry_entry);
-
-    push(@installed_files,
-          $pki_instance_registry_entry);
-
-    return 1;
-}
-
-# no args
-# return 1 - success, or
-# return 0 - failure
-sub register_pki_instance()
-{
-    my $result = 0;
-
-    $result = build_pki_registry_subsystem_path();
-    if (!$result) {
-        return 0;
-    }
-
-    $result = construct_pki_instance_registry();
-    if (!$result) {
-        return 0;
-    }
-
-    return 1;
-}
-
 sub parse_selinux_ports()
 {
     open SM, '/usr/sbin/semanage port -l |grep tcp |sed \'s/tcp/___/g\'|sed \'s/\s//g\'|';
@@ -3961,19 +3638,11 @@ ASK_AGAIN:
 
     # Activate this instance
     if ($^O eq "linux") {
-        $pki_init_script_command = "/sbin/service"
-                                 . " " . $pki_init_script
-                                 . " " . "restart"
-                                 . " " . $pki_instance_name;
-    } else {
-        # default case:  e. g. - ($^O eq "solaris")
-        $pki_init_script_command = $default_init_scripts_path
-                                 . "/" . $pki_init_script
-                                 . " " . "restart"
-                                 . " " . $pki_instance_name;
+        $pki_registry_initscript_command = "/sbin/service $pki_registry_initscript restart $pki_instance_name";
     }
 
-    $command = $pki_init_script_command;
+    $command = "${pki_registry_initscript_command}";
+    run_command($command);
 
     system($command);
 
@@ -4028,7 +3697,7 @@ ASK_AGAIN:
            "After configuration, the server can be operated by the command:\n\n"
               . "    $pki_registry_initscript_command\n\n");
     emit("After configuration, the server can be operated by the command:\n"
-        . "$pki_init_script_command\n",
+             . "${pki_registry_initscript_command}\n",
           "log");
 
     # If it exists, close the log file
