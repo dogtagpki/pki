@@ -26,7 +26,7 @@ use warnings;
 use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(
- $lib_prefix $obj_ext $path_sep $tmp_dir $logfile
+ $lib_prefix $obj_ext $path_sep $tmp_dir
  $pki_flavor $pki_registry_path
  $verbose $dry_run $hostname $default_hardware_platform
  $default_system_binaries $default_lockdir $default_system_libraries $default_system_user_binaries
@@ -60,7 +60,7 @@ our @EXPORT = qw(
  certutil_create_databases certutil_delete_cert certutil_generate_CSR
  certutil_generate_self_signed_cert certutil_import_cert
  certutil_print_cert certutil_list_certs modutil_add_token
- open_logfile print_to_logfile close_logfile
+ open_logfile get_logfile_path close_logfile
  prompt printFile emit
  is_path_valid is_name_valid entity_type entity_exists
  file_exists is_file_empty create_empty_file create_file copy_file remove_file
@@ -143,9 +143,6 @@ our $lib_prefix = undef;
 our $obj_ext    = undef;
 our $path_sep   = undef;
 our $tmp_dir    = undef;
-
-# "logging" parameters
-our $logfile = undef;
 
 # Whether or not to do verbose mode
 our $verbose = 0;
@@ -287,7 +284,9 @@ our $TPS_INITSCRIPT  = "pki-tpsd";
 my $fqdn = undef;
 
 # "logging" parameters
-my $logfd = new FileHandle;
+my $logfd = undef;
+my $logfile_path = undef;
+
 
 
 ##############################################################
@@ -627,14 +626,43 @@ sub read_install_info_from_dir
 # Give an install info hash table writes it formated as a
 # "Installation Manifest" into specified directory under
 # the name $install_info_basename
+#
+# Returns pathname of manifest if successful, undef otherwise.
 sub write_install_info_to_dir
 {
     my ($dir, $install_info) = @_;
     my ($path, $formatted);
 
+    if (! defined($dir)) {
+        emit("Cannot write installation manifest, directory unspecified", "error");
+        return undef;
+    }
+
+    if (! defined($install_info_basename)) {
+        emit("Cannot write installation manifest, file basename unspecified", "error");
+        return undef;
+    }
+
+    if (! -e $dir) {
+        emit("Cannot write installation manifest, directory ($dir) does not exist", "error");
+        return undef;
+    }
+
+    if (! -d $dir) {
+        emit("Cannot write installation manifest, directory ($dir) is not a directory", "error");
+        return undef;
+    }
+
+    if (! -w $dir) {
+        emit("Cannot write installation manifest, directory ($dir) is not writable", "error");
+        return undef;
+    }
+
     $path = "${dir}/${install_info_basename}";
     $formatted = format_install_info($install_info);
     write_file($path, \$formatted);
+
+    return $path;
 }
 
 # Given an Installation Manifest (e.g. install_info) remove the items in
@@ -1923,40 +1951,45 @@ sub modutil_add_token
 # Generic "logging" Subroutines
 ##############################################################
 
-# no return value
+# Return 1 if success, 0 if failure
 sub open_logfile
 {
-    my ($logfile_name) = @_;
+    my ($path, $permissions, $owner, $group) = @_;
 
-    $logfd->open(">$logfile_name") or
-    die "Could not open $logfile_name\n";
+    
+    $logfd = FileHandle->new("> $path");
 
-    return;
-}
-
-
-# no return value
-sub print_to_logfile
-{
-    my ($logfile_name, $message) = @_;
-
-    if (defined($logfile_name)) {
-        $logfd->print($message);
+    if (defined($logfd)) {
+        $logfile_path = $path;
+    } else {
+        return 0;
     }
 
-    return;
+    if (defined($permissions)) {
+        return 0 if !set_permissions($logfile_path, $permissions);
+    }
+
+    if (defined($owner) && defined($group)) {
+        return 0 if !set_owner_group($logfile_path, $owner, $group);
+    }
+
+    return 1;
 }
 
+# no return value
+sub get_logfile_path
+{
+    return $logfile_path;
+}
 
 # no return value
 sub close_logfile
 {
-    my ($logfile_name) = @_;
-
-    if ($logfile_name ne "") {
+    if (defined($logfd)) {
         $logfd->close();
     }
 
+    $logfd = undef;
     return;
 }
 
@@ -2033,8 +2066,10 @@ sub emit
     # If a log file exists, write all types
     # ("debug", "error", "info", or "log")
     # to this specified log file
-    $log_entry = "[$stamp] [$type] $string\n";
-    print_to_logfile($logfile, $log_entry);
+    if (defined($logfd)) {
+        $log_entry = "[$stamp] [$type] $string\n";
+        $logfd->print($log_entry);
+    }
 
     return;
 }
@@ -2544,10 +2579,12 @@ sub walk_dir {
     next if $basename eq '..';
     $$prune = 0;
 	
-    if (-d "${dir}/${basename}") {	# yes it is a directory
+    my $path = "${dir}/${basename}";
+    if ((-d $path) &&
+        ((! $opts->{'preserve_links'}) || (! -l $path))) { # yes it is a directory
       &$callback($dir, $basename, 1, $prune, $opts);
       if (!$$prune) {
-	walk_dir("${dir}/${basename}", $callback, $prune, $opts);
+	walk_dir($path, $callback, $prune, $opts);
       }
     }
     else {		# not a directory
@@ -2569,6 +2606,9 @@ sub walk_dir {
 # recursive (default = true)
 #     If true then recusively descend into each directory,
 #     otherwise just examine the starting directory
+# preserve_links (default = true)
+#     If true symbolic links are preserved.
+#     If false symbolic links are traversed.
 # include_dirs (default = false)
 #     If true include directories in the returned array,
 #     otherwise directories are omitted.
@@ -2611,13 +2651,14 @@ sub walk_dir {
 sub get_directory_files
 {
     my ($dir, $opts) = @_;
-    my ($strip_dir, $mark_dir, $recursive, $include_dirs, $include_files);
+    my ($strip_dir, $mark_dir, $recursive, $preserve_links, $include_dirs, $include_files);
     my ($dir_includes, $dir_excludes, $file_includes, $file_excludes);
     my ($files, $prune, $pat);
 
     $strip_dir      = $opts->{'strip_dir'}      // 0;
     $mark_dir       = $opts->{'mark_dir'}       // 0;
     $recursive      = $opts->{'recursive'}      // 1;
+    $preserve_links = $opts->{'preserve_links'} // 1;
     $include_dirs   = $opts->{'include_dirs'}   // 0;
     $include_files  = $opts->{'include_files'}  // 1;
     $dir_includes   = $opts->{'dir_includes'}   // undef;
@@ -2632,6 +2673,7 @@ sub get_directory_files
 	     {'file_list'      => $files,
 	      'mark_dir'       => $mark_dir,
 	      'recursive'      => $recursive,
+              'preserve_links' => $preserve_links,
 	      'include_dirs'   => $include_dirs,
 	      'include_files'  => $include_files,
 	      'dir_includes'   => $dir_includes,
@@ -2840,9 +2882,20 @@ sub copy_directory
     for $path (@$files) {
         $src_path = "${src_dir_path}/${path}";
         $dst_path = "${dst_dir_path}/${path}";
-        if (!copy_file($src_path, $dst_path, 
-                       $file_permissions, $owner, $group, $uninstall_action)) {
-            $result = 0;
+        
+        # Emulate cp's behavior with respect to symbolic links,
+        # symbolic links are NOT followed when copying recursively.
+        # During recursive copies symbolic links are recreated.
+        if (-l $src_path) {     # src is a symbolic link
+            if (!copy_symlink($src_path, $dst_path, 
+                                $owner, $group, $uninstall_action)) {
+                $result = 0;
+            }
+        } else {                # src is not a symbolic link
+            if (!copy_file($src_path, $dst_path, 
+                           $file_permissions, $owner, $group, $uninstall_action)) {
+                $result = 0;
+            }
         }
     }
 
@@ -3025,6 +3078,54 @@ sub create_symlink
         # as an RPM so use a system command instead. :-(
         return 0 if !set_owner_group_on_symlink($symlink, $owner, $group);
     }
+    return 1;
+}
+
+# Return 1 if success, 0 if failure
+sub copy_symlink
+{
+    my ($src_path, $dst_path, $owner, $group, $uninstall_action) = @_;
+    my ($target);
+
+    $uninstall_action = 'remove' unless defined($uninstall_action);
+
+    emit(sprintf("copy_symlink(%s)\n", join(", ", @_)), "debug");
+
+    add_install_info($dst_path, 'symlink', $uninstall_action);
+
+    if (!is_path_valid($src_path)) {
+        emit("copy_symlink():  illegal src path => \"$src_path\".\n",
+              "error");
+        remove_install_info($dst_path);
+        return 0;
+    }
+
+    if (!is_path_valid($dst_path)) {
+        emit("copy_symlink():  illegal dst path => \"$dst_path\".\n",
+              "error");
+        remove_install_info($dst_path);
+        return 0;
+    }
+    
+    if (! -l $src_path) {
+        emit("copy_symlink(): $src_path is not a symbolic link\n");
+        return 0;
+    }
+
+    return 1 if $dry_run;
+
+    $target = readlink($src_path);
+
+    if (!symlink($target, $dst_path)) {
+        emit("could not symbolically link $target dst_path", "error");
+        remove_install_info($dst_path);
+        return 0;
+    }
+
+    if (defined($owner) && defined($group)) {
+        return 0 if !set_owner_group_on_symlink($dst_path, $owner, $group);
+    }
+
     return 1;
 }
 

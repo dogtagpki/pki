@@ -188,8 +188,6 @@ initd_SCRIPTS =	$(srcdir)/etc/init.d/pki-tpsd
 
 license_DATA =	$(srcdir)/LICENSE
 
-libexec_SCRIPTS =	$(srcdir)/apache/apachectl
-
 # create an empty 'logs' directory
 logs_DATA =
 

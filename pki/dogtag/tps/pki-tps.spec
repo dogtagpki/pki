@@ -140,7 +140,6 @@ cp -rp %{buildroot}/opt/samples*             %{buildroot}%{_datadir}/pki/tps
 cp -rp %{buildroot}/opt/scripts*             %{buildroot}%{_datadir}/pki/tps
 cp -rp %{buildroot}/opt/setup*               %{buildroot}%{_datadir}/pki/tps
 cp -rp %{buildroot}/opt/templates*           %{buildroot}%{_datadir}/pki/tps
-cp -p  %{buildroot}%{_libexecdir}/apachectl* %{buildroot}%{_libdir}/pki/tps
 cp -p  %{buildroot}%{_libexecdir}/tpsclient* %{buildroot}%{_libdir}/pki/tps
 
 # create wrappers

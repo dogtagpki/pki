@@ -431,7 +431,7 @@ sub remove_selinux_ports
 sub remove_instance
 {
     my ($result, $confirm, $install_info);
-
+    $confirm = "Y";
     $result = 1;
 
     print(STDOUT "PKI instance Deletion Utility cleaning up instance ...\n\n");
@@ -570,11 +570,11 @@ sub main
         exit 255;
     }
 
-    # capture installation information in a log file
-    # (always overwrite this file)
-    $logfile = "/var/log/${pki_instance_name}-uninstall.log";
-    open_logfile($logfile);
-    set_permissions($logfile, $default_file_permissions);
+    # Capture uninstall information in a log file, always overwrite this file.
+    # When removing an instance it's never a fatal error if the logfile
+    # cannot be created.
+    my $logfile = "/var/log/${pki_instance_name}-uninstall.log"; 
+    open_logfile($logfile, $default_file_permissions);
 
     emit("Capturing installation information in $logfile.\n");
 

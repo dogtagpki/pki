@@ -20,8 +20,6 @@ install(
 )
 
 install(
-    FILES
-        apache/apachectl
     DESTINATION
         ${LIB_INSTALL_DIR}/${APPLICATION_NAME}/${PROJECT_NAME}
     PERMISSIONS

@@ -203,6 +203,7 @@ my $noise_base_name               = "noise";                  # CA, KRA, OCSP, T
 my $nss_conf_base_name            = "nss.conf";               # RA, TPS
 my $perl_conf_base_name           = "perl.conf";              # RA, TPS
 my $osutil_jar_base_name          = "osutil.jar";             # CA, KRA, OCSP, TKS
+my $symkey_jar_base_name          = "symkey.jar";             # CA, KRA, OCSP, TKS
 my $password_conf_base_name       = "password.conf";          # CA, KRA, OCSP, TKS,
                                                               # RA, TPS
 my $pfile_base_name               = "pfile";                  # CA, KRA, OCSP, TKS,
@@ -494,6 +495,8 @@ my $perl_conf_instance_file_path                 = undef;  # RA, TPS
 my $perl_conf_subsystem_file_path                = undef;  # RA, TPS
 my $osutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
 my $osutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $symkey_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $symkey_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
 my $password_conf_instance_file_path             = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $perl_instance_symlink_path                   = undef;  # RA, TPS
 my $perl_subsystem_path                          = undef;  # RA, TPS
@@ -1021,14 +1024,18 @@ sub parse_arguments
         return 0;
     }
 
-    # capture installation information in a log file
-    # (always overwrite this file)
-    $logfile = "/var/log/$pki_instance_name-install.log";
-    open_logfile($logfile);
-    set_permissions($logfile, $default_file_permissions);
+    # Capture installation information in a log file, always overwrite this file.
+    # When creating an instance it's a fatal error if the logfile
+    # cannot be created.
+    my $logfile = "/var/log/${pki_instance_name}-install.log";
+    if (!open_logfile($logfile, $default_file_permissions)) {
+        emit("can not create logfile ($logfile)", "error");
+        return 0;
+    }
+
     add_install_info($logfile, 'file', 'preserve');
 
-    print(STDOUT "Capturing installation information in $logfile.\n");
+    printf(STDOUT "Capturing installation information in %s\n", $logfile);
 
     emit("Parsing PKI creation arguments ...\n");
 
@@ -1715,6 +1722,10 @@ sub initialize_subdirectory_paths
                                            . "/" . $osutil_jar_base_name;
         $osutil_jar_symlink_path           = $webinf_lib_instance_path
                                            . "/" . $osutil_jar_base_name;
+        $symkey_jar_file_path              = $default_system_jni_java_path
+                                           . "/" . $symkey_jar_base_name;
+        $symkey_jar_symlink_path           = $webinf_lib_instance_path
+                                           . "/" . $symkey_jar_base_name;
         $server_xml_subsystem_file_path    = $conf_subsystem_path
                                            . "/" . $server_xml_base_name;
         $servercertnick_conf_subsystem_file_path    = $conf_subsystem_path
@@ -2585,14 +2596,14 @@ sub process_pki_files_and_symlinks
     # create a filled in empty "password.conf"
     # password file for this instance
     return 0 if !create_file($password_conf_instance_file_path,
-                             "${default_security_token}:$db_password",
+                             "${default_security_token}:${db_password}\n",
                              $default_file_permissions, $pki_user, $pki_group);
 
 
     # create a filled in empty temporary "pfile"
     # password file for this instance
     return 0 if !create_file($pfile_instance_file_path,
-                             $db_password,
+                             "${db_password}\n",
                              $default_file_permissions, $pki_user, $pki_group);
 
     ## Populate instances (RA, TPS instances)
@@ -2671,6 +2682,10 @@ sub process_pki_files_and_symlinks
 
         # create instance symlink to "osutil.jar"
         return 0 if !create_symlink($osutil_jar_symlink_path, $osutil_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "symkey.jar"
+        return 0 if !create_symlink($symkey_jar_symlink_path, $symkey_jar_file_path,
                                     $pki_user, $pki_group);
 
         # create symlink to "tomcatjss.jar"
@@ -3033,6 +3048,40 @@ sub cleanup
     return $result;
 }
 
+# Return 1 if success, 0 if failure
+sub write_install_info
+{
+    if ($dry_run) {
+        return 1;
+    } else {
+        if (!defined($pki_instance_path)) {
+            return 0;
+        }
+        my $install_info_file_path = write_install_info_to_dir($pki_instance_path,
+                                                               \%installation_info);
+        if (defined($install_info_file_path)) {
+            emit(sprintf("Installation manifest: %s", $install_info_file_path));
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+}
+
+##############################################################
+# Signal Handlers
+##############################################################
+
+sub die_handler
+{
+    my ($msg) = @_;
+
+    # If we abort write the installation manifest
+    # so cleanup can still be performed later.
+    write_install_info();
+}
+
+$SIG{'__DIE__'} = \&die_handler;
 
 ##############################################################
 # Main Program
@@ -3062,8 +3111,7 @@ sub main
 
     $parse_result = parse_arguments();
     if (!$parse_result || $parse_result == -1) {
-        # If it exists, close the log file
-        close_logfile($logfile);
+        close_logfile();
         exit 255;
     }
 
@@ -3087,27 +3135,21 @@ ASK_AGAIN:
            goto ASK_AGAIN;
         }
 
-        # If it exists, close the log file
-        close_logfile($logfile);
+        close_logfile();
 
         exit 255;
     }
 
     print(STDOUT "\n");
-    print(STDOUT
-           "PKI instance creation completed ...\n\n");
+    print(STDOUT "PKI instance creation completed ...\n\n");
 
+    # Write the installation manifest.
+    write_install_info();
 
-    my $install_info_file_path = "${pki_instance_path}/${install_info_basename}";
     my $install_description = get_install_description();
-    if (!$dry_run) {
-        write_install_info_to_dir($pki_instance_path, \%installation_info);
-    }
+    emit(sprintf("The following was performed:\n%s\n", $install_description));
 
-    emit(sprintf("The following was performed (recorded in \"%s\")\n%s\n",
-                 $install_info_file_path, $install_description));
-
-    print(STDOUT "Installation information recorded in $logfile.\n");
+    printf(STDOUT "Installation information recorded in %s.\n", get_logfile_path());
 
     $pki_registry_initscript_command = "/sbin/service $pki_registry_initscript restart $pki_instance_name";
 
@@ -3173,8 +3215,7 @@ ASK_AGAIN:
           "log");
     }
 
-    # If it exists, close the log file
-    close_logfile($logfile);
+    close_logfile();
 
     return;
 }
