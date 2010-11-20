@@ -1,6 +1,6 @@
 Name:           pki-setup
-Version:        2.0.0
-Release:        2%{?dist}
+Version:        9.0.0
+Release:        1%{?dist}
 Summary:        Dogtag Certificate system - PKI Instance Creation and Removal Scripts
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -60,8 +60,8 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
-* Fri Nov 19 2010 Ade Lee <alee@redhat.com> 2.0.0-2
-* Bugzilla BZ 606946 - Convert Native Tools to use ldapAPI from OpenLDAP instead of the Mozldap
+* Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0.
 
-* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
-- Updated Dogtag 1.3.x --> Dogtag 2.0.0.
+* Fri Nov 19 2010 Ade Lee <alee@redhat.com> 2.0.0-2
+- Bugzilla BZ 606946 - Convert Native Tools to use ldapAPI from OpenLDAP instead of the Mozldap

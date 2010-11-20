@@ -1,5 +1,5 @@
 Name:           dogtag-pki-tks-ui
-Version:        2.0.0
+Version:        9.0.0
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Token Key Service User Interface
 URL:            http://pki.fedoraproject.org/
@@ -12,23 +12,18 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
 
+Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+
+# NOTE:  Several PKI packages require a "virtual" UI component.  These
+#        "virtual" UI components are "Provided" by various UI "flavors"
+#        including "dogtag", "redhat", and "null".  Consequently,
+#        all "dogtag", "redhat", and "null" UI components MUST be
+#        mutually exclusive!
 Provides:       pki-tks-ui = %{version}-%{release}
 
 Obsoletes:      pki-tks-ui < %{version}-%{release}
 
-Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
-
-# NOTE:  The 'Dogtag Certificate System' and 'Red Hat Certificate System'
-#        may NOT co-exist on the same system!
-#
-#        For example, with the advent of EPEL packages, a user may attempt to
-#        install a Dogtag Certificate System on a system which already contains
-#        a Red Hat Certificate System.  Since the 'dogtag-pki-tks-ui' UI
-#        package conflicts with the 'redhat-pki-tks-ui' UI package,
-#        disallow this action by notifying the user that these two packages
-#        conflict.  (see Bugzilla Bug #580282 for details)
-#
-Conflicts:        redhat-pki-tks-ui
+Conflicts:      redhat-pki-tks-ui
 
 %description
 Dogtag Certificate System is an enterprise software system designed
@@ -62,5 +57,5 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
-* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
-- Updated Dogtag 1.3.x --> Dogtag 2.0.0.
+* Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0.

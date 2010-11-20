@@ -1,6 +1,6 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
-Version:          2.0.0
+Version:          9.0.0
 Release:          1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
@@ -9,40 +9,62 @@ Group:            System Environment/Daemons
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
-# Make certain that this 'meta' package requires all Dogtag PKI UI packages
-Requires:         dogtag-pki-common-ui
-Requires:         dogtag-pki-console-ui
-Requires:         dogtag-pki-ca-ui
-Requires:         dogtag-pki-kra-ui
-Requires:         dogtag-pki-ocsp-ui
-Requires:         dogtag-pki-ra-ui
-Requires:         dogtag-pki-tks-ui
-Requires:         dogtag-pki-tps-ui
-# Make certain that this 'meta' package requires all Dogtag PKI subsystems
-Requires:         pki-ca
-Requires:         pki-kra
-Requires:         pki-ocsp
-Requires:         pki-ra
-Requires:         pki-tks
-Requires:         pki-tps
-# Make certain that this 'meta' package requires all Dogtag PKI clients
-Requires:         esc
-# Make certain that this 'meta' package requires all Dogtag PKI javadocs
-Requires:         pki-common-javadoc
-Requires:         pki-java-tools-javadoc
-Requires:         pki-util-javadoc
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL Dogtag PKI UI packages
+Requires:         dogtag-pki-common-ui >= 9.0.0
+Requires:         dogtag-pki-console-ui >= 9.0.0
+Requires:         dogtag-pki-ca-ui >= 9.0.0
+Requires:         dogtag-pki-kra-ui >= 9.0.0
+Requires:         dogtag-pki-ocsp-ui >= 9.0.0
+Requires:         dogtag-pki-ra-ui >= 9.0.0
+Requires:         dogtag-pki-tks-ui >= 9.0.0
+Requires:         dogtag-pki-tps-ui >= 9.0.0
 
-# NOTE:  The 'Dogtag Certificate System' and 'Red Hat Certificate System'
-#        may NOT co-exist on the same system!
-#
-#        For example, with the advent of EPEL packages, a user may attempt to
-#        install a Dogtag Certificate System on a system which already contains
-#        a Red Hat Certificate System.  Since the 'dogtag-pki' Meta package
-#        conflicts with the 'redhat-pki' Meta package because it uses an
-#        underlying Dogtag UI rather than an underlying Red Hat UI, disallow
-#        this action by notifying the user that these two packages conflict.
-#        (see Bugzilla Bug #580274 and Bugzilla Bug #580282 for details)
-#
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL Dogtag PKI subsystems
+Requires:         pki-ca >= 9.0.0
+Requires:         pki-kra >= 9.0.0
+Requires:         pki-ocsp >= 9.0.0
+Requires:         pki-ra >= 9.0.0
+Requires:         pki-tks >= 9.0.0
+Requires:         pki-tps >= 9.0.0
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL Dogtag PKI tools
+Requires:         pki-java-tools >= 9.0.0
+Requires:         pki-native-tools >= 9.0.0
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of Dogtag PKI console
+Requires:         pki-console >= 9.0.0
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL Dogtag PKI clients
+Requires:         esc >= 9.0.0
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL Dogtag PKI javadocs
+Requires:         pki-common-javadoc >= 9.0.0
+Requires:         pki-java-tools-javadoc >= 9.0.0
+Requires:         pki-util-javadoc >= 9.0.0
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL top-level Dogtag PKI supporting packages
+Requires:         osutil >= 9.0.0
+Requires:         pki-common >= 9.0.0
+Requires:         pki-selinux >= 9.0.0
+Requires:         pki-setup >= 9.0.0
+Requires:         pki-silent >= 9.0.0
+Requires:         pki-symkey >= 9.0.0
+Requires:         pki-util >= 9.0.0
+Requires:         tomcatjss >= 1.2.1
+
+# NOTE:  Several PKI packages require a "virtual" UI component.  These
+#        "virtual" UI components are "Provided" by various UI "flavors"
+#        including "dogtag", "redhat", and "null".  Consequently,
+#        all "dogtag", "redhat", and "null" UI components MUST be
+#        mutually exclusive!
+Conflicts:        ipa-pki
 Conflicts:        redhat-pki
 
 %description
@@ -94,5 +116,5 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 
 %changelog
-* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
-- Updated Dogtag 1.3.x --> Dogtag 2.0.0.
+* Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0.

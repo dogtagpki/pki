@@ -122,8 +122,8 @@ PKI_TPS_UI=${PKI_FLAVOR}-pki-tps-ui${RPM_EXT}
 PKI_TPS=pki-tps${RPM_EXT}
 
 # Establish optional PKI package names
-PKI_MANAGE=pki-manage${RPM_EXT}
-PKI_MIGRATE=pki-migrate${RPM_EXT}
+## PKI_MANAGE=pki-manage${RPM_EXT}
+## PKI_MIGRATE=pki-migrate${RPM_EXT}
 
 # Always start with a new release root directory
 rm -rf ${PKI_RELEASE_ROOT}
@@ -229,10 +229,10 @@ ${PKI_BUILD_SCRIPT_DIR}/tps/${PKI_BUILD_SCRIPT}
 ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/tps/${RPM_DIR}/${PKI_TPS}
 
 # Build and install 'pki-manage' packages
-${PKI_BUILD_SCRIPT_DIR}/manage/${PKI_BUILD_SCRIPT}
-${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/manage/${RPM_DIR}/${PKI_MANAGE}
+## ${PKI_BUILD_SCRIPT_DIR}/manage/${PKI_BUILD_SCRIPT}
+## ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/manage/${RPM_DIR}/${PKI_MANAGE}
 
 # Build and install 'pki-migrate' packages
-${PKI_BUILD_SCRIPT_DIR}/migrate/${PKI_BUILD_SCRIPT}
-${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/migrate/${RPM_DIR}/${PKI_MIGRATE}
+## ${PKI_BUILD_SCRIPT_DIR}/migrate/${PKI_BUILD_SCRIPT}
+## ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RELEASE_DIR}/migrate/${RPM_DIR}/${PKI_MIGRATE}
 

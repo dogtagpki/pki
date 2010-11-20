@@ -1,5 +1,5 @@
 Name:           pki-symkey
-Version:        2.0.0
+Version:        9.0.0
 Release:        1%{?dist}
 Summary:        Symmetric Key JNI Package
 URL:            http://pki.fedoraproject.org/
@@ -78,5 +78,5 @@ rm -rf %{buildroot}
 %{_libdir}/symkey/
 
 %changelog
-* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
-- Updated Dogtag 1.3.x --> Dogtag 2.0.0.
+* Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0.

@@ -1,5 +1,5 @@
 Name:           pki-tks
-Version:        2.0.0
+Version:        9.0.0
 Release:        1%{?dist}
 Summary:        Dogtag Certificate System - Token Key Service
 URL:            http://pki.fedoraproject.org/
@@ -21,9 +21,7 @@ BuildRequires:  tomcatjss
 Requires:       java >= 1:1.6.0
 Requires:       pki-tks-ui
 Requires:       pki-common
-Requires:       pki-console
 Requires:       pki-selinux
-Requires:       pki-silent
 Requires(post):    chkconfig
 Requires(preun):   chkconfig
 Requires(preun):   initscripts
@@ -114,5 +112,5 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
-* Tue Aug 10 2010 Matthew Harmsen <mharmsen@redhat.com> 2.0.0-1
-- Updated Dogtag 1.3.x --> Dogtag 2.0.0.
+* Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0.
