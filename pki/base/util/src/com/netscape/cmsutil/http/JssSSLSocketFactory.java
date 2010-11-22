@@ -60,15 +60,16 @@ public class JssSSLSocketFactory implements ISocketFactory {
         for (i = SSLSocket.SSL2_RC4_128_WITH_MD5;
             i <= SSLSocket.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5; ++i) {
             try {
-                SSLSocket.setCipherPreferenceDefault(i, true);
+                SSLSocket.setCipherPreferenceDefault(i, false);
             } catch( SocketException e) {
             }
         }
+
         //skip SSL_EN_IDEA_128_EDE3_CBC_WITH_MD5
         for (i = SSLSocket.SSL2_DES_64_CBC_WITH_MD5;
             i <= SSLSocket.SSL2_DES_192_EDE3_CBC_WITH_MD5; ++i) {
             try {
-                SSLSocket.setCipherPreferenceDefault(i, true);
+                SSLSocket.setCipherPreferenceDefault(i, false);
             } catch( SocketException e) {
             }
         }
@@ -94,6 +95,9 @@ public class JssSSLSocketFactory implements ISocketFactory {
             s = new SSLSocket(host, port, null, 0, certApprovalCallback,
               clientCertCallback);
             s.setUseClientMode(true);
+            s.enableSSL2(false);
+            s.enableSSL2Default(false);
+            s.enableV2CompatibleHello(false);
 
             SSLHandshakeCompletedListener listener = null;
 

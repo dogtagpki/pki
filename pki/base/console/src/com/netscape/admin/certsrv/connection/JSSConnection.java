@@ -98,15 +98,23 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 
         // SSLSocket needs to be set before getting an instance
         // to get the ciphers
+        SSLSocket.enableSSL2Default(false);
         SSLSocket.enableSSL3Default(true);
         int TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA = 0xC005; 
         int TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA = 0xC00A; 
 
         int ciphers[] = SSLSocket.getImplementedCipherSuites();
         for (int i = 0; ciphers != null && i < ciphers.length; i++) {
-           Debug.println("JSSConnection Debug: NSS Cipher Supported '0x" + 
-              Integer.toHexString(ciphers[i]) + "'"); 
-           SSLSocket.setCipherPreferenceDefault(ciphers[i], true);
+            // make sure SSLv2 ciphers are not enabled
+            if ((ciphers[i] & 0xfff0) !=0xff00) {
+                Debug.println("JSSConnection Debug: non-SSL2 NSS Cipher Supported '0x" + 
+                Integer.toHexString(ciphers[i]) + "'"); 
+                SSLSocket.setCipherPreferenceDefault(ciphers[i], true);
+            } else {
+                Debug.println("JSSConnection Debug: SSL2 (turned off) NSS Cipher Supported '0x" + 
+                Integer.toHexString(ciphers[i]) + "'"); 
+                SSLSocket.setCipherPreferenceDefault(ciphers[i], false);
+            }
 
            /* Enable ECC Cipher */
 
@@ -120,8 +128,11 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
            }
         }
 		s = new SSLSocket(host, port, null, 0, this, this);
-//        s.enableSSL3(true);
-//        s.enableSSL3Default(true);
+        s.enableSSL2(false);
+        s.enableSSL2Default(false);
+        s.enableV2CompatibleHello(false);
+        s.enableSSL3(true);
+        s.enableSSL3Default(true);
 
 		// Initialze Http Input and Output Streams
 		httpIn = s.getInputStream();

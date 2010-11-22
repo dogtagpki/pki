@@ -120,6 +120,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback
 			socket.enableSSL3(true);
 			socket.enableSSL2(false);
 			socket.enableSSL2Default(false);
+            socket.enableV2CompatibleHello(false);
 		}
 		catch(Exception e)
 		{

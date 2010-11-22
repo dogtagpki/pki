@@ -46,8 +46,12 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
         SSLSocket s = null;
 
         try {
+            SSLSocket.enableSSL2Default(false);
             s = new SSLSocket(host, port);
             s.setUseClientMode(true);
+            s.enableSSL2(false);
+            s.enableSSL2Default(false);
+            s.enableV2CompatibleHello(false);
 
             SSLHandshakeCompletedListener listener = null;
 
