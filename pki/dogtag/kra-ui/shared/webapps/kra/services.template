@@ -19,15 +19,15 @@
 <html>
 <CMS_TEMPLATE>
 <title>DRM Services</title>
-    <link rel="shortcut icon" href="admin/console/img/favicon.ico" />
-    <link rel="stylesheet" href="admin/console/css/pki-base.css" type="text/css" />
+    <link rel="shortcut icon" href="img/favicon.ico" />
+    <link rel="stylesheet" href="css/pki-base.css" type="text/css" />
     <META http-equiv=Content-Type content="text/html; charset=UTF-8">
 
 </head>
 <body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
 
 <div id="header">
-    <a href="http://pki.fedoraproject.org/" title="Visit pki.fedoraproject.org for more information about Dogtag products and services"><img src="admin/console/img/logo_header.gif" alt="Dogtag" id="myLogo" /></a>
+    <a href="http://pki.fedoraproject.org/" title="Visit pki.fedoraproject.org for more information about Dogtag products and services"><img src="img/logo_header.gif" alt="Dogtag" id="myLogo" /></a>
     <div id="headertitle">
     <a href="/" title="Dogtag Network homepage">Dogtag<sup><font size="-2">&reg;</font></sup> Certificate System</a>
     </div>
