@@ -190,7 +190,7 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
             }
 
             try {
-                httpsport = config.getInteger("preop.master.httpsport");
+                httpsport = config.getInteger("preop.master.httpsadminport");
             } catch (Exception e) {
                 CMS.debug("AdminAuthenticatePanel update: "+e.toString());
                 context.put("errorString", "Missing port for master");

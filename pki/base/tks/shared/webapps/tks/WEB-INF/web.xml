@@ -8,11 +8,6 @@
 <web-app>
 
     <filter>
-        <filter-name>PassThroughRequestFilter</filter-name>
-        <filter-class>com.netscape.cms.servlet.filter.PassThroughRequestFilter</filter-class>
-    </filter>
-
-    <filter>
         <filter-name>AgentRequestFilter</filter-name>
         <filter-class>com.netscape.cms.servlet.filter.AgentRequestFilter</filter-class>
         <init-param>
@@ -366,31 +361,22 @@
 
 [PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
    <filter-mapping>
-      <filter-name>  PassThroughRequestFilter  </filter-name>
-      <url-pattern>   /ug  </url-pattern>
-      <url-pattern>   /log  </url-pattern>
-      <url-pattern>   /jobsScheduler  </url-pattern>
-      <url-pattern>   /acl  </url-pattern>
-      <url-pattern>   /server  </url-pattern>
-
-      <url-pattern>   /services  </url-pattern>
-
-      <url-pattern>   /start  </url-pattern>
-   </filter-mapping>
-
-   <filter-mapping>
       <filter-name>  AgentRequestFilter  </filter-name>
       <url-pattern>  /agent/*            </url-pattern>
    </filter-mapping>
 
    <filter-mapping>
-   <filter-mapping>
       <filter-name>  AdminRequestFilter  </filter-name>
       <url-pattern>  /admin/*            </url-pattern>
       <url-pattern>  /auths              </url-pattern>
+      <url-pattern>  /ug                 </url-pattern>
+      <url-pattern>  /log                </url-pattern>
+      <url-pattern>  /jobsScheduler      </url-pattern>
+      <url-pattern>  /acl                </url-pattern>
+      <url-pattern>  /server             </url-pattern>
    </filter-mapping>
 
-      <filter-name>  EERequestFilter  </filter-name>
+   <filter-name>  EERequestFilter  </filter-name>
       <url-pattern>  /ee/*            </url-pattern>
    </filter-mapping>
 [PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]

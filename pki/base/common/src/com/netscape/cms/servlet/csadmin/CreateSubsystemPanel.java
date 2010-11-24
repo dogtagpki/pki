@@ -261,7 +261,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
 
             ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
             if (cstype.equals("ca")) {
-                updateCertChain( config, "clone", host, https_ee_port,
+                updateCertChainUsingSecureEEPort( config, "clone", host, https_ee_port,
                                  true, context, certApprovalCallback );
             }
 

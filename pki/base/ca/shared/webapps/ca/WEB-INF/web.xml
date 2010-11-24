@@ -4,11 +4,6 @@
 <web-app>
 
     <filter>
-        <filter-name>PassThroughRequestFilter</filter-name>
-        <filter-class>com.netscape.cms.servlet.filter.PassThroughRequestFilter</filter-class>
-    </filter>
-
-    <filter>
         <filter-name>AgentRequestFilter</filter-name>
         <filter-class>com.netscape.cms.servlet.filter.AgentRequestFilter</filter-class>
         <init-param>
@@ -1940,48 +1935,28 @@
 
 [PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
    <filter-mapping>
-      <filter-name>   PassThroughRequestFilter    </filter-name>
+      <filter-name>   AgentRequestFilter          </filter-name>
+      <url-pattern>   /agent/*                    </url-pattern>
       <url-pattern>   /subsystem/*                </url-pattern>
       <url-pattern>   /ca/getCertFromRequest      </url-pattern>
       <url-pattern>   /ca/getBySerial             </url-pattern>
-      <url-pattern>   /index                      </url-pattern>
       <url-pattern>   /ca/connector               </url-pattern>
       <url-pattern>   /ca/displayCertFromRequest  </url-pattern>
       <url-pattern>   /doRevoke                   </url-pattern>
-
-      <url-pattern>   /acl                        </url-pattern>
-      <url-pattern>   /ug                         </url-pattern>
-      <url-pattern>   /server                     </url-pattern>
-      <url-pattern>   /capolicy                   </url-pattern>
-      <url-pattern>   /log                        </url-pattern>
-      <url-pattern>   /ca/getAdminCertBySerial    </url-pattern>
-      <url-pattern>   /caadmin                    </url-pattern>
-      <url-pattern>   /registry                   </url-pattern>
-      <url-pattern>   /caprofile                  </url-pattern>
-      <url-pattern>   /jobsScheduler              </url-pattern>
-      <url-pattern>   /capublisher                </url-pattern>
-
-      <url-pattern>   /renewal                    </url-pattern>
-      <url-pattern>   /certbasedenrollment        </url-pattern>
-      <url-pattern>   /enrollment                 </url-pattern>
-      <url-pattern>   /ocsp                       </url-pattern>
-      <url-pattern>   /profileSubmit              </url-pattern>
-
-      <url-pattern>   /services                   </url-pattern>
-
-      <url-pattern>   /start                      </url-pattern>
-      <url-pattern>   /cgi-bin/pkiclient.exe      </url-pattern>
-   </filter-mapping>
-
-   <filter-mapping>
-      <filter-name>   AgentRequestFilter          </filter-name>
-      <url-pattern>   /agent/*                    </url-pattern>
    </filter-mapping>
 
    <filter-mapping>
       <filter-name>   AdminRequestFilter          </filter-name>
       <url-pattern>   /admin/*                    </url-pattern>
       <url-pattern>   /auths                      </url-pattern>
+      <url-pattern>   /acl                        </url-pattern>
+      <url-pattern>   /server                     </url-pattern>
+      <url-pattern>   /caadmin                    </url-pattern>
+      <url-pattern>   /caprofile                  </url-pattern>
+      <url-pattern>   /jobsScheduler              </url-pattern>
+      <url-pattern>   /capublisher                </url-pattern>
+      <url-pattern>   /log                        </url-pattern>
+      <url-pattern>   /ug                         </url-pattern>
    </filter-mapping>
 
    <filter-mapping> 
@@ -1992,6 +1967,12 @@
    <filter-mapping>
       <filter-name>  EERequestFilter              </filter-name>
       <url-pattern>  /ee/*                        </url-pattern>
+      <url-pattern>  /renewal                     </url-pattern>
+      <url-pattern>  /certbasedenrollment         </url-pattern>
+      <url-pattern>  /ocsp                        </url-pattern>
+      <url-pattern>  /enrollment                  </url-pattern>
+      <url-pattern>  /profileSubmit               </url-pattern>
+      <url-pattern>  /cgi-bin/pkiclient.exe       </url-pattern>
    </filter-mapping>
 [PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
 
