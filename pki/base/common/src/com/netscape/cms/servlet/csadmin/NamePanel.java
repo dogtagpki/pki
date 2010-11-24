@@ -433,6 +433,14 @@ public class NamePanel extends WizardPanelBase {
                 "SHA1withRSA");
          */
 
+        // for system certs verification
+	    if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
+            config.putString(subsystem + ".cert." + certTag + ".nickname",
+                token + ":" +  nickname);
+        } else {
+            config.putString(subsystem + ".cert." + certTag + ".nickname", nickname);
+        }
+
         config.commit(false);
         CMS.debug("NamePanel: updateConfig() done");
     }
