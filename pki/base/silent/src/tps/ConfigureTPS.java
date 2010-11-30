@@ -229,7 +229,7 @@ public class ConfigureTPS
 
 		String domain_url = "https://" + sd_hostname + ":" + sd_admin_port ;
 
-		String query_string = "p=1" +
+		String query_string = "p=3" +
 							"&choice=existingdomain" +
 							"&sdomainURL=" +
 							URLEncoder.encode(domain_url) +
@@ -255,7 +255,7 @@ public class ConfigureTPS
 		ParseXML px = new ParseXML();
 		String query_string = null;
 
-		query_string = "p=2" + "&op=next" + "&xml=true";
+		query_string = "p=4" + "&op=next" + "&xml=true";
 		hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
 		return true;
@@ -297,7 +297,7 @@ public class ConfigureTPS
 
 		// use session id to connect back to TPS
 
-		String query_string_2 = "p=3" +
+		String query_string_2 = "p=5" +
 								"&subsystem=TPS" +
 								"&session_id=" + tps_session_id +
 								"&xml=true" ;
@@ -319,7 +319,7 @@ public class ConfigureTPS
 		ParseXML px = new ParseXML();
 
 		sleep_time();
-		String query_string = "p=3" +
+		String query_string = "p=5" +
 						"&choice=newsubsystem" +
 						"&subsystemName=" +
 						URLEncoder.encode(subsystem_name) +
@@ -336,7 +336,7 @@ public class ConfigureTPS
 		String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port ;
 
 		// CA choice panel
-		query_string = "p=4" +
+		query_string = "p=6" +
 						"&urls=0" +
 						"&op=next" +
 						"&xml=true" ;
@@ -350,7 +350,7 @@ public class ConfigureTPS
 		sleep_time();
 		// TKS choice panel
 		String tks_url = "https://" + tks_hostname + ":" + tks_ssl_port ;
-		query_string = "p=5" +
+		query_string = "p=7" +
 						"&urls=0" +
 						"&op=next" +
 						"&xml=true" ;
@@ -371,7 +371,7 @@ public class ConfigureTPS
 
 		String drm_url = "https://" + drm_hostname + ":" + drm_ssl_port ;
 
-		query_string = "p=6" +
+		query_string = "p=8" +
 						"&choice=" + ss_keygen +
 						"&urls=0" +
 						"&op=next" +
@@ -395,7 +395,7 @@ public class ConfigureTPS
 		ParseXML px = new ParseXML();
 
 
-		String query_string = "p=7" +
+		String query_string = "p=9" +
 						"&host=" +
 						URLEncoder.encode(ldap_auth_host) +
 						"&port=" +
@@ -423,7 +423,7 @@ public class ConfigureTPS
 		ParseXML px = new ParseXML();
 
 
-		String query_string = "p=8" +
+		String query_string = "p=10" +
 						"&host=" +
 						URLEncoder.encode(ldap_host) +
 						"&port=" +
@@ -464,7 +464,7 @@ public class ConfigureTPS
 		// Software Token
 		if(token_name.equalsIgnoreCase("internal"))
 		{
-			query_string =	"p=9" +
+			query_string =	"p=1" +
 							"&choice=" +
 							URLEncoder.encode("NSS Certificate DB") +
 							"&op=next" +
@@ -480,7 +480,7 @@ public class ConfigureTPS
 		else
 		{
 			// login to hsm first
-			query_string =	"p=10" +
+			query_string =	"p=2" +
 							"&uTokName=" +
 							URLEncoder.encode(token_name) +
 							"&__uPasswd=" +
@@ -495,7 +495,7 @@ public class ConfigureTPS
 			px.prettyprintxml();
 		
 			// choice with token name now
-			query_string =	"p=9" +
+			query_string =	"p=1" +
 							"&choice=" +
 							URLEncoder.encode(token_name) +
 							"&op=next" +
@@ -791,7 +791,16 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// 2. domain panel
+		// 2. Token Choice Panel
+		boolean disp_token = TokenChoicePanel();
+		if(!disp_token)
+		{
+		System.out.println("ERROR: ConfigureTPS: TokenChoicePanel() failure");
+			return false;
+		}
+
+		sleep_time();
+		// 3. domain panel
 		boolean dom_st = DomainPanel();
 		if(!dom_st)
 		{
@@ -800,7 +809,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// 3. display cert chain panel
+		// 4. display cert chain panel
 		boolean disp_st = DisplayChainPanel();
 		if(!disp_st)
 		{
@@ -809,7 +818,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// security domain login panel
+		// 5. security domain login panel
 		boolean disp_sd = SecurityDomainLoginPanel();
 		if(!disp_sd)
 		{
@@ -818,7 +827,7 @@ public class ConfigureTPS
 		}
 
 		sleep_time();
-		// 4. subsystem panel
+		// 6. subsystem panel
 		boolean disp_ss = SubsystemPanel();
 		if(!disp_ss)
 		{
@@ -841,15 +850,6 @@ public class ConfigureTPS
 		if(!disp_ldap)
 		{
 		System.out.println("ERROR: ConfigureTPS: LdapConnectionPanel() failure");
-			return false;
-		}
-
-		sleep_time();
-		// 9. Token Choice Panel
-		boolean disp_token = TokenChoicePanel();
-		if(!disp_token)
-		{
-		System.out.println("ERROR: ConfigureTPS: TokenChoicePanel() failure");
 			return false;
 		}
 

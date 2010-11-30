@@ -114,9 +114,9 @@ sub update
     # check if url is accessible
     # redirect to the security domain authentication
     if ($ENV{'SERVER_PORT'} eq $unsecurePort) {
-       $::symbol{redirect} = $sdomainAdminURL . "/ca/admin/ca/securityDomainLogin?url=http%3A%2F%2F" . $machineName . "%3A" . $unsecurePort . "%2Ftps%2Fadmin%2Fconsole%2Fconfig%2Fwizard%3Fp%3D3%26subsystem%3DTPS";
+       $::symbol{redirect} = $sdomainAdminURL . "/ca/admin/ca/securityDomainLogin?url=http%3A%2F%2F" . $machineName . "%3A" . $unsecurePort . "%2Ftps%2Fadmin%2Fconsole%2Fconfig%2Fwizard%3Fp%3D5%26subsystem%3DTPS";
     } else {
-       $::symbol{redirect} = $sdomainAdminURL . "/ca/admin/ca/securityDomainLogin?url=https%3A%2F%2F" . $machineName . "%3A" . $non_clientauth_securePort . "%2Ftps%2Fadmin%2Fconsole%2Fconfig%2Fwizard%3Fp%3D3%26subsystem%3DTPS";
+       $::symbol{redirect} = $sdomainAdminURL . "/ca/admin/ca/securityDomainLogin?url=https%3A%2F%2F" . $machineName . "%3A" . $non_clientauth_securePort . "%2Ftps%2Fadmin%2Fconsole%2Fconfig%2Fwizard%3Fp%3D5%26subsystem%3DTPS";
     }
 
     get_domain_xml($sdomainAdminURL);

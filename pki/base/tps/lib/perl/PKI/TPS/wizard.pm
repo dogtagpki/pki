@@ -174,6 +174,8 @@ sub makepanels
 
     $symbol{panels}  = [ 
         $welcome,           # com.netscape.cms.servlet.csadmin.WelcomePanel
+        $modulepanel,       # com.netscape.cms.servlet.csadmin.ModulePanel
+        $confighsmloginpanel,        # com.netscape.cms.servlet.csadmin.ConfigHSMLoginPanel
         $securitydomain,    # com.netscape.cms.servlet.csadmin.SecurityDomainPanel
         $displaycertchain,  # com.netscape.cms.servlet.csadmin.DisplayCertChainPanel
         $subsystem,         # com.netscape.cms.servlet.csadmin.CreateSubsystemPanel
@@ -183,8 +185,6 @@ sub makepanels
         $drminfopanel,       # com.netscape.cms.servlet.csadmin.DRMInfoPanel
         $authdbpanel,     # com.netscape.cms.servlet.csadmin.DatabasePanel
         $databasepanel,     # com.netscape.cms.servlet.csadmin.DatabasePanel
-        $modulepanel,       # com.netscape.cms.servlet.csadmin.ModulePanel
-        $confighsmloginpanel,        # com.netscape.cms.servlet.csadmin.ConfigHSMLoginPanel
         $sizepanel,         # com.netscape.cms.servlet.csadmin.SizePanel
         $namepanel,         # com.netscape.cms.servlet.csadmin.NamePanel
         $certrequestpanel,  # com.netscape.cms.servlet.csadmin.CertRequestPanel
