@@ -376,7 +376,8 @@
       <url-pattern>  /server             </url-pattern>
    </filter-mapping>
 
-   <filter-name>  EERequestFilter  </filter-name>
+   <filter-mapping>
+      <filter-name>  EERequestFilter  </filter-name>
       <url-pattern>  /ee/*            </url-pattern>
    </filter-mapping>
 [PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
