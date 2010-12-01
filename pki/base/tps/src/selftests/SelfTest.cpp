@@ -51,12 +51,13 @@ extern "C"
 #include "selftests/SelfTest.h"
 #include "selftests/TPSPresence.h"
 #include "selftests/TPSValidity.h"
+#include "selftests/TPSSystemCertsVerification.h"
 
 
 const char *SelfTest::CFG_SELFTEST_STARTUP = "selftests.container.order.startup";
 const char *SelfTest::CFG_SELFTEST_ONDEMAND = "selftests.container.order.onDemand";
-const int  SelfTest::nTests = 2;
-const char *SelfTest::TEST_NAMES[SelfTest::nTests] = { TPSPresence::TEST_NAME, TPSValidity::TEST_NAME };
+const int  SelfTest::nTests = 3;
+const char *SelfTest::TEST_NAMES[SelfTest::nTests] = { TPSPresence::TEST_NAME, TPSValidity::TEST_NAME, TPSSystemCertsVerification::TEST_NAME };
 
 int SelfTest::isInitialized = 0;
 
@@ -74,6 +75,7 @@ void SelfTest::Initialize (ConfigStore *cfg)
         SelfTest::isInitialized = 1;
         TPSPresence::Initialize (cfg);
         TPSValidity::Initialize (cfg);
+        TPSSystemCertsVerification::Initialize (cfg);
         SelfTest::isInitialized = 2;
     }
     RA::SelfTestLog("SelfTest::Initialize", "%s", ((isInitialized==2)?"successfully completed":"failed"));
@@ -121,6 +123,18 @@ int SelfTest::runStartUpSelfTests (const char *nickname)
     } else {
         RA::SelfTestLog("SelfTest::runStartUpSelfTests", "TPSValidity self test has been successfully completed.");
     }
+    if (TPSSystemCertsVerification::isStartupEnabled()) {
+        rc = TPSSystemCertsVerification::runSelfTest();
+    }
+    if (rc != 0 && TPSSystemCertsVerification::isStartupCritical()) {
+        if (rc > 0) rc *= -1;
+        RA::SelfTestLog("SelfTest::runStartUpSelfTests", "Critical TPSSystemCertsVerification self test failure: %d", rc);
+        return rc;
+    } else if (rc != 0) {
+        RA::SelfTestLog("SelfTest::runStartUpSelfTests", "Noncritical TPSSystemCertsVerification self test failure: %d", rc);
+    } else {
+        RA::SelfTestLog("SelfTest::runStartUpSelfTests", "TPSSystemCertsVerification self test has been successfully completed.");
+    }
     RA::SelfTestLog("SelfTest::runStartUpSelfTests", "done");
     return 0;
 }
@@ -153,6 +167,19 @@ int SelfTest::runOnDemandSelfTests ()
     } else {
         RA::SelfTestLog("SelfTest::runOnDemandSelfTests", "TPSValidity self test has been successfully completed.");
     }
+
+    if (TPSSystemCertsVerification::isOnDemandEnabled()) {
+        rc = TPSSystemCertsVerification::runSelfTest();
+    }
+    if (rc != 0 && TPSSystemCertsVerification::isOnDemandCritical()) {
+        if (rc > 0) rc *= -1;
+        RA::SelfTestLog("SelfTest::runOnDemandSelfTests", "Critical TPSSystemCertsVerification self test failure: %d", rc);
+        return rc;
+    } else if (rc != 0) {
+        RA::SelfTestLog("SelfTest::runOnDemandSelfTests", "Noncritical TPSSystemCertsVerification self test failure: %d", rc);
+    } else {
+        RA::SelfTestLog("SelfTest::runOnDemandSelfTests", "TPSSystemCertsVerification self test has been successfully completed.");
+    }
     RA::SelfTestLog("SelfTest::runOnDemandSelfTests", "done");
     return rc;
 }
@@ -162,6 +189,7 @@ int SelfTest::isOnDemandEnabled ()
     int n = 0;
     if (TPSPresence::isOnDemandEnabled()) n++;
     if (TPSValidity::isOnDemandEnabled()) n += 2;
+    if (TPSSystemCertsVerification::isOnDemandEnabled()) n += 4;
     return n;
 }
 
@@ -170,6 +198,7 @@ int SelfTest::isOnDemandCritical ()
     int n = 0;
     if (TPSPresence::isOnDemandCritical()) n++;
     if (TPSValidity::isOnDemandCritical()) n += 2;
+    if (TPSSystemCertsVerification::isOnDemandCritical()) n += 4;
     return n;
 }
 

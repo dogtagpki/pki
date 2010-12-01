@@ -403,16 +403,32 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
 
     # set selftest variables (always use the "latest" subsystem nickname)
     my $selftestNickname = $::config->get( "preop.cert.subsystem.nickname" );
+    my $selftestNickname_sslserver = $::config->get( "preop.cert.sslserver.nickname" );
+    my $selftestNickname_audit_signing = $::config->get( "preop.cert.audit_signing.nickname" );
     if ($hw ne "") {
         $::config->put( "selftests.plugin.TPSPresence.nickname",
                         "$tk$selftestNickname" );
         $::config->put( "selftests.plugin.TPSValidity.nickname", 
                         "$tk$selftestNickname" );
+
+        $::config->put( "tps.cert.sslserver.nickname",
+                        "$tk$selftestNickname_sslserver" );
+        $::config->put( "tps.cert.subsystem.nickname",
+                        "$tk$selftestNickname" );
+        $::config->put( "tps.cert.audit_signing.nickname",
+                        "$tk$selftestNickname_audit_signing" );
     } else {
         $::config->put( "selftests.plugin.TPSPresence.nickname",
                         "$selftestNickname" );
         $::config->put( "selftests.plugin.TPSValidity.nickname", 
                         "$selftestNickname" );
+
+        $::config->put( "tps.cert.sslserver.nickname",
+                        "$selftestNickname_sslserver" );
+        $::config->put( "tps.cert.subsystem.nickname",
+                        "$selftestNickname" );
+        $::config->put( "tps.cert.audit_signing.nickname",
+                        "$selftestNickname_audit_signing" );
     }
     $::config->commit();
 

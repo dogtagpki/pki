@@ -359,6 +359,7 @@ libtps_la_SOURCES =	src/main/Buffer.cpp                        \
 					src/processor/RA_Unblock_Processor.cpp     \
 					src/processor/RA_Format_Processor.cpp      \
 					src/selftests/SelfTest.cpp                 \
+					src/selftests/TPSSystemCertsVerification.cpp  \
 					src/selftests/TPSPresence.cpp              \
 					src/selftests/TPSValidity.cpp
 

@@ -231,6 +231,7 @@ am_libtps_la_OBJECTS = src/main/libtps_la-Buffer.lo \
 	src/processor/libtps_la-RA_Unblock_Processor.lo \
 	src/processor/libtps_la-RA_Format_Processor.lo \
 	src/selftests/libtps_la-SelfTest.lo \
+	src/selftests/libtps_la-TPSSystemCertsVerification.lo \
 	src/selftests/libtps_la-TPSPresence.lo \
 	src/selftests/libtps_la-TPSValidity.lo
 libtps_la_OBJECTS = $(am_libtps_la_OBJECTS)
@@ -836,6 +837,7 @@ libtps_la_SOURCES = src/main/Buffer.cpp                        \
 					src/processor/RA_Unblock_Processor.cpp     \
 					src/processor/RA_Format_Processor.cpp      \
 					src/selftests/SelfTest.cpp                 \
+					src/selftests/TPSSystemCertsVerification.cpp \
 					src/selftests/TPSPresence.cpp              \
 					src/selftests/TPSValidity.cpp
 
@@ -1342,6 +1344,8 @@ src/selftests/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/selftests/$(DEPDIR)
 	@: > src/selftests/$(DEPDIR)/$(am__dirstamp)
 src/selftests/libtps_la-SelfTest.lo: src/selftests/$(am__dirstamp) \
+	src/selftests/$(DEPDIR)/$(am__dirstamp)
+src/selftests/libtps_la-TPSSystemCertsVerification.lo: src/selftests/$(am__dirstamp) \
 	src/selftests/$(DEPDIR)/$(am__dirstamp)
 src/selftests/libtps_la-TPSPresence.lo: src/selftests/$(am__dirstamp) \
 	src/selftests/$(DEPDIR)/$(am__dirstamp)
@@ -2174,6 +2178,8 @@ mostlyclean-compile:
 	-rm -f src/processor/libtps_la-RA_Unblock_Processor.lo
 	-rm -f src/selftests/libtps_la-SelfTest.$(OBJEXT)
 	-rm -f src/selftests/libtps_la-SelfTest.lo
+	-rm -f src/selftests/libtps_la-TPSSystemCertsVerification.$(OBJEXT)
+	-rm -f src/selftests/libtps_la-TPSSystemCertsVerification.lo
 	-rm -f src/selftests/libtps_la-TPSPresence.$(OBJEXT)
 	-rm -f src/selftests/libtps_la-TPSPresence.lo
 	-rm -f src/selftests/libtps_la-TPSValidity.$(OBJEXT)
@@ -2325,6 +2331,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/processor/$(DEPDIR)/libtps_la-RA_Renew_Processor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/processor/$(DEPDIR)/libtps_la-RA_Unblock_Processor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-SelfTest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-TPSSystemCertsVerification.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-TPSPresence.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-TPSValidity.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/tus/$(DEPDIR)/libtokendb_la-tus_db.Plo@am__quote@
@@ -2981,6 +2988,13 @@ src/selftests/libtps_la-SelfTest.lo: src/selftests/SelfTest.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/selftests/SelfTest.cpp' object='src/selftests/libtps_la-SelfTest.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/selftests/libtps_la-SelfTest.lo `test -f 'src/selftests/SelfTest.cpp' || echo '$(srcdir)/'`src/selftests/SelfTest.cpp
+
+src/selftests/libtps_la-TPSSystemCertsVerification.lo: src/selftests/TPSSystemCertsVerification.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/selftests/libtps_la-TPSSystemCertsVerification.lo -MD -MP -MF src/selftests/$(DEPDIR)/libtps_la-TPSSystemCertsVerification.Tpo -c -o src/selftests/libtps_la-TPSSystemCertsVerification.lo `test -f 'src/selftests/TPSSystemCertsVerification.cpp' || echo '$(srcdir)/'`src/selftests/TPSSystemCertsVerification.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/selftests/$(DEPDIR)/libtps_la-TPSSystemCertsVerification.Tpo src/selftests/$(DEPDIR)/libtps_la-TPSSystemCertsVerification.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/selftests/TPSSystemCertsVerification.cpp' object='src/selftests/libtps_la-TPSSystemCertsVerification.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/selftests/libtps_la-TPSSystemCertsVerification.lo `test -f 'src/selftests/TPSSystemCertsVerification.cpp' || echo '$(srcdir)/'`src/selftests/TPSSystemCertsVerification.cpp
 
 src/selftests/libtps_la-TPSPresence.lo: src/selftests/TPSPresence.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtps_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/selftests/libtps_la-TPSPresence.lo -MD -MP -MF src/selftests/$(DEPDIR)/libtps_la-TPSPresence.Tpo -c -o src/selftests/libtps_la-TPSPresence.lo `test -f 'src/selftests/TPSPresence.cpp' || echo '$(srcdir)/'`src/selftests/TPSPresence.cpp
