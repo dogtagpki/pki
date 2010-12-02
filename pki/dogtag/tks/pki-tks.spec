@@ -75,6 +75,8 @@ sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildr
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/tks/conf/CS.cfg
 mkdir -p %{buildroot}%{_localstatedir}/lock/pki/tks
 mkdir -p %{buildroot}%{_localstatedir}/run/pki/tks
+cd %{buildroot}%{_datadir}/pki/tks/setup
+mv config.desktop.in config.desktop
 cd %{buildroot}%{_javadir}
 mv tks.jar tks-%{version}.jar
 ln -s tks-%{version}.jar tks.jar

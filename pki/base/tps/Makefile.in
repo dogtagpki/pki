@@ -105,8 +105,8 @@ am__installdirs = "$(DESTDIR)$(apache_modulesdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(cgibin_demodir)" \
 	"$(DESTDIR)$(cgibin_homedir)" "$(DESTDIR)$(cgibin_sodir)" \
 	"$(DESTDIR)$(cgibin_sowdir)" "$(DESTDIR)$(initddir)" \
-	"$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(perl_basedir)" \
-	"$(DESTDIR)$(perl_modulesdir)" "$(DESTDIR)$(perl_servicedir)" \
+	"$(DESTDIR)$(perl_basedir)" "$(DESTDIR)$(perl_modulesdir)" \
+	"$(DESTDIR)$(perl_servicedir)" \
 	"$(DESTDIR)$(perl_templatesdir)" "$(DESTDIR)$(scriptsdir)" \
 	"$(DESTDIR)$(aliasdir)" "$(DESTDIR)$(appletsdir)" \
 	"$(DESTDIR)$(cgibin_demodir)" "$(DESTDIR)$(cgibin_homedir)" \
@@ -326,9 +326,9 @@ tpsclient_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 SCRIPTS = $(bin_SCRIPTS) $(cgibin_demo_SCRIPTS) $(cgibin_home_SCRIPTS) \
 	$(cgibin_so_SCRIPTS) $(cgibin_sow_SCRIPTS) $(initd_SCRIPTS) \
-	$(libexec_SCRIPTS) $(perl_base_SCRIPTS) \
-	$(perl_modules_SCRIPTS) $(perl_service_SCRIPTS) \
-	$(perl_templates_SCRIPTS) $(scripts_SCRIPTS)
+	$(perl_base_SCRIPTS) $(perl_modules_SCRIPTS) \
+	$(perl_service_SCRIPTS) $(perl_templates_SCRIPTS) \
+	$(scripts_SCRIPTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -726,7 +726,7 @@ scripts_DATA = $(srcdir)/scripts/schemaMods.ldif \
 				$(srcdir)/scripts/addVLVIndexes.ldif
 
 scripts_SCRIPTS = $(srcdir)/scripts/nss_pcache
-@LINUX_TRUE@setup_DATA = $(srcdir)/setup/config.desktop $(srcdir)/setup/registry_instance
+@LINUX_TRUE@setup_DATA = $(srcdir)/setup/config.desktop.in $(srcdir)/setup/registry_instance
 templates_DATA = $(srcdir)/apache/pki_instance_command_wrapper \
 					$(srcdir)/apache/pki_subsystem_command_wrapper
 
@@ -837,7 +837,7 @@ libtps_la_SOURCES = src/main/Buffer.cpp                        \
 					src/processor/RA_Unblock_Processor.cpp     \
 					src/processor/RA_Format_Processor.cpp      \
 					src/selftests/SelfTest.cpp                 \
-					src/selftests/TPSSystemCertsVerification.cpp \
+					src/selftests/TPSSystemCertsVerification.cpp  \
 					src/selftests/TPSPresence.cpp              \
 					src/selftests/TPSValidity.cpp
 
@@ -1345,7 +1345,8 @@ src/selftests/$(DEPDIR)/$(am__dirstamp):
 	@: > src/selftests/$(DEPDIR)/$(am__dirstamp)
 src/selftests/libtps_la-SelfTest.lo: src/selftests/$(am__dirstamp) \
 	src/selftests/$(DEPDIR)/$(am__dirstamp)
-src/selftests/libtps_la-TPSSystemCertsVerification.lo: src/selftests/$(am__dirstamp) \
+src/selftests/libtps_la-TPSSystemCertsVerification.lo:  \
+	src/selftests/$(am__dirstamp) \
 	src/selftests/$(DEPDIR)/$(am__dirstamp)
 src/selftests/libtps_la-TPSPresence.lo: src/selftests/$(am__dirstamp) \
 	src/selftests/$(DEPDIR)/$(am__dirstamp)
@@ -1744,40 +1745,6 @@ uninstall-initdSCRIPTS:
 	test -n "$$list" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(initddir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(initddir)" && rm -f $$files
-install-libexecSCRIPTS: $(libexec_SCRIPTS)
-	@$(NORMAL_INSTALL)
-	test -z "$(libexecdir)" || $(MKDIR_P) "$(DESTDIR)$(libexecdir)"
-	@list='$(libexec_SCRIPTS)'; test -n "$(libexecdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n' \
-	    -e 'h;s|.*|.|' \
-	    -e 'p;x;s,.*/,,;$(transform)' | sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1; } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) { files[d] = files[d] " " $$1; \
-	      if (++n[d] == $(am__install_max)) { \
-		print "f", d, files[d]; n[d] = 0; files[d] = "" } } \
-	    else { print "f", d "/" $$4, $$1 } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	     test -z "$$files" || { \
-	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(libexecdir)$$dir'"; \
-	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(libexecdir)$$dir" || exit $$?; \
-	     } \
-	; done
-
-uninstall-libexecSCRIPTS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(libexec_SCRIPTS)'; test -n "$(libexecdir)" || exit 0; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	       sed -e 's,.*/,,;$(transform)'`; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(libexecdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(libexecdir)" && rm -f $$files
 install-perl_baseSCRIPTS: $(perl_base_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	test -z "$(perl_basedir)" || $(MKDIR_P) "$(DESTDIR)$(perl_basedir)"
@@ -2178,10 +2145,10 @@ mostlyclean-compile:
 	-rm -f src/processor/libtps_la-RA_Unblock_Processor.lo
 	-rm -f src/selftests/libtps_la-SelfTest.$(OBJEXT)
 	-rm -f src/selftests/libtps_la-SelfTest.lo
-	-rm -f src/selftests/libtps_la-TPSSystemCertsVerification.$(OBJEXT)
-	-rm -f src/selftests/libtps_la-TPSSystemCertsVerification.lo
 	-rm -f src/selftests/libtps_la-TPSPresence.$(OBJEXT)
 	-rm -f src/selftests/libtps_la-TPSPresence.lo
+	-rm -f src/selftests/libtps_la-TPSSystemCertsVerification.$(OBJEXT)
+	-rm -f src/selftests/libtps_la-TPSSystemCertsVerification.lo
 	-rm -f src/selftests/libtps_la-TPSValidity.$(OBJEXT)
 	-rm -f src/selftests/libtps_la-TPSValidity.lo
 	-rm -f src/tus/libtokendb_la-tus_db.$(OBJEXT)
@@ -2331,8 +2298,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/processor/$(DEPDIR)/libtps_la-RA_Renew_Processor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/processor/$(DEPDIR)/libtps_la-RA_Unblock_Processor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-SelfTest.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-TPSSystemCertsVerification.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-TPSPresence.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-TPSSystemCertsVerification.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/selftests/$(DEPDIR)/libtps_la-TPSValidity.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/tus/$(DEPDIR)/libtokendb_la-tus_db.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tools/raclient/$(DEPDIR)/tpsclient-RA_Client.Po@am__quote@
@@ -4432,7 +4399,7 @@ check: check-am
 all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(DATA) \
 		config.h
 installdirs:
-	for dir in "$(DESTDIR)$(apache_modulesdir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(cgibin_demodir)" "$(DESTDIR)$(cgibin_homedir)" "$(DESTDIR)$(cgibin_sodir)" "$(DESTDIR)$(cgibin_sowdir)" "$(DESTDIR)$(initddir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(perl_basedir)" "$(DESTDIR)$(perl_modulesdir)" "$(DESTDIR)$(perl_servicedir)" "$(DESTDIR)$(perl_templatesdir)" "$(DESTDIR)$(scriptsdir)" "$(DESTDIR)$(aliasdir)" "$(DESTDIR)$(appletsdir)" "$(DESTDIR)$(cgibin_demodir)" "$(DESTDIR)$(cgibin_homedir)" "$(DESTDIR)$(cgibin_sodir)" "$(DESTDIR)$(cgibin_sowdir)" "$(DESTDIR)$(confdir)" "$(DESTDIR)$(docrootdir)" "$(DESTDIR)$(docroot_demodir)" "$(DESTDIR)$(docroot_homedir)" "$(DESTDIR)$(docroot_sodir)" "$(DESTDIR)$(docroot_sowdir)" "$(DESTDIR)$(docroot_tokendbdir)" "$(DESTDIR)$(docroot_tps_configdir)" "$(DESTDIR)$(docroot_tps_imgdir)" "$(DESTDIR)$(docroot_tps_jsdir)" "$(DESTDIR)$(licensedir)" "$(DESTDIR)$(logsdir)" "$(DESTDIR)$(samplesdir)" "$(DESTDIR)$(scriptsdir)" "$(DESTDIR)$(setupdir)" "$(DESTDIR)$(templatesdir)"; do \
+	for dir in "$(DESTDIR)$(apache_modulesdir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(cgibin_demodir)" "$(DESTDIR)$(cgibin_homedir)" "$(DESTDIR)$(cgibin_sodir)" "$(DESTDIR)$(cgibin_sowdir)" "$(DESTDIR)$(initddir)" "$(DESTDIR)$(perl_basedir)" "$(DESTDIR)$(perl_modulesdir)" "$(DESTDIR)$(perl_servicedir)" "$(DESTDIR)$(perl_templatesdir)" "$(DESTDIR)$(scriptsdir)" "$(DESTDIR)$(aliasdir)" "$(DESTDIR)$(appletsdir)" "$(DESTDIR)$(cgibin_demodir)" "$(DESTDIR)$(cgibin_homedir)" "$(DESTDIR)$(cgibin_sodir)" "$(DESTDIR)$(cgibin_sowdir)" "$(DESTDIR)$(confdir)" "$(DESTDIR)$(docrootdir)" "$(DESTDIR)$(docroot_demodir)" "$(DESTDIR)$(docroot_homedir)" "$(DESTDIR)$(docroot_sodir)" "$(DESTDIR)$(docroot_sowdir)" "$(DESTDIR)$(docroot_tokendbdir)" "$(DESTDIR)$(docroot_tps_configdir)" "$(DESTDIR)$(docroot_tps_imgdir)" "$(DESTDIR)$(docroot_tps_jsdir)" "$(DESTDIR)$(licensedir)" "$(DESTDIR)$(logsdir)" "$(DESTDIR)$(samplesdir)" "$(DESTDIR)$(scriptsdir)" "$(DESTDIR)$(setupdir)" "$(DESTDIR)$(templatesdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -4534,7 +4501,7 @@ install-dvi: install-dvi-am
 install-dvi-am:
 
 install-exec-am: install-binSCRIPTS install-libLTLIBRARIES \
-	install-libexecPROGRAMS install-libexecSCRIPTS
+	install-libexecPROGRAMS
 
 install-html: install-html-am
 
@@ -4588,13 +4555,12 @@ uninstall-am: uninstall-aliasDATA uninstall-apache_modulesLTLIBRARIES \
 	uninstall-docroot_tokendbDATA uninstall-docroot_tps_configDATA \
 	uninstall-docroot_tps_imgDATA uninstall-docroot_tps_jsDATA \
 	uninstall-initdSCRIPTS uninstall-libLTLIBRARIES \
-	uninstall-libexecPROGRAMS uninstall-libexecSCRIPTS \
-	uninstall-licenseDATA uninstall-logsDATA \
-	uninstall-perl_baseSCRIPTS uninstall-perl_modulesSCRIPTS \
-	uninstall-perl_serviceSCRIPTS uninstall-perl_templatesSCRIPTS \
-	uninstall-samplesDATA uninstall-scriptsDATA \
-	uninstall-scriptsSCRIPTS uninstall-setupDATA \
-	uninstall-templatesDATA
+	uninstall-libexecPROGRAMS uninstall-licenseDATA \
+	uninstall-logsDATA uninstall-perl_baseSCRIPTS \
+	uninstall-perl_modulesSCRIPTS uninstall-perl_serviceSCRIPTS \
+	uninstall-perl_templatesSCRIPTS uninstall-samplesDATA \
+	uninstall-scriptsDATA uninstall-scriptsSCRIPTS \
+	uninstall-setupDATA uninstall-templatesDATA
 
 .MAKE: all install-am install-strip
 
@@ -4621,14 +4587,13 @@ uninstall-am: uninstall-aliasDATA uninstall-apache_modulesLTLIBRARIES \
 	install-exec install-exec-am install-html install-html-am \
 	install-info install-info-am install-initdSCRIPTS \
 	install-libLTLIBRARIES install-libexecPROGRAMS \
-	install-libexecSCRIPTS install-licenseDATA install-logsDATA \
-	install-man install-pdf install-pdf-am \
-	install-perl_baseSCRIPTS install-perl_modulesSCRIPTS \
-	install-perl_serviceSCRIPTS install-perl_templatesSCRIPTS \
-	install-ps install-ps-am install-samplesDATA \
-	install-scriptsDATA install-scriptsSCRIPTS install-setupDATA \
-	install-strip install-templatesDATA installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-licenseDATA install-logsDATA install-man install-pdf \
+	install-pdf-am install-perl_baseSCRIPTS \
+	install-perl_modulesSCRIPTS install-perl_serviceSCRIPTS \
+	install-perl_templatesSCRIPTS install-ps install-ps-am \
+	install-samplesDATA install-scriptsDATA install-scriptsSCRIPTS \
+	install-setupDATA install-strip install-templatesDATA \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-aliasDATA uninstall-am \
@@ -4644,12 +4609,12 @@ uninstall-am: uninstall-aliasDATA uninstall-apache_modulesLTLIBRARIES \
 	uninstall-docroot_tps_configDATA uninstall-docroot_tps_imgDATA \
 	uninstall-docroot_tps_jsDATA uninstall-initdSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libexecPROGRAMS \
-	uninstall-libexecSCRIPTS uninstall-licenseDATA \
-	uninstall-logsDATA uninstall-perl_baseSCRIPTS \
-	uninstall-perl_modulesSCRIPTS uninstall-perl_serviceSCRIPTS \
-	uninstall-perl_templatesSCRIPTS uninstall-samplesDATA \
-	uninstall-scriptsDATA uninstall-scriptsSCRIPTS \
-	uninstall-setupDATA uninstall-templatesDATA
+	uninstall-licenseDATA uninstall-logsDATA \
+	uninstall-perl_baseSCRIPTS uninstall-perl_modulesSCRIPTS \
+	uninstall-perl_serviceSCRIPTS uninstall-perl_templatesSCRIPTS \
+	uninstall-samplesDATA uninstall-scriptsDATA \
+	uninstall-scriptsSCRIPTS uninstall-setupDATA \
+	uninstall-templatesDATA
 
 
 %: %.in

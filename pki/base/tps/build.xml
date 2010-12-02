@@ -27,7 +27,7 @@
           outputproperty="config.desktop.version">
         <arg value="-pi -e"/>
         <arg value="s/Version=.*/Version=${version}/"/>
-        <arg value="setup/config.desktop"/>
+        <arg value="setup/config.desktop.in"/>
     </exec>
 
     <exec executable="perl"
@@ -188,7 +188,7 @@
             <zipfileset dir="./setup"
                         filemode="644"
                         prefix="usr/share/${product.prefix}/${product}/setup">
-                <include name="config.desktop"/>
+                <include name="config.desktop.in"/>
                 <include name="registry_instance"/>
             </zipfileset>
             <zipfileset dir="."
@@ -239,7 +239,7 @@
             <tarfileset dir="./setup"
                         mode="644"
                         prefix="usr/share/${product.prefix}/${product}/setup">
-                <include name="config.desktop"/>
+                <include name="config.desktop.in"/>
                 <include name="registry_instance"/>
             </tarfileset>
             <tarfileset dir="."

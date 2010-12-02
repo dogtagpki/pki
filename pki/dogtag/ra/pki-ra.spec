@@ -14,6 +14,7 @@ BuildRequires:  ant
 
 Requires:       mod_nss >= 1.0.7
 Requires:       mod_perl >= 1.99_16
+Requires:       mod_revocator >= 1.0.3
 Requires:       mozldap >= 6.0.2
 Requires:       pki-native-tools
 Requires:       pki-ra-ui
@@ -77,6 +78,10 @@ unzip %{name}-%{version}.zip -d %{buildroot}
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/ra/conf/CS.cfg
 mkdir -p %{buildroot}%{_localstatedir}/lock/pki/ra
 mkdir -p %{buildroot}%{_localstatedir}/run/pki/ra
+
+# rename config.desktop.in --> config.desktop
+cd %{buildroot}%{_datadir}/pki/ra/setup
+mv config.desktop.in config.desktop
 
 %clean
 rm -rf %{buildroot}

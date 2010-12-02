@@ -246,7 +246,7 @@ scripts_DATA =	$(srcdir)/scripts/schemaMods.ldif \
 scripts_SCRIPTS =	$(srcdir)/scripts/nss_pcache
 
 if LINUX
-setup_DATA =	$(srcdir)/setup/config.desktop $(srcdir)/setup/registry_instance
+setup_DATA =	$(srcdir)/setup/config.desktop.in $(srcdir)/setup/registry_instance
 endif
 
 templates_DATA =	$(srcdir)/apache/pki_instance_command_wrapper \

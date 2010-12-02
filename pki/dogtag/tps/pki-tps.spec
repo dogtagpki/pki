@@ -22,6 +22,7 @@ BuildRequires:  zlib-devel
 
 Requires:       mod_nss >= 1.0.7
 Requires:       mod_perl
+Requires:       mod_revocator >= 1.0.3
 Requires:       mozldap
 Requires:       pki-native-tools
 Requires:       pki-selinux
@@ -156,6 +157,10 @@ ln -s tokendb tus
 
 # fix version information in primary configuration file
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/tps/conf/CS.cfg
+
+# rename config.desktop.in --> config.desktop
+cd %{buildroot}%{_datadir}/pki/tps/setup
+mv config.desktop.in config.desktop
 
 ## remove unwanted files
 rm -rf %{buildroot}/opt/

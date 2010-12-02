@@ -64,6 +64,8 @@ sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildr
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/ca/conf/CS.cfg
 mkdir -p %{buildroot}%{_localstatedir}/lock/pki/ca
 mkdir -p %{buildroot}%{_localstatedir}/run/pki/ca
+cd %{buildroot}%{_datadir}/pki/ca/setup
+mv config.desktop.in config.desktop
 cd %{buildroot}%{_javadir}
 mv ca.jar ca-%{version}.jar
 ln -s ca-%{version}.jar ca.jar

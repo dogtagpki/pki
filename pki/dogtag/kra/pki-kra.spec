@@ -73,6 +73,8 @@ sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildr
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/kra/conf/CS.cfg
 mkdir -p %{buildroot}%{_localstatedir}/lock/pki/kra
 mkdir -p %{buildroot}%{_localstatedir}/run/pki/kra
+cd %{buildroot}%{_datadir}/pki/kra/setup
+mv config.desktop.in config.desktop
 cd %{buildroot}%{_javadir}
 mv kra.jar kra-%{version}.jar
 ln -s kra-%{version}.jar kra.jar

@@ -33,6 +33,7 @@ Requires:       tomcatjss
 Requires:       %{_javadir}/ldapjdk.jar
 Requires:       %{_javadir}/velocity.jar
 Requires:       %{_javadir}/xalan-j2.jar
+Requires:       %{_javadir}/xalan-j2-serializer.jar
 Requires:       %{_javadir}/xerces-j2.jar
 Requires:       velocity
 
@@ -96,6 +97,7 @@ cd %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
 ln -s %{_javadir}/ldapjdk.jar ldapjdk.jar
 ln -s %{_javadir}/velocity.jar velocity.jar
 ln -s %{_javadir}/xalan-j2.jar xalan-j2.jar
+ln -s %{_javadir}/xalan-j2-serializer.jar xalan-j2-serializer.jar
 ln -s %{_javadir}/xerces-j2.jar xerces-j2.jar
 
 %clean

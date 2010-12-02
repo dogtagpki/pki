@@ -82,6 +82,8 @@ sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildr
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/ocsp/conf/CS.cfg
 mkdir -p %{buildroot}%{_localstatedir}/lock/pki/ocsp
 mkdir -p %{buildroot}%{_localstatedir}/run/pki/ocsp
+cd %{buildroot}%{_datadir}/pki/ocsp/setup
+mv config.desktop.in config.desktop
 cd %{buildroot}%{_javadir}
 mv ocsp.jar ocsp-%{version}.jar
 ln -s ocsp-%{version}.jar ocsp.jar

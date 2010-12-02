@@ -47,9 +47,6 @@ rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 
-## remove unwanted files
-rm -rf %{buildroot}%{_bindir}/pkihost
-
 %clean
 rm -rf %{buildroot}
 
