@@ -520,9 +520,9 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
             String sigAlgorithm;
             if( mSigningKey instanceof RSAPrivateKey ) {
-                sigAlgorithm = "SHA-1/RSA";
+                sigAlgorithm = "SHA-256/RSA";
             } else if( mSigningKey instanceof DSAPrivateKey ) {
-                sigAlgorithm = "SHA-1/DSA";
+                sigAlgorithm = "SHA-256/DSA";
             } else {
                 throw new NoSuchAlgorithmException("Unknown private key type");
             }

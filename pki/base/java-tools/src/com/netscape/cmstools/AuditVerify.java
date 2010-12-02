@@ -197,9 +197,9 @@ public class AuditVerify {
         PublicKey pubk = signerCert.getPublicKey();
         String sigAlgorithm=null;
         if( pubk instanceof RSAPublicKey ) {
-            sigAlgorithm = "SHA-1/RSA";
+            sigAlgorithm = "SHA-256/RSA";
         } else if( pubk instanceof DSAPublicKey ) {
-            sigAlgorithm = "SHA-1/DSA";
+            sigAlgorithm = "SHA-256/DSA";
         } else {
             System.out.println("Error: unknown key type: " +
                 pubk.getAlgorithm());
