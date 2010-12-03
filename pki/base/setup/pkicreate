@@ -183,8 +183,8 @@ my $cmsbundle_jar_base_name      = "cmsbundle.jar";        # CA, KRA, OCSP, TKS
 my $cmscore_jar_base_name        = "cmscore.jar";          # CA, KRA, OCSP, TKS
 my $conf_base_name               = "conf";                 # CA, KRA, OCSP, TKS,
 
-my $jakarta_commons_collections_jar_base_name = "jakarta-commons-collections.jar"; # CA, KRA, OCSP, TKS
 my $jakarta_commons_logging_jar_base_name = "jakarta-commons-logging.jar"; # CA, KRA, OCSP, TKS
+my $jakarta_commons_lang_jar_base_name = "jakarta-commons-lang.jar"; # CA, KRA, OCSP, TKS
 my $jss_jar_base_name             = "jss4.jar";            # CA, KRA, OCSP, TKS
 my $ldapjdk_jar_base_name         = "ldapjdk.jar";         # CA, KRA, OCSP, TKS
 my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
@@ -451,10 +451,10 @@ my $addTokens_ldif_instance_file_path            = undef;  # TPS
 my $addTokens_ldif_subsystem_file_path           = undef;  # TPS
 my $addVLVIndexes_ldif_instance_file_path        = undef;  # TPS
 my $addVLVIndexes_ldif_subsystem_file_path       = undef;  # TPS
-my $jakarta_commons_collections_jar_file_path    = undef;  # CA, KRA, OCSP, TKS
-my $jakarta_commons_collections_jar_symlink_path = undef;  # CA, KRA, OCSP, TKS
 my $jakarta_commons_logging_jar_file_path        = undef;  # CA, KRA, OCSP, TKS
 my $jakarta_commons_logging_jar_symlink_path     = undef;  # CA, KRA, OCSP, TKS
+my $jakarta_commons_lang_jar_file_path           = undef;  # CA, KRA, OCSP, TKS
+my $jakarta_commons_lang_jar_symlink_path        = undef;  # CA, KRA, OCSP, TKS
 my $jss_jar_file_path                            = undef;  # CA, KRA, OCSP, TKS
 my $jss_jar_symlink_path                         = undef;  # CA, KRA, OCSP, TKS
 my $ldapjdk_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
@@ -1746,14 +1746,14 @@ sub initialize_subdirectory_paths
                                            . "/" . $web_xml_base_name;
         $catalina_properties_subsystem_file_path = $conf_subsystem_path
                                                  . "/" . $catalina_properties_base_name;
-        $jakarta_commons_collections_jar_file_path    = $default_java_path
-                                                      . "/" . $jakarta_commons_collections_jar_base_name;
-        $jakarta_commons_collections_jar_symlink_path = $webinf_lib_instance_path
-                                                      . "/" . $jakarta_commons_collections_jar_base_name;
         $jakarta_commons_logging_jar_file_path        = $default_java_path
                                                       . "/" . $jakarta_commons_logging_jar_base_name;
         $jakarta_commons_logging_jar_symlink_path     = $tomcat_instance_common_lib_path
                                                       . "/" . $jakarta_commons_logging_jar_base_name;
+        $jakarta_commons_lang_jar_file_path           = $default_java_path
+                                                      . "/" . $jakarta_commons_lang_jar_base_name;
+        $jakarta_commons_lang_jar_symlink_path        = $webinf_lib_instance_path
+                                                      . "/" . $jakarta_commons_lang_jar_base_name;
         $jss_jar_file_path                  = $default_system_jni_java_path
                                             . "/" . $jss_jar_base_name;
         $jss_jar_symlink_path               = $tomcat_instance_common_lib_path
@@ -2657,9 +2657,10 @@ sub process_pki_files_and_symlinks
         return 0 if !create_symlink($cmsutil_jar_symlink_path, $cmsutil_jar_file_path,
                                     $pki_user, $pki_group);
 
-        # create symlink to "jakarta-commons-collections.jar"
-        return 0 if !create_symlink($jakarta_commons_collections_jar_symlink_path,
-                                    $jakarta_commons_collections_jar_file_path,
+        # create symlink to "jakarta-commons-lang.jar"
+        # needed by velocity
+        return 0 if !create_symlink($jakarta_commons_lang_jar_symlink_path,
+                                    $jakarta_commons_lang_jar_file_path,
                                     $pki_user, $pki_group);
 
         # create symlink to "jakarta-commons-logging.jar"
