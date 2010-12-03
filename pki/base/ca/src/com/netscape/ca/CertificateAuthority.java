@@ -657,7 +657,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             c.putString("minUpdateInterval", "0");
             c.putString("nextUpdateGracePeriod", "0");
             c.putString("publishOnStart", "false");
-            c.putString("signingAlgorithm", "SHA1withRSA");
+            c.putString("signingAlgorithm", "SHA256withRSA");
             c.putString("updateSchema", "1");
 
             // crl extensions
