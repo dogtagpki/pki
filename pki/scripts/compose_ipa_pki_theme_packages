@@ -1,0 +1,211 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2010 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+## Always switch into the base directory three levels
+## above this shell script prior to executing it so
+## that all of its output is written to this directory
+
+cd `dirname $0`/../..
+
+
+##
+## Retrieve the name of this base directory
+##
+
+PKI_PWD=`pwd`
+
+
+##
+## Establish the 'ipa-pki' name and version information
+##
+
+IPA_PKI_THEME="ipa-pki-theme"
+IPA_PKI_THEME_VERSION="9.0.0"
+
+
+##
+## Establish the SOURCE files/directories of the 'ipa-pki' source directory
+##
+
+PKI_DIR="pki"
+PKI_DOGTAG_DIR="${PKI_DIR}/dogtag"
+PKI_SPECS_FILE="${PKI_DIR}/specs/${IPA_PKI_THEME}.spec"
+PKI_FILE_LIST="CMakeLists.txt COPYING CPackConfig.cmake ConfigureChecks.cmake DefineOptions.cmake README cmake_uninstall.cmake.in config.h.cmake"
+PKI_CMAKE_DIR="cmake"
+PKI_DOGTAG_MANIFEST="CMakeLists.txt"
+PKI_COMPONENT_LIST="common-ui ca-ui"
+
+
+##
+## Establish the TARGET files/directories of the 'ipa-pki' source/spec files
+##
+
+PKI_PACKAGES="${PKI_PWD}/packages"
+IPA_PKI_THEME_BUILD_DIR="${PKI_PACKAGES}/BUILD"
+IPA_PKI_THEME_RPMS_DIR="${PKI_PACKAGES}/RPMS"
+IPA_PKI_THEME_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"
+IPA_PKI_THEME_SPECS_DIR="${PKI_PACKAGES}/SPECS"
+IPA_PKI_THEME_SRPMS_DIR="${PKI_PACKAGES}/SRPMS"
+
+IPA_PKI_THEME_TARBALL="${IPA_PKI_THEME}-${IPA_PKI_THEME_VERSION}.tar.gz"
+IPA_PKI_THEME_SPEC_FILE="${IPA_PKI_THEME_SPECS_DIR}/${IPA_PKI_THEME}.spec"
+IPA_PKI_THEME_PACKAGE_SCRIPT="${PKI_PACKAGES}/package_${IPA_PKI_THEME}"
+IPA_PKI_THEME_PACKAGE_COMMAND="rpmbuild --define \"_topdir \`pwd\`\" -ba SPECS/${IPA_PKI_THEME}.spec"
+
+IPA_PKI_THEME_STAGING_DIR="${PKI_PACKAGES}/staging"
+IPA_PKI_THEME_DIR="${IPA_PKI_THEME_STAGING_DIR}/${IPA_PKI_THEME}-${IPA_PKI_THEME_VERSION}"
+IPA_PKI_THEME_DOGTAG_DIR="${IPA_PKI_THEME_DIR}/dogtag"
+IPA_PKI_THEME_DOGTAG_SUBDIR="${IPA_PKI_THEME}-${IPA_PKI_THEME_VERSION}/dogtag"
+
+
+##
+## Always create a top-level 'packages' directory
+##
+
+mkdir -p ${PKI_PACKAGES}
+
+
+##
+## Always create 'ipa-pki' package directories
+##
+
+mkdir -p ${IPA_PKI_THEME_BUILD_DIR}
+mkdir -p ${IPA_PKI_THEME_RPMS_DIR}
+mkdir -p ${IPA_PKI_THEME_SOURCES_DIR}
+mkdir -p ${IPA_PKI_THEME_SPECS_DIR}
+mkdir -p ${IPA_PKI_THEME_SRPMS_DIR}
+
+
+##
+## Always start with new 'ipa-pki' package files
+##
+
+rm -rf ${IPA_PKI_THEME_BUILD_DIR}/${IPA_PKI_THEME}-${IPA_PKI_THEME_VERSION}
+rm -f  ${IPA_PKI_THEME_RPMS_DIR}/${IPA_PKI_THEME}-${IPA_PKI_THEME_VERSION}*.rpm
+rm -f  ${IPA_PKI_THEME_SOURCES_DIR}/${IPA_PKI_THEME_TARBALL}
+rm -f  ${IPA_PKI_THEME_SPEC_FILE}
+rm -f  ${IPA_PKI_THEME_SRPMS_DIR}/${IPA_PKI_THEME}-${IPA_PKI_THEME_VERSION}*.rpm
+
+
+##
+## Copy a new 'ipa-pki' spec file from the
+## current contents of the PKI working repository
+##
+
+cp -p ${PKI_SPECS_FILE} ${IPA_PKI_THEME_SPECS_DIR}
+
+
+##
+## Always start with a new 'ipa-pki' staging directory
+##
+
+rm -rf ${IPA_PKI_THEME_STAGING_DIR}
+
+
+##
+## To generate the 'ipa-pki' tarball, construct a staging area
+## consisting of the 'ipa-pki' source components from the
+## current contents of the PKI working repository
+##
+
+mkdir -p ${IPA_PKI_THEME_DIR}
+cd ${PKI_DIR}
+for file in "${PKI_FILE_LIST}" ;
+do
+	cp -p ${file} ${IPA_PKI_THEME_DIR}
+done
+find ${PKI_CMAKE_DIR}             \
+	-name .svn -prune -o          \
+	-name *.swp -prune -o         \
+	-print | cpio -pdum ${IPA_PKI_THEME_DIR} > /dev/null 2>&1
+cd - > /dev/null 2>&1
+
+mkdir -p ${IPA_PKI_THEME_DOGTAG_DIR}
+cd ${PKI_DOGTAG_DIR}
+cp -p ${PKI_DOGTAG_MANIFEST} ${IPA_PKI_THEME_DOGTAG_DIR}
+for component in "${PKI_COMPONENT_LIST}" ;
+do
+	find ${component}             \
+	-name .svn -prune -o          \
+	-name config-ext -prune -o    \
+	-name *.spec -prune -o        \
+	-name *.swp -prune -o         \
+	-name build.xml -prune -o     \
+	-name build_dogtag -prune -o  \
+	-print | cpio -pdum ${IPA_PKI_THEME_DOGTAG_DIR} > /dev/null 2>&1
+done
+cd - > /dev/null 2>&1
+
+
+##
+## Due to the following lower-level 'config' subdirectories,
+## INDEPENDENTLY remove ALL top-level 'config' directories:
+##
+##     * ./common-ui/shared/admin/console/config
+##     * ./ra-ui/shared/docroot/ra/admin/console/config   (N/A 'ipa-pki')
+##     * ./tps-ui/shared/docroot/tps/admin/console/config (N/A 'ipa-pki')
+##
+
+rm -rf ${IPA_PKI_THEME_DOGTAG_DIR}/*/config
+
+
+##
+## Create the 'ipa-pki' tarball
+##
+
+mkdir -p ${IPA_PKI_THEME_SOURCES_DIR}
+cd ${IPA_PKI_THEME_STAGING_DIR}
+# Remove all '*.htm*' web pages and 'Dogtag-specific' graphics
+# Map 'Dogtag' color '#225580' to black
+# Map 'Dogtag' color '#4f52b5' to black
+# Map 'DCS'    text to 'XXX'
+# Map 'dogtag' text to 'XXXXXX'
+# Map 'Dogtag' text to 'XXXXXX'
+# Map 'DOGTAG' text to 'XXXXXX'
+# Map 'Fedora' text to 'XXXXXX'
+# Map 'FEDORA' text to 'XXXXXX'
+find ${IPA_PKI_THEME_DOGTAG_SUBDIR} -name "favicon.ico"     -print -or \
+                              -name "*.htm"           -print -or \
+                              -name "*.html"          -print -or \
+                              -name "logo_header.gif" -print | xargs rm        ;
+find ${IPA_PKI_THEME_DOGTAG_SUBDIR} -type f -exec sed -i 's/#225580/#000000/g' {} \; ;
+find ${IPA_PKI_THEME_DOGTAG_SUBDIR} -type f -exec sed -i 's/#4f52b5/#000000/g' {} \; ;
+find ${IPA_PKI_THEME_DOGTAG_SUBDIR} -type f -exec sed -i 's/DCS/XXX/g'         {} \; ;
+find ${IPA_PKI_THEME_DOGTAG_SUBDIR} -type f -exec sed -i 's/dogtag/XXXXXX/g'   {} \; ;
+find ${IPA_PKI_THEME_DOGTAG_SUBDIR} -type f -exec sed -i 's/Dogtag/XXXXXX/g'   {} \; ;
+find ${IPA_PKI_THEME_DOGTAG_SUBDIR} -type f -exec sed -i 's/DOGTAG/XXXXXX/g'   {} \; ;
+find ${IPA_PKI_THEME_DOGTAG_SUBDIR} -type f -exec sed -i 's/Fedora/XXXXXX/g'   {} \; ;
+find ${IPA_PKI_THEME_DOGTAG_SUBDIR} -type f -exec sed -i 's/FEDORA/XXXXXX/g'   {} \;
+gtar -zcvf ${IPA_PKI_THEME_TARBALL}    \
+	"${IPA_PKI_THEME}-${IPA_PKI_THEME_VERSION}" > /dev/null 2>&1
+mv ${IPA_PKI_THEME_TARBALL} ${IPA_PKI_THEME_SOURCES_DIR}
+cd - > /dev/null 2>&1
+
+
+##
+## Always remove the PKI staging area
+##
+
+rm -rf ${IPA_PKI_THEME_STAGING_DIR}
+
+
+##
+## Always generate a fresh 'ipa-pki' package script
+##
+
+rm -rf ${IPA_PKI_THEME_PACKAGE_SCRIPT}
+printf "#!/bin/bash\n\n"                >  ${IPA_PKI_THEME_PACKAGE_SCRIPT}
+printf "${IPA_PKI_THEME_PACKAGE_COMMAND}\n\n" >> ${IPA_PKI_THEME_PACKAGE_SCRIPT}
+chmod 775 ${IPA_PKI_THEME_PACKAGE_SCRIPT}
+
+
+##
+## Automatically invoke RPM/SRPM creation
+##
+
+cd ${PKI_PACKAGES} ;
+script -c package_${IPA_PKI_THEME} package_${IPA_PKI_THEME}.log
+

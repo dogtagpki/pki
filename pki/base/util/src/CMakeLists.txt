@@ -16,6 +16,14 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
+find_file(OSUTIL_JAR
+    NAMES
+        osutil.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
 find_file(JSS_JAR
     NAMES
         jss4.jar

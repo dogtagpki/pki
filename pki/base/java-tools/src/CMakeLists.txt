@@ -1,4 +1,12 @@
-project(cmstools_java Java)
+project(pkitools_java Java)
+
+find_file(OSUTIL_JAR
+    NAMES
+        osutil.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
 
 find_file(JSS_JAR
     NAMES
@@ -8,7 +16,7 @@ find_file(JSS_JAR
         /usr/share/java
 )
 
-set(cmstools_java_SRCS
+set(pkitools_java_SRCS
     com/netscape/cmstools/PrettyPrintCrl.java
     com/netscape/cmstools/BtoA.java
     com/netscape/cmstools/PasswordCache.java
@@ -35,7 +43,7 @@ set(cmstools_java_SRCS
 set(CMAKE_JAVA_INCLUDE_PATH ${JSS_JAR} ${OSUTIL_JAR} ${NSUTIL_JAR} ${CMSUTIL_JAR} ${CMS_JAR})
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
-add_jar(cmstools ${netscape_java_SRCS} ${cmstools_java_SRCS})
-add_dependencies(cmstools osutil nsutil cmsutil cms)
-install_jar(cmstools ${JAVA_JAR_INSTALL_DIR}/pki)
-set(CMSTOOLS_JAR ${cmstools_JAR_FILE} CACHE INTERNAL "cmstools jar file")
+add_jar(pkitools ${netscape_java_SRCS} ${pkitools_java_SRCS})
+add_dependencies(pkitools osutil nsutil cmsutil cms)
+install_jar(pkitools ${JAVA_JAR_INSTALL_DIR})
+set(CMSTOOLS_JAR ${pkitools_JAR_FILE} CACHE INTERNAL "pkitools jar file")

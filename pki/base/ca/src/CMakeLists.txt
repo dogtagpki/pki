@@ -34,5 +34,5 @@ set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(ca ${ca_java_SRCS})
 add_dependencies(ca nsutil cmsutil osutil symkey cms cmscore certsrv)
-install_jar(ca ${JAVA_JAR_INSTALL_DIR}/pki)
+install_jar(ca ${JAVA_JAR_INSTALL_DIR})
 set(CA_JAR ${ca_JAR_FILE} CACHE INTERNAL "ca jar file")

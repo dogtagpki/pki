@@ -31,5 +31,5 @@ set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(ocsp ${ocsp_java_SRCS})
 add_dependencies(ocsp nsutil cmsutil osutil symkey cms cmscore certsrv)
-install_jar(ocsp ${JAVA_JAR_INSTALL_DIR}/pki)
+install_jar(ocsp ${JAVA_JAR_INSTALL_DIR})
 set(OCSP_JAR ${ocsp_JAR_FILE} CACHE INTERNAL "ocsp jar file")

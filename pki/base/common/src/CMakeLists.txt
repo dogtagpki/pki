@@ -16,6 +16,14 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
+find_file(OSUTIL_JAR
+    NAMES
+        osutil.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
 find_file(JSS_JAR
     NAMES
         jss4.jar
@@ -434,7 +442,6 @@ set(cms_java_SRCS
     com/netscape/cms/policy/extensions/PrivateKeyUsagePeriodExt.java
     com/netscape/cms/policy/extensions/KeyUsageExt.java
     com/netscape/cms/policy/extensions/NSCertTypeExt.java
-    com/netscape/cms/servlet/filter/PassThroughRequestFilter.java
     com/netscape/cms/servlet/filter/AdminRequestFilter.java
     com/netscape/cms/servlet/filter/EEClientAuthRequestFilter.java
     com/netscape/cms/servlet/filter/EERequestFilter.java
@@ -673,6 +680,7 @@ set(cms_java_SRCS
     com/netscape/cms/selftests/tks/TKSKnownSessionKey.java
     com/netscape/cms/selftests/ca/CAPresence.java
     com/netscape/cms/selftests/ca/CAValidity.java
+    com/netscape/cms/selftests/common/SystemCertsVerification.java
     com/netscape/cms/selftests/ocsp/OCSPValidity.java
     com/netscape/cms/selftests/ocsp/OCSPPresence.java
     com/netscape/cms/request/RequestScheduler.java
@@ -970,7 +978,7 @@ set(cmscore_java_SRCS
     com/netscape/cmscore/time/SimpleTimeSource.java
 )
 
-set(cmsbundle_RCS
+set(cmsbundle_SRCS
     LogMessages.properties
     UserMessages.properties
 )
@@ -1013,6 +1021,6 @@ set(CMAKE_JAVA_INCLUDE_PATH
     ${NSUTIL_JAR} ${CMSUTIL_JAR} ${SERVLET_JAR}
     ${VELOCITY_JAR} ${SYMKEY_JAR} ${XERCES_JAR})
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
-add_jar(cmsbundle ${certserv_java_SRCS} ${cms_java_SRCS} ${cmscore_java_SRCS} ${cmsbundle_RCS})
+add_jar(cmsbundle ${certserv_java_SRCS} ${cms_java_SRCS} ${cmscore_java_SRCS} ${cmsbundle_SRCS})
 add_dependencies(cmsbundle osutil nsutil cmsutil)
 install_jar(cmsbundle ${JAVA_JAR_INSTALL_DIR}/pki)

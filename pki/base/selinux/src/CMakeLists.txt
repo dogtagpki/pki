@@ -22,7 +22,7 @@ if (LINUX)
             FILES
                 ${CMAKE_CURRENT_BINARY_DIR}/pki.pp
             DESTINATION
-                ${SHARE_INSTALL_PREFIX}/selinux/targeted
+                ${SHARE_INSTALL_PREFIX}/selinux/modules
         )
     endif (EXISTS ${POLICY_MAKEFILE})
 endif (LINUX)

@@ -38,5 +38,5 @@ set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(kra ${kra_java_SRCS})
 add_dependencies(kra nsutil cmsutil osutil symkey cms cmscore certsrv)
-install_jar(kra ${JAVA_JAR_INSTALL_DIR}/pki)
+install_jar(kra ${JAVA_JAR_INSTALL_DIR})
 set(KRA_JAR ${kra_JAR_FILE} CACHE INTERNAL "kra jar file")

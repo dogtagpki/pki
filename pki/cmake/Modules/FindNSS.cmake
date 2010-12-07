@@ -69,6 +69,17 @@ else (NSS_LIBRARIES AND NSS_INCLUDE_DIRS)
       /sw/lib
   )
 
+  find_library(NSSUTIL3_LIBRARY
+    NAMES
+      nssutil3
+    PATHS
+      ${_NSS_LIBDIR}
+      /usr/lib
+      /usr/local/lib
+      /opt/local/lib
+      /sw/lib
+  )
+
   set(NSS_INCLUDE_DIRS
     ${NSS_INCLUDE_DIR}
   )
@@ -93,6 +104,13 @@ else (NSS_LIBRARIES AND NSS_INCLUDE_DIRS)
         ${NSS3_LIBRARY}
     )
   endif (NSS3_LIBRARY)
+
+  if (NSSUTIL3_LIBRARY)
+    set(NSS_LIBRARIES
+        ${NSS_LIBRARIES}
+        ${NSSUTIL3_LIBRARY}
+    )
+  endif (NSSUTIL3_LIBRARY)
 
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(NSS DEFAULT_MSG NSS_LIBRARIES NSS_INCLUDE_DIRS)

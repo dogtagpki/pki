@@ -79,5 +79,5 @@ set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(silent ${silent_java_SRCS})
 add_dependencies(silent osutil symkey certsrv cms cmsutil nsutil)
-install_jar(silent ${JAVA_JAR_INSTALL_DIR}/pki)
+install_jar(silent ${JAVA_JAR_INSTALL_DIR})
 set(SILENT_JAR ${silent_JAR_FILE} CACHE INTERNAL "silent jar file")

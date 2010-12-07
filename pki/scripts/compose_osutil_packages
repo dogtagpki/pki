@@ -1,0 +1,197 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2010 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+## Always switch into the base directory three levels
+## above this shell script prior to executing it so
+## that all of its output is written to this directory
+
+cd `dirname $0`/../..
+
+
+##
+## Retrieve the name of this base directory
+##
+
+OSUTIL_PWD=`pwd`
+
+
+##
+## Establish the 'osutil' name and version information
+##
+
+OSUTIL="osutil"
+OSUTIL_VERSION="9.0.0"
+
+
+##
+## Establish the SOURCE files/directories of the 'osutil' source directory
+##
+
+PKI_DIR="pki"
+PKI_BASE_DIR="${PKI_DIR}/base"
+OSUTIL_SPECS_FILE="${PKI_DIR}/specs/${OSUTIL}.spec"
+OSUTIL_FILE_LIST="CMakeLists.txt COPYING CPackConfig.cmake ConfigureChecks.cmake DefineOptions.cmake README cmake_uninstall.cmake.in config.h.cmake"
+PKI_CMAKE_DIR="cmake"
+PKI_BASE_MANIFEST="CMakeLists.txt"
+
+
+##
+## Establish the TARGET files/directories of the 'osutil' source/spec files
+##
+
+OSUTIL_PACKAGES="${OSUTIL_PWD}/packages"
+OSUTIL_BUILD_DIR="${OSUTIL_PACKAGES}/BUILD"
+OSUTIL_RPMS_DIR="${OSUTIL_PACKAGES}/RPMS"
+OSUTIL_SOURCES_DIR="${OSUTIL_PACKAGES}/SOURCES"
+OSUTIL_SPECS_DIR="${OSUTIL_PACKAGES}/SPECS"
+OSUTIL_SRPMS_DIR="${OSUTIL_PACKAGES}/SRPMS"
+
+OSUTIL_TARBALL="${OSUTIL}-${OSUTIL_VERSION}.tar.gz"
+OSUTIL_SPEC_FILE="${OSUTIL_SPECS_DIR}/${OSUTIL}.spec"
+OSUTIL_PACKAGE_SCRIPT="${OSUTIL_PACKAGES}/package_${OSUTIL}"
+OSUTIL_PACKAGE_COMMAND="rpmbuild --define \"_topdir \`pwd\`\" -ba SPECS/${OSUTIL}.spec"
+
+OSUTIL_STAGING_DIR="${OSUTIL_PACKAGES}/staging"
+OSUTIL_DIR="${OSUTIL_STAGING_DIR}/${OSUTIL}-${OSUTIL_VERSION}"
+OSUTIL_BASE_DIR="${OSUTIL_DIR}/base"
+
+
+##
+## Always create a top-level 'packages' directory
+##
+
+mkdir -p ${OSUTIL_PACKAGES}
+
+
+##
+## Always create 'osutil' package directories
+##
+
+mkdir -p ${OSUTIL_BUILD_DIR}
+mkdir -p ${OSUTIL_RPMS_DIR}
+mkdir -p ${OSUTIL_SOURCES_DIR}
+mkdir -p ${OSUTIL_SPECS_DIR}
+mkdir -p ${OSUTIL_SRPMS_DIR}
+
+
+##
+## Always start with new 'osutil' package files
+##
+
+rm -rf ${OSUTIL_BUILD_DIR}/${OSUTIL}-${OSUTIL_VERSION}
+rm -f  ${OSUTIL_RPMS_DIR}/${OSUTIL}-${OSUTIL_VERSION}*.rpm
+rm -f  ${OSUTIL_SOURCES_DIR}/${OSUTIL_TARBALL}
+rm -f  ${OSUTIL_SPEC_FILE}
+rm -f  ${OSUTIL_SRPMS_DIR}/${OSUTIL}-${OSUTIL_VERSION}*.rpm
+
+
+##
+## Copy a new 'osutil' spec file from the
+## current contents of the OSUTIL working repository
+##
+
+cp -p ${OSUTIL_SPECS_FILE} ${OSUTIL_SPECS_DIR}
+
+
+##
+## Always start with a new 'osutil' staging directory
+##
+
+rm -rf ${OSUTIL_STAGING_DIR}
+
+
+##
+## To generate the 'osutil' tarball, construct a staging area
+## consisting of the 'osutil' source components from the
+## current contents of the OSUTIL working repository
+##
+
+mkdir -p ${OSUTIL_DIR}
+cd ${PKI_DIR}
+for file in "${OSUTIL_FILE_LIST}" ;
+do
+	cp -p ${file} ${OSUTIL_DIR}
+done
+find ${PKI_CMAKE_DIR}             \
+	-name .svn -prune -o          \
+	-name *.swp -prune -o         \
+	-print | cpio -pdum ${OSUTIL_DIR} > /dev/null 2>&1
+cd - > /dev/null 2>&1
+
+mkdir -p ${OSUTIL_BASE_DIR}
+cd ${PKI_BASE_DIR}
+cp -p ${PKI_BASE_MANIFEST} ${OSUTIL_BASE_DIR}
+find osutil                   \
+-name .svn -prune -o          \
+-name *.swp -prune -o         \
+-name Makefile.am -prune -o   \
+-name Makefile.in -prune -o   \
+-name aclocal.m4 -prune -o    \
+-name autogen.sh -prune -o    \
+-name build.xml -prune -o     \
+-name compile -prune -o       \
+-name config.guess -prune -o  \
+-name config.h.in -prune -o   \
+-name config.sub -prune -o    \
+-name configure -prune -o     \
+-name configure.ac -prune -o  \
+-name depcomp -prune -o       \
+-name install-sh -prune -o    \
+-name ltmain.sh -prune -o     \
+-name m4 -prune -o            \
+-name missing -prune -o       \
+-name setup_package -prune -o \
+-print | cpio -pdum ${OSUTIL_BASE_DIR} > /dev/null 2>&1
+cd - > /dev/null 2>&1
+
+
+##
+## Due to the following lower-level 'config' subdirectories,
+## INDEPENDENTLY remove ALL top-level 'config' directories:
+##
+##     * ./console/src/com/netscape/admin/certsrv/config (N/A 'osutil')
+##     * ./tps/forms/tps/admin/console/config            (N/A 'osutil')
+##
+
+rm -rf ${OSUTIL_BASE_DIR}/*/config
+
+
+##
+## Create the 'osutil' tarball
+##
+
+mkdir -p ${OSUTIL_SOURCES_DIR}
+cd ${OSUTIL_STAGING_DIR}
+gtar -zcvf ${OSUTIL_TARBALL}    \
+	"${OSUTIL}-${OSUTIL_VERSION}" > /dev/null 2>&1
+mv ${OSUTIL_TARBALL} ${OSUTIL_SOURCES_DIR}
+cd - > /dev/null 2>&1
+
+
+##
+## Always remove the OSUTIL staging area
+##
+
+rm -rf ${OSUTIL_STAGING_DIR}
+
+
+##
+## Always generate a fresh 'osutil' package script
+##
+
+rm -rf ${OSUTIL_PACKAGE_SCRIPT}
+printf "#!/bin/bash\n\n"                 >  ${OSUTIL_PACKAGE_SCRIPT}
+printf "${OSUTIL_PACKAGE_COMMAND}\n\n" >> ${OSUTIL_PACKAGE_SCRIPT}
+chmod 775 ${OSUTIL_PACKAGE_SCRIPT}
+
+
+##
+## Automatically invoke RPM/SRPM creation
+##
+
+cd ${OSUTIL_PACKAGES} ;
+script -c package_${OSUTIL} package_${OSUTIL}.log
+

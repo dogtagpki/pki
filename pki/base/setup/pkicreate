@@ -122,22 +122,16 @@ $suppress = $install_info_basename;
 
 # Base subsystem directory names
 my $acl_base_subsystem_dir      = "acl";       # CA, KRA, OCSP, TKS
-my $alias_base_subsystem_dir    = "alias";     # CA, KRA, OCSP, TKS, RA, TPS
 my $applets_base_subsystem_dir  = "applets";   # TPS
 my $cgibin_base_subsystem_dir   = "cgi-bin";   # TPS (Apache)
 my $conf_base_subsystem_dir     = "conf";      # CA, KRA, OCSP, TKS, RA, TPS
 my $docroot_base_subsystem_dir  = "docroot";   # RA, TPS (Apache)
 my $emails_base_subsystem_dir   = "emails";    # CA
-my $etc_base_subsystem_dir      = "etc";       # CA, KRA, OCSP, TKS, RA, TPS
 my $lib_base_subsystem_dir      = "lib";       # RA, TPS
-my $logs_base_subsystem_dir     = "logs";      # CA, KRA, OCSP, TKS, RA, TPS
 my $profiles_base_subsystem_dir = "profiles";  # CA, KRA, OCSP, TKS
 my $samples_base_subsystem_dir  = "samples";   # TPS
 my $scripts_base_subsystem_dir  = "scripts";   # RA, TPS
-my $shared_base_subsystem_dir   = "shared";    # CA, KRA, OCSP, TKS (Tomcat)
-my $temp_base_subsystem_dir     = "temp";      # CA, KRA, OCSP, TKS (Tomcat)
 my $webapps_base_subsystem_dir  = "webapps";   # CA, KRA, OCSP, TKS
-my $work_base_subsystem_dir     = "work";      # CA, KRA, OCSP, TKS (Tomcat)
 
 # Base instance directory names
 my $acl_base_instance_dir          = "acl";        # CA, KRA, OCSP, TKS
@@ -194,7 +188,6 @@ my $catalina_properties_base_name = "catalina.properties"; # CA, KRA, OCSP, TKS
 
 my $httpd_conf_base_name          = "httpd.conf";             # RA, TPS
 my $index_jsp_base_name           = "index.jsp";              # CA, KRA, OCSP, TKS
-my $logs_base_name                = "logs";                   # CA, KRA, OCSP, TKS,
                                                               # RA, TPS
 my $magic_base_name               = "magic";                  # RA, TPS
 my $mime_types_base_name          = "mime.types";             # RA, TPS
@@ -382,25 +375,19 @@ my $redirected_logs_path       = undef;
 # Base subsystem directory paths
 my $pki_subsystem_path       = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $acl_subsystem_path       = undef;  # CA, KRA, OCSP, TKS
-my $alias_subsystem_path     = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $applets_subsystem_path   = undef;  # TPS
 my $bin_subsystem_path       = undef;  # TPS
 my $cgibin_subsystem_path    = undef;  # TPS (Apache)
 my $conf_subsystem_path      = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $docroot_subsystem_path   = undef;  # RA, TPS (Apache)
 my $emails_subsystem_path    = undef;  # CA
-my $etc_subsystem_path       = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $lib_subsystem_path       = undef;  # RA, TPS
-my $logs_subsystem_path      = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $profiles_subsystem_path  = undef;  # CA, KRA, OCSP, TKS
 my $samples_subsystem_path   = undef;  # TPS
 my $scripts_subsystem_path   = undef;  # RA, TPS
-my $shared_subsystem_path    = undef;  # CA, KRA, OCSP, TKS (Tomcat)
-my $temp_subsystem_path      = undef;  # CA, KRA, OCSP, TKS (Tomcat)
 my $webapps_subsystem_path   = undef;  # CA, KRA, OCSP, TKS
 my $common_ui_subsystem_path = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $ui_subsystem_path        = undef;  # CA, KRA, OCSP, TKS, RA, TPS
-my $work_subsystem_path      = undef;  # CA, KRA, OCSP, TKS (Tomcat)
 
 # Base instance directory paths
 my $pki_instance_path               = undef;  # CA, KRA, OCSP, TKS, RA, TPS
@@ -1358,14 +1345,8 @@ ASK_CONTINUE_NONSTD_INSTANCE_ROOT:
 sub initialize_subsystem_paths
 {
     ## Initialize subsystem directory paths (subsystem independent)
-    $alias_subsystem_path    = $pki_subsystem_path
-                             . "/" . $alias_base_subsystem_dir;
     $conf_subsystem_path     = $pki_subsystem_path
                              . "/" . $conf_base_subsystem_dir;
-    $etc_subsystem_path      = $pki_subsystem_path
-                             . "/" . $etc_base_subsystem_dir;
-    $logs_subsystem_path     = $pki_subsystem_path
-                             . "/" . $logs_base_subsystem_dir;
     $setup_subsystem_path    = $pki_subsystem_path
                              . "/" . $setup_base_subsystem_dir;
 
@@ -1422,14 +1403,6 @@ sub initialize_subsystem_paths
                                  . "/" . $profiles_base_subsystem_dir;
         $webapps_subsystem_path  = $pki_subsystem_path
                                  . "/" . $webapps_base_subsystem_dir;
-
-        # Tomcat Specific
-        $shared_subsystem_path   = $pki_subsystem_path
-                                 . "/" . $shared_base_subsystem_dir;
-        $temp_subsystem_path     = $pki_subsystem_path
-                                 . "/" . $temp_base_subsystem_dir;
-        $work_subsystem_path     = $pki_subsystem_path
-                                 . "/" . $work_base_subsystem_dir;
     }
 
     return;
@@ -1815,9 +1788,8 @@ sub process_pki_directories
     emit("Processing PKI directories for '$pki_instance_path' ...\n");
 
     ## Populate instance directory paths (instance independent)
-    return 0 if !copy_directory($alias_subsystem_path, $alias_instance_path,
-                                $default_dir_permissions, $default_file_permissions,
-                                $pki_user, $pki_group);
+    return 0 if !create_directory($alias_instance_path,
+                                  $default_dir_permissions, $pki_user, $pki_group);
 
     # Check for an optionally redirected "conf" directory path ...
     if ($redirected_conf_path eq "") {
@@ -1925,36 +1897,23 @@ sub process_pki_directories
 
     # Check for an optionally redirected "logs" directory path ...
     if ($redirected_logs_path eq "") {
-        if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
-            # create instance directory
-            return 0 if !create_directory($logs_instance_path,
-                                          $default_dir_permissions, $pki_user, $pki_group);
-        }
+        # create instance directory
+        return 0 if !create_directory(${logs_instance_path},
+                                      $default_dir_permissions, $pki_user, $pki_group);
 
-        return 0 if !copy_directory($logs_subsystem_path, $logs_instance_path,
-                                    $default_dir_permissions, $default_file_permissions,
-                                    $pki_user, $pki_group);
-
-        ## (CA, KRA, OCSP, TKS instances)
+        ## (CA, KRA, OCSP, TKS, TPS instances)
         if ($subsystem_type ne $RA) {
             ## Create a "signedAudit" directory
             return 0 if !create_directory("${logs_instance_path}/${signed_audit_base_instance_dir}",
                                           $default_dir_permissions, $pki_user, $pki_group);
         }
     } else {
-        if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
-            # create redirected instance directory
-            return 0 if !create_directory($redirected_logs_path,
-                                          $default_dir_permissions, $pki_user, $pki_group);
-        }
-
-        # Populate optionally redirected instance directory path
+        # create redirected instance directory
         # and setup a symlink in the standard area
-        return 0 if !copy_directory($logs_subsystem_path, $redirected_logs_path,
-                                    $default_dir_permissions, $default_file_permissions,
-                                    $pki_user, $pki_group);
+        return 0 if !create_directory($redirected_logs_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
 
-        ## (CA, KRA, OCSP, TKS instances)
+        ## (CA, KRA, OCSP, TKS, TPS instances)
         if ($subsystem_type ne $RA) {
             ## Create a "signedAudit" directory
             return 0 if !create_directory("${redirected_logs_path}/${signed_audit_base_instance_dir}",
@@ -2055,9 +2014,14 @@ sub process_pki_directories
                                     $pki_user, $pki_group);
         
         ## Tomcat Specific
-        return 0 if !copy_directory($shared_subsystem_path, $shared_instance_path,
-                                    $default_dir_permissions, $default_file_permissions,
-                                    $pki_user, $pki_group);
+        return 0 if !create_directory($shared_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        return 0 if !create_directory("$shared_instance_path/classes",
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        return 0 if !create_directory("$shared_instance_path/lib",
+                                      $default_dir_permissions, $pki_user, $pki_group);
 
         return 0 if !create_directory($tomcat_instance_common_lib_path,
                                       $default_dir_permissions, $pki_user, $pki_group);

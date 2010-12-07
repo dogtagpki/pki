@@ -33,5 +33,5 @@ install(
     FILES
         bulkissuance.data
     DESTINATION
-        ${LIB_INSTALL_DIR}/pki/native-tools/
+        ${SHARE_INSTALL_PREFIX}/pki/native-tools/
 )

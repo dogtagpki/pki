@@ -17,6 +17,8 @@ install(
         OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ
         WORLD_EXECUTE WORLD_READ
+    PATTERN
+        "CMakeLists.txt" EXCLUDE
 )
 
 install(
@@ -67,3 +69,16 @@ foreach(INSTALL_DIR ${INSTALL_DIRS})
             ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/${INSTALL_DIR}
     )
 endforeach(INSTALL_DIR ${INSTALL_DIRS})
+
+# install empty directories
+install(
+    DIRECTORY
+    DESTINATION
+        ${VAR_INSTALL_DIR}/lock/pki/tps
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${VAR_INSTALL_DIR}/run/pki/tps
+)

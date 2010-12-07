@@ -26,7 +26,7 @@
 #           add_jar(foobar foobar.java)
 #
 #       To add a VERSION to the target output name you can set it using
-#       CMAKE_JAVA_TARGET_NAME. This will create a jar file with the name
+#       CMAKE_JAVA_TARGET_VERSION. This will create a jar file with the name
 #       shibboleet-1.0.0.jar and will create a symlink shibboleet.jar pointing
 #       to the jar with the version information.
 #
@@ -39,6 +39,8 @@
 #
 #       <target>_INSTALL_FILES      The files which should be installed. This
 #                                   is used by install_jar().
+#       <target>_JNI_SYMLINK        The JNI symlink which should be installed.
+#                                   This is used by install_jni_symlink().
 #       <target>_JAR_FILE           The location of the jar file so that you
 #                                   can include it.
 #       <target>_CLASS_DIR          The directory where the class files can be
@@ -48,6 +50,12 @@
 #    install_jar(TARGET_NAME DESTINATION)
 #
 #    This command installs the TARGET_NAME files to the given DESTINATION. It
+#    should be called in the same scope as add_jar() or it will fail.
+#
+#
+#    install_symlink(TARGET_NAME DESTINATION)
+#
+#    This command installs the TARGET_NAME symlinks to the given DESTINATION. It
 #    should be called in the same scope as add_jar() or it will fail.
 #
 #=============================================================================
@@ -179,29 +187,49 @@ function(ADD_JAR _TARGET_NAME)
     endif (_JAVA_COMPILE_FILES)
 
     # create the jar file
-    add_custom_command(
-        TARGET ${_TARGET_NAME}
-        COMMAND ${CMAKE_Java_ARCHIVE}
-            -cf ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
-            ${_JAVA_RESOURCE_FILES} @java_class_filelist
-        COMMAND ${CMAKE_COMMAND}
-            -D_JAVA_TARGET_DIR=${CMAKE_CURRENT_BINARY_DIR}
-            -D_JAVA_TARGET_OUTPUT_NAME=${_JAVA_TARGET_OUTPUT_NAME}
-            -D_JAVA_TARGET_OUTPUT_LINK=${_JAVA_TARGET_OUTPUT_LINK}
-            -P ${_JAVA_SYMLINK_SCRIPT}
-        WORKING_DIRECTORY ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
-        COMMENT "Creating Java archive ${_JAVA_TARGET_OUTPUT_NAME}"
-    )
+    if (CMAKE_JNI_TARGET)
+        add_custom_command(
+            TARGET ${_TARGET_NAME}
+            COMMAND ${CMAKE_Java_ARCHIVE}
+                -cf ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
+                ${_JAVA_RESOURCE_FILES} @java_class_filelist
+            COMMAND ${CMAKE_COMMAND}
+                -D_JAVA_TARGET_DIR=${CMAKE_CURRENT_BINARY_DIR}
+                -D_JAVA_TARGET_OUTPUT_NAME=${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
+                -D_JAVA_TARGET_OUTPUT_LINK=${_JAVA_TARGET_OUTPUT_LINK}
+                -P ${_JAVA_SYMLINK_SCRIPT}
+            WORKING_DIRECTORY ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
+            COMMENT "Creating Java archive ${_JAVA_TARGET_OUTPUT_NAME}"
+        )
+    else ()
+        add_custom_command(
+            TARGET ${_TARGET_NAME}
+            COMMAND ${CMAKE_Java_ARCHIVE}
+                -cf ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
+                ${_JAVA_RESOURCE_FILES} @java_class_filelist
+            COMMAND ${CMAKE_COMMAND}
+                -D_JAVA_TARGET_DIR=${CMAKE_CURRENT_BINARY_DIR}
+                -D_JAVA_TARGET_OUTPUT_NAME=${_JAVA_TARGET_OUTPUT_NAME}
+                -D_JAVA_TARGET_OUTPUT_LINK=${_JAVA_TARGET_OUTPUT_LINK}
+                -P ${_JAVA_SYMLINK_SCRIPT}
+            WORKING_DIRECTORY ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
+            COMMENT "Creating Java archive ${_JAVA_TARGET_OUTPUT_NAME}"
+        )
+    endif (CMAKE_JNI_TARGET)
 
     set(${_TARGET_NAME}_INSTALL_FILES
         ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
         PARENT_SCOPE)
-    if (_JAVA_TARGET_OUTPUT_LINK)
+    if (CMAKE_JNI_TARGET AND _JAVA_TARGET_OUTPUT_LINK)
+        set(${_TARGET_NAME}_JNI_SYMLINK
+            ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_LINK}
+            PARENT_SCOPE)
+    elseif (_JAVA_TARGET_OUTPUT_LINK )
         set(${_TARGET_NAME}_INSTALL_FILES
             ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
             ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_LINK}
             PARENT_SCOPE)
-    endif (_JAVA_TARGET_OUTPUT_LINK)
+    endif (CMAKE_JNI_TARGET AND _JAVA_TARGET_OUTPUT_LINK)
     set(${_TARGET_NAME}_JAR_FILE
         ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME} PARENT_SCOPE)
     set(${_TARGET_NAME}_CLASS_DIR
@@ -221,3 +249,17 @@ function(INSTALL_JAR _TARGET_NAME _DESTINATION)
         message(SEND_ERROR "The target ${_TARGET_NAME} is not known in this scope.")
     endif (${_TARGET_NAME}_INSTALL_FILES)
 endfunction(INSTALL_JAR _TARGET_NAME _DESTINATION)
+
+function(INSTALL_JNI_SYMLINK _TARGET_NAME _DESTINATION)
+    if (${_TARGET_NAME}_JNI_SYMLINK)
+        install(
+            FILES
+                ${${_TARGET_NAME}_JNI_SYMLINK}
+            DESTINATION
+                ${_DESTINATION}
+        )
+    else (${_TARGET_NAME}_JNI_SYMLINK)
+        message(SEND_ERROR "The target ${_TARGET_NAME} is not known in this scope.")
+    endif (${_TARGET_NAME}_JNI_SYMLINK)
+endfunction(INSTALL_JNI_SYMLINK _TARGET_NAME _DESTINATION)
+

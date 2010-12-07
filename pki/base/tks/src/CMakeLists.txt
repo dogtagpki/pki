@@ -28,5 +28,5 @@ set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(tks ${tks_java_SRCS})
 add_dependencies(tks nsutil cmsutil osutil symkey cms cmscore certsrv)
-install_jar(tks ${JAVA_JAR_INSTALL_DIR}/pki)
+install_jar(tks ${JAVA_JAR_INSTALL_DIR})
 set(TKS_JAR ${tks_JAR_FILE} CACHE INTERNAL "tks jar file")

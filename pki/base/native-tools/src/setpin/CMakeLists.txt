@@ -1,16 +1,18 @@
 project(setpin C)
 
+find_package(Ldap REQUIRED)
+
 set(SETPIN_PRIVATE_INCLUDE_DIRS
   ${CMAKE_BINARY_DIR}
   ${NSPR_INCLUDE_DIRS}
   ${NSS_INCLUDE_DIRS}
-  ${MOZLDAP_INCLUDE_DIRS}
+  ${LDAP_INCLUDE_DIRS}
 )
 
 set(SETPIN_LINK_LIBRARIES
   ${NSPR_LIBRARIES}
   ${NSS_LIBRARIES}
-  ${MOZLDAP_LIBRARIES}
+  ${LDAP_LIBRARIES}
 )
 
 set(setpin_SRCS
@@ -37,5 +39,5 @@ install(
     FILES
         setpin.conf
     DESTINATION
-        ${LIB_INSTALL_DIR}/pki/native-tools/
+        ${SHARE_INSTALL_PREFIX}/pki/native-tools/
 )

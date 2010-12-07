@@ -1,7 +1,5 @@
 project(tkstool C)
 
-find_package(MozLDAP REQUIRED)
-
 set(TKSTOOL_PRIVATE_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_BINARY_DIR}

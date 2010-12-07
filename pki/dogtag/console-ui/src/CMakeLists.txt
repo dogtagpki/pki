@@ -1,10 +1,7 @@
 set(console_ui_java Java)
 
-set(CONSOLE_UI_TARGET pki-console-theme-${CONSOLE_UI_VERSION})
-set(CONSOLE_UI_JAR "${CMAKE_CURRENT_BINARY_DIR}/${CONSOLE_UI_TARGET}.jar" CACHE INTERNAL "console-ui jar file")
-
-set(console_ui_RCS
-    CMSAdminRS.properties
+set(console_ui_java_SRCS
+    ../CMSAdminRS.properties
     com/netscape/management/client/theme/theme.properties
     com/netscape/management/client/theme/images/login.gif
     com/netscape/management/client/theme/images/ConsoleBanner.gif
@@ -13,11 +10,10 @@ set(console_ui_RCS
     com/netscape/admin/certsrv/theme/certmgmt.gif
 )
 
-add_jar(${CONSOLE_UI_TARGET} ${console_ui_RCS})
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
-install(
-    FILES
-        ${CONSOLE_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+add_jar(pki-console-theme ${console_ui_java_SRCS})
+install_jar(pki-console-theme ${JAVA_JAR_INSTALL_DIR})
+
+set(CONSOLE_UI_JAR ${pki-console-theme_JAR_FILE} CACHE INTERNAL "console-ui jar file")
+
