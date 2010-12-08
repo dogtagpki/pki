@@ -197,7 +197,6 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
     if ((profile_state != NULL) && (PL_strcmp(profile_state, "Enabled") != 0)) {
         RA::Error("RA_Pin_Reset_Processor::Process", "Profile %s Disabled for CUID %s", tokenType, cuid);
         status =  STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND;
-        RA::tdb_activity(session->GetRemoteIP(), cuid, "pin_reset", "failure", "profile disabled", "", tokenType);
         PR_snprintf(audit_msg, 512, "profile %s disabled", tokenType);
         goto loser;
     }
@@ -206,7 +205,6 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
         RA::Error("RA_Pin_Reset_Processor::Process",
                         "CUID %s Disabled", cuid);
         status = STATUS_ERROR_DISABLED_TOKEN;
-        RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "token disabled", "", tokenType);
         PR_snprintf(audit_msg, 512, "Token disabled, status = STATUS_ERROR_DISABLED_TOKEN");
         goto loser;
      }
@@ -226,7 +224,6 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
         RA::Error("RA_Pin_Reset_Processor::Process",
                         "CUID %s Cannot Pin Reset", cuid);
         status = STATUS_ERROR_NOT_PIN_RESETABLE;
-        RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "pin not resetable", "", tokenType);
         PR_snprintf(audit_msg, 512, "token cannot pin reset, status = STATUS_ERROR_PIN_RESETABLE");
         goto loser;
       }
@@ -263,7 +260,6 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
           	RA::Error("RA_Pin_Reset_Processor::Process", 
 			"no applet found and applet upgrade not enabled");
                  status = STATUS_ERROR_SECURE_CHANNEL;
-                RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "secure channel not established", "", tokenType);
                 PR_snprintf(audit_msg, 512, "no applet found and applet upgrade not enabled, status = STATUS_ERROR_SECURE_CHANNEL");
 		 goto loser;
 	 }
@@ -323,7 +319,6 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
                RA::Error("RA_Pin_Reset_Processor::Process", 
 			"upgrade failure");
               status = STATUS_ERROR_UPGRADE_APPLET;
-              RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "applet upgrade error", "", tokenType);
               /**
                * Bugscape #55709: Re-select Net Key Applet ONLY on failure.
                */
@@ -372,7 +367,6 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
             RA::Error("RA_Pin_Reset_Processor::Process", 
 			"setup secure channel failure");
             status = STATUS_ERROR_SECURE_CHANNEL;
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "secure channel not established", "", tokenType);
             PR_snprintf(audit_msg, 512, "setup secure channel failure, status = STATUS_ERROR_SECURE_CHANNEL");
             goto loser;
 	}
@@ -382,7 +376,6 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
             RA::Error("RA_Pin_Reset_Processor::Process", 
 			"External authentication in secure channel failed");
             status = STATUS_ERROR_EXTERNAL_AUTH;
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "external authentication error", "", tokenType);
             PR_snprintf(audit_msg, 512, "External authentication in secure channel failed, status = STATUS_ERROR_EXTERNAL_AUTH");
             goto loser;
         } 
@@ -403,7 +396,6 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
             RA::Error("RA_Pin_Reset_Processor::Process",
                         "failed to create new key set");
             status = STATUS_ERROR_CREATE_CARDMGR;
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "create key set error", "", tokenType);
             PR_snprintf(audit_msg, 512, "failed to create new key set, status = STATUS_ERROR_CREATE_CARDMGR");
             goto loser;
         }
@@ -439,7 +431,6 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
             RA::Error("RA_Pin_Reset_Processor::Process", 
 			"setup secure channel failure");
             status = STATUS_ERROR_CREATE_CARDMGR;
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "secure channel not established", "", tokenType);
             PR_snprintf(audit_msg, 512, "setup secure channel failure, status = STATUS_ERROR_CREATE_CARDMGR");
             goto loser;
          }
@@ -466,7 +457,6 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
             RA::Error("RA_Pin_Reset_Processor::Process", 
 			"no channel creation failure");
             status = STATUS_ERROR_CREATE_CARDMGR;
-            RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "secure channel not established", "", tokenType);
             PR_snprintf(audit_msg, 512, "no channel creation failure, status = STATUS_ERROR_CREATE_CARDMGR");
             goto loser;
     }
@@ -556,7 +546,6 @@ locale),
         RA::Error("RA_Pin_Reset_Processor::Process", 
 			"login not provided");
         status = STATUS_ERROR_LOGIN;
-        RA::tdb_activity(session->GetRemoteIP(), cuid, "pin reset", "failure", "login not found", "", tokenType);
         PR_snprintf(audit_msg, 512, "login not provided, status = STATUS_ERROR_LOGIN");
 
         goto loser;
@@ -872,6 +861,16 @@ loser:
               final_applet_version != NULL ? final_applet_version : "",
               keyVersion != NULL? keyVersion : "",
               audit_msg);
+            
+           if ((cuid != NULL) && (tokenType != NULL)) {
+                RA::tdb_activity(session->GetRemoteIP(),
+                    cuid,
+                    "pin_reset",
+                    "failure",
+                    audit_msg,
+                    userid != NULL ? userid : "",
+                    tokenType);
+           }
     }
 
     if( token_status != NULL ) {

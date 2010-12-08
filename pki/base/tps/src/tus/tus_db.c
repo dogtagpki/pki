@@ -1848,9 +1848,9 @@ int add_activity (char *ip, char *id, const char *op, const char *result, const 
                 time.tm_hour, time.tm_min, time.tm_sec);
 
     /* unique id per activity */
-    PR_snprintf(zcdate, 256, "%04d%02d%02d%02d%02d%02d.%x",
+    PR_snprintf(zcdate, 256, "%04d%02d%02d%02d%02d%02d%06d.%x",
                 time.tm_year, (time.tm_month + 1), time.tm_mday,
-                time.tm_hour, time.tm_min, time.tm_sec,ct);
+                time.tm_hour, time.tm_min, time.tm_sec, time.tm_usec, ct);
 
     cn_values[0] = zcdate;
     cn_values[1] = NULL;
