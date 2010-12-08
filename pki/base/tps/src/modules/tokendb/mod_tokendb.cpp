@@ -254,6 +254,7 @@ static int maxSizeLimit                      = 0;
 static int defaultSizeLimit                  = 0;
 static int maxTimeLimit                      = 0;
 static int defaultTimeLimit                  = 0;
+static int pwLength                          = 0;
 
 static char *profileList                     = NULL;
 static char *transitionList                  = NULL;
@@ -2368,6 +2369,7 @@ int get_tus_config( char *name )
     get_cfg_int("general.search.sizelimit.default=", defaultSizeLimit);
     get_cfg_int("general.search.timelimit.max=", maxTimeLimit);
     get_cfg_int("general.search.timelimit.min=", defaultTimeLimit);
+    get_cfg_int("general.pwlength.min=", pwLength);
 
     if( buf != NULL ) {
         PR_Free( buf );
@@ -3285,6 +3287,48 @@ static int get_size_limit(char *query)
   }
   return ret;
 }
+
+/**
+ * generate a simple password of at least specified length
+ * containing upper case, lower case and special characters
+ */
+#define PW_MAX_LEN 1024
+
+static char *generatePassword(int length) 
+{
+  char choices[80] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*_-+=':;.,";
+  bool pw_ok = false;
+  int i=0;
+  int upper=0, lower=0, number=0, special=0;
+  char pw[PW_MAX_LEN] = "";
+
+  srand(time(0));
+
+  while (!pw_ok) {
+      int x; 
+      x = 0 + int(79.0 * rand()/(RAND_MAX+1.0));
+      pw[i] = choices[x];
+      if (isupper(choices[x])) upper ++;
+      if (islower(choices[x])) lower ++;
+      if (isdigit(choices[x])) number ++;
+      if (! isalpha(choices[x])) special ++;
+
+      if ((i >= length) && (upper >=2) && (lower >=2) && (special >=2) && (number >=2)) 
+          pw_ok = true;
+      i++;
+      if (i == PW_MAX_LEN) {
+          i=0;
+          upper = 0; 
+          lower = 0;
+          special =0;
+          number =0;
+          PR_snprintf(pw, PW_MAX_LEN, ""); 
+      }
+  }
+
+  return PL_strdup(pw);
+} 
+  
 
 /**
  * mod_tokendb_handler handles the protocol between the tokendb and the RA
@@ -6947,7 +6991,12 @@ mod_tokendb_handler( request_rec *rq )
             "%s %s", firstName, lastName);
 
         PR_snprintf(oString, 512, "uid;;%s", uid);
-        status = add_user_db_entry(userid, uid, "", lastName, firstName, userCN, userCert);
+
+        /* to meet STIG requirements, every user in ldap must have a password, even if that password is never used */
+        char *pwd = generatePassword(pwLength);
+        status = add_user_db_entry(userid, uid, pwd, lastName, firstName, userCN, userCert);
+        do_free(pwd);
+
         if (status != LDAP_SUCCESS) {
             RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "Failure", oString, "", "failure in adding tokendb user"); 
             PR_snprintf((char *)msg, 512, "LDAP Error in adding new user %s", uid);   
