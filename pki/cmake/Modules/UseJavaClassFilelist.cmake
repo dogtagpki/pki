@@ -18,6 +18,13 @@
 
 if (CMAKE_JAVA_CLASS_OUTPUT_PATH)
     if (EXISTS "${CMAKE_JAVA_CLASS_OUTPUT_PATH}")
+
+        # if it exists, obtain the length of the selected jar classes prefix
+        if (CMAKE_JAR_CLASSES_PREFIX)
+            string(LENGTH "${CMAKE_JAR_CLASSES_PREFIX}"
+                   _JAR_CLASSES_PREFIX_LENGTH)
+        endif (CMAKE_JAR_CLASSES_PREFIX)
+
         # glob for class files
         file(GLOB_RECURSE _JAVA_GLOBBED_FILES "${CMAKE_JAVA_CLASS_OUTPUT_PATH}/*.class")
 
@@ -25,7 +32,22 @@ if (CMAKE_JAVA_CLASS_OUTPUT_PATH)
         set(_JAVA_CLASS_FILES)
         foreach(_JAVA_GLOBBED_FILE ${_JAVA_GLOBBED_FILES})
             file(RELATIVE_PATH _JAVA_CLASS_FILE ${CMAKE_JAVA_CLASS_OUTPUT_PATH} ${_JAVA_GLOBBED_FILE})
-            set(_JAVA_CLASS_FILES "${_JAVA_CLASS_FILES}${_JAVA_CLASS_FILE}\n")
+            if (CMAKE_JAR_CLASSES_PREFIX)
+                # extract the prefix from this java class file corresponding
+                # to the length of the selected jar classes prefix
+                string(SUBSTRING "${_JAVA_CLASS_FILE}"
+                       0 ${_JAR_CLASSES_PREFIX_LENGTH} _JAVA_CLASS_PREFIX)
+                # save this java class file ONLY if its prefix is the
+                # same as the selected java classes prefix
+                if (_JAVA_CLASS_PREFIX STREQUAL CMAKE_JAR_CLASSES_PREFIX)
+                    set(_JAVA_CLASS_FILES
+                        "${_JAVA_CLASS_FILES}${_JAVA_CLASS_FILE}\n")
+                endif (_JAVA_CLASS_PREFIX STREQUAL CMAKE_JAR_CLASSES_PREFIX)
+            else ()
+                # save ALL java class files
+                set(_JAVA_CLASS_FILES
+                    "${_JAVA_CLASS_FILES}${_JAVA_CLASS_FILE}\n")
+            endif (CMAKE_JAR_CLASSES_PREFIX)
         endforeach(_JAVA_GLOBBED_FILE ${_JAVA_GLOBBED_FILES})
 
         # write to file

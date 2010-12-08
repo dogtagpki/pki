@@ -1,5 +1,13 @@
 project(cmsutil_java Java)
 
+find_file(JSS_JAR
+    NAMES
+        jss4.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
 find_file(LDAPJDK_JAR
     NAMES
         ldapjdk.jar
@@ -8,25 +16,9 @@ find_file(LDAPJDK_JAR
         /usr/share/java
 )
 
-find_file(XERCES_JAR
-    NAMES
-        xerces-j2.jar
-    PATHS
-        /usr/lib/java
-        /usr/share/java
-)
-
 find_file(OSUTIL_JAR
     NAMES
         osutil.jar
-    PATHS
-        /usr/lib/java
-        /usr/share/java
-)
-
-find_file(JSS_JAR
-    NAMES
-        jss4.jar
     PATHS
         /usr/lib/java
         /usr/share/java
@@ -43,6 +35,22 @@ find_file(SERVLET_JAR
 find_file(VELOCITY_JAR
     NAMES
         velocity.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
+find_file(XALAN_JAR
+    NAMES
+        xalan-j2.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
+find_file(XERCES_JAR
+    NAMES
+        xerces-j2.jar
     PATHS
         /usr/lib/java
         /usr/share/java
@@ -978,49 +986,41 @@ set(cmscore_java_SRCS
     com/netscape/cmscore/time/SimpleTimeSource.java
 )
 
-set(cmsbundle_SRCS
+set(cmsbundle_RCS
     LogMessages.properties
     UserMessages.properties
 )
 
-# build crtsrv
 set(CMAKE_JAVA_INCLUDE_PATH
-    ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR}
-    ${NSUTIL_JAR} ${CMSUTIL_JAR} ${SERVLET_JAR})
+    ${NSUTIL_JAR} ${CMSUTIL_JAR}
+    ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
+    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
+
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
+
+# build certsrv
+set(CMAKE_JAR_CLASSES_PREFIX com/netscape/certsrv)
 add_jar(certsrv ${certsrv_java_SRCS})
 add_dependencies(certsrv osutil nsutil cmsutil)
 install_jar(certsrv ${JAVA_JAR_INSTALL_DIR}/pki)
 set(CERTSRV_JAR ${certsrv_JAR_FILE} CACHE INTERNAL "certsrv jar file")
 
 # build cms
-set(CMAKE_JAVA_INCLUDE_PATH
-    ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR}
-    ${NSUTIL_JAR} ${CMSUTIL_JAR} ${SERVLET_JAR}
-    ${VELOCITY_JAR} ${SYMKEY_JAR} ${XERCES_JAR})
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
+set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cms)
 add_jar(cms ${cms_java_SRCS})
-add_dependencies(cms osutil nsutil cmsutil)
+add_dependencies(cms osutil nsutil cmsutil certsrv)
 install_jar(cms ${JAVA_JAR_INSTALL_DIR}/pki)
 set(CMS_JAR ${cms_JAR_FILE} CACHE INTERNAL "cms jar file")
 
 # build cmscore
-set(CMAKE_JAVA_INCLUDE_PATH
-    ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR}
-    ${NSUTIL_JAR} ${CMSUTIL_JAR} ${CERTSRV_JAR}
-    ${SERVLET_JAR} ${XERCES_JAR})
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
+set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmscore)
 add_jar(cmscore ${cmscore_java_SRCS})
-add_dependencies(cmscore osutil nsutil cmsutil certsrv)
+add_dependencies(cmscore osutil nsutil cmsutil certsrv cms)
 install_jar(cmscore ${JAVA_JAR_INSTALL_DIR}/pki)
 set(CMSCORE_JAR ${cmscore_JAR_FILE} CACHE INTERNAL "cmscore jar file")
 
 # build cmsbundle
-set(CMAKE_JAVA_INCLUDE_PATH
-    ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR}
-    ${NSUTIL_JAR} ${CMSUTIL_JAR} ${SERVLET_JAR}
-    ${VELOCITY_JAR} ${SYMKEY_JAR} ${XERCES_JAR})
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
-add_jar(cmsbundle ${certserv_java_SRCS} ${cms_java_SRCS} ${cmscore_java_SRCS} ${cmsbundle_SRCS})
-add_dependencies(cmsbundle osutil nsutil cmsutil)
+add_jar(cmsbundle ${cmsbundle_RCS})
+add_dependencies(cmsbundle osutil nsutil cmsutil certsrv cms cmscore)
 install_jar(cmsbundle ${JAVA_JAR_INSTALL_DIR}/pki)
+set(CMSBUNDLE_JAR ${cmsbundle_JAR_FILE} CACHE INTERNAL "cmsbundle jar file")

@@ -73,11 +73,13 @@ set(silent_java_SRCS
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH
-    ${JSS_JAR} ${LDAPJDK_JAR} ${XERCES_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR}
-    ${CERTSRV_JAR} ${CMS_JAR} ${CMSUTIL_JAR} ${NSUTIL_JAR})
+    ${CERTSRV_JAR} ${CMS_JAR} ${CMSUTIL_JAR} ${NSUTIL_JAR}
+    ${LDAPJDK_JAR} ${XERCES_JAR}
+    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
+
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(silent ${silent_java_SRCS})
-add_dependencies(silent osutil symkey certsrv cms cmsutil nsutil)
+add_dependencies(silent osutil symkey cmsutil nsutil certsrv cms)
 install_jar(silent ${JAVA_JAR_INSTALL_DIR})
 set(SILENT_JAR ${silent_JAR_FILE} CACHE INTERNAL "silent jar file")

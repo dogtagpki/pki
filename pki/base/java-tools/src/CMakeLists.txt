@@ -1,5 +1,13 @@
 project(pkitools_java Java)
 
+find_file(JSS_JAR
+    NAMES
+        jss4.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
 find_file(OSUTIL_JAR
     NAMES
         osutil.jar
@@ -8,9 +16,17 @@ find_file(OSUTIL_JAR
         /usr/share/java
 )
 
-find_file(JSS_JAR
+find_file(XALAN_JAR
     NAMES
-        jss4.jar
+        xalan-j2.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
+find_file(XERCES_JAR
+    NAMES
+        xerces-j2.jar
     PATHS
         /usr/lib/java
         /usr/share/java
@@ -40,10 +56,15 @@ set(pkitools_java_SRCS
     com/netscape/cmstools/PKCS10Client.java
 )
 
-set(CMAKE_JAVA_INCLUDE_PATH ${JSS_JAR} ${OSUTIL_JAR} ${NSUTIL_JAR} ${CMSUTIL_JAR} ${CMS_JAR})
+set(CMAKE_JAVA_INCLUDE_PATH
+    ${NSUTIL_JAR} ${CMSUTIL_JAR}
+    ${XALAN_JAR} ${XERCES_JAR}
+    ${JSS_JAR} ${OSUTIL_JAR})
+
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
-add_jar(pkitools ${netscape_java_SRCS} ${pkitools_java_SRCS})
-add_dependencies(pkitools osutil nsutil cmsutil cms)
+# build pkitools
+add_jar(pkitools ${pkitools_java_SRCS})
+add_dependencies(pkitools osutil nsutil cmsutil)
 install_jar(pkitools ${JAVA_JAR_INSTALL_DIR})
-set(CMSTOOLS_JAR ${pkitools_JAR_FILE} CACHE INTERNAL "pkitools jar file")
+set(PKITOOLS_JAR ${pkitools_JAR_FILE} CACHE INTERNAL "pkitools jar file")

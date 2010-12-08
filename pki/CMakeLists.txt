@@ -47,10 +47,9 @@ set(APPLICATION_VERSION_PATCH "0")
 
 set(APPLICATION_VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}.${APPLICATION_VERSION_PATCH}")
 
-# where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ is checked
-set(CMAKE_MODULE_PATH
-  ${CMAKE_SOURCE_DIR}/cmake/Modules
-)
+# where to look first for cmake modules
+# (before ${CMAKE_ROOT}/Modules/ is checked)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 # add definitions
 include(DefineCMakeDefaults)

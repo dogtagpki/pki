@@ -69,6 +69,10 @@ cd %{buildroot}%{_jnidir}
 %{__rm} osutil.jar
 %{__ln_s} %{_libdir}/osutil/osutil-%{version}.jar osutil.jar
 
+cd %{buildroot}%{_libdir}/osutil
+%{__rm} osutil.jar
+%{__ln_s} osutil-%{version}.jar osutil.jar
+
 
 %files
 %defattr(-,root,root,-)

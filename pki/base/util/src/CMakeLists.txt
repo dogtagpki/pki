@@ -1,16 +1,16 @@
 project(cmsutil_java Java)
 
-find_file(LDAPJDK_JAR
+find_file(JSS_JAR
     NAMES
-        ldapjdk.jar
+        jss4.jar
     PATHS
         /usr/lib/java
         /usr/share/java
 )
 
-find_file(XERCES_JAR
+find_file(LDAPJDK_JAR
     NAMES
-        xerces-j2.jar
+        ldapjdk.jar
     PATHS
         /usr/lib/java
         /usr/share/java
@@ -24,9 +24,17 @@ find_file(OSUTIL_JAR
         /usr/share/java
 )
 
-find_file(JSS_JAR
+find_file(XALAN_JAR
     NAMES
-        jss4.jar
+        xalan-j2.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
+find_file(XERCES_JAR
+    NAMES
+        xerces-j2.jar
     PATHS
         /usr/lib/java
         /usr/share/java
@@ -321,15 +329,22 @@ set(cmsutil_java_SRCS
     com/netscape/cmsutil/ocsp/ResponderID.java
 )
 
-set(CMAKE_JAVA_INCLUDE_PATH ${LDAPJDK_JAR} ${XERCES_JAR} ${JSS_JAR} ${OSUTIL_JAR})
+set(CMAKE_JAVA_INCLUDE_PATH
+    ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
+    ${JSS_JAR} ${OSUTIL_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
+
+# build nsutil
+set(CMAKE_JAR_CLASSES_PREFIX netscape)
 add_jar(nsutil ${netscape_java_SRCS})
+add_dependencies(nsutil osutil)
 install_jar(nsutil ${JAVA_JAR_INSTALL_DIR}/pki)
 set(NSUTIL_JAR ${nsutil_JAR_FILE} CACHE INTERNAL "nsutil jar file")
 
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
+# build cmsutil
+set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmsutil)
 add_jar(cmsutil ${cmsutil_java_SRCS})
-add_dependencies(cmsutil osutil)
+add_dependencies(cmsutil osutil nsutil)
 install_jar(cmsutil ${JAVA_JAR_INSTALL_DIR}/pki)
 set(CMSUTIL_JAR ${cmsutil_JAR_FILE} CACHE INTERNAL "cmsutil jar file")

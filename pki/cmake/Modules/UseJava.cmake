@@ -5,7 +5,7 @@
 #
 #   add_jar(TARGET_NAME SRC1 SRC2 .. SRCN RCS1 RCS2 .. RCSN)
 #
-#   This command create a <TARGET_NAME>.jar. It compiles the given source
+#   This command creates a <TARGET_NAME>.jar. It compiles the given source
 #   files (SRC) and adds the given resource files (RCS) to the jar file.
 #   If only resource files are given then just a jar file is created.
 #
@@ -33,6 +33,27 @@
 #           set(CMAKE_JAVA_TARGET_VERSION 1.2.0)
 #           add_jar(shibboleet shibbotleet.java)
 #
+#        If the target is a JNI library, utilize the following commands to
+#        create a JNI symbolic link:
+#
+#           set(CMAKE_JNI_TARGET TRUE)
+#           set(CMAKE_JAVA_TARGET_VERSION 1.2.0)
+#           add_jar(shibboleet shibbotleet.java)
+#           install_jar(shibboleet ${LIB_INSTALL_DIR}/shibboleet)
+#           install_jni_symlink(shibboleet ${JAVA_LIB_INSTALL_DIR})
+#
+#        If a single target needs to produce more than one jar from its
+#        java source code, to prevent the accumulation of duplicate class
+#        files in subsequent jars, set/reset CMAKE_JAR_CLASSES_PREFIX prior
+#        to calling the add_jar() function:
+#
+#           set(CMAKE_JAR_CLASSES_PREFIX com/redhat/foo)
+#           add_jar(foo foo.java)
+#
+#           set(CMAKE_JAR_CLASSES_PREFIX com/redhat/bar)
+#           add_jar(bar bar.java)
+#
+#
 #   Variables set:
 #       The add_jar() functions sets some variables which can be used in the
 #       same scope where add_jar() is called.
@@ -53,10 +74,11 @@
 #    should be called in the same scope as add_jar() or it will fail.
 #
 #
-#    install_symlink(TARGET_NAME DESTINATION)
+#    install_jni_symlink(TARGET_NAME DESTINATION)
 #
-#    This command installs the TARGET_NAME symlinks to the given DESTINATION. It
-#    should be called in the same scope as add_jar() or it will fail.
+#    This command installs the TARGET_NAME JNI symlinks to the given
+#    DESTINATION. It should be called in the same scope as add_jar()
+#    or it will fail.
 #
 #=============================================================================
 # Copyright 2010      Andreas schneider <asn@redhat.com>
@@ -162,7 +184,7 @@ function(ADD_JAR _TARGET_NAME)
     # create an empty java_class_filelist
     file(WRITE ${CMAKE_JAVA_CLASS_OUTPUT_PATH}/java_class_filelist "")
 
-    # Check if we have a local UseJavaClassFilelist.cmake
+    # Check if we have a local UseJavaSymlinks.cmake
     if (EXISTS ${CMAKE_MODULE_PATH}/UseJavaSymlinks.cmake)
         set(_JAVA_SYMLINK_SCRIPT ${CMAKE_MODULE_PATH}/UseJavaSymlinks.cmake)
     elseif (EXISTS ${CMAKE_ROOT}/Modules/UseJavaSymlinks.cmake)
@@ -180,6 +202,7 @@ function(ADD_JAR _TARGET_NAME)
                 ${_JAVA_COMPILE_FILES}
             COMMAND ${CMAKE_COMMAND}
                 -DCMAKE_JAVA_CLASS_OUTPUT_PATH=${CMAKE_JAVA_CLASS_OUTPUT_PATH}
+                -DCMAKE_JAR_CLASSES_PREFIX="${CMAKE_JAR_CLASSES_PREFIX}"
                 -P ${_JAVA_CLASS_FILELIST_SCRIPT}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Building Java objects for ${_TARGET_NAME}.jar"
@@ -193,6 +216,11 @@ function(ADD_JAR _TARGET_NAME)
             COMMAND ${CMAKE_Java_ARCHIVE}
                 -cf ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
                 ${_JAVA_RESOURCE_FILES} @java_class_filelist
+            COMMAND ${CMAKE_COMMAND}
+                -D_JAVA_TARGET_DIR=${CMAKE_CURRENT_BINARY_DIR}
+                -D_JAVA_TARGET_OUTPUT_NAME=${_JAVA_TARGET_OUTPUT_NAME}
+                -D_JAVA_TARGET_OUTPUT_LINK=${_JAVA_TARGET_OUTPUT_LINK}
+                -P ${_JAVA_SYMLINK_SCRIPT}
             COMMAND ${CMAKE_COMMAND}
                 -D_JAVA_TARGET_DIR=${CMAKE_CURRENT_BINARY_DIR}
                 -D_JAVA_TARGET_OUTPUT_NAME=${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
@@ -220,16 +248,17 @@ function(ADD_JAR _TARGET_NAME)
     set(${_TARGET_NAME}_INSTALL_FILES
         ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
         PARENT_SCOPE)
-    if (CMAKE_JNI_TARGET AND _JAVA_TARGET_OUTPUT_LINK)
-        set(${_TARGET_NAME}_JNI_SYMLINK
-            ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_LINK}
-            PARENT_SCOPE)
-    elseif (_JAVA_TARGET_OUTPUT_LINK )
+    if (_JAVA_TARGET_OUTPUT_LINK)
         set(${_TARGET_NAME}_INSTALL_FILES
             ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME}
             ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_LINK}
             PARENT_SCOPE)
-    endif (CMAKE_JNI_TARGET AND _JAVA_TARGET_OUTPUT_LINK)
+        if (CMAKE_JNI_TARGET)
+            set(${_TARGET_NAME}_JNI_SYMLINK
+                ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_LINK}
+                PARENT_SCOPE)
+        endif (CMAKE_JNI_TARGET)
+    endif (_JAVA_TARGET_OUTPUT_LINK)
     set(${_TARGET_NAME}_JAR_FILE
         ${CMAKE_CURRENT_BINARY_DIR}/${_JAVA_TARGET_OUTPUT_NAME} PARENT_SCOPE)
     set(${_TARGET_NAME}_CLASS_DIR

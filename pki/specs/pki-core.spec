@@ -425,6 +425,10 @@ cd %{buildroot}%{_jnidir}
 %{__rm} symkey.jar
 %{__ln_s} %{_libdir}/symkey/symkey-%{version}.jar symkey.jar
 
+cd %{buildroot}%{_libdir}/symkey
+%{__rm} symkey.jar
+%{__ln_s} symkey-%{version}.jar symkey.jar
+
 
 ########################
 ##  pki-native-tools  ##
