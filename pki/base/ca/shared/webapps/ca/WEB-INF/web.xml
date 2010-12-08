@@ -1471,9 +1471,9 @@
              <init-param><param-name>  authority   </param-name>
                          <param-value> ca          </param-value> </init-param>
              <init-param><param-name>  interface   </param-name>
-                         <param-value> agent          </param-value> </init-param>
+                         <param-value> ee          </param-value> </init-param>
              <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/ca/revocationResult.template</param-value> </init-param>
+                         <param-value> /ee/ca/revocationResult.template</param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caDoRevoke1 </param-value> </init-param>
              <init-param><param-name>  AuthMgr     </param-name>
@@ -1732,7 +1732,7 @@
              <init-param><param-name>  resourceID  </param-name>
                          <param-value> certServer.ca.certificate </param-value> </init-param>
              <init-param><param-name>  interface   </param-name>
-                         <param-value> agent          </param-value> </init-param>
+                         <param-value> ee          </param-value> </init-param>
    </servlet>
 
    <servlet>
@@ -1937,7 +1937,6 @@
    <filter-mapping>
       <filter-name>   AgentRequestFilter          </filter-name>
       <url-pattern>   /agent/*                    </url-pattern>
-      <url-pattern>   /subsystem/*                </url-pattern>
       <url-pattern>   /ca/getCertFromRequest      </url-pattern>
       <url-pattern>   /ca/getBySerial             </url-pattern>
       <url-pattern>   /ca/connector               </url-pattern>
@@ -2328,7 +2327,7 @@
 
    <servlet-mapping>  
       <servlet-name>  caDoRevoke1  </servlet-name>
-      <url-pattern>   /subsystem/ca/doRevoke  </url-pattern>
+      <url-pattern>   /ee/subsystem/ca/doRevoke  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
@@ -2393,7 +2392,7 @@
 
    <servlet-mapping>  
       <servlet-name>  caDoUnrevoke1  </servlet-name>
-      <url-pattern>   /subsystem/ca/doUnrevoke  </url-pattern>
+      <url-pattern>   /ee/subsystem/ca/doUnrevoke  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
