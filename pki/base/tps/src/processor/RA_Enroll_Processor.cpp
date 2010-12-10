@@ -4058,6 +4058,7 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
     char configname[256];
     char filter[256];
     LDAPMessage *result = NULL;
+    LDAPMessage *e = NULL;
     char *o_pub = NULL;
     char *o_priv = NULL;
     const char *connid = NULL;
@@ -4260,7 +4261,7 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
             if (rc == LDAP_SUCCESS) {
                 // retrieve the most recent certificate, we just recover the most
                 // recent one
-                LDAPMessage *e = RA::ra_get_first_entry(result);
+                e = RA::ra_get_first_entry(result);
                 if (e != NULL) {
                     CERTCertificate **certs = RA::ra_get_certificates(e);
                     if (certs[0] != NULL) {
@@ -4782,8 +4783,32 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 		      "Filter to find certificates = %s", filter);
             RA::Debug("RA_Enroll_Processor::ProcessRecovery", 
 		      "Recover key for %s", keyTypeValue);
-        }  
 
+           //Unrevoke this successfully recovered certificate
+           if ( o_status == STATUS_ERROR_RECOVERY_IS_PROCESSED && e != NULL) {
+               char *statusString = NULL;
+               int statusNum = UnrevokeRecoveredCert(e, statusString);
+
+               // Error from the CA log and get out
+               if (statusNum != 0) {
+                       r = false;
+                       o_status =  STATUS_ERROR_RECOVERY_FAILED;
+                       if (statusString == NULL || strlen(statusString) == 0) {
+                           statusString = PL_strdup("Unknown Key Recovery Error.");
+                       }
+                       RA::Debug("RA_Enroll::Prcessor::ProcessRecovery", "Unrevoke statusString: %s",statusString);
+                       PR_snprintf(audit_msg, 512, "Key Recovery failed. Can not unrevoke recovered certificate! %s",statusString);
+                       if (statusString) {
+                           PL_strfree(statusString);
+                       }
+                       goto loser;
+                }
+
+                if (statusString) {
+                   PL_strfree(statusString);
+                } 
+           }  
+        }
         if( !legalScheme)  {
 	      RA::Debug("RA_Enroll_Processor::ProcessRecovery", 
 		    "Misconfigure parameter for %s", configname);
@@ -4982,6 +5007,73 @@ int RA_Enroll_Processor::GetNextFreeCertIdNumber(PKCS11Obj *pkcs11objx)
                                   "RA_Enroll_Processor::GetNextFreeCertIdNumber",
                                    "returning id number: %d", highest_cert_id + 1);
     return highest_cert_id + 1;
+}
+
+//Unrevoke a cert that has been recovered
+int RA_Enroll_Processor::UnrevokeRecoveredCert(const LDAPMessage *e, char *&statusString)
+{
+    char configname[256];
+    CertEnroll certEnroll;
+    //Default to error return
+    int statusNum = 0;
+    char serial[100]="";
+
+    RA::Debug("RA_Enroll_Processor::ProcessRecovery",
+                      "About to unrevoke recovered certificate.");
+
+    if (e == NULL) {
+        return 1;
+    }
+
+    char *attr_serial= RA::ra_get_cert_serial( (LDAPMessage *) e );
+    char *attr_tokenType = RA::ra_get_cert_tokenType( (LDAPMessage *) e );
+    char *attr_keyType = RA::ra_get_cert_type( (LDAPMessage *) e );
+
+    // does the config say we have to revoke this cert?
+    PR_snprintf( ( char * ) configname, 256,
+                  "op.enroll.%s.keyGen.%s.recovery."
+                  "onHold.revokeCert",
+                  attr_tokenType, attr_keyType );
+
+    RA::Debug("RA_Enroll_Processor::UnrevokeRecoveredCert",
+        "Recovered Cert Unrevoke config value %s \n", configname);
+    bool revokeCert = RA::GetConfigStore()->
+        GetConfigAsBool( configname, false );
+    if( revokeCert ) {
+        // Assume the worst
+        statusNum = 1;
+        // Get the conn to the CA
+        PR_snprintf( ( char * ) configname, 256,
+                     "op.enroll.%s.keyGen.%s.ca.conn",
+                     attr_tokenType, attr_keyType );
+
+        char *connid = ( char * )
+             RA::GetConfigStore()->
+                 GetConfigAsString( configname );
+
+        if (connid) {
+            PR_snprintf( serial, 100, "0x%s", attr_serial );
+
+            //Actually make call to the CA to unrevoke
+            statusNum = certEnroll.UnrevokeCertificate(serial, connid, statusString);
+
+            RA::Debug("RA_Enroll_Processor::UnrevokeRecoveredCert",
+               "Recovered Cert statusNum %d statusString %s \n", statusNum, statusString);
+       } 
+    }
+
+    if (attr_serial) {
+        PL_strfree(attr_serial);
+    }
+
+    if (attr_tokenType) {
+        PL_strfree(attr_tokenType);
+    }
+
+    if (attr_keyType) {
+        PL_strfree(attr_keyType);
+    }
+    return statusNum;
 }
 
 void PrintPRTime(PRTime theTime,char *theName)
