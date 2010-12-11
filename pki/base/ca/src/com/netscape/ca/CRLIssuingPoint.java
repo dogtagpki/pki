@@ -171,6 +171,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      */
     private boolean mEnableDailyUpdates = false;
     private Vector mDailyUpdates = null; 
+    private int mCurrentDay = 0;
+    private int mLastDay = 0;
+    private int mTimeListSize = 0;
+    private boolean mExtendedTimeList = false;
 
     /**
      * Enable CRL auto update with interval
@@ -240,6 +244,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      */
     private Date mLastUpdate;
     private Date mLastFullUpdate;
+    private long mLastScheduledUpdate = 0;
 
     /**
      * Next scheduled CRL update date
@@ -467,37 +472,112 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return ((h * 60) + m);
     }
 
+    private boolean areTimeListsIdentical(Vector list1, Vector list2) {
+        boolean identical = true;
+        CMS.debug("areTimeListsIdentical: "+((list1 != null)?list1.size():0)+":"+((list2 != null)?list2.size():0));
+        if (list1 == null || list2 == null) identical = false;
+        if (identical && list1.size() != list2.size()) identical = false;
+        for (int i = 0; identical && i < list1.size(); i++) {
+            Vector times1 = (Vector)list1.elementAt(i);
+            Vector times2 = (Vector)list2.elementAt(i);
+            CMS.debug("areTimeListsIdentical: "+i+". "+times1.size()+":"+times2.size());
+            if (times1.size() != times2.size()) identical = false;
+            for (int j = 0; identical && j < times1.size(); j++) {
+                CMS.debug("areTimeListsIdentical: "+i+"."+j+". "+times1.elementAt(j).toString()+
+                          ":"+times2.elementAt(j).toString());
+                if ((((Integer)(times1.elementAt(j))).intValue()) != (((Integer)(times2.elementAt(j))).intValue())) {
+                    identical = false;
+                }
+            }
+        }
+        CMS.debug("areTimeListsIdentical:  identical: "+identical);
+        return identical;
+    }
+
+    private int getTimeListDays(Vector listedDays) {
+        int days = (listedDays != null)? listedDays.size(): 0;
+        CMS.debug("getTimeListDays: "+days);
+        return days;
+    }
+
+    private int getTimeListSize(Vector listedDays) {
+        int listSize = 0;
+        CMS.debug("getTimeListSize: "+ ((listedDays != null)?listedDays.size():0));
+        for (int i = 0; listedDays != null && i < listedDays.size(); i++) {
+            Vector listedTimes = (Vector)listedDays.elementAt(i);
+            CMS.debug("getTimeListSize: "+i+". "+ ((listedTimes != null)?listedTimes.size():0));
+            listSize += ((listedTimes != null)? listedTimes.size(): 0);
+            CMS.debug("getTimeListSize:  listSize="+listSize);
+        }
+        CMS.debug("getTimeListSize:  ListSize="+listSize);
+        return listSize;
+    }
+
+    private boolean isTimeListExtended(String list) {
+       boolean extendedTimeList = true; 
+       if (list.indexOf('*') == -1)
+           extendedTimeList = false;
+       return extendedTimeList;
+    }
+
     private Vector getTimeList(String list) {
-        if (list == null) return null;
-        if (list.length() > 0 && list.charAt(list.length()-1) == ',') return null;
+        boolean timeListPresent = false;
+        if (list == null || list.length() == 0) return null;
+        if (list.charAt(0) == ',' || list.charAt(list.length()-1) == ',') return null;
 
-        Vector listedTimes = new Vector();
+        Vector listedDays = new Vector();
 
-        StringTokenizer elements = new StringTokenizer(list, ",", true);
-        int t0 = -1;
+        StringTokenizer days = new StringTokenizer(list, ";", true);
         int n = 0;
-        while (elements.hasMoreTokens()) {
-            String element = elements.nextToken().trim();
-            if (element == null || element.length() == 0) return null;
-            if (element.equals(",") && n % 2 == 0) return null;
-            if (n % 2 == 0) {
-                int t = checkTime(element);
+        Vector listedTimes = null;
+        while (days.hasMoreTokens()) {
+            String dayList = days.nextToken().trim();
+            if (dayList == null) continue;
+
+            if (dayList.equals(";")) {
+                if (timeListPresent) {
+                    timeListPresent = false;
+                } else {
+                    listedTimes = new Vector();
+                    listedDays.addElement(listedTimes);
+                    n++;
+                }
+                continue;
+            } else {
+                listedTimes = new Vector();
+                listedDays.addElement(listedTimes);
+                timeListPresent = true;
+                n++;
+            }
+            int t0 = -1;
+            StringTokenizer times = new StringTokenizer(dayList, ",");
+            while (times.hasMoreTokens()) {
+                String time = times.nextToken();
+                int k = 1;
+                if (time.charAt(0) == '*') {
+                    time = time.substring(1);
+                    k = -1;
+                }
+                int t = checkTime(time);
                 if (t < 0) {
                     return null;
                 } else {
                     if (t > t0) {
-                        listedTimes.addElement(Integer.valueOf(t));
+                        listedTimes.addElement(new Integer(k*t));
                         t0 = t;
                     } else {
                         return null;
                     }
                 }
             }
+        }
+        if (!timeListPresent) {
+            listedTimes = new Vector();
+            listedDays.addElement(listedTimes);
             n++;
         }
-        if (n % 2 == 0) return null;
 
-        return listedTimes;
+        return listedDays;
     }
 
     private String checkProfile(String id, Enumeration e) {
@@ -570,10 +650,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mEnableDailyUpdates = config.getBoolean(Constants.PR_ENABLE_DAILY, false);
         String daily = config.getString(Constants.PR_DAILY_UPDATES, null);
         mDailyUpdates = getTimeList(daily);
-        if (mDailyUpdates == null || mDailyUpdates.isEmpty()) {
+        if (mDailyUpdates == null || mDailyUpdates.isEmpty() ||
+            (mDailyUpdates.size() == 1 && ((Vector)mDailyUpdates.elementAt(0)).isEmpty())) {
             mEnableDailyUpdates = false;
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
         }
+        mExtendedTimeList = isTimeListExtended(daily);
+        mTimeListSize = getTimeListSize(mDailyUpdates);
 
         // Get auto update interval in minutes.
         mEnableUpdateFreq = config.getBoolean(Constants.PR_ENABLE_FREQ, true);
@@ -616,7 +699,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         mCMSCRLExtensions = new CMSCRLExtensions(this, config);
 
-        mExtendedNextUpdate = (mUpdateSchema > 1 && isDeltaCRLEnabled())?
+        mExtendedNextUpdate = ((mUpdateSchema > 1 || (mEnableDailyUpdates && mExtendedTimeList)) && isDeltaCRLEnabled())?
                                 config.getBoolean(Constants.PR_EXTENDED_NEXT_UPDATE, true):
                                 false;
 
@@ -868,18 +951,21 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
 
                 if (name.equals(Constants.PR_DAILY_UPDATES)) {
+                    boolean extendedTimeList = isTimeListExtended(value);
                     Vector dailyUpdates = getTimeList(value);
-                    if (((dailyUpdates != null) ^ (mDailyUpdates != null)) ||
-                        (dailyUpdates != null && mDailyUpdates != null &&
-                        (!mDailyUpdates.equals(dailyUpdates)))) {
-                        if (dailyUpdates != null) {
-                            mDailyUpdates = (Vector) dailyUpdates.clone();
-                        } else {
-                            mDailyUpdates = null;
-                        }
+                    if (mExtendedTimeList != extendedTimeList) {
+                        mExtendedTimeList = extendedTimeList;
                         modifiedSchedule = true;
                     }
-                    if (mDailyUpdates == null || mDailyUpdates.isEmpty()) {
+                    if (!areTimeListsIdentical(mDailyUpdates, dailyUpdates)) {
+                        mCurrentDay = 0;
+                        mLastDay = 0;
+                        mDailyUpdates = dailyUpdates;
+                        mTimeListSize = getTimeListSize(mDailyUpdates);
+                        modifiedSchedule = true;
+                    }
+                    if (mDailyUpdates == null || mDailyUpdates.isEmpty() ||
+                        (mDailyUpdates.size() == 1 && ((Vector)mDailyUpdates.elementAt(0)).isEmpty())) {
                         mEnableDailyUpdates = false;
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
                     }
@@ -1300,7 +1386,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             ((mEnableCRLCache && mCacheUpdateInterval > 0) ||
              (mEnableCRLUpdates &&
               ((mEnableDailyUpdates && mDailyUpdates != null &&
-                mDailyUpdates.size() > 0) ||
+                mTimeListSize > 0) ||
                (mEnableUpdateFreq && mAutoUpdateInterval > 0) ||
                (mInitialized == CRL_IP_NOT_INITIALIZED) ||
                 mDoLastAutoUpdate || mDoManualUpdate)))) {
@@ -1311,7 +1397,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
 
         if ((mInitialized == CRL_IP_INITIALIZED) && (((mNextUpdate != null) ^
-            ((mEnableDailyUpdates && mDailyUpdates != null && mDailyUpdates.size() > 0) ||
+            ((mEnableDailyUpdates && mDailyUpdates != null && mTimeListSize > 0) ||
              (mEnableUpdateFreq && mAutoUpdateInterval > 0))) ||
              (!mEnableCRLUpdates && mNextUpdate != null))) {
              mDoLastAutoUpdate = true;
@@ -1363,7 +1449,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return mNextUpdateGracePeriod;
     }
 
-
+    /**
+     * Finds next update time expressed as delay or time of the next update.
+     *
+     * @param fromLastUpdate if true, function returns delay to the next update time
+     * otherwise returns the next update time.
+     * @param delta if true, function returns the next update time for delta CRL,
+     * otherwise returns the next update time for CRL.
+     * @return delay to the next update time or the next update time itself
+     */
     private long findNextUpdate(boolean fromLastUpdate, boolean delta) {
         long now = System.currentTimeMillis();
         TimeZone tz = TimeZone.getDefault();
@@ -1371,6 +1465,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         long oneDay = 1440L * MINUTE;
         long nowToday = (now + (long)offset) % oneDay;
         long startOfToday = now - nowToday;
+
+        long lastUpdated = (mLastUpdate != null)? mLastUpdate.getTime(): now;
+        long lastUpdateDay = lastUpdated - ((lastUpdated + (long)offset) % oneDay);
 
         long lastUpdate = (mLastUpdate != null && fromLastUpdate)? mLastUpdate.getTime(): now;
         long last = (lastUpdate + (long)offset) % oneDay;
@@ -1380,8 +1477,18 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         long next = 0L;
         long nextUpdate = 0L;
 
+        CMS.debug("findNextUpdate:  fromLastUpdate: "+fromLastUpdate+"  delta: "+delta);
+
+        int numberOfDays = (int)((startOfToday - lastUpdateDay) / oneDay);
+        if (numberOfDays > 0 && mDailyUpdates.size() > 1 &&
+            ((mCurrentDay == mLastDay) ||
+             (mCurrentDay != ((mLastDay + numberOfDays) % mDailyUpdates.size())))) {
+            mCurrentDay = (mLastDay + numberOfDays) % mDailyUpdates.size();
+        }
+
         if ((delta || fromLastUpdate) && isDeltaEnabled &&
-            mUpdateSchema > 1 && mNextDeltaUpdate != null) {
+            (mUpdateSchema > 1 || (mEnableDailyUpdates && mExtendedTimeList)) &&
+             mNextDeltaUpdate != null) {
             nextUpdate = mNextDeltaUpdate.getTime();
         } else if (mNextUpdate != null) {
             nextUpdate = mNextUpdate.getTime();
@@ -1389,10 +1496,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         if (mEnableDailyUpdates &&
             mDailyUpdates != null && mDailyUpdates.size() > 0) {
-            long firstTime = MINUTE * ((Integer)mDailyUpdates.elementAt(0)).longValue();
+            long firstTime = MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(mCurrentDay)).elementAt(0)).longValue();
             int n = 0;
-            if (mDailyUpdates.size() == 1 &&
+            if (mDailyUpdates.size() == 1 && ((Vector)mDailyUpdates.elementAt(0)).size() == 1 &&
                 mEnableUpdateFreq && mAutoUpdateInterval > 0) {
+                // Interval updates with starting time
                 long t = firstTime;
                 long interval = mAutoUpdateInterval;
                 if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) &&
@@ -1404,15 +1512,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     t += interval;
                     n++;
                 }
-                n = n % mUpdateSchema;
 
                 if (t <= oneDay) {
                     next = lastDay + t;
-                    if (t == firstTime && fromLastUpdate) {
-                        mSchemaCounter = 0;
-                    } else if (n != mSchemaCounter && fromLastUpdate) {
-                        if (mSchemaCounter != 0 && (mSchemaCounter < n || n == 0)) {
-                            mSchemaCounter = n;
+                    if (fromLastUpdate) {
+                        n = n % mUpdateSchema;
+                        if (t == firstTime) {
+                            mSchemaCounter = 0;
+                        } else if (n != mSchemaCounter) {
+                            if (mSchemaCounter != 0 && (mSchemaCounter < n || n == 0)) {
+                                mSchemaCounter = n;
+                            }
                         }
                     }
                 } else {
@@ -1422,47 +1532,116 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
                 }
             } else {
-                int k = 1;
-                if ((!fromLastUpdate) && (!delta) &&
-                    isDeltaEnabled && mUpdateSchema > 1) {
-                    k = mUpdateSchema;
+                // Daily updates following the list
+                if (last > nowToday) {
+                    last = nowToday - 100; // 100ms - precision
                 }
-                int i;
-                for (i = 0; i < mDailyUpdates.size(); i += k) {
-                    long t = MINUTE * ((Integer)mDailyUpdates.elementAt(i)).longValue();
-                    if (t - mMinUpdateInterval > last) break;
+                int i, m;
+                for (i = 0, m = 0; i < mCurrentDay; i++) {
+                    m += ((Vector)mDailyUpdates.elementAt(i)).size();
+                }
+                // search the current day
+                for (i = 0; i < ((Vector)mDailyUpdates.elementAt(mCurrentDay)).size(); i++) {
+                    long t = MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(mCurrentDay)).elementAt(i)).longValue();
+                    if (mEnableDailyUpdates && mExtendedTimeList) {
+                        if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) && isDeltaEnabled) {
+                            if (t < 0) {
+                                t *= -1;
+                            } else {
+                                t = 0;
+                            }
+                        } else {
+                            if (t < 0) {
+                                t *= -1;
+                            }
+                        }
+                    }
+                    if (t - mMinUpdateInterval > last) {
+                        if (mExtendedNextUpdate && (!fromLastUpdate) && (!(mEnableDailyUpdates && mExtendedTimeList)) && (!delta) &&
+                            isDeltaEnabled && mUpdateSchema > 1) {
+                            i += mUpdateSchema - ((i + m) % mUpdateSchema);
+                        }
+                        break;
+                    }
                     n++;
                 }
-                n = n % mUpdateSchema;
 
-                if (i < mDailyUpdates.size()) {
-                    next = lastDay + (MINUTE * ((Integer)mDailyUpdates.elementAt(i)).longValue());
-                    if (i == 0 && fromLastUpdate) {
-                        mSchemaCounter = 0;
-                    } else if (n != mSchemaCounter && fromLastUpdate) {
-                        if (mSchemaCounter != 0 && (mSchemaCounter < n || n == 0)) {
-                            mSchemaCounter = n;
+                if (i < ((Vector)mDailyUpdates.elementAt(mCurrentDay)).size()) {
+                    // found inside the current day
+                    next = (MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(mCurrentDay)).elementAt(i)).longValue());
+                    if (mEnableDailyUpdates && mExtendedTimeList && next < 0) {
+                        next *= -1;
+                        if (fromLastUpdate) {
+                            mSchemaCounter = 0;
+                        }
+                    }
+                    next += ((lastDay < lastUpdateDay)? lastDay: lastUpdateDay) + (oneDay * (mCurrentDay - mLastDay));
+
+                    if (fromLastUpdate && (!(mEnableDailyUpdates && mExtendedTimeList))) {
+                        n = n % mUpdateSchema;
+                        if (i == 0 && mCurrentDay == 0) {
+                            mSchemaCounter = 0;
+                        } else if (n != mSchemaCounter) {
+                            if (mSchemaCounter != 0 && ((n == 0 && mCurrentDay == 0) || mSchemaCounter < n)) {
+                                mSchemaCounter = n;
+                            }
                         }
                     }
                 } else {
                     // done with today
-                    next = lastDay + oneDay + firstTime;
-                    if (fromLastUpdate) {
+                    int j = i - ((Vector)mDailyUpdates.elementAt(mCurrentDay)).size();
+                    int nDays = 1;
+                    if (mDailyUpdates.size() > 1) {
+                        while (nDays <= mDailyUpdates.size()) {
+                            int nextDay = (mCurrentDay + nDays) % mDailyUpdates.size();
+                            if (j < ((Vector)mDailyUpdates.elementAt(nextDay)).size()) {
+                                if (nextDay == 0 && (!(mEnableDailyUpdates && mExtendedTimeList))) j = 0;
+                                firstTime = MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(nextDay)).elementAt(j)).longValue();
+                                if (mEnableDailyUpdates && mExtendedTimeList) {
+                                    if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) && isDeltaEnabled) {
+                                        if (firstTime < 0) {
+                                            firstTime *= -1;
+                                        } else {
+                                            j++;
+                                            continue;
+                                        }
+                                    } else {
+                                        if (firstTime < 0) {
+                                            firstTime *= -1;
+                                            if (fromLastUpdate) {
+                                                mSchemaCounter = 0;
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            } else {
+                                j -= ((Vector)mDailyUpdates.elementAt(nextDay)).size();
+                            }
+                            nDays++;
+                        }
+                    }
+                    next = ((lastDay < lastUpdateDay)? lastDay: lastUpdateDay) + (oneDay * nDays) + firstTime;
+
+                    if (fromLastUpdate && mDailyUpdates.size() < 2) {
                         mSchemaCounter = 0;
                     }
                 }
             }
         } else if (mEnableUpdateFreq && mAutoUpdateInterval > 0) {
-            if (!delta &&  isDeltaEnabled && mUpdateSchema > 1) {
+            // Interval updates without starting time
+            if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) &&  isDeltaEnabled && mUpdateSchema > 1) {
                 next = lastUpdate + (mUpdateSchema * mAutoUpdateInterval);
             } else {
                 next = lastUpdate + mAutoUpdateInterval;
             }
         }
 
-        if (fromLastUpdate && nextUpdate > 0 && nextUpdate < next) {
+        if (fromLastUpdate && nextUpdate > 0 && (nextUpdate < next || nextUpdate >= now)) {
             next = nextUpdate;
         }
+
+        CMS.debug("findNextUpdate:  "+((new Date(next)).toString())+((fromLastUpdate)? "  delay: "+(next-now): ""));
 
         return (fromLastUpdate)? next-now: next;
     }
@@ -1478,7 +1657,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                            (mInitialized == CRL_IP_NOT_INITIALIZED) ||
                             mDoLastAutoUpdate || (mEnableCRLUpdates &&
                             ((mEnableDailyUpdates && mDailyUpdates != null &&
-                              mDailyUpdates.size() > 0) ||
+                              mTimeListSize > 0) ||
                              (mEnableUpdateFreq && mAutoUpdateInterval > 0) ||
                               mDoManualUpdate)))) {
 
@@ -1488,7 +1667,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 boolean doCacheUpdate = false;
                 boolean scheduledUpdates = mEnableCRLUpdates &&
                     ((mEnableDailyUpdates && mDailyUpdates != null &&
-                      mDailyUpdates.size() > 0) ||
+                      mTimeListSize > 0) ||
                     (mEnableUpdateFreq && mAutoUpdateInterval > 0));
 
                 if (mInitialized == CRL_IP_NOT_INITIALIZED)
@@ -2121,7 +2300,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         Date nextDeltaUpdate = null;
 
         if (mEnableCRLUpdates && ((mEnableDailyUpdates &&
-            mDailyUpdates != null && mDailyUpdates.size() > 0) ||
+            mDailyUpdates != null && mTimeListSize > 0) ||
             (mEnableUpdateFreq && mAutoUpdateInterval > 0))) {
 
             if ((!isDeltaCRLEnabled()) || mSchemaCounter == 0) {
@@ -2129,11 +2308,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mNextUpdate = new Date(nextUpdate.getTime());
             }
             if (isDeltaCRLEnabled()) {
-                if (mUpdateSchema > 1) {
+                if (mUpdateSchema > 1 || (mEnableDailyUpdates && mExtendedTimeList && mTimeListSize > 1)) {
                     nextDeltaUpdate = new Date(findNextUpdate(false, true));
                     if (mExtendedNextUpdate && mSchemaCounter > 0 &&
                         mNextUpdate != null && mNextUpdate.equals(nextDeltaUpdate)) {
-                        mSchemaCounter = mUpdateSchema - 1;
+                        if (mEnableDailyUpdates && mExtendedTimeList && mTimeListSize > 1) {
+                            mSchemaCounter = mTimeListSize - 1;
+                        } else {
+                            mSchemaCounter = mUpdateSchema - 1;
+                        }
                     }
                 } else {
                     nextDeltaUpdate = new Date(nextUpdate.getTime());
@@ -2425,7 +2608,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mSplits[8] -= System.currentTimeMillis();
 
                 Date nextUpdateDate = mNextUpdate;
-                if (isDeltaCRLEnabled() && mUpdateSchema > 1 && mNextDeltaUpdate != null) {
+                if (isDeltaCRLEnabled() && (mUpdateSchema > 1 ||
+                    (mEnableDailyUpdates && mExtendedTimeList)) && mNextDeltaUpdate != null) {
                     nextUpdateDate = mNextDeltaUpdate;
                 }
                 mCRLRepository.updateCRLIssuingPointRecord(
@@ -2525,8 +2709,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mNextDeltaCRLNumber = mDeltaCRLNumber.add(BigInteger.ONE);
         }
         
-        mSchemaCounter++;
-        if (mSchemaCounter >= mUpdateSchema) mSchemaCounter = 0;
+        if ((!(mEnableDailyUpdates && mExtendedTimeList)) || mSchemaCounter == 0) mSchemaCounter++;
+        if ((mEnableDailyUpdates && mExtendedTimeList && mSchemaCounter >= mTimeListSize) ||
+            (mUpdateSchema > 1 && mSchemaCounter >= mUpdateSchema)) mSchemaCounter = 0;
+        mLastDay = mCurrentDay;
 
         mUpdatingCRL = CRL_UPDATE_DONE;
         notifyAll();
