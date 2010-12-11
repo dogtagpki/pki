@@ -219,7 +219,7 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         freqPanel.add(mDaily, gbc);
         
-        mDailyAt = makeJTextField(20);
+        mDailyAt = makeJTextField(30);
         gbc.anchor = gbc.WEST;
         gbc.gridx++;
         gbc.gridwidth = gbc.REMAINDER;
@@ -392,39 +392,53 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
     private String trimList(String list) {
         String trimmed = "";
 
-        StringTokenizer elements = new StringTokenizer(list, ",", true);
-        int n = 0;
-        while (elements.hasMoreTokens()) {
-            String element = elements.nextToken().trim();
-            if (element == null || element.length() == 0) return null;
-            if (element.equals(",") && n % 2 == 0) return null;
-            trimmed += element;
-            n++;
+        StringTokenizer days = new StringTokenizer(list, ";", true);
+        while (days.hasMoreTokens()) {
+            String dayList = days.nextToken().trim();
+            if (dayList == null || dayList.length() == 0) continue;
+            if (dayList.equals(";")) {
+                trimmed += dayList;
+                continue;
+            }
+            StringTokenizer elements = new StringTokenizer(dayList, ",", true);
+            int n = 0;
+            while (elements.hasMoreTokens()) {
+                String element = elements.nextToken().trim();
+                if (element == null || element.length() == 0) return null;
+                if (element.equals(",") && n % 2 == 0) return null;
+                trimmed += element;
+                n++;
+            }
+            if (n % 2 == 0) return null;
         }
-        if (n % 2 == 0) return null;
-
         return trimmed;
     }
 
     private Vector checkTimeList(String list) {
-        if (list == null) return null;
-        if (list.charAt(list.length()-1) == ',') return null;
+        if (list == null || list.length() == 0) return null;
+        if (list.charAt(0) == ',' || list.charAt(list.length()-1) == ',') return null;
 
         Vector listedTimes = new Vector();
-        StringTokenizer times = new StringTokenizer(list, ",");
 
-        int t0 = -1;
-        while (times.hasMoreTokens()) {
-            String time = times.nextToken();
-            int t = checkTime(time);
-            if (t < 0) {
-                return null;
-            } else {
-                if (t > t0) {
-                    listedTimes.addElement(new Integer(t));
-                    t0 = t;
-                } else {
+        StringTokenizer days = new StringTokenizer(list, ";");
+        while (days.hasMoreTokens()) {
+            String dayList = days.nextToken().trim();
+            if (dayList == null || dayList.length() == 0) continue;
+            int t0 = -1;
+            StringTokenizer times = new StringTokenizer(dayList, ",");
+            while (times.hasMoreTokens()) {
+                String time = times.nextToken();
+                if (time.charAt(0) == '*') time = time.substring(1);
+                int t = checkTime(time);
+                if (t < 0) {
                     return null;
+                } else {
+                    if (t > t0) {
+                        listedTimes.addElement(new Integer(t));
+                        t0 = t;
+                    } else {
+                        return null;
+                    }
                 }
             }
         }
