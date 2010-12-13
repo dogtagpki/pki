@@ -474,17 +474,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private boolean areTimeListsIdentical(Vector list1, Vector list2) {
         boolean identical = true;
-        CMS.debug("areTimeListsIdentical: "+((list1 != null)?list1.size():0)+":"+((list2 != null)?list2.size():0));
         if (list1 == null || list2 == null) identical = false;
         if (identical && list1.size() != list2.size()) identical = false;
         for (int i = 0; identical && i < list1.size(); i++) {
             Vector times1 = (Vector)list1.elementAt(i);
             Vector times2 = (Vector)list2.elementAt(i);
-            CMS.debug("areTimeListsIdentical: "+i+". "+times1.size()+":"+times2.size());
             if (times1.size() != times2.size()) identical = false;
             for (int j = 0; identical && j < times1.size(); j++) {
-                CMS.debug("areTimeListsIdentical: "+i+"."+j+". "+times1.elementAt(j).toString()+
-                          ":"+times2.elementAt(j).toString());
                 if ((((Integer)(times1.elementAt(j))).intValue()) != (((Integer)(times2.elementAt(j))).intValue())) {
                     identical = false;
                 }
@@ -502,12 +498,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private int getTimeListSize(Vector listedDays) {
         int listSize = 0;
-        CMS.debug("getTimeListSize: "+ ((listedDays != null)?listedDays.size():0));
         for (int i = 0; listedDays != null && i < listedDays.size(); i++) {
             Vector listedTimes = (Vector)listedDays.elementAt(i);
-            CMS.debug("getTimeListSize: "+i+". "+ ((listedTimes != null)?listedTimes.size():0));
             listSize += ((listedTimes != null)? listedTimes.size(): 0);
-            CMS.debug("getTimeListSize:  listSize="+listSize);
         }
         CMS.debug("getTimeListSize:  ListSize="+listSize);
         return listSize;
@@ -515,7 +508,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private boolean isTimeListExtended(String list) {
        boolean extendedTimeList = true; 
-       if (list.indexOf('*') == -1)
+       if (list == null || list.indexOf('*') == -1)
            extendedTimeList = false;
        return extendedTimeList;
     }
@@ -650,13 +643,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mEnableDailyUpdates = config.getBoolean(Constants.PR_ENABLE_DAILY, false);
         String daily = config.getString(Constants.PR_DAILY_UPDATES, null);
         mDailyUpdates = getTimeList(daily);
-        if (mDailyUpdates == null || mDailyUpdates.isEmpty() ||
-            (mDailyUpdates.size() == 1 && ((Vector)mDailyUpdates.elementAt(0)).isEmpty())) {
+        mExtendedTimeList = isTimeListExtended(daily);
+        mTimeListSize = getTimeListSize(mDailyUpdates);
+        if (mDailyUpdates == null || mDailyUpdates.isEmpty() || mTimeListSize == 0) {
             mEnableDailyUpdates = false;
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
         }
-        mExtendedTimeList = isTimeListExtended(daily);
-        mTimeListSize = getTimeListSize(mDailyUpdates);
 
         // Get auto update interval in minutes.
         mEnableUpdateFreq = config.getBoolean(Constants.PR_ENABLE_FREQ, true);
@@ -964,8 +956,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         mTimeListSize = getTimeListSize(mDailyUpdates);
                         modifiedSchedule = true;
                     }
-                    if (mDailyUpdates == null || mDailyUpdates.isEmpty() ||
-                        (mDailyUpdates.size() == 1 && ((Vector)mDailyUpdates.elementAt(0)).isEmpty())) {
+                    if (mDailyUpdates == null || mDailyUpdates.isEmpty() || mTimeListSize == 0) {
                         mEnableDailyUpdates = false;
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
                     }
