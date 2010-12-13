@@ -1487,11 +1487,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         if (mEnableDailyUpdates &&
             mDailyUpdates != null && mDailyUpdates.size() > 0) {
-            long firstTime = MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(mCurrentDay)).elementAt(0)).longValue();
             int n = 0;
             if (mDailyUpdates.size() == 1 && ((Vector)mDailyUpdates.elementAt(0)).size() == 1 &&
                 mEnableUpdateFreq && mAutoUpdateInterval > 0) {
                 // Interval updates with starting time
+                long firstTime = MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(0)).elementAt(0)).longValue();
                 long t = firstTime;
                 long interval = mAutoUpdateInterval;
                 if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) &&
@@ -1582,23 +1582,24 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     // done with today
                     int j = i - ((Vector)mDailyUpdates.elementAt(mCurrentDay)).size();
                     int nDays = 1;
+                    long t = 0;
                     if (mDailyUpdates.size() > 1) {
                         while (nDays <= mDailyUpdates.size()) {
                             int nextDay = (mCurrentDay + nDays) % mDailyUpdates.size();
                             if (j < ((Vector)mDailyUpdates.elementAt(nextDay)).size()) {
                                 if (nextDay == 0 && (!(mEnableDailyUpdates && mExtendedTimeList))) j = 0;
-                                firstTime = MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(nextDay)).elementAt(j)).longValue();
+                                t = MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(nextDay)).elementAt(j)).longValue();
                                 if (mEnableDailyUpdates && mExtendedTimeList) {
                                     if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) && isDeltaEnabled) {
-                                        if (firstTime < 0) {
-                                            firstTime *= -1;
+                                        if (t < 0) {
+                                            t *= -1;
                                         } else {
                                             j++;
                                             continue;
                                         }
                                     } else {
-                                        if (firstTime < 0) {
-                                            firstTime *= -1;
+                                        if (t < 0) {
+                                            t *= -1;
                                             if (fromLastUpdate) {
                                                 mSchemaCounter = 0;
                                             }
@@ -1612,7 +1613,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             nDays++;
                         }
                     }
-                    next = ((lastDay < lastUpdateDay)? lastDay: lastUpdateDay) + (oneDay * nDays) + firstTime;
+                    next = ((lastDay < lastUpdateDay)? lastDay: lastUpdateDay) + (oneDay * nDays) + t;
 
                     if (fromLastUpdate && mDailyUpdates.size() < 2) {
                         mSchemaCounter = 0;
