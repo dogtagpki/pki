@@ -21,7 +21,7 @@ Requires:       pki-ra-ui
 Requires:       pki-selinux
 Requires:       pki-setup
 Requires:       perl-DBD-SQLite
-Requires:       sendmail
+Requires:       /usr/sbin/sendmail
 Requires:       sqlite
 Requires(post):    chkconfig
 Requires(preun):   chkconfig
