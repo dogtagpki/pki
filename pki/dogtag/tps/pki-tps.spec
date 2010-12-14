@@ -156,6 +156,8 @@ cd %{buildroot}%{_datadir}/pki/tps/docroot
 ln -s tokendb tus
 
 # fix version information in primary configuration file
+cd %{buildroot}%{_datadir}/pki/tps/conf
+mv CS.cfg.in CS.cfg
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/tps/conf/CS.cfg
 
 # rename config.desktop.in --> config.desktop

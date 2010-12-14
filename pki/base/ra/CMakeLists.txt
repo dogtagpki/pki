@@ -1,7 +1,7 @@
 project(ra)
 
-add_subdirectory(setup)
 add_subdirectory(doc)
+add_subdirectory(setup)
 
 # install init script
 install(
@@ -13,34 +13,27 @@ install(
         OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ
         WORLD_EXECUTE WORLD_READ
-    PATTERN
-        "CMakeLists.txt" EXCLUDE
 )
 
-install(
-    FILES
-        scripts/nss_pcache
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
-    PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ
-)
-
-install(
-    FILES
-        scripts/schema.sql
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
-)
-
-# install directories
 install(
     DIRECTORY
-        alias/
+        apache/conf/
     DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/alias
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/conf
+)
+
+install(
+    DIRECTORY
+        emails/
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/conf
+)
+
+install(
+    DIRECTORY
+        forms/
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot
 )
 
 install(
@@ -51,31 +44,21 @@ install(
 )
 
 install(
-    DIRECTORY
-        logs/
+    FILES
+        scripts/nss_pcache
     DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/logs
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/scripts
+    PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
 )
 
 install(
-    DIRECTORY
-        forms/
+    FILES
+        scripts/schema.sql
     DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/forms
-)
-
-install(
-    DIRECTORY
-        emails/
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/conf/emails
-)
-
-install(
-    DIRECTORY
-        apache/conf/
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/conf/apache/conf
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/scripts
 )
 
 # install empty directories
@@ -90,3 +73,4 @@ install(
     DESTINATION
         ${VAR_INSTALL_DIR}/run/pki/ra
 )
+

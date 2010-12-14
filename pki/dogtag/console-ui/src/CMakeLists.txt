@@ -12,8 +12,8 @@ set(console_ui_java_SRCS
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
-add_jar(pki-console-theme ${console_ui_java_SRCS})
-install_jar(pki-console-theme ${JAVA_JAR_INSTALL_DIR})
+add_jar(pki-console-theme_en ${console_ui_java_SRCS})
+install_jar(pki-console-theme_en ${JAVA_JAR_INSTALL_DIR})
 
-set(CONSOLE_UI_JAR ${pki-console-theme_JAR_FILE} CACHE INTERNAL "console-ui jar file")
+set(CONSOLE_UI_JAR ${pki-console-theme_en_JAR_FILE} CACHE INTERNAL "console-ui jar file")
 

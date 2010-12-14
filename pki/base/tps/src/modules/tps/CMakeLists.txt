@@ -6,6 +6,7 @@ set(TPS_PRIVATE_INCLUDE_DIRS
     ${NSPR_INCLUDE_DIRS}
     ${NSS_INCLUDE_DIRS}
     ${APR_INCLUDE_DIRS}
+    ${SVRCORE_INCLUDE_DIRS}
     ${MOZLDAP_INCLUDE_DIRS}
 )
 
@@ -19,7 +20,10 @@ set(TPS_LINK_LIBRARIES
     ${NSPR_LIBRARIES}
     ${NSS_LIBRARIES}
     ${APR_LIBRARIES}
+    ${SVRCORE_LIBRARIES}
     ${MOZLDAP_LIBRARIES}
+    ${TOKENDB_SHARED_LIBRARY}
+    ${TPS_SHARED_LIBRARY}
 )
 
 set(tps_module_SRCS
@@ -35,7 +39,6 @@ target_link_libraries(${TPS_MODULE} ${TPS_LINK_LIBRARIES})
 
 set_target_properties(${TPS_MODULE}
     PROPERTIES
-            ${TPS_LIBRARY_SOVERSION}
         OUTPUT_NAME
             mod_tps
         PREFIX ""
@@ -45,5 +48,5 @@ install(
     TARGETS
         ${TPS_MODULE}
     DESTINATION
-        ${SYSCONF_INSTALL_DIR}/httpd/modules
+        ${LIB_INSTALL_DIR}/httpd/modules
 )

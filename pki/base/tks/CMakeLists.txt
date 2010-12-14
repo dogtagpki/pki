@@ -2,6 +2,7 @@ project(tks Java)
 
 add_subdirectory(src)
 add_subdirectory(setup)
+add_subdirectory(shared/conf)
 
 # install init script
 install(
@@ -25,6 +26,8 @@ install(
         "CMakeLists.txt" EXCLUDE
     PATTERN
         "etc/*" EXCLUDE
+    PATTERN
+        "CS.cfg.in" EXCLUDE
 )
 
 # install empty directories

@@ -36,7 +36,7 @@ BuildRequires:    cmake
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
-%define overview                                                          \
+%global overview                                                          \
 =========================================                                 \
 ||  ABOUT "DOGTAG CERTIFICATE SYSTEM"  ||                                 \
 =========================================                                 \
@@ -379,7 +379,7 @@ This package is used by the Dogtag Certificate System.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DBUILD_DOGTAG_THEME:BOOL=ON ..
+%cmake -DBUILD_DOGTAG_PKI_THEME:BOOL=ON ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 

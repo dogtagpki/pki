@@ -163,7 +163,7 @@ conf_DATA =	$(srcdir)/apache/conf/httpd.conf      \
 			$(srcdir)/apache/conf/mime.types      \
 			$(srcdir)/apache/conf/nss.conf        \
 			$(srcdir)/apache/conf/perl.conf       \
-			$(srcdir)/doc/CS.cfg
+			$(srcdir)/doc/CS.cfg.in
 
 docroot_DATA =	$(srcdir)/forms/index.cgi  \
 				$(srcdir)/forms/index.html

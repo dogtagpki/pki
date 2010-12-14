@@ -1,8 +1,19 @@
-project(console_java Java)
+project(pki_console_java Java)
 
-find_file(JSS_JAR
+# '/usr/share/java/pki' jars
+find_file(NSUTIL_JAR
     NAMES
-        jss4.jar
+        nsutil.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java/pki
+)
+
+
+# '/usr/share/java' jars
+find_file(BASE_JAR
+    NAMES
+        idm-console-base.jar
     PATHS
         /usr/lib/java
         /usr/share/java
@@ -11,14 +22,6 @@ find_file(JSS_JAR
 find_file(LDAPJDK_JAR
     NAMES
         ldapjdk.jar
-    PATHS
-        /usr/lib/java
-        /usr/share/java
-)
-
-find_file(BASE_JAR
-    NAMES
-        idm-console-base.jar
     PATHS
         /usr/lib/java
         /usr/share/java
@@ -56,7 +59,19 @@ find_file(NMCLF_EN_JAR
         /usr/share/java
 )
 
-set(console_java_SRCS
+
+# '/usr/lib/java' jars
+find_file(JSS_JAR
+    NAMES
+        jss4.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
+
+# identify java sources
+set(pki_console_java_SRCS
     com/netscape/certsrv/common/TaskId.java
     com/netscape/certsrv/common/DestDef.java
     com/netscape/certsrv/common/NameValuePairs.java
@@ -578,13 +593,22 @@ set(console_java_SRCS
     com/netscape/admin/certsrv/IUIMapper.java
 )
 
+
+# set classpath
 set(CMAKE_JAVA_INCLUDE_PATH
-    ${JSS_JAR} ${LDAPJDK_JAR} ${NSUTIL_JAR}
-    ${BASE_JAR} ${MMC_JAR} ${MMC_EN_JAR}
-    ${NMCLF_JAR} ${NMCLF_EN_JAR})
+    ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
+    ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
+    ${NSUTIL_JAR}
+    ${JSS_JAR})
+
+
+# set version
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
-add_jar(console ${console_java_SRCS})
-add_dependencies(console nsutil)
-install_jar(console ${JAVA_JAR_INSTALL_DIR}/pki)
-set(CONSOLE_JAR ${console_JAR_FILE} CACHE INTERNAL "console jar file")
+
+# build pki-console.jar
+add_jar(pki-console ${pki_console_java_SRCS})
+add_dependencies(pki-console nsutil)
+install_jar(pki-console ${JAVA_JAR_INSTALL_DIR})
+set(PKI_CONSOLE_JAR ${pki_console_JAR_FILE} CACHE INTERNAL "pki-console jar file")
+

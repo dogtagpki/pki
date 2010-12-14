@@ -43,5 +43,5 @@ install(
         format.tps
         reset_pin.tps
     DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/samples
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/tps/samples
 )

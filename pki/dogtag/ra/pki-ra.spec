@@ -75,6 +75,8 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
+cd %{buildroot}%{_datadir}/pki/ra/conf
+mv CS.cfg.in CS.cfg
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/ra/conf/CS.cfg
 mkdir -p %{buildroot}%{_localstatedir}/lock/pki/ra
 mkdir -p %{buildroot}%{_localstatedir}/run/pki/ra

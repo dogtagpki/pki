@@ -1,10 +1,11 @@
 project(tps_library CXX)
 
+set(TPS_LIBRARY_VERSION ${APPLICATION_VERSION})
+set(TPS_LIBRARY_SOVERSION 9)
+
 set(TPS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_subdirectory(authentication)
 add_subdirectory(tus)
-add_subdirectory(modules)
 
 set(TPS_PUBLIC_INCLUDE_DIRS
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -19,6 +20,7 @@ set(TPS_PRIVATE_INCLUDE_DIRS
   ${NSS_INCLUDE_DIRS}
   ${NSPR_INCLUDE_DIRS}
   ${APR_INCLUDE_DIRS}
+  ${SVRCORE_INCLUDE_DIRS}
   ${MOZLDAP_INCLUDE_DIRS}
 )
 
@@ -31,6 +33,7 @@ set(TPS_LINK_LIBRARIES
   ${NSPR_LIBRARIES}
   ${NSS_LIBRARIES}
   ${APR_LIBRARIES}
+  ${SVRCORE_LIBRARIES}
   ${MOZLDAP_LIBRARIES}
   ${TOKENDB_SHARED_LIBRARY}
 )
@@ -121,6 +124,7 @@ set(tps_library_SRCS
     processor/RA_Format_Processor.cpp
     selftests/SelfTest.cpp
     selftests/TPSPresence.cpp
+    selftests/TPSSystemCertsVerification.cpp
     selftests/TPSValidity.cpp
 )
 
@@ -144,3 +148,7 @@ install(
         ${TPS_SHARED_LIBRARY}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
 )
+
+add_subdirectory(authentication)
+add_subdirectory(modules)
+

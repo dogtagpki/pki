@@ -6,6 +6,7 @@ set(TOKENDB_PRIVATE_INCLUDE_DIRS
     ${NSPR_INCLUDE_DIRS}
     ${NSS_INCLUDE_DIRS}
     ${APR_INCLUDE_DIRS}
+    ${SVRCORE_INCLUDE_DIRS}
     ${MOZLDAP_INCLUDE_DIRS}
 )
 
@@ -19,6 +20,7 @@ set(TOKENDB_LINK_LIBRARIES
     ${NSPR_LIBRARIES}
     ${NSS_LIBRARIES}
     ${APR_LIBRARIES}
+    ${SVRCORE_LIBRARIES}
     ${MOZLDAP_LIBRARIES}
 )
 
@@ -33,7 +35,6 @@ target_link_libraries(${TOKENDB_MODULE} ${TOKENDB_LINK_LIBRARIES})
 
 set_target_properties(${TOKENDB_MODULE}
     PROPERTIES
-            ${TOKENDB_LIBRARY_SOVERSION}
         OUTPUT_NAME
             mod_tokendb
         PREFIX ""
@@ -43,5 +44,5 @@ install(
     TARGETS
         ${TOKENDB_MODULE}
     DESTINATION
-        ${SYSCONF_INSTALL_DIR}/httpd/modules
+        ${LIB_INSTALL_DIR}/httpd/modules
 )

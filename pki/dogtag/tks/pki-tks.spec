@@ -71,6 +71,8 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
+cd %{buildroot}%{_datadir}/pki/tks/conf
+mv CS.cfg.in CS.cfg
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/tks/conf/CS.cfg
 sed -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/tks/conf/CS.cfg
 mkdir -p %{buildroot}%{_localstatedir}/lock/pki/tks

@@ -39,11 +39,25 @@ BuildRequires:    osutil
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
-%define major_version %(echo `echo %{version} | awk -F. '{ print $1 }'`)
-%define minor_version %(echo `echo %{version} | awk -F. '{ print $2 }'`)
-%define patch_version %(echo `echo %{version} | awk -F. '{ print $3 }'`)
+%global saveFileContext() \
+if [ -s /etc/selinux/config ]; then \
+     . %{_sysconfdir}/selinux/config; \
+     FILE_CONTEXT=%{_sysconfdir}/selinux/%1/contexts/files/file_contexts; \
+     if [ "${SELINUXTYPE}" == %1 -a -f ${FILE_CONTEXT} ]; then \
+          cp -f ${FILE_CONTEXT} ${FILE_CONTEXT}.%{name}; \
+     fi \
+fi;
 
-%define overview                                                       \
+%global relabel() \
+. %{_sysconfdir}/selinux/config; \
+FILE_CONTEXT=%{_sysconfdir}/selinux/%1/contexts/files/file_contexts; \
+selinuxenabled; \
+if [ $? == 0  -a "${SELINUXTYPE}" == %1 -a -f ${FILE_CONTEXT}.%{name} ]; then \
+     fixfiles -C ${FILE_CONTEXT}.%{name} restore; \
+     rm -f ${FILE_CONTEXT}.%name; \
+fi;
+
+%global overview                                                       \
 ==================================                                     \
 ||  ABOUT "CERTIFICATE SYSTEM"  ||                                     \
 ==================================                                     \
@@ -328,6 +342,7 @@ Requires:         java >= 1:1.6.0
 Requires:         pki-ca-theme
 Requires:         pki-common = %{version}-%{release}
 Requires:         pki-selinux = %{version}-%{release}
+Requires:         pki-setup = %{version}-%{release}
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
@@ -394,7 +409,7 @@ This package is a part of the PKI Core used by the Certificate System.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_CORE:BOOL=ON ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CORE:BOOL=ON ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -444,13 +459,6 @@ cd %{buildroot}%{_libdir}/symkey
 ##   pki-java-tools   ##
 ########################
 
-#cd %{buildroot}%{_javadir}
-#%{__ln_s} pkitools.jar cstools.jar
-#cd %{buildroot}%{_javadir}/pki
-#%{__ln_s} pkitools.jar cstools.jar
-#cd %{buildroot}%{_javadir}/pki
-#%{__ln_s} ../pkitools.jar cstools.jar
-
 
 ########################
 ##     pki-common     ##
@@ -465,9 +473,6 @@ cd %{buildroot}%{_libdir}/symkey
 ########################
 ##       pki-ca       ##
 ########################
-
-%{__sed} -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/ca/conf/CS.cfg
-%{__sed} -i 's/^cms.version=.*$/cms.version=%{major_version}.%{minor_version}/' %{buildroot}%{_datadir}/pki/ca/conf/CS.cfg
 
 
 ########################
@@ -512,6 +517,27 @@ cd %{buildroot}%{_libdir}/symkey
 ########################
 ##    pki-selinux     ##
 ########################
+
+%pre -n pki-selinux
+%saveFileContext targeted
+
+
+%post -n pki-selinux
+semodule -s targeted -i %{_datadir}/selinux/modules/pki.pp
+%relabel targeted
+
+
+%preun -n pki-selinux
+if [ $1 = 0 ]; then
+     %saveFileContext targeted
+fi
+
+
+%postun -n pki-selinux
+if [ $1 = 0 ]; then
+     semodule -s targeted -r pki
+     %relabel targeted
+fi
 
 
 ########################

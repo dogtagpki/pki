@@ -1,32 +1,95 @@
 project(tks_java Java)
 
+# '/usr/share/java/pki' jars
+find_file(CERTSRV_JAR
+    NAMES
+        certsrv.jar
+    PATHS
+        /usr/share/java/pki
+)
+
+find_file(CMS_JAR
+    NAMES
+        cms.jar
+    PATHS
+        /usr/share/java/pki
+)
+
+find_file(CMSCORE_JAR
+    NAMES
+        cmscore.jar
+    PATHS
+        /usr/share/java/pki
+)
+
+find_file(CMSUTIL_JAR
+    NAMES
+        cmsutil.jar
+    PATHS
+        /usr/share/java/pki
+)
+
+find_file(NSUTIL_JAR
+    NAMES
+        nsutil.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java/pki
+)
+
+
+# '/usr/share/java' jars
+find_file(LDAPJDK_JAR
+    NAMES
+        ldapjdk.jar
+    PATHS
+        /usr/share/java
+)
+
+
+# '/usr/lib/java' jars
 find_file(JSS_JAR
     NAMES
         jss4.jar
     PATHS
         /usr/lib/java
-        /usr/share/java
 )
 
-find_file(LDAPJDK_JAR
+find_file(OSUTIL_JAR
     NAMES
-        ldapjdk.jar
+        osutil.jar
     PATHS
         /usr/lib/java
-        /usr/share/java
 )
 
+find_file(SYMKEY_JAR
+    NAMES
+        symkey.jar
+    PATHS
+        /usr/lib/java
+)
+
+
+# identify java sources
 set(tks_java_SRCS
     com/netscape/tks/TKSAuthority.java
 )
 
+
+# set classpath
 set(CMAKE_JAVA_INCLUDE_PATH
-    ${JSS_JAR} ${LDAPJDK_JAR} ${NSUTIL_JAR} ${CMSUTIL_JAR}
-    ${OSUTIL_JAR} ${SYMKEY_JAR} ${CMS_JAR} ${CMSCORE_JAR}
-    ${CERTSRV_JAR})
+    ${CERTSRV_JAR} ${CMS_JAR} ${CMSCORE_JAR} ${CMSUTIL_JAR} ${NSUTIL_JAR}
+    ${LDAPJDK_JAR}
+    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
+
+
+# set version
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
+
+# build tks.jar
 add_jar(tks ${tks_java_SRCS})
-add_dependencies(tks nsutil cmsutil osutil symkey cms cmscore certsrv)
+add_dependencies(tks osutil symkey nsutil cmsutil certsrv cms cmscore)
 install_jar(tks ${JAVA_JAR_INSTALL_DIR})
 set(TKS_JAR ${tks_JAR_FILE} CACHE INTERNAL "tks jar file")
+

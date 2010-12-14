@@ -26,6 +26,7 @@ else (MOZLDAP_LIBRARIES AND MOZLDAP_INCLUDE_DIRS)
   find_path(MOZLDAP_INCLUDE_DIR
     NAMES
       ldap.h
+      ldif.h
     PATHS
       ${_MOZLDAP_INCLUDEDIR}
       /usr/include
@@ -69,6 +70,17 @@ else (MOZLDAP_LIBRARIES AND MOZLDAP_INCLUDE_DIRS)
       /sw/lib
   )
 
+  find_library(LDIF60_LIBRARY
+    NAMES
+      ldif60
+    PATHS
+      ${_MOZLDAP_LIBDIR}
+      /usr/lib
+      /usr/local/lib
+      /opt/local/lib
+      /sw/lib
+  )
+
   set(MOZLDAP_INCLUDE_DIRS
     ${MOZLDAP_INCLUDE_DIR}
   )
@@ -93,6 +105,13 @@ else (MOZLDAP_LIBRARIES AND MOZLDAP_INCLUDE_DIRS)
         ${LDAP60_LIBRARY}
     )
   endif (LDAP60_LIBRARY)
+
+  if (LDIF60_LIBRARY)
+    set(MOZLDAP_LIBRARIES
+        ${MOZLDAP_LIBRARIES}
+        ${LDIF60_LIBRARY}
+    )
+  endif (LDIF60_LIBRARY)
 
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(MozLDAP DEFAULT_MSG MOZLDAP_LIBRARIES MOZLDAP_INCLUDE_DIRS)
