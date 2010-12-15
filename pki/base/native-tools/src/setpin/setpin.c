@@ -246,8 +246,7 @@ int main(int ac, char **av) {
     if (ac == 1) {
         int i=0;
         fprintf(stderr,"Setpin utility. Version " SETPIN_VERSION "\n"
-            "(C) 2005 Fedora Project.\n"
-            "Unauthorized distribution prohibited\n\n");
+            "(C) 2005 Fedora Project.\n\n");
         fprintf(stderr,"To set up directory for pin usage, modify setpin.conf, "
             "then run:\n   %s optfile=<svr_root>/bin/cert/tools/setpin.conf\n", programName);
         fprintf(stderr,"\nUsage:  %s option=value ... option=value\n\n", programName);
