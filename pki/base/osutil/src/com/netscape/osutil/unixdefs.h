@@ -10,5 +10,5 @@
 #define SECURITY "java/lang/SecurityException"
 #define RUNTIME "java/lang/Runtime"
 
-void unix_throw_exception(JNIEnv *env, char *exception, char *reason);
+void unix_throw_exception(JNIEnv *env, const char *exception, const char *reason);
 

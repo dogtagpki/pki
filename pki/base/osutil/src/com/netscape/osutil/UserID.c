@@ -33,7 +33,7 @@
  * Throw an IllegalArgumentException 
  */
 void
-unix_throw_exception(JNIEnv *env, char *exception, char *reason)
+unix_throw_exception(JNIEnv *env, const char *exception, const char *reason)
 {
 	jclass exc;
 
