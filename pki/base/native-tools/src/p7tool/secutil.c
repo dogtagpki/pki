@@ -979,18 +979,18 @@ secu_PrintBoolean(FILE *out, SECItem *i, const char *m, int level)
 }
 
 /*
- * Format and print "time".  If the tag message "m" is not NULL,
+ * Format and print "time_val".  If the tag message "m" is not NULL,
  * do indent formatting based on "level" and add a newline afterward;
  * otherwise just print the formatted time string only.
  */
 static void
-secu_PrintTime(FILE *out, int64 time, const char *m, int level)
+secu_PrintTime(FILE *out, int64 time_val, const char *m, int level)
 {
     PRExplodedTime printableTime; 
     char *timeString;
 
     /* Convert to local time */
-    PR_ExplodeTime(time, PR_GMTParameters, &printableTime);
+    PR_ExplodeTime(time_val, PR_GMTParameters, &printableTime);
 
     timeString = PORT_Alloc(100);
     if (timeString == NULL)
@@ -1018,14 +1018,14 @@ secu_PrintTime(FILE *out, int64 time, const char *m, int level)
 void
 SECU_PrintUTCTime(FILE *out, SECItem *t, const char *m, int level)
 {
-    int64 time;
+    int64 time_val;
     SECStatus rv;
 
-    rv = DER_UTCTimeToTime(&time, t);
+    rv = DER_UTCTimeToTime(&time_val, t);
     if (rv != SECSuccess)
 	return;
 
-    secu_PrintTime(out, time, m, level);
+    secu_PrintTime(out, time_val, m, level);
 }
 
 /*
@@ -1036,15 +1036,15 @@ SECU_PrintUTCTime(FILE *out, SECItem *t, const char *m, int level)
 void
 SECU_PrintGeneralizedTime(FILE *out, SECItem *t, const char *m, int level)
 {
-    int64 time;
+    int64 time_val;
     SECStatus rv;
 
 
-    rv = DER_GeneralizedTimeToTime(&time, t);
+    rv = DER_GeneralizedTimeToTime(&time_val, t);
     if (rv != SECSuccess)
 	return;
 
-    secu_PrintTime(out, time, m, level);
+    secu_PrintTime(out, time_val, m, level);
 }
 
 /*
