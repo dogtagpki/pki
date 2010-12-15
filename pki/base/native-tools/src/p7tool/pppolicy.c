@@ -73,21 +73,24 @@ static const SEC_ASN1Template secu_PolicyQualifierTemplate[] = {
     { SEC_ASN1_SEQUENCE,
 	  0, NULL, sizeof(CERTPolicyQualifier) },
     { SEC_ASN1_OBJECT_ID,
-	  offsetof(CERTPolicyQualifier, qualifierID) },
+	  offsetof(CERTPolicyQualifier, qualifierID),
+          NULL, 0},
     { SEC_ASN1_ANY | SEC_ASN1_OPTIONAL,
-	  offsetof(CERTPolicyQualifier, qualifierValue) },
-    { 0 }
+	  offsetof(CERTPolicyQualifier, qualifierValue),
+          NULL, 0},
+    { 0, 0, NULL, 0 }
 };
 
 static const SEC_ASN1Template secu_PolicyInfoTemplate[] = {
     { SEC_ASN1_SEQUENCE,
 	  0, NULL, sizeof(CERTPolicyInfo) },
     { SEC_ASN1_OBJECT_ID,
-	  offsetof(CERTPolicyInfo, policyID) },
+	  offsetof(CERTPolicyInfo, policyID),
+          NULL, 0},
     { SEC_ASN1_SEQUENCE_OF | SEC_ASN1_OPTIONAL,
 	  offsetof(CERTPolicyInfo, policyQualifiers),
-	  secu_PolicyQualifierTemplate },
-    { 0 }
+	  secu_PolicyQualifierTemplate, 0 },
+    { 0, 0, NULL, 0 }
 };
 
 static const SEC_ASN1Template secu_CertificatePoliciesTemplate[] = {
