@@ -58,6 +58,7 @@ public class CertUtil {
       throws IOException {
         HttpClient httpclient = new HttpClient();
         String c = null;
+        CMS.debug("CertUtil createRemoteCert: content " + content);
         try {
             JssSSLSocketFactory factory = new JssSSLSocketFactory();
 

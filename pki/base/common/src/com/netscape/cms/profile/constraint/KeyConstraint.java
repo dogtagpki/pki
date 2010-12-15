@@ -84,7 +84,7 @@ public class KeyConstraint extends EnrollConstraint {
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) { 
         if (name.equals(CONFIG_KEY_TYPE)) {
-            return new Descriptor(IDescriptor.CHOICE, "RSA,EC",
+            return new Descriptor(IDescriptor.CHOICE, "-,RSA,EC",
                     "RSA",
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_TYPE"));
         }   else if (name.equals(CONFIG_KEY_PARAMETERS)) {
@@ -144,7 +144,7 @@ public class KeyConstraint extends EnrollConstraint {
             if (alg.equals("EC")) {
                 //For now only check for legal EC key type.
                 //We don't have the required EC key class to evaluate curve names.
-                if (!alg.equals(keyType)) {
+                if (!alg.equals(keyType) && !isOptional(keyType)) {
                     throw new ERejectException(
                             CMS.getUserMessage(
                                 getLocale(request),
