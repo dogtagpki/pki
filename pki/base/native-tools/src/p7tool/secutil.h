@@ -76,10 +76,10 @@ extern SECStatus SEC_AddPermCertificate(CERTCertDBHandle *handle,
 
 
 #ifdef SECUTIL_NEW
-typedef int (*SECU_PPFunc)(PRFileDesc *out, SECItem *item, 
-                           char *msg, int level);
+typedef int (*SECU_PPFunc)(PRFileDesc *out, SECItem *item,
+                           const char *msg, int level);
 #else
-typedef int (*SECU_PPFunc)(FILE *out, SECItem *item, char *msg, int level);
+typedef int (*SECU_PPFunc)(FILE *out, SECItem *item, const char *msg, int level);
 #endif
 
 typedef struct {
@@ -120,7 +120,7 @@ extern PRBool SEC_BlindCheckPassword(char *password);
 ** First prompt with "msg" on "out", then read the password from "in".
 ** The password is then checked using "chkpw".
 */
-extern char *SEC_GetPassword(FILE *in, FILE *out, char *msg,
+extern char *SEC_GetPassword(FILE *in, FILE *out, const char *msg,
 				      PRBool (*chkpw)(char *));
 
 char *SECU_FilePasswd(PK11SlotInfo *slot, PRBool retry, void *arg);
@@ -168,10 +168,10 @@ SECU_GetClientAuthData(void *arg, PRFileDesc *fd,
 		       struct SECKEYPrivateKeyStr **pRetKey);
 
 /* print out an error message */
-extern void SECU_PrintError(char *progName, char *msg, ...);
+extern void SECU_PrintError(const char *progName, const char *msg, ...);
 
 /* print out a system error message */
-extern void SECU_PrintSystemError(char *progName, char *msg, ...);
+extern void SECU_PrintSystemError(const char *progName, const char *msg, ...);
 
 /* Return informative error string */
 extern const char * SECU_Strerror(PRErrorCode errNum);
@@ -194,17 +194,17 @@ SECU_ReadDERFromFile(SECItem *der, PRFileDesc *inFile, PRBool ascii);
 extern void SECU_Indent(FILE *out, int level);
 
 /* Print integer value and hex */
-extern void SECU_PrintInteger(FILE *out, SECItem *i, char *m, int level);
+extern void SECU_PrintInteger(FILE *out, SECItem *i, const char *m, int level);
 
 /* Print ObjectIdentifier symbolically */
-extern SECOidTag SECU_PrintObjectID(FILE *out, SECItem *oid, char *m, int level);
+extern SECOidTag SECU_PrintObjectID(FILE *out, SECItem *oid, const char *m, int level);
 
 /* Print AlgorithmIdentifier symbolically */
-extern void SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, char *m,
+extern void SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, const char *m,
 				  int level);
 
 /* Print SECItem as hex */
-extern void SECU_PrintAsHex(FILE *out, SECItem *i, const char *m, int level);
+extern void SECU_PrintAsHex(FILE *out, SECItem *i, const const char *m, int level);
 
 /* dump a buffer in hex and ASCII */
 extern void SECU_PrintBuf(FILE *out, const char *msg, const void *vp, int len);
@@ -214,14 +214,14 @@ extern void SECU_PrintBuf(FILE *out, const char *msg, const void *vp, int len);
  * do indent formatting based on "level" and add a newline afterward;
  * otherwise just print the formatted time string only.
  */
-extern void SECU_PrintUTCTime(FILE *out, SECItem *t, char *m, int level);
+extern void SECU_PrintUTCTime(FILE *out, SECItem *t, const char *m, int level);
 
 /*
  * Format and print the Generalized Time "t".  If the tag message "m"
  * is not NULL, * do indent formatting based on "level" and add a newline
  * afterward; otherwise just print the formatted time string only.
  */
-extern void SECU_PrintGeneralizedTime(FILE *out, SECItem *t, char *m,
+extern void SECU_PrintGeneralizedTime(FILE *out, SECItem *t, const char *m,
 				      int level);
 
 /*
@@ -229,7 +229,7 @@ extern void SECU_PrintGeneralizedTime(FILE *out, SECItem *t, char *m,
  * "m" is not NULL, do indent formatting based on "level" and add a newline
  * afterward; otherwise just print the formatted time string only.
  */
-extern void SECU_PrintTimeChoice(FILE *out, SECItem *t, char *m, int level);
+extern void SECU_PrintTimeChoice(FILE *out, SECItem *t, const char *m, int level);
 
 /* callback for listing certs through pkcs11 */
 extern SECStatus SECU_PrintCertNickname(CERTCertListNode* cert, void *data);
@@ -243,17 +243,17 @@ SECU_PrintCertificateNames(CERTCertDBHandle *handle, PRFileDesc* out,
 int SECU_CheckCertNameExists(CERTCertDBHandle *handle, char *nickname);
 
 /* Dump contents of cert req */
-extern int SECU_PrintCertificateRequest(FILE *out, SECItem *der, char *m,
+extern int SECU_PrintCertificateRequest(FILE *out, SECItem *der, const char *m,
 	int level);
 
 /* Dump contents of certificate */
-extern int SECU_PrintCertificate(FILE *out, SECItem *der, char *m, int level);
+extern int SECU_PrintCertificate(FILE *out, SECItem *der, const char *m, int level);
 
 /* print trust flags on a cert */
-extern void SECU_PrintTrustFlags(FILE *out, CERTCertTrust *trust, char *m, int level);
+extern void SECU_PrintTrustFlags(FILE *out, CERTCertTrust *trust, const char *m, int level);
 
 /* Dump contents of public key */
-extern int SECU_PrintPublicKey(FILE *out, SECItem *der, char *m, int level);
+extern int SECU_PrintPublicKey(FILE *out, SECItem *der, const char *m, int level);
 
 #ifdef HAVE_EPV_TEMPLATE
 /* Dump contents of private key */
@@ -261,36 +261,36 @@ extern int SECU_PrintPrivateKey(FILE *out, SECItem *der, char *m, int level);
 #endif
 
 /* Print the MD5 and SHA1 fingerprints of a cert */
-extern int SECU_PrintFingerprints(FILE *out, SECItem *derCert, char *m,
+extern int SECU_PrintFingerprints(FILE *out, SECItem *derCert, const char *m,
                                   int level);
 
 /* Pretty-print any PKCS7 thing */
-extern int SECU_PrintPKCS7ContentInfo(FILE *out, SECItem *der, char *m, 
+extern int SECU_PrintPKCS7ContentInfo(FILE *out, SECItem *der, const char *m,
 				      int level);
 
 /* Init PKCS11 stuff */
 extern SECStatus SECU_PKCS11Init(PRBool readOnly);
 
 /* Dump contents of signed data */
-extern int SECU_PrintSignedData(FILE *out, SECItem *der, char *m, int level,
+extern int SECU_PrintSignedData(FILE *out, SECItem *der, const char *m, int level,
 				SECU_PPFunc inner);
 
-extern int SECU_PrintCrl(FILE *out, SECItem *der, char *m, int level);
+extern int SECU_PrintCrl(FILE *out, SECItem *der, const char *m, int level);
 
 extern void
-SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, char *m, int level);
+SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, const char *m, int level);
 
-extern void SECU_PrintString(FILE *out, SECItem *si, char *m, int level);
-extern void SECU_PrintAny(FILE *out, SECItem *i, char *m, int level);
+extern void SECU_PrintString(FILE *out, SECItem *si, const char *m, int level);
+extern void SECU_PrintAny(FILE *out, SECItem *i, const char *m, int level);
 
-extern void SECU_PrintPolicy(FILE *out, SECItem *value, char *msg, int level);
+extern void SECU_PrintPolicy(FILE *out, SECItem *value, const char *msg, int level);
 extern void SECU_PrintPrivKeyUsagePeriodExtension(FILE *out, SECItem *value,
-                                 char *msg, int level);
+                                 const char *msg, int level);
 
 extern void SECU_PrintExtensions(FILE *out, CERTCertExtension **extensions,
-				 char *msg, int level);
+				 const char *msg, int level);
 
-extern void SECU_PrintName(FILE *out, CERTName *name, char *msg, int level);
+extern void SECU_PrintName(FILE *out, CERTName *name, const char *msg, int level);
 
 #ifdef SECU_GetPassword
 /* Convert a High public Key to a Low public Key */
@@ -304,7 +304,7 @@ extern void SEC_Init(void);
 
 extern char *SECU_SECModDBName(void);
 
-extern void SECU_PrintPRandOSError(char *progName);
+extern void SECU_PrintPRandOSError(const char *progName);
 
 extern SECStatus SECU_RegisterDynamicOids(void);
 

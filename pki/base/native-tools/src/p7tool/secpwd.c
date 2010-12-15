@@ -93,8 +93,8 @@ static void echoOn(int fd)
 #endif
 }
 
-char *SEC_GetPassword(FILE *input, FILE *output, char *prompt,
-			       PRBool (*ok)(char *))
+char *SEC_GetPassword(FILE *input, FILE *output, const char *prompt,
+                      PRBool (*ok)(char *))
 {
 #if defined(_WINDOWS)
     int isTTY = (input == stdin);
