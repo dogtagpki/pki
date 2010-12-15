@@ -119,7 +119,7 @@ int	verbose;
 SECItem	bigBuf;
 
 
-char * ownPasswd( PK11SlotInfo *slot, PRBool retry, void *arg)
+static char *ownPasswd( PK11SlotInfo *slot, PRBool retry, void *arg)
 {
     char *passwd = NULL;
 
@@ -213,7 +213,7 @@ mySSLAuthCertificate(void *arg, PRFileDesc *fd, PRBool checkSig,
     return rv;  
 }
 
-static SECStatus 
+static SECStatus
 myBadCertHandler( void *arg, PRFileDesc *fd)
 {
     /* int err = PR_GetError(); */
@@ -223,7 +223,7 @@ myBadCertHandler( void *arg, PRFileDesc *fd)
 }
 
 
-SECStatus
+static SECStatus
 my_GetClientAuthData(void *                       arg,
                       PRFileDesc *                 socket,
               struct CERTDistNamesStr *    caNames,
@@ -291,7 +291,7 @@ my_GetClientAuthData(void *                       arg,
 
 
 
-void 
+static void
 printSecurityInfo(PRFileDesc *fd)
 {
     char * cp;	/* bulk cipher name */
@@ -335,7 +335,7 @@ static const char outHeader[] = {
 };
 
 
-PRInt32
+static PRInt32
 do_writes(
     void *       a
 )
@@ -369,7 +369,7 @@ do_writes(
 
 
 
-SECStatus
+static SECStatus
 do_io( PRFileDesc *ssl_sock, int connection)
 {
     int	    countRead = 0;
@@ -436,7 +436,7 @@ do_io( PRFileDesc *ssl_sock, int connection)
     return SECSuccess;	/* success */
 }
 
-int
+static int
 do_connect(
     PRNetAddr *addr,
     PRFileDesc *model_sock,
@@ -507,7 +507,7 @@ do_connect(
 ** Since the value returned is an integer (not a string of bytes), 
 ** it is inherently in Host Byte Order. 
 */
-PRUint32
+static PRUint32
 getIPAddress(const char * hostName) 
 {
     const unsigned char *p;
@@ -528,8 +528,9 @@ getIPAddress(const char * hostName)
     rv = (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
     return rv;
 }
+#endif
 
-void
+static void
 client_main(
     unsigned short      port, 
     int                 connections, 
@@ -626,7 +627,7 @@ client_main(
 }
 
 
-SECStatus
+static SECStatus
 createRequest(char *progName, char *path)
 {
     char *temp;
