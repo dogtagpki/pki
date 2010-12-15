@@ -225,7 +225,7 @@ myBadCertHandler( void *arg, PRFileDesc *fd)
 
 static SECStatus
 my_GetClientAuthData(void *                       arg,
-                      PRFileDesc *                 socket,
+                      PRFileDesc *                 sock,
               struct CERTDistNamesStr *    caNames,
               struct CERTCertificateStr ** pRetCert,
               struct SECKEYPrivateKeyStr **pRetKey)
@@ -238,7 +238,7 @@ my_GetClientAuthData(void *                       arg,
 
   FPRINTF(stderr,"Called mygetclientauthdata - nickname = %s\n",chosenNickName);
 
-  proto_win = SSL_RevealPinArg(socket);
+  proto_win = SSL_RevealPinArg(sock);
 
   if (chosenNickName) {
     cert = PK11_FindCertFromNickname(chosenNickName, proto_win);
