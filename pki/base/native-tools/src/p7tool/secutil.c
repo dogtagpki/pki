@@ -57,6 +57,7 @@
 #include "prnetdb.h"
 
 #include "cryptohi.h"
+#include "secerror.h"
 #include "secutil.h"
 #include "secpkcs7.h"
 #include <stdarg.h>

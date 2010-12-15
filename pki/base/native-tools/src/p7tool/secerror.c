@@ -42,6 +42,7 @@
  */
 
 #include "nspr.h"
+#include "secerror.h"
 
 struct tuple_str {
     PRErrorCode	 errNum;
