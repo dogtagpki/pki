@@ -258,9 +258,10 @@ char *
 SECU_GetModulePassword(PK11SlotInfo *slot, PRBool retry, void *arg) 
 {
     char prompt[255];
+    char external[] = "external";
     secuPWData *pwdata = (secuPWData *)arg;
     secuPWData pwnull = { PW_NONE, 0 };
-    secuPWData pwxtrn = { PW_EXTERNAL, "external" };
+    secuPWData pwxtrn = { PW_EXTERNAL, external };
     char *pw;
 
     if (pwdata == NULL)
@@ -473,7 +474,7 @@ SECU_ConfigDirectory(const char* base)
 {
     static PRBool initted = PR_FALSE;
     const char *dir = ".netscape";
-    char *home;
+    const char *home;
     static char buf[1000];
 
     if (initted) return buf;
@@ -1002,7 +1003,7 @@ secu_PrintTime(FILE *out, int64 time_val, const char *m, int level)
     }
 
     PR_FormatTime(timeString, 100, "%a %b %d %H:%M:%S %Y", &printableTime);
-    fprintf(out, timeString);
+    fprintf(out, "%s", timeString);
 
     if (m != NULL)
 	fprintf(out, "\n");
@@ -1573,7 +1574,7 @@ secu_PrintX509InvalidDate(FILE *out, SECItem *value, const char *msg, int level)
 	rv = DER_GeneralizedTimeToTime(&invalidTime, &decodedValue);
 	if (rv == SECSuccess) {
 	    formattedTime = CERT_GenTime2FormattedAscii
-			    (invalidTime, "%a %b %d %H:%M:%S %Y");
+			    (invalidTime, (char *) "%a %b %d %H:%M:%S %Y");
 	    SECU_Indent(out, level +1);
 	    fprintf (out, "%s: %s\n", msg, formattedTime);
 	    PORT_Free (formattedTime);
@@ -2121,7 +2122,7 @@ void
 SECU_PrintName(FILE *out, CERTName *name, const char *msg, int level)
 {
     char *nameStr;
-    char *str;
+    const char *str;
     SECItem my;
 
     str = nameStr = CERT_NameToAscii(name);
@@ -2175,7 +2176,7 @@ SECU_PrintCertNickname(CERTCertListNode *node, void *data)
     CERTCertificate* cert;
     FILE *out;
     char trusts[30];
-    char *name;
+    const char *name;
 
     cert = node->cert;
 
@@ -2583,7 +2584,8 @@ SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, const char *m, int level)
 	iv = 0;
 	while ((entry = crl->entries[iv++]) != NULL) {
 	    sprintf(om, "Entry (%x):\n", iv); 
-	    SECU_Indent(out, level + 1); fprintf(out, om);
+	    SECU_Indent(out, level + 1);
+            fprintf(out, "%s", om);
 	    SECU_PrintInteger(out, &(entry->serialNumber), "Serial Number",
 			      level + 2);
 	    SECU_PrintTimeChoice(out, &(entry->revocationDate), 
@@ -3222,11 +3224,11 @@ SECU_PrintPRandOSError(const char *progName)
 {
     char buffer[513];
     PRInt32     errLen = PR_GetErrorTextLength();
-    if (errLen > 0 && errLen < sizeof buffer) {
+    if ((errLen > 0) && ((size_t) errLen < sizeof(buffer))) {
         PR_GetErrorText(buffer);
     }
     SECU_PrintError(progName, "function failed");
-    if (errLen > 0 && errLen < sizeof buffer) {
+    if ((errLen > 0) && ((size_t) errLen < sizeof(buffer))) {
         PR_fprintf(PR_STDERR, "\t%s\n", buffer);
     }
 }
@@ -3252,7 +3254,7 @@ SECU_printCertProblems(FILE *outfile, CERTCertDBHandle *handle,
     CERTVerifyLogNode *node   = NULL;
     unsigned int       depth  = (unsigned int)-1;
     unsigned int       flags  = 0;
-    char *             errstr = NULL;
+    const char *       errstr = NULL;
     PRErrorCode	       err    = PORT_GetError();
 
     log.arena = PORT_NewArena(512);
