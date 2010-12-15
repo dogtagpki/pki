@@ -242,10 +242,10 @@ my_GetClientAuthData(void *                       arg,
 
   if (chosenNickName) {
     cert = PK11_FindCertFromNickname(chosenNickName, proto_win);
-    FPRINTF(stderr,"   mygetclientauthdata - cert = %x\n",(unsigned int)cert);
+    FPRINTF(stderr,"   mygetclientauthdata - cert = %p\n", cert);
     if ( cert ) {
       privkey = PK11_FindKeyByAnyCert(cert, proto_win);
-      FPRINTF(stderr,"   mygetclientauthdata - privkey = %x\n",(unsigned int)privkey);
+      FPRINTF(stderr,"   mygetclientauthdata - privkey = %p\n", privkey);
       if ( privkey ) {
     rv = SECSuccess;
       } else {
@@ -362,7 +362,8 @@ do_writes(
     	/* PR_Shutdown(ssl_sock, PR_SHUTDOWN_SEND);  */
     }
 
-    FPRINTF(stderr, "do_writes exiting with (failure = %d)\n",sent<bigBuf.len == SECFailure);
+    FPRINTF(stderr, "do_writes exiting with (failure = %d)\n",
+            (sent < bigBuf.len) == SECFailure);
     return (sent < bigBuf.len) ? SECFailure : SECSuccess;
 }
 
@@ -503,6 +504,7 @@ do_connect(
     return SECSuccess;
 }
 
+#if 0
 /* Returns IP address for hostname as PRUint32 in Host Byte Order.
 ** Since the value returned is an integer (not a string of bytes), 
 ** it is inherently in Host Byte Order. 
@@ -541,6 +543,11 @@ client_main(
 {
     PRFileDesc *model_sock = NULL;
     int         rv;
+    PRAddrInfo *ai;
+    void *iter;
+    PRNetAddr addr;
+    int family = PR_AF_INET;
+
 
 
     FPRINTF(stderr, "port: %d\n", port);
@@ -556,11 +563,6 @@ client_main(
     /*
      *  Rifle through the values for the host
      */
-
-    PRAddrInfo *ai;
-    void *iter;
-    PRNetAddr addr;
-    int family = PR_AF_INET;
 
     ai = PR_GetAddrInfoByName(hostName, PR_AF_UNSPEC, PR_AI_ADDRCONFIG);
     if (ai) {
@@ -672,7 +674,7 @@ createRequest(char *progName, char *path)
 int
 main(int argc, char **argv)
 {
-    char *              dir         = ".";
+    const char *        dir         = ".";
     char *              hostName    = NULL;
     char *              nickName    = NULL;
     char *              progName    = NULL;
