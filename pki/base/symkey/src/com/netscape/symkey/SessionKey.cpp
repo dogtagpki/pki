@@ -298,8 +298,8 @@ JSS_getPtrFromProxy(JNIEnv *env, jobject nativeProxy, void **ptr)
  **  }
  */
 PRStatus
-JSS_getPtrFromProxyOwner(JNIEnv *env, jobject proxyOwner, char* proxyFieldName,
-char *proxyFieldSig, void **ptr)
+JSS_getPtrFromProxyOwner(JNIEnv *env, jobject proxyOwner, const char *proxyFieldName,
+const char *proxyFieldSig, void **ptr)
 {
     jclass ownerClass;
     jfieldID proxyField;
