@@ -334,17 +334,22 @@ public class DoRevokeTPS extends CMSServlet {
             Enumeration e = mCertDB.searchCertificates(revokeAll,
                     totalRecordCount, mTimeLimits);
 
+            boolean alreadyRevokedCertFound = false;
+            boolean badCertsRequested = false;
             while (e != null && e.hasMoreElements()) {
                 ICertRecord rec = (ICertRecord) e.nextElement();
 
-                if (rec == null)
+                if (rec == null) {
+                    badCertsRequested = true;
                     continue;
+                }
                 X509CertImpl xcert = rec.getCertificate();
                 IArgBlock rarg = CMS.createArgBlock();
 					
                 // we do not want to revoke the CA certificate accidentially
                 if (xcert != null && isSystemCertificate(xcert.getSerialNumber())) {
                     CMS.debug("DoRevokeTPS: skipped revocation request for system certificate " + xcert.getSerialNumber());
+                    badCertsRequested = true;
                     continue;
                 }
 
@@ -353,6 +358,7 @@ public class DoRevokeTPS extends CMSServlet {
                         xcert.getSerialNumber().toString(16));
 
                     if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                        alreadyRevokedCertFound = true;
                         CMS.debug("Certificate 0x"+xcert.getSerialNumber().toString(16) + " has been revoked.");
                     } else {
                         oldCertsV.addElement(xcert);
@@ -365,10 +371,29 @@ public class DoRevokeTPS extends CMSServlet {
                         CMS.debug("Certificate 0x"+xcert.getSerialNumber().toString(16)+" is going to be revoked.");
                         count++;
                     }
+                } else {
+                    badCertsRequested = true;
                 }
             }
 
             if (count == 0) { 
+                // Situation where no certs were reoked here, but some certs
+                // requested happened to be already revoked. Don't return error.
+                if (alreadyRevokedCertFound == true && badCertsRequested == false) {
+                     CMS.debug("Only have previously revoked certs in the list.");
+                     // store a message in the signed audit log file
+                     auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
+                        auditSubjectID,
+                        ILogger.SUCCESS,
+                        auditRequesterID,
+                        auditSerialNumber,
+                        auditRequestType);
+
+                     audit(auditMessage);
+                     return; 
+                }
+ 
                 errorString = "error=No certificates are revoked.";
                 o_status = "status=2";
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REV_CERTS_ZERO")); 
