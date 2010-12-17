@@ -95,6 +95,7 @@ find_package(JNI REQUIRED)
 find_package(NSPR REQUIRED)
 find_package(NSS REQUIRED)
 find_package(Ldap REQUIRED)
+find_package(MozLDAP REQUIRED)
 find_package(APR REQUIRED)
 
 # required for TPS
