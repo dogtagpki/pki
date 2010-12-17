@@ -67,12 +67,30 @@
 #       <target>_CLASS_DIR          The directory where the class files can be
 #                                   found. For example to use them with javah.
 #
+#    find_jar(
+#             <VAR>
+#             name | NAMES name1 [name2 ...]
+#             [PATHS path1 [path2 ... ENV var]]
+#             [VERSIONS version1 [version2]]
+#             [DOC "cache documentation string"]
+#            )
+#
+#    This command is used to find a full path to the named jar. A cache entry
+#    named by <VAR> is created to stor the result of this command. If the full
+#    path to a jar is found the result is stored in the variable and the search
+#    will not repeated unless the variable is cleared. If nothing is found, the
+#    result will be <VAR>-NOTFOUND, and the search will be attempted again next
+#    time find_jar is invoked with the same variable.
+#    The name of the full path to a file that is searched for is specified by
+#    the names listed after NAMES argument. Additional search locations can be
+#    specified after the PATHS argument. If you require special a version of a
+#    jar file you can specify it with the VERSIONS argument. The argument after
+#    DOC will be used for the documentation string in the cache.
 #
 #    install_jar(TARGET_NAME DESTINATION)
 #
 #    This command installs the TARGET_NAME files to the given DESTINATION. It
 #    should be called in the same scope as add_jar() or it will fail.
-#
 #
 #    install_jni_symlink(TARGET_NAME DESTINATION)
 #
@@ -82,6 +100,7 @@
 #
 #=============================================================================
 # Copyright 2010      Andreas schneider <asn@redhat.com>
+# Copyright 2010      Ben Boeckel <ben.boeckel@kitware.com>
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.
@@ -287,3 +306,94 @@ function(INSTALL_JNI_SYMLINK _TARGET_NAME _DESTINATION)
     endif (${_TARGET_NAME}_JNI_SYMLINK)
 endfunction(INSTALL_JNI_SYMLINK _TARGET_NAME _DESTINATION)
 
+function (find_jar VARIABLE)
+    set(_jar_names)
+    set(_jar_files)
+    set(_jar_versions)
+    set(_jar_paths
+        /usr/share/java/
+        /usr/local/share/java/
+        ${Java_JAR_PATHS})
+    set(_jar_doc "NOTSET")
+
+    set(_state "name")
+
+    foreach (arg ${ARGN})
+        if (${_state} STREQUAL "name")
+            if (${arg} STREQUAL "VERSIONS")
+                set(_state "versions")
+            elseif (${arg} STREQUAL "NAMES")
+                set(_state "names")
+            elseif (${arg} STREQUAL "PATHS")
+                set(_state "paths")
+            elseif (${arg} STREQUAL "DOC")
+                set(_state "doc")
+            else (${arg} STREQUAL "NAMES")
+                set(_jar_names ${arg})
+                if (_jar_doc STREQUAL "NOTSET")
+                    set(_jar_doc "Finding ${arg} jar")
+                endif (_jar_doc STREQUAL "NOTSET")
+            endif (${arg} STREQUAL "VERSIONS")
+        elseif (${_state} STREQUAL "versions")
+            if (${arg} STREQUAL "NAMES")
+                set(_state "names")
+            elseif (${arg} STREQUAL "PATHS")
+                set(_state "paths")
+            elseif (${arg} STREQUAL "DOC")
+                set(_state "doc")
+            else (${arg} STREQUAL "NAMES")
+                set(_jar_versions ${_jar_versions} ${arg})
+            endif (${arg} STREQUAL "NAMES")
+        elseif (${_state} STREQUAL "names")
+            if (${arg} STREQUAL "VERSIONS")
+                set(_state "versions")
+            elseif (${arg} STREQUAL "PATHS")
+                set(_state "paths")
+            elseif (${arg} STREQUAL "DOC")
+                set(_state "doc")
+            else (${arg} STREQUAL "VERSIONS")
+                set(_jar_names ${_jar_names} ${arg})
+                if (_jar_doc STREQUAL "NOTSET")
+                    set(_jar_doc "Finding ${arg} jar")
+                endif (_jar_doc STREQUAL "NOTSET")
+            endif (${arg} STREQUAL "VERSIONS")
+        elseif (${_state} STREQUAL "paths")
+            if (${arg} STREQUAL "VERSIONS")
+                set(_state "versions")
+            elseif (${arg} STREQUAL "NAMES")
+                set(_state "names")
+            elseif (${arg} STREQUAL "DOC")
+                set(_state "doc")
+            else (${arg} STREQUAL "VERSIONS")
+                set(_jar_paths ${_jar_paths} ${arg})
+            endif (${arg} STREQUAL "VERSIONS")
+        elseif (${_state} STREQUAL "doc")
+            if (${arg} STREQUAL "VERSIONS")
+                set(_state "versions")
+            elseif (${arg} STREQUAL "NAMES")
+                set(_state "names")
+            elseif (${arg} STREQUAL "PATHS")
+                set(_state "paths")
+            else (${arg} STREQUAL "VERSIONS")
+                set(_jar_doc ${arg})
+            endif (${arg} STREQUAL "VERSIONS")
+        endif (${_state} STREQUAL "name")
+    endforeach (arg ${ARGN})
+
+    if (${_jar_names} STREQUAL "")
+        message(FATAL_ERROR "find_jar: No name to search for given")
+    endif (${_jar_names} STREQUAL "")
+
+    foreach (jar_name ${_jar_names})
+        foreach (version ${_jar_versions})
+            set(_jar_files ${_jar_files} ${jar_name}-${version}.jar)
+        endforeach (version ${_jar_versions})
+        set(_jar_files ${_jar_files} ${jar_name}.jar)
+    endforeach (jar_name ${_jar_names})
+
+    find_file(${VARIABLE}
+        NAMES   ${_jar_files}
+        PATHS   ${_jar_paths}
+        DOC     ${_jar_doc}
+        NO_DEFAULT_PATH)
+endfunction (find_jar VARIABLE)
