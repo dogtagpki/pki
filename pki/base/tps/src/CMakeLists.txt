@@ -133,12 +133,9 @@ include_directories(${TPS_PRIVATE_INCLUDE_DIRS})
 add_library(${TPS_SHARED_LIBRARY} SHARED ${tps_library_SRCS})
 target_link_libraries(${TPS_SHARED_LIBRARY} ${TPS_LINK_LIBRARIES})
 
-set_target_properties(${TPS_SHARED_LIBRARY}
+set_target_properties(
+    ${TPS_SHARED_LIBRARY}
     PROPERTIES
-        VERSION
-            ${TPS_LIBRARY_VERSION}
-        SOVERSION
-            ${TPS_LIBRARY_SOVERSION}
         OUTPUT_NAME
             tps
 )
