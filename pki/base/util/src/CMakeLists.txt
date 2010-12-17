@@ -348,3 +348,25 @@ add_jar(cmsutil ${cmsutil_java_SRCS})
 add_dependencies(cmsutil osutil nsutil)
 install_jar(cmsutil ${JAVA_JAR_INSTALL_DIR}/pki)
 set(CMSUTIL_JAR ${cmsutil_JAR_FILE} CACHE INTERNAL "cmsutil jar file")
+
+create_javadoc(pki-util-${APPLICATION_VERSION}
+    PACKAGES com.netscape.cmsutil.crypto
+             com.netscape.cmsutil.http
+             com.netscape.cmsutil.ldap
+             com.netscape.cmsutil.net
+             com.netscape.cmsutil.ocsp
+             com.netscape.cmsutil.password
+             com.netscape.cmsutil.radius
+             com.netscape.cmsutil.scep
+             com.netscape.cmsutil.util
+             com.netscape.cmsutil.xml
+    SOURCEPATH ${CMAKE_CURRENT_SOURCE_DIR}
+    CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH}
+    WINDOWTITLE "pki-util"
+    WINDOWTITLE "pki-util"
+    DOCTITLE "<h1>dogtag</h1>"
+    AUTHOR TRUE
+    USE TRUE
+    VERSION TRUE
+)
+add_dependencies(pki-util-${APPLICATION_VERSION}_javadoc cmsutil)

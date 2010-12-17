@@ -68,3 +68,14 @@ add_jar(pkitools ${pkitools_java_SRCS})
 add_dependencies(pkitools osutil nsutil cmsutil)
 install_jar(pkitools ${JAVA_JAR_INSTALL_DIR})
 set(PKITOOLS_JAR ${pkitools_JAR_FILE} CACHE INTERNAL "pkitools jar file")
+
+create_javadoc(pki-java-tools-${APPLICATION_VERSION}
+    FILES ${pkitools_java_SRCS}
+    CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH}
+    WINDOWTITLE "pki-java-tools"
+    DOCTITLE "<h1>pki-java-tools</h1>"
+    AUTHOR TRUE
+    USE TRUE
+    VERSION TRUE
+)
+add_dependencies(pki-java-tools-${APPLICATION_VERSION}_javadoc pkitools)

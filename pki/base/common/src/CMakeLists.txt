@@ -1012,6 +1012,17 @@ add_dependencies(cms osutil nsutil cmsutil certsrv)
 install_jar(cms ${JAVA_JAR_INSTALL_DIR}/pki)
 set(CMS_JAR ${cms_JAR_FILE} CACHE INTERNAL "cms jar file")
 
+create_javadoc(pki-common-${APPLICATION_VERSION}
+    FILES ${cms_java_SRCS} ${certsrv_java_SRCS}
+    CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH} ${certsrv_JAR_FILE}
+    WINDOWTITLE "pki-common"
+    DOCTITLE "<h1>pki-common</h1>"
+    AUTHOR TRUE
+    USE TRUE
+    VERSION TRUE
+)
+add_dependencies(pki-common-${APPLICATION_VERSION}_javadoc cms certsrv)
+
 # build cmscore
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmscore)
 add_jar(cmscore ${cmscore_java_SRCS})
