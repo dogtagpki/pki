@@ -65,13 +65,13 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot}
 
-cd %{buildroot}%{_jnidir}
-%{__rm} osutil.jar
-%{__ln_s} %{_libdir}/osutil/osutil-%{version}.jar osutil.jar
-
 cd %{buildroot}%{_libdir}/osutil
 %{__rm} osutil.jar
 %{__ln_s} osutil-%{version}.jar osutil.jar
+
+cd %{buildroot}%{_jnidir}
+%{__rm} osutil.jar
+%{__ln_s} %{_libdir}/osutil/osutil.jar osutil.jar
 
 
 %files

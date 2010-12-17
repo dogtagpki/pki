@@ -198,20 +198,21 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-#%package -n       pki-util-javadoc
-#Summary:          Certificate System - PKI Utility Framework Javadocs
-#Group:            Documentation
+%package -n       pki-util-javadoc
+Summary:          Certificate System - PKI Utility Framework Javadocs
+Group:            Documentation
 
-#BuildArch:        noarch
+BuildArch:        noarch
 
-#Requires:         pki-util = %{version}-%{release}
+Requires:         pki-util = %{version}-%{release}
 
-#%description -n   pki-util-javadoc
-#This documentation pertains exclusively to version %{version} of
-#the PKI Utility Framework.
-#
-#This package is a part of the PKI Core used by the Certificate System.
-#
+%description -n   pki-util-javadoc
+This documentation pertains exclusively to version %{version} of
+the PKI Utility Framework.
+
+This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
 
 
 ########################
@@ -237,20 +238,21 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-#%package -n       pki-java-tools-javadoc
-#Summary:          Certificate System - PKI Java-Based Tools Javadocs
-#Group:            Documentation
+%package -n       pki-java-tools-javadoc
+Summary:          Certificate System - PKI Java-Based Tools Javadocs
+Group:            Documentation
 
-#BuildArch:        noarch
+BuildArch:        noarch
 
-#Requires:         pki-java-tools = %{version}-%{release}
+Requires:         pki-java-tools = %{version}-%{release}
 
-#%description -n   pki-java-tools-javadoc
-#This documentation pertains exclusively to version %{version} of
-#the PKI Java-Based Tools.
-#
-#This package is a part of the PKI Core used by the Certificate System.
-#
+%description -n   pki-java-tools-javadoc
+This documentation pertains exclusively to version %{version} of
+the PKI Java-Based Tools.
+
+This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
 
 
 ########################
@@ -291,20 +293,21 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-#%package -n       pki-common-javadoc
-#Summary:          Certificate System - PKI Common Framework Javadocs
-#Group:            Documentation
+%package -n       pki-common-javadoc
+Summary:          Certificate System - PKI Common Framework Javadocs
+Group:            Documentation
 
-#BuildArch:        noarch
+BuildArch:        noarch
 
-#Requires:         pki-common = %{version}-%{release}
+Requires:         pki-common = %{version}-%{release}
 
-#%description -n   pki-common-javadoc
-#This documentation pertains exclusively to version %{version} of
-#the PKI Common Framework.
-#
-#This package is a part of the PKI Core used by the Certificate System.
-#
+%description -n   pki-common-javadoc
+This documentation pertains exclusively to version %{version} of
+the PKI Common Framework.
+
+This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
 
 
 ########################
@@ -436,13 +439,13 @@ cd build
 ##     pki-symkey     ##
 ########################
 
-cd %{buildroot}%{_jnidir}
-%{__rm} symkey.jar
-%{__ln_s} %{_libdir}/symkey/symkey-%{version}.jar symkey.jar
-
 cd %{buildroot}%{_libdir}/symkey
 %{__rm} symkey.jar
 %{__ln_s} symkey-%{version}.jar symkey.jar
+
+cd %{buildroot}%{_jnidir}
+%{__rm} symkey.jar
+%{__ln_s} %{_libdir}/symkey/symkey.jar symkey.jar
 
 
 ########################
@@ -632,10 +635,10 @@ fi
 %{_javadir}/pki/nsutil-%{version}.jar
 %{_javadir}/pki/nsutil.jar
 
-#%files -n pki-util-javadoc
-#%defattr(-,root,root,-)
-#%dir %{_javadocdir}/pki-util-%{version}
-#%{_javadocdir}/pki-util-%{version}/*
+%files -n pki-util-javadoc
+%defattr(-,root,root,-)
+%dir %{_javadocdir}/pki-util-%{version}
+%{_javadocdir}/pki-util-%{version}/*
 
 
 ########################
@@ -671,10 +674,10 @@ fi
 #%{_javadir}/pki/pkitools.jar
 #%{_javadir}/pki/cstools.jar
 
-#%files -n pki-java-tools-javadoc
-#%defattr(-,root,root,-)
-#%dir %{_javadocdir}/pki-java-tools-%{version}
-#%{_javadocdir}/pki-java-tools-%{version}/*
+%files -n pki-java-tools-javadoc
+%defattr(-,root,root,-)
+%dir %{_javadocdir}/pki-java-tools-%{version}
+%{_javadocdir}/pki-java-tools-%{version}/*
 
 
 ########################
@@ -699,10 +702,10 @@ fi
 %{_datadir}/pki/setup/menu.xml
 %{_datadir}/pki/setup/web-app_2_3.dtd
 
-#%files -n pki-common-javadoc
-#%defattr(-,root,root,-)
-#%dir %{_javadocdir}/pki-common-%{version}
-#%{_javadocdir}/pki-common-%{version}/*
+%files -n pki-common-javadoc
+%defattr(-,root,root,-)
+%dir %{_javadocdir}/pki-common-%{version}
+%{_javadocdir}/pki-common-%{version}/*
 
 
 ########################
