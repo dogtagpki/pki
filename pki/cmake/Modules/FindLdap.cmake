@@ -1,46 +1,82 @@
-# - Try to find the LDAP client libraries
+# - Try to find Ldap
 # Once done this will define
 #
-#  LDAP_FOUND - system has libldap
-#  LDAP_INCLUDE_DIR - the ldap include directory
-#  LDAP_LIBRARIES - libldap + liblber (if found) library
-#  LBER_LIBRARIES - liblber library
+#  LDAP_FOUND - system has Ldap
+#  LDAP_INCLUDE_DIRS - the Ldap include directory
+#  LDAP_LIBRARIES - Link these to use Ldap
+#  LDAP_DEFINITIONS - Compiler switches required for using Ldap
+#
+#  Copyright (c) 2010 Matthew Harmsen <mharmsen@redhat.com>
+#
+#  NOTE:  This file was generated via 'generate_findpackage_file'
+#
+#         Copyright (c) 2006 Alexander Neundorf <neundorf@kde.org>
+#         Copyright (c) 2006 Andreas Schneider <mail@cynapses.org>
+#
+#  Redistribution and use is allowed according to the terms of the New
+#  BSD license.
+#  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
+#
 
-if(LDAP_INCLUDE_DIR AND LDAP_LIBRARIES)
-    # Already in cache, be silent
-    set(Ldap_FIND_QUIETLY TRUE)
-endif(LDAP_INCLUDE_DIR AND LDAP_LIBRARIES)
 
+if (LDAP_LIBRARIES AND LDAP_INCLUDE_DIRS)
+  # in cache already
+  set(LDAP_FOUND TRUE)
+else (LDAP_LIBRARIES AND LDAP_INCLUDE_DIRS)
 
-FIND_PATH(LDAP_INCLUDE_DIR ldap.h)
+  find_path(LDAP_INCLUDE_DIR
+    NAMES
+      ldap.h lber.h
+    PATHS
+      /usr/include
+      /usr/local/include
+      /opt/local/include
+      /sw/include
+  )
 
-if(APPLE)
-   FIND_LIBRARY(LDAP_LIBRARIES NAMES LDAP
-   	PATHS
-   	/System/Library/Frameworks
-   	/Library/Frameworks
-   )
-else(APPLE)
-   FIND_LIBRARY(LDAP_LIBRARIES NAMES ldap)
-   
-   FIND_LIBRARY(LBER_LIBRARIES NAMES lber)
-endif(APPLE)
+  find_library(LDAP_LIBRARY
+    NAMES
+      ldap
+    PATHS
+      /usr/lib
+      /usr/local/lib
+      /opt/local/lib
+      /sw/lib
+  )
 
-if(LDAP_INCLUDE_DIR AND LDAP_LIBRARIES)
-   set(LDAP_FOUND TRUE)
-   if(LBER_LIBRARIES)
-     set(LDAP_LIBRARIES ${LDAP_LIBRARIES} ${LBER_LIBRARIES})
-   endif(LBER_LIBRARIES)
-endif(LDAP_INCLUDE_DIR AND LDAP_LIBRARIES)
+  find_library(LBER_LIBRARY
+    NAMES
+      lber
+    PATHS
+      /usr/lib
+      /usr/local/lib
+      /opt/local/lib
+      /sw/lib
+  )
 
-if(LDAP_FOUND)
-   if(NOT Ldap_FIND_QUIETLY)
-      message(STATUS "Found ldap: ${LDAP_LIBRARIES}")
-   endif(NOT Ldap_FIND_QUIETLY)
-else(LDAP_FOUND)
-   if (Ldap_FIND_REQUIRED)
-        message(FATAL_ERROR "Could NOT find ldap")
-   endif (Ldap_FIND_REQUIRED)
-endif(LDAP_FOUND)
+  set(LDAP_INCLUDE_DIRS
+    ${LDAP_INCLUDE_DIR}
+  )
 
-MARK_AS_ADVANCED(LDAP_INCLUDE_DIR LDAP_LIBRARIES LBER_LIBRARIES)
+  if (LDAP_LIBRARY)
+    set(LDAP_LIBRARIES
+        ${LDAP_LIBRARIES}
+        ${LDAP_LIBRARY}
+    )
+  endif (LDAP_LIBRARY)
+
+  if (LBER_LIBRARY)
+    set(LDAP_LIBRARIES
+        ${LDAP_LIBRARIES}
+        ${LBER_LIBRARY}
+    )
+  endif (LBER_LIBRARY)
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(Ldap DEFAULT_MSG LDAP_LIBRARIES LDAP_INCLUDE_DIRS)
+
+  # show the LDAP_INCLUDE_DIRS and LDAP_LIBRARIES variables only in the advanced view
+  mark_as_advanced(LDAP_INCLUDE_DIRS LDAP_LIBRARIES)
+
+endif (LDAP_LIBRARIES AND LDAP_INCLUDE_DIRS)
+
