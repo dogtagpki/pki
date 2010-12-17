@@ -132,9 +132,16 @@ public abstract class CMSLogPanel extends CMSBasePanel
             Debug.println("AccessLogPanel: Refresh Log");
             refresh();
         }else if (e.getSource().equals(mView)) { 
-            viewDetail();
+            if (mDataModel.getRowCount() == 0) {
+                refresh();
+            } else {
+                viewDetail();
+            }
         }else if (e.getSource().equals(mHelp)) {
             CMSAdminUtil.help(mHelpToken);
+        } else if (e.getSource().equals(mLevel) || e.getSource().equals(mSource)) {
+            Debug.println("AccessLogPanel: Changed Log Level or Source");
+            refresh(); 
         }
     }
 
@@ -173,6 +180,9 @@ public abstract class CMSLogPanel extends CMSBasePanel
 		mScrollPane.invalidate();
 		mScrollPane.validate();
 		mScrollPane.repaint(1);
+        if (mDataModel.getRowCount() > 0) {
+            mTable.setRowSelectionInterval(0,0);
+        }
     }
 
     /*==========================================================
@@ -227,7 +237,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
 		//setColumnWidth(mTable);
 		mTable.setAutoResizeMode(mTable.AUTO_RESIZE_OFF);
 		setColumnWidth(mTable);
-		mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		mListPanel.add("Center",mScrollPane);
         setLabelCellRenderer(mTable,4);
         mScrollPane.setBackground(Color.white);
@@ -271,6 +281,8 @@ public abstract class CMSLogPanel extends CMSBasePanel
 		JLabel label2 = makeJLabel("LOGLEVEL");
 		mLevel = makeJComboBox("LOGLEVEL");
 		CMSAdminUtil.addEntryField(panel, label1, mSource, label2, mLevel, gbc);
+                mLevel.addActionListener(this);
+                mSource.addActionListener(this);
 
 		//file
 		CMSAdminUtil.resetGBC(gbc);

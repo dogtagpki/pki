@@ -57,7 +57,7 @@ public class LogEntryViewDialog extends JDialog
         super(parent,true);
         mParentFrame = parent;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        setSize(430, 700);
+        setSize(600, 400);
         setTitle(mResource.getString(PREFIX+"_TITLE"));
         setLocationRelativeTo(parent);
         getRootPane().setDoubleBuffered(true);
@@ -187,7 +187,7 @@ public class LogEntryViewDialog extends JDialog
         scrollPanel.setAlignmentY(TOP_ALIGNMENT);
         scrollPanel.setBackground(getBackground());
         scrollPanel.setBorder(BorderFactory.createEmptyBorder()); 
-	scrollPanel.setPreferredSize(new Dimension(300, 500));
+	scrollPanel.setPreferredSize(new Dimension(500, 200));
         //gbc.fill = gbc.VERTICAL;
         gbc.fill = gbc.BOTH;
         gbc.gridwidth =  gbc.REMAINDER;
