@@ -171,11 +171,30 @@ function(add_jar _TARGET_NAME)
         get_filename_component(_JAVA_EXT ${_JAVA_SOURCE_FILE} EXT)
         get_filename_component(_JAVA_FILE ${_JAVA_SOURCE_FILE} NAME_WE)
         get_filename_component(_JAVA_PATH ${_JAVA_SOURCE_FILE} PATH)
+        get_filename_component(_JAVA_FULL ${_JAVA_SOURCE_FILE} ABSOLUTE)
+
+        file(RELATIVE_PATH _JAVA_REL_BINARY_PATH ${CMAKE_CURRENT_BINARY_DIR} ${_JAVA_FULL})
+        file(RELATIVE_PATH _JAVA_REL_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${_JAVA_FULL})
+        string(LENGTH ${_JAVA_REL_BINARY_PATH} _BIN_LEN)
+        string(LENGTH ${_JAVA_REL_SOURCE_PATH} _SRC_LEN)
+        if (${_BIN_LEN} LESS ${_SRC_LEN})
+            set(_JAVA_REL_PATH ${_JAVA_REL_BINARY_PATH})
+        else (${_BIN_LEN} LESS ${_SRC_LEN})
+            set(_JAVA_REL_PATH ${_JAVA_REL_SOURCE_PATH})
+        endif (${_BIN_LEN} LESS ${_SRC_LEN})
+        get_filename_component(_JAVA_REL_PATH ${_JAVA_REL_PATH} PATH)
 
         if (_JAVA_EXT MATCHES ".java")
             list(APPEND _JAVA_COMPILE_FILES ${_JAVA_SOURCE_FILE})
-            set(_JAVA_CLASS_FILE "${_JAVA_PATH}/${_JAVA_FILE}.class")
+            set(_JAVA_CLASS_FILE "${CMAKE_JAVA_CLASS_OUTPUT_PATH}/${_JAVA_REL_PATH}/${_JAVA_FILE}.class")
             set(_JAVA_CLASS_FILES ${_JAVA_CLASS_FILES} ${_JAVA_CLASS_FILE})
+
+        elseif (_JAVA_EXT MATCHES ".jar")
+            list(APPEND CMAKE_JAVA_INCLUDE_PATH ${_JAVA_SOURCE_FILE})
+
+        elseif (_JAVA_EXT STREQUAL "")
+            list(APPEND CMAKE_JAVA_INCLUDE_PATH ${JAVA_JAR_TARGET_${_JAVA_SOURCE_FILE}} ${JAVA_JAR_TARGET_${_JAVA_SOURCE_FILE}_CLASSPATH})
+            list(APPEND _JAVA_DEPENDS ${JAVA_JAR_TARGET_${_JAVA_SOURCE_FILE}})
 
         else (_JAVA_EXT MATCHES ".java")
             __java_copy_file(${CMAKE_CURRENT_SOURCE_DIR}/${_JAVA_SOURCE_FILE}
@@ -203,7 +222,7 @@ function(add_jar _TARGET_NAME)
     endif (EXISTS ${CMAKE_MODULE_PATH}/UseJavaSymlinks.cmake)
 
     # Add the target and make sure we have the latest resource files.
-    add_custom_target(${_TARGET_NAME} ALL DEPENDS ${_JAVA_RESOURCE_FILES})
+    add_custom_target(${_TARGET_NAME} ALL DEPENDS ${_JAVA_RESOURCE_FILES} ${_JAVA_DEPENDS})
 
     if (_JAVA_COMPILE_FILES)
         # Compile the java files and create a list of class files
