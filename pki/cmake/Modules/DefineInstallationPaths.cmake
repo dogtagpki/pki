@@ -100,6 +100,11 @@ if (UNIX)
     "${SHARE_INSTALL_PREFIX}/info"
     CACHE PATH "The ${APPLICATION_NAME} info install dir (default prefix/info)"
   )
+
+  set(VAR_INSTALL_DIR
+      ${EXEC_INSTALL_PREFIX}/var
+      CACHE PATH "The /var install dir (default prefix/var)"
+  )
 endif (UNIX)
 
 if (WIN32)
