@@ -93,25 +93,15 @@
 # (To distributed this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-function(JAVA_COPY_FILE _SRC _DST)
-    # Removes all path containing .svn or CVS or CMakeLists.txt during the copy
-    if (NOT ${_SRC} MATCHES ".*\\.svn|CVS|CMakeLists\\.txt.*")
-
-        if (CMAKE_VERBOSE_MAKEFILE)
-            message(STATUS "Copy file from ${_SRC} to ${_DST}")
-        endif (CMAKE_VERBOSE_MAKEFILE)
-
-        # Creates directory if necessary
-        get_filename_component(_PATH ${_DST} PATH)
-        file(MAKE_DIRECTORY ${_PATH})
-
-        execute_process(
-            COMMAND
-                ${CMAKE_COMMAND} -E copy_if_different ${_SRC} ${_DST}
-            OUTPUT_QUIET
-        )
-    endif (NOT ${_SRC} MATCHES ".*\\.svn|CVS|CMakeLists\\.txt.*")
-endfunction(JAVA_COPY_FILE)
+function (__java_copy_file src dest comment)
+    add_custom_command(
+        OUTPUT  ${dest}
+        COMMAND cmake -E copy_if_different
+        ARGS    ${src}
+                ${dest}
+        DEPENDS ${src}
+        COMMENT ${comment})
+endfunction (__java_copy_file src dest comment)
 
 function(ADD_JAR _TARGET_NAME)
     set(_JAVA_SOURCE_FILES ${ARGN})
@@ -141,8 +131,6 @@ function(ADD_JAR _TARGET_NAME)
 
     set(CMAKE_JAVA_CLASS_OUTPUT_PATH "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${_TARGET_NAME}.dir")
 
-    add_custom_target(${_TARGET_NAME} ALL)
-
     set(_JAVA_TARGET_OUTPUT_NAME "${_TARGET_NAME}.jar")
     if (CMAKE_JAVA_TARGET_OUTPUT_NAME AND CMAKE_JAVA_TARGET_VERSION)
         set(_JAVA_TARGET_OUTPUT_NAME "${CMAKE_JAVA_TARGET_OUTPUT_NAME}-${CMAKE_JAVA_TARGET_VERSION}.jar")
@@ -168,8 +156,9 @@ function(ADD_JAR _TARGET_NAME)
             set(_JAVA_CLASS_FILES ${_JAVA_CLASS_FILES} ${_JAVA_CLASS_FILE})
 
         else (_JAVA_EXT MATCHES ".java")
-            java_copy_file(${CMAKE_CURRENT_SOURCE_DIR}/${_JAVA_SOURCE_FILE}
-                           ${CMAKE_JAVA_CLASS_OUTPUT_PATH}/${_JAVA_SOURCE_FILE})
+            __java_copy_file(${CMAKE_CURRENT_SOURCE_DIR}/${_JAVA_SOURCE_FILE}
+                             ${CMAKE_JAVA_CLASS_OUTPUT_PATH}/${_JAVA_SOURCE_FILE}
+                             "Copying ${_JAVA_SOURCE_FILE} to the build directory")
             list(APPEND _JAVA_RESOURCE_FILES ${_JAVA_SOURCE_FILE})
         endif (_JAVA_EXT MATCHES ".java")
     endforeach(_JAVA_SOURCE_FILE)
@@ -190,6 +179,9 @@ function(ADD_JAR _TARGET_NAME)
     elseif (EXISTS ${CMAKE_ROOT}/Modules/UseJavaSymlinks.cmake)
         set(_JAVA_SYMLINK_SCRIPT ${CMAKE_ROOT}/Modules/UseJavaSymlinks.cmake)
     endif (EXISTS ${CMAKE_MODULE_PATH}/UseJavaSymlinks.cmake)
+
+    # Add the target and make sure we have the latest resource files.
+    add_custom_target(${_TARGET_NAME} ALL DEPENDS ${_JAVA_RESOURCE_FILES})
 
     if (_JAVA_COMPILE_FILES)
         # Compile the java files and create a list of class files
