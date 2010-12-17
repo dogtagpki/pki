@@ -103,7 +103,7 @@ function (__java_copy_file src dest comment)
         COMMENT ${comment})
 endfunction (__java_copy_file src dest comment)
 
-function(ADD_JAR _TARGET_NAME)
+function(add_jar _TARGET_NAME)
     set(_JAVA_SOURCE_FILES ${ARGN})
 
     if (LIBRARY_OUTPUT_PATH)
@@ -141,9 +141,12 @@ function(ADD_JAR _TARGET_NAME)
     elseif (CMAKE_JAVA_TARGET_OUTPUT_NAME)
         set(_JAVA_TARGET_OUTPUT_NAME "${CMAKE_JAVA_TARGET_OUTPUT_NAME}.jar")
     endif (CMAKE_JAVA_TARGET_OUTPUT_NAME AND CMAKE_JAVA_TARGET_VERSION)
+    # reset
+    set(CMAKE_JAVA_TARGET_OUTPUT_NAME)
 
     set(_JAVA_CLASS_FILES)
     set(_JAVA_COMPILE_FILES)
+    set(_JAVA_DEPENDS)
     set(_JAVA_RESOURCE_FILES)
     foreach(_JAVA_SOURCE_FILE ${_JAVA_SOURCE_FILES})
         get_filename_component(_JAVA_EXT ${_JAVA_SOURCE_FILE} EXT)
@@ -256,7 +259,7 @@ function(ADD_JAR _TARGET_NAME)
     set(${_TARGET_NAME}_CLASS_DIR
         ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
          PARENT_SCOPE)
-endfunction(ADD_JAR)
+endfunction(add_jar)
 
 function(INSTALL_JAR _TARGET_NAME _DESTINATION)
     if (${_TARGET_NAME}_INSTALL_FILES)
