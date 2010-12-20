@@ -74,10 +74,6 @@ mv cmsutil.jar cmsutil-%{version}.jar
 ln -s cmsutil-%{version}.jar cmsutil.jar
 mv nsutil.jar nsutil-%{version}.jar
 ln -s nsutil-%{version}.jar nsutil.jar
-mkdir -p %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
-cd %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
-ln -s %{_javadir}/pki/cmsutil.jar cmsutil.jar
-ln -s %{_javadir}/pki/nsutil.jar nsutil.jar
 
 %clean
 rm -rf %{buildroot}
@@ -86,7 +82,6 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_javadir}/pki/
-%{_sharedstatedir}/tomcat5/common/lib/*
 
 %files javadoc
 %defattr(0644,root,root,0755)

@@ -34,7 +34,7 @@ BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6
-BuildRequires:    tomcatjss
+BuildRequires:    tomcatjss >= 2.0.0
 BuildRequires:    osutil
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
@@ -272,7 +272,7 @@ Requires:         pki-common-theme
 Requires:         pki-java-tools = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
-Requires:         tomcatjss
+Requires:         tomcatjss >= 2.0.0
 Requires:         %{_javadir}/ldapjdk.jar
 Requires:         %{_javadir}/velocity.jar
 Requires:         %{_javadir}/xalan-j2.jar

@@ -38,7 +38,6 @@ BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6
 BuildRequires:    pki-common
 BuildRequires:    pki-util
-BuildRequires:    tomcatjss
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-common

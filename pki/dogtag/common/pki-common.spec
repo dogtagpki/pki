@@ -92,13 +92,6 @@ mv cmsbundle.jar cmsbundle-%{version}.jar
 ln -s cmsbundle-%{version}.jar cmsbundle.jar
 mv cmscore.jar cmscore-%{version}.jar
 ln -s cmscore-%{version}.jar cmscore.jar
-mkdir -p %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
-cd %{buildroot}%{_sharedstatedir}/tomcat5/common/lib
-ln -s %{_javadir}/ldapjdk.jar ldapjdk.jar
-ln -s %{_javadir}/velocity.jar velocity.jar
-ln -s %{_javadir}/xalan-j2.jar xalan-j2.jar
-ln -s %{_javadir}/xalan-j2-serializer.jar xalan-j2-serializer.jar
-ln -s %{_javadir}/xerces-j2.jar xerces-j2.jar
 
 %clean
 rm -rf %{buildroot}
@@ -108,7 +101,6 @@ rm -rf %{buildroot}
 %doc LICENSE
 %{_javadir}/pki/
 %{_datadir}/pki/
-%{_sharedstatedir}/tomcat5/common/lib/*
 
 %files javadoc
 %defattr(-,root,root,-)
