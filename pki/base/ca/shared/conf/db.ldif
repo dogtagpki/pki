@@ -132,6 +132,7 @@ objectClass: top
 objectClass: repository
 ou: ca
 serialno: 010
+publishingStatus: -2
 
 dn: ou=replica,{rootSuffix}
 objectClass: top

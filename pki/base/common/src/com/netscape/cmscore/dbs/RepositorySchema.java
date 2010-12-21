@@ -40,4 +40,5 @@ public class RepositorySchema {
     public static final String LDAP_OC_TOP = "top";
     public static final String LDAP_OC_REPOSITORY = "repository";
     public static final String LDAP_ATTR_SERIALNO = "serialno";
+    public static final String LDAP_ATTR_PUB_STATUS = "publishingStatus";
 }

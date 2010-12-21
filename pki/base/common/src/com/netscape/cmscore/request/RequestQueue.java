@@ -602,6 +602,14 @@ public class RequestQueue
         return (IRepository) mRepository;
     }
 
+    public String getPublishingStatus() {
+        return mRepository.getPublishingStatus();
+    }
+
+    public void setPublishingStatus(String status) {
+        mRepository.setPublishingStatus(status);
+    }
+
     protected String mBaseDN;
     protected IDBSubsystem mDB;
     protected RequestRepository mRepository;

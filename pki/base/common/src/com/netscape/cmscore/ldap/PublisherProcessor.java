@@ -418,6 +418,7 @@ public class PublisherProcessor implements
                 int publishingQueuePriorityLevel = queueConfig.getInteger("priorityLevel", 0);
                 int maxNumberOfPublishingThreads = queueConfig.getInteger("maxNumberOfThreads", 1);
                 int publishingQueuePageSize = queueConfig.getInteger("pageSize", 100);
+                int savePublishingStatus = queueConfig.getInteger("saveStatus", 0);
                 CMS.debug("PublisherProcessor: startup: Publishing Queue Enabled: " + isPublishingQueueEnabled +
                           "  Priority Level: " + publishingQueuePriorityLevel +
                           "  Maximum Number of Threads: " + maxNumberOfPublishingThreads +
@@ -426,7 +427,8 @@ public class PublisherProcessor implements
                 reqNotifier.setPublishingQueue (isPublishingQueueEnabled,
                                                 publishingQueuePriorityLevel,
                                                 maxNumberOfPublishingThreads,
-                                                publishingQueuePageSize);
+                                                publishingQueuePageSize,
+                                                savePublishingStatus);
             }
         }
     }

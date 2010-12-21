@@ -306,6 +306,11 @@ attributeTypes: ( nextRange-oid NAME 'nextRange' DESC 'CMS defined attribute' SY
 dn: cn=schema
 changetype: modify
 add: attributeTypes
+attributeTypes: ( publishingStatus-oid NAME 'publishingStatus' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
 attributeTypes: ( beginRange-oid NAME 'beginRange' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
 
 dn: cn=schema
@@ -416,7 +421,7 @@ objectClasses: ( CertACLS-oid NAME 'CertACLS' DESC 'CMS defined class' SUP top S
 dn: cn=schema
 changetype: modify
 add: objectClasses
-objectClasses: ( repository-oid NAME 'repository' DESC 'CMS defined class' SUP top STRUCTURAL MUST ou MAY ( serialno $ description $ nextRange ) X-ORIGIN 'user defined' )
+objectClasses: ( repository-oid NAME 'repository' DESC 'CMS defined class' SUP top STRUCTURAL MUST ou MAY ( serialno $ description $ nextRange $ publishingStatus ) X-ORIGIN 'user defined' )
 
 dn: cn=schema
 changetype: modify

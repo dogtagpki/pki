@@ -792,10 +792,15 @@ public class DBSubsystem implements IDBSubsystem {
                 reg.registerObjectClass(
                     RepositoryRecord.class.getName(), repRecordOC);
             }
-            if (!reg.isAttributeRegistered(RepositoryRecord.ATTR_SERIALNO)) {
-                reg.registerAttribute(RepositoryRecord.ATTR_SERIALNO,
+            if (!reg.isAttributeRegistered(IRepositoryRecord.ATTR_SERIALNO)) {
+                reg.registerAttribute(IRepositoryRecord.ATTR_SERIALNO,
                     new BigIntegerMapper(RepositorySchema.LDAP_ATTR_SERIALNO));
             }
+            if (!reg.isAttributeRegistered(IRepositoryRecord.ATTR_PUB_STATUS)) {
+                reg.registerAttribute(IRepositoryRecord.ATTR_PUB_STATUS,
+                    new StringMapper(RepositorySchema.LDAP_ATTR_PUB_STATUS));
+            }
+
         } catch (EBaseException e) {
             if (CMS.isPreOpMode())
                 return;

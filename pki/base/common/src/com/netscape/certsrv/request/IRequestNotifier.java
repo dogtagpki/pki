@@ -126,6 +126,7 @@ public interface IRequestNotifier extends INotify {
     public void setPublishingQueue (boolean isPublishingQueueEnabled,
                                     int publishingQueuePriorityLevel,
                                     int maxNumberOfPublishingThreads,
-                                    int publishingQueuePageSize);
+                                    int publishingQueuePageSize,
+                                    int savePublishingStatus);
 
 }

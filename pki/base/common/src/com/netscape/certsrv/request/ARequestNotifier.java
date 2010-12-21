@@ -19,6 +19,7 @@ package com.netscape.certsrv.request;
 
 
 import java.util.*;
+import java.math.*;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.apps.*;
@@ -46,6 +47,9 @@ public class ARequestNotifier implements IRequestNotifier {
     private int mPublishingQueuePriority = 0;
     private int mMaxPublishingQueuePageSize = 1;
     private IRequestQueue mRequestQueue = null;
+    private String mPublishingStatus = null;
+    private int mSavePublishingStatus = 0;
+    private int mSavePublishingCounter = 0;
 
 
     public ARequestNotifier() {
@@ -60,7 +64,8 @@ public class ARequestNotifier implements IRequestNotifier {
     public void setPublishingQueue (boolean isPublishingQueueEnabled,
                                     int publishingQueuePriorityLevel,
                                     int maxNumberOfPublishingThreads,
-                                    int publishingQueuePageSize) {
+                                    int publishingQueuePageSize,
+                                    int savePublishingStatus) {
         CMS.debug("setPublishingQueue:  Publishing Queue Enabled: " + isPublishingQueueEnabled+
                   "  Priority Level: " + publishingQueuePriorityLevel+
                   "  Maximum Number of Threads: " + maxNumberOfPublishingThreads+
@@ -68,6 +73,7 @@ public class ARequestNotifier implements IRequestNotifier {
         mIsPublishingQueueEnabled = isPublishingQueueEnabled;
         mMaxThreads = maxNumberOfPublishingThreads;
         mMaxRequests = publishingQueuePageSize;
+        mSavePublishingStatus = savePublishingStatus;
 
         // Publishing Queue Priority Levels:  2 - maximum, 1 - higher, 0 - normal, -1 - lower, -2 - minimum
         if (publishingQueuePriorityLevel > 1) {
@@ -81,6 +87,20 @@ public class ARequestNotifier implements IRequestNotifier {
         } else {
             mPublishingQueuePriority = Thread.currentThread().getPriority();
         }
+
+        if (mCA != null && mRequestQueue == null) mRequestQueue = mCA.getRequestQueue();
+        if (mIsPublishingQueueEnabled && mSavePublishingStatus > 0 && mRequestQueue != null) {
+            mPublishingStatus = mRequestQueue.getPublishingStatus();
+            BigInteger status = new BigInteger("-2");
+            try {
+                status = new BigInteger(mPublishingStatus);
+                if (status.compareTo(BigInteger.ZERO) > -1) {
+                    recoverPublishingQueue(mPublishingStatus);
+                }
+            } catch (Exception e) {
+            }
+        }
+        
     }
 
     /**
@@ -152,6 +172,28 @@ public class ARequestNotifier implements IRequestNotifier {
         return mListeners.elements();
     }
 
+
+    private Object publishingCounterMonitor = new Object();
+
+    private void updatePublishingStatus(String id) {
+        if (mRequestQueue != null) {
+            synchronized (publishingCounterMonitor) {
+                if (mSavePublishingCounter == 0) {
+                    CMS.debug("updatePublishingStatus  requestId: "+id);
+                    mRequestQueue.setPublishingStatus(id);
+                }
+                mSavePublishingCounter++;
+                CMS.debug("updatePublishingStatus  mSavePublishingCounter: "+mSavePublishingCounter+
+                          " mSavePublishingStatus: "+mSavePublishingStatus);
+                if (mSavePublishingCounter >= mSavePublishingStatus) {
+                    mSavePublishingCounter = 0;
+                }
+            }
+        } else {
+            CMS.debug("updatePublishingStatus  mRequestQueue == null");
+        }
+    }
+
     /**
      * Gets request from publishing queue.
      *
@@ -163,10 +205,12 @@ public class ARequestNotifier implements IRequestNotifier {
 
         CMS.debug("getRequest  mRequests=" + mRequests.size() + "  mSearchForRequests=" + mSearchForRequests);
         if (mSearchForRequests && mRequests.size() == 1) {
+            id = (String)mRequests.elementAt(0);
             if (mCA != null && mRequestQueue == null) mRequestQueue = mCA.getRequestQueue();
-            if (mRequestQueue != null) {
+            if (id != null && mRequestQueue != null) {
+                CMS.debug("getRequest  request id=" + id);
                 IRequestVirtualList list = mRequestQueue.getPagedRequestsByFilter(
-                                               new RequestId((String)mRequests.elementAt(0)),
+                                               new RequestId(id),
                                                "(requeststate=complete)", mMaxRequests, "requestId");
                 int s = list.getSize() - list.getCurrentIndex();
                 CMS.debug("getRequest  list size: "+s);
@@ -191,7 +235,7 @@ public class ARequestNotifier implements IRequestNotifier {
                           requestType.equals(IRequest.UNREVOCATION_REQUEST))) {
                         continue;
                     }
-                    if (i == 0 && ((String)mRequests.elementAt(0)).equals(r.getRequestId().toString())) {
+                    if (i == 0 && id.equals(r.getRequestId().toString())) {
                         if (s == 1) {
                             break;
                         } else {
@@ -221,6 +265,7 @@ public class ARequestNotifier implements IRequestNotifier {
                         r = mRequestQueue.findRequest(new RequestId(id));
                         mRequests.remove(0);
                         CMS.debug("getRequest  request "+ id + ((r != null)?" found":" not found"));
+                        updatePublishingStatus(id);
                     } catch (EBaseException e) {
                         CMS.debug("getRequest  EBaseException " + e.toString());
                     }
@@ -263,6 +308,9 @@ public class ARequestNotifier implements IRequestNotifier {
     public void removeNotifierThread(Thread notifierThread) {
         if (mNotifierThreads.size() > 0) {
             mNotifierThreads.remove(notifierThread);
+            if (mNotifierThreads.size() == 0) {
+                mRequestQueue.setPublishingStatus("-1");
+            }
         }
         CMS.debug("Number of publishing threads: " + mNotifierThreads.size());
     }
@@ -395,6 +443,38 @@ public class ARequestNotifier implements IRequestNotifier {
             }
         }
     }
+
+
+    /**
+     * Recovers publishing queue.
+     *
+     * @param id request request
+     */
+    public void recoverPublishingQueue(String id) {
+        CMS.debug("recoverPublishingQueue  mRequests.size()="+mRequests.size()+"("+mMaxRequests+")"+
+                      " requests by adding request "+id);
+        if (mRequests.size() == 0) {
+            mRequests.addElement(id);
+            CMS.debug("recoverPublishingQueue  extended buffer to "+mRequests.size()+"("+mMaxRequests+")"+
+                      " requests by adding request "+id);
+            if (morePublishingThreads()) {
+                mSearchForRequests = true;
+                try {
+                    Thread notifierThread = new Thread(new RunListeners((IRequestNotifier)this));
+                    if (notifierThread != null) {
+                        mNotifierThreads.addElement(notifierThread);
+                        CMS.debug("Number of publishing threads: " + mNotifierThreads.size());
+                        if (mPublishingQueuePriority > 0) {
+                            notifierThread.setPriority(mPublishingQueuePriority);
+                        }
+                        notifierThread.start();
+                    }
+                } catch (Throwable e) {
+                    CMS.debug("recoverPublishingQueue  exception: " + e.toString());
+                }
+            }
+        }
+    }
 }
 
 
@@ -438,6 +518,7 @@ class RunListeners implements Runnable {
         do {
             if (mRequestNotifier != null) mRequest = (IRequest)mRequestNotifier.getRequest();
             if (mListeners != null && mRequest != null) {
+                CMS.debug("RunListeners: mRequest = " + mRequest.getRequestId().toString());
                 while (mListeners.hasMoreElements()) {
                     IRequestListener l = (IRequestListener) mListeners.nextElement();
                     CMS.debug("RunListeners: IRequestListener = " + l.getClass().getName());

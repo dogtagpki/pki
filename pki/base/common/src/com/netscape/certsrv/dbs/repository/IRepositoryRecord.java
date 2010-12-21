@@ -36,11 +36,14 @@ import com.netscape.certsrv.dbs.*;
 public interface IRepositoryRecord extends IDBObj {
 
 	public final static String ATTR_SERIALNO = "serialNo";
-	
+	public final static String ATTR_PUB_STATUS = "publishingStatus";
+
 	/**
 	 * Retrieves serial number.
 	 *
 	 * @return serial number
 	 */
 	public BigInteger getSerialNumber();
+
+	public String getPublishingStatus();
 }

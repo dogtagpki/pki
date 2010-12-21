@@ -39,13 +39,13 @@ import com.netscape.certsrv.dbs.repository.*;
  */
 public class RepositoryRecord implements IRepositoryRecord {
 
-    public final static String ATTR_SERIALNO = "serialNo";
-	
     private BigInteger mSerialNo = null;
+    private String mPublishingStatus = null;
 
     protected static Vector mNames = new Vector();
     static {
-        mNames.addElement(ATTR_SERIALNO);
+        mNames.addElement(IRepositoryRecord.ATTR_SERIALNO);
+        mNames.addElement(IRepositoryRecord.ATTR_PUB_STATUS);
     }
 
     /**
@@ -59,8 +59,10 @@ public class RepositoryRecord implements IRepositoryRecord {
      * Sets attribute.
      */
     public void set(String name, Object obj) throws EBaseException {
-        if (name.equalsIgnoreCase(ATTR_SERIALNO)) {
+        if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_SERIALNO)) {
             mSerialNo = (BigInteger) obj;
+        } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_PUB_STATUS)) {
+            mPublishingStatus = (String) obj;
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -70,8 +72,10 @@ public class RepositoryRecord implements IRepositoryRecord {
      * Retrieves attribute from this record.
      */
     public Object get(String name) throws EBaseException {
-        if (name.equalsIgnoreCase(ATTR_SERIALNO)) {
+        if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_SERIALNO)) {
             return mSerialNo;
+        } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_PUB_STATUS)) {
+            return mPublishingStatus;
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -100,5 +104,9 @@ public class RepositoryRecord implements IRepositoryRecord {
      */
     public BigInteger getSerialNumber() {
         return mSerialNo;
+    }
+
+    public String getPublishingStatus() {
+        return mPublishingStatus;
     }
 }

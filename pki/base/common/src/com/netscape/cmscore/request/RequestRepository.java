@@ -23,6 +23,7 @@ import java.math.*;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.*;
+import com.netscape.certsrv.dbs.repository.*;
 import com.netscape.certsrv.request.*;
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.apps.*;
@@ -145,4 +146,69 @@ class RequestRepository
      * the LDAP base DN for this repository
      */
     protected String mBaseDN;
+
+
+    public String getPublishingStatus() {
+        RepositoryRecord record = null;
+        Object obj = null;
+        IDBSSession dbs = null;
+        String status = null;
+
+        try {
+            dbs = mDB.createSession();
+            obj = dbs.read(mBaseDN);
+        } catch (Exception e) { 
+            CMS.debug("RequestRepository:  getPublishingStatus:  Error: " + e); 
+            CMS.debugStackTrace();
+        } finally {
+            // Close session - ignoring errors (UTIL)
+            if (dbs != null) {
+                try {
+                    dbs.close();
+                } catch (Exception ex) {
+                    CMS.debug("RequestRepository:  getPublishingStatus:  Error: " + ex); 
+                }
+            }
+        }
+
+        if (obj != null || (obj instanceof RepositoryRecord)) {
+            record = (RepositoryRecord) obj;
+            status = record.getPublishingStatus();
+        } else {
+            CMS.debug("RequestRepository:  obj is NOT instanceof RepositoryRecord");
+        }
+        CMS.debug("RequestRepository:  getPublishingStatus  mBaseDN: " + mBaseDN +
+                  "  status: " + ((status != null)?status:"null"));
+
+        return status;
+    }
+
+    public void setPublishingStatus(String status) {
+        IDBSSession dbs = null;
+
+        CMS.debug("RequestRepository:  setPublishingStatus  mBaseDN: " + mBaseDN + "  status: " + status);
+        ModificationSet mods = new ModificationSet();
+
+        if (status != null && status.length() > 0) {
+            mods.add(IRepositoryRecord.ATTR_PUB_STATUS, 
+                Modification.MOD_REPLACE, status);
+
+            try {
+                dbs = mDB.createSession();
+                dbs.modify(mBaseDN, mods);
+            } catch (Exception e) { 
+                CMS.debug("RequestRepository:  setPublishingStatus:  Error: " + e); 
+                CMS.debugStackTrace();
+            } finally {
+                // Close session - ignoring errors (UTIL)
+                if (dbs != null) {
+                    try {
+                        dbs.close();
+                    } catch (Exception ex) {
+                        CMS.debug("RequestRepository:  setPublishingStatus:  Error: " + ex); 
+                    }
+                }
+            }
+        }
+    }
 }

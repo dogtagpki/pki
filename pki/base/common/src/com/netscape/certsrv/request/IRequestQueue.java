@@ -407,4 +407,8 @@ public interface IRequestQueue {
      * @return request repository
      */
     public IRepository getRequestRepository();
+
+    public String getPublishingStatus();
+
+    public void setPublishingStatus(String status);
 }
