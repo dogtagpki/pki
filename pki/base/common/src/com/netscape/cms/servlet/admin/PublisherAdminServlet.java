@@ -2777,6 +2777,16 @@ public class PublisherAdminServlet extends AdminServlet {
             mConfig.getSubStore(mAuth.getId() + ".publish.publisher");
         IConfigStore instancesConfig = destStore.getSubStore("instance");
 
+        // get objects added and deleted
+        String pubType = instancesConfig.getString(id + ".pubtype", "");
+        if (pubType.equals("cacert")) {
+            saveParams.add("caObjectClassAdded", instancesConfig.getString(id + ".caObjectClassAdded", ""));
+            saveParams.add("caObjectClassDeleted", instancesConfig.getString(id + ".caObjectClassDeleted", ""));
+        } else if (pubType.equals("crl")) {
+            saveParams.add("crlObjectClassAdded", instancesConfig.getString(id + ".crlObjectClassAdded", ""));
+            saveParams.add("crlObjectClassDeleted", instancesConfig.getString(id + ".crlObjectClassDeleted", ""));
+        }
+
         // create new substore.
 
         Vector configParams = mProcessor.getPublisherInstanceParams(id);
@@ -2797,6 +2807,17 @@ public class PublisherAdminServlet extends AdminServlet {
                     substore.put(key, val);
                 }
             }
+        }
+
+        // process any changes to the ldap object class definitions
+        if (pubType.equals("cacert"))  {
+            processChangedOC(saveParams, substore, "caObjectClass");
+            substore.put("pubtype", "cacert"); 
+        }
+
+        if (pubType.equals("crl")) {
+            processChangedOC(saveParams, substore, "crlObjectClass");
+            substore.put("pubtype", "crl");
         }
 
         // Instantiate an object for new implementation
@@ -2866,6 +2887,113 @@ public class PublisherAdminServlet extends AdminServlet {
 
         sendResponse(SUCCESS, null, params, resp);
         return;
+    }
+
+    // convenience function - takes list1, list2.  Returns what is in list1
+    // but not in list2
+    private String[] getExtras(String[] list1, String[] list2) {
+        Vector <String> extras = new Vector<String>();
+        for (int i=0; i< list1.length; i++) {
+           boolean match=false;
+           for (int j=0; j < list2.length; j++) {
+               if ((list1[i].trim()).equalsIgnoreCase(list2[j].trim())) {
+                   match = true;
+                   break;
+               }
+           }
+           if (!match) extras.add(list1[i].trim());
+        }
+        
+        return (String[])extras.toArray(new String[extras.size()]); 
+    }
+
+    // convenience function - takes list1, list2.  Concatenates the two
+    // lists removing duplicates
+    private String[] joinLists(String[] list1, String[] list2) {
+        Vector <String> sum = new Vector<String>();
+        for (int i=0; i< list1.length; i++) {
+           sum.add(list1[i]);
+        }
+        
+        for (int i=0; i < list2.length; i++) {
+           boolean match=false;
+           for (int j=0; j < list1.length; j++) {
+               if ((list2[i].trim()).equalsIgnoreCase(list1[j].trim())) {
+                   match = true;
+                   break;
+               }
+           }
+           if (!match) sum.add(list2[i].trim());
+        }
+        
+        return (String[])sum.toArray(new String[sum.size()]); 
+    }
+
+    // convenience funtion. Takes a string array and delimiter
+    // and returns a String with the concatenation
+    private static String join(String[] s, String delimiter) {
+        if (s.length == 0) return "";
+
+        StringBuffer buffer = new StringBuffer(s[0]);
+        if (s.length > 1) {
+            for (int i=1; i< s.length; i++) {
+                buffer.append(delimiter).append(s[i].trim());
+            }
+        }
+        return buffer.toString();
+    }
+
+    private void processChangedOC(NameValuePairs saveParams, IConfigStore newstore, String objName) {
+        String newOC = null, oldOC = null;
+        String oldAdded = null, oldDeleted = null;
+
+        try {
+            newOC = newstore.getString(objName);
+        } catch (Exception e) {
+        }
+
+        oldOC = saveParams.getValue(objName);
+        oldAdded = saveParams.getValue(objName + "Added");
+        oldDeleted = saveParams.getValue(objName + "Deleted");
+
+        if ((oldOC == null) || (newOC == null)) return;
+        if (oldOC.equalsIgnoreCase(newOC)) return;
+
+        String [] oldList = oldOC.split(",");
+        String [] newList = newOC.split(",");
+        String [] deletedList = getExtras(oldList, newList);
+        String [] addedList = getExtras(newList, oldList);
+
+        // CMS.debug("addedList = " + join(addedList, ","));
+        // CMS.debug("deletedList = " + join(deletedList, ","));
+
+        if ((addedList.length ==0) && (deletedList.length == 0)) 
+            return;  // no changes
+
+        if (oldAdded != null) {
+            // CMS.debug("oldAdded is " + oldAdded);
+            String [] oldAddedList = oldAdded.split(",");
+            addedList = joinLists(addedList, oldAddedList);
+        }
+
+        if (oldDeleted != null) {
+            // CMS.debug("oldDeleted is " + oldDeleted);
+            String [] oldDeletedList = oldDeleted.split(",");
+            deletedList = joinLists(deletedList, oldDeletedList);
+        }
+
+        String[] addedList1 = getExtras(addedList, deletedList);
+        String[] deletedList1 = getExtras(deletedList, addedList);
+
+        //create the final strings and write to config
+        String addedListStr = join(addedList1, ",");
+        String deletedListStr = join(deletedList1, ",");
+
+        CMS.debug("processChangedOC: added list is " + addedListStr);
+        CMS.debug("processChangedOC: deleted list is " + deletedListStr);
+
+        newstore.put(objName + "Added", addedListStr);
+        newstore.put(objName + "Deleted", deletedListStr);
     }
 
     // convenience routine.

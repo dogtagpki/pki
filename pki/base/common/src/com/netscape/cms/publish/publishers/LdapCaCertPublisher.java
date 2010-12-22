@@ -39,9 +39,13 @@ public class LdapCaCertPublisher
     implements ILdapPublisher, IExtendedPluginInfo {
     public static final String LDAP_CACERT_ATTR = "caCertificate;binary";
     public static final String LDAP_CA_OBJECTCLASS = "certificationAuthority";
+    public static final String LDAP_ARL_ATTR = "authorityRevocationList;binary";
+    public static final String LDAP_CRL_ATTR = "certificateRevocationList;binary";
 
     protected String mCaCertAttr = LDAP_CACERT_ATTR;
     protected String mCaObjectclass = LDAP_CA_OBJECTCLASS;
+    protected String mObjAdded = "";
+    protected String mObjDeleted = "";
 
     private ILogger mLogger = CMS.getLogger();
     private boolean mInited = false;
@@ -58,13 +62,14 @@ public class LdapCaCertPublisher
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 "caCertAttr;string;Name of Ldap attribute in which to store certificate",
-                "caObjectClass;string;The name of the objectclass which should be " +
-                "added to this entry, if it does not already exist",
+                "caObjectClass;string;The name of the objectclasses which should be " +
+                "added to this entry, if they do not already exist. This can be " +
+                "'certificationAuthority' (if using RFC 2256) or 'pkiCA' (if using RFC 4523)",
                 IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-ldappublish-publisher-cacertpublisher",
                 IExtendedPluginInfo.HELP_TEXT +
                 ";This plugin knows how to publish the CA cert to " +
-                "'certificateAuthority'-type entries"
+                "'certificateAuthority' and 'pkiCA' -type entries"
             };
 
         return s;
@@ -104,8 +109,10 @@ public class LdapCaCertPublisher
             return;
         mConfig = config;
         mCaCertAttr = mConfig.getString("caCertAttr", LDAP_CACERT_ATTR);
-        mCaObjectclass = mConfig.getString("caObjectclass", 
+        mCaObjectclass = mConfig.getString("caObjectClass", 
                     LDAP_CA_OBJECTCLASS);
+        mObjAdded = mConfig.getString("caObjectClassAdded", "");
+        mObjDeleted = mConfig.getString("caObjectClassDeleted", "");
         mInited = true;
     }
 
@@ -146,6 +153,12 @@ public class LdapCaCertPublisher
             return;
         }
 
+        try {
+            mCaCertAttr = mConfig.getString("caCertAttr", LDAP_CACERT_ATTR);
+            mCaObjectclass = mConfig.getString("caObjectClass", LDAP_CA_OBJECTCLASS);
+        } catch (EBaseException e) {
+        }
+
         // Bugscape #56124 - support multiple publishing directory
         // see if we should create local connection
         LDAPConnection altConn = null;
@@ -183,28 +196,30 @@ public class LdapCaCertPublisher
         try {
             byte[] certEnc = cert.getEncoded();
 
-            // check if entry has CA objectclass. If not use modify set.
+            /* search for attribute names to determine existence of attributes */
             LDAPSearchResults res = 
                 conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)", 
-                    new String[] { "objectclass", mCaCertAttr }, false);
+                    new String[] { LDAP_CRL_ATTR, LDAP_ARL_ATTR }, true);
             LDAPEntry entry = res.next();
-            LDAPAttribute ocs = entry.getAttribute("objectclass");
-            LDAPAttribute certs = entry.getAttribute(mCaCertAttr);
+            LDAPAttribute arls = entry.getAttribute(LDAP_ARL_ATTR);
+            LDAPAttribute crls = entry.getAttribute(LDAP_CRL_ATTR);
+
+            /* search for objectclass and caCert values */
+            LDAPSearchResults res1 = 
+                conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)", 
+                    new String[] { "objectclass", mCaCertAttr }, false);
+            LDAPEntry entry1 = res1.next();
+            LDAPAttribute ocs = entry1.getAttribute("objectclass");
+            LDAPAttribute certs = entry1.getAttribute(mCaCertAttr);
 
             boolean hasCert = 
                 LdapUserCertPublisher.ByteValueExists(certs, certEnc);
-            boolean hasoc = 
-                LdapUserCertPublisher.StringValueExists(ocs, mCaObjectclass);
 
             LDAPModificationSet modSet = new LDAPModificationSet();
 
             if (hasCert) {
                 log(ILogger.LL_INFO, "publish: CA " + dn + " already has Cert");
-                //throw new ELdapException(
-                //		  LdapResources.ALREADY_PUBLISHED_1, dn);
-                return;
-            } else {
-
+            }  else {
                 /*
                  fix for 360458 - if no cert, use add, if has cert but
                  not equal, use replace
@@ -218,13 +233,69 @@ public class LdapCaCertPublisher
                         new LDAPAttribute(mCaCertAttr, certEnc));
                     log(ILogger.LL_INFO, "CA cert replaced");
                 }
+            }
+
+            String[] oclist = mCaObjectclass.split(",");
+
+            boolean attrsAdded = false;
+            for (int i=0; i < oclist.length; i++) {
+                String oc = oclist[i].trim();
+                boolean hasoc = LdapUserCertPublisher.StringValueExists(ocs, oc);
                 if (!hasoc) {
-                    log(ILogger.LL_INFO, "adding CA objectclass to " + dn);
+                    log(ILogger.LL_INFO, "adding CA objectclass " + oc + " to " + dn);
                     modSet.add(LDAPModification.ADD,
-                        new LDAPAttribute("objectclass", mCaObjectclass));
+                        new LDAPAttribute("objectclass", oc));
+
+                    if ((!attrsAdded) && 
+                        (oc.equalsIgnoreCase("certificationAuthority") || 
+                         oc.equalsIgnoreCase("certificationAuthority-V2"))) {
+                        // add MUST attributes
+                        if (arls == null) 
+                            modSet.add(LDAPModification.ADD,
+                                new LDAPAttribute(LDAP_ARL_ATTR, ""));
+                        if (crls == null)
+                            modSet.add(LDAPModification.ADD,
+                                new LDAPAttribute(LDAP_CRL_ATTR, ""));
+                        attrsAdded = true;
+                    }
                 }
             }
-            conn.modify(dn, modSet); 
+
+            // delete objectclasses that have been deleted from config
+            String[] delList = mObjDeleted.split(",");
+            if (delList.length > 0) {
+                for (int i=0; i< delList.length; i++) {
+                    String deloc = delList[i].trim();
+                    boolean hasoc = LdapUserCertPublisher.StringValueExists(ocs, deloc);
+                    boolean match = false;
+                    for (int j=0; j< oclist.length; j++) {
+                        if ((oclist[j].trim()).equals(deloc)) {
+                            match = true;
+                            break;
+                        } 
+                    }
+                    if (!match && hasoc) {
+                        log(ILogger.LL_INFO, "deleting CA objectclass " + deloc + " from " + dn);
+                        modSet.add(LDAPModification.DELETE,
+                                new LDAPAttribute("objectclass", deloc));
+                    }
+                }
+            }
+
+            // reset mObjAdded and mObjDeleted, if needed
+            if ((!mObjAdded.equals("")) || (!mObjDeleted.equals(""))) { 
+                mObjAdded = "";
+                mObjDeleted = "";
+                mConfig.putString("caObjectClassAdded", "");
+                mConfig.putString("caObjectClassDeleted", "");
+                try {
+                    mConfig.commit(false);
+                } catch (Exception e) {
+                    log(ILogger.LL_INFO, "Failure in updating mObjAdded and mObjDeleted");
+                }
+            }
+                    
+            if (modSet.size() > 0) conn.modify(dn, modSet); 
         } catch (CertificateEncodingException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", dn));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
@@ -265,6 +336,12 @@ public class LdapCaCertPublisher
         X509Certificate cert = (X509Certificate) certObj;
 
         try {
+            mCaCertAttr = mConfig.getString("caCertAttr", LDAP_CACERT_ATTR);
+            mCaObjectclass = mConfig.getString("caObjectClass", LDAP_CA_OBJECTCLASS);
+        } catch (EBaseException e) {
+        }
+
+        try {
             byte[] certEnc = cert.getEncoded();
 
             LDAPSearchResults res = 
@@ -277,8 +354,6 @@ public class LdapCaCertPublisher
 
             boolean hasCert = 
                 LdapUserCertPublisher.ByteValueExists(certs, certEnc);
-            boolean hasOC = 
-                LdapUserCertPublisher.StringValueExists(ocs, mCaObjectclass);
 
             if (!hasCert) {
                 log(ILogger.LL_INFO, "unpublish: " + dn + " has not cert already");
@@ -293,9 +368,17 @@ public class LdapCaCertPublisher
                 new LDAPAttribute(mCaCertAttr, certEnc));
             if (certs.size() == 1) {
                 // if last ca cert, remove oc also.
-                log(ILogger.LL_INFO, "unpublish: deleting CA oc from " + dn);
-                modSet.add(LDAPModification.DELETE,
-                    new LDAPAttribute("objectclass", mCaObjectclass));
+
+                String[]  oclist = mCaObjectclass.split(",");
+                for (int i =0 ; i < oclist.length; i++) {
+                    String oc = oclist[i].trim();
+                    boolean hasOC =  LdapUserCertPublisher.StringValueExists(ocs, oc);
+                    if (hasOC) {
+                        log(ILogger.LL_INFO, "unpublish: deleting CA oc" + oc + " from " + dn);
+                        modSet.add(LDAPModification.DELETE,
+                            new LDAPAttribute("objectclass", oc));
+                    }
+                } 
             }
             conn.modify(dn, modSet); 
         } catch (CertificateEncodingException e) {

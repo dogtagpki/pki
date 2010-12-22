@@ -112,7 +112,6 @@ crossCertificatePair;binary:
 dn: ou=ca,{rootSuffix}
 objectClass: top
 objectClass: organizationalUnit
-objectClass: pkiCA
 ou: ca
 
 dn: ou=certificateRepository,ou=ca,{rootSuffix}

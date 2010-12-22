@@ -47,7 +47,6 @@ import com.netscape.certsrv.publish.*;
 public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     protected static final String PROP_DNPATTERN = "dnPattern";  
     protected static final String PROP_CREATECA = "createCAEntry";  
-    protected static final String PROP_CA_V2 = "CAEntryV2";  
     protected String mDnPattern = null;
     protected boolean mCreateCAEntry = true;
 
@@ -97,7 +96,6 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
                 "$subj means: take the attribute from the certificate subject name. " + 
                 "$ext means: take the attribute from the certificate extension",
                 "createCAEntry;boolean;If checked, CA entry will be created automatically",
-                "CAEntryV2;boolean;If checked, CA entry will be created using certificationAuthority-v2",
                 IExtendedPluginInfo.HELP_TOKEN + ";configuration-ldappublish-mapper-casimplemapper",
                 IExtendedPluginInfo.HELP_TEXT + ";Describes how to form the LDAP DN of the entry to publish to"
             };
@@ -250,26 +248,10 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         throws LDAPException {
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         // OID 2.5.6.16
-        String caOc[] = null;
-        boolean isV2 = false;
-        try {
-          isV2 = mConfig.getBoolean(PROP_CA_V2, false);
-        } catch (EBaseException e) {
-          // do nothing; default false
-        }
-        if (isV2) {
-          caOc = new String[] {"top", 
+        String caOc[] = new String[] {"top", 
                 "person", 
                 "organizationalPerson", 
-                "inetOrgPerson", 
-                "certificationAuthority-v2"};
-        } else {
-          caOc = new String[] {"top", 
-                "person", 
-                "organizationalPerson", 
-                "inetOrgPerson", 
-                "certificationAuthority"};
-        }
+                "inetOrgPerson"}; 
 		   
         String oOc[] = {"top", 
                 "organization"};
@@ -282,16 +264,6 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         attrs.add(new LDAPAttribute("cn", attrval[0]));
         attrs.add(new LDAPAttribute("sn", attrval[0]));
         attrs.add(new LDAPAttribute("objectclass", caOc));
-        attrs.add(new LDAPAttribute(
-                "authorityRevocationList;binary", ""));
-        attrs.add(new LDAPAttribute(
-                "cACertificate;binary", ""));
-        attrs.add(new LDAPAttribute(
-                "certificateRevocationList;binary", ""));
-        if (isV2) {
-          attrs.add(new LDAPAttribute(
-                "deltaRevocationList;binary", ""));
-        }
         LDAPEntry entry = new LDAPEntry(dn, attrs);
 
         conn.add(entry);
@@ -366,7 +338,6 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
         v.addElement(PROP_DNPATTERN + "=");
         v.addElement(PROP_CREATECA + "=true");
-        v.addElement(PROP_CA_V2 + "=false");
         return v;
     }
 
@@ -381,7 +352,6 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
                     mConfig.getString(PROP_DNPATTERN));
             }
             v.addElement(PROP_CREATECA + "=" + mConfig.getBoolean(PROP_CREATECA, true));
-            v.addElement(PROP_CA_V2 + "=" + mConfig.getBoolean(PROP_CA_V2, false));
         } catch (Exception e) {
         }
         return v;

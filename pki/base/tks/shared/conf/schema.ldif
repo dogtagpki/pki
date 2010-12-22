@@ -431,11 +431,6 @@ objectClasses: ( transaction-oid NAME 'transaction' DESC 'CMS defined class' SUP
 dn: cn=schema
 changetype: modify
 add: objectClasses
-objectClasses: ( pkiCA-oid NAME 'pkiCA' DESC 'CMS defined class' SUP top STRUCTURAL MUST ou MAY certificateRevocationList X-ORIGIN 'user defined' )
-
-dn: cn=schema
-changetype: modify
-add: objectClasses
 objectClasses: ( crlIssuingPointRecord-oid NAME 'crlIssuingPointRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ crlNumber $ crlSize $ thisUpdate $ nextUpdate $ deltaNumber $ deltaSize $ firstUnsaved $ certificateRevocationList $ deltaCRL $ crlCache $ revokedCerts $ unrevokedCerts $ expiredCerts $ cACertificate ) X-ORIGIN 'user defined' )
 
 dn: cn=schema
