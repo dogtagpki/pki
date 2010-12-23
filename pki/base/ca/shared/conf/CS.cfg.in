@@ -638,6 +638,7 @@ ca.publish.queue.enable=true
 ca.publish.queue.maxNumberOfThreads=3
 ca.publish.queue.pageSize=40
 ca.publish.queue.priorityLevel=0
+ca.publish.queue.saveStatus=200
 ca.publish.mapper.impl.LdapCaSimpleMap.class=com.netscape.cms.publish.mappers.LdapCaSimpleMap
 ca.publish.mapper.impl.LdapDNCompsMap.class=com.netscape.cms.publish.mappers.LdapCertCompsMap
 ca.publish.mapper.impl.LdapDNExactMap.class=com.netscape.cms.publish.mappers.LdapCertExactMap
