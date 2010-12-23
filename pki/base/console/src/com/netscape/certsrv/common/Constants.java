@@ -250,6 +250,7 @@ public interface Constants {
     public final static String PR_PUBLISHING_QUEUE_THREADS = "queue.maxNumberOfThreads";
     public final static String PR_PUBLISHING_QUEUE_PAGE_SIZE = "queue.pageSize";
     public final static String PR_PUBLISHING_QUEUE_PRIORITY = "queue.priorityLevel";
+    public final static String PR_PUBLISHING_QUEUE_STATUS = "queue.saveStatus";
 
     public final static String PR_BASE_DN = "baseDN";
     public final static String PR_DNCOMPS = "dnComps";

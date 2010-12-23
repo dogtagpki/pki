@@ -56,6 +56,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
     private String mPublishingQueuePriorityLevel = "0";
     private String mMaxNumberOfPublishingThreads = "3";
     private String mPublishingQueuePageSize = "40";
+    private String mPublishingQueueStatus = "200";
     private JLabel mAuthLabel, mCertLabel;
     private JComboBox mAuthBox, mCertBox;
     private String mPanelName;
@@ -99,6 +100,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                                 0,
                                 DIFFERENT_COMPONENT_SPACE);
         gb.setConstraints(mEnablePublishing, gbc);
+        mEnablePublishing.addItemListener(this);
         mCenterPanel.add(mEnablePublishing);
 
         //add the enable queue
@@ -114,6 +116,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                                 0,
                                 DIFFERENT_COMPONENT_SPACE);
         gb.setConstraints(mEnableQueue, gbc);
+        mEnableQueue.addItemListener(this);
         mCenterPanel.add(mEnableQueue);
 
         //add the enable checkbox
@@ -129,6 +132,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                                 0,
                                 DIFFERENT_COMPONENT_SPACE);
         gb.setConstraints(mEnable, gbc);
+        mEnable.addItemListener(this);
         if (mLDAPPublishing)
             mCenterPanel.add(mEnable);
         
@@ -247,6 +251,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         nvps.add(Constants.PR_PUBLISHING_QUEUE_THREADS, "");
         nvps.add(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE, "");
         nvps.add(Constants.PR_PUBLISHING_QUEUE_PRIORITY, "");
+        nvps.add(Constants.PR_PUBLISHING_QUEUE_STATUS, "");
 
         try {
             NameValuePairs val = mAdmin.read(mServletName,
@@ -308,6 +313,8 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                 mPublishingQueuePageSize = nvp.getValue();
             } else if (name.equals(Constants.PR_PUBLISHING_QUEUE_PRIORITY)) {
                 mPublishingQueuePriorityLevel = nvp.getValue();
+            } else if (name.equals(Constants.PR_PUBLISHING_QUEUE_STATUS)) {
+                mPublishingQueueStatus = nvp.getValue();
             } else if (name.equals(Constants.PR_ENABLE)) {
                 if (nvp.getValue().equals(Constants.TRUE))
                     mEnable.setSelected(true);
@@ -379,6 +386,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
 	if (!enable) {
 		mEnable.setSelected(false);
 		mEnableQueue.setSelected(false);
+		mPublishingQueue = false;
 	}
 	enableFields(enable, color);
     }
@@ -486,6 +494,11 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                 mSecurePort.setSelected(true);
             }
             enableFields(true, mActiveColor);
+        } else if (e.getSource().equals(mEnable)) {
+            if (mEnable.isSelected()) {
+                mEnableQueue.setSelected(true);
+            }
+            enableFields(true, mActiveColor);
         }
     }
 
@@ -518,6 +531,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         nvps.add(Constants.PR_PUBLISHING_QUEUE_THREADS, mMaxNumberOfPublishingThreads);
         nvps.add(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE, mPublishingQueuePageSize);
         nvps.add(Constants.PR_PUBLISHING_QUEUE_PRIORITY, mPublishingQueuePriorityLevel);
+        nvps.add(Constants.PR_PUBLISHING_QUEUE_STATUS, mPublishingQueueStatus);
 
         if (mEnable.isSelected()) {
             String host = mHostNameText.getText().trim();
