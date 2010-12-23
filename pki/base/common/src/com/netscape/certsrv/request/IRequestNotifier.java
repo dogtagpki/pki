@@ -129,4 +129,5 @@ public interface IRequestNotifier extends INotify {
                                     int publishingQueuePageSize,
                                     int savePublishingStatus);
 
+    public void updatePublishingStatus(String id);
 }

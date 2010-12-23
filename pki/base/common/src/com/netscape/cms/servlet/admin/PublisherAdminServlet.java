@@ -431,6 +431,8 @@ public class PublisherAdminServlet extends AdminServlet {
                 continue;
             if (name.equals(Constants.PR_PUBLISHING_QUEUE_PRIORITY))
                 continue;
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_STATUS))
+                continue;
             if (name.equals(Constants.PR_CERT_NAMES)) {
                 ICryptoSubsystem jss = (ICryptoSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
@@ -460,6 +462,8 @@ public class PublisherAdminServlet extends AdminServlet {
             publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE, "40"));
         params.add(Constants.PR_PUBLISHING_QUEUE_PRIORITY,
             publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_PRIORITY, "0"));
+        params.add(Constants.PR_PUBLISHING_QUEUE_STATUS,
+            publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_STATUS, "200"));
         params.add(Constants.PR_ENABLE, 
             ldapcfg.getString(IPublisherProcessor.PROP_ENABLE, Constants.FALSE));
         sendResponse(SUCCESS, null, params, resp);
@@ -522,6 +526,10 @@ public class PublisherAdminServlet extends AdminServlet {
                 continue;
             }
             if (name.equals(Constants.PR_PUBLISHING_QUEUE_PRIORITY)) {
+                publishcfg.putString(name, req.getParameter(name));
+                continue;
+            }
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_STATUS)) {
                 publishcfg.putString(name, req.getParameter(name));
                 continue;
             }
@@ -638,6 +646,10 @@ public class PublisherAdminServlet extends AdminServlet {
                 continue;
             }
             if (name.equals(Constants.PR_PUBLISHING_QUEUE_PRIORITY)) {
+                publishcfg.putString(name, req.getParameter(name));
+                continue;
+            }
+            if (name.equals(Constants.PR_PUBLISHING_QUEUE_STATUS)) {
                 publishcfg.putString(name, req.getParameter(name));
                 continue;
             }

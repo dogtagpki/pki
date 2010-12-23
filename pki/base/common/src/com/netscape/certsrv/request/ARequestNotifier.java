@@ -175,7 +175,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     private Object publishingCounterMonitor = new Object();
 
-    private void updatePublishingStatus(String id) {
+    public void updatePublishingStatus(String id) {
         if (mRequestQueue != null) {
             synchronized (publishingCounterMonitor) {
                 if (mSavePublishingCounter == 0) {
@@ -265,7 +265,7 @@ public class ARequestNotifier implements IRequestNotifier {
                         r = mRequestQueue.findRequest(new RequestId(id));
                         mRequests.remove(0);
                         CMS.debug("getRequest  request "+ id + ((r != null)?" found":" not found"));
-                        updatePublishingStatus(id);
+                        //updatePublishingStatus(id);
                     } catch (EBaseException e) {
                         CMS.debug("getRequest  EBaseException " + e.toString());
                     }
@@ -518,11 +518,14 @@ class RunListeners implements Runnable {
         do {
             if (mRequestNotifier != null) mRequest = (IRequest)mRequestNotifier.getRequest();
             if (mListeners != null && mRequest != null) {
-                CMS.debug("RunListeners: mRequest = " + mRequest.getRequestId().toString());
                 while (mListeners.hasMoreElements()) {
                     IRequestListener l = (IRequestListener) mListeners.nextElement();
                     CMS.debug("RunListeners: IRequestListener = " + l.getClass().getName());
                     l.accept(mRequest);
+                }
+                if (mRequestNotifier != null) {
+                    CMS.debug("RunListeners: mRequest = " + mRequest.getRequestId().toString());
+                    mRequestNotifier.updatePublishingStatus(mRequest.getRequestId().toString());
                 }
             }
             CMS.debug("RunListeners: "+((mRequestNotifier != null && mRequestNotifier.getNumberOfRequests() > 0)?" Queue: "+mRequestNotifier.getNumberOfRequests():" noQueue")+
