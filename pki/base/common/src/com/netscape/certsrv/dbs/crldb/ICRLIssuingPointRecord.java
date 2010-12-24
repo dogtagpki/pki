@@ -52,7 +52,7 @@ public interface ICRLIssuingPointRecord extends IDBObj {
     public static final String ATTR_REVOKED_CERTS = "revokedCerts";
     public static final String ATTR_UNREVOKED_CERTS = "unrevokedCerts";
     public static final String ATTR_EXPIRED_CERTS = "expiredCerts";
-    public static final String ATTR_DELTA_CRL = "deltaCRL";
+    public static final String ATTR_DELTA_CRL = "deltaRevocationList";
 
     public static final String CLEAN_CACHE = "-1";
     public static final String NEW_CACHE   = "-2";

@@ -53,5 +53,5 @@ public class CRLDBSchema {
     public static final String LDAP_ATTR_REVOKED_CERTS = "revokedCerts";
     public static final String LDAP_ATTR_UNREVOKED_CERTS = "unrevokedCerts";
     public static final String LDAP_ATTR_EXPIRED_CERTS = "expiredCerts";
-    public static final String LDAP_ATTR_DELTA_CRL = "deltaCRL";
+    public static final String LDAP_ATTR_DELTA_CRL = "deltaRevocationList";
 }
