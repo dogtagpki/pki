@@ -101,11 +101,6 @@ attributeTypes: ( expiredCerts-oid NAME 'expiredCerts' DESC 'CMS defined attribu
 dn: cn=schema
 changetype: modify
 add: attributeTypes
-attributeTypes: ( deltaCRL-oid NAME 'deltaCRL' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
-
-dn: cn=schema
-changetype: modify
-add: attributeTypes
 attributeTypes: ( crlExtensions-oid NAME 'crlExtensions' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
 
 dn: cn=schema
@@ -436,7 +431,7 @@ objectClasses: ( transaction-oid NAME 'transaction' DESC 'CMS defined class' SUP
 dn: cn=schema
 changetype: modify
 add: objectClasses
-objectClasses: ( crlIssuingPointRecord-oid NAME 'crlIssuingPointRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ crlNumber $ crlSize $ thisUpdate $ nextUpdate $ deltaNumber $ deltaSize $ firstUnsaved $ certificateRevocationList $ deltaCRL $ crlCache $ revokedCerts $ unrevokedCerts $ expiredCerts $ cACertificate ) X-ORIGIN 'user defined' )
+objectClasses: ( crlIssuingPointRecord-oid NAME 'crlIssuingPointRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ crlNumber $ crlSize $ thisUpdate $ nextUpdate $ deltaNumber $ deltaSize $ firstUnsaved $ certificateRevocationList $ deltaRevocationList $ crlCache $ revokedCerts $ unrevokedCerts $ expiredCerts $ cACertificate ) X-ORIGIN 'user defined' )
 
 dn: cn=schema
 changetype: modify
