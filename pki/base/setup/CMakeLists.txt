@@ -24,5 +24,5 @@ install(
 )
 
 # install empty directories
-install(CODE "file(MAKE_DIRECTORY ${VAR_INSTALL_DIR}/lock/pki)")
-install(CODE "file(MAKE_DIRECTORY ${VAR_INSTALL_DIR}/run/pki)")
+install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/lock/pki)")
+install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/run/pki)")
