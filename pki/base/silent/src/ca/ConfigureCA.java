@@ -1154,11 +1154,9 @@ public class ConfigureCA {
         // enable ecc if need be
 
         if (key_type.equalsIgnoreCase("ecc")) {
-            boolean st = true;
-
-            hc = new HTTPClient(st);
+            hc = new HTTPClient(true);
         } else {
-            hc = new HTTPClient();
+            hc = new HTTPClient(false);
         }
 
         // 1. Login panel

@@ -88,10 +88,17 @@ public class HTTPClient implements SSLCertificateApprovalCallback
 		if(ecc_support)
 		{
 	    	int ecc_Ciphers[] = {
-			// ECC Ciphers - See JSSSocketFactory.java for more info
-	    	0xC001, 0xC002, 0xC003, 0xC004, 0xC005, 0xC006, 0xC007,
-		    0xC008, 0xC009, 0xC00A, 0xC00B, 0xC00C, 0xC00E, 0xC00F,
-		    0xC010, 0xC011, 0xC012, 0xC013, 0xC014, 0 };
+			SSLSocket.TLS_ECDH_ECDSA_WITH_NULL_SHA,         SSLSocket.TLS_ECDH_ECDSA_WITH_RC4_128_SHA,
+			SSLSocket.TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA, SSLSocket.TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,
+			SSLSocket.TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,  SSLSocket.TLS_ECDHE_ECDSA_WITH_NULL_SHA,
+			SSLSocket.TLS_ECDHE_ECDSA_WITH_RC4_128_SHA,     SSLSocket.TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,
+			SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+			SSLSocket.TLS_ECDH_RSA_WITH_NULL_SHA,           SSLSocket.TLS_ECDH_RSA_WITH_RC4_128_SHA,
+			SSLSocket.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,    SSLSocket.TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,
+			SSLSocket.TLS_ECDHE_RSA_WITH_NULL_SHA,          SSLSocket.TLS_ECDHE_RSA_WITH_RC4_128_SHA,
+			SSLSocket.TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,  SSLSocket.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+			SSLSocket.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			0 };
 
 			try
 			{
@@ -104,7 +111,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback
 			}
 			catch(Exception e)
 			{
-				System.out.println("ERROR: unable to set Cipher List");
+				System.out.println("ERROR: unable to set ECC Cipher List");
 				System.out.println("ERROR: Exception  = " + e.getMessage());
 			}
 
