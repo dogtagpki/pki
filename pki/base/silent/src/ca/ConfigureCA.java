@@ -1492,9 +1492,9 @@ public class ConfigureCA {
         parser.addOption("-key_size %s #Key Size", x_key_size); 
         parser.addOption("-key_type %s #Key type [RSA,ECC]", x_key_type); 
         parser.addOption("-key_algorithm %s #Key algorithm of the CA certificate", x_key_algorithm);
-        parser.addOption("-signing_algorithm %s #Signing algorithm", x_signing_algorithm);
-        parser.addOption("-signing_signingalgorithm %s #Algorithm used be CA cert to sign objects (optional)", x_signing_signingalgorithm);
-        parser.addOption("-ocsp_signing_signingalgorithm %s #Algorithm used by the OCSP signing cert to sign objects (optional)", x_ocsp_signing_signingalgorithm);
+        parser.addOption("-signing_algorithm %s #Signing algorithm (optional, default is key_algorithm)", x_signing_algorithm);
+        parser.addOption("-signing_signingalgorithm %s #Algorithm used be CA cert to sign objects (optional, default is signing_algorithm)", x_signing_signingalgorithm);
+        parser.addOption("-ocsp_signing_signingalgorithm %s #Algorithm used by the OCSP signing cert to sign objects (optional, default is signing_algorithm)", x_ocsp_signing_signingalgorithm);
         parser.addOption("-token_name %s #HSM/Software Token name", x_token_name); 
         parser.addOption("-token_pwd %s #HSM/Software Token password (optional - only required for HSM)",
                 x_token_pwd); 
