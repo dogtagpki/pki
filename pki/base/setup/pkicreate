@@ -169,22 +169,31 @@ my $addIndexes_ldif_base_name    = "addIndexes.ldif";      # TPS
 my $addTokens_ldif_base_name     = "addTokens.ldif";       # TPS
 my $addVLVIndexes_ldif_base_name = "addVLVIndexes.ldif";   # TPS
 my $nss_pcache_base_name         = "nss_pcache";           # RA, TPS
-my $certsrv_jar_base_name        = "certsrv.jar";          # CA, KRA, OCSP, TKS
-my $nsutil_jar_base_name         = "nsutil.jar";           # CA, KRA, OCSP, TKS
-my $cmsutil_jar_base_name        = "cmsutil.jar";          # CA, KRA, OCSP, TKS
-my $cms_jar_base_name            = "cms.jar";              # CA, KRA, OCSP, TKS
-my $cmsbundle_jar_base_name      = "cmsbundle.jar";        # CA, KRA, OCSP, TKS
-my $cmscore_jar_base_name        = "cmscore.jar";          # CA, KRA, OCSP, TKS
-my $conf_base_name               = "conf";                 # CA, KRA, OCSP, TKS,
+my $subsystem_jar_base_name      = undef;                  # CA, KRA, OCSP, TKS
 
-my $jakarta_commons_logging_jar_base_name = "jakarta-commons-logging.jar"; # CA, KRA, OCSP, TKS
-my $jakarta_commons_lang_jar_base_name = "jakarta-commons-lang.jar"; # CA, KRA, OCSP, TKS
+my $certsrv_jar_base_name         = "certsrv.jar";         # CA, KRA, OCSP, TKS
+my $cms_jar_base_name             = "cms.jar";             # CA, KRA, OCSP, TKS
+my $cmsbundle_jar_base_name       = "cmsbundle.jar";       # CA, KRA, OCSP, TKS
+my $cmscore_jar_base_name         = "cmscore.jar";         # CA, KRA, OCSP, TKS
+my $cmsutil_jar_base_name         = "cmsutil.jar";         # CA, KRA, OCSP, TKS
+my $commons_lang_jar_base_name    = undef;                 # CA, KRA, OCSP, TKS
+my $commons_logging_jar_base_name = undef;                 # CA, KRA, OCSP, TKS
 my $jss_jar_base_name             = "jss4.jar";            # CA, KRA, OCSP, TKS
 my $ldapjdk_jar_base_name         = "ldapjdk.jar";         # CA, KRA, OCSP, TKS
+my $nsutil_jar_base_name          = "nsutil.jar";          # CA, KRA, OCSP, TKS
+my $osutil_jar_base_name          = "osutil.jar";          # CA, KRA, OCSP, TKS
+my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
 my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
 my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
 my $xerces_jar_base_name          = "xerces-j2.jar";       # CA, KRA, OCSP, TKS
-my $catalina_properties_base_name = "catalina.properties"; # CA, KRA, OCSP, TKS
+
+my $apache_commons_logging_jar_base_name  = "apache-commons-logging.jar";
+my $jakarta_commons_logging_jar_base_name = "jakarta-commons-logging.jar";
+my $apache_commons_lang_jar_base_name     = "apache-commons-lang.jar";
+my $jakarta_commons_lang_jar_base_name    = "jakarta-commons-lang.jar";
+
+my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
+my $catalina_properties_base_name = "catalina.properties";    # CA, KRA, OCSP, TKS
 
 my $httpd_conf_base_name          = "httpd.conf";             # RA, TPS
 my $index_jsp_base_name           = "index.jsp";              # CA, KRA, OCSP, TKS
@@ -195,8 +204,6 @@ my $noise_base_name               = "noise";                  # CA, KRA, OCSP, T
                                                               # RA, TPS
 my $nss_conf_base_name            = "nss.conf";               # RA, TPS
 my $perl_conf_base_name           = "perl.conf";              # RA, TPS
-my $osutil_jar_base_name          = "osutil.jar";             # CA, KRA, OCSP, TKS
-my $symkey_jar_base_name          = "symkey.jar";             # CA, KRA, OCSP, TKS
 my $password_conf_base_name       = "password.conf";          # CA, KRA, OCSP, TKS,
                                                               # RA, TPS
 my $pfile_base_name               = "pfile";                  # CA, KRA, OCSP, TKS,
@@ -227,8 +234,6 @@ my $webinf_base_instance_dir        = "WEB-INF";     # CA, KRA, OCSP, TKS
 my $default_apache_pids_path       = "/var/run/pki";
 my $default_tomcat_pids_path       = "/var/run";
 my $default_tomcat_lib_path        = "/usr/share/tomcat6/lib";
-my $default_java_path              = "/usr/share/java";
-my $default_system_jni_java_path   = "/usr/lib/java";
 my $default_security_token         = "internal";
 my $default_nfast_group            = "nfast";
 
@@ -438,37 +443,40 @@ my $addTokens_ldif_instance_file_path            = undef;  # TPS
 my $addTokens_ldif_subsystem_file_path           = undef;  # TPS
 my $addVLVIndexes_ldif_instance_file_path        = undef;  # TPS
 my $addVLVIndexes_ldif_subsystem_file_path       = undef;  # TPS
-my $jakarta_commons_logging_jar_file_path        = undef;  # CA, KRA, OCSP, TKS
-my $jakarta_commons_logging_jar_symlink_path     = undef;  # CA, KRA, OCSP, TKS
-my $jakarta_commons_lang_jar_file_path           = undef;  # CA, KRA, OCSP, TKS
-my $jakarta_commons_lang_jar_symlink_path        = undef;  # CA, KRA, OCSP, TKS
-my $jss_jar_file_path                            = undef;  # CA, KRA, OCSP, TKS
-my $jss_jar_symlink_path                         = undef;  # CA, KRA, OCSP, TKS
-my $ldapjdk_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
-my $ldapjdk_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
-my $tomcatjss_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
-my $tomcatjss_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
-my $xerces_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
-my $xerces_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
 my $certsrv_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
 my $certsrv_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
 my $cms_jar_file_path                            = undef;  # CA, KRA, OCSP, TKS
 my $cms_jar_symlink_path                         = undef;  # CA, KRA, OCSP, TKS
-my $nsutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
-my $nsutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
-my $cmsutil_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
-my $cmsutil_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
 my $cmsbundle_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
 my $cmsbundle_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
 my $cmscore_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
 my $cmscore_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $cmsutil_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
+my $cmsutil_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $commons_lang_jar_file_path                   = undef;  # CA, KRA, OCSP, TKS
+my $commons_lang_jar_symlink_path                = undef;  # CA, KRA, OCSP, TKS
+my $commons_logging_jar_file_path                = undef;  # CA, KRA, OCSP, TKS
+my $commons_logging_jar_symlink_path             = undef;  # CA, KRA, OCSP, TKS
+my $jss_jar_file_path                            = undef;  # CA, KRA, OCSP, TKS
+my $jss_jar_symlink_path                         = undef;  # CA, KRA, OCSP, TKS
+my $ldapjdk_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
+my $ldapjdk_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $nsutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $nsutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $osutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $osutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $symkey_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $symkey_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
 my $velocity_jar_file_path                       = undef;  # CA, KRA, OCSP, TKS
 my $velocity_jar_symlink_path                    = undef;  # CA, KRA, OCSP, TKS
+my $xerces_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $xerces_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
 my $httpd_conf_instance_file_path                = undef;  # RA, TPS
 my $httpd_conf_subsystem_file_path               = undef;  # RA, TPS
 my $index_jsp_instance_file_path                 = undef;  # CA, KRA, OCSP, TKS
 my $index_jsp_subsystem_file_path                = undef;  # CA, KRA, OCSP, TKS
-my $java_pki_flavor_jar_path                     = undef;  # CA, KRA, OCSP, TKS
 my $magic_instance_file_path                     = undef;  # RA, TPS
 my $magic_subsystem_file_path                    = undef;  # RA, TPS
 my $mime_types_instance_file_path                = undef;  # RA, TPS
@@ -480,10 +488,6 @@ my $nss_pcache_instance_file_path                = undef;  # RA, TPS
 my $nss_pcache_subsystem_file_path               = undef;  # RA, TPS
 my $perl_conf_instance_file_path                 = undef;  # RA, TPS
 my $perl_conf_subsystem_file_path                = undef;  # RA, TPS
-my $osutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
-my $osutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
-my $symkey_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
-my $symkey_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
 my $password_conf_instance_file_path             = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $perl_instance_symlink_path                   = undef;  # RA, TPS
 my $perl_subsystem_path                          = undef;  # RA, TPS
@@ -1340,8 +1344,7 @@ ASK_CONTINUE_NONSTD_INSTANCE_ROOT:
 }
 
 
-# no args
-# no return value
+# Return 1 if success, 0 if failure
 sub initialize_subsystem_paths
 {
     ## Initialize subsystem directory paths (subsystem independent)
@@ -1405,12 +1408,11 @@ sub initialize_subsystem_paths
                                  . "/" . $webapps_base_subsystem_dir;
     }
 
-    return;
+    return 1;
 }
 
 
-# no args
-# no return value
+# Return 1 if success, 0 if failure
 sub initialize_instance_paths
 {
     ## Initialize instance directory paths (instance independent)
@@ -1483,12 +1485,11 @@ sub initialize_instance_paths
                               . "/" . $work_base_instance_dir;
     }
 
-    return;
+    return 1;
 }
 
 
-# no args
-# no return value
+# Return 1 if success, 0 if failure
 sub initialize_instance_symlink_paths
 {
     ## Initialize instance symlinks (instance independent)
@@ -1510,12 +1511,11 @@ sub initialize_instance_symlink_paths
                                        . "/" . $run_base_instance_symlink;
     }
 
-    return;
+    return 1;
 }
 
 
-# no args
-# no return value
+# Return 1 if success, 0 if failure
 sub initialize_subdirectory_paths
 {
     ## Initialize subdirectory paths (subsystem independent)
@@ -1645,68 +1645,162 @@ sub initialize_subdirectory_paths
                                                 . $perl_base_subsystem_dir;
     } else {
         ## Initialize subdirectory paths (CA, KRA, OCSP, TKS subsystems)
-        $webapps_root_instance_path      = $webapps_instance_path
-                                         . "/"
-                                         . $webapps_root_base_instance_dir;
-        $webapps_root_subsystem_path     = $webapps_subsystem_path
-                                         . "/"
-                                         . $webapps_root_base_subsystem_dir;
-        $webapps_subsystem_instance_path = $webapps_instance_path
-                                         . "/" . $subsystem_type;
-        $webinf_instance_path            = $webapps_instance_path
-                                         . "/" . $subsystem_type
-                                         . "/" . $webinf_base_instance_dir;
-        $webinf_subsystem_path           = $webapps_subsystem_path
-                                         . "/" . $subsystem_type
-                                         . "/" . $webinf_base_instance_dir;
-        $webinf_lib_instance_path        = $webinf_instance_path
-                                         . "/" . $lib_base_instance_dir;
-        $java_pki_flavor_jar_path           = $default_java_path
-                                            . "/" . $pki_flavor;
-        $certsrv_jar_file_path             = $java_pki_flavor_jar_path
-                                           . "/" . $certsrv_jar_base_name;
+
+        $subsystem_jar_base_name = "${subsystem_type}.jar";
+
+        if (!defined($certsrv_jar_file_path = find_jar($certsrv_jar_base_name))) {
+            emit("could not find jar: $certsrv_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($cms_jar_file_path = find_jar($cms_jar_base_name))) {
+            emit("could not find jar: $cms_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($cmsbundle_jar_file_path = find_jar($cmsbundle_jar_base_name))) {
+            emit("could not find jar: $cmsbundle_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($cmscore_jar_file_path = find_jar($cmscore_jar_base_name))) {
+            emit("could not find jar: $cmscore_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($cmsutil_jar_file_path = find_jar($cmsutil_jar_base_name))) {
+            emit("could not find jar: $cmsutil_jar_base_name", "error");
+            return 0;
+        }
+
+        # jakarta-commons-* has been renamed to apache-commons-* on some
+        # systems, search which one is available, preferring apache-commons
+        if (defined($commons_lang_jar_file_path = find_jar($apache_commons_lang_jar_base_name))) {
+            $commons_lang_jar_base_name = $apache_commons_lang_jar_base_name;
+        } else {
+            if (defined($commons_lang_jar_file_path = find_jar($jakarta_commons_lang_jar_base_name))) {
+            $commons_lang_jar_base_name = $jakarta_commons_lang_jar_base_name;
+            } else {
+                emit("could not find jar: $apache_commons_lang_jar_base_name or $jakarta_commons_lang_jar_base_name", "error");
+                return 0;
+            }
+        }
+
+        if (defined($commons_logging_jar_file_path = find_jar($apache_commons_logging_jar_base_name))) {
+            $commons_logging_jar_base_name = $apache_commons_logging_jar_base_name;
+        } else {
+            if (defined($commons_logging_jar_file_path = find_jar($jakarta_commons_logging_jar_base_name))) {
+                $commons_logging_jar_base_name = $jakarta_commons_logging_jar_base_name;
+            } else {
+                emit("could not find jar: $apache_commons_logging_jar_base_name or $jakarta_commons_logging_jar_base_name", "error");
+                return 0;
+            }
+        }
+
+        if (!defined($jss_jar_file_path = find_jar($jss_jar_base_name))) {
+            emit("could not find jar: $jss_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($ldapjdk_jar_file_path = find_jar($ldapjdk_jar_base_name))) {
+            emit("could not find jar: $ldapjdk_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($nsutil_jar_file_path = find_jar($nsutil_jar_base_name))) {
+            emit("could not find jar: $nsutil_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($osutil_jar_file_path = find_jar($osutil_jar_base_name))) {
+            emit("could not find jar: $osutil_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($subsystem_jar_file_path = find_jar($subsystem_jar_base_name))) {
+            emit("could not find jar: $subsystem_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($symkey_jar_file_path = find_jar($symkey_jar_base_name))) {
+            emit("could not find jar: $symkey_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($tomcatjss_jar_file_path = find_jar($tomcatjss_jar_base_name))) {
+            emit("could not find jar: $tomcatjss_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($velocity_jar_file_path = find_jar($velocity_jar_base_name))) {
+            emit("could not find jar: $velocity_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($xerces_jar_file_path = find_jar($xerces_jar_base_name))) {
+            emit("could not find jar: $xerces_jar_base_name", "error");
+            return 0;
+        }
+
+        $webinf_instance_path              = $webapps_instance_path
+                                           . "/" . $subsystem_type
+                                           . "/" . $webinf_base_instance_dir;
+        $webinf_subsystem_path             = $webapps_subsystem_path
+                                           . "/" . $subsystem_type
+                                           . "/" . $webinf_base_instance_dir;
+        $webinf_lib_instance_path          = $webinf_instance_path
+                                           . "/" . $lib_base_instance_dir;
+        $webapps_root_subsystem_path       = $webapps_subsystem_path
+                                           . "/"
+                                           . $webapps_root_base_subsystem_dir;
+        $webapps_subsystem_instance_path   = $webapps_instance_path
+                                           . "/" . $subsystem_type;
+
         $certsrv_jar_symlink_path          = $webinf_lib_instance_path
                                            . "/" . $certsrv_jar_base_name;
-        $nsutil_jar_file_path              = $java_pki_flavor_jar_path
-                                           . "/" . $nsutil_jar_base_name;
-        $nsutil_jar_symlink_path           = $webinf_lib_instance_path
-                                           . "/" . $nsutil_jar_base_name;
-        $cmsutil_jar_file_path              = $java_pki_flavor_jar_path
-                                           . "/" . $cmsutil_jar_base_name;
-        $cmsutil_jar_symlink_path           = $webinf_lib_instance_path
-                                           . "/" . $cmsutil_jar_base_name;
-        $cms_jar_file_path                 = $java_pki_flavor_jar_path
-                                           . "/" . $cms_jar_base_name;
         $cms_jar_symlink_path              = $webinf_lib_instance_path
                                            . "/" . $cms_jar_base_name;
-        $cmsbundle_jar_file_path           = $java_pki_flavor_jar_path
-                                           . "/" . $cmsbundle_jar_base_name;
         $cmsbundle_jar_symlink_path        = $webinf_lib_instance_path
                                            . "/" . $cmsbundle_jar_base_name;
-        $cmscore_jar_file_path             = $java_pki_flavor_jar_path
-                                           . "/" . $cmscore_jar_base_name;
         $cmscore_jar_symlink_path          = $webinf_lib_instance_path
                                            . "/" . $cmscore_jar_base_name;
+        $cmsutil_jar_symlink_path          = $webinf_lib_instance_path
+                                           . "/" . $cmsutil_jar_base_name;
+        $commons_lang_jar_symlink_path     = $webinf_lib_instance_path
+                                           . "/" . $commons_lang_jar_base_name;
+        $commons_logging_jar_symlink_path  = $tomcat_instance_common_lib_path
+                                           . "/" . $commons_logging_jar_base_name;
+        $jss_jar_symlink_path              = $tomcat_instance_common_lib_path
+                                           . "/" . $jss_jar_base_name;
+        $ldapjdk_jar_symlink_path          = $webinf_lib_instance_path
+                                           . "/" . $ldapjdk_jar_base_name;
+        $nsutil_jar_symlink_path           = $webinf_lib_instance_path
+                                           . "/" . $nsutil_jar_base_name;
+        $osutil_jar_symlink_path           = $webinf_lib_instance_path
+                                           . "/" . $osutil_jar_base_name;
+        $symkey_jar_symlink_path           = $webinf_lib_instance_path
+                                           . "/" . $symkey_jar_base_name;
+        $subsystem_jar_symlink_path        = $webinf_lib_instance_path
+                                           . "/" . $subsystem_jar_base_name;
+        $tomcatjss_jar_symlink_path        = $tomcat_instance_common_lib_path
+                                           . "/" . $tomcatjss_jar_base_name;
+        $velocity_jar_symlink_path         = $webinf_lib_instance_path
+                                           . "/" . $velocity_jar_base_name;
+        $xerces_jar_symlink_path           = $webinf_lib_instance_path
+                                           . "/" . $xerces_jar_base_name;
+
+
+        $webapps_root_instance_path        = $webapps_instance_path
+                                           . "/"
+                                           . $webapps_root_base_instance_dir;
         $index_jsp_instance_file_path      = $webapps_root_instance_path
                                            . "/" . $index_jsp_base_name;
         $index_jsp_subsystem_file_path     = $webapps_root_subsystem_path
                                            . "/" . $index_jsp_base_name;
-        $osutil_jar_file_path              = $default_system_jni_java_path
-                                           . "/" . $osutil_jar_base_name;
-        $osutil_jar_symlink_path           = $webinf_lib_instance_path
-                                           . "/" . $osutil_jar_base_name;
-        $symkey_jar_file_path              = $default_system_jni_java_path
-                                           . "/" . $symkey_jar_base_name;
-        $symkey_jar_symlink_path           = $webinf_lib_instance_path
-                                           . "/" . $symkey_jar_base_name;
         $server_xml_subsystem_file_path    = $conf_subsystem_path
                                            . "/" . $server_xml_base_name;
         $servercertnick_conf_subsystem_file_path    = $conf_subsystem_path
                                            . "/" . $servercertnick_conf_base_name;
-        $subsystem_jar_file_path           = $default_java_path
-                                           . "/" . $subsystem_type . ".jar";
-        $subsystem_jar_symlink_path        = $webinf_lib_instance_path
-                                           . "/" . $subsystem_type . ".jar";
         $tomcat6_conf_subsystem_file_path  = $conf_subsystem_path
                                            . "/" . $tomcat6_conf_base_name;
         $velocity_prop_instance_file_path  = $webinf_instance_path
@@ -1719,52 +1813,23 @@ sub initialize_subdirectory_paths
                                            . "/" . $web_xml_base_name;
         $catalina_properties_subsystem_file_path = $conf_subsystem_path
                                                  . "/" . $catalina_properties_base_name;
-        $jakarta_commons_logging_jar_file_path        = $default_java_path
-                                                      . "/" . $jakarta_commons_logging_jar_base_name;
-        $jakarta_commons_logging_jar_symlink_path     = $tomcat_instance_common_lib_path
-                                                      . "/" . $jakarta_commons_logging_jar_base_name;
-        $jakarta_commons_lang_jar_file_path           = $default_java_path
-                                                      . "/" . $jakarta_commons_lang_jar_base_name;
-        $jakarta_commons_lang_jar_symlink_path        = $webinf_lib_instance_path
-                                                      . "/" . $jakarta_commons_lang_jar_base_name;
-        $jss_jar_file_path                  = $default_system_jni_java_path
-                                            . "/" . $jss_jar_base_name;
-        $jss_jar_symlink_path               = $tomcat_instance_common_lib_path
-                                            . "/" . $jss_jar_base_name;
-        $ldapjdk_jar_file_path              = $default_java_path
-                                            . "/" . $ldapjdk_jar_base_name;
-        $ldapjdk_jar_symlink_path           = $webinf_lib_instance_path
-                                            . "/" . $ldapjdk_jar_base_name;
-        $tomcatjss_jar_file_path           = $default_java_path
-                                           . "/" . $tomcatjss_jar_base_name;
-        $tomcatjss_jar_symlink_path        = $tomcat_instance_common_lib_path
-                                           . "/" . $tomcatjss_jar_base_name;
-        $velocity_jar_file_path            = $default_java_path
-                                           . "/" . $velocity_jar_base_name;
-        $velocity_jar_symlink_path         = $webinf_lib_instance_path
-                                           . "/" . $velocity_jar_base_name;
-        $xerces_jar_file_path              = $default_java_path
-                                           . "/" . $xerces_jar_base_name;
-        $xerces_jar_symlink_path           = $webinf_lib_instance_path
-                                           . "/" . $xerces_jar_base_name;
-
     }
+    return 1;
 }
 
 
-# no args
-# no return value
+# Return 1 if success, 0 if failure
 sub initialize_paths
 {
-    initialize_subsystem_paths();
-    initialize_instance_paths();
-    initialize_instance_symlink_paths();
-    initialize_subdirectory_paths();
+    return 0 if !initialize_subsystem_paths();
+    return 0 if !initialize_instance_paths();
+    return 0 if !initialize_instance_symlink_paths();
+    return 0 if !initialize_subdirectory_paths();
+    return 1;
 }
 
 
-# no args
-# no return value
+# Return 1 if success, 0 if failure
 sub initialize_pki_creation_values
 {
     # obtain the fully-qualified domain name of this host
@@ -1775,12 +1840,12 @@ sub initialize_pki_creation_values
 
     # generate a random value for a pin ...
     $random = generate_random_string(20);
+
+    return 1;
 }
 
 
-# no args
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub process_pki_directories
 {
     my $remove_dir="";
@@ -2143,9 +2208,7 @@ sub process_file_template
 }
 
 
-# no args
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub process_pki_templates
 {
     my $use_port_separation = 0;
@@ -2540,9 +2603,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
 }
 
 
-# no args
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub process_pki_files_and_symlinks
 {
     emit("Processing PKI files and symbolic links for '$pki_instance_path' ...\n");
@@ -2597,10 +2658,6 @@ sub process_pki_files_and_symlinks
         return 0 if !create_directory($webinf_lib_instance_path,
                                       $default_dir_permissions, $pki_user, $pki_group);
 
-        # create instance symlink to "${subsystem_type}.jar"
-        return 0 if !create_symlink($subsystem_jar_symlink_path, $subsystem_jar_file_path,
-                                    $pki_user, $pki_group);
-
         # create instance symlink to "certsrv.jar"
         return 0 if !create_symlink($certsrv_jar_symlink_path, $certsrv_jar_file_path,
                                     $pki_user, $pki_group);
@@ -2621,16 +2678,16 @@ sub process_pki_files_and_symlinks
         return 0 if !create_symlink($cmsutil_jar_symlink_path, $cmsutil_jar_file_path,
                                     $pki_user, $pki_group);
 
-        # create symlink to "jakarta-commons-lang.jar"
+        # create symlink to either "apache-commons-lang.jar" or "jakarta-commons-lang.jar"
         # needed by velocity
-        return 0 if !create_symlink($jakarta_commons_lang_jar_symlink_path,
-                                    $jakarta_commons_lang_jar_file_path,
+        return 0 if !create_symlink($commons_lang_jar_symlink_path,
+                                    $commons_lang_jar_file_path,
                                     $pki_user, $pki_group);
 
-        # create symlink to "jakarta-commons-logging.jar"
+        # create symlink to "apache-commons-logging.jar or jakarta-commons-logging.jar"
         # this is needed by tomcatjss
-        return 0 if !create_symlink($jakarta_commons_logging_jar_symlink_path,
-                                    $jakarta_commons_logging_jar_file_path,
+        return 0 if !create_symlink($commons_logging_jar_symlink_path,
+                                    $commons_logging_jar_file_path,
                                     $pki_user, $pki_group);
 
         # create symlink to "jss.jar"
@@ -2647,6 +2704,10 @@ sub process_pki_files_and_symlinks
 
         # create instance symlink to "osutil.jar"
         return 0 if !create_symlink($osutil_jar_symlink_path, $osutil_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "${subsystem_type}.jar"
+        return 0 if !create_symlink($subsystem_jar_symlink_path, $subsystem_jar_file_path,
                                     $pki_user, $pki_group);
 
         # create instance symlink to "symkey.jar"
@@ -2671,9 +2732,7 @@ sub process_pki_files_and_symlinks
 }
 
 
-# no args
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub process_pki_security_databases
 {
     my $result          = 0;
@@ -2730,9 +2789,7 @@ sub process_pki_security_databases
 }
 
 
-# no args
-# return 1 - success, or
-# return 0 - failure
+# Return 1 if success, 0 if failure
 sub process_pki_security_modules
 {
     my $result = 0;
@@ -3080,9 +3137,9 @@ sub main
         exit 255;
     }
 
-    initialize_paths();
+    exit 255 if !initialize_paths();
 
-    initialize_pki_creation_values();
+    exit 255 if !initialize_pki_creation_values();
 
     $result = install_pki_instance();
     if (!$result) {

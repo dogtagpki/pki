@@ -30,7 +30,8 @@ our @EXPORT = qw(
  $pki_flavor $pki_registry_path
  $verbose $dry_run $hostname $default_hardware_platform
  $default_system_binaries $default_lockdir $default_system_libraries $default_system_user_binaries
- $default_system_user_libraries $default_system_jni_java_path
+ $default_system_user_libraries
+ $default_java_path $default_pki_java_path $default_system_jni_java_path @default_jar_path
  $default_security_libraries $default_certutil_command
  $default_ldapmodify_command $default_modutil_command
  $default_dir_permissions $default_exe_permissions $default_file_permissions
@@ -71,6 +72,7 @@ our @EXPORT = qw(
  symlink_exists create_symlink remove_symlink set_owner_group_on_symlink
  run_command get_cs_cfg get_registry_initscript_name 
  register_pki_instance_with_chkconfig deregister_pki_instance_with_chkconfig
+ find_jar
  );
 
 
@@ -166,7 +168,10 @@ our $default_lockdir               = undef;
 our $default_system_libraries      = undef;
 our $default_system_user_binaries  = undef;
 our $default_system_user_libraries = undef;
+our $default_java_path             = undef;
+our $default_pki_java_path         = undef;
 our $default_system_jni_java_path  = undef;
+our @default_jar_path              = undef;
 our $default_security_libraries    = undef;
 our $default_certutil_command      = undef;
 our $default_ldapmodify_command    = undef;
@@ -199,6 +204,8 @@ if ($^O eq "linux") {
         $default_system_libraries      = "/lib";
         $default_system_user_binaries  = "/usr/bin";
         $default_system_user_libraries = "/usr/lib";
+        $default_java_path             = "/usr/share/java";
+        $default_pki_java_path         = "/usr/share/java/pki";
         $default_system_jni_java_path  = "/usr/lib/java";
     } elsif ($default_hardware_platform eq "x86_64") {
         # 64-bit Linux
@@ -206,11 +213,15 @@ if ($^O eq "linux") {
         $default_system_libraries      = "/lib64";
         $default_system_user_binaries  = "/usr/bin";
         $default_system_user_libraries = "/usr/lib64";
+        $default_java_path             = "/usr/share/java";
+        $default_pki_java_path         = "/usr/share/java/pki";
         $default_system_jni_java_path  = "/usr/lib/java";
     } else {
         emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!", "error");
         exit 255;
     }
+
+    @default_jar_path = ($default_pki_java_path, $default_java_path, $default_system_jni_java_path);
 
     # Retrieve hostname
     if (defined($ENV{'PKI_HOSTNAME'})) {
@@ -3305,6 +3316,27 @@ sub run_command
     }
 
     return 1;
+}
+
+##############################################################
+# Generic Java Subroutines
+##############################################################
+
+# Given a jar's base name locate it in the file system
+# using standard Java jar path for this system.
+# Return the path to the jar if found, undef otherwise.
+sub find_jar
+{
+    my($jar_name) = @_;
+    my($jar_dir, $jar_path);
+
+    for $jar_dir (@default_jar_path) {
+        $jar_path = "$jar_dir/$jar_name";
+        if (-e $jar_path) {
+            return $jar_path;
+        }
+    }
+    return undef;
 }
 
 ##############################################################
