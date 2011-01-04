@@ -193,6 +193,13 @@ template(`pki_ca_template',`
        #allow sending mail
        corenet_tcp_connect_smtp_port($1_t)
 
+       # allow rpm -q in init scripts
+       rpm_exec($1_t)
+        
+       # allow writing to the kernel keyring
+       allow $1_t self:key { write read };
+
+
 ')
 
 ########################################
@@ -595,6 +602,12 @@ template(`pki_tps_template',`
         allow pki_tps_t self:unix_dgram_socket { write create connect };
         allow pki_tps_t syslogd_t:unix_dgram_socket sendto;
 
+        # allow rpm -q in init scripts
+        rpm_exec(pki_tps_t)
+
+        # allow writing to the kernel keyring
+        allow $pki_tps_t self:key { write read };
+
 ')
 
 template(`pki_ra_template',`
@@ -769,6 +782,13 @@ template(`pki_ra_template',`
         manage_files_pattern(pki_ra_t, pki_common_t, pki_common_t)
         can_exec(pki_ra_t, pki_common_t)
         init_stream_connect_script(pki_ra_t)
+
+        # allow rpm -q in init scripts
+        rpm_exec(pki_ra_t)
+
+        # allow writing to the kernel keyring
+        allow $pki_ra_t self:key { write read };
+
 
 ')
 
