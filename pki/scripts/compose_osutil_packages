@@ -193,5 +193,5 @@ chmod 775 ${OSUTIL_PACKAGE_SCRIPT}
 ##
 
 cd ${OSUTIL_PACKAGES} ;
-script -c package_${OSUTIL} package_${OSUTIL}.log
+script -c ./package_${OSUTIL} package_${OSUTIL}.log
 

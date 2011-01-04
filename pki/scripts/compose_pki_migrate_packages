@@ -197,5 +197,5 @@ chmod 775 ${PKI_MIGRATE_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-script -c package_${PKI_MIGRATE} package_${PKI_MIGRATE}.log
+script -c ./package_${PKI_MIGRATE} package_${PKI_MIGRATE}.log
 

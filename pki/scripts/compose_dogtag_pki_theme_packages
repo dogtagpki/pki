@@ -185,5 +185,5 @@ chmod 775 ${DOGTAG_PKI_THEME_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-script -c package_${DOGTAG_PKI_THEME} package_${DOGTAG_PKI_THEME}.log
+script -c ./package_${DOGTAG_PKI_THEME} package_${DOGTAG_PKI_THEME}.log
 

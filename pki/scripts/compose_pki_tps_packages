@@ -197,5 +197,5 @@ chmod 775 ${PKI_TPS_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-script -c package_${PKI_TPS} package_${PKI_TPS}.log
+script -c ./package_${PKI_TPS} package_${PKI_TPS}.log
 

@@ -197,5 +197,5 @@ chmod 775 ${PKI_RA_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-script -c package_${PKI_RA} package_${PKI_RA}.log
+script -c ./package_${PKI_RA} package_${PKI_RA}.log
 

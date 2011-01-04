@@ -197,5 +197,5 @@ chmod 775 ${PKI_CONSOLE_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-script -c package_${PKI_CONSOLE} package_${PKI_CONSOLE}.log
+script -c ./package_${PKI_CONSOLE} package_${PKI_CONSOLE}.log
 

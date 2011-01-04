@@ -197,5 +197,5 @@ chmod 775 ${PKI_OCSP_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-script -c package_${PKI_OCSP} package_${PKI_OCSP}.log
+script -c ./package_${PKI_OCSP} package_${PKI_OCSP}.log
 
