@@ -103,7 +103,7 @@ cn: crossCerts
 sn: crossCerts
 objectClass: top
 objectClass: person
-objectClass: certificationAuthority
+objectClass: pkiCA
 cACertificate;binary:
 authorityRevocationList;binary:
 certificateRevocationList;binary:
