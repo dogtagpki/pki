@@ -38,7 +38,7 @@ import com.netscape.certsrv.publish.*;
 public class LdapCaCertPublisher 
     implements ILdapPublisher, IExtendedPluginInfo {
     public static final String LDAP_CACERT_ATTR = "caCertificate;binary";
-    public static final String LDAP_CA_OBJECTCLASS = "certificationAuthority";
+    public static final String LDAP_CA_OBJECTCLASS = "pkiCA";
     public static final String LDAP_ARL_ATTR = "authorityRevocationList;binary";
     public static final String LDAP_CRL_ATTR = "certificateRevocationList;binary";
 
@@ -246,9 +246,7 @@ public class LdapCaCertPublisher
                     modSet.add(LDAPModification.ADD,
                         new LDAPAttribute("objectclass", oc));
 
-                    if ((!attrsAdded) && 
-                        (oc.equalsIgnoreCase("certificationAuthority") || 
-                         oc.equalsIgnoreCase("certificationAuthority-V2"))) {
+                    if ((!attrsAdded) && oc.equalsIgnoreCase("certificationAuthority")) {
                         // add MUST attributes
                         if (arls == null) 
                             modSet.add(LDAPModification.ADD,

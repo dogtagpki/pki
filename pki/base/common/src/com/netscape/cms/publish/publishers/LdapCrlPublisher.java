@@ -44,8 +44,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public static final String LDAP_CACERT_ATTR = "caCertificate;binary";
     public static final String LDAP_ARL_ATTR = "authorityRevocationList;binary";
     public static final String LDAP_CRL_ATTR = "certificateRevocationList;binary";
-    public static final String LDAP_CRL_OBJECTCLASS = "certificationAuthority,certficationAuthority-V2"; 
-
+    public static final String LDAP_CRL_OBJECTCLASS = "pkiCA,deltaCRL";
 
     protected String mCrlAttr = LDAP_CRL_ATTR;
     protected String mCrlObjectClass = LDAP_CRL_OBJECTCLASS;
@@ -212,9 +211,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     modSet.add(LDAPModification.ADD,
                         new LDAPAttribute("objectclass", oc));
 
-                    if ((!attrsAdded) &&
-                        (oc.equalsIgnoreCase("certificationAuthority") ||
-                         oc.equalsIgnoreCase("certificationAuthority-V2"))) {
+                    if ((!attrsAdded) && oc.equalsIgnoreCase("certificationAuthority")) {
                         // add MUST attributes
                         if (arls == null)
                             modSet.add(LDAPModification.ADD,

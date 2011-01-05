@@ -2768,6 +2768,7 @@ public class PublisherAdminServlet extends AdminServlet {
         ILdapPublisher oldinst = mProcessor.getPublisherInstance(id);
         Vector oldConfigParms = oldinst.getInstanceParams();
         NameValuePairs saveParams = new NameValuePairs();
+        String pubType = "";
 
         // implName is always required so always include it it.
         saveParams.add("pluginName", implname);
@@ -2775,9 +2776,16 @@ public class PublisherAdminServlet extends AdminServlet {
             for (int i = 0; i < oldConfigParms.size(); i++) {
                 String kv = (String) oldConfigParms.elementAt(i);
                 int index = kv.indexOf('=');
+                if (index > -1) {
+                    if (kv.substring(0, index).equalsIgnoreCase("caObjectClass")) {
+                        pubType = "cacert";
+                    } else if (kv.substring(0, index).equalsIgnoreCase("crlObjectClass")) {
+                        pubType = "crl";
+                    }
 
-                saveParams.add(kv.substring(0, index), 
-                    kv.substring(index + 1));
+                    saveParams.add(kv.substring(0, index), 
+                        kv.substring(index + 1));
+                }
             }
         }
 
@@ -2790,7 +2798,6 @@ public class PublisherAdminServlet extends AdminServlet {
         IConfigStore instancesConfig = destStore.getSubStore("instance");
 
         // get objects added and deleted
-        String pubType = instancesConfig.getString(id + ".pubtype", "");
         if (pubType.equals("cacert")) {
             saveParams.add("caObjectClassAdded", instancesConfig.getString(id + ".caObjectClassAdded", ""));
             saveParams.add("caObjectClassDeleted", instancesConfig.getString(id + ".caObjectClassDeleted", ""));
