@@ -33,9 +33,19 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6
-BuildRequires:    tomcatjss >= 2.0.0
+BuildRequires:    jss >= 4.2.6-10
+BuildRequires:    ldapjdk
+BuildRequires:    nspr-devel >= 4.6.99
+BuildRequires:    nss-devel >= 3.12.3.99
+BuildRequires:    openldap-devel
 BuildRequires:    osutil
+BuildRequires:    pkgconfig
+BuildRequires:    policycoreutils
+BuildRequires:    selinux-policy-devel
+BuildRequires:    tomcatjss >= 2.0.0
+BuildRequires:    velocity
+BuildRequires:    xalan-j2
+BuildRequires:    xerces-j2
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
