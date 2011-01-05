@@ -52,10 +52,6 @@ add_dependencies(${SYMKEY_SHARED_LIBRARY} symkey)
 
 set_target_properties(${SYMKEY_SHARED_LIBRARY}
     PROPERTIES
-        VERSION
-            ${SYMKEY_LIBRARY_VERSION}
-        SOVERSION
-            ${SYMKEY_LIBRARY_SOVERSION}
         OUTPUT_NAME
             symkey
 )
