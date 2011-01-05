@@ -147,8 +147,6 @@ fi
 #%{_javadir}/pki/tks-%{version}.jar
 #%{_javadir}/pki/tks/tks.jar
 %dir %{_datadir}/pki/tks
-%dir %{_datadir}/pki/tks/acl
-%{_datadir}/pki/tks/acl/*
 %dir %{_datadir}/pki/tks/conf
 %{_datadir}/pki/tks/conf/*
 %dir %{_datadir}/pki/tks/setup

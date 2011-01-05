@@ -741,8 +741,6 @@ fi
 #%{_javadir}/pki/ca-%{version}.jar
 #%{_javadir}/pki/ca/ca.jar
 %dir %{_datadir}/pki/ca
-%dir %{_datadir}/pki/ca/acl
-%{_datadir}/pki/ca/acl/*
 %dir %{_datadir}/pki/ca/conf
 %{_datadir}/pki/ca/conf/*
 %dir %{_datadir}/pki/ca/emails

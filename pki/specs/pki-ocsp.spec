@@ -153,8 +153,6 @@ fi
 #%{_javadir}/pki/ocsp-%{version}.jar
 #%{_javadir}/pki/ocsp/ocsp.jar
 %dir %{_datadir}/pki/ocsp
-%dir %{_datadir}/pki/ocsp/acl
-%{_datadir}/pki/ocsp/acl/*
 %dir %{_datadir}/pki/ocsp/conf
 %{_datadir}/pki/ocsp/conf/*
 %dir %{_datadir}/pki/ocsp/setup

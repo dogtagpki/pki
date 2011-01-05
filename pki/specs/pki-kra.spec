@@ -146,8 +146,6 @@ fi
 #%{_javadir}/pki/kra-%{version}.jar
 #%{_javadir}/pki/kra/kra.jar
 %dir %{_datadir}/pki/kra
-%dir %{_datadir}/pki/kra/acl
-%{_datadir}/pki/kra/acl/*
 %dir %{_datadir}/pki/kra/conf
 %{_datadir}/pki/kra/conf/*
 %dir %{_datadir}/pki/kra/setup
