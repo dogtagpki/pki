@@ -121,7 +121,6 @@ $suppress = $install_info_basename;
 ##############################################################
 
 # Base subsystem directory names
-my $acl_base_subsystem_dir      = "acl";       # CA, KRA, OCSP, TKS
 my $applets_base_subsystem_dir  = "applets";   # TPS
 my $cgibin_base_subsystem_dir   = "cgi-bin";   # TPS (Apache)
 my $conf_base_subsystem_dir     = "conf";      # CA, KRA, OCSP, TKS, RA, TPS
@@ -134,7 +133,6 @@ my $scripts_base_subsystem_dir  = "scripts";   # RA, TPS
 my $webapps_base_subsystem_dir  = "webapps";   # CA, KRA, OCSP, TKS
 
 # Base instance directory names
-my $acl_base_instance_dir          = "acl";        # CA, KRA, OCSP, TKS
 my $alias_base_instance_dir        = "alias";      # CA, KRA, OCSP, TKS, RA, TPS
 my $bin_base_instance_dir          = "bin";        # TPS
 my $cgibin_base_instance_dir       = "cgi-bin";    # TPS (Apache)
@@ -379,7 +377,6 @@ my $redirected_logs_path       = undef;
 
 # Base subsystem directory paths
 my $pki_subsystem_path       = undef;  # CA, KRA, OCSP, TKS, RA, TPS
-my $acl_subsystem_path       = undef;  # CA, KRA, OCSP, TKS
 my $applets_subsystem_path   = undef;  # TPS
 my $bin_subsystem_path       = undef;  # TPS
 my $cgibin_subsystem_path    = undef;  # TPS (Apache)
@@ -396,7 +393,6 @@ my $ui_subsystem_path        = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 
 # Base instance directory paths
 my $pki_instance_path               = undef;  # CA, KRA, OCSP, TKS, RA, TPS
-my $acl_instance_path               = undef;  # CA, KRA, OCSP, TKS
 my $alias_instance_path             = undef;  # CA, KRA, OCSP, TKS, RA, TPS
 my $bin_instance_path               = undef;  # TPS
 my $cgibin_instance_path            = undef;  # TPS (Apache)
@@ -1400,8 +1396,6 @@ sub initialize_subsystem_paths
 
     ## Initialize subsystem directory paths (CA, KRA, OCSP, TKS subsystems)
 
-        $acl_subsystem_path      = $pki_subsystem_path
-                                 . "/" . $acl_base_subsystem_dir;
         $profiles_subsystem_path = $pki_subsystem_path
                                  . "/" . $profiles_base_subsystem_dir;
         $webapps_subsystem_path  = $pki_subsystem_path
@@ -1465,8 +1459,6 @@ sub initialize_instance_paths
         ## Initialize instance directory paths (CA, KRA, OCSP, TKS instances)
         $emails_instance_path   = $pki_instance_path
                                 . "/" . $emails_base_instance_dir;
-        $acl_instance_path      = $pki_instance_path
-                                . "/" . $acl_base_instance_dir;
         $profiles_instance_path = $pki_instance_path
                                 . "/" . $profiles_base_instance_dir;
         $webapps_instance_path = $pki_instance_path
@@ -2062,10 +2054,6 @@ sub process_pki_directories
         }
     } else {
         ## Populate instance directory paths (CA, KRA, OCSP, TKS instances)
-        return 0 if !copy_directory($acl_subsystem_path, $acl_instance_path,
-                                    $default_dir_permissions, $default_file_permissions,
-                                    $pki_user, $pki_group);
-
         return 0 if !copy_directory($webapps_subsystem_path, $webapps_instance_path,
                                     $default_dir_permissions, $default_file_permissions,
                                     $pki_user, $pki_group);
