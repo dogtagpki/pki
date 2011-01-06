@@ -40,13 +40,16 @@ import com.netscape.certsrv.profile.*;
 import com.netscape.certsrv.ldap.*;
 import com.netscape.certsrv.publish.*;
 import com.netscape.certsrv.apps.*;
+import com.netscape.certsrv.common.*;
 import com.netscape.cms.servlet.profile.*;
 import org.mozilla.jss.pkcs7.*;
 import org.mozilla.jss.asn1.*;
 import org.mozilla.jss.*;
+import org.mozilla.jss.util.*;
 import org.mozilla.jss.crypto.*;
 import org.mozilla.jss.pkix.cert.Certificate;
 import com.netscape.cmsutil.scep.CRSPKIMessage;
+
 
 /**
  * This servlet deals with PKCS#10-based certificate requests from
@@ -77,6 +80,7 @@ public class CRSEnrollment extends HttpServlet
   private   boolean               mEnabled = false;
   private   boolean               mUseCA = true;
   private   String                mNickname = null;
+  private   String                mTokenName = "";
   private   String                mHashAlgorithm = "SHA1";
   private   String                mHashAlgorithmList = null;
   private   String[]              mAllowedHashAlgorithm;
@@ -163,14 +167,21 @@ public class CRSEnrollment extends HttpServlet
               mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
               mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
               mNickname = scepConfig.getString("nickname", ca.getNickname());
-              if (!mNickname.equals(ca.getNickname())) mUseCA = false;
+              if (mNickname.equals(ca.getNickname())) {
+                  mTokenName = ca.getSigningUnit().getTokenName();
+              } else {
+                  mTokenName = scepConfig.getString("tokenname", "");
+                  mUseCA = false;
+              }
           }
       } catch (EBaseException e) {
+          CMS.debug("CRSEnrollment: init: EBaseException: "+e);
       } 
       mEncryptionAlgorithm = mConfiguredEncryptionAlgorithm;
       CMS.debug("CRSEnrollment: init: SCEP support is "+((mEnabled)?"enabled":"disabled")+".");
       CMS.debug("CRSEnrollment: init: SCEP nickname: "+mNickname);
       CMS.debug("CRSEnrollment: init:   CA nickname: "+ca.getNickname());
+      CMS.debug("CRSEnrollment: init:    Token name: "+mTokenName);
       CMS.debug("CRSEnrollment: init: Is SCEP using CA keys: "+mUseCA);
       CMS.debug("CRSEnrollment: init: mNonceSizeLimit: "+mNonceSizeLimit);
       CMS.debug("CRSEnrollment: init: mHashAlgorithm: "+mHashAlgorithm);
@@ -1923,6 +1934,7 @@ throws EBaseException {
   class CryptoContext {
     private CryptoManager cm;
     private CryptoToken internalToken;
+    private CryptoToken keyStorageToken;
     private CryptoToken internalKeyStorageToken;
     private KeyGenerator DESkg;
 	private Enumeration externalTokens = null;
@@ -1946,7 +1958,24 @@ throws EBaseException {
               }
               cm = CryptoManager.getInstance();
               internalToken = cm.getInternalCryptoToken();
-              internalKeyStorageToken = cm.getInternalKeyStorageToken();
+
+              if (mTokenName.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN) ||
+                  mTokenName.equalsIgnoreCase("Internal Key Storage Token") ||
+                  mTokenName.length() == 0) {
+                  keyStorageToken = cm.getInternalKeyStorageToken();
+                  internalKeyStorageToken = keyStorageToken;
+                  CMS.debug("CRSEnrollment: CryptoContext: internal token name: '"+mTokenName+"'");
+              } else {
+                  keyStorageToken = cm.getTokenByName(mTokenName);
+                  internalKeyStorageToken = null;
+                  mNickname = mTokenName + ":" + mNickname;
+                  CMS.debug("CRSEnrollment: CryptoContext: token name: "+mTokenName+"'");
+              }
+              CMS.debug("CRSEnrollment: CryptoContext: mNickname: '"+mNickname+"'");
+              if (!mUseCA && internalKeyStorageToken == null) {
+                  PasswordCallback cb = CMS.getPasswordCallback(); 
+                  keyStorageToken.login(cb); // ONE_TIME by default.
+              }
               DESkg = internalToken.getKeyGenerator(kga);
               signingCert = cm.findCertByNickname(mNickname);
               signingCertPrivKey = cm.findPrivKeyByCert(signingCert);
@@ -1984,10 +2013,16 @@ throws EBaseException {
               throw new CryptoContextException("Cannot create DES key generator");
           }
           catch (ObjectNotFoundException e) {
-              throw new CryptoContextException("Certificate not found"+ca.getNickname());
+              throw new CryptoContextException("Certificate not found: "+ca.getNickname());
           }
           catch (TokenException e) {
               throw new CryptoContextException("Problem with Crypto Token: "+e.getMessage());
+          }
+          catch (NoSuchTokenException e) {
+              throw new CryptoContextException("Crypto Token not found: "+e.getMessage());
+          }
+          catch (IncorrectPasswordException e) {
+              throw new CryptoContextException("Incorrect Password.");
           }
       }
 
@@ -2010,6 +2045,10 @@ throws EBaseException {
 
     public CryptoToken getInternalKeyStorageToken() {
         return internalKeyStorageToken;
+    }
+
+    public CryptoToken getKeyStorageToken() {
+        return keyStorageToken;
     }
 
     public CryptoManager getCryptoManager() {
