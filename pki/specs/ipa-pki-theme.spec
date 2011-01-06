@@ -97,6 +97,8 @@ Conflicts:        redhat-pki-common-ui
 
 Obsoletes:        ipa-pki-common-theme < %{version}-%{release}
 Obsoletes:        ipa-pki-common-ui
+Obsoletes:        null-pki-common-theme
+Obsoletes:        null-pki-common-ui
 
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
@@ -130,6 +132,8 @@ Conflicts:        redhat-pki-ca-ui
 
 Obsoletes:        ipa-pki-ca-theme < %{version}-%{release}
 Obsoletes:        ipa-pki-ca-ui
+Obsoletes:        null-pki-ca-theme
+Obsoletes:        null-pki-ca-ui
 
 Provides:         pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-ui = %{version}-%{release}
