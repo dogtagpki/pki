@@ -1,7 +1,7 @@
-Name:           null-pki-common-ui
+Name:           ipa-pki-ca-ui
 Version:        9.0.0
 Release:        1%{?dist}
-Summary:        PKI Common Framework User Interface
+Summary:        Certificate System - Certificate Authority User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
 Group:          System Environment/Base
@@ -12,23 +12,23 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ant
 
-Provides:       pki-common-ui = %{version}.%{release}
+Provides:       pki-ca-ui = %{version}-%{release}
 
-Obsoletes:      pki-common-ui < %{version}.%{release}
+Obsoletes:      pki-ca-ui < %{version}-%{release}
 
 Source0:        http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
 # NOTE:  Several PKI packages require a "virtual" UI component.  These
 #        "virtual" UI components are "Provided" by various UI "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" UI components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" UI components MUST be
 #        mutually exclusive!
-Conflicts:      dogtag-pki-common-ui
-Conflicts:      redhat-pki-common-ui
+Conflicts:      dogtag-pki-ca-ui
+Conflicts:      redhat-pki-ca-ui
 
 %description
-This PKI Common Framework User Interface contains NO graphical
-user interface for the PKI Common Framework.
+This Certificate Authority User Interface contains NO graphical
+user interface for the Certificate Authority.
 
 %prep
 
@@ -36,9 +36,9 @@ user interface for the PKI Common Framework.
 
 %build
 ant \
-    -Dproduct.ui.flavor.prefix="null" \
+    -Dproduct.ui.flavor.prefix="ipa" \
     -Dproduct.prefix="pki" \
-    -Dproduct="common-ui" \
+    -Dproduct="ca-ui" \
     -Dversion="%{version}"
 
 %install

@@ -30,11 +30,11 @@ IPA_BUILD_SCRIPT=`basename $0`
 export IPA_BUILD_SCRIPT
 IPA_COMPONENT=`basename ${PWD}`
 export IPA_COMPONENT
-IPA_SPECFILE="null-pki-ca-ui.spec"
+IPA_SPECFILE="ipa-pki-ca-ui.spec"
 export IPA_SPECFILE
 
 # Set PKI 'ant' environment variables (originally obtained from specfile)
-PKI_PRODUCT_UI_FLAVOR_PREFIX="null"
+PKI_PRODUCT_UI_FLAVOR_PREFIX="ipa"
 export PKI_PRODUCT_UI_FLAVOR_PREFIX
 PKI_PRODUCT_PREFIX="pki"
 export PKI_PRODUCT_PREFIX

@@ -78,30 +78,30 @@ defined by the "pki-core" package.                                     \
 ###############################################################################
 
 ##############################
-##  null-pki-common-theme   ##
+##   ipa-pki-common-theme   ##
 ##############################
 
-%package -n       null-pki-common-theme
+%package -n       ipa-pki-common-theme
 Summary:          Certificate System - PKI Common Framework User Interface
 Group:            System Environment/Base
 
 # NOTE:  Several PKI packages require a "virtual" Theme component.  These
 #        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" Theme components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" Theme components MUST be
 #        mutually exclusive!
 Conflicts:        dogtag-pki-common-theme
 Conflicts:        dogtag-pki-common-ui
 Conflicts:        redhat-pki-common-theme
 Conflicts:        redhat-pki-common-ui
 
-Obsoletes:        null-pki-common-theme < %{version}-%{release}
-Obsoletes:        null-pki-common-ui
+Obsoletes:        ipa-pki-common-theme < %{version}-%{release}
+Obsoletes:        ipa-pki-common-ui
 
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
 
-%description -n   null-pki-common-theme
+%description -n   ipa-pki-common-theme
 This PKI Common Framework User Interface contains
 NO textual or graphical user interface for the PKI Common Framework.
 
@@ -111,30 +111,30 @@ This package is used by the Certificate System utilized by IPA.
 
 
 ##############################
-##    null-pki-ca-theme     ##
+##     ipa-pki-ca-theme     ##
 ##############################
 
-%package -n       null-pki-ca-theme
+%package -n       ipa-pki-ca-theme
 Summary:          Certificate System - Certificate Authority User Interface
 Group:            System Environment/Base
 
 # NOTE:  Several PKI packages require a "virtual" Theme component.  These
 #        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" Theme components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" Theme components MUST be
 #        mutually exclusive!
 Conflicts:        dogtag-pki-ca-theme
 Conflicts:        dogtag-pki-ca-ui
 Conflicts:        redhat-pki-ca-theme
 Conflicts:        redhat-pki-ca-ui
 
-Obsoletes:        null-pki-ca-theme < %{version}-%{release}
-Obsoletes:        null-pki-ca-ui
+Obsoletes:        ipa-pki-ca-theme < %{version}-%{release}
+Obsoletes:        ipa-pki-ca-ui
 
 Provides:         pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-ui = %{version}-%{release}
 
-%description -n   null-pki-ca-theme
+%description -n   ipa-pki-ca-theme
 This Certificate Authority (CA) User Interface contains
 NO textual or graphical user interface for the CA.
 
@@ -179,12 +179,12 @@ cd build
 ###############################################################################
 
 ##############################
-##  null-pki-common-theme   ##
+##   ipa-pki-common-theme   ##
 ##############################
 
 
 ##############################
-##    null-pki-ca-theme     ##
+##     ipa-pki-ca-theme     ##
 ##############################
 
 
@@ -193,12 +193,12 @@ cd build
 ###############################################################################
 
 ##############################
-##  null-pki-common-theme   ##
+##   ipa-pki-common-theme   ##
 ##############################
 
 
 ##############################
-##    null-pki-ca-theme     ##
+##     ipa-pki-ca-theme     ##
 ##############################
 
 
@@ -207,10 +207,10 @@ cd build
 ###############################################################################
 
 ##############################
-##  null-pki-common-theme   ##
+##   ipa-pki-common-theme   ##
 ##############################
 
-%files -n null-pki-common-theme
+%files -n ipa-pki-common-theme
 %defattr(-,root,root,-)
 %doc dogtag/common-ui/LICENSE
 %dir %{_datadir}/pki
@@ -219,10 +219,10 @@ cd build
 
 
 ##############################
-##    null-pki-ca-theme     ##
+##     ipa-pki-ca-theme     ##
 ##############################
 
-%files -n null-pki-ca-theme
+%files -n ipa-pki-ca-theme
 %defattr(-,root,root,-)
 %doc dogtag/ca-ui/LICENSE
 %dir %{_datadir}/pki/ca-ui

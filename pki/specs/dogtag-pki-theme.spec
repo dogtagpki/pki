@@ -108,11 +108,11 @@ Group:            System Environment/Base
 
 # NOTE:  Several PKI packages require a "virtual" Theme component.  These
 #        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" Theme components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" Theme components MUST be
 #        mutually exclusive!
-Conflicts:        null-pki-common-theme
-Conflicts:        null-pki-common-ui
+Conflicts:        ipa-pki-common-theme
+Conflicts:        ipa-pki-common-ui
 Conflicts:        redhat-pki-common-theme
 Conflicts:        redhat-pki-common-ui
 
@@ -141,11 +141,11 @@ Group:            System Environment/Base
 
 # NOTE:  Several PKI packages require a "virtual" Theme component.  These
 #        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" Theme components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" Theme components MUST be
 #        mutually exclusive!
-Conflicts:        null-pki-ca-theme
-Conflicts:        null-pki-ca-ui
+Conflicts:        ipa-pki-ca-theme
+Conflicts:        ipa-pki-ca-ui
 Conflicts:        redhat-pki-ca-theme
 Conflicts:        redhat-pki-ca-ui
 
@@ -174,11 +174,11 @@ Group:            System Environment/Base
 
 # NOTE:  Several PKI packages require a "virtual" Theme component.  These
 #        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" Theme components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" Theme components MUST be
 #        mutually exclusive!
-#Conflicts:        null-pki-kra-theme
-#Conflicts:        null-pki-kra-ui
+#Conflicts:        ipa-pki-kra-theme
+#Conflicts:        ipa-pki-kra-ui
 Conflicts:        redhat-pki-kra-theme
 Conflicts:        redhat-pki-kra-ui
 
@@ -207,11 +207,11 @@ Group:            System Environment/Base
 
 # NOTE:  Several PKI packages require a "virtual" Theme component.  These
 #        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" Theme components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" Theme components MUST be
 #        mutually exclusive!
-#Conflicts:        null-pki-ocsp-theme
-#Conflicts:        null-pki-ocsp-ui
+#Conflicts:        ipa-pki-ocsp-theme
+#Conflicts:        ipa-pki-ocsp-ui
 Conflicts:        redhat-pki-ocsp-theme
 Conflicts:        redhat-pki-ocsp-ui
 
@@ -240,11 +240,11 @@ Group:            System Environment/Base
 
 # NOTE:  Several PKI packages require a "virtual" Theme component.  These
 #        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" Theme components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" Theme components MUST be
 #        mutually exclusive!
-#Conflicts:        null-pki-ra-theme
-#Conflicts:        null-pki-ra-ui
+#Conflicts:        ipa-pki-ra-theme
+#Conflicts:        ipa-pki-ra-ui
 Conflicts:        redhat-pki-ra-theme
 Conflicts:        redhat-pki-ra-ui
 
@@ -273,11 +273,11 @@ Group:            System Environment/Base
 
 # NOTE:  Several PKI packages require a "virtual" Theme component.  These
 #        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" Theme components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" Theme components MUST be
 #        mutually exclusive!
-#Conflicts:        null-pki-tks-theme
-#Conflicts:        null-pki-tks-ui
+#Conflicts:        ipa-pki-tks-theme
+#Conflicts:        ipa-pki-tks-ui
 Conflicts:        redhat-pki-tks-theme
 Conflicts:        redhat-pki-tks-ui
 
@@ -306,11 +306,11 @@ Group:            System Environment/Base
 
 # NOTE:  Several PKI packages require a "virtual" Theme component.  These
 #        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" Theme components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" Theme components MUST be
 #        mutually exclusive!
-#Conflicts:        null-pki-tps-theme
-#Conflicts:        null-pki-tps-ui
+#Conflicts:        ipa-pki-tps-theme
+#Conflicts:        ipa-pki-tps-ui
 Conflicts:        redhat-pki-tps-theme
 Conflicts:        redhat-pki-tps-ui
 
@@ -339,11 +339,11 @@ Group:            System Environment/Base
 
 # NOTE:  Several PKI packages require a "virtual" Theme component.  These
 #        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "null".  Consequently,
-#        all "dogtag", "redhat", and "null" Theme components MUST be
+#        including "dogtag", "redhat", and "ipa".  Consequently,
+#        all "dogtag", "redhat", and "ipa" Theme components MUST be
 #        mutually exclusive!
-#Conflicts:        null-pki-console-theme
-#Conflicts:        null-pki-console-ui
+#Conflicts:        ipa-pki-console-theme
+#Conflicts:        ipa-pki-console-ui
 Conflicts:        redhat-pki-console-theme
 Conflicts:        redhat-pki-console-ui
 
