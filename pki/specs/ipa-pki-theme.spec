@@ -146,7 +146,7 @@ This package is used by the Certificate System utilized by IPA.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DBUILD_NULL_PKI_THEME:BOOL=ON ..
+%cmake -DBUILD_IPA_PKI_THEME:BOOL=ON ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
