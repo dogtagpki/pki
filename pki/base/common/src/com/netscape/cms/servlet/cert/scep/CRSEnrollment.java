@@ -1958,7 +1958,7 @@ throws EBaseException {
               }
               cm = CryptoManager.getInstance();
               internalToken = cm.getInternalCryptoToken();
-
+              DESkg = internalToken.getKeyGenerator(kga);
               if (mTokenName.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN) ||
                   mTokenName.equalsIgnoreCase("Internal Key Storage Token") ||
                   mTokenName.length() == 0) {
@@ -1976,7 +1976,6 @@ throws EBaseException {
                   PasswordCallback cb = CMS.getPasswordCallback(); 
                   keyStorageToken.login(cb); // ONE_TIME by default.
               }
-              DESkg = internalToken.getKeyGenerator(kga);
               signingCert = cm.findCertByNickname(mNickname);
               signingCertPrivKey = cm.findPrivKeyByCert(signingCert);
 			  byte[] encPubKeyInfo = signingCert.getPublicKey().getEncoded();
