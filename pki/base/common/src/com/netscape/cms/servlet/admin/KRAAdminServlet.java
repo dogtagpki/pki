@@ -115,6 +115,7 @@ public class KRAAdminServlet extends AdminServlet {
                         null, resp);
                     return;
                 }
+                /* Functions not implemented in console
                 if (scope.equals(ScopeDef.SC_AUTO_RECOVERY)) {
                     readAutoRecoveryConfig(req, resp);
                     return;
@@ -124,7 +125,9 @@ public class KRAAdminServlet extends AdminServlet {
                 } else if (scope.equals(ScopeDef.SC_NOTIFICATION_RIQ)) {
                     getNotificationRIQConfig(req, resp);
                     return;
-                } else if (scope.equals(ScopeDef.SC_GENERAL)) {
+                } else
+                */ 
+                if (scope.equals(ScopeDef.SC_GENERAL)) {
                     getGeneralConfig(req, resp);
                     return;
                 }
@@ -136,6 +139,7 @@ public class KRAAdminServlet extends AdminServlet {
                         null, resp);
                     return;
                 }
+                /* Functions not implemented in console
                 if (scope.equals(ScopeDef.SC_AUTO_RECOVERY)) {
                     modifyAutoRecoveryConfig(req, resp);
                     return;
@@ -148,7 +152,9 @@ public class KRAAdminServlet extends AdminServlet {
                 } else if (scope.equals(ScopeDef.SC_NOTIFICATION_RIQ)) {
                     setNotificationRIQConfig(req, resp);
                     return;
-                } else if (scope.equals(ScopeDef.SC_GENERAL)) {
+                } else 
+                */
+                if (scope.equals(ScopeDef.SC_GENERAL)) {
                     setGeneralConfig(req,resp);
                 }
             } 

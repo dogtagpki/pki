@@ -139,8 +139,9 @@ public abstract class CMSLogPanel extends CMSBasePanel
             }
         }else if (e.getSource().equals(mHelp)) {
             CMSAdminUtil.help(mHelpToken);
-        } else if (e.getSource().equals(mLevel) || e.getSource().equals(mSource)) {
-            Debug.println("AccessLogPanel: Changed Log Level or Source");
+        } else if (e.getSource().equals(mLevel) || e.getSource().equals(mSource)
+                  || e.getSource().equals(mFile)) {
+            Debug.println("AccessLogPanel: Changed Log Level or Source or File");
             refresh(); 
         }
     }
@@ -283,6 +284,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
 		CMSAdminUtil.addEntryField(panel, label1, mSource, label2, mLevel, gbc);
                 mLevel.addActionListener(this);
                 mSource.addActionListener(this);
+                
 
 		//file
 		CMSAdminUtil.resetGBC(gbc);
@@ -290,6 +292,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
 		JLabel label3 = makeJLabel("FILE");
 		mFile = new JComboBox();
         CMSAdminUtil.addEntryField(panel, label3, mFile, gbc);
+                mFile.addActionListener(this);
 
         return panel;
     }

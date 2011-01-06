@@ -511,8 +511,8 @@ public class RollingLogFile extends LogFile {
     /**
      * Retrieve log file list.
      */
-    public synchronized NameValuePairs retrieveLogList(Hashtable req,
-        Hashtable resp) throws ServletException,
+    public synchronized NameValuePairs retrieveLogList(Hashtable req
+        ) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         String[] files = null;
