@@ -90,17 +90,38 @@ include(MacroCopyFile)
 include(UseJava)
 
 # search for libraries
-find_package(Java REQUIRED)
-find_package(JNI REQUIRED)
-find_package(NSPR REQUIRED)
-find_package(NSS REQUIRED)
-find_package(Ldap REQUIRED)
-find_package(MozLDAP REQUIRED)
-find_package(APR REQUIRED)
 
-# required for TPS
-find_package(Svrcore REQUIRED)
-find_package(MozLDAP REQUIRED)
+# required for all PKI components EXCEPT Theme-based components and PKI_MIGRATE
+if (NOT APPLICATION_FLAVOR_IPA_PKI_THEME      AND
+    NOT APPLICATION_FLAVOR_DOGTAG_PKI_THEME   AND
+    NOT APPLICATION_FLAVOR_REDHAT_PKI_THEME   AND
+    NOT APPLICATION_FLAVOR_PKI_MIGRATE)
+    find_package(NSPR REQUIRED)
+    find_package(NSS REQUIRED)
+endif ()
+
+# ONLY required for Java-based PKI components
+if (APPLICATION_FLAVOR_PKI_CORE      OR
+    APPLICATION_FLAVOR_PKI_KRA       OR
+    APPLICATION_FLAVOR_PKI_OCSP      OR
+    APPLICATION_FLAVOR_PKI_TKS       OR
+    APPLICATION_FLAVOR_PKI_CONSOLE   OR
+    APPLICATION_FLAVOR_PKI_MIGRATE)
+    find_package(Java REQUIRED)
+    find_package(JNI REQUIRED)
+endif ()
+
+# ONLY required for PKI_CORE
+if (APPLICATION_FLAVOR_PKI_CORE)
+    find_package(Ldap REQUIRED)
+endif ()
+
+# ONLY required for PKI_TPS
+if (APPLICATION_FLAVOR_PKI_TPS)
+    find_package(APR REQUIRED)
+    find_package(MozLDAP REQUIRED)
+    find_package(Svrcore REQUIRED)
+endif ()
 
 # Find out if we have threading available
 set(CMAKE_THREAD_PREFER_PTHREADS ON)
