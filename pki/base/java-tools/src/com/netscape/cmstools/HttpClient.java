@@ -72,18 +72,42 @@ public class HttpClient
             _secure = true;
     }
 
+    public static byte[] getBytesFromFile(String filename) throws IOException {
+        File file = new File(filename);
+        FileInputStream is = new FileInputStream(file);
+
+        long length = file.length();
+
+        if (length > Integer.MAX_VALUE) {
+            throw new IOException("Input file " + filename + 
+                " is too large. Must be smaller than " + Integer.MAX_VALUE);
+        }
+
+        byte[] bytes = new byte[(int)length];
+
+        int offset = 0;
+        int numRead = 0;
+        while (offset < bytes.length
+               && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
+            offset += numRead;
+        }
+
+        if (offset < bytes.length) {
+            throw new IOException("Could not completely read file "+filename);
+        }
+
+        is.close();
+        return bytes;
+    }
+
+
     public void send(String ifilename, String ofilename, String dbdir, 
       String nickname, String password, String servlet, String clientmode) 
          throws Exception
-    { 
-        byte[] b = new byte[5000];
-        FileInputStream fis = new FileInputStream(ifilename);
-        int totalnum = 0;
-        while (fis.available() > 0) {
-            int num = fis.read(b, 0, 4999);
-            totalnum += num;
-        }
-        System.out.println("Total number of bytes read = "+totalnum);
+    {
+        byte[] b = getBytesFromFile(ifilename); 
+
+        System.out.println("Total number of bytes read = "+b.length);
 
         DataOutputStream dos = null;
         InputStream is = null;
@@ -155,7 +179,7 @@ public class HttpClient
             String s = "POST "+servlet+" HTTP/1.0\r\n";
             dos.writeBytes(s);
         } 
-        dos.writeBytes("Content-length: " + totalnum + "\r\n"); 
+        dos.writeBytes("Content-length: " + b.length + "\r\n"); 
         dos.writeBytes("\r\n"); 
         dos.write(b); 
         dos.flush();
@@ -189,22 +213,10 @@ public class HttpClient
         } catch (IOException e) {
         }
         fof.close();
-        fis.close();
 
-        b = new byte[10000];
-        fis = new FileInputStream(ofilename);
-        totalnum = 0;
-        while (fis.available() > 0) {
-            int num = fis.read(b, 0, 10000);
-            totalnum += num;
-        }
+        byte[] bout = getBytesFromFile(ofilename);
+        System.out.println("Total number of bytes read = "+ bout.length);
 
-        System.out.println("Total number of bytes read = "+totalnum);
-
-        byte[] bout = new byte[totalnum];
-        for (int i=0; i<totalnum; i++) {
-            bout[i] = b[i];
-        } 
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(bs);
         ps.print(com.netscape.osutil.OSUtil.BtoA(bout));
