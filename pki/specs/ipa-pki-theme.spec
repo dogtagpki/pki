@@ -5,7 +5,7 @@
 Name:             ipa-pki-theme
 Version:          9.0.0
 Release:          1%{?dist}
-Summary:          Certificate System - Null PKI Theme Components
+Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
 Group:            System Environment/Base
@@ -17,6 +17,10 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+
+%if 0%{?rhel}
+ExcludeArch:      ppc ppc64 s390 s390x
+%endif
 
 %global overview                                                       \
 ==================================                                     \

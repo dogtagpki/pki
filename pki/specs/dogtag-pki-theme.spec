@@ -18,6 +18,10 @@ BuildRequires:    cmake
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
+%if 0%{?rhel}
+ExcludeArch:      ppc ppc64 s390 s390x
+%endif
+
 %global overview                                                          \
 =========================================                                 \
 ||  ABOUT "DOGTAG CERTIFICATE SYSTEM"  ||                                 \

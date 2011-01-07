@@ -31,6 +31,10 @@ BuildRequires:    xerces-j2
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
+%if 0%{?rhel}
+ExcludeArch:      ppc ppc64 s390 s390x
+%endif
+
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
      . %{_sysconfdir}/selinux/config; \
@@ -80,7 +84,7 @@ which comprise the following PKI subsystems:                           \
 For deployment purposes, Certificate System requires ONE AND ONLY ONE  \
 of the following "Mutually-Exclusive" PKI Theme packages:              \
                                                                        \
-  * ipa-pki-theme    (IPA deployments - Null Theme)                    \
+  * ipa-pki-theme    (IPA deployments - IPA Theme)                     \
   * dogtag-pki-theme (Dogtag Certificate System deployments)           \
   * redhat-pki-theme (Red Hat Certificate System deployments)          \
                                                                        \
@@ -260,7 +264,7 @@ BuildArch:        noarch
 Requires:         java >= 1:1.6.0
 Requires:         jss >= 4.2.6
 Requires:         osutil
-Requires:         pki-common-theme
+Requires:         pki-common-theme >= 9.0.0
 Requires:         pki-java-tools = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
@@ -334,7 +338,7 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-ca-theme
+Requires:         pki-ca-theme >= 9.0.0
 Requires:         pki-common = %{version}-%{release}
 Requires:         pki-selinux = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
@@ -593,8 +597,7 @@ fi
 %defattr(-,root,root,-)
 %doc base/symkey/LICENSE
 %{_jnidir}/symkey.jar
-%dir %{_libdir}/symkey
-%{_libdir}/symkey/*
+%{_libdir}/symkey/
 
 
 ########################
@@ -610,8 +613,7 @@ fi
 %{_bindir}/setpin
 %{_bindir}/sslget
 %{_bindir}/tkstool
-%dir %{_datadir}/pki/native-tools
-%{_datadir}/pki/native-tools/*
+%{_datadir}/pki/native-tools/
 
 
 ########################
@@ -629,8 +631,7 @@ fi
 
 %files -n pki-util-javadoc
 %defattr(-,root,root,-)
-%dir %{_javadocdir}/pki-util-%{version}
-%{_javadocdir}/pki-util-%{version}/*
+%{_javadocdir}/pki-util-%{version}/
 
 
 ########################
@@ -668,8 +669,7 @@ fi
 
 %files -n pki-java-tools-javadoc
 %defattr(-,root,root,-)
-%dir %{_javadocdir}/pki-java-tools-%{version}
-%{_javadocdir}/pki-java-tools-%{version}/*
+%{_javadocdir}/pki-java-tools-%{version}/
 
 
 ########################
@@ -696,8 +696,7 @@ fi
 
 %files -n pki-common-javadoc
 %defattr(-,root,root,-)
-%dir %{_javadocdir}/pki-common-%{version}
-%{_javadocdir}/pki-common-%{version}/*
+%{_javadocdir}/pki-common-%{version}/
 
 
 ########################
@@ -723,17 +722,12 @@ fi
 #%{_javadir}/pki/ca-%{version}.jar
 #%{_javadir}/pki/ca/ca.jar
 %dir %{_datadir}/pki/ca
-%dir %{_datadir}/pki/ca/conf
-%{_datadir}/pki/ca/conf/*
-%dir %{_datadir}/pki/ca/emails
-%{_datadir}/pki/ca/emails/*
+%{_datadir}/pki/ca/conf/
+%{_datadir}/pki/ca/emails/
 %dir %{_datadir}/pki/ca/profiles
-%dir %{_datadir}/pki/ca/profiles/ca
-%{_datadir}/pki/ca/profiles/ca/*
-%dir %{_datadir}/pki/ca/webapps
-%{_datadir}/pki/ca/webapps/*
-%dir %{_datadir}/pki/ca/setup
-%{_datadir}/pki/ca/setup/*
+%{_datadir}/pki/ca/profiles/ca/
+%{_datadir}/pki/ca/webapps/
+%{_datadir}/pki/ca/setup/
 %dir %{_localstatedir}/lock/pki/ca
 %dir %{_localstatedir}/run/pki/ca
 
@@ -750,8 +744,7 @@ fi
 %{_javadir}/silent.jar
 #%{_javadir}/pki/silent-%{version}.jar
 #%{_javadir}/pki/silent.jar
-%dir %{_datadir}/pki/silent
-%{_datadir}/pki/silent/*
+%{_datadir}/pki/silent/
 
 
 ###############################################################################
