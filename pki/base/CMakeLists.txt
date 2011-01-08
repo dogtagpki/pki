@@ -2,9 +2,6 @@ project(base)
 
 # The order is important!
 #   add_subdirectory(osutil)
-if (APPLICATION_FLAVOR_OSUTIL)
-    add_subdirectory(osutil)
-endif (APPLICATION_FLAVOR_OSUTIL)
 if (APPLICATION_FLAVOR_PKI_CORE)
     add_subdirectory(setup)
     add_subdirectory(symkey)
