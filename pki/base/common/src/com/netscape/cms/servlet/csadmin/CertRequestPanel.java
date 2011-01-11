@@ -727,7 +727,11 @@ public class CertRequestPanel extends WizardPanelBase {
                     InternalCertificate ic = (InternalCertificate)c;
                     ic.setSSLTrust(InternalCertificate.USER);
                     ic.setEmailTrust(InternalCertificate.USER);
-                    ic.setObjectSigningTrust(InternalCertificate.USER);
+                    if (tag.equals("audit_signing")) {
+                        ic.setObjectSigningTrust(InternalCertificate.USER | InternalCertificate.VALID_PEER | InternalCertificate.TRUSTED_PEER);
+                    } else {
+                        ic.setObjectSigningTrust(InternalCertificate.USER);
+                    }
                 }
             }  
         } catch (Exception e) {

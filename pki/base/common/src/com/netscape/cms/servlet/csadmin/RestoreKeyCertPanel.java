@@ -569,6 +569,9 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                         icert.setSSLTrust(InternalCertificate.TRUSTED_CA 
                           | InternalCertificate.TRUSTED_CLIENT_CA
                           | InternalCertificate.VALID_CA);
+                    } else if (name.startsWith("auditSigningCert")) {
+                        InternalCertificate icert = (InternalCertificate)xcert;
+                        icert.setObjectSigningTrust(InternalCertificate.USER | InternalCertificate.VALID_PEER | InternalCertificate.TRUSTED_PEER);
                     }
                 } else
                     cm.importCACertPackage(cert);
