@@ -1,4 +1,4 @@
-project(cmsutil_java Java)
+project(pki-certsrv_java Java)
 
 find_file(JSS_JAR
     NAMES
@@ -56,7 +56,7 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
-set(certsrv_java_SRCS
+set(pki-certsrv_java_SRCS
     com/netscape/certsrv/apps/ICommandQueue.java
     com/netscape/certsrv/apps/CMS.java
     com/netscape/certsrv/apps/ICMSEngine.java
@@ -382,7 +382,7 @@ set(certsrv_java_SRCS
     com/netscape/certsrv/profile/IProfilePolicy.java
 )
 
-set(cms_java_SRCS
+set(pki-cms_java_SRCS
     com/netscape/cms/listeners/PinRemovalListener.java
     com/netscape/cms/listeners/RequestInQListener.java
     com/netscape/cms/listeners/CertificateIssuedListener.java
@@ -804,7 +804,7 @@ set(cms_java_SRCS
     com/netscape/cms/profile/output/CMMFOutput.java
 )
 
-set(cmscore_java_SRCS
+set(pki-cmscore_java_SRCS
     com/netscape/cmscore/apps/PKIServerEvent.java
     com/netscape/cmscore/apps/Upgrade.java
     com/netscape/cmscore/apps/PKIServerListener.java
@@ -986,52 +986,52 @@ set(cmscore_java_SRCS
     com/netscape/cmscore/time/SimpleTimeSource.java
 )
 
-set(cmsbundle_RCS
+set(pki-cmsbundle_RCS
     LogMessages.properties
     UserMessages.properties
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH
-    ${NSUTIL_JAR} ${CMSUTIL_JAR}
+    ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
     ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
-# build certsrv
+# build pki-certsrv
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/certsrv)
-add_jar(certsrv ${certsrv_java_SRCS})
-add_dependencies(certsrv osutil nsutil cmsutil)
-install_jar(certsrv ${JAVA_JAR_INSTALL_DIR}/pki)
-set(CERTSRV_JAR ${certsrv_JAR_FILE} CACHE INTERNAL "certsrv jar file")
+add_jar(pki-certsrv ${pki-certsrv_java_SRCS})
+add_dependencies(pki-certsrv osutil pki-nsutil pki-cmsutil)
+install_jar(pki-certsrv ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_CERTSRV_JAR ${pki-certsrv_JAR_FILE} CACHE INTERNAL "pki-certsrv jar file")
 
-# build cms
+# build pki-cms
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cms)
-add_jar(cms ${cms_java_SRCS})
-add_dependencies(cms osutil nsutil cmsutil certsrv)
-install_jar(cms ${JAVA_JAR_INSTALL_DIR}/pki)
-set(CMS_JAR ${cms_JAR_FILE} CACHE INTERNAL "cms jar file")
+add_jar(pki-cms ${pki-cms_java_SRCS})
+add_dependencies(pki-cms osutil pki-nsutil pki-cmsutil pki-certsrv)
+install_jar(pki-cms ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_CMS_JAR ${pki-cms_JAR_FILE} CACHE INTERNAL "pki-cms jar file")
 
 create_javadoc(pki-common-${APPLICATION_VERSION}
-    FILES ${cms_java_SRCS} ${certsrv_java_SRCS}
-    CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH} ${certsrv_JAR_FILE}
+    FILES ${pki-cms_java_SRCS} ${pki-certsrv_java_SRCS}
+    CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH} ${pki-certsrv_JAR_FILE}
     WINDOWTITLE "pki-common"
     DOCTITLE "<h1>pki-common</h1>"
     AUTHOR TRUE
     USE TRUE
     VERSION TRUE
 )
-add_dependencies(pki-common-${APPLICATION_VERSION}_javadoc cms certsrv)
+add_dependencies(pki-common-${APPLICATION_VERSION}_javadoc pki-cms pki-certsrv)
 
-# build cmscore
+# build pki-cmscore
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmscore)
-add_jar(cmscore ${cmscore_java_SRCS})
-add_dependencies(cmscore osutil nsutil cmsutil certsrv cms)
-install_jar(cmscore ${JAVA_JAR_INSTALL_DIR}/pki)
-set(CMSCORE_JAR ${cmscore_JAR_FILE} CACHE INTERNAL "cmscore jar file")
+add_jar(pki-cmscore ${pki-cmscore_java_SRCS})
+add_dependencies(pki-cmscore osutil pki-nsutil pki-cmsutil pki-certsrv pki-cms)
+install_jar(pki-cmscore ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_CMSCORE_JAR ${pki-cmscore_JAR_FILE} CACHE INTERNAL "pki-cmscore jar file")
 
-# build cmsbundle
-add_jar(cmsbundle ${cmsbundle_RCS})
-add_dependencies(cmsbundle osutil nsutil cmsutil certsrv cms cmscore)
-install_jar(cmsbundle ${JAVA_JAR_INSTALL_DIR}/pki)
-set(CMSBUNDLE_JAR ${cmsbundle_JAR_FILE} CACHE INTERNAL "cmsbundle jar file")
+# build pki-cmsbundle
+add_jar(pki-cmsbundle ${pki-cmsbundle_RCS})
+add_dependencies(pki-cmsbundle osutil pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
+install_jar(pki-cmsbundle ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_CMSBUNDLE_JAR ${pki-cmsbundle_JAR_FILE} CACHE INTERNAL "pki-cmsbundle jar file")

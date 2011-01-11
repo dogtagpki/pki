@@ -57,9 +57,9 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
-cd %{buildroot}%{_javadir}
-mv silent.jar silent-%{version}.jar
-ln -s silent-%{version}.jar silent.jar
+cd %{buildroot}%{_javadir}/pki
+mv pki-silent.jar pki-silent-%{version}.jar
+ln -s pki-silent-%{version}.jar pki-silent.jar
 
 %clean
 rm -rf %{buildroot}
@@ -68,7 +68,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_bindir}/*
-%{_javadir}/*
+%{_javadir}/pki/
 %{_datadir}/pki/
 
 %changelog

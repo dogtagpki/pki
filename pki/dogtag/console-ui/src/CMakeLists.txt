@@ -1,6 +1,6 @@
-set(console_ui_java Java)
+set(pki-console-theme_java Java)
 
-set(console_ui_java_SRCS
+set(pki-console-theme_java_RCS
     ../CMSAdminRS.properties
     com/netscape/management/client/theme/theme.properties
     com/netscape/management/client/theme/images/login.gif
@@ -12,8 +12,7 @@ set(console_ui_java_SRCS
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
-add_jar(pki-console-theme_en ${console_ui_java_SRCS})
-install_jar(pki-console-theme_en ${JAVA_JAR_INSTALL_DIR})
-
-set(CONSOLE_UI_JAR ${pki-console-theme_en_JAR_FILE} CACHE INTERNAL "console-ui jar file")
+add_jar(pki-console-theme ${pki-console-theme_java_RCS})
+install_jar(pki-console-theme ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_CONSOLE_THEME_JAR ${pki-console-theme_JAR_FILE} CACHE INTERNAL "pki-console-theme jar file")
 

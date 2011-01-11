@@ -55,13 +55,8 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
-cd %{buildroot}%{_javadir}
-ln -s pki-console-theme-%{version}_en.jar pki-console-theme_en.jar
-
-# supply convenience symlink(s) for backwards compatibility
-mkdir -p %{buildroot}%{_javadir}/pki
 cd %{buildroot}%{_javadir}/pki
-ln -s ../pki-console-theme_en.jar cms-theme_en.jar
+ln -s pki-console-theme-%{version}.jar pki-console-theme.jar
 
 %clean
 rm -rf %{buildroot}
@@ -69,7 +64,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc LICENSE
-%{_javadir}/*
+%{_javadir}/pki/
 
 %changelog
 * Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1

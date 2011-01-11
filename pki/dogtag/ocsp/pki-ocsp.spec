@@ -86,14 +86,9 @@ mkdir -p %{buildroot}%{_localstatedir}/lock/pki/ocsp
 mkdir -p %{buildroot}%{_localstatedir}/run/pki/ocsp
 cd %{buildroot}%{_datadir}/pki/ocsp/setup
 mv config.desktop.in config.desktop
-cd %{buildroot}%{_javadir}
-mv ocsp.jar ocsp-%{version}.jar
-ln -s ocsp-%{version}.jar ocsp.jar
-
-# supply convenience symlink(s) for backwards compatibility
-mkdir -p %{buildroot}%{_javadir}/pki/ocsp
-cd %{buildroot}%{_javadir}/pki/ocsp
-ln -s ../../ocsp.jar ocsp.jar
+cd %{buildroot}%{_javadir}/pki
+mv pki-ocsp.jar pki-ocsp-%{version}.jar
+ln -s pki-ocsp-%{version}.jar pki-ocsp.jar
 
 %clean
 rm -rf %{buildroot}
@@ -117,7 +112,7 @@ fi
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_initrddir}/*
-%{_javadir}/*
+%{_javadir}/pki/
 %{_datadir}/pki/
 %{_localstatedir}/lock/*
 %{_localstatedir}/run/*

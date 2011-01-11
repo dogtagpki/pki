@@ -1,9 +1,9 @@
-project(pki_console_java Java)
+project(pki-console_java Java)
 
 # '/usr/share/java/pki' jars
-find_file(NSUTIL_JAR
+find_file(PKI_NSUTIL_JAR
     NAMES
-        nsutil.jar
+        pki-nsutil.jar
     PATHS
         /usr/lib/java
         /usr/share/java/pki
@@ -71,7 +71,7 @@ find_file(JSS_JAR
 
 
 # identify java sources
-set(pki_console_java_SRCS
+set(pki-console_java_SRCS
     com/netscape/certsrv/common/TaskId.java
     com/netscape/certsrv/common/DestDef.java
     com/netscape/certsrv/common/NameValuePairs.java
@@ -593,12 +593,11 @@ set(pki_console_java_SRCS
     com/netscape/admin/certsrv/IUIMapper.java
 )
 
-
 # set classpath
 set(CMAKE_JAVA_INCLUDE_PATH
     ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
     ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
-    ${NSUTIL_JAR}
+    ${PKI_NSUTIL_JAR}
     ${JSS_JAR})
 
 
@@ -607,8 +606,8 @@ set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 
 # build pki-console.jar
-add_jar(pki-console ${pki_console_java_SRCS})
-add_dependencies(pki-console nsutil)
-install_jar(pki-console ${JAVA_JAR_INSTALL_DIR})
-set(PKI_CONSOLE_JAR ${pki_console_JAR_FILE} CACHE INTERNAL "pki-console jar file")
+add_jar(pki-console ${pki-console_java_SRCS})
+add_dependencies(pki-console pki-nsutil)
+install_jar(pki-console ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_CONSOLE_JAR ${pki-console_JAR_FILE} CACHE INTERNAL "pki-console jar file")
 

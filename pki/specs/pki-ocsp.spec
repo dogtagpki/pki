@@ -130,18 +130,15 @@ fi
 %defattr(-,root,root,-)
 %doc base/ocsp/LICENSE
 %{_initrddir}/pki-ocspd
-%{_javadir}/ocsp-%{version}.jar
-%{_javadir}/ocsp.jar
-#%{_javadir}/pki/ocsp-%{version}.jar
-#%{_javadir}/pki/ocsp/ocsp.jar
+%{_javadir}/pki/
+%dir %{_datadir}/pki
 %dir %{_datadir}/pki/ocsp
-%dir %{_datadir}/pki/ocsp/conf
-%{_datadir}/pki/ocsp/conf/*
-%dir %{_datadir}/pki/ocsp/setup
-%{_datadir}/pki/ocsp/setup/*
-%dir %{_datadir}/pki/ocsp/webapps
-%{_datadir}/pki/ocsp/webapps/*
+%{_datadir}/pki/ocsp/conf/
+%{_datadir}/pki/ocsp/setup/
+%{_datadir}/pki/ocsp/webapps/
+%dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/lock/pki/ocsp
+%dir %{_localstatedir}/run/pki
 %dir %{_localstatedir}/run/pki/ocsp
 
 

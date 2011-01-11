@@ -167,18 +167,18 @@ my $addIndexes_ldif_base_name    = "addIndexes.ldif";      # TPS
 my $addTokens_ldif_base_name     = "addTokens.ldif";       # TPS
 my $addVLVIndexes_ldif_base_name = "addVLVIndexes.ldif";   # TPS
 my $nss_pcache_base_name         = "nss_pcache";           # RA, TPS
-my $subsystem_jar_base_name      = undef;                  # CA, KRA, OCSP, TKS
+my $pki_subsystem_jar_base_name  = undef;                  # CA, KRA, OCSP, TKS
 
-my $certsrv_jar_base_name         = "certsrv.jar";         # CA, KRA, OCSP, TKS
-my $cms_jar_base_name             = "cms.jar";             # CA, KRA, OCSP, TKS
-my $cmsbundle_jar_base_name       = "cmsbundle.jar";       # CA, KRA, OCSP, TKS
-my $cmscore_jar_base_name         = "cmscore.jar";         # CA, KRA, OCSP, TKS
-my $cmsutil_jar_base_name         = "cmsutil.jar";         # CA, KRA, OCSP, TKS
+my $pki_certsrv_jar_base_name     = "pki-certsrv.jar";     # CA, KRA, OCSP, TKS
+my $pki_cms_jar_base_name         = "pki-cms.jar";         # CA, KRA, OCSP, TKS
+my $pki_cmsbundle_jar_base_name   = "pki-cmsbundle.jar";   # CA, KRA, OCSP, TKS
+my $pki_cmscore_jar_base_name     = "pki-cmscore.jar";     # CA, KRA, OCSP, TKS
+my $pki_cmsutil_jar_base_name     = "pki-cmsutil.jar";     # CA, KRA, OCSP, TKS
 my $commons_lang_jar_base_name    = undef;                 # CA, KRA, OCSP, TKS
 my $commons_logging_jar_base_name = undef;                 # CA, KRA, OCSP, TKS
 my $jss_jar_base_name             = "jss4.jar";            # CA, KRA, OCSP, TKS
 my $ldapjdk_jar_base_name         = "ldapjdk.jar";         # CA, KRA, OCSP, TKS
-my $nsutil_jar_base_name          = "nsutil.jar";          # CA, KRA, OCSP, TKS
+my $pki_nsutil_jar_base_name      = "pki-nsutil.jar";      # CA, KRA, OCSP, TKS
 my $osutil_jar_base_name          = "osutil.jar";          # CA, KRA, OCSP, TKS
 my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
 my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
@@ -439,16 +439,16 @@ my $addTokens_ldif_instance_file_path            = undef;  # TPS
 my $addTokens_ldif_subsystem_file_path           = undef;  # TPS
 my $addVLVIndexes_ldif_instance_file_path        = undef;  # TPS
 my $addVLVIndexes_ldif_subsystem_file_path       = undef;  # TPS
-my $certsrv_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
-my $certsrv_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
-my $cms_jar_file_path                            = undef;  # CA, KRA, OCSP, TKS
-my $cms_jar_symlink_path                         = undef;  # CA, KRA, OCSP, TKS
-my $cmsbundle_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
-my $cmsbundle_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
-my $cmscore_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
-my $cmscore_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
-my $cmsutil_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
-my $cmsutil_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $pki_certsrv_jar_file_path                    = undef;  # CA, KRA, OCSP, TKS
+my $pki_certsrv_jar_symlink_path                 = undef;  # CA, KRA, OCSP, TKS
+my $pki_cms_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
+my $pki_cms_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmsbundle_jar_file_path                  = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmsbundle_jar_symlink_path               = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmscore_jar_file_path                    = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmscore_jar_symlink_path                 = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmsutil_jar_file_path                    = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmsutil_jar_symlink_path                 = undef;  # CA, KRA, OCSP, TKS
 my $commons_lang_jar_file_path                   = undef;  # CA, KRA, OCSP, TKS
 my $commons_lang_jar_symlink_path                = undef;  # CA, KRA, OCSP, TKS
 my $commons_logging_jar_file_path                = undef;  # CA, KRA, OCSP, TKS
@@ -457,8 +457,8 @@ my $jss_jar_file_path                            = undef;  # CA, KRA, OCSP, TKS
 my $jss_jar_symlink_path                         = undef;  # CA, KRA, OCSP, TKS
 my $ldapjdk_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
 my $ldapjdk_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
-my $nsutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
-my $nsutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $pki_nsutil_jar_file_path                     = undef;  # CA, KRA, OCSP, TKS
+my $pki_nsutil_jar_symlink_path                  = undef;  # CA, KRA, OCSP, TKS
 my $osutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
 my $osutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
 my $symkey_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
@@ -498,8 +498,8 @@ my $server_xml_instance_file_path                = undef;  # CA, KRA, OCSP, TKS
 my $server_xml_subsystem_file_path               = undef;  # CA, KRA, OCSP, TKS
 my $servercertnick_conf_instance_file_path       = undef;  # CA, KRA, OCSP, TKS
 my $servercertnick_conf_subsystem_file_path      = undef;  # CA, KRA, OCSP, TKS
-my $subsystem_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
-my $subsystem_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
+my $pki_subsystem_jar_file_path                  = undef;  # CA, KRA, OCSP, TKS
+my $pki_subsystem_jar_symlink_path               = undef;  # CA, KRA, OCSP, TKS
 my $tomcat6_conf_subsystem_file_path             = undef;  # CA, KRA, OCSP, TKS
 my $tomcat6_conf_instance_file_path              = undef;  # CA, KRA, OCSP, TKS
 my $tomcat6_instance_pid_file_path               = undef;  # CA, KRA, OCSP, TKS
@@ -1638,30 +1638,30 @@ sub initialize_subdirectory_paths
     } else {
         ## Initialize subdirectory paths (CA, KRA, OCSP, TKS subsystems)
 
-        $subsystem_jar_base_name = "${subsystem_type}.jar";
+        $pki_subsystem_jar_base_name = "pki-${subsystem_type}.jar";
 
-        if (!defined($certsrv_jar_file_path = find_jar($certsrv_jar_base_name))) {
-            emit("could not find jar: $certsrv_jar_base_name", "error");
+        if (!defined($pki_certsrv_jar_file_path = find_jar($pki_certsrv_jar_base_name))) {
+            emit("could not find jar: $pki_certsrv_jar_base_name", "error");
             return 0;
         }
 
-        if (!defined($cms_jar_file_path = find_jar($cms_jar_base_name))) {
-            emit("could not find jar: $cms_jar_base_name", "error");
+        if (!defined($pki_cms_jar_file_path = find_jar($pki_cms_jar_base_name))) {
+            emit("could not find jar: $pki_cms_jar_base_name", "error");
             return 0;
         }
 
-        if (!defined($cmsbundle_jar_file_path = find_jar($cmsbundle_jar_base_name))) {
-            emit("could not find jar: $cmsbundle_jar_base_name", "error");
+        if (!defined($pki_cmsbundle_jar_file_path = find_jar($pki_cmsbundle_jar_base_name))) {
+            emit("could not find jar: $pki_cmsbundle_jar_base_name", "error");
             return 0;
         }
 
-        if (!defined($cmscore_jar_file_path = find_jar($cmscore_jar_base_name))) {
-            emit("could not find jar: $cmscore_jar_base_name", "error");
+        if (!defined($pki_cmscore_jar_file_path = find_jar($pki_cmscore_jar_base_name))) {
+            emit("could not find jar: $pki_cmscore_jar_base_name", "error");
             return 0;
         }
 
-        if (!defined($cmsutil_jar_file_path = find_jar($cmsutil_jar_base_name))) {
-            emit("could not find jar: $cmsutil_jar_base_name", "error");
+        if (!defined($pki_cmsutil_jar_file_path = find_jar($pki_cmsutil_jar_base_name))) {
+            emit("could not find jar: $pki_cmsutil_jar_base_name", "error");
             return 0;
         }
 
@@ -1699,8 +1699,8 @@ sub initialize_subdirectory_paths
             return 0;
         }
 
-        if (!defined($nsutil_jar_file_path = find_jar($nsutil_jar_base_name))) {
-            emit("could not find jar: $nsutil_jar_base_name", "error");
+        if (!defined($pki_nsutil_jar_file_path = find_jar($pki_nsutil_jar_base_name))) {
+            emit("could not find jar: $pki_nsutil_jar_base_name", "error");
             return 0;
         }
 
@@ -1709,8 +1709,8 @@ sub initialize_subdirectory_paths
             return 0;
         }
 
-        if (!defined($subsystem_jar_file_path = find_jar($subsystem_jar_base_name))) {
-            emit("could not find jar: $subsystem_jar_base_name", "error");
+        if (!defined($pki_subsystem_jar_file_path = find_jar($pki_subsystem_jar_base_name))) {
+            emit("could not find jar: $pki_subsystem_jar_base_name", "error");
             return 0;
         }
 
@@ -1748,16 +1748,16 @@ sub initialize_subdirectory_paths
         $webapps_subsystem_instance_path   = $webapps_instance_path
                                            . "/" . $subsystem_type;
 
-        $certsrv_jar_symlink_path          = $webinf_lib_instance_path
-                                           . "/" . $certsrv_jar_base_name;
-        $cms_jar_symlink_path              = $webinf_lib_instance_path
-                                           . "/" . $cms_jar_base_name;
-        $cmsbundle_jar_symlink_path        = $webinf_lib_instance_path
-                                           . "/" . $cmsbundle_jar_base_name;
-        $cmscore_jar_symlink_path          = $webinf_lib_instance_path
-                                           . "/" . $cmscore_jar_base_name;
-        $cmsutil_jar_symlink_path          = $webinf_lib_instance_path
-                                           . "/" . $cmsutil_jar_base_name;
+        $pki_certsrv_jar_symlink_path      = $webinf_lib_instance_path
+                                           . "/" . $pki_certsrv_jar_base_name;
+        $pki_cms_jar_symlink_path          = $webinf_lib_instance_path
+                                           . "/" . $pki_cms_jar_base_name;
+        $pki_cmsbundle_jar_symlink_path    = $webinf_lib_instance_path
+                                           . "/" . $pki_cmsbundle_jar_base_name;
+        $pki_cmscore_jar_symlink_path      = $webinf_lib_instance_path
+                                           . "/" . $pki_cmscore_jar_base_name;
+        $pki_cmsutil_jar_symlink_path      = $webinf_lib_instance_path
+                                           . "/" . $pki_cmsutil_jar_base_name;
         $commons_lang_jar_symlink_path     = $webinf_lib_instance_path
                                            . "/" . $commons_lang_jar_base_name;
         $commons_logging_jar_symlink_path  = $tomcat_instance_common_lib_path
@@ -1766,14 +1766,14 @@ sub initialize_subdirectory_paths
                                            . "/" . $jss_jar_base_name;
         $ldapjdk_jar_symlink_path          = $webinf_lib_instance_path
                                            . "/" . $ldapjdk_jar_base_name;
-        $nsutil_jar_symlink_path           = $webinf_lib_instance_path
-                                           . "/" . $nsutil_jar_base_name;
+        $pki_nsutil_jar_symlink_path       = $webinf_lib_instance_path
+                                           . "/" . $pki_nsutil_jar_base_name;
         $osutil_jar_symlink_path           = $webinf_lib_instance_path
                                            . "/" . $osutil_jar_base_name;
         $symkey_jar_symlink_path           = $webinf_lib_instance_path
                                            . "/" . $symkey_jar_base_name;
-        $subsystem_jar_symlink_path        = $webinf_lib_instance_path
-                                           . "/" . $subsystem_jar_base_name;
+        $pki_subsystem_jar_symlink_path    = $webinf_lib_instance_path
+                                           . "/" . $pki_subsystem_jar_base_name;
         $tomcatjss_jar_symlink_path        = $tomcat_instance_common_lib_path
                                            . "/" . $tomcatjss_jar_base_name;
         $velocity_jar_symlink_path         = $webinf_lib_instance_path
@@ -2050,6 +2050,8 @@ sub process_pki_directories
                 set_permissions("${cgibin_instance_path}/sow/*.cgi",   $default_exe_permissions);
                 set_permissions("${cgibin_instance_path}/sow/*.html",  $default_file_permissions);
                 set_permissions("${cgibin_instance_path}/sow/*.pl",    $default_exe_permissions);
+                set_permissions("${docroot_instance_path}/",           $default_dir_permissions);
+                set_permissions("${docroot_instance_path}/*.cgi",      $default_exe_permissions);
             }
         }
     } else {
@@ -2646,24 +2648,24 @@ sub process_pki_files_and_symlinks
         return 0 if !create_directory($webinf_lib_instance_path,
                                       $default_dir_permissions, $pki_user, $pki_group);
 
-        # create instance symlink to "certsrv.jar"
-        return 0 if !create_symlink($certsrv_jar_symlink_path, $certsrv_jar_file_path,
+        # create instance symlink to "pki-certsrv.jar"
+        return 0 if !create_symlink($pki_certsrv_jar_symlink_path, $pki_certsrv_jar_file_path,
                                     $pki_user, $pki_group);
 
-        # create instance symlink to "cms.jar"
-        return 0 if !create_symlink($cms_jar_symlink_path, $cms_jar_file_path,
+        # create instance symlink to "pki-cms.jar"
+        return 0 if !create_symlink($pki_cms_jar_symlink_path, $pki_cms_jar_file_path,
                                     $pki_user, $pki_group);
 
-        # create instance symlink to "cmsbundle.jar"
-        return 0 if !create_symlink($cmsbundle_jar_symlink_path, $cmsbundle_jar_file_path,
+        # create instance symlink to "pki-cmsbundle.jar"
+        return 0 if !create_symlink($pki_cmsbundle_jar_symlink_path, $pki_cmsbundle_jar_file_path,
                                     $pki_user, $pki_group);
 
-        # create instance symlink to "cmscore.jar"
-        return 0 if !create_symlink($cmscore_jar_symlink_path, $cmscore_jar_file_path,
+        # create instance symlink to "pki-cmscore.jar"
+        return 0 if !create_symlink($pki_cmscore_jar_symlink_path, $pki_cmscore_jar_file_path,
                                     $pki_user, $pki_group);
 
-        # create instance symlink to "cmsutil.jar"
-        return 0 if !create_symlink($cmsutil_jar_symlink_path, $cmsutil_jar_file_path,
+        # create instance symlink to "pki-cmsutil.jar"
+        return 0 if !create_symlink($pki_cmsutil_jar_symlink_path, $pki_cmsutil_jar_file_path,
                                     $pki_user, $pki_group);
 
         # create symlink to either "apache-commons-lang.jar" or "jakarta-commons-lang.jar"
@@ -2686,8 +2688,8 @@ sub process_pki_files_and_symlinks
         return 0 if !create_symlink($ldapjdk_jar_symlink_path, $ldapjdk_jar_file_path,
                                     $pki_user, $pki_group);
 
-        # create instance symlink to "nsutil.jar"
-        return 0 if !create_symlink($nsutil_jar_symlink_path, $nsutil_jar_file_path,
+        # create instance symlink to "pki-nsutil.jar"
+        return 0 if !create_symlink($pki_nsutil_jar_symlink_path, $pki_nsutil_jar_file_path,
                                     $pki_user, $pki_group);
 
         # create instance symlink to "osutil.jar"
@@ -2695,7 +2697,7 @@ sub process_pki_files_and_symlinks
                                     $pki_user, $pki_group);
 
         # create instance symlink to "${subsystem_type}.jar"
-        return 0 if !create_symlink($subsystem_jar_symlink_path, $subsystem_jar_file_path,
+        return 0 if !create_symlink($pki_subsystem_jar_symlink_path, $pki_subsystem_jar_file_path,
                                     $pki_user, $pki_group);
 
         # create instance symlink to "symkey.jar"

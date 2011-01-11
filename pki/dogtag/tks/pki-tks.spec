@@ -79,14 +79,9 @@ mkdir -p %{buildroot}%{_localstatedir}/lock/pki/tks
 mkdir -p %{buildroot}%{_localstatedir}/run/pki/tks
 cd %{buildroot}%{_datadir}/pki/tks/setup
 mv config.desktop.in config.desktop
-cd %{buildroot}%{_javadir}
-mv tks.jar tks-%{version}.jar
-ln -s tks-%{version}.jar tks.jar
-
-# supply convenience symlink(s) for backwards compatibility
-mkdir -p %{buildroot}%{_javadir}/pki/tks
-cd %{buildroot}%{_javadir}/pki/tks
-ln -s ../../tks.jar tks.jar
+cd %{buildroot}%{_javadir}/pki
+mv pki-tks.jar pki-tks-%{version}.jar
+ln -s pki-tks-%{version}.jar pki-tks.jar
 
 %clean
 rm -rf %{buildroot}
@@ -110,7 +105,7 @@ fi
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_initrddir}/*
-%{_javadir}/*
+%{_javadir}/pki/
 %{_datadir}/pki/
 %{_localstatedir}/lock/*
 %{_localstatedir}/run/*

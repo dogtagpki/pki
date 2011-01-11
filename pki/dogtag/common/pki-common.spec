@@ -84,14 +84,14 @@ rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 cd %{buildroot}%{_javadir}/pki
-mv certsrv.jar certsrv-%{version}.jar
-ln -s certsrv-%{version}.jar certsrv.jar
-mv cms.jar cms-%{version}.jar
-ln -s cms-%{version}.jar cms.jar
-mv cmsbundle.jar cmsbundle-%{version}.jar
-ln -s cmsbundle-%{version}.jar cmsbundle.jar
-mv cmscore.jar cmscore-%{version}.jar
-ln -s cmscore-%{version}.jar cmscore.jar
+mv pki-certsrv.jar pki-certsrv-%{version}.jar
+ln -s pki-certsrv-%{version}.jar pki-certsrv.jar
+mv pki-cms.jar pki-cms-%{version}.jar
+ln -s pki-cms-%{version}.jar pki-cms.jar
+mv pki-cmsbundle.jar pki-cmsbundle-%{version}.jar
+ln -s pki-cmsbundle-%{version}.jar pki-cmsbundle.jar
+mv pki-cmscore.jar pki-cmscore-%{version}.jar
+ln -s pki-cmscore-%{version}.jar pki-cmscore.jar
 
 %clean
 rm -rf %{buildroot}

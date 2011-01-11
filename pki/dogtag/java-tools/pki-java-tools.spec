@@ -57,17 +57,12 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
-cd %{buildroot}%{_javadir}
-mv pkitools.jar pkitools-%{version}.jar
-ln -s pkitools-%{version}.jar pkitools.jar
-rm -rf %{buildroot}%{_datadir}/pki
-
-# supply convenience symlink(s) for backwards compatibility
-mkdir -p %{buildroot}%{_javadir}/pki
 cd %{buildroot}%{_javadir}/pki
-ln -s ../pkitools.jar cstools.jar
-cd %{buildroot}%{_javadir}
-ln -s pkitools.jar cstools.jar
+mv pki-tools.jar pki-tools-%{version}.jar
+ln -s pki-tools-%{version}.jar pki-tools.jar
+
+## remove unwanted files
+rm -rf %{buildroot}/usr/share/pki
 
 %clean
 rm -rf %{buildroot}
@@ -76,7 +71,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_bindir}/*
-%{_javadir}/*
+%{_javadir}/pki/
 
 %files javadoc
 %defattr(0644,root,root,0755)

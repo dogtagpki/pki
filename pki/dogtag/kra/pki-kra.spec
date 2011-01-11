@@ -77,14 +77,9 @@ mkdir -p %{buildroot}%{_localstatedir}/lock/pki/kra
 mkdir -p %{buildroot}%{_localstatedir}/run/pki/kra
 cd %{buildroot}%{_datadir}/pki/kra/setup
 mv config.desktop.in config.desktop
-cd %{buildroot}%{_javadir}
-mv kra.jar kra-%{version}.jar
-ln -s kra-%{version}.jar kra.jar
-
-# supply convenience symlink(s) for backwards compatibility
-mkdir -p %{buildroot}%{_javadir}/pki/kra
-cd %{buildroot}%{_javadir}/pki/kra
-ln -s ../../kra.jar kra.jar
+cd %{buildroot}%{_javadir}/pki
+mv pki-kra.jar pki-kra-%{version}.jar
+ln -s pki-kra-%{version}.jar pki-kra.jar
 
 %clean
 rm -rf %{buildroot}
@@ -108,7 +103,7 @@ fi
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_initrddir}/*
-%{_javadir}/*
+%{_javadir}/pki/
 %{_datadir}/pki/
 %{_localstatedir}/lock/*
 %{_localstatedir}/run/*

@@ -68,14 +68,9 @@ mkdir -p %{buildroot}%{_localstatedir}/lock/pki/ca
 mkdir -p %{buildroot}%{_localstatedir}/run/pki/ca
 cd %{buildroot}%{_datadir}/pki/ca/setup
 mv config.desktop.in config.desktop
-cd %{buildroot}%{_javadir}
-mv ca.jar ca-%{version}.jar
-ln -s ca-%{version}.jar ca.jar
-
-# supply convenience symlink(s) for backwards compatibility
-mkdir -p %{buildroot}%{_javadir}/pki/ca
-cd %{buildroot}%{_javadir}/pki/ca
-ln -s ../../ca.jar ca.jar
+cd %{buildroot}%{_javadir}/pki
+mv pki-ca.jar pki-ca-%{version}.jar
+ln -s pki-ca-%{version}.jar pki-ca.jar
 
 %clean
 rm -rf %{buildroot}
@@ -99,7 +94,7 @@ fi
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_initrddir}/*
-%{_javadir}/*
+%{_javadir}/pki/
 %{_datadir}/pki/
 %{_localstatedir}/lock/*
 %{_localstatedir}/run/*

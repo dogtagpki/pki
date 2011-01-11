@@ -87,16 +87,12 @@ if [ "${OS}" = "Linux" ] ; then
 
     if [ "${ARCHITECTURE}" = "i386" ] ; then
         LD_LIBRARY_PATH=/usr/lib:/lib
-        LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib/jss:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH
     elif [ "${ARCHITECTURE}" = "x86_64" ] ; then
         LD_LIBRARY_PATH=/usr/lib:/lib
-        LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
         LD_LIBRARY_PATH=/usr/lib64:/lib64:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib64/dirsec:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib64/${PRODUCT}:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib64/jss:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH
     else
         invalid_architecture "${ARCHITECTURE}"
@@ -150,12 +146,9 @@ CP=/usr/share/java/idm-console-nmclf_en.jar:${CP}
 CP=/usr/share/java/idm-console-mcc.jar:${CP}
 CP=/usr/share/java/idm-console-mcc_en.jar:${CP}
 CP=/usr/share/java/idm-console-base.jar:${CP}
-CP=/usr/share/java/fedora-idm-console_en.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/cms-theme_en.jar:${CP}
-CP=/usr/share/java/pki-console-theme_en.jar:${CP}
-CP=/usr/share/java/pki-console_en.jar:${CP}
-CP=/usr/share/java/pki-console.jar:${CP}
-CP=/usr/share/${PRODUCT}/classes:${CP}
+CP=/usr/share/java/389-console_en.jar:${CP}
+CP=/usr/share/java/${PRODUCT}/pki-console-theme.jar:${CP}
+CP=/usr/share/java/${PRODUCT}/pki-console.jar:${CP}
 export CP
 
 

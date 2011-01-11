@@ -1,37 +1,37 @@
-project(ocsp_java Java)
+project(pki-ocsp_java Java)
 
 # '/usr/share/java/pki' jars
-find_file(CERTSRV_JAR
+find_file(PKI_CERTSRV_JAR
     NAMES
-        certsrv.jar
+        pki-certsrv.jar
     PATHS
         /usr/share/java/pki
 )
 
-find_file(CMS_JAR
+find_file(PKI_CMS_JAR
     NAMES
-        cms.jar
+        pki-cms.jar
     PATHS
         /usr/share/java/pki
 )
 
-find_file(CMSCORE_JAR
+find_file(PKI_CMSCORE_JAR
     NAMES
-        cmscore.jar
+        pki-cmscore.jar
     PATHS
         /usr/share/java/pki
 )
 
-find_file(CMSUTIL_JAR
+find_file(PKI_CMSUTIL_JAR
     NAMES
-        cmsutil.jar
+        pki-cmsutil.jar
     PATHS
         /usr/share/java/pki
 )
 
-find_file(NSUTIL_JAR
+find_file(PKI_NSUTIL_JAR
     NAMES
-        nsutil.jar
+        pki-nsutil.jar
     PATHS
         /usr/lib/java
         /usr/share/java/pki
@@ -71,7 +71,7 @@ find_file(SYMKEY_JAR
 
 
 # identify java sources
-set(ocsp_java_SRCS
+set(pki-ocsp_java_SRCS
     com/netscape/ocsp/OCSPResources.java
     com/netscape/ocsp/OCSPAuthority.java
     com/netscape/ocsp/SigningUnit.java
@@ -81,7 +81,8 @@ set(ocsp_java_SRCS
 
 # set classpath
 set(CMAKE_JAVA_INCLUDE_PATH
-    ${CERTSRV_JAR} ${CMS_JAR} ${CMSCORE_JAR} ${CMSUTIL_JAR} ${NSUTIL_JAR}
+    ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
+    ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
     ${LDAPJDK_JAR}
     ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
 
@@ -90,9 +91,9 @@ set(CMAKE_JAVA_INCLUDE_PATH
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 
-# build ocsp.jar
-add_jar(ocsp ${ocsp_java_SRCS})
-add_dependencies(ocsp osutil symkey nsutil cmsutil certsrv cms cmscore)
-install_jar(ocsp ${JAVA_JAR_INSTALL_DIR})
-set(OCSP_JAR ${ocsp_JAR_FILE} CACHE INTERNAL "ocsp jar file")
+# build pki-ocsp.jar
+add_jar(pki-ocsp ${pki-ocsp_java_SRCS})
+add_dependencies(pki-ocsp osutil symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
+install_jar(pki-ocsp ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_OCSP_JAR ${pki-ocsp_JAR_FILE} CACHE INTERNAL "pki-ocsp jar file")
 

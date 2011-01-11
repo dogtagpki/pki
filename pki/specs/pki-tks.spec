@@ -124,18 +124,15 @@ fi
 %defattr(-,root,root,-)
 %doc base/tks/LICENSE
 %{_initrddir}/pki-tksd
-%{_javadir}/tks-%{version}.jar
-%{_javadir}/tks.jar
-#%{_javadir}/pki/tks-%{version}.jar
-#%{_javadir}/pki/tks/tks.jar
+%{_javadir}/pki/
+%dir %{_datadir}/pki
 %dir %{_datadir}/pki/tks
-%dir %{_datadir}/pki/tks/conf
-%{_datadir}/pki/tks/conf/*
-%dir %{_datadir}/pki/tks/setup
-%{_datadir}/pki/tks/setup/*
-%dir %{_datadir}/pki/tks/webapps
-%{_datadir}/pki/tks/webapps/*
+%{_datadir}/pki/tks/conf/
+%{_datadir}/pki/tks/setup/
+%{_datadir}/pki/tks/webapps/
+%dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/lock/pki/tks
+%dir %{_localstatedir}/run/pki
 %dir %{_localstatedir}/run/pki/tks
 
 

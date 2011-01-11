@@ -583,10 +583,7 @@ fi
 %{_bindir}/pkicreate
 %{_bindir}/pkiremove
 %dir %{_datadir}/pki
-%dir %{_datadir}/pki/scripts
-%{_datadir}/pki/scripts/pkicommon.pm
-%dir %{_localstatedir}/lock/pki
-%dir %{_localstatedir}/run/pki
+%{_datadir}/pki/scripts/
 
 
 ########################
@@ -613,6 +610,7 @@ fi
 %{_bindir}/setpin
 %{_bindir}/sslget
 %{_bindir}/tkstool
+%dir %{_datadir}/pki
 %{_datadir}/pki/native-tools/
 
 
@@ -623,11 +621,7 @@ fi
 %files -n pki-util
 %defattr(-,root,root,-)
 %doc base/util/LICENSE
-%dir %{_javadir}/pki
-%{_javadir}/pki/cmsutil-%{version}.jar
-%{_javadir}/pki/cmsutil.jar
-%{_javadir}/pki/nsutil-%{version}.jar
-%{_javadir}/pki/nsutil.jar
+%{_javadir}/pki/
 
 %files -n pki-util-javadoc
 %defattr(-,root,root,-)
@@ -660,12 +654,7 @@ fi
 %{_bindir}/PrettyPrintCert
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
-%{_javadir}/pkitools-%{version}.jar
-%{_javadir}/pkitools.jar
-#%{_javadir}/cstools.jar
-#%{_javadir}/pki/pkitools-%{version}.jar
-#%{_javadir}/pki/pkitools.jar
-#%{_javadir}/pki/cstools.jar
+%{_javadir}/pki/
 
 %files -n pki-java-tools-javadoc
 %defattr(-,root,root,-)
@@ -679,20 +668,10 @@ fi
 %files -n pki-common
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
-%{_javadir}/pki/certsrv-%{version}.jar
-%{_javadir}/pki/certsrv.jar
-%{_javadir}/pki/cms-%{version}.jar
-%{_javadir}/pki/cms.jar
-%{_javadir}/pki/cmsbundle-%{version}.jar
-%{_javadir}/pki/cmsbundle.jar
-%{_javadir}/pki/cmscore-%{version}.jar
-%{_javadir}/pki/cmscore.jar
-%{_datadir}/pki/scripts/functions
-%{_datadir}/pki/scripts/pki_apache_initscript
-%dir %{_datadir}/pki/setup
-%{_datadir}/pki/setup/CertServer.directory
-%{_datadir}/pki/setup/menu.xml
-%{_datadir}/pki/setup/web-app_2_3.dtd
+%{_javadir}/pki/
+%dir %{_datadir}/pki
+%{_datadir}/pki/scripts/
+%{_datadir}/pki/setup/
 
 %files -n pki-common-javadoc
 %defattr(-,root,root,-)
@@ -717,10 +696,8 @@ fi
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
 %{_initrddir}/pki-cad
-%{_javadir}/ca-%{version}.jar
-%{_javadir}/ca.jar
-#%{_javadir}/pki/ca-%{version}.jar
-#%{_javadir}/pki/ca/ca.jar
+%{_javadir}/pki/
+%dir %{_datadir}/pki
 %dir %{_datadir}/pki/ca
 %{_datadir}/pki/ca/conf/
 %{_datadir}/pki/ca/emails/
@@ -728,7 +705,9 @@ fi
 %{_datadir}/pki/ca/profiles/ca/
 %{_datadir}/pki/ca/webapps/
 %{_datadir}/pki/ca/setup/
+%dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/lock/pki/ca
+%dir %{_localstatedir}/run/pki
 %dir %{_localstatedir}/run/pki/ca
 
 
@@ -740,10 +719,8 @@ fi
 %defattr(-,root,root,-)
 %doc base/silent/LICENSE
 %{_bindir}/pkisilent
-%{_javadir}/silent-%{version}.jar
-%{_javadir}/silent.jar
-#%{_javadir}/pki/silent-%{version}.jar
-#%{_javadir}/pki/silent.jar
+%{_javadir}/pki/
+%dir %{_datadir}/pki
 %{_datadir}/pki/silent/
 
 

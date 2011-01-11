@@ -123,18 +123,15 @@ fi
 %defattr(-,root,root,-)
 %doc base/kra/LICENSE
 %{_initrddir}/pki-krad
-%{_javadir}/kra-%{version}.jar
-%{_javadir}/kra.jar
-#%{_javadir}/pki/kra-%{version}.jar
-#%{_javadir}/pki/kra/kra.jar
+%{_javadir}/pki/
+%dir %{_datadir}/pki
 %dir %{_datadir}/pki/kra
-%dir %{_datadir}/pki/kra/conf
-%{_datadir}/pki/kra/conf/*
-%dir %{_datadir}/pki/kra/setup
-%{_datadir}/pki/kra/setup/*
-%dir %{_datadir}/pki/kra/webapps
-%{_datadir}/pki/kra/webapps/*
+%{_datadir}/pki/kra/conf/
+%{_datadir}/pki/kra/setup/
+%{_datadir}/pki/kra/webapps/
+%dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/lock/pki/kra
+%dir %{_localstatedir}/run/pki
 %dir %{_localstatedir}/run/pki/kra
 
 

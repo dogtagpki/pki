@@ -81,12 +81,12 @@
             description="--> generate jar files">
         <echo message="${begin.build.jars.log.message}"/>
         <mkdir dir="${build.jars}"/>
-        <jar jarfile="${build.jars}/nsutil.jar">
+        <jar jarfile="${build.jars}/pki-nsutil.jar">
             <fileset dir="${build.classes}">
                 <include name="netscape/**"/>
             </fileset>
         </jar>
-        <jar jarfile="${build.jars}/cmsutil.jar">
+        <jar jarfile="${build.jars}/pki-cmsutil.jar">
             <fileset dir="${build.classes}">
                 <include name="com/netscape/cmsutil/**"/>
             </fileset>

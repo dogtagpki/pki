@@ -1,4 +1,4 @@
-project(pkitools_java Java)
+project(pki-tools_java Java)
 
 find_file(JSS_JAR
     NAMES
@@ -32,7 +32,7 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
-set(pkitools_java_SRCS
+set(pki-tools_java_SRCS
     com/netscape/cmstools/PrettyPrintCrl.java
     com/netscape/cmstools/BtoA.java
     com/netscape/cmstools/PasswordCache.java
@@ -57,20 +57,20 @@ set(pkitools_java_SRCS
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH
-    ${NSUTIL_JAR} ${CMSUTIL_JAR}
+    ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${XALAN_JAR} ${XERCES_JAR}
     ${JSS_JAR} ${OSUTIL_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
-# build pkitools
-add_jar(pkitools ${pkitools_java_SRCS})
-add_dependencies(pkitools osutil nsutil cmsutil)
-install_jar(pkitools ${JAVA_JAR_INSTALL_DIR})
-set(PKITOOLS_JAR ${pkitools_JAR_FILE} CACHE INTERNAL "pkitools jar file")
+# build pki-tools
+add_jar(pki-tools ${pki-tools_java_SRCS})
+add_dependencies(pki-tools osutil pki-nsutil pki-cmsutil)
+install_jar(pki-tools ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_TOOLS_JAR ${pki-tools_JAR_FILE} CACHE INTERNAL "pki-tools jar file")
 
 create_javadoc(pki-java-tools-${APPLICATION_VERSION}
-    FILES ${pkitools_java_SRCS}
+    FILES ${pki-tools_java_SRCS}
     CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH}
     WINDOWTITLE "pki-java-tools"
     DOCTITLE "<h1>pki-java-tools</h1>"
@@ -78,4 +78,4 @@ create_javadoc(pki-java-tools-${APPLICATION_VERSION}
     USE TRUE
     VERSION TRUE
 )
-add_dependencies(pki-java-tools-${APPLICATION_VERSION}_javadoc pkitools)
+add_dependencies(pki-java-tools-${APPLICATION_VERSION}_javadoc pki-tools)

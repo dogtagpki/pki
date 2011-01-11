@@ -29,15 +29,15 @@
     <property name="velocity.jar" value="${jar.home}/velocity.jar"/>
     <property name="xalan-j2.jar" value="${jar.home}/xalan-j2.jar"/>
     <property name="xerces-j2.jar" value="${jar.home}/xerces-j2.jar"/>
-    <property name="cmsutil.jar" value="${pki-jar.home}/cmsutil.jar"/>
-    <property name="nsutil.jar" value="${pki-jar.home}/nsutil.jar"/>
+    <property name="pki-cmsutil.jar" value="${pki-jar.home}/pki-cmsutil.jar"/>
+    <property name="pki-nsutil.jar" value="${pki-jar.home}/pki-nsutil.jar"/>
 
     <path id="classpath">
         <pathelement location="${servlet.jar}"/>
         <pathelement location="${jss.jar}"/>
         <pathelement location="${ldapjdk.jar}"/>
-        <pathelement location="${nsutil.jar}"/>
-        <pathelement location="${cmsutil.jar}"/>
+        <pathelement location="${pki-nsutil.jar}"/>
+        <pathelement location="${pki-cmsutil.jar}"/>
         <pathelement location="${osutil.jar}"/>
         <pathelement location="${symkey.jar}"/>
         <pathelement location="${velocity.jar}"/>
@@ -113,22 +113,22 @@
             description="--> generate jar files">
         <echo message="${begin.build.jars.log.message}"/>
         <mkdir dir="${build.jars}"/>
-        <jar jarfile="${build.jars}/certsrv.jar">
+        <jar jarfile="${build.jars}/pki-certsrv.jar">
             <fileset dir="${build.classes}">
                 <include name="com/netscape/certsrv/**"/>
             </fileset>
         </jar>
-        <jar jarfile="${build.jars}/cms.jar">
+        <jar jarfile="${build.jars}/pki-cms.jar">
             <fileset dir="${build.classes}">
                 <include name="com/netscape/cms/**"/>
             </fileset>
         </jar>
-        <jar jarfile="${build.jars}/cmscore.jar">
+        <jar jarfile="${build.jars}/pki-cmscore.jar">
             <fileset dir="${build.classes}">
                 <include name="com/netscape/cmscore/**"/>
             </fileset>
         </jar>
-        <jar jarfile="${build.jars}/cmsbundle.jar">
+        <jar jarfile="${build.jars}/pki-cmsbundle.jar">
             <fileset dir="${src.dir}">
                 <include name="LogMessages.properties"/>
                 <include name="UserMessages.properties"/>

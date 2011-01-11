@@ -70,10 +70,7 @@ cd build
 %defattr(-,root,root,-)
 %doc base/console/LICENSE
 %{_bindir}/pkiconsole
-%{_javadir}/pki-console-%{version}.jar
-%{_javadir}/pki-console.jar
-#%{_javadir}/pki/pki-console-%{version}.jar
-#%{_javadir}/pki/pki-console.jar
+%{_javadir}/pki/
 
 
 %changelog

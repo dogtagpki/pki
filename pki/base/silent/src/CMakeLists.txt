@@ -1,4 +1,4 @@
-project(silent_java Java)
+project(pki-silent_java Java)
 
 find_file(JSS_JAR
     NAMES
@@ -24,7 +24,7 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
-set(silent_java_SRCS
+set(pki-silent_java_SRCS
     common/AutoInstaller.java
     common/CMSConfig.java
     common/ParseXML.java
@@ -73,13 +73,14 @@ set(silent_java_SRCS
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH
-    ${CERTSRV_JAR} ${CMS_JAR} ${CMSUTIL_JAR} ${NSUTIL_JAR}
+    ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+    ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
     ${LDAPJDK_JAR} ${XERCES_JAR}
     ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
-add_jar(silent ${silent_java_SRCS})
-add_dependencies(silent osutil symkey cmsutil nsutil certsrv cms)
-install_jar(silent ${JAVA_JAR_INSTALL_DIR})
-set(SILENT_JAR ${silent_JAR_FILE} CACHE INTERNAL "silent jar file")
+add_jar(pki-silent ${pki-silent_java_SRCS})
+add_dependencies(pki-silent osutil symkey pki-cmsutil pki-nsutil pki-certsrv pki-cms)
+install_jar(pki-silent ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_SILENT_JAR ${pki-silent_JAR_FILE} CACHE INTERNAL "pki-silent jar file")

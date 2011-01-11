@@ -1,37 +1,37 @@
-project(kra_java Java)
+project(pki-kra_java Java)
 
 # '/usr/share/java/pki' jars
-find_file(CERTSRV_JAR
+find_file(PKI_CERTSRV_JAR
     NAMES
-        certsrv.jar
+        pki-certsrv.jar
     PATHS
         /usr/share/java/pki
 )
 
-find_file(CMS_JAR
+find_file(PKI_CMS_JAR
     NAMES
-        cms.jar
+        pki-cms.jar
     PATHS
         /usr/share/java/pki
 )
 
-find_file(CMSCORE_JAR
+find_file(PKI_CMSCORE_JAR
     NAMES
-        cmscore.jar
+        pki-cmscore.jar
     PATHS
         /usr/share/java/pki
 )
 
-find_file(CMSUTIL_JAR
+find_file(PKI_CMSUTIL_JAR
     NAMES
-        cmsutil.jar
+        pki-cmsutil.jar
     PATHS
         /usr/share/java/pki
 )
 
-find_file(NSUTIL_JAR
+find_file(PKI_NSUTIL_JAR
     NAMES
-        nsutil.jar
+        pki-nsutil.jar
     PATHS
         /usr/lib/java
         /usr/share/java/pki
@@ -71,7 +71,7 @@ find_file(SYMKEY_JAR
 
 
 # identify java sources
-set(kra_java_SRCS
+set(pki-kra_java_SRCS
     com/netscape/kra/KeyRecoveryAuthority.java
     com/netscape/kra/EnrollmentService.java
     com/netscape/kra/RecoveryService.java
@@ -88,7 +88,8 @@ set(kra_java_SRCS
 
 # set classpath
 set(CMAKE_JAVA_INCLUDE_PATH
-    ${CERTSRV_JAR} ${CMS_JAR} ${CMSCORE_JAR} ${CMSUTIL_JAR} ${NSUTIL_JAR}
+    ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
+    ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
     ${LDAPJDK_JAR}
     ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
 
@@ -97,9 +98,9 @@ set(CMAKE_JAVA_INCLUDE_PATH
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 
-# build kra.jar
-add_jar(kra ${kra_java_SRCS})
-add_dependencies(kra osutil symkey nsutil cmsutil certsrv cms cmscore)
-install_jar(kra ${JAVA_JAR_INSTALL_DIR})
-set(KRA_JAR ${kra_JAR_FILE} CACHE INTERNAL "kra jar file")
+# build pki-kra.jar
+add_jar(pki-kra ${pki-kra_java_SRCS})
+add_dependencies(pki-kra osutil symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
+install_jar(pki-kra ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_KRA_JAR ${pki-kra_JAR_FILE} CACHE INTERNAL "pki-kra jar file")
 

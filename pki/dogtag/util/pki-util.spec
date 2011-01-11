@@ -70,10 +70,10 @@ rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
 cd %{buildroot}%{_javadir}/pki
-mv cmsutil.jar cmsutil-%{version}.jar
-ln -s cmsutil-%{version}.jar cmsutil.jar
-mv nsutil.jar nsutil-%{version}.jar
-ln -s nsutil-%{version}.jar nsutil.jar
+mv pki-cmsutil.jar pki-cmsutil-%{version}.jar
+ln -s pki-cmsutil-%{version}.jar pki-cmsutil.jar
+mv pki-nsutil.jar pki-nsutil-%{version}.jar
+ln -s pki-nsutil-%{version}.jar pki-nsutil.jar
 
 %clean
 rm -rf %{buildroot}

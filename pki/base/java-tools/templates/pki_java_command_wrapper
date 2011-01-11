@@ -73,16 +73,16 @@ if [ "${OS}" = "Linux" ] ; then
 
     if [ "${ARCHITECTURE}" = "i386" ] ; then
         LD_LIBRARY_PATH=/usr/lib:/lib
-        LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib/jss:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib/osutil:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH
     elif [ "${ARCHITECTURE}" = "x86_64" ] ; then
         LD_LIBRARY_PATH=/usr/lib:/lib
-        LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib/jss:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib/osutil:${LD_LIBRARY_PATH}
         LD_LIBRARY_PATH=/usr/lib64:/lib64:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib64/dirsec:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib64/${PRODUCT}:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib64/jss:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib64/osutil:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH
     else
         invalid_architecture "${ARCHITECTURE}"
@@ -131,11 +131,11 @@ fi
 CP=/usr/lib/java/jss4.jar
 CP=/usr/lib/java/dirsec/jss4.jar:${CP}
 CP=/usr/lib/java/osutil.jar:${CP}
+CP=/usr/lib/java/dirsec/osutil.jar:${CP}
 CP=/usr/share/java/ldapjdk.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/nsutil.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/cmsutil.jar:${CP}
-CP=/usr/share/java/pkitools.jar:${CP}
-CP=/usr/share/${PRODUCT}/classes:${CP}
+CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
+CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
+CP=/usr/share/java/${PRODUCT}/pki-tools.jar:${CP}
 export CP
 
 

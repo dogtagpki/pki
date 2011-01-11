@@ -479,8 +479,7 @@ cd build
 %defattr(-,root,root,-)
 %doc dogtag/common-ui/LICENSE
 %dir %{_datadir}/pki
-%dir %{_datadir}/pki/common-ui
-%{_datadir}/pki/common-ui/*
+%{_datadir}/pki/common-ui/
 
 
 ################################
@@ -490,8 +489,8 @@ cd build
 %files -n dogtag-pki-ca-theme
 %defattr(-,root,root,-)
 %doc dogtag/ca-ui/LICENSE
-%dir %{_datadir}/pki/ca-ui
-%{_datadir}/pki/ca-ui/*
+%dir %{_datadir}/pki
+%{_datadir}/pki/ca-ui/
 
 
 ################################
@@ -501,8 +500,8 @@ cd build
 %files -n dogtag-pki-kra-theme
 %defattr(-,root,root,-)
 %doc dogtag/kra-ui/LICENSE
-%dir %{_datadir}/pki/kra-ui
-%{_datadir}/pki/kra-ui/*
+%dir %{_datadir}/pki
+%{_datadir}/pki/kra-ui/
 
 
 ################################
@@ -512,8 +511,8 @@ cd build
 %files -n dogtag-pki-ocsp-theme
 %defattr(-,root,root,-)
 %doc dogtag/ocsp-ui/LICENSE
-%dir %{_datadir}/pki/ocsp-ui
-%{_datadir}/pki/ocsp-ui/*
+%dir %{_datadir}/pki
+%{_datadir}/pki/ocsp-ui/
 
 
 ################################
@@ -523,8 +522,8 @@ cd build
 %files -n dogtag-pki-ra-theme
 %defattr(-,root,root,-)
 %doc dogtag/ra-ui/LICENSE
-%dir %{_datadir}/pki/ra-ui
-%{_datadir}/pki/ra-ui/*
+%dir %{_datadir}/pki
+%{_datadir}/pki/ra-ui/
 
 
 ################################
@@ -534,8 +533,8 @@ cd build
 %files -n dogtag-pki-tks-theme
 %defattr(-,root,root,-)
 %doc dogtag/tks-ui/LICENSE
-%dir %{_datadir}/pki/tks-ui
-%{_datadir}/pki/tks-ui/*
+%dir %{_datadir}/pki
+%{_datadir}/pki/tks-ui/
 
 
 ################################
@@ -545,8 +544,8 @@ cd build
 %files -n dogtag-pki-tps-theme
 %defattr(-,root,root,-)
 %doc dogtag/tps-ui/LICENSE
-%dir %{_datadir}/pki/tps-ui
-%{_datadir}/pki/tps-ui/*
+%dir %{_datadir}/pki
+%{_datadir}/pki/tps-ui/
 
 
 ################################
@@ -556,8 +555,7 @@ cd build
 %files -n dogtag-pki-console-theme
 %defattr(-,root,root,-)
 %doc dogtag/console-ui/LICENSE
-%{_javadir}/*
-#%{_javadir}/pki/*
+%{_javadir}/pki/
 
 
 ###############################################################################

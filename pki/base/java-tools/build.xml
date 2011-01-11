@@ -24,19 +24,19 @@
     <property name="jss.jar" value="${jss.home}/jss4.jar"/>
     <property name="osutil.jar" value="${jni-jar.home}/osutil.jar"/>
     <property name="ldapjdk.jar" value="${jar.home}/ldapjdk.jar"/>
-    <property name="certsrv.jar" value="${pki-jar.home}/certsrv.jar"/>
-    <property name="cms.jar" value="${pki-jar.home}/cms.jar"/>
-    <property name="cmsutil.jar" value="${pki-jar.home}/cmsutil.jar"/>
-    <property name="nsutil.jar" value="${pki-jar.home}/nsutil.jar"/>
+    <property name="pki-certsrv.jar" value="${pki-jar.home}/pki-certsrv.jar"/>
+    <property name="pki-cms.jar" value="${pki-jar.home}/pki-cms.jar"/>
+    <property name="pki-cmsutil.jar" value="${pki-jar.home}/pki-cmsutil.jar"/>
+    <property name="pki-nsutil.jar" value="${pki-jar.home}/pki-nsutil.jar"/>
 
     <path id="classpath">
         <pathelement location="${jss.jar}"/>
         <pathelement location="${ldapjdk.jar}"/>
-        <pathelement location="${nsutil.jar}"/>
+        <pathelement location="${pki-nsutil.jar}"/>
         <pathelement location="${osutil.jar}"/>
-        <pathelement location="${cmsutil.jar}"/>
-        <pathelement location="${cms.jar}"/>
-        <pathelement location="${certsrv.jar}"/>
+        <pathelement location="${pki-cmsutil.jar}"/>
+        <pathelement location="${pki-cms.jar}"/>
+        <pathelement location="${pki-certsrv.jar}"/>
     </path>
     <path id="javadoc_classpath">
         <path refid="classpath"/>
@@ -82,7 +82,7 @@
             description="--> generate jar files">
         <echo message="${begin.build.jars.log.message}"/>
         <mkdir dir="${build.jars}"/>
-        <jar jarfile="${build.jars}/pkitools.jar">
+        <jar jarfile="${build.jars}/pki-tools.jar">
             <fileset dir="${build.classes}">
                 <include name="com/netscape/**"/>
             </fileset>
@@ -414,7 +414,7 @@
         <zip destfile="${dist.base.binaries}/${dist.name}.zip">
             <zipfileset dir="./build/jars"
                         filemode="755"
-                        prefix="usr/share/java">
+                        prefix="usr/share/java/${product.prefix}">
                 <include name="**"/>
             </zipfileset>
             <zipfileset dir="./build/cmds"

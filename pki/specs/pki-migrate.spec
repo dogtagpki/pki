@@ -67,8 +67,8 @@ cd build
 %files
 %defattr(-,root,root,-)
 %doc base/migrate/LICENSE
-%dir %{_datadir}/pki/migrate
-%{_datadir}/pki/migrate/*
+%dir %{_datadir}/pki
+%{_datadir}/pki/migrate/
 
 
 %changelog

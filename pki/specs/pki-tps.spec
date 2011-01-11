@@ -173,24 +173,19 @@ fi
 %{_bindir}/tpsclient
 %{_libdir}/httpd/modules/*
 %{_libdir}/lib*
+%dir %{_datadir}/pki
 %dir %{_datadir}/pki/tps
-%dir %{_datadir}/pki/tps/applets
-%{_datadir}/pki/tps/applets/*
-%dir %{_datadir}/pki/tps/cgi-bin
-%{_datadir}/pki/tps/cgi-bin/*
-%dir %{_datadir}/pki/tps/conf
-%{_datadir}/pki/tps/conf/*
-%dir %{_datadir}/pki/tps/docroot
-%{_datadir}/pki/tps/docroot/*
-%dir %{_datadir}/pki/tps/lib
-%{_datadir}/pki/tps/lib/*
-%dir %{_datadir}/pki/tps/samples
-%{_datadir}/pki/tps/samples/*
-%dir %{_datadir}/pki/tps/scripts
-%{_datadir}/pki/tps/scripts/*
-%dir %{_datadir}/pki/tps/setup
-%{_datadir}/pki/tps/setup/*
+%{_datadir}/pki/tps/applets/
+%{_datadir}/pki/tps/cgi-bin/
+%{_datadir}/pki/tps/conf/
+%{_datadir}/pki/tps/docroot/
+%{_datadir}/pki/tps/lib/
+%{_datadir}/pki/tps/samples/
+%{_datadir}/pki/tps/scripts/
+%{_datadir}/pki/tps/setup/
+%dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/lock/pki/tps
+%dir %{_localstatedir}/run/pki
 %dir %{_localstatedir}/run/pki/tps
 
 

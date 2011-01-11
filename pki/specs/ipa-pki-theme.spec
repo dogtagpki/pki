@@ -204,8 +204,7 @@ cd build
 %defattr(-,root,root,-)
 %doc dogtag/common-ui/LICENSE
 %dir %{_datadir}/pki
-%dir %{_datadir}/pki/common-ui
-%{_datadir}/pki/common-ui/*
+%{_datadir}/pki/common-ui/
 
 
 ##############################
@@ -215,8 +214,8 @@ cd build
 %files -n ipa-pki-ca-theme
 %defattr(-,root,root,-)
 %doc dogtag/ca-ui/LICENSE
-%dir %{_datadir}/pki/ca-ui
-%{_datadir}/pki/ca-ui/*
+%dir %{_datadir}/pki
+%{_datadir}/pki/ca-ui/
 
 
 ###############################################################################

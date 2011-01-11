@@ -132,18 +132,16 @@ fi
 %defattr(-,root,root,-)
 %doc base/ra/LICENSE
 %{_initrddir}/pki-rad
+%dir %{_datadir}/pki
 %dir %{_datadir}/pki/ra
-%dir %{_datadir}/pki/ra/conf
-%{_datadir}/pki/ra/conf/*
-%dir %{_datadir}/pki/ra/docroot
-%{_datadir}/pki/ra/docroot/*
-%dir %{_datadir}/pki/ra/lib
-%{_datadir}/pki/ra/lib/*
-%dir %{_datadir}/pki/ra/scripts
-%{_datadir}/pki/ra/scripts/*
-%dir %{_datadir}/pki/ra/setup
-%{_datadir}/pki/ra/setup/*
+%{_datadir}/pki/ra/conf/
+%{_datadir}/pki/ra/docroot/
+%{_datadir}/pki/ra/lib/
+%{_datadir}/pki/ra/scripts/
+%{_datadir}/pki/ra/setup/
+%dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/lock/pki/ra
+%dir %{_localstatedir}/run/pki
 %dir %{_localstatedir}/run/pki/ra
 
 

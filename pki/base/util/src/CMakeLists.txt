@@ -1,4 +1,4 @@
-project(cmsutil_java Java)
+project(pki-cmsutil_java Java)
 
 find_file(JSS_JAR
     NAMES
@@ -40,7 +40,7 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
-set(netscape_java_SRCS
+set(pki-nsutil_java_SRCS
     netscape/net/TransferProtocolClient.java
     netscape/net/smtp/SmtpProtocolException.java
     netscape/net/smtp/SmtpClient.java
@@ -222,7 +222,7 @@ set(netscape_java_SRCS
     netscape/security/acl/PermissionImpl.java
 )
 
-set(cmsutil_java_SRCS
+set(pki-cmsutil_java_SRCS
     com/netscape/cmsutil/ldap/LDAPUtil.java
     com/netscape/cmsutil/xml/XMLObject.java
     com/netscape/cmsutil/scep/CRSPKIMessage.java
@@ -335,19 +335,19 @@ set(CMAKE_JAVA_INCLUDE_PATH
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
-# build nsutil
+# build pki-nsutil
 set(CMAKE_JAR_CLASSES_PREFIX netscape)
-add_jar(nsutil ${netscape_java_SRCS})
-add_dependencies(nsutil osutil)
-install_jar(nsutil ${JAVA_JAR_INSTALL_DIR}/pki)
-set(NSUTIL_JAR ${nsutil_JAR_FILE} CACHE INTERNAL "nsutil jar file")
+add_jar(pki-nsutil ${pki-nsutil_java_SRCS})
+add_dependencies(pki-nsutil osutil)
+install_jar(pki-nsutil ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_NSUTIL_JAR ${pki-nsutil_JAR_FILE} CACHE INTERNAL "pki-nsutil jar file")
 
-# build cmsutil
+# build pki-cmsutil
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmsutil)
-add_jar(cmsutil ${cmsutil_java_SRCS})
-add_dependencies(cmsutil osutil nsutil)
-install_jar(cmsutil ${JAVA_JAR_INSTALL_DIR}/pki)
-set(CMSUTIL_JAR ${cmsutil_JAR_FILE} CACHE INTERNAL "cmsutil jar file")
+add_jar(pki-cmsutil ${pki-cmsutil_java_SRCS})
+add_dependencies(pki-cmsutil osutil pki-nsutil)
+install_jar(pki-cmsutil ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_CMSUTIL_JAR ${pki-cmsutil_JAR_FILE} CACHE INTERNAL "pki-cmsutil jar file")
 
 create_javadoc(pki-util-${APPLICATION_VERSION}
     PACKAGES com.netscape.cmsutil.crypto
@@ -369,4 +369,4 @@ create_javadoc(pki-util-${APPLICATION_VERSION}
     USE TRUE
     VERSION TRUE
 )
-add_dependencies(pki-util-${APPLICATION_VERSION}_javadoc cmsutil)
+add_dependencies(pki-util-${APPLICATION_VERSION}_javadoc pki-cmsutil)

@@ -48,15 +48,8 @@ ant \
 rm -rf %{buildroot}
 cd dist/binary
 unzip %{name}-%{version}.zip -d %{buildroot}
-cd %{buildroot}%{_javadir}
-ln -s pki-console-%{version}.jar pki-console.jar
-ln -s pki-console-%{version}_en.jar pki-console_en.jar
-
-# supply convenience symlink(s) for backwards compatibility
-mkdir -p %{buildroot}%{_javadir}/pki
 cd %{buildroot}%{_javadir}/pki
-ln -s ../pki-console.jar console-cms.jar
-ln -s ../pki-console_en.jar console-cms_en.jar
+ln -s pki-console-%{version}.jar pki-console.jar
 
 %clean
 rm -rf %{buildroot}
@@ -65,7 +58,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_bindir}/pkiconsole
-%{_javadir}/*
+%{_javadir}/pki/
 
 %changelog
 * Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
