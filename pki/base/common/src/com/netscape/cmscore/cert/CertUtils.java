@@ -789,6 +789,7 @@ public class CertUtils {
         boolean r = true;
         CertificateUsage  cu = null;
         cu = getCertificateUsage(certusage);
+        int ccu = 0;
 
         if (cu == null) {
             CMS.debug("CertUtils: verifySystemCertByNickname() failed: "+
@@ -797,16 +798,54 @@ public class CertUtils {
         }
 
         if (certusage == "")
-            CMS.debug("CertUtils: verifySystemCertByNickname(): certusage not defined, bypassing certusage check");
+            CMS.debug("CertUtils: verifySystemCertByNickname(): required certusage not defined, getting current certusage");
         CMS.debug("CertUtils: verifySystemCertByNickname(): calling isCertValid()");
         try {
             CryptoManager cm = CryptoManager.getInstance();
-            if (cm.isCertValid(nickname, true, cu)) {
-                r = true;
-                CMS.debug("CertUtils: verifySystemCertByNickname() passed:" + nickname);
+            if (cu.getUsage() != CryptoManager.CertificateUsage.CheckAllUsages.getUsage()) {
+                if (cm.isCertValid(nickname, true, cu)) {
+                    r = true;
+                    CMS.debug("CertUtils: verifySystemCertByNickname() passed:" + nickname);
+                } else {
+                    CMS.debug("CertUtils: verifySystemCertByNickname() failed:" + nickname);
+                    r = false;
+                }
             } else {
-                CMS.debug("CertUtils: verifySystemCertByNickname() failed:" + nickname);
-                r = false;
+                // find out about current cert usage
+                ccu = cm.isCertValid(nickname, true);
+                if (ccu == CertificateUsage.basicCertificateUsages) {
+                    /* cert is good for nothing */
+                    r = false;
+                    CMS.debug("CertUtils: verifySystemCertByNickname() failed: cert is good for nothing:"+ nickname);
+                } else {
+                    r = true;
+                    CMS.debug("CertUtils: verifySystemCertByNickname() passed:" + nickname);
+
+                    if ((ccu & CryptoManager.CertificateUsage.SSLServer.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServer");
+                    if ((ccu & CryptoManager.CertificateUsage.SSLClient.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is SSLClient");
+                    if ((ccu & CryptoManager.CertificateUsage.SSLServerWithStepUp.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServerWithStepUp");
+                    if ((ccu & CryptoManager.CertificateUsage.SSLCA.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is SSLCA");
+                    if ((ccu & CryptoManager.CertificateUsage.EmailSigner.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is EmailSigner");
+                    if ((ccu & CryptoManager.CertificateUsage.EmailRecipient.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is EmailRecipient");
+                    if ((ccu & CryptoManager.CertificateUsage.ObjectSigner.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is ObjectSigner");
+                    if ((ccu & CryptoManager.CertificateUsage.UserCertImport.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is UserCertImport");
+                    if ((ccu & CryptoManager.CertificateUsage.VerifyCA.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is VerifyCA");
+                    if ((ccu & CryptoManager.CertificateUsage.ProtectedObjectSigner.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is ProtectedObjectSigner");
+                    if ((ccu & CryptoManager.CertificateUsage.StatusResponder.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is StatusResponder");
+                    if ((ccu & CryptoManager.CertificateUsage.AnyCA.getUsage()) != 0)
+                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is AnyCA");
+                }
             }
         } catch (Exception e) {
             CMS.debug("CertUtils: verifySystemCertByNickname() failed: "+
@@ -850,7 +889,7 @@ public class CertUtils {
             }
             String certusage = config.getString(subsysType+".cert."+tag+".certusage", "");
             if (certusage.equals("")) {
-                CMS.debug("CertUtils: verifySystemCertByTag() certusage for cert tag " + tag + " undefined in CS.cfg, not checking certificate usage");
+                CMS.debug("CertUtils: verifySystemCertByTag() certusage for cert tag " + tag + " undefined in CS.cfg, getting current certificate usage");
             }
             r = verifySystemCertByNickname(nickname, certusage);
             if (r == true) {
