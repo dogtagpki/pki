@@ -103,7 +103,7 @@ Conflicts:        redhat-pki-common-theme
 Conflicts:        redhat-pki-common-ui
 
 Obsoletes:        dogtag-pki-common-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-common-ui
+Obsoletes:        dogtag-pki-common-ui <= %{version}
 
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
@@ -136,7 +136,7 @@ Conflicts:        redhat-pki-ca-theme
 Conflicts:        redhat-pki-ca-ui
 
 Obsoletes:        dogtag-pki-ca-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-ca-ui
+Obsoletes:        dogtag-pki-ca-ui <= %{version}
 
 Provides:         pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-ui = %{version}-%{release}
@@ -169,7 +169,7 @@ Conflicts:        redhat-pki-kra-theme
 Conflicts:        redhat-pki-kra-ui
 
 Obsoletes:        dogtag-pki-kra-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-kra-ui
+Obsoletes:        dogtag-pki-kra-ui <= %{version}
 
 Provides:         pki-kra-theme = %{version}-%{release}
 Provides:         pki-kra-ui = %{version}-%{release}
@@ -202,7 +202,7 @@ Conflicts:        redhat-pki-ocsp-theme
 Conflicts:        redhat-pki-ocsp-ui
 
 Obsoletes:        dogtag-pki-ocsp-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-ocsp-ui
+Obsoletes:        dogtag-pki-ocsp-ui <= %{version}
 
 Provides:         pki-ocsp-theme = %{version}-%{release}
 Provides:         pki-ocsp-ui = %{version}-%{release}
@@ -235,7 +235,7 @@ Conflicts:        redhat-pki-ra-theme
 Conflicts:        redhat-pki-ra-ui
 
 Obsoletes:        dogtag-pki-ra-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-ra-ui
+Obsoletes:        dogtag-pki-ra-ui <= %{version}
 
 Provides:         pki-ra-theme = %{version}-%{release}
 Provides:         pki-ra-ui = %{version}-%{release}
@@ -268,7 +268,7 @@ Conflicts:        redhat-pki-tks-theme
 Conflicts:        redhat-pki-tks-ui
 
 Obsoletes:        dogtag-pki-tks-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-tks-ui
+Obsoletes:        dogtag-pki-tks-ui <= %{version}
 
 Provides:         pki-tks-theme = %{version}-%{release}
 Provides:         pki-tks-ui = %{version}-%{release}
@@ -301,7 +301,7 @@ Conflicts:        redhat-pki-tps-theme
 Conflicts:        redhat-pki-tps-ui
 
 Obsoletes:        dogtag-pki-tps-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-tps-ui
+Obsoletes:        dogtag-pki-tps-ui <= %{version}
 
 Provides:         pki-tps-theme = %{version}-%{release}
 Provides:         pki-tps-ui = %{version}-%{release}
@@ -334,7 +334,7 @@ Conflicts:        redhat-pki-console-theme
 Conflicts:        redhat-pki-console-ui
 
 Obsoletes:        dogtag-pki-console-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-console-ui
+Obsoletes:        dogtag-pki-console-ui <= %{version}
 
 Provides:         pki-console-theme = %{version}-%{release}
 Provides:         pki-console-ui = %{version}-%{release}
