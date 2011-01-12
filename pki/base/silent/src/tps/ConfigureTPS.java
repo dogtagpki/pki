@@ -279,7 +279,7 @@ public class ConfigureTPS
 		hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_login_uri,query_string);
 
 		String query_string_1 = "uid=" + sd_admin_name +
-								"&pwd=" + sd_admin_password +
+								"&pwd=" + URLEncoder.encode(sd_admin_password) +
 								"&url=" + URLEncoder.encode(tps_url) +
 								"" ;
 
@@ -660,8 +660,8 @@ public class ConfigureTPS
 							URLEncoder.encode("TPS Administrator") +
 							"&email=" +
 							URLEncoder.encode(admin_email) +
-							"&__pwd=" + admin_password +
-							"&__admin_password_again=" + admin_password +
+							"&__pwd=" + URLEncoder.encode(admin_password) +
+							"&__admin_password_again=" + URLEncoder.encode(admin_password) +
 							"&cert_request=" +
 							URLEncoder.encode(admin_cert_request) +
 							"&display=0" +
