@@ -1,0 +1,74 @@
+##
+## Obtain various platform information
+##
+
+OS=`uname`
+if [ "${OS}" != "Linux" ] ; then
+	printf "'$0' is ONLY available on '${OS}'!\n"
+	exit 255
+fi
+
+PLATFORM=`uname -p`
+if [ "${PLATFORM}" = "i686" ] ; then
+	ARCHITECTURE="32-bit"
+elif [ "${PLATFORM}" = "x86_64" ] ; then
+	ARCHITECTURE="64-bit"
+else
+	printf "'$0' is ONLY available on 'i686' or 'x86_64' platforms!\n"
+	exit 255
+fi
+
+if [ -f "/etc/redhat-release" ] ; then
+	DISTRIBUTION=`cat /etc/redhat-release | cut -c1-7`
+	DIST_VERSION=`cat /etc/redhat-release | tr -d [:alpha:][:blank:][\(\)]`
+	if [ "${DISTRIBUTION}" = "Fedora " ] ; then
+		MESSAGE="[built for ${ARCHITECTURE} Fedora ${DIST_VERSION}]"
+	elif [ "${DISTRIBUTION}" = "Red Hat" ] ; then
+		MESSAGE="[built for ${ARCHITECTURE} Red Hat ${DIST_VERSION}]"
+	else
+		printf "'$0' is ONLY available on 'Fedora' or 'Red Hat' "
+		printf "distributions!\n"
+		exit 255
+	fi
+else
+	printf "'$0' is ONLY available on 'Fedora' or 'Red Hat' distributions!\n"
+	exit 255
+fi
+
+
+##
+## Usage statement
+##
+
+Usage()
+{
+	printf "\n"
+	printf "Usage:  $0 <target>\n\n"
+	printf "        where <target> is one of the following:\n\n"
+	printf "            srpm - produces tarball, spec, and SRPM\n"
+	printf "                   [suitable for use by 'mock']\n\n"
+	printf "            rpms - produces tarball, spec, SRPM, and RPM(S)\n"
+	printf "                   ${MESSAGE}\n\n"
+}
+
+
+##
+## Check for command line argument validity
+##
+
+if [ $# -ne 1 ] ; then
+	Usage
+	exit 255
+fi
+
+if [ $1 = "srpm" ] ; then
+	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -bs"
+elif [ $1 = "rpms" ] ; then
+	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -ba"
+else
+	Usage
+	exit 255
+fi
+export RPMBUILD_CMD
+
+
