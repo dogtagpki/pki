@@ -113,6 +113,13 @@ sub register_tps
     my $tokenname = $::config->get("preop.module.token");
     &PKI::TPS::Wizard::debug_log("ReqCertInfo: update got token name = $tokenname");
 
+    my $token_pwd = $::pwdconf->get($tokenname);
+    open FILE, ">$instDir/conf/.pwfile";
+    system( "chmod 00660 $instDir/conf/.pwfile" );
+    $token_pwd  =~ s/\n//g;
+    print FILE $token_pwd;
+    close FILE;
+
     if (($tokenname eq "") || ($tokenname eq "NSS Certificate DB")) {
         $hw = "";
         $tk = "";
@@ -121,15 +128,10 @@ sub register_tps
         $tk = $tokenname.":";
     }
 
-    my $token_pwd = $::pwdconf->get($tokenname);
-    open FILE, ">$instDir/conf/.pwfile";
-    system( "chmod 00660 $instDir/conf/.pwfile" );
-    $token_pwd  =~ s/\n//g;
-    print FILE $token_pwd;
-    close FILE;
-
     my $subsystemNickname = $::config->get("preop.cert.subsystem.nickname");
+
     my $certificate = `/usr/bin/certutil -d "$instDir/alias" -L $hw -f "$instDir/conf/.pwfile" -n "$subsystemNickname" -a`;
+    my $tmp = `rm $instDir/conf/.pwfile`;
     $certificate =~ s/-----BEGIN CERTIFICATE-----//g;
     $certificate =~ s/-----END CERTIFICATE-----//g;
     $certificate =~ s/\n$//g;
@@ -171,7 +173,6 @@ sub register_tps
     } else {
        &PKI::TPS::Wizard::debug_log("DonePanel: result undefined");
     }
-    my $tmp = `rm $instDir/conf/.pwfile`;
 }
 
 sub get_kra_transport_cert
@@ -322,6 +323,22 @@ sub display
     } else {
       &PKI::TPS::Wizard::debug_log("DonePanel: No KRA setup");
     }
+
+    # Give Object Signing capability to audit_signing cert
+    open FILE, ">$instDir/conf/.pwfile";
+    system( "chmod 00660 $instDir/conf/.pwfile" );
+    $token_pwd  =~ s/\n//g;
+    print FILE $token_pwd;
+    close FILE;
+    my $hw;
+    if (($tokenname eq "") || ($tokenname eq "NSS Certificate DB")) {
+        $hw = "";
+    } else {
+        $hw = "-h $tokenname";
+    }
+    my $auditSigningNickname = $::config->get("preop.cert.audit_signing.nickname");
+    my $tmp = `/usr/bin/certutil -d "$instDir/alias" -M $hw -f "$instDir/conf/.pwfile" -n "$auditSigningNickname" -t "u,u,Pu"`;
+    $tmp = `rm $instDir/conf/.pwfile`;
 
     $::config->put("preop.done.status", "done");
     $::config->put("tps.configured", "true");

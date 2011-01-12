@@ -3206,40 +3206,54 @@ TPS_PUBLIC bool RA::verifySystemCertByNickname(const char *nickname, const char 
         RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "error: invalid certificate usage %s for cert %s", (certusage !=NULL)? certusage:"", nickname);
         return false;
     }
-    SECCertificateUsage usage;
+    SECCertificateUsage currUsage = 0;
 
     cert = CERT_FindCertByNickname(certdb, nickname);
     if (cert == NULL) {
         RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "nickname not found:%s", 
             nickname);
     } else {
-        rv = CERT_VerifyCertificateNow(certdb, cert, true, cu , NULL, &usage);
+        rv = CERT_VerifyCertificateNow(certdb, cert, true, cu , NULL, &currUsage);
         /*
          *  to find actual certificate usage, pass 0 as cu in above call
          */
         if (cu == certificateUsageCheckAllUsages) {
-          if (usage & certificateUsageSSLServer)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLServer"); 
-          if (usage & certificateUsageSSLServerWithStepUp)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLServerWithStepUp"); 
-          if (usage & certificateUsageSSLClient)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLClient"); 
-          if (usage & certificateUsageAnyCA)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is AnyCA"); 
-          if (usage & certificateUsageSSLCA)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLCA"); 
-          if (usage & certificateUsageEmailSigner)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is EmailSigner"); 
-          if (usage & certificateUsageStatusResponder)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is StatusResponder"); 
-          if (usage & certificateUsageObjectSigner)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is ObjectSigner"); 
-          if (usage & certificateUsageUserCertImport)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is UserCertImport"); 
-          if (usage & certificateUsageProtectedObjectSigner)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is ProtectedObjectSigner"); 
-          if (usage & certificateUsageVerifyCA)
-            RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is VerifyCA"); 
+            if (currUsage & certificateUsageSSLServer)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLServer"); 
+            if (currUsage & certificateUsageSSLServerWithStepUp)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLServerWithStepUp"); 
+            if (currUsage & certificateUsageSSLClient)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLClient"); 
+            if (currUsage & certificateUsageAnyCA)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is AnyCA"); 
+            if (currUsage & certificateUsageSSLCA)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is SSLCA"); 
+            if (currUsage & certificateUsageEmailSigner)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is EmailSigner"); 
+            if (currUsage & certificateUsageStatusResponder)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is StatusResponder"); 
+            if (currUsage & certificateUsageObjectSigner)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is ObjectSigner"); 
+            if (currUsage & certificateUsageUserCertImport)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is UserCertImport"); 
+            if (currUsage & certificateUsageProtectedObjectSigner)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is ProtectedObjectSigner"); 
+            if (currUsage & certificateUsageVerifyCA)
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname", "cert is VerifyCA"); 
+
+            if (currUsage == 
+                /* 0x0b80 */
+                ( certUsageUserCertImport |
+                certUsageVerifyCA |
+                certUsageProtectedObjectSigner |
+                certUsageAnyCA )) { /* cert is good for nothing */
+
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname() failed:", "cert is good for nothing: %d %s", currUsage, nickname); 
+                rv = SECFailure;
+            } else {
+                RA::Debug(LL_PER_SERVER, "RA::verifySystemCertByNickname() passed:", "%s", nickname); 
+                rv = SECSuccess;
+            }
         }
     }
 
@@ -3259,7 +3273,7 @@ TPS_PUBLIC bool RA::verifySystemCertByNickname(const char *nickname, const char 
  * tps.cert.subsystem.nickname=xxx
  * tps.cert.subsystem.certusage=SSLClient
  * tps.cert.audit_signing.nickname=xxx
- * tps.cert.audit_signing.certusage=EmailSigner
+ * tps.cert.audit_signing.certusage=ObjectSigner
  */
 TPS_PUBLIC bool RA::verifySystemCerts() {
     bool rv = false;
@@ -3305,7 +3319,7 @@ TPS_PUBLIC bool RA::verifySystemCerts() {
             cu = store->GetConfigAsString(configname_cu, NULL);
             if ((cu == NULL) || *cu==0) {
                 RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
-                    "certificate usage not found for cert tag:%s not checking certificate usage", sresult);
+                    "certificate usage not found for cert tag:%s. Getting current certificate usage", sresult);
             } else {
                 RA::Debug(LL_PER_SERVER, "RA::verifySystemCerts", 
                     "found certificate usage:%s", cu);
