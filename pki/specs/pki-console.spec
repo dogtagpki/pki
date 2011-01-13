@@ -18,13 +18,13 @@ BuildRequires:    cmake
 BuildRequires:    idm-console-framework
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6
+BuildRequires:    jss >= 4.2.6-12
 BuildRequires:    ldapjdk
 BuildRequires:    pki-util
 
 Requires:         idm-console-framework
 Requires:         java >= 1:1.6.0
-Requires:         jss >= 4.2.6
+Requires:         jss >= 4.2.6-12
 Requires:         ldapjdk
 Requires:         pki-console-theme
 

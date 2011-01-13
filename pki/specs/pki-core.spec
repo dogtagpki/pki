@@ -15,7 +15,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-10
+BuildRequires:    jss >= 4.2.6-12
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel >= 4.6.99
 BuildRequires:    nss-devel >= 3.12.3.99
@@ -129,7 +129,7 @@ Group:            System Environment/Libraries
 
 Requires:         java >= 1:1.6.0
 Requires:         jpackage-utils
-Requires:         jss >= 4.2.6
+Requires:         jss >= 4.2.6-12
 Requires:         nss >= 3.12.3.99
 
 Provides:         symkey = %{version}-%{release}
@@ -178,7 +178,7 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         jpackage-utils
-Requires:         jss >= 4.2.6
+Requires:         jss >= 4.2.6-12
 Requires:         ldapjdk
 
 %description -n   pki-util
@@ -262,7 +262,7 @@ Group:            System Environment/Base
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         jss >= 4.2.6
+Requires:         jss >= 4.2.6-12
 Requires:         osutil
 Requires:         pki-common-theme >= 9.0.0
 Requires:         pki-java-tools = %{version}-%{release}

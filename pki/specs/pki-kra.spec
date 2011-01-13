@@ -17,7 +17,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6
+BuildRequires:    jss >= 4.2.6-12
 BuildRequires:    pki-common
 BuildRequires:    pki-util
 
