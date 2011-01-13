@@ -45,7 +45,7 @@ import netscape.security.x509.X500Name;
 import com.netscape.cmsutil.ocsp.*;
 import com.netscape.cmsutil.ocsp.Request;
 
-import com.netscape.osutil.*;
+import com.netscape.osutil.OSUtil;
 
 
 public class ConfigureCA {
@@ -1087,10 +1087,10 @@ public class ConfigureCA {
 		
             try {
                 // get response data
-                // cert_to_import = OSUtil.BtoA(hr.getResponseData());
                 // Convert a byte array to base64 string
-                cert_to_import = new sun.misc.BASE64Encoder().encode(
-                    hr.getResponseData());
+                // cert_to_import = new sun.misc.BASE64Encoder().encode(
+                //     hr.getResponseData());
+                cert_to_import = OSUtil.BtoA(hr.getResponseData());
 
                 // Convert base64 string to a byte array
                 // buf = new sun.misc.BASE64Decoder().decodeBuffer(s);

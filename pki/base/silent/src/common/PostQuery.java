@@ -20,6 +20,7 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+import com.netscape.osutil.OSUtil;
 
 /**
  * CMS Test framework .
@@ -81,7 +82,9 @@ public class PostQuery {
 
             System.out.println("adminid=" + adminID);
             System.out.println("adminpwd=" + adminPWD);
-            String encoding = new sun.misc.BASE64Encoder().encode(
+            // String encoding = new sun.misc.BASE64Encoder().encode(
+            //         userPassword.getBytes());
+            String encoding = OSUtil.BtoA(
                     userPassword.getBytes());
             HttpURLConnection URLCon = (HttpURLConnection) myUrl.openConnection();
 

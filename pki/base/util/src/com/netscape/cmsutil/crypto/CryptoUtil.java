@@ -56,6 +56,7 @@ import netscape.security.pkcs.*;
 import netscape.security.x509.*;
 import com.netscape.cmsutil.util.Cert;
 
+import com.netscape.osutil.OSUtil;
 
 public class CryptoUtil {
 
@@ -74,7 +75,7 @@ public class CryptoUtil {
             return
                     "-----BEGIN CERTIFICATE-----\n"
                 //  + mEncoder.encodeBuffer(cert.getEncoded())
-                    + com.netscape.osutil.OSUtil.BtoA( cert.getEncoded() )
+                    + OSUtil.BtoA( cert.getEncoded() )
                     + "-----END CERTIFICATE-----\n";
         } catch (Exception e) {}
         return null;
@@ -261,7 +262,7 @@ public class CryptoUtil {
     public static byte[] base64Decode(String s) throws IOException {
      // BASE64Decoder base64 = new BASE64Decoder();
      // byte[] d = base64.decodeBuffer(s);
-        byte[] d = com.netscape.osutil.OSUtil.AtoB( s );
+        byte[] d = OSUtil.AtoB( s );
                                                                                 
         return d;
     }

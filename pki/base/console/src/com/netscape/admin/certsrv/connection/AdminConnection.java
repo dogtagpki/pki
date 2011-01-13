@@ -27,6 +27,8 @@ import com.netscape.management.client.util.*;
 import com.netscape.management.client.*;
 import com.netscape.management.client.preferences.*;
 
+import com.netscape.osutil.OSUtil;
+
 /**
  * This class represents an administration connection shell
  * to the certificate server. The user need to specify the
@@ -706,9 +708,12 @@ public class AdminConnection {
  
         if (mAuthType.equals("") || mAuthType.equals("pwd")) {
             BasicAuthenticator auth = (BasicAuthenticator)mAuth;
-            sun.misc.BASE64Encoder encoder = new sun.misc.BASE64Encoder();
+            // sun.misc.BASE64Encoder encoder = new sun.misc.BASE64Encoder();
+            // sb.append("Authorization: Basic " +
+            //          encoder.encodeBuffer((auth.getUserid() +
+            //                               ":" + auth.getPassword()).getBytes()) + "\n");
             sb.append("Authorization: Basic " +
-                     encoder.encodeBuffer((auth.getUserid() +
+                     OSUtil.BtoA((auth.getUserid() +
                                           ":" + auth.getPassword()).getBytes()) + "\n");
         } else if (mAuthType.equals("sslclientauth")) {
             sb.append("\n");

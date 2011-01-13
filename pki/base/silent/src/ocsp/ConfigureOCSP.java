@@ -42,7 +42,7 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
 import netscape.security.x509.X500Name;
 
-import com.netscape.osutil.*;
+import com.netscape.osutil.OSUtil;
 
 public class ConfigureOCSP
 {
@@ -728,8 +728,10 @@ public class ConfigureOCSP
         hr = hc.sslConnect(sd_hostname,sd_admin_port,admin_uri,query_string);
         
         // get response data
+        // String cert_to_import = 
+        //         new sun.misc.BASE64Encoder().encode(hr.getResponseData());
         String cert_to_import = 
-                new sun.misc.BASE64Encoder().encode(hr.getResponseData());
+                OSUtil.BtoA(hr.getResponseData());
         System.out.println("Imported Cert=" + cert_to_import);
 
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,

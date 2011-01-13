@@ -54,9 +54,10 @@ import netscape.security.x509.X500Name;
 import netscape.security.util.BigInt;
 import netscape.security.x509.X500Signer;
 
-import sun.misc.BASE64Encoder;
-import sun.misc.BASE64Decoder;
+//import sun.misc.BASE64Encoder;
+//import sun.misc.BASE64Decoder;
 import java.security.Signature;
+import com.netscape.osutil.OSUtil;
 
 
 /**
@@ -596,8 +597,9 @@ public class ComCrypto {
 
             byte encoded[] = ASN1Util.encode(s1); 
 
-            BASE64Encoder encoder = new BASE64Encoder(); 
-            String Req1 = encoder.encodeBuffer(encoded);
+            // BASE64Encoder encoder = new BASE64Encoder(); 
+            // String Req1 = encoder.encodeBuffer(encoded);
+            String Req1 = OSUtil.BtoA(encoded);
 
             // Set CRMF_REQUEST variable 
             CRMF_REQUEST = Req1;
@@ -673,8 +675,9 @@ public class ComCrypto {
             pair = kg.genKeyPair();
 
             // wrap private key
-            BASE64Decoder decoder = new BASE64Decoder();
-            byte transport[] = decoder.decodeBuffer(transportcert);
+            // BASE64Decoder decoder = new BASE64Decoder();
+            // byte transport[] = decoder.decodeBuffer(transportcert);
+            byte transport[] = OSUtil.AtoB(transportcert);
 
             X509Certificate tcert = manager.importCACertPackage(transport);
 
@@ -759,9 +762,10 @@ public class ComCrypto {
 
             byte encoded[] = ASN1Util.encode(s1);
 	
-            BASE64Encoder encoder = new BASE64Encoder();
+            // BASE64Encoder encoder = new BASE64Encoder();
 
-            CRMF_REQUEST = encoder.encodeBuffer(encoded);
+            // CRMF_REQUEST = encoder.encodeBuffer(encoded);
+            CRMF_REQUEST = OSUtil.BtoA(encoded);
 
             System.out.println("Generated crmf request: ...... ");
             System.out.println("");

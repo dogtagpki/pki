@@ -42,7 +42,7 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
 import netscape.security.x509.X500Name;
 
-import com.netscape.osutil.*;
+import com.netscape.osutil.OSUtil;
 
 public class ConfigureRA
 {
@@ -582,8 +582,10 @@ public class ConfigureRA
 
 		try
 		{
+			// cert_to_import = 
+			//     new sun.misc.BASE64Encoder().encode(hr.getResponseData());
 			cert_to_import = 
-				new sun.misc.BASE64Encoder().encode(hr.getResponseData());
+				OSUtil.BtoA(hr.getResponseData());
 
 		}
 		catch (Exception e)

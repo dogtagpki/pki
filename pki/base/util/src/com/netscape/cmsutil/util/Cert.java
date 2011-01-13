@@ -23,6 +23,7 @@ import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 //import sun.misc.BASE64Decoder;
+import com.netscape.osutil.OSUtil;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
@@ -95,7 +96,7 @@ public class Cert {
         mime64 = stripCertBrackets(mime64.trim());
         String newval = normalizeCertStr(mime64);
      // byte rawPub[] = mDecoder.decodeBuffer(newval);
-        byte rawPub[] = com.netscape.osutil.OSUtil.AtoB( newval );
+        byte rawPub[] = OSUtil.AtoB( newval );
         X509CertImpl cert = null;
 
         try {
@@ -110,7 +111,7 @@ public class Cert {
         mime64 = stripCertBrackets(mime64.trim());
         String newval = normalizeCertStr(mime64);
      // byte rawPub[] = mDecoder.decodeBuffer(newval);
-        byte rawPub[] = com.netscape.osutil.OSUtil.AtoB( newval );
+        byte rawPub[] = OSUtil.AtoB( newval );
         PKCS7 p7 = null;
 
         try {
@@ -126,7 +127,7 @@ public class Cert {
         mime64 = stripCRLBrackets(mime64.trim());
         String newval = normalizeCertStr(mime64);
      // byte rawPub[] = mDecoder.decodeBuffer(newval);
-        byte rawPub[] = com.netscape.osutil.OSUtil.AtoB( newval );
+        byte rawPub[] = OSUtil.AtoB( newval );
         X509CRL crl = null;
 
         try {
@@ -140,7 +141,7 @@ public class Cert {
         throws IOException {
         mime64 = stripCRLBrackets(mime64.trim());
 
-        byte rawPub[] = com.netscape.osutil.OSUtil.AtoB(mime64);
+        byte rawPub[] = OSUtil.AtoB(mime64);
         X509CRL crl = null;
 
         try {
