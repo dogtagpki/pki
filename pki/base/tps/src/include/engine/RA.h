@@ -180,6 +180,7 @@ class RA
       TPS_PUBLIC static char *ra_get_cert_type(LDAPMessage *entry);
       TPS_PUBLIC static char *ra_get_cert_serial(LDAPMessage *entry);
       TPS_PUBLIC static char *ra_get_cert_issuer(LDAPMessage *entry);
+          TPS_PUBLIC static int ra_delete_certificate_entry(LDAPMessage *entry);
           TPS_PUBLIC static int ra_tus_has_active_tokens(char *userid);
           TPS_PUBLIC static char *ra_get_token_reason(LDAPMessage *msg);
           TPS_PUBLIC static int ra_get_number_of_entries(LDAPMessage *ldapResult);

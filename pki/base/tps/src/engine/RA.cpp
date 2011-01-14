@@ -2850,6 +2850,23 @@ TPS_PUBLIC void RA::ra_tus_print_integer(char *out, SECItem *data)
     tus_print_integer(out, data);
 }
 
+TPS_PUBLIC int RA::ra_delete_certificate_entry(LDAPMessage* e) 
+{
+   char *dn = get_dn(e);
+   int rc = LDAP_SUCCESS;
+
+   if (dn != NULL) {
+       rc = delete_tus_general_db_entry(dn);
+       if (rc != LDAP_SUCCESS) {
+           RA::Debug("RA::delete_certificate_entry", 
+                     "Failed to remove certificate entry: %s", dn);
+       }
+       PL_strfree(dn);
+       dn = NULL;
+   }
+   return rc;
+}
+
 int RA::tdb_activity(char *ip, char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type)
 {
   return add_activity(ip, cuid, op, result, msg, userid, token_type);
@@ -2860,6 +2877,7 @@ int RA::tdb_update_certificates(char* cuid, char **tokentypes, char *userid, CER
     int rc = -1;
     LDAPMessage  *ldapResult = NULL;
     int k = 0;
+    char serialnumber[512];
     char filter[512];
     LDAPMessage *result = NULL;
     LDAPMessage *e = NULL;
@@ -2888,23 +2906,30 @@ int RA::tdb_update_certificates(char* cuid, char **tokentypes, char *userid, CER
             RA::Debug(LL_PER_PDU, "RA::tdb_update_certificates",
 	        "adding cert=%x", certificates[i]);
 
-            PR_snprintf(filter, 512, "tokenSerial=%x");
-            tus_print_integer(filter, &(certificates[i])->serialNumber);
+            tus_print_integer(serialnumber, &(certificates[i])->serialNumber);
+            PR_snprintf(filter, 512, "tokenSerial=%s", serialnumber);
 
             int r = find_tus_certificate_entries_by_order_no_vlv(filter, &result, 1);
             RA::Debug(LL_PER_PDU, "RA::tdb_update_certificates",
-                "find_tus_certificate_entries_by_order_no_vlv returned");
+                "find_tus_certificate_entries_by_order_no_vlv returned %d", r);
             bool found = false;
             if (r == LDAP_SUCCESS) {
                 for (e = get_first_entry(result); e != NULL; e = get_next_entry(e)) {
-                    char **values = get_attribute_values(e, "tokenStatus");
+                    char **values = get_attribute_values(e, "tokenID");
+                    char *cn = get_cert_cn(e);
+                    if (PL_strcmp(cuid, values[0])== 0)  found = true;
+                    if (cn != NULL) {
+                        RA::Debug(LL_PER_PDU, "RA::tdb_update_certificates", "Updating cert status of %s to active in tokendb", cn);
+                        r = update_cert_status(cn, "active");
+                        if (r != LDAP_SUCCESS) {
+                            RA::Debug("RA::tdb_update_certificates", 
+                                      "Unable to modify cert status to active in tokendb: %s", cn);
+                        }
+                        PL_strfree(cn);
+                        cn = NULL;
+                    }
  
-                    found = true;
-                    RA::Debug("RA::tdb_update_certificates", "Certificate status is %s", values[0]);
-                    add_certificate(cuid, origins[i], tokentypes[i], userid, certificates[i], 
-                      ktypes[i], values[0]);
                     ldap_value_free(values);
-                    break;
                 }
 
                 ldap_msgfree(result);

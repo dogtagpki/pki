@@ -2472,6 +2472,7 @@ bool RA_Processor::RevokeCertificates(RA_Session *session, char *cuid,char *audi
                         PL_strfree(attr_status);
                         attr_status = NULL;
                     }
+                    rc = RA::ra_delete_certificate_entry(e);
                     continue;
                 }
                 char *attr_serial= RA::ra_get_cert_serial(e);
@@ -2489,6 +2490,8 @@ bool RA_Processor::RevokeCertificates(RA_Session *session, char *cuid,char *audi
                   if (strcmp(origin, cuid) != 0) {
                     // skip this certificate, no need to do nothing
                     // We did not create this originally
+
+                    rc = RA::ra_delete_certificate_entry(e);
                     continue;
                   }
                 } else {
@@ -2530,6 +2533,7 @@ bool RA_Processor::RevokeCertificates(RA_Session *session, char *cuid,char *audi
                             attr_cn = NULL;
                         }
 
+                        rc = RA::ra_delete_certificate_entry(e);
                         continue;
                     }
                     statusNum = certEnroll->RevokeCertificate("1", serial, connid, statusString);
@@ -2565,6 +2569,7 @@ bool RA_Processor::RevokeCertificates(RA_Session *session, char *cuid,char *audi
                         statusString = NULL;
                     }
                 }
+                rc = RA::ra_delete_certificate_entry(e);
             }
             if (result != NULL)
                 ldap_msgfree(result);
