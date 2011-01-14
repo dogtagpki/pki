@@ -1,10 +1,6 @@
-###############################################################################
-###                       P A C K A G E   H E A D E R                       ###
-###############################################################################
-
 Name:             pki-core
 Version:          9.0.0
-Release:          1%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -12,13 +8,17 @@ Group:            System Environment/Daemons
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+# jss requires versioning to meet both build and runtime requirements
+# tomcatjss requires versioning since version 2.0.0 requires tomcat6
+# pki-common-theme requires versioning to meet runtime requirements
+# pki-ca-theme requires versioning to meet runtime requirements
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-12
 BuildRequires:    ldapjdk
-BuildRequires:    nspr-devel >= 4.6.99
-BuildRequires:    nss-devel >= 3.12.3.99
+BuildRequires:    nspr-devel
+BuildRequires:    nss-devel
 BuildRequires:    openldap-devel
 BuildRequires:    osutil
 BuildRequires:    pkgconfig
@@ -84,7 +84,7 @@ which comprise the following PKI subsystems:                           \
 For deployment purposes, Certificate System requires ONE AND ONLY ONE  \
 of the following "Mutually-Exclusive" PKI Theme packages:              \
                                                                        \
-  * ipa-pki-theme    (IPA deployments - IPA Theme)                     \
+  * ipa-pki-theme    (IPA deployments)                                 \
   * dogtag-pki-theme (Dogtag Certificate System deployments)           \
   * redhat-pki-theme (Red Hat Certificate System deployments)          \
                                                                        \
@@ -92,14 +92,6 @@ of the following "Mutually-Exclusive" PKI Theme packages:              \
 
 %description %{overview}
 
-
-###############################################################################
-###                   S U B P A C K A G E   H E A D E R S                   ###
-###############################################################################
-
-########################
-##     pki-setup      ##
-########################
 
 %package -n       pki-setup
 Summary:          Certificate System - PKI Instance Creation & Removal Scripts
@@ -119,10 +111,6 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-########################
-##     pki-symkey     ##
-########################
-
 %package -n       pki-symkey
 Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
@@ -130,7 +118,7 @@ Group:            System Environment/Libraries
 Requires:         java >= 1:1.6.0
 Requires:         jpackage-utils
 Requires:         jss >= 4.2.6-12
-Requires:         nss >= 3.12.3.99
+Requires:         nss
 
 Provides:         symkey = %{version}-%{release}
 
@@ -145,17 +133,14 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-########################
-##  pki-native-tools  ##
-########################
-
 %package -n       pki-native-tools
 Summary:          Certificate System - Native Tools
 Group:            System Environment/Base
 
 Requires:         openldap-clients
-Requires:         nss >= 3.12.3.99
-Requires:         nss-tools >= 3.12.3.99
+Requires:         nss
+Requires:         nss-tools
+Requires:         pki-setup = %{version}-%{release}
 
 %description -n   pki-native-tools
 These platform-dependent PKI executables are used to help make
@@ -165,10 +150,6 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
 
-
-########################
-##      pki-util      ##
-########################
 
 %package -n       pki-util
 Summary:          Certificate System - PKI Utility Framework
@@ -211,10 +192,6 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-########################
-##   pki-java-tools   ##
-########################
-
 %package -n       pki-java-tools
 Summary:          Certificate System - PKI Java-Based Tools
 Group:            System Environment/Base
@@ -250,10 +227,6 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
 
-
-########################
-##     pki-common     ##
-########################
 
 %package -n       pki-common
 Summary:          Certificate System - PKI Common Framework
@@ -306,10 +279,6 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-########################
-##    pki-selinux     ##
-########################
-
 %package -n       pki-selinux
 Summary:          Certificate System - PKI Selinux Policies
 Group:            System Environment/Base
@@ -326,10 +295,6 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
 
-
-########################
-##       pki-ca       ##
-########################
 
 %package -n       pki-ca
 Summary:          Certificate System - Certificate Authority
@@ -361,10 +326,6 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-########################
-##     pki-silent     ##
-########################
-
 %package -n       pki-silent
 Summary:          Certificate System - Silent Installer
 Group:            System Environment/Base
@@ -391,10 +352,6 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-###############################################################################
-###                   P A C K A G E   P R O C E S S I N G                   ###
-###############################################################################
-
 %prep
 
 
@@ -412,28 +369,10 @@ cd build
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
-###############################################################################
-###                 P A C K A G E   I N S T A L L A T I O N                 ###
-###############################################################################
-
 %install
 %{__rm} -rf %{buildroot}
 cd build
-%{__make} install DESTDIR=%{buildroot}
-
-
-###############################################################################
-###              S U B P A C K A G E   I N S T A L L A T I O N              ###
-###############################################################################
-
-########################
-##     pki-setup      ##
-########################
-
-
-########################
-##     pki-symkey     ##
-########################
+%{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
 cd %{buildroot}%{_libdir}/symkey
 %{__rm} symkey.jar
@@ -443,79 +382,6 @@ cd %{buildroot}%{_jnidir}
 %{__rm} symkey.jar
 %{__ln_s} %{_libdir}/symkey/symkey.jar symkey.jar
 
-
-########################
-##  pki-native-tools  ##
-########################
-
-
-########################
-##      pki-util      ##
-########################
-
-
-########################
-##   pki-java-tools   ##
-########################
-
-
-########################
-##     pki-common     ##
-########################
-
-
-########################
-##    pki-selinux     ##
-########################
-
-
-########################
-##       pki-ca       ##
-########################
-
-
-########################
-##     pki-silent     ##
-########################
-
-
-###############################################################################
-###  P R E  &  P O S T   I N S T A L L / U N I N S T A L L   S C R I P T S  ###
-###############################################################################
-
-########################
-##     pki-setup      ##
-########################
-
-
-########################
-##     pki-symkey     ##
-########################
-
-
-########################
-##  pki-native-tools  ##
-########################
-
-
-########################
-##      pki-util      ##
-########################
-
-
-########################
-##   pki-java-tools   ##
-########################
-
-
-########################
-##     pki-common     ##
-########################
-
-
-########################
-##    pki-selinux     ##
-########################
 
 %pre -n pki-selinux
 %saveFileContext targeted
@@ -539,13 +405,6 @@ if [ $1 = 0 ]; then
 fi
 
 
-########################
-##       pki-ca       ##
-########################
-
-%pre -n pki-ca
-
-
 %post -n pki-ca
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-cad || :
@@ -564,31 +423,17 @@ if [ "$1" -ge "1" ] ; then
 fi
 
 
-########################
-##     pki-silent     ##
-########################
-
-
-###############################################################################
-###   I N V E N T O R Y   O F   F I L E S   A N D   D I R E C T O R I E S   ### 
-###############################################################################
-
-########################
-##     pki-setup      ##
-########################
-
 %files -n pki-setup
 %defattr(-,root,root,-)
 %doc base/setup/LICENSE
 %{_bindir}/pkicreate
 %{_bindir}/pkiremove
 %dir %{_datadir}/pki
-%{_datadir}/pki/scripts/
+%dir %{_datadir}/pki/scripts
+%{_datadir}/pki/scripts/pkicommon.pm
+%dir %{_localstatedir}/lock/pki
+%dir %{_localstatedir}/run/pki
 
-
-########################
-##     pki-symkey     ##
-########################
 
 %files -n pki-symkey
 %defattr(-,root,root,-)
@@ -596,10 +441,6 @@ fi
 %{_jnidir}/symkey.jar
 %{_libdir}/symkey/
 
-
-########################
-##  pki-native-tools  ##
-########################
 
 %files -n pki-native-tools
 %defattr(-,root,root,-)
@@ -610,27 +451,22 @@ fi
 %{_bindir}/setpin
 %{_bindir}/sslget
 %{_bindir}/tkstool
-%dir %{_datadir}/pki
 %{_datadir}/pki/native-tools/
 
-
-########################
-##      pki-util      ##
-########################
 
 %files -n pki-util
 %defattr(-,root,root,-)
 %doc base/util/LICENSE
-%{_javadir}/pki/
+%dir %{_javadir}/pki
+%{_javadir}/pki/pki-cmsutil-%{version}.jar
+%{_javadir}/pki/pki-cmsutil.jar
+%{_javadir}/pki/pki-nsutil-%{version}.jar
+%{_javadir}/pki/pki-nsutil.jar
 
 %files -n pki-util-javadoc
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-util-%{version}/
 
-
-########################
-##   pki-java-tools   ##
-########################
 
 %files -n pki-java-tools
 %defattr(-,root,root,-)
@@ -654,23 +490,27 @@ fi
 %{_bindir}/PrettyPrintCert
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
-%{_javadir}/pki/
+%{_javadir}/pki/pki-tools-%{version}.jar
+%{_javadir}/pki/pki-tools.jar
 
 %files -n pki-java-tools-javadoc
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-java-tools-%{version}/
 
 
-########################
-##     pki-common     ##
-########################
-
 %files -n pki-common
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
-%{_javadir}/pki/
-%dir %{_datadir}/pki
-%{_datadir}/pki/scripts/
+%{_javadir}/pki/pki-certsrv-%{version}.jar
+%{_javadir}/pki/pki-certsrv.jar
+%{_javadir}/pki/pki-cms-%{version}.jar
+%{_javadir}/pki/pki-cms.jar
+%{_javadir}/pki/pki-cmsbundle-%{version}.jar
+%{_javadir}/pki/pki-cmsbundle.jar
+%{_javadir}/pki/pki-cmscore-%{version}.jar
+%{_javadir}/pki/pki-cmscore.jar
+%{_datadir}/pki/scripts/functions
+%{_datadir}/pki/scripts/pki_apache_initscript
 %{_datadir}/pki/setup/
 
 %files -n pki-common-javadoc
@@ -678,26 +518,18 @@ fi
 %{_javadocdir}/pki-common-%{version}/
 
 
-########################
-##    pki-selinux     ##
-########################
-
 %files -n pki-selinux
 %defattr(-,root,root,-)
 %doc base/selinux/LICENSE
 %{_datadir}/selinux/modules/pki.pp
 
 
-########################
-##       pki-ca       ##
-########################
-
 %files -n pki-ca
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
 %{_initrddir}/pki-cad
-%{_javadir}/pki/
-%dir %{_datadir}/pki
+%{_javadir}/pki/pki-ca-%{version}.jar
+%{_javadir}/pki/pki-ca.jar
 %dir %{_datadir}/pki/ca
 %{_datadir}/pki/ca/conf/
 %{_datadir}/pki/ca/emails/
@@ -705,30 +537,34 @@ fi
 %{_datadir}/pki/ca/profiles/ca/
 %{_datadir}/pki/ca/webapps/
 %{_datadir}/pki/ca/setup/
-%dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/lock/pki/ca
-%dir %{_localstatedir}/run/pki
 %dir %{_localstatedir}/run/pki/ca
 
-
-########################
-##     pki-silent     ##
-########################
 
 %files -n pki-silent
 %defattr(-,root,root,-)
 %doc base/silent/LICENSE
 %{_bindir}/pkisilent
-%{_javadir}/pki/
-%dir %{_datadir}/pki
+%{_javadir}/pki/pki-silent-%{version}.jar
+%{_javadir}/pki/pki-silent.jar
 %{_datadir}/pki/silent/
 
 
-###############################################################################
-###                            C H A N G E L O G                            ###
-###############################################################################
-
 %changelog
+* Thu Jan 13 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-3
+- Bugzilla Bug #668839 - Review Request: pki-core
+-   Removed empty "pre" from "pki-ca"
+-   Consolidated directory ownership
+-   Corrected file ownership within subpackages
+-   Removed all versioning from NSS and NSPR packages
+
+* Thu Jan 13 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-2
+- Bugzilla Bug #668839 - Review Request: pki-core
+-   Added component versioning comments
+-   Updated JSS from "4.2.6-10" to "4.2.6-12"
+-   Modified installation section to preserve timestamps
+-   Removed sectional comments
+
 * Wed Dec 1 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Initial revision. (kwright@redhat.com & mharmsen@redhat.com)
 
