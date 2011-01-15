@@ -60,6 +60,7 @@ const int  SelfTest::nTests = 3;
 const char *SelfTest::TEST_NAMES[SelfTest::nTests] = { TPSPresence::TEST_NAME, TPSValidity::TEST_NAME, TPSSystemCertsVerification::TEST_NAME };
 
 int SelfTest::isInitialized = 0;
+int SelfTest::StartupSystemCertsVerificationRun = 0;
 
 SelfTest::SelfTest()
 {
@@ -94,7 +95,7 @@ int SelfTest::runStartUpSelfTests (const char *nickname)
     int rc = 0;
     CERTCertificate *cert = 0;
 
-    RA::SelfTestLog("SelfTest::runStartUpSelfTests", "starting");
+    RA::SelfTestLog("SelfTest::runStartUpSelfTests", "per cert selftests starting for %s", nickname);
     if (TPSPresence::isStartupEnabled()) {
         rc = TPSPresence::runSelfTest(nickname, &cert);
     }
@@ -123,19 +124,34 @@ int SelfTest::runStartUpSelfTests (const char *nickname)
     } else {
         RA::SelfTestLog("SelfTest::runStartUpSelfTests", "TPSValidity self test has been successfully completed.");
     }
-    if (TPSSystemCertsVerification::isStartupEnabled()) {
-        rc = TPSSystemCertsVerification::runSelfTest();
+
+    RA::SelfTestLog("SelfTest::runStartUpSelfTests", "per cert selftests done for %s", nickname);
+    return 0;
+}
+
+int SelfTest::runStartUpSelfTests ()
+{
+    int rc = 0;
+
+    RA::SelfTestLog("SelfTest::runStartUpSelfTests", "general selftests starting");
+    /* this only needs to run once at startup */
+    if (SelfTest::StartupSystemCertsVerificationRun == 0) {
+        if (TPSSystemCertsVerification::isStartupEnabled()) {
+           rc = TPSSystemCertsVerification::runSelfTest();
+       }
+       if (rc != 0 && TPSSystemCertsVerification::isStartupCritical()) {
+           if (rc > 0) rc *= -1;
+           RA::SelfTestLog("SelfTest::runStartUpSelfTests", "Critical TPSSystemCertsVerification self test failure: %d", rc);
+           return rc;
+       } else if (rc != 0) {
+           RA::SelfTestLog("SelfTest::runStartUpSelfTests", "Noncritical TPSSystemCertsVerification self test failure: %d", rc);
+       } else {
+           RA::SelfTestLog("SelfTest::runStartUpSelfTests", "TPSSystemCertsVerification self test has been successfully completed.");
+       }
+       SelfTest::StartupSystemCertsVerificationRun = 1;
     }
-    if (rc != 0 && TPSSystemCertsVerification::isStartupCritical()) {
-        if (rc > 0) rc *= -1;
-        RA::SelfTestLog("SelfTest::runStartUpSelfTests", "Critical TPSSystemCertsVerification self test failure: %d", rc);
-        return rc;
-    } else if (rc != 0) {
-        RA::SelfTestLog("SelfTest::runStartUpSelfTests", "Noncritical TPSSystemCertsVerification self test failure: %d", rc);
-    } else {
-        RA::SelfTestLog("SelfTest::runStartUpSelfTests", "TPSSystemCertsVerification self test has been successfully completed.");
-    }
-    RA::SelfTestLog("SelfTest::runStartUpSelfTests", "done");
+
+    RA::SelfTestLog("SelfTest::runStartUpSelfTests", "general selftests done");
     return 0;
 }
 

@@ -627,6 +627,9 @@ int RA::InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount) {
         // As per CC requirements, we want to flush the audit log immediately
         // to ensure that the audit log is not full
         FlushAuditLogBuffer();
+
+        rc = SelfTest::runStartUpSelfTests(); // run general self tests
+        if (rc != 0) goto loser;
     }
 
     if (m_debug_log != NULL) {
@@ -2543,6 +2546,7 @@ int RA::InitializeHttpConnections(const char *id, int *len, HttpConnection **con
         if( ( clientnickname != NULL ) &&
             ( PL_strcmp( clientnickname, "" ) != 0 ) ) {
             SelfTest::Initialize(m_cfg);
+
             rc = SelfTest::runStartUpSelfTests(clientnickname);
             if (rc != 0) goto loser;
         } else {

@@ -53,7 +53,8 @@ class SelfTest
     SelfTest();  
     ~SelfTest();
     static void Initialize (ConfigStore *cfg);
-    static int runStartUpSelfTests (const char *nickname);
+    static int runStartUpSelfTests (const char *nickname); /* per cert */
+    static int runStartUpSelfTests (); /* general */
     static int runOnDemandSelfTests ();
     static int isOnDemandEnabled ();
     static int isOnDemandCritical ();
@@ -67,6 +68,7 @@ class SelfTest
 
   private: 
     static int isInitialized;
+    static int StartupSystemCertsVerificationRun;
 };
 
 #endif
