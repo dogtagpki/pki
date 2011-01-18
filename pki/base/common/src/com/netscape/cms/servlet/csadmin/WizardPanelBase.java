@@ -1353,23 +1353,29 @@ public class WizardPanelBase implements IWizardPanel {
                         }
                         if (name.equals("cloning.signing.nickname")) {                            
                             config.putString("preop.master.signing.nickname", v);
+                            config.putString(type + ".cert.signing.nickname", v);
                             config.putString(name, v);
                         } else if (name.equals("cloning.ocsp_signing.nickname")) {
                             config.putString("preop.master.ocsp_signing.nickname", v);
+                            config.putString(type + ".cert.ocsp_signing.nickname", v);
                             config.putString(name, v);
                         } else if (name.equals("cloning.subsystem.nickname")) {
                             config.putString("preop.master.subsystem.nickname", v);
+                            config.putString(type + ".cert.subsystem.nickname", v);
                             config.putString(name, v);
                         } else if (name.equals("cloning.transport.nickname")) {
                             config.putString("preop.master.transport.nickname", v);
                             config.putString("kra.transportUnit.nickName", v);
+                            config.putString("kra.cert.transport.nickname", v);
                             config.putString(name, v);
                         } else if (name.equals("cloning.storage.nickname")) {
                             config.putString("preop.master.storage.nickname", v);
                             config.putString("kra.storageUnit.nickName", v);
+                            config.putString("kra.cert.storage.nickname", v);
                             config.putString(name, v);
                         } else if (name.equals("cloning.audit_signing.nickname")) {
                             config.putString("preop.master.audit_signing.nickname", v);
+                            config.putString(type + ".cert.audit_signing.nickname", v);
                             config.putString(name, v);
                         } else if (name.equals("cloning.module.token")) {
                             config.putString("preop.module.token", v);

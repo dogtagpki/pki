@@ -256,8 +256,13 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             String host = u.getHost();
             int https_ee_port = u.getPort();
 
+            String https_admin_port = getSecurityDomainAdminPort( config,
+                                                                  host,
+                                                                  String.valueOf(https_ee_port) );
+
             config.putString("preop.master.hostname", host);
             config.putInteger("preop.master.httpsport", https_ee_port);
+            config.putString("preop.master.httpsadminport", https_admin_port);
 
             ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
             if (cstype.equals("ca")) {
