@@ -1,6 +1,6 @@
 Name:             ipa-pki-theme
-Version:          9.0.0
-Release:          2%{?dist}
+Version:          9.0.1
+Release:          1%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -54,6 +54,8 @@ This package is used by the Certificate System utilized by IPA.
 Summary:          Certificate System - Certificate Authority User Interface
 Group:            System Environment/Base
 
+Requires:         ipa-pki-common-theme = %{version}-%{release}
+
 Conflicts:        dogtag-pki-ca-theme
 Conflicts:        dogtag-pki-ca-ui
 Conflicts:        redhat-pki-ca-theme
@@ -104,11 +106,15 @@ cd build
 %files -n ipa-pki-ca-theme
 %defattr(-,root,root,-)
 %doc dogtag/ca-ui/LICENSE
-%dir %{_datadir}/pki
 %{_datadir}/pki/ca-ui/
 
 
 %changelog
+* Tue Jan 18 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
+- Made 'ipa-pki-common-theme' a runtime dependency of 'ipa-pki-ca-theme'
+- https://pkgdb.lab.eng.bos.redhat.com/pkg/packages/srpm/5936/
+-   Package Wrangler:  applied GPLv2 license header to 'xml.vm'
+
 * Thu Jan 13 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-2
 - Bugzilla Bug #668836 - Review Request: ipa-pki-theme
 -   Modified overview to pertain more to these packages

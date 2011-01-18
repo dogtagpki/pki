@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 IPA_PKI_THEME="ipa-pki-theme"
-IPA_PKI_THEME_VERSION="9.0.0"
+IPA_PKI_THEME_VERSION="9.0.1"
 
 
 ##
