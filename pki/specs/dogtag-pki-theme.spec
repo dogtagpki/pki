@@ -1,7 +1,3 @@
-###############################################################################
-###                       P A C K A G E   H E A D E R                       ###
-###############################################################################
-
 Name:             dogtag-pki-theme
 Version:          9.0.0
 Release:          1%{?dist}
@@ -22,88 +18,27 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{ver
 ExcludeArch:      ppc ppc64 s390 s390x
 %endif
 
-%global overview                                                          \
-=========================================                                 \
-||  ABOUT "DOGTAG CERTIFICATE SYSTEM"  ||                                 \
-=========================================                                 \
-                                                                          \
-Dogtag Certificate System (DCS) is an enterprise software system designed \
-to manage enterprise Public Key Infrastructure (PKI) deployments.         \
-                                                                          \
-The Dogtag PKI Suite is comprised of the following six subsystems         \
-and a client (for use by a Token Management System):                      \
-                                                                          \
-  * Certificate Authority (CA)                                            \
-  * Data Recovery Manager (DRM)                                           \
-  * Online Certificate Status Protocol (OCSP) Manager                     \
-  * Registration Authority (RA)                                           \
-  * Token Key Service (TKS)                                               \
-  * Token Processing System (TPS)                                         \
-  * Enterprise Security Client (ESC)                                      \
-                                                                          \
-Additionally, it provides a console GUI application used for              \
-server and user/group administration of CA, DRM, OCSP, and TKS,           \
-javadocs on portions of the Dogtag API, as well as various                \
-command-line tools used to assist with a Dogtag PKI deployment.           \
-                                                                          \
-To successfully deploy instances of a CA, DRM, OCSP, or TKS, a            \
-Tomcat Web Server must be up and running locally on this machine.         \
-                                                                          \
-To successfully deploy instances of an RA, or TPS, an                     \
-Apache Web Server must be up and running locally on this machine.         \
-                                                                          \
-To meet the database storage requirements of each CA, DRM, OCSP,          \
-TKS, or TPS instance, a 389 Directory Server must be up and               \
-running either locally on this machine, or remotely over the              \
-attached network connection.                                              \
-                                                                          \
-To meet the database storage requirements of an RA, an SQLite             \
-database will be created locally on this machine each time a              \
-new RA instance is created.                                               \
-                                                                          \
-Dogtag utilizes the 'pkicreate' utility to install a PKI subsystem;       \
-always use the 'pkicreate' and 'pkiremove' utilities to respectively      \
-create and remove PKI instances.                                          \
-                                                                          \
-Finally, to become operational, each PKI subsystem instance must be       \
-configured either manually via a Firefox browser, or by virtue of         \
-the batch configuration utility called 'pkisilent'.                       \
-                                                                          \
-For deployment purposes, Dogtag PKI requires ALL of the subpackages       \
-defined by the "pki-core" package.  Additionally, if an instance of       \
-a DRM ('pki-kra'), OCSP ('pki-ocsp'), RA ('pki-ra'), TKS ('pki-tks'),     \
-TPS ('pki-tps'), and/or ESC ('esc') is to be deployed, the associated     \
-package(s) will also need to be installed (and configured).               \
-                                                                          \
+%global overview                                                       \
+Several PKI packages require a "virtual" Theme component.  These       \
+"virtual" Theme components are "Provided" by various Theme "flavors"   \
+including "dogtag", "redhat", and "ipa".  Consequently,                \
+all "dogtag", "redhat", and "ipa" Theme components MUST be             \
+mutually exclusive!                                                    \
 %{nil}
 
 %description %{overview}
 
 
-###############################################################################
-###                   S U B P A C K A G E   H E A D E R S                   ###
-###############################################################################
-
-################################
-##  dogtag-pki-common-theme   ##
-################################
-
 %package -n       dogtag-pki-common-theme
 Summary:          Certificate System - PKI Common Framework User Interface
 Group:            System Environment/Base
 
-# NOTE:  Several PKI packages require a "virtual" Theme component.  These
-#        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "ipa".  Consequently,
-#        all "dogtag", "redhat", and "ipa" Theme components MUST be
-#        mutually exclusive!
 Conflicts:        ipa-pki-common-theme
 Conflicts:        ipa-pki-common-ui
 Conflicts:        redhat-pki-common-theme
 Conflicts:        redhat-pki-common-ui
 
-Obsoletes:        dogtag-pki-common-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-common-ui <= %{version}
+Obsoletes:        dogtag-pki-common-ui <= 1.3.3
 
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
@@ -117,26 +52,18 @@ This package is used by the Dogtag Certificate System.
 %{overview}
 
 
-################################
-##    dogtag-pki-ca-theme     ##
-################################
-
 %package -n       dogtag-pki-ca-theme
 Summary:          Certificate System - Certificate Authority User Interface
 Group:            System Environment/Base
 
-# NOTE:  Several PKI packages require a "virtual" Theme component.  These
-#        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "ipa".  Consequently,
-#        all "dogtag", "redhat", and "ipa" Theme components MUST be
-#        mutually exclusive!
+Requires:         dogtag-pki-common-theme = %{version}-%{release}
+
 Conflicts:        ipa-pki-ca-theme
 Conflicts:        ipa-pki-ca-ui
 Conflicts:        redhat-pki-ca-theme
 Conflicts:        redhat-pki-ca-ui
 
-Obsoletes:        dogtag-pki-ca-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-ca-ui <= %{version}
+Obsoletes:        dogtag-pki-ca-ui <= 1.3.2
 
 Provides:         pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-ui = %{version}-%{release}
@@ -150,26 +77,16 @@ This package is used by the Dogtag Certificate System.
 %{overview}
 
 
-################################
-##    dogtag-pki-kra-theme    ##
-################################
-
 %package -n       dogtag-pki-kra-theme
 Summary:          Certificate System - Data Recovery Manager User Interface
 Group:            System Environment/Base
 
-# NOTE:  Several PKI packages require a "virtual" Theme component.  These
-#        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "ipa".  Consequently,
-#        all "dogtag", "redhat", and "ipa" Theme components MUST be
-#        mutually exclusive!
-#Conflicts:        ipa-pki-kra-theme
-#Conflicts:        ipa-pki-kra-ui
+Requires:         dogtag-pki-common-theme = %{version}-%{release}
+
 Conflicts:        redhat-pki-kra-theme
 Conflicts:        redhat-pki-kra-ui
 
-Obsoletes:        dogtag-pki-kra-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-kra-ui <= %{version}
+Obsoletes:        dogtag-pki-kra-ui <= 1.3.2
 
 Provides:         pki-kra-theme = %{version}-%{release}
 Provides:         pki-kra-ui = %{version}-%{release}
@@ -183,26 +100,16 @@ This package is used by the Dogtag Certificate System.
 %{overview}
 
 
-################################
-##   dogtag-pki-ocsp-theme    ##
-################################
-
 %package -n       dogtag-pki-ocsp-theme
 Summary:          Certificate System - Online Certificate Status Protocol Manager User Interface
 Group:            System Environment/Base
 
-# NOTE:  Several PKI packages require a "virtual" Theme component.  These
-#        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "ipa".  Consequently,
-#        all "dogtag", "redhat", and "ipa" Theme components MUST be
-#        mutually exclusive!
-#Conflicts:        ipa-pki-ocsp-theme
-#Conflicts:        ipa-pki-ocsp-ui
+Requires:         dogtag-pki-common-theme = %{version}-%{release}
+
 Conflicts:        redhat-pki-ocsp-theme
 Conflicts:        redhat-pki-ocsp-ui
 
-Obsoletes:        dogtag-pki-ocsp-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-ocsp-ui <= %{version}
+Obsoletes:        dogtag-pki-ocsp-ui <= 1.3.1
 
 Provides:         pki-ocsp-theme = %{version}-%{release}
 Provides:         pki-ocsp-ui = %{version}-%{release}
@@ -216,26 +123,14 @@ This package is used by the Dogtag Certificate System.
 %{overview}
 
 
-################################
-##    dogtag-pki-ra-theme     ##
-################################
-
 %package -n       dogtag-pki-ra-theme
 Summary:          Certificate System - Registration Authority User Interface
 Group:            System Environment/Base
 
-# NOTE:  Several PKI packages require a "virtual" Theme component.  These
-#        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "ipa".  Consequently,
-#        all "dogtag", "redhat", and "ipa" Theme components MUST be
-#        mutually exclusive!
-#Conflicts:        ipa-pki-ra-theme
-#Conflicts:        ipa-pki-ra-ui
 Conflicts:        redhat-pki-ra-theme
 Conflicts:        redhat-pki-ra-ui
 
-Obsoletes:        dogtag-pki-ra-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-ra-ui <= %{version}
+Obsoletes:        dogtag-pki-ra-ui <= 1.3.2
 
 Provides:         pki-ra-theme = %{version}-%{release}
 Provides:         pki-ra-ui = %{version}-%{release}
@@ -249,26 +144,16 @@ This package is used by the Dogtag Certificate System.
 %{overview}
 
 
-################################
-##    dogtag-pki-tks-theme    ##
-################################
-
 %package -n       dogtag-pki-tks-theme
 Summary:          Certificate System - Token Key Service User Interface
 Group:            System Environment/Base
 
-# NOTE:  Several PKI packages require a "virtual" Theme component.  These
-#        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "ipa".  Consequently,
-#        all "dogtag", "redhat", and "ipa" Theme components MUST be
-#        mutually exclusive!
-#Conflicts:        ipa-pki-tks-theme
-#Conflicts:        ipa-pki-tks-ui
+Requires:         dogtag-pki-common-theme = %{version}-%{release}
+
 Conflicts:        redhat-pki-tks-theme
 Conflicts:        redhat-pki-tks-ui
 
-Obsoletes:        dogtag-pki-tks-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-tks-ui <= %{version}
+Obsoletes:        dogtag-pki-tks-ui <= 1.3.1
 
 Provides:         pki-tks-theme = %{version}-%{release}
 Provides:         pki-tks-ui = %{version}-%{release}
@@ -282,26 +167,14 @@ This package is used by the Dogtag Certificate System.
 %{overview}
 
 
-################################
-##    dogtag-pki-tps-theme    ##
-################################
-
 %package -n       dogtag-pki-tps-theme
 Summary:          Certificate System - Token Processing System User Interface
 Group:            System Environment/Base
 
-# NOTE:  Several PKI packages require a "virtual" Theme component.  These
-#        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "ipa".  Consequently,
-#        all "dogtag", "redhat", and "ipa" Theme components MUST be
-#        mutually exclusive!
-#Conflicts:        ipa-pki-tps-theme
-#Conflicts:        ipa-pki-tps-ui
 Conflicts:        redhat-pki-tps-theme
 Conflicts:        redhat-pki-tps-ui
 
-Obsoletes:        dogtag-pki-tps-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-tps-ui <= %{version}
+Obsoletes:        dogtag-pki-tps-ui <= 1.3.3
 
 Provides:         pki-tps-theme = %{version}-%{release}
 Provides:         pki-tps-ui = %{version}-%{release}
@@ -315,26 +188,14 @@ This package is used by the Dogtag Certificate System.
 %{overview}
 
 
-################################
-##  dogtag-pki-console-theme  ##
-################################
-
 %package -n       dogtag-pki-console-theme
 Summary:          Certificate System - PKI Console User Interface
 Group:            System Environment/Base
 
-# NOTE:  Several PKI packages require a "virtual" Theme component.  These
-#        "virtual" Theme components are "Provided" by various Theme "flavors"
-#        including "dogtag", "redhat", and "ipa".  Consequently,
-#        all "dogtag", "redhat", and "ipa" Theme components MUST be
-#        mutually exclusive!
-#Conflicts:        ipa-pki-console-theme
-#Conflicts:        ipa-pki-console-ui
 Conflicts:        redhat-pki-console-theme
 Conflicts:        redhat-pki-console-ui
 
-Obsoletes:        dogtag-pki-console-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-console-ui <= %{version}
+Obsoletes:        dogtag-pki-console-ui <= 1.3.2
 
 Provides:         pki-console-theme = %{version}-%{release}
 Provides:         pki-console-ui = %{version}-%{release}
@@ -347,10 +208,6 @@ This package is used by the Dogtag Certificate System.
 
 %{overview}
 
-
-###############################################################################
-###                   P A C K A G E   P R O C E S S I N G                   ###
-###############################################################################
 
 %prep
 
@@ -369,111 +226,11 @@ cd build
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
-###############################################################################
-###                 P A C K A G E   I N S T A L L A T I O N                 ###
-###############################################################################
-
 %install
 %{__rm} -rf %{buildroot}
 cd build
-%{__make} install DESTDIR=%{buildroot}
+%{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
-
-###############################################################################
-###              S U B P A C K A G E   I N S T A L L A T I O N              ###
-###############################################################################
-
-################################
-##  dogtag-pki-common-theme   ##
-################################
-
-
-################################
-##    dogtag-pki-ca-theme     ##
-################################
-
-
-################################
-##    dogtag-pki-kra-theme    ##
-################################
-
-
-################################
-##   dogtag-pki-ocsp-theme    ##
-################################
-
-
-################################
-##    dogtag-pki-ra-theme     ##
-################################
-
-
-################################
-##    dogtag-pki-tks-theme    ##
-################################
-
-
-################################
-##    dogtag-pki-tps-theme    ##
-################################
-
-
-################################
-##  dogtag-pki-console-theme  ##
-################################
-
-
-###############################################################################
-###  P R E  &  P O S T   I N S T A L L / U N I N S T A L L   S C R I P T S  ###
-###############################################################################
-
-################################
-##  dogtag-pki-common-theme   ##
-################################
-
-
-################################
-##    dogtag-pki-ca-theme     ##
-################################
-
-
-################################
-##    dogtag-pki-kra-theme    ##
-################################
-
-
-################################
-##   dogtag-pki-ocsp-theme    ##
-################################
-
-
-################################
-##    dogtag-pki-ra-theme     ##
-################################
-
-
-################################
-##    dogtag-pki-tks-theme    ##
-################################
-
-
-################################
-##    dogtag-pki-tps-theme    ##
-################################
-
-
-################################
-##  dogtag-pki-console-theme  ##
-################################
-
-
-###############################################################################
-###   I N V E N T O R Y   O F   F I L E S   A N D   D I R E C T O R I E S   ### 
-###############################################################################
-
-################################
-##  dogtag-pki-common-theme   ##
-################################
 
 %files -n dogtag-pki-common-theme
 %defattr(-,root,root,-)
@@ -482,42 +239,23 @@ cd build
 %{_datadir}/pki/common-ui/
 
 
-################################
-##    dogtag-pki-ca-theme     ##
-################################
-
 %files -n dogtag-pki-ca-theme
 %defattr(-,root,root,-)
 %doc dogtag/ca-ui/LICENSE
-%dir %{_datadir}/pki
 %{_datadir}/pki/ca-ui/
 
-
-################################
-##    dogtag-pki-kra-theme    ##
-################################
 
 %files -n dogtag-pki-kra-theme
 %defattr(-,root,root,-)
 %doc dogtag/kra-ui/LICENSE
-%dir %{_datadir}/pki
 %{_datadir}/pki/kra-ui/
 
-
-################################
-##   dogtag-pki-ocsp-theme    ##
-################################
 
 %files -n dogtag-pki-ocsp-theme
 %defattr(-,root,root,-)
 %doc dogtag/ocsp-ui/LICENSE
-%dir %{_datadir}/pki
 %{_datadir}/pki/ocsp-ui/
 
-
-################################
-##    dogtag-pki-ra-theme     ##
-################################
 
 %files -n dogtag-pki-ra-theme
 %defattr(-,root,root,-)
@@ -526,31 +264,19 @@ cd build
 %{_datadir}/pki/ra-ui/
 
 
-################################
-##    dogtag-pki-tks-theme    ##
-################################
-
 %files -n dogtag-pki-tks-theme
 %defattr(-,root,root,-)
 %doc dogtag/tks-ui/LICENSE
-%dir %{_datadir}/pki
 %{_datadir}/pki/tks-ui/
 
-
-################################
-##    dogtag-pki-tps-theme    ##
-################################
 
 %files -n dogtag-pki-tps-theme
 %defattr(-,root,root,-)
 %doc dogtag/tps-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/tps-ui/
+%attr(00755,root,root) %{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
-
-################################
-##  dogtag-pki-console-theme  ##
-################################
 
 %files -n dogtag-pki-console-theme
 %defattr(-,root,root,-)
@@ -558,11 +284,88 @@ cd build
 %{_javadir}/pki/
 
 
-###############################################################################
-###                            C H A N G E L O G                            ###
-###############################################################################
-
 %changelog
 * Wed Dec 1 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
-- Initial revision. (kwright@redhat.com & mharmsen@redhat.com)
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0
+- 'dogtag-pki-ca-theme' (formerly 'dogtag-pki-ca-ui')
+-     Bugzilla Bug #555927 - rhcs80 - AgentRequestFilter servlet and port
+      fowarding for agent services
+-     Bugzilla Bug #524916 - ECC key constraints plug-ins should be based on
+      ECC curve names (not on key sizes).
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #653576 - tomcat5 does not always run filters on servlets
+      as expected
+- 'dogtag-pki-common-theme' (formerly 'dogtag-pki-common-ui')
+-     Bugzilla Bug #630126 - clone installation wizard basedn for internal
+      db should not be changeable
+-     Bugzilla Bug #533529 - rhcs80 web wizard - broken login page when
+      using valid pin
+-     Bugzilla Bug #223336 - ECC: unable to clone a ECC CA
+-     Bugzilla Bug #528249 - rhcs80 - web pages, css -moz-opacity deprecated
+-     Bugzilla Bug #638242 - Installation Wizard: at SizePanel, fix selection
+      of signature algorithm; and for ECC curves
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #653576 - tomcat5 does not always run filters on servlets
+      as expected
+- 'dogtag-pki-console-theme' (formerly 'dogtag-pki-console-ui')
+-     Bugzilla Bug #607380 - CC: Make sure Java Console can configure all
+      security relevant config items
+-     Bugzilla Bug #516632 - RHCS 7.1 - CS Incorrectly Issuing Multiple
+      Certificates from the Same Request
+-     Bugzilla Bug #451874 - RFE - Java console - Certificate Wizard missing
+      e.c. support
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #643206 - New CMake based build system for Dogtag
+-     Bugzilla Bug #656733 - Standardize jar install location and jar names
+- 'dogtag-pki-kra-theme' (formerly 'dogtag-pki-kra-ui')
+-     Bugzilla Bug #555927 - rhcs80 - AgentRequestFilter servlet and port
+      fowarding for agent services
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #653576 - tomcat5 does not always run filters on servlets
+      as expected
+- 'dogtag-pki-ocsp-theme' (formerly 'dogtag-pki-ocsp-ui')
+-     Bugzilla Bug #630121 - OCSP responder lacking option to delete or
+      disable a CA that it serves
+-     Bugzilla Bug #555927 - rhcs80 - AgentRequestFilter servlet and port
+      fowarding for agent services
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #653576 - tomcat5 does not always run filters on servlets
+      as expected
+- 'dogtag-pki-ra-theme' (formerly 'dogtag-pki-ra-ui')
+-     Bugzilla Bug #533529 - rhcs80 web wizard - broken login page when
+      using valid pin
+-     Bugzilla Bug #528249 - rhcs80 - web pages, css -moz-opacity deprecated
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+- 'dogtag-pki-tks-theme' (formerly 'dogtag-pki-tks-ui')
+-     Bugzilla Bug #555927 - rhcs80 - AgentRequestFilter servlet and port
+      fowarding for agent services
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #653576 - tomcat5 does not always run filters on servlets
+      as expected
+- 'dogtag-pki-tps-theme' (formerly 'dogtag-pki-tps-ui')
+-     Bugzilla Bug #607373 - add self test framework to TPS subsytem
+-     Bugzilla Bug #607374 - add self test to TPS self test framework
+-     Bugzilla Bug #624847 - Installed TPS cannot be started to be configured.
+-     Bugzilla Bug #630018 - Delete button missing from Edit Profile page.
+-     Bugzilla Bug #609331 - Should not be able to manually change the status
+      on a token marked as permanently lost or destroyed - fix confirmation
+      page
+-     Bugzilla Bug #533529 - rhcs80 web wizard - broken login page when
+      using valid pin
+-     Bugzilla Bug #642692 - TPS UI Admin tab: Remove 'Submit For Approval'
+      greyed out button from the subsystem connection edit page.
+-     Bugzilla Bug #646545 - TPS Agent tab: displays approve list parameter
+      with last character chopped.
+-     Bugzilla Bug #528249 - rhcs80 - web pages, css -moz-opacity deprecated
+-     Bugzilla Bug #532724 - Feature: ESC Security officer work station should
+      display % of operation complete for format SO card
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
 
