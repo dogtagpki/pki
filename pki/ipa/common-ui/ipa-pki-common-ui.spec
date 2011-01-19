@@ -1,5 +1,5 @@
 Name:           ipa-pki-common-ui
-Version:        9.0.0
+Version:        9.0.1
 Release:        1%{?dist}
 Summary:        PKI Common Framework User Interface
 URL:            http://pki.fedoraproject.org/
@@ -78,5 +78,8 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Tue Jan 18 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
+- updated version due to Package Wrangler comments
+
 * Fri Sep 17 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Initial revision.
