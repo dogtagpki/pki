@@ -1,6 +1,6 @@
 Name:             dogtag-pki-theme
 Version:          9.0.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -11,6 +11,8 @@ BuildArch:        noarch
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
+BuildRequires:    java-devel >= 1:1.6.0
+BuildRequires:    jpackage-utils
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -192,6 +194,8 @@ This package is used by the Dogtag Certificate System.
 Summary:          Certificate System - PKI Console User Interface
 Group:            System Environment/Base
 
+Requires:         java >= 1:1.6.0
+
 Conflicts:        redhat-pki-console-theme
 Conflicts:        redhat-pki-console-ui
 
@@ -230,6 +234,8 @@ cd build
 %{__rm} -rf %{buildroot}
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
+
+chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %files -n dogtag-pki-common-theme
@@ -275,7 +281,6 @@ cd build
 %doc dogtag/tps-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/tps-ui/
-%attr(00755,root,root) %{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %files -n dogtag-pki-console-theme
@@ -285,6 +290,14 @@ cd build
 
 
 %changelog
+* Thu Jan 20 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-2
+- Bugzilla Bug #671030 - Review Request: dogtag-pki-theme - Certificate
+  System, Dogtag PKI Theme Components
+-     Added 'java-devel' and 'jpackage' build requirements
+-     Added 'java' runtime requirement to 'dogtag-pki-console-theme'
+-     Added file mode change to installation section
+-     Deleted explicit file mode change from files inventory section
+
 * Wed Dec 1 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0
 - 'dogtag-pki-ca-theme' (formerly 'dogtag-pki-ca-ui')
