@@ -1,7 +1,3 @@
-###############################################################################
-###                       P A C K A G E   H E A D E R                       ###
-###############################################################################
-
 Name:             pki-tps
 Version:          9.0.0
 Release:          1%{?dist}
@@ -18,8 +14,8 @@ BuildRequires:    apr-util-devel
 BuildRequires:    cyrus-sasl-devel
 BuildRequires:    httpd-devel >= 2.2.3
 BuildRequires:    mozldap-devel
-BuildRequires:    nspr-devel >= 4.6.99
-BuildRequires:    nss-devel >= 3.12.3.99
+BuildRequires:    nspr-devel
+BuildRequires:    nss-devel
 BuildRequires:    pcre-devel
 BuildRequires:    svrcore-devel
 BuildRequires:    zlib
@@ -173,7 +169,6 @@ fi
 %{_bindir}/tpsclient
 %{_libdir}/httpd/modules/*
 %{_libdir}/lib*
-%dir %{_datadir}/pki
 %dir %{_datadir}/pki/tps
 %{_datadir}/pki/tps/applets/
 %{_datadir}/pki/tps/cgi-bin/
@@ -183,9 +178,7 @@ fi
 %{_datadir}/pki/tps/samples/
 %{_datadir}/pki/tps/scripts/
 %{_datadir}/pki/tps/setup/
-%dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/lock/pki/tps
-%dir %{_localstatedir}/run/pki
 %dir %{_localstatedir}/run/pki/tps
 
 
@@ -198,5 +191,164 @@ fi
 
 %changelog
 * Wed Dec 1 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
-- Initial revision. (kwright@redhat.com & mharmsen@redhat.com)
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0
+- Bugzilla Bug #620863 - saved CS.cfg files should be moved to a subdirectory
+  to avoid cluttering
+- Bugzilla Bug #607373 - add self test framework to TPS subsytem
+- Bugzilla Bug #607374 - add self test to TPS self test framework
+- Bugzilla Bug #624847 - Installed TPS cannot be started to be configured.
+- Bugzilla Bug #620925 - CC: auditor needs to be able to download audit logs
+  in the java subsystems
+- Bugzilla Bug #547507 - Token renewal: certs on the token is deleted when
+  one of the certs on the token is outside renewal grace period.
+- Bugzilla Bug #622535 - 64 bit host zlib uncompress operation fails when
+  reading data from token.
+- Bugzilla Bug #497931 - CS 8.0 -- Have to download and stall the trust chain
+  through ESC even if it was already installed in the browser.
+- Bugzilla Bug #579790 - errors in ESC communications can leave unusable
+  tokens and inconsistent data in TPS
+- Bugzilla Bug #631474 - Token enrollment with TPS Client fails with error
+  'Applet memory exceeded when writing out final token data'
+- Bugzilla Bug #488762 - Found HTTP TRACE method enabled on TPS
+- Bugzilla Bug #633405 - Tps client unable to perform token enrollment when
+  tried to load certificates with 2048 bit keys
+- Bugzilla Bug #558100 - host challenge of the Secure Channel needs to be
+  generated on TKS instead of TPS.
+- Bugzilla Bug #574942 - TPS database has performance problems with a large
+  number of tokens
+- Bugzilla Bug #637982 - some selftest parameters are not properly substituted
+- Bugzilla Bug #637824 - TPS UI: Profile state in CS.cfg is Pending Approval
+  after agent approve and Enable
+- Bugzilla Bug #223313 - should do random generated IV param
+  for symmetric keys
+- Bugzilla Bug #628995 - TPS CC requirement: Unused predicates for revocation
+  controls for TPS enrollment profiles should be removed.
+- Bugzilla Bug #642084 - CC feature: Key Management -provide signature
+  verification functions (TPS subsystem)
+- Bugzilla Bug #646545 - TPS Agent tab: displays approve list parameter with
+  last character chopped.
+- Bugzilla Bug #532724 - Feature: ESC Security officer work station should
+  display % of operation complete for format SO card
+- Bugzilla Bug #647364 - CC: audit signing certs for JAVA subsystems fail
+  CIMC cert verification (expose updated cert verification function in JSS)
+- Bugzilla Bug #651087 - TPS UI Admin tab display 'null' string in the
+  General configuration
+- Bugzilla Bug #651916 - kra and ocsp are using incorrect ports
+  to talk to CA and complete configuration in DonePanel
+- Bugzilla Bug #632425 - Port to tomcat6
+- Bugzilla Bug #638377 - Generate PKI UI components which exclude
+  a GUI interface
+- Bugzilla Bug #640042 - TPS Installlation Wizard: need to move Module Panel
+  up to before Security Domain Panel
+- Bugzilla Bug #642357 - CC Feature- Self-Test plugins only check for
+  validity
+- Bugzilla Bug #643206 - New CMake based build system for Dogtag
+- Bugzilla Bug #499494 - change CA defaults to SHA2
+- Bugzilla Bug #661128 - incorrect CA ports used for revoke, unrevoke certs
+  in TPS
+- Bugzilla Bug #223314 - AOL: Better activities logs
+- Bugzilla Bug #651001 - TPS does not create a password for entries in ldap.
+  This violates STIG requirements
+- Bugzilla Bug #512248 - Status mismatch for the encryption cert in tps agent
+  and CA when a temporary smart card is issued.
+- Bugzilla Bug #666902 - TPS needs to call CERT_VerifyCertificate() correctly
+- Bugzilla Bug #223319 - Certificate Status inconsistency between token db
+  and CA
+- Bugzilla Bug #669055 - TPS server does not re-start when signedAudit
+  logging is turned ON
+
+* Wed Aug 04 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
+- Bugzilla Bug #601299 - tps installation does not update security domain
+- Bugzilla Bug #527593 - More robust signature digest alg, like SHA256
+  instead of SHA1 for ECC
+- Bugzilla Bug #528236 - rhcs80 web conf wizard - cannot specify CA signing
+  algorithm
+- Bugzilla Bug #533510 - tps exception, cannot start when signed audit true
+- Bugzilla Bug #529280 - TPS returns HTTP data without ending in 0rn
+  per RFC 2616
+- Bugzilla Bug #498299 - Should not be able to change the status manually
+  on a token marked as permanently lost or destroyed
+- Bugzilla Bug #554892 - configurable frequency signed audit
+- Bugzilla Bug #500700 - tps log rotation
+- Bugzilla Bug #562893 - tps shutdown if audit logs full
+- Bugzilla Bug #557346 - Name Constraints Extension cant be marked critical
+- Bugzilla Bug #556152 - ACL changes to CA and OCSP
+- Bugzilla Bug #556167 - ACL changes to CA and OCSP
+- Bugzilla Bug #581004 - add more audit logging to the TPS
+- Bugzilla Bug #566517 - CC: Add client auth to OCSP publishing,
+  and move to a client-auth port
+- Bugzilla Bug #565842 - Clone config throws errors - fix key_algorithm
+- Bugzilla Bug #581017 - enabling log signing from tps ui pages causes tps
+  crash
+- Bugzilla Bug #581004 - add more audit logs
+- Bugzilla Bug #595871 - CC: TKS needed audit message changes
+- Bugzilla Bug #598752 - Common Criteria: TKS ACL analysis result.
+- Bugzilla Bug #598666 - Common Criteria: incorrect ACLs for signedAudit
+- Bugzilla Bug #504905 - Smart card renewal should load old encryption cert
+  on the token.
+- Bugzilla Bug #499292 - TPS - Enrollments where keys are recovered need
+  to do both GenerateNewKey and RecoverLast operation for encryption key.
+- Bugzilla Bug #498299 - fix case where no transitions available
+- Bugzilla Bug #604186 - Common Criteria: TPS: Key Recovery needs
+  to meet CC requirements
+- Bugzilla Bug #604178 - Common Criteria: TPS: cert registration needs
+  to meet CC requirements
+- Bugzilla Bug #600968 - Common Criteria: TPS: cert registration needs
+  to meet CC requirements
+- Bugzilla Bug #607381 - Common Criteria: TPS: cert registration needs
+  to meet CC requirements
+
+* Thu Apr 08 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
+  needs correction
+
+* Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-8
+- Bugzilla Bug #566060 - Add 'pki-native-tools' as a runtime dependency
+  for RA, and TPS . . .
+
+* Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-7
+- Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System
+  Token Processing System
+- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
+- Applied filters for unwanted perl provides and requires
+- Applied %{?_smp_mflags} option to 'make'
+- Removed manual 'strip' commands
+
+* Thu Jan 28 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
+- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
+- Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System
+  Token Processing System
+
+* Wed Jan 27 2010 Kevin Wright <kwright@redhat.com> 1.3.0-5
+- Bugzilla Bug #553852 - Review Request: pki-tps - The Dogtag PKI System
+  Token Processing System
+- Per direction from the Fedora community,
+  removed the following explicit "Requires":
+      perl-HTML-Parser
+      perl-HTML-Tagset
+      perl-Parse-RecDescent
+      perl-URI
+      perl-XML-NamespaceSupport
+      perl-XML-Parser
+      perl-XML-Simple
+
+* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
+- Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into
+  pkicreate . . .
+- Bugzilla Bug #547471 - Apply PKI SELinux changes to PKI registry model
+- Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
+- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
+- Bugzilla Bug #553852 - Review Request: pki-tps - Dogtag Certificate System
+  Token Processing System
+
+* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-3
+- Removed BuildRequires bash - Removed 'with exceptions' from License
+
+* Mon Nov 02 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-2
+- Bugzilla Bug #X - Packaging for Fedora Dogtag PKI
+- Prepended directory path in front of setup_package
+- Take ownership of pki tps directory.
+
+* Fri Oct 16 2009 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-1
+- Bugzilla Bug #X - Packaging for Fedora Dogtag PKI
 

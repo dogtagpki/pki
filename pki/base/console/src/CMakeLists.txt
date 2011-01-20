@@ -69,6 +69,14 @@ find_file(JSS_JAR
         /usr/share/java
 )
 
+find_file(OSUTIL_JAR
+    NAMES
+        osutil.jar
+    PATHS
+        /usr/lib/java
+        /usr/share/java
+)
+
 
 # identify java sources
 set(pki-console_java_SRCS
@@ -598,7 +606,8 @@ set(CMAKE_JAVA_INCLUDE_PATH
     ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
     ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
     ${PKI_NSUTIL_JAR}
-    ${JSS_JAR})
+    ${JSS_JAR}
+    ${OSUTIL_JAR})
 
 
 # set version

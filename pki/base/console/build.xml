@@ -22,6 +22,7 @@
 
     <property name="jss.home" value="${jni-jar.home}${dirsec}"/>
     <property name="jss.jar" value="${jss.home}/jss4.jar"/>
+    <property name="osutil.jar" value="${jni-jar.home}/osutil.jar"/>
     <property name="ldapjdk.jar" value="${jar.home}/ldapjdk.jar"/>
     <property name="base.jar" value="${jar.home}/idm-console-base.jar"/>
     <property name="mcc.jar" value="${jar.home}/idm-console-mcc.jar"/>
@@ -32,6 +33,7 @@
 
     <path id="classpath">
         <pathelement location="${jss.jar}"/>
+        <pathelement location="${osutil.jar}"/>
         <pathelement location="${ldapjdk.jar}"/>
         <pathelement location="${pki-nsutil.jar}"/>
         <pathelement location="${base.jar}"/>

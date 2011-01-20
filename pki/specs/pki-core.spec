@@ -1,6 +1,6 @@
 Name:             pki-core
-Version:          9.0.0
-Release:          3%{?dist}
+Version:          9.0.1
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -140,7 +140,6 @@ Group:            System Environment/Base
 Requires:         openldap-clients
 Requires:         nss
 Requires:         nss-tools
-Requires:         pki-setup = %{version}-%{release}
 
 %description -n   pki-native-tools
 These platform-dependent PKI executables are used to help make
@@ -306,7 +305,6 @@ Requires:         java >= 1:1.6.0
 Requires:         pki-ca-theme >= 9.0.0
 Requires:         pki-common = %{version}-%{release}
 Requires:         pki-selinux = %{version}-%{release}
-Requires:         pki-setup = %{version}-%{release}
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
@@ -451,6 +449,7 @@ fi
 %{_bindir}/setpin
 %{_bindir}/sslget
 %{_bindir}/tkstool
+%dir %{_datadir}/pki
 %{_datadir}/pki/native-tools/
 
 
@@ -551,6 +550,325 @@ fi
 
 
 %changelog
+* Tue Jan 18 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
+- Allow 'pki-native-tools' to be installed independently of 'pki-setup'
+- Removed explicit 'pki-setup' requirement from 'pki-ca'
+  (since it already requires 'pki-common')
+- 'pki-setup'
+-     Bugzilla Bug #223343 - pkicreate: should add 'pkiuser' to nfast group
+-     Bugzilla Bug #629377 - Selinux errors during pkicreate CA, KRA, OCSP
+      and TKS.
+-     Bugzilla Bug #555927 - rhcs80 - AgentRequestFilter servlet and port
+      fowarding for agent services
+-     Bugzilla Bug #632425 - Port to tomcat6
+-     Bugzilla Bug #606946 - Convert Native Tools to use ldapAPI from
+      OpenLDAP instead of the Mozldap
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #643206 - New CMake based build system for Dogtag
+-     Bugzilla Bug #658926 - org.apache.commons.lang class not found on F13
+-     Bugzilla Bug #661514 - CMAKE build system requires rules to make
+      javadocs
+-     Bugzilla Bug #665388 - jakarta-* jars have been renamed to apache-*,
+      pkicreate fails Fedora 14 and above
+-     Bugzilla Bug #23346 - Two conflicting ACL list definitions in source
+      repository
+-     Bugzilla Bug #656733 - Standardize jar install location and jar names
+- 'pki-symkey'
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #643206 - New CMake based build system for Dogtag
+-     Bugzilla Bug #644056 - CS build contains warnings
+- 'pki-native-tools'
+-     template change
+-     Bugzilla Bug #606946 - Convert Native Tools to use ldapAPI from
+      OpenLDAP instead of the Mozldap
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #643206 - New CMake based build system for Dogtag
+-     Bugzilla Bug #644056 - CS build contains warnings
+- 'pki-util'
+-     Bugzilla Bug #615814 - rhcs80 - profile policyConstraintsCritical
+      cannot be set to true
+-     Bugzilla Bug #224945 - javadocs has missing descriptions, contains
+      empty packages
+-     Bugzilla Bug #621337 - Limit the received senderNonce value to 16 bytes.
+-     Bugzilla Bug #621338 - Include a server randomly-generated 16 byte
+      senderNonce in all signed SCEP responses.
+-     Bugzilla Bug #621327 - Provide switch disabling algorithm downgrade
+      attack in SCEP
+-     Bugzilla Bug #621334 - Provide an option to set default hash algorithm
+      for signing SCEP response messages.
+-     Bugzilla Bug #635033 - At installation wizard selecting key types other
+      than CA's signing cert will fail
+-     Bugzilla Bug #645874 - rfe ecc - add ecc curve name support in JSS and
+      CS interface
+-     Bugzilla Bug #488253 - com.netscape.cmsutil.ocsp.BasicOCSPResponse
+      ASN.1 encoding/decoding is broken
+-     Bugzilla Bug #551410 - com.netscape.cmsutil.ocsp.TBSRequest ASN.1
+      encoding/decoding is incomplete
+-     Bugzilla Bug #550331 - com.netscape.cmsutil.ocsp.ResponseData ASN.1
+      encoding/decoding is incomplete
+-     Bugzilla Bug #623452 - rhcs80 pkiconsole profile policy editor limit
+      policy extension to 5 only
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #651977 - turn off ssl2 for java servers (server.xml)
+-     Bugzilla Bug #643206 - New CMake based build system for Dogtag
+-     Bugzilla Bug #661514 - CMAKE build system requires rules to make
+      javadocs
+-     Bugzilla Bug #658188 - remove remaining references to tomcat5
+-     Bugzilla Bug #656733 - Standardize jar install location and jar names
+-     Bugzilla Bug #223319 - Certificate Status inconsistency between token
+      db and CA
+-     Bugzilla Bug #531137 - RHCS 7.1 - Running out of Java Heap Memory
+      During CRL Generation
+- 'pki-java-tools'
+-     Bugzilla Bug #224945 - javadocs has missing descriptions, contains
+      empty packages
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #659004 - CC: AuditVerify hardcoded with SHA-1
+-     Bugzilla Bug #643206 - New CMake based build system for Dogtag
+-     Bugzilla Bug #661514 - CMAKE build system requires rules to make
+      javadocs
+-     Bugzilla Bug #662156 - HttpClient is hard-coded to handle only up to
+      5000 bytes
+-     Bugzilla Bug #656733 - Standardize jar install location and jar names
+- 'pki-common'
+-     Bugzilla Bug #583822 - CC: ACL issues from CA interface CC doc review
+-     Bugzilla Bug #623745 - SessionTimer with LDAPSecurityDomainSessionTable
+      started before configuration completed
+-     Bugzilla Bug #620925 - CC: auditor needs to be able to download audit
+      logs in the java subsystems
+-     Bugzilla Bug #615827 - rhcs80 - profile policies need more than 5
+      policy mappings (seem hardcoded)
+-     Bugzilla Bug #224945 - javadocs has missing descriptions, contains
+      empty packages
+-     Bugzilla Bug #548699 - subCA's admin certificate should be generated by
+      itself
+-     Bugzilla Bug #621322 - Provide switch disabling SCEP support in CA
+-     Bugzilla Bug #563386 - rhcs80 ca crash on invalid inputs to profile
+      caAgentServerCert (null cert_request)
+-     Bugzilla Bug #621339 - SCEP one-time PIN can be used an unlimited
+      number of times
+-     Bugzilla Bug #583825 - CC: Obsolete servlets to be removed from web.xml
+      as part of CC interface review
+-     Bugzilla Bug #629677 - TPS: token enrollment fails.
+-     Bugzilla Bug #621350 - Unauthenticated user can decrypt a one-time PIN
+      in a SCEP request
+-     Bugzilla Bug #503838 - rhcs71-80 external publishing ldap connection
+      pools not reliable - improve connections or discovery
+-     Bugzilla Bug #629769 - password decryption logs plain text password
+-     Bugzilla Bug #583823 - CC: Auditing issues found as result of
+      CC - interface review
+-     Bugzilla Bug #632425 - Port to tomcat6
+-     Bugzilla Bug #586700 - OCSP Server throws fatal error while using
+      OCSP console for renewing SSL Server certificate.
+-     Bugzilla Bug #621337 - Limit the received senderNonce value to 16 bytes.
+-     Bugzilla Bug #621338 - Include a server randomly-generated 16 byte
+      senderNonce in all signed SCEP responses.
+-     Bugzilla Bug #607380 - CC: Make sure Java Console can configure all
+      security relevant config items
+-     Bugzilla Bug #558100 - host challenge of the Secure Channel needs to be
+      generated on TKS instead of TPS.
+-     Bugzilla Bug #489342 -
+      com.netscape.cms.servlet.common.CMCOutputTemplate.java
+      doesn't support EC
+-     Bugzilla Bug #630121 - OCSP responder lacking option to delete or
+      disable a CA that it serves
+-     Bugzilla Bug #634663 - CA CMC response default hard-coded to SHA1
+-     Bugzilla Bug #621327 - Provide switch disabling algorithm downgrade
+      attack in SCEP
+-     Bugzilla Bug #621334 - Provide an option to set default hash algorithm
+      for signing SCEP response messages.
+-     Bugzilla Bug #635033 - At installation wizard selecting key types other
+      than CA's signing cert will fail
+-     Bugzilla Bug #621341 - Add CA support for new SCEP key pair dedicated
+      for SCEP signing and encryption.
+-     Bugzilla Bug #223336 - ECC: unable to clone a ECC CA
+-     Bugzilla Bug #539781 - rhcs 71 - CRLs Partitioned
+      by Reason Code - onlySomeReasons ?
+-     Bugzilla Bug #637330 - CC feature: Key Management - provide signature
+      verification functions (JAVA subsystems)
+-     Bugzilla Bug #223313 - should do random generated IV param
+      for symmetric keys
+-     Bugzilla Bug #555927 - rhcs80 - AgentRequestFilter servlet and port
+      fowarding for agent services
+-     Bugzilla Bug #630176 - Improve reliability of the LdapAnonConnFactory
+-     Bugzilla Bug #524916 - ECC key constraints plug-ins should be based on
+      ECC curve names (not on key sizes).
+-     Bugzilla Bug #516632 - RHCS 7.1 - CS Incorrectly Issuing Multiple
+      Certificates from the Same Request
+-     Bugzilla Bug #648757 - expose and use updated cert verification
+      function in JSS
+-     Bugzilla Bug #638242 - Installation Wizard: at SizePanel, fix selection
+      of signature algorithm; and for ECC curves
+-     Bugzilla Bug #451874 - RFE - Java console - Certificate Wizard missing
+      e.c. support
+-     Bugzilla Bug #651040 - cloning shoud not include sslserver
+-     Bugzilla Bug #542863 - RHCS8: Default cert audit nickname written to
+      CS.cfg files imcomplete when the cert is stored on a hsm
+-     Bugzilla Bug #360721 - New Feature: Profile Integrity Check . . .
+-     Bugzilla Bug #651916 - kra and ocsp are using incorrect ports
+      to talk to CA and complete configuration in DonePanel
+-     Bugzilla Bug #642359 - CC Feature - need to verify certificate when it
+      is added
+-     Bugzilla Bug #653713 - CC: setting trust on a CIMC cert requires
+      auditing
+-     Bugzilla Bug #489385 - references to rhpki
+-     Bugzilla Bug #499494 - change CA defaults to SHA2
+-     Bugzilla Bug #623452 - rhcs80 pkiconsole profile policy editor limit
+      policy extension to 5 only
+-     Bugzilla Bug #649910 - Console: an auditor or agent can be added to
+      an administrator group.
+-     Bugzilla Bug #632425 - Port to tomcat6
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #651977 - turn off ssl2 for java servers (server.xml)
+-     Bugzilla Bug #653576 - tomcat5 does not always run filters on servlets
+      as expected
+-     Bugzilla Bug #642357 - CC Feature- Self-Test plugins only check for
+      validity
+-     Bugzilla Bug #643206 - New CMake based build system for Dogtag
+-     Bugzilla Bug #659004 - CC: AuditVerify hardcoded with SHA-1
+-     Bugzilla Bug #661196 - ECC(with nethsm) subca configuration fails with
+      Key Type RSA Not Matched despite using ECC key pairs for rootCA & subCA.
+-     Bugzilla Bug #661889 - The Servlet TPSRevokeCert of the CA returns an
+      error to TPS even if certificate in question is already revoked.
+-     Bugzilla Bug #663546 - Disable the functionalities that are not exposed
+      in the console
+-     Bugzilla Bug #661514 - CMAKE build system requires rules to make
+      javadocs
+-     Bugzilla Bug #658188 - remove remaining references to tomcat5
+-     Bugzilla Bug #649343 - Publishing queue should recover from CA crash.
+-     Bugzilla Bug #491183 - rhcs rfe - add rfc 4523 support for pkiUser and
+      pkiCA, obsolete 2252 and 2256
+-     Bugzilla Bug #640710 - Current SCEP implementation does not support HSMs
+-     Bugzilla Bug #656733 - Standardize jar install location and jar names
+-     Bugzilla Bug #661142 - Verification should fail when
+      a revoked certificate is added
+-     Bugzilla Bug #642741 - CS build uses deprecated functions
+-     Bugzilla Bug #670337 - CA Clone configuration throws TCP connection error
+-     Bugzilla Bug #662127 - CC doc Error: SignedAuditLog expiration time
+      interface is no longer available through console
+- 'pki-selinux'
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #643206 - New CMake based build system for Dogtag
+-     Bugzilla Bug #667153 - store nuxwdog passwords in kernel ring buffer -
+      selinux changes
+- 'pki-ca'
+-     Bugzilla Bug #583822 - CC: ACL issues from CA interface CC doc review
+-     Bugzilla Bug #620925 - CC: auditor needs to be able to download audit
+      logs in the java subsystems
+-     Bugzilla Bug #621322 - Provide switch disabling SCEP support in CA
+-     Bugzilla Bug #583824 - CC: Duplicate servlet mappings found as part of
+      CC interface doc review
+-     Bugzilla Bug #621602 - pkiconsole: Click on 'Publishing' option with
+      admin privilege throws error "You are not authorized to perform this
+      operation".
+-     Bugzilla Bug #583825 - CC: Obsolete servlets to be removed from web.xml
+      as part of CC interface review
+-     Bugzilla Bug #583823 - CC: Auditing issues found as result of
+      CC - interface review
+-     Bugzilla Bug #519291 - Deleting a CRL Issuing Point after edits throws
+      'Internal Server Error'.
+-     Bugzilla Bug #586700 - OCSP Server throws fatal error while using
+      OCSP console for renewing SSL Server certificate.
+-     Bugzilla Bug #621337 - Limit the received senderNonce value to 16 bytes.
+-     Bugzilla Bug #621338 - Include a server randomly-generated 16 byte
+      senderNonce in all signed SCEP responses.
+-     Bugzilla Bug #558100 - host challenge of the Secure Channel needs to be
+      generated on TKS instead of TPS.
+-     Bugzilla Bug #630121 - OCSP responder lacking option to delete or
+      disable a CA that it serves
+-     Bugzilla Bug #634663 - CA CMC response default hard-coded to SHA1
+-     Bugzilla Bug #621327 - Provide switch disabling algorithm downgrade
+      attack in SCEP
+-     Bugzilla Bug #621334 - Provide an option to set default hash algorithm
+      for signing SCEP response messages.
+-     Bugzilla Bug #539781 - rhcs 71 - CRLs Partitioned
+      by Reason Code - onlySomeReasons ?
+-     Bugzilla Bug #637330 - CC feature: Key Management - provide signature
+      verification functions (JAVA subsystems)
+-     Bugzilla Bug #555927 - rhcs80 - AgentRequestFilter servlet and port
+      fowarding for agent services
+-     Bugzilla Bug #524916 - ECC key constraints plug-ins should be based on
+      ECC curve names (not on key sizes).
+-     Bugzilla Bug #516632 - RHCS 7.1 - CS Incorrectly Issuing Multiple
+      Certificates from the Same Request
+-     Bugzilla Bug #638242 - Installation Wizard: at SizePanel, fix selection
+      of signature algorithm; and for ECC curves
+-     Bugzilla Bug #529945 - (Instructions and sample only) CS 8.0 GA
+      release -- DRM and TKS do not seem to have CRL checking enabled
+-     Bugzilla Bug #609641 - CC: need procedure (and possibly tools) to help
+      correctly set up CC environment
+-     Bugzilla Bug #509481 - RFE: support sMIMECapabilities extensions in
+      certificates (RFC 4262)
+-     Bugzilla Bug #651916 - kra and ocsp are using incorrect ports
+      to talk to CA and complete configuration in DonePanel
+-     Bugzilla Bug #511990 - rhcs 7.3, 8.0 - re-activate missing object
+      signing support in RHCS
+-     Bugzilla Bug #651977 - turn off ssl2 for java servers (server.xml)
+-     Bugzilla Bug #489385 - references to rhpki
+-     Bugzilla Bug #499494 - change CA defaults to SHA2
+-     Bugzilla Bug #623452 - rhcs80 pkiconsole profile policy editor limit
+      policy extension to 5 only
+-     Bugzilla Bug #649910 - Console: an auditor or agent can be added to
+      an administrator group.
+-     Bugzilla Bug #632425 - Port to tomcat6
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #653576 - tomcat5 does not always run filters on servlets
+      as expected
+-     Bugzilla Bug #642357 - CC Feature- Self-Test plugins only check for
+      validity
+-     Bugzilla Bug #643206 - New CMake based build system for Dogtag
+-     Bugzilla Bug #661128 - incorrect CA ports used for revoke, unrevoke
+      certs in TPS
+-     Bugzilla Bug #512496 - RFE rhcs80 - crl updates and scheduling feature 
+-     Bugzilla Bug #661196 - ECC(with nethsm) subca configuration fails with
+      Key Type RSA Not Matched despite using ECC key pairs for rootCA & subCA.
+-     Bugzilla Bug #649343 - Publishing queue should recover from CA crash.
+-     Bugzilla Bug #491183 - rhcs rfe - add rfc 4523 support for pkiUser and
+      pkiCA, obsolete 2252 and 2256
+-     Bugzilla Bug #223346 - Two conflicting ACL list definitions in source
+      repository
+-     Bugzilla Bug #640710 - Current SCEP implementation does not support HSMs
+-     Bugzilla Bug #656733 - Standardize jar install location and jar names
+-     Bugzilla Bug #661142 - Verification should fail when
+      a revoked certificate is added
+-     Bugzilla Bug #668100 - DRM storage cert has OCSP signing extended key
+      usage
+-     Bugzilla Bug #662127 - CC doc Error: SignedAuditLog expiration time
+      interface is no longer available through console
+-     Bugzilla Bug #531137 - RHCS 7.1 - Running out of Java Heap Memory
+      During CRL Generation
+- 'pki-silent'
+-     Bugzilla Bug #627309 - pkisilent subca configuration fails.
+-     Bugzilla Bug #640091 - pkisilent panels need to match with changed java
+      subsystems
+-     Bugzilla Bug #527322 - pkisilent ConfigureDRM should configure DRM
+      Clone.
+-     Bugzilla Bug #643053 - pkisilent DRM configuration fails
+-     Bugzilla Bug #583754 - pki-silent needs an option to configure signing
+      algorithm for CA certificates
+-     Bugzilla Bug #489385 - references to rhpki
+-     Bugzilla Bug #638377 - Generate PKI UI components which exclude a GUI
+      interface
+-     Bugzilla Bug #651977 - turn off ssl2 for java servers (server.xml)
+-     Bugzilla Bug #640042 - TPS Installlation Wizard: need to move Module
+      Panel up to before Security Domain Panel
+-     Bugzilla Bug #643206 - New CMake based build system for Dogtag
+-     Bugzilla Bug #588323 - Failed to enable cipher 0xc001
+-     Bugzilla Bug #656733 - Standardize jar install location and jar names
+-     Bugzilla Bug #645895 - pkisilent: add ability to select ECC curves,
+      signing algorithm
+-     Bugzilla Bug #658641 - pkisilent doesn't not properly handle passwords
+      with special characters
+-     Bugzilla Bug #642741 - CS build uses deprecated functions
+
 * Thu Jan 13 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-3
 - Bugzilla Bug #668839 - Review Request: pki-core
 -   Removed empty "pre" from "pki-ca"

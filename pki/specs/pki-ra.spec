@@ -1,7 +1,3 @@
-###############################################################################
-###                       P A C K A G E   H E A D E R                       ###
-###############################################################################
-
 Name:             pki-ra
 Version:          9.0.0
 Release:          1%{?dist}
@@ -104,7 +100,7 @@ cd build
 %install
 %{__rm} -rf %{buildroot}
 cd build
-%{__make} install DESTDIR=%{buildroot}
+%{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
 
 %pre
@@ -132,20 +128,65 @@ fi
 %defattr(-,root,root,-)
 %doc base/ra/LICENSE
 %{_initrddir}/pki-rad
-%dir %{_datadir}/pki
 %dir %{_datadir}/pki/ra
 %{_datadir}/pki/ra/conf/
 %{_datadir}/pki/ra/docroot/
 %{_datadir}/pki/ra/lib/
 %{_datadir}/pki/ra/scripts/
 %{_datadir}/pki/ra/setup/
-%dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/lock/pki/ra
-%dir %{_localstatedir}/run/pki
 %dir %{_localstatedir}/run/pki/ra
 
 
 %changelog
 * Wed Dec 1 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
-- Initial revision. (kwright@redhat.com & mharmsen@redhat.com)
+- Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0
+- Bugzilla Bug #620925 - CC: auditor needs to be able to download audit logs
+  in the java subsystems
+- Bugzilla Bug #651916 - kra and ocsp are using incorrect ports
+  to talk to CA and complete configuration in DonePanel
+- Bugzilla Bug #632425 - Port to tomcat6
+- Bugzilla Bug #638377 - Generate PKI UI components which exclude
+  a GUI interface
+- Bugzilla Bug #643206 - New CMake based build system for Dogtag
+- Bugzilla Bug #499494 - change CA defaults to SHA2
+
+* Thu Apr 08 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
+- Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text
+  needs correction
+
+* Tue Feb 16 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-6
+- Bugzilla Bug #566060 - Add 'pki-native-tools' as a runtime dependency
+  for RA, and TPS . . .
+
+* Fri Jan 29 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-5
+- Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
+- Applied filters for unwanted perl provides and requires
+- Restored "perl-DBD-SQLite" runtime dependency
+
+* Tue Jan 26 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-4
+- Bugzilla Bug #553850 - Review Request: pki-ra - Dogtag Registration Authority
+- Per direction from the Fedora community,
+  removed the following explicit "Requires":
+      perl-DBI
+      perl-HTML-Parser
+      perl-HTML-Tagset
+      perl-Parse-RecDescent
+      perl-URI
+      perl-XML-NamespaceSupport
+      perl-XML-Parser
+      perl-XML-Simple
+
+* Thu Jan 14 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.0-3
+- Bugzilla Bug #512234 - Move pkiuser:pkiuser check from spec file into pkicreate . . .
+- Bugzilla Bug #547471 - Apply PKI SELinux changes to PKI registry model
+- Bugzilla Bug #553076 - Apply "registry" logic to pki-ra . . .
+- Bugzilla Bug #553078 - Apply "registry" logic to pki-tps . . .
+- Bugzilla Bug #553850 - Review Request: pki-ra - Dogtag Registration Authority
+
+* Mon Dec 14 2009 Kevin Wright <kwright@redhat.com> 1.3.0-2
+- Removed 'with exceptions' from License
+
+* Fri Oct 16 2009 Ade Lee <alee@redhat.com> 1.3.0-1
+- Bugzilla Bug #X - Fedora Packaging Changes
 
