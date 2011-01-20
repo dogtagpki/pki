@@ -649,7 +649,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             c.putBoolean("enable", enable);
             c.putString("enableCRLCache", "true");
             c.putString("enableCRLUpdates", "true");
-            c.putString("enableCacheRecovery", "false");
+            c.putString("enableCacheTesting", "false");
+            c.putString("enableCacheRecovery", "true");
             c.putString("enableDailyUpdates", "false");
             c.putString("enableUpdateInterval", "true");
             c.putString("extendedNextUpdate", "true");
@@ -657,6 +658,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             c.putString("minUpdateInterval", "0");
             c.putString("nextUpdateGracePeriod", "0");
             c.putString("publishOnStart", "false");
+            c.putString("saveMemory", "false");
             c.putString("signingAlgorithm", "SHA256withRSA");
             c.putString("updateSchema", "1");
 
@@ -896,10 +898,19 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
             byte[] signature = mCRLSigningUnit.sign(tbsCertList, algname);
 
-            tmp.putBitString(signature);
-            out.write(DerValue.tag_Sequence, tmp);
+            if (crl.setSignature(signature)) {
+                tmp.putBitString(signature);
+                out.write(DerValue.tag_Sequence, tmp);
 
-            signedcrl = new X509CRLImpl(out.toByteArray());
+                if (crl.setSignedCRL(out.toByteArray())) {
+                    signedcrl = crl;
+                    // signedcrl = new X509CRLImpl(out.toByteArray());
+                } else {
+                    CMS.debug("Failed to add signed-CRL to CRL object.");
+                }
+            } else {
+                CMS.debug("Failed to add signature to CRL object.");
+            }
         } catch (CRLException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()));
             throw new ECAException(
