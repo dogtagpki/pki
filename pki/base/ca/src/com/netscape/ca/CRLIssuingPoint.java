@@ -297,6 +297,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private boolean mPublishOnStart = false;
     private long[] mSplits = new long[10];
 
+    private boolean mSaveMemory = false;
+
     /**
      * Constructs a CRL issuing point from instantiating from class name.
      * CRL Issuing point must be followed by method call init(CA, id, config);
@@ -688,6 +690,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         // if publish dn is null then certificate will be published to 
         // CA's entry in the directory.
         mPublishDN = config.getString(PROP_PUBLISH_DN, null);
+
+        mSaveMemory = config.getBoolean("saveMemory", false);
 
         mCMSCRLExtensions = new CMSCRLExtensions(this, config);
 
@@ -2575,7 +2579,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             try {
                 byte[] newCRL;
 
-                CMS.debug("Making CRL wth algorithm " +
+                CMS.debug("Making CRL with algorithm " +
                     signingAlgorithm + " " + AlgorithmId.get(signingAlgorithm));
 
                 mSplits[7] -= System.currentTimeMillis();
@@ -2607,11 +2611,19 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     (mEnableDailyUpdates && mExtendedTimeList)) && mNextDeltaUpdate != null) {
                     nextUpdateDate = mNextDeltaUpdate;
                 }
-                mCRLRepository.updateCRLIssuingPointRecord(
-                    mId, newCRL, thisUpdate, nextUpdateDate,
-                    mNextCRLNumber, Long.valueOf(mCRLCerts.size()),
-                    mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
-                mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
+                if (mSaveMemory) {
+                    mCRLRepository.updateCRLIssuingPointRecord(
+                        mId, newCRL, thisUpdate, nextUpdateDate,
+                        mNextCRLNumber, Long.valueOf(mCRLCerts.size()));
+                    updateCRLCacheRepository();
+                } else {
+                    mCRLRepository.updateCRLIssuingPointRecord(
+                        mId, newCRL, thisUpdate, nextUpdateDate,
+                        mNextCRLNumber, Long.valueOf(mCRLCerts.size()),
+                        mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
+                    mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
+                }
+
                 mSplits[8] += System.currentTimeMillis();
 
                 mCRLSize = mCRLCerts.size();

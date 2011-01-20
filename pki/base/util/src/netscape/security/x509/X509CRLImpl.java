@@ -89,9 +89,9 @@ import netscape.security.util.*;
 public class X509CRLImpl extends X509CRL {
 
     // CRL data, and its envelope
-    private byte[]           signedCRL; // DER encoded crl
-    private byte[]           signature; // raw signature bits
-    private byte[]           tbsCertList; // DER encoded "to-be-signed" CRL
+    private byte[]           signedCRL   = null; // DER encoded crl
+    private byte[]           signature   = null; // raw signature bits
+    private byte[]           tbsCertList = null; // DER encoded "to-be-signed" CRL
     private AlgorithmId      sigAlgId; // sig alg in CRL
 
     // crl information
@@ -304,6 +304,21 @@ public class X509CRLImpl extends X509CRL {
         byte[] dup = new byte[signedCRL.length];
         System.arraycopy(signedCRL, 0, dup, 0, dup.length);
         return dup;
+    }
+
+    /**
+     * Returns true if signedCRL was set.
+     *
+     * @param byte array of containing signed CRL.
+     */
+    public boolean setSignedCRL(byte[] crl) {
+        boolean done = false;
+        if (tbsCertList != null && signedCRL == null) {
+            signedCRL = new byte[crl.length];
+            System.arraycopy(crl, 0, signedCRL, 0, signedCRL.length);
+            done = true;
+        }
+        return done;
     }
 
 	public boolean hasUnsupportedCriticalExtension() {
@@ -710,6 +725,21 @@ public class X509CRLImpl extends X509CRL {
         byte[] dup = new byte[signature.length];
         System.arraycopy(signature, 0, dup, 0, dup.length);
         return dup;
+    }
+
+    /**
+     * Returns true if signature was set.
+     *
+     * @param byte array of containing CRL signature.
+     */
+    public boolean setSignature(byte[] crlSignature) {
+        boolean done = false;
+        if (tbsCertList != null && signature == null) {
+            signature = new byte[crlSignature.length];
+            System.arraycopy(crlSignature, 0, signature, 0, signature.length);
+            done = true;
+        }
+        return done;
     }
 
     /**
