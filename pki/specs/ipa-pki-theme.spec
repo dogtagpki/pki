@@ -1,5 +1,5 @@
 Name:             ipa-pki-theme
-Version:          9.0.1
+Version:          9.0.2
 Release:          1%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -110,6 +110,10 @@ cd build
 
 
 %changelog
+* Thu Jan 20 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
+- Bugzilla Bug #671058 - ipa2 - ipa-server-install fails on pkisilent - xml
+  parsing string -- ?
+
 * Tue Jan 18 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
 - Made 'ipa-pki-common-theme' a runtime dependency of 'ipa-pki-ca-theme'
 - https://pkgdb.lab.eng.bos.redhat.com/pkg/packages/srpm/5936/
