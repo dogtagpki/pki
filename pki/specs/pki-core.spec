@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.1
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -550,6 +550,13 @@ fi
 
 
 %changelog
+* Thu Jan 20 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-2
+- 'pki-symkey'
+-     Bugzilla Bug #671265 - pki-symkey jar version incorrect
+- 'pki-common'
+-     Bugzilla Bug #564207 - Searches for completed requests in the agent
+      interface returns zero entries
+
 * Tue Jan 18 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
 - Allow 'pki-native-tools' to be installed independently of 'pki-setup'
 - Removed explicit 'pki-setup' requirement from 'pki-ca'

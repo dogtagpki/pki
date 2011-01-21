@@ -14,7 +14,7 @@ set(symkey_java_SRCS
 
 set(CMAKE_JNI_TARGET TRUE)
 set(CMAKE_JAVA_INCLUDE_PATH ${JSS_JAR})
-set(CMAKE_JAVA_TARGET_VERSION ${SYMKEY_LIBRARY_VERSION})
+set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(symkey ${symkey_java_SRCS})
 install_jar(symkey ${LIB_INSTALL_DIR}/symkey)
