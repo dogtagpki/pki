@@ -210,7 +210,7 @@ Show requests that are in
 <option value="PENDING">pending
 <option value="CANCELED">canceled
 <option value="REJECTED">rejected
-<option value="COMPLETED">completed
+<option value="COMPLETE">completed
 <option value="ALL">any
 </select>
 status
@@ -257,14 +257,17 @@ function doSubmit(form)
             return;
     }	
 
+    if (ownerCritInUse()) {
+        critCount++;
+        if (checkEmptyField() == null)
+            return;
+    }
+
     // At least one section must be selected
     if (critCount == 0) {
         alert("You must choose at least one section on this form.");
         return;
     }
-
-    if (checkEmptyField() == null)
-        return;
 
     var f = nsjoin(andFilter,"");
     if (f.length == 0) f = "(requestId=*)";
@@ -291,6 +294,7 @@ function doSubmit(form)
 <font size=-1 face="PrimaSans BT, Verdana, sans-serif"><b>Request Owner</b></font>
 <table border="0" cellspacing="2" cellpadding="2">
 <tr>
+<td><INPUT TYPE="CHECKBOX" CHECKED NAME="inUse"></td>
 <td colspan="3">
 <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
 Show requests that belong to the user specified as below:</font>
@@ -353,6 +357,15 @@ Show requests that belong to the user specified as below:</font>
 </form>
 <SCRIPT type="text/javascript">
 //<!--
+function ownerCritInUse()
+{
+    if (!document.queryForm.inUse.checked) {
+        document.queryForm.owner[0].value = "";
+        document.queryForm.owner[1].value = "";
+        document.queryForm.uid.value = "";
+    }
+    return document.queryForm.inUse.checked;
+}
 function checkEmptyField()
 {
     if (document.queryForm.owner[1].checked) {

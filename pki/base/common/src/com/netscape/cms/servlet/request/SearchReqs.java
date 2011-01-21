@@ -256,14 +256,19 @@ public class SearchReqs extends CMSServlet {
 
             String owner = req.getParameter("owner");
             String requestowner_filter = "";
-            if (owner.equals("self")) {
-                String self_uid = token.getInString(IAuthToken.USER_ID);
-                requestowner_filter = "(requestowner="+self_uid+")";
+            String newfilter = "";
+            if (owner.length() == 0) {
+                newfilter = filter;
             } else {
-                String uid = req.getParameter("uid");
-                requestowner_filter = "(requestowner="+uid+")";
+                if (owner.equals("self")) {
+                    String self_uid = token.getInString(IAuthToken.USER_ID);
+                    requestowner_filter = "(requestowner="+self_uid+")";
+                } else {
+                    String uid = req.getParameter("uid");
+                    requestowner_filter = "(requestowner="+uid+")";
+                }
+                newfilter = "(&"+requestowner_filter+filter.substring(2);
             }
-            String newfilter = "(&"+requestowner_filter+filter.substring(2);
             // xxx the filter includes serial number range???
             if (maxResults == -1 || maxResults > mMaxReturns) {
                 CMS.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
