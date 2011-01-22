@@ -155,7 +155,7 @@ int RollingLogFile::write(char *msg) {
     }
 
     status = LogFile::write(msg);
-    if ((get_bytes_written() >= (m_max_file_size*1024)) && (m_max_file_size >0)) {
+    if ((get_bytes_written() >= ((int) m_max_file_size*1024)) && (m_max_file_size >0)) {
         if (! m_signed_log) {
             rotate();
             m_rotation_needed = false;
@@ -390,7 +390,7 @@ void RollingLogFile::expire() {
     PRTime earliestModTime;
     PRInt64 expiration_interval;
     PRInt64 usec_per_sec;
-    PRInt64 tmp, tmp1, tmp2;
+    PRInt64 tmp, tmp1;
     PRStatus status;
 
     if (m_expiration_time == 0) {

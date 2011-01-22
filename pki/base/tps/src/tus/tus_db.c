@@ -149,6 +149,13 @@ extern void audit_log(const char *func_name, const char *userid, const char *msg
 char *get_pwd_from_conf(char *filepath, char *name);
 static int tus_check_conn();
 
+TPS_PUBLIC int valid_berval(struct berval **b)
+{
+    if ((b != NULL) && (b[0] != NULL) && (b[0]->bv_val != NULL))
+        return 1;
+    return 0;
+}
+
 TPS_PUBLIC void set_tus_db_port(int number)
 {
     port = number;
@@ -598,7 +605,7 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
 #define MAX_FILTER_LEN 4096
     char filter[MAX_FILTER_LEN];
     char searchBase[MAX_FILTER_LEN];
-    char **v = NULL;
+    struct berval **v = NULL;
     char *userid = NULL;
     LDAPMessage *result = NULL;
     LDAPMessage *entry =  NULL;
@@ -646,7 +653,10 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
 		{
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -674,7 +684,7 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
         return NULL;
     }
 
-    v = ldap_get_values(ld, entry, "uid");
+    v = ldap_get_values_len(ld, entry, "uid");
     if (v == NULL) {
         if (result != NULL) {
             free_results(result);
@@ -683,11 +693,11 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
         return NULL;
     }
 
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        userid = PL_strdup(v[0]);
+    if (valid_berval(v) && PL_strlen(v[0]->bv_val) > 0) {
+        userid = PL_strdup(v[0]->bv_val);
     }
     if( v != NULL ) {
-        ldap_value_free( v );
+        ldap_value_free_len( v );
         v = NULL;
     }
 
@@ -723,7 +733,10 @@ TPS_PUBLIC int tus_authorize(const char *group, const char *userid)
 		{
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -768,12 +781,11 @@ TPS_PUBLIC int tus_authorize(const char *group, const char *userid)
  **/
 TPS_PUBLIC char *get_authorized_profiles(const char *userid, int is_admin)
 {
-    int rc;
     int status;
     char filter[512];
     char ret[4096] = "";
     char *profile_filter = NULL;
-    char **vals;
+    struct berval **vals = NULL;
     int nVals;
     int i;
 
@@ -788,10 +800,11 @@ TPS_PUBLIC char *get_authorized_profiles(const char *userid, int is_admin)
 
         e = get_first_entry(result);
 
-        if ((vals = get_attribute_values(e,"profileID")) != NULL ) {
-            nVals = ldap_count_values(vals);
+        vals = get_attribute_values(e,"profileID");
+        if (valid_berval(vals)) {
+            nVals = ldap_count_values_len(vals);
             if (nVals == 1) {
-                if (PL_strstr(vals[0], ALL_PROFILES)) {
+                if (PL_strstr(vals[0]->bv_val, ALL_PROFILES)) {
                     if (is_admin) {
                         // all profiles
                         PR_snprintf(ret, 4096, ALL_PROFILES);
@@ -804,11 +817,11 @@ TPS_PUBLIC char *get_authorized_profiles(const char *userid, int is_admin)
                         PL_strcat(ret, "(|(tokenType=");
                         PL_strcat(ret, NO_TOKEN_TYPE);
                         PL_strcat(ret, ")(tokenType=");
-                        PL_strcat(ret, vals[0]);
+                        PL_strcat(ret, vals[0]->bv_val);
                         PL_strcat(ret, "))");
                     } else {
                         PL_strcat(ret, "(tokenType=");
-                        PL_strcat(ret, vals[0]);
+                        PL_strcat(ret, vals[0]->bv_val);
                         PL_strcat(ret, ")");
                     }
                 }
@@ -822,9 +835,11 @@ TPS_PUBLIC char *get_authorized_profiles(const char *userid, int is_admin)
                             PL_strcat(ret, ")");
                         }
                     }
-                    PL_strcat(ret, "(tokenType=");
-                    PL_strcat(ret, vals[i]);
-                    PL_strcat(ret, ")");
+                    if (vals[i]->bv_val != NULL) {
+                        PL_strcat(ret, "(tokenType=");
+                        PL_strcat(ret, vals[i]->bv_val);
+                        PL_strcat(ret, ")");
+                    }
                 }
                 PL_strcat(ret, ")"); 
             } else if (nVals == 0) {
@@ -834,7 +849,7 @@ TPS_PUBLIC char *get_authorized_profiles(const char *userid, int is_admin)
                     PR_snprintf(ret, 4096, NO_PROFILES);
                 }
             } else { //error
-                return -1;
+                return NULL;
             }
         } else {
             if (is_admin) {
@@ -869,6 +884,7 @@ static int tus_check_conn()
 {
     int  version = LDAP_VERSION3;
     int  status  = -1;
+    char ldapuri[1024];
 
 /* for production, make sure this variable is not defined.
  * Leaving it defined results in weird Apache SSL timeout errors */
@@ -881,26 +897,31 @@ static int tus_check_conn()
 #endif
     if (ld == NULL) {
         if (ssl != NULL && strcmp(ssl, "true") == 0) {
-
           /* enabling SSL */
-          ld = ldapssl_init(host, port, 1);
+          snprintf(ldapuri, 1024, "ldaps://%s:%i", host, port);
         } else {
-          /* NOTE:  ldapssl_init() already utilizes */
-          /*        prldap (IPv6) functionality.    */
-          ld = prldap_init(host, port, 1);
+          snprintf(ldapuri, 1024, "ldap://%s:%i", host, port);
         }
+        status = ldap_initialize(&ld, ldapuri);
         if (ld == NULL) {
             return status;
         }
-        if ((status = ldap_set_option (ld, LDAP_OPT_RECONNECT, LDAP_OPT_ON)) != LDAP_SUCCESS) {
+
+        // This option was supported by mozldap but is not supported by openldap. 
+        // Code to provide this functionality needs to be written - FIXME
+        /*if ((status = ldap_set_option (ld, LDAP_OPT_RECONNECT, LDAP_OPT_ON)) != LDAP_SUCCESS) {
             return status;
-        }
+        }*/
+
         if ((status = ldap_set_option (ld, LDAP_OPT_PROTOCOL_VERSION, &version)) != LDAP_SUCCESS) {
             return status;
         }
     }
     if (ld != NULL && bindStatus != LDAP_SUCCESS) {
-        bindStatus = ldap_simple_bind_s (ld, bindDN, bindPass);
+        struct berval credential;
+        credential.bv_val = bindPass;
+        credential.bv_len= strlen(bindPass);
+        bindStatus = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
         if (bindStatus != LDAP_SUCCESS) {
             return bindStatus;
         }
@@ -917,7 +938,7 @@ TPS_PUBLIC int tus_db_init(char **errorMsg)
 TPS_PUBLIC void tus_db_end()
 {
     if (ld != NULL) {
-        if (ldap_unbind(ld) == LDAP_SUCCESS) {
+        if (ldap_unbind_ext_s(ld, NULL, NULL) == LDAP_SUCCESS) {
             ld = NULL;
             bindStatus = -1;
         }
@@ -1041,10 +1062,8 @@ TPS_PUBLIC void tus_print_as_hex(char *out, SECItem *data)
         for (i = 0; i < data->len; i++) {
             unsigned char val = data->data[i];
 
-            if (val != NULL) {
-                PR_snprintf(tmp, 32, "%c", val);
-                PL_strcat(out, tmp);
-            }
+            PR_snprintf(tmp, 32, "%c", val);
+            PL_strcat(out, tmp);
         }
     }
     PL_strcat(out, '\0');
@@ -1115,7 +1134,10 @@ TPS_PUBLIC int update_cert_status (char *cn, const char *status)
             if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
                 break;
             } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-                rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+                struct berval credential;
+                credential.bv_val = bindPass;
+                credential.bv_len= strlen(bindPass);
+                rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
                 if (rc != LDAP_SUCCESS) {
                     bindStatus = rc;
                     break;
@@ -1181,7 +1203,10 @@ TPS_PUBLIC int update_token_policy (char *cn, char *policy)
             if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
                 break;
             } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-                rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+                struct berval credential;
+                credential.bv_val = bindPass;
+                credential.bv_len= strlen(bindPass);
+                rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
                 if (rc != LDAP_SUCCESS) {
                     bindStatus = rc;
                     break;
@@ -1211,7 +1236,10 @@ TPS_PUBLIC int update_tus_db_entry_with_mods (const char *agentid, const char *c
             if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
                 break;
             } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-                rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+                struct berval credential;
+                credential.bv_val = bindPass;
+                credential.bv_len= strlen(bindPass);
+                rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
                 if (rc != LDAP_SUCCESS) {
                     bindStatus = rc;
                     break;
@@ -1245,7 +1273,10 @@ int update_tus_general_db_entry(const char *agentid, const char *dn, LDAPMod **m
             if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
                 break;
             } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-                rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+                struct berval credential;
+                credential.bv_val = bindPass;
+                credential.bv_len= strlen(bindPass);
+                rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
                 if (rc != LDAP_SUCCESS) {
                     bindStatus = rc;
                     break;
@@ -1321,7 +1352,7 @@ TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastNa
 
         a04.mod_op =LDAP_MOD_REPLACE |LDAP_MOD_BVALUES;
         a04.mod_type = "userCertificate";
-        a04.mod_values = cert_values;
+        a04.mod_bvalues = cert_values;
 
         mods[3] = &a04;
     } else {
@@ -1475,7 +1506,10 @@ TPS_PUBLIC int update_tus_db_entry (const char *agentid, char *cn, const char *u
             if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
                 break;
             } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-                rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+                struct berval credential;
+                credential.bv_val = bindPass;
+                credential.bv_len= strlen(bindPass);
+                rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
                 if (rc != LDAP_SUCCESS) {
                     bindStatus = rc;
                     break;
@@ -1496,19 +1530,30 @@ int check_and_modify_tus_db_entry (char *userid, char *cn, char *check, LDAPMod 
     char dn[256];
     int  rc = 0, tries = 0;
 
+    if (check == NULL) { 
+        return -1;
+    }
+
+    struct berval check_ber;
+    check_ber.bv_val = check;
+    check_ber.bv_len = strlen(check);
+
     tus_check_conn();
     if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
         return -1;
 
     for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_compare_s(ld, dn, get_number_of_modifications_name(), check))
+        if ((rc = ldap_compare_ext_s(ld, dn, get_number_of_modifications_name(), &check_ber, NULL, NULL))
             == LDAP_COMPARE_TRUE) {
             break;
         } else {
             if (rc != LDAP_SERVER_DOWN && rc != LDAP_CONNECT_ERROR) {
                 return rc;
             }
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 return rc;
@@ -1522,7 +1567,10 @@ int check_and_modify_tus_db_entry (char *userid, char *cn, char *check, LDAPMod 
         if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -1565,7 +1613,10 @@ int modify_tus_db_entry (char *userid, char *cn, LDAPMod **mods)
         if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -1782,7 +1833,10 @@ int add_certificate (char *tokenid, char *origin, char *tokenType, char *userid,
         if ((rc = ldap_add_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -1792,7 +1846,7 @@ int add_certificate (char *tokenid, char *origin, char *tokenType, char *userid,
 
     return rc;
 }
-int add_activity (char *ip, char *id, const char *op, const char *result, const char *msg, const char *userid, const char *token_type)
+int add_activity (const char *ip, const char *id, const char *op, const char *result, const char *msg, const char *userid, const char *token_type)
 {
     PRExplodedTime time;
     PRTime   now;
@@ -1825,7 +1879,7 @@ int add_activity (char *ip, char *id, const char *op, const char *result, const 
     PRThread *ct;
 
     tus_check_conn();
-    id_values[0] = id;
+    id_values[0] =  (char *) id;
     id_values[1] = NULL;
     result_values[0] = ( char * ) result;
     result_values[1] = NULL;
@@ -1833,11 +1887,11 @@ int add_activity (char *ip, char *id, const char *op, const char *result, const 
     op_values[1] = NULL;
     msg_values[0] = ( char * ) msg;
     msg_values[1] = NULL;
-    ip_values[0] = ip;
+    ip_values[0] = (char *) ip;
     ip_values[1] = NULL;
-    userid_values[0] = userid;
+    userid_values[0] = (char *) userid;
     userid_values[1] = NULL;
-    token_type_values[0] = token_type;
+    token_type_values[0] = (char *) token_type;
     token_type_values[1] = NULL;
 
     ct = PR_GetCurrentThread();
@@ -1920,7 +1974,10 @@ int add_activity (char *ip, char *id, const char *op, const char *result, const 
         if ((rc = ldap_add_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -1948,7 +2005,10 @@ int add_tus_general_db_entry (char *dn, LDAPMod **mods)
         if ((rc = ldap_add_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -1972,7 +2032,10 @@ int add_tus_db_entry (char *cn, LDAPMod **mods)
         if ((rc = ldap_add_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2136,7 +2199,10 @@ int add_new_tus_db_entry (const char *userid, char *cn, const char *uid, int fla
         if ((rc = ldap_add_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2242,7 +2308,7 @@ TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPa
 
         a07.mod_op = LDAP_MOD_BVALUES;
         a07.mod_type = USER_CERT;
-        a07.mod_values = userCert_values;
+        a07.mod_bvalues = userCert_values;
         
         mods[6]  = &a07;
     } else {
@@ -2277,7 +2343,6 @@ TPS_PUBLIC int add_user_to_role_db_entry(const char *agentid, char *userid, cons
     LDAPMod  a01;
     LDAPMod  *mods[2];
     int  rc = 0;
-    int  i=0;
     char dn[256];
     char userdn[256];
     char msg[256];
@@ -2319,7 +2384,6 @@ TPS_PUBLIC int delete_user_from_role_db_entry(const char *agentid, char *userid,
     LDAPMod  a01;
     LDAPMod  *mods[2];
     int  rc = 0;
-    int  i=0;
     char dn[256];
     char userdn[256];
     char *userid_values[2];
@@ -2361,10 +2425,9 @@ TPS_PUBLIC int delete_profile_from_user(const char *agentid, char *userid, const
     LDAPMod  a01;
     LDAPMod  *mods[2];
     int  rc = 0;
-    int  i=0;
     char dn[256];
     char msg[256];
-    char *profileid_values[2] = {profile, NULL};
+    char *profileid_values[2] = {(char *) profile, NULL};
 
     if (PR_snprintf(dn, 255, "uid=%s, ou=People, %s", userid, userBaseDN) < 0)
          return -1;
@@ -2397,7 +2460,6 @@ TPS_PUBLIC int delete_all_profiles_from_user(const char *agentid, char *userid) 
     LDAPMod  a01;
     LDAPMod  *mods[2];
     int  rc = 0;
-    int  i=0;
     char dn[256];
     char msg[256];
 
@@ -2432,10 +2494,9 @@ TPS_PUBLIC int add_profile_to_user(const char *agentid, char *userid, const char
     LDAPMod  a01;
     LDAPMod  *mods[2];
     int  rc = 0;
-    int  i=0;
     char dn[256];
     char msg[256];
-    char *profileid_values[2] = {profile, NULL};
+    char *profileid_values[2] = {(char *) profile, NULL};
 
     if (PR_snprintf(dn, 255, "uid=%s, ou=People, %s", userid, userBaseDN) < 0)
          return -1;
@@ -2468,7 +2529,10 @@ int delete_tus_db_entry (char *userid, char *cn)
         if ((rc = ldap_delete_ext_s(ld, dn, NULL, NULL)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2494,7 +2558,10 @@ int delete_tus_general_db_entry (char *dn)
         if ((rc = ldap_delete_ext_s(ld, dn, NULL, NULL)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2555,7 +2622,10 @@ TPS_PUBLIC int find_tus_db_entry (char *cn, int max, LDAPMessage **result)
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
 	  if (debug_fd)
 	    PR_fprintf(debug_fd, "find_tus_db_entry: server down or connect error\n");
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2574,21 +2644,24 @@ TPS_PUBLIC int find_tus_db_entries (const char *filter, int max, LDAPMessage **r
 {
     int  rc = LDAP_OTHER, tries = 0;
 
-    LDAPsortkey **sortKeyList;
+    LDAPSortKey **sortKeyList;
     LDAPControl *controls[3];
-    LDAPVirtualList vlv_data;
+    LDAPVLVInfo vlv_data;
 
     tus_check_conn();
     controls[0] = NULL;
     controls[1] = NULL;
     controls[2] = NULL;
 
-    vlv_data.ldvlist_before_count = 0;
-    vlv_data.ldvlist_after_count = max - 1;
-    vlv_data.ldvlist_attrvalue = NULL;
-    vlv_data.ldvlist_size = max;
-    vlv_data.ldvlist_index = 0;
-    ldap_create_virtuallist_control(ld, &vlv_data, &controls[0]);
+    vlv_data.ldvlv_before_count = 0;
+    vlv_data.ldvlv_after_count = max - 1;
+    vlv_data.ldvlv_attrvalue = NULL;
+    vlv_data.ldvlv_count = max;
+    vlv_data.ldvlv_offset = 0;
+    vlv_data.ldvlv_version = 1; 
+    vlv_data.ldvlv_context = NULL;
+    vlv_data.ldvlv_extradata = NULL;
+    ldap_create_vlv_control(ld, &vlv_data, &controls[0]);
    
     ldap_create_sort_keylist(&sortKeyList, "-dateOfModify");
     ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */, 
@@ -2599,7 +2672,10 @@ TPS_PUBLIC int find_tus_db_entries (const char *filter, int max, LDAPMessage **r
                        NULL, 0, controls, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2614,72 +2690,13 @@ TPS_PUBLIC int find_tus_db_entries (const char *filter, int max, LDAPMessage **r
     return rc;
 }
 
-/* all of the paging functions below are adapted from openldap
- * When we move to openldap, they can be removed, and the openldap 
- * equivalent of the top level function can ldap_create_page_control
- * can be used instead */
-
-#define LDAP_CONTROL_PAGE_OID  "1.2.840.113556.1.4.319"
-
-int ldap_create_page_control_cs(LDAP * ld,
-                          unsigned long pagesize,
-                          struct berval *cookiep,
-                          int iscritical, LDAPControl ** ctrlp) {
-    BerElement *ber;
-    int i, rc;
-
-    if ( (ld == NULL) || (ctrlp == NULL)) {
-        return LDAP_PARAM_ERROR;
-    }
-
-    /* create a ber package to hold the controlValue */
-    if ( ( nsldapi_alloc_ber_with_options( ld, &ber ) ) != LDAP_SUCCESS ) {
-        ldap_set_lderrno( ld, LDAP_NO_MEMORY, NULL, NULL );
-        return LDAP_NO_MEMORY;
-    }
-
-    /* encode the start of the sequence of sequences into the ber */
-    if ( ber_printf( ber, "{" ) == -1 ) {
-        goto encoding_error_exit;
-    }
-
-    if ( ber_printf( ber, "i", pagesize) == -1 ) {
-        goto encoding_error_exit;
-    }
-
-    if (cookiep == NULL) {
-        if (ber_printf(ber, "o", "", 0) == -1) {
-            goto encoding_error_exit;
-        }
-    } else {
-        if (ber_printf (ber, "O", cookiep) == -1) {
-            goto encoding_error_exit;
-        }
-    }
-
-    if (ber_printf (ber,  "n}") == -1) {
-        goto encoding_error_exit;
-    }
-
-    rc = nsldapi_build_control( LDAP_CONTROL_PAGE_OID, ber, 1,
-            iscritical, ctrlp );
-
-    ldap_set_lderrno( ld, rc, NULL, NULL );
-    return rc ;
-
-encoding_error_exit:
-    ldap_set_lderrno( ld, LDAP_ENCODING_ERROR, NULL, NULL );
-    ber_free( ber, 1 );
-    return LDAP_ENCODING_ERROR;
-}
-
 TPS_PUBLIC int find_tus_db_entries_pcontrol_1(const char *filter, int max, int time_limit, int size_limit, LDAPMessage **result)
 {
     int  rc = LDAP_OTHER, tries = 0;
 
-    LDAPsortkey **sortKeyList;
+    LDAPSortKey **sortKeyList;
     LDAPControl *controls[3];
-    struct berval  *cookie=NULL;
+    struct berval *cookie=NULL;
     struct timeval timeout;
 
     timeout.tv_sec = time_limit;
@@ -2690,7 +2707,7 @@ TPS_PUBLIC int find_tus_db_entries_pcontrol_1(const char *filter, int max, int t
     controls[1] = NULL;
     controls[2] = NULL;
 
-    rc = ldap_create_page_control_cs(ld, max, cookie, 0, &controls[0]);
+    rc = ldap_create_page_control(ld, max, cookie, 0, &controls[0]);
 
     ldap_create_sort_keylist(&sortKeyList, "-dateOfModify");
     ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */,
@@ -2704,7 +2721,10 @@ TPS_PUBLIC int find_tus_db_entries_pcontrol_1(const char *filter, int max, int t
         if ((rc == LDAP_SUCCESS) || (rc == LDAP_PARTIAL_RESULTS)) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2735,25 +2755,171 @@ static int reverse_sort_cmp(const char *v1, const char *v2)
   return PL_strcasecmp(v2, v1);
 }
 
+typedef int (LDAP_SORT_AD_CMP_PROC) (const char * left, const char *right);
+static LDAP_SORT_AD_CMP_PROC *et_cmp_fn;
+
+struct entrything {
+    char **et_vals;
+    LDAPMessage *et_msg;
+};
+
+static int et_cmp(const void  *aa, const void  *bb)
+{
+    int i, rc;
+
+    struct entrything *a = (struct entrything *)aa;
+    struct entrything *b = (struct entrything *)bb;
+
+    if ((a == NULL) && (b == NULL))
+        return 0;
+    if (a == NULL)
+        return -1;
+    if (b == NULL)
+        return 1;
+
+    if ((a->et_vals == NULL) && (b->et_vals == NULL))
+        return 0;
+    if (a->et_vals == NULL)
+        return -1;
+    if (b->et_vals == NULL)
+        return 1;
+
+    for ( i = 0; a->et_vals[i] && b->et_vals[i]; i++ ) {
+        if ( (rc = (*et_cmp_fn)( a->et_vals[i], b->et_vals[i] )) != 0) {
+            return rc;
+        }
+    }
+
+    if ((a->et_vals[i] == NULL) && (b->et_vals[i] == NULL))
+        return 0;
+    if (a->et_vals[i] == NULL)
+        return -1;
+    return 1;
+}
+
+
+static int ldap_multisort_entries(LDAP *ld,  LDAPMessage **chain, char **attr, LDAP_SORT_AD_CMP_PROC *cmp)
+{
+    int i, count, c;
+    struct entrything *et;
+    LDAPMessage *e;
+
+    if ((chain == NULL) || (cmp == NULL) || (attr == NULL)) {
+        return LDAP_PARAM_ERROR;
+    }
+
+    count = ldap_count_entries( ld, *chain );
+
+    if (count < 0) { /* error, usually with bad ld or malloc */
+        return LDAP_PARAM_ERROR;
+    }
+
+    if (count < 2) { /* nothing to sort */
+        return 0;
+    }
+
+    if ((et = (struct entrything *)PR_Malloc( count * sizeof(struct entrything) )) == NULL ) {
+        //ldap_set_option(ld, LDAP_OPT_ERROR_NUMBER, LDAP_NO_MEMORY);
+        return -1;
+    }
+
+    for (i=0, e=get_first_entry(*chain); e != NULL; e = get_next_entry(e)) {
+        et[i].et_msg = e;
+        et[i].et_vals = NULL;
+        if (attr == NULL) {
+            /* if attr =NULL, sort by dn -- not yet implemented , fixme.
+               char *dn;
+               LDAPDN *ldapdn;
+               dn = ldap_get_dn(ld, e);
+               ldapstr2dn(dn, ldapdn, LDAP_DN_FORMAT_LDAPV3|LDAP_DN_P_NO_SPACES);
+               et[i].et_vals = ldap_explode_dn(dn, 1);
+               ldap_memfree(dn); */
+        } else {
+            int attrcnt;
+            struct berval **vals;
+
+            for (attrcnt = 0; attr[attrcnt] != NULL; attrcnt++ ) {
+                vals = ldap_get_values_len(ld, e, attr[attrcnt]);
+                if (vals == NULL) {
+                    continue;
+                }
+                for (c=0; vals[c] != NULL; c++); 
+                et[i].et_vals = (char **) PR_Malloc((c+1) * sizeof(char *));
+                for (c=0; vals[c] != NULL; c++) {
+                    if (vals[c]->bv_val != NULL) {
+                        et[i].et_vals[c] = (char *) PL_strdup(vals[c]->bv_val);
+                    } else {
+                        et[i].et_vals[c] = NULL;
+                    }
+                }
+                et[i].et_vals[c] = NULL; 
+
+                if (vals != NULL) {
+                    ldap_value_free_len(vals );
+                    vals = NULL;
+                }
+            }
+        }
+        i++;
+    }
+
+    et_cmp_fn = cmp;
+    qsort((void *) et, (size_t) count, (size_t) sizeof(struct entrything), et_cmp);
+
+    // reconstruct chain
+    
+    for (i=0; i< count-1; i++)
+        ldap_delete_result_entry(chain, et[i].et_msg);
+
+    for (i=count -2; i >=0; i--)
+        ldap_add_result_entry(chain, et[i].et_msg); 
+
+    // free et
+    for (i= 0; i < count; i++) {
+        for (c=0; et[i].et_vals[c] != NULL; c++) {
+            PL_strfree( et[i].et_vals[c]);
+            et[i].et_vals[c] = NULL;
+        } 
+    } 
+
+    PR_Free( (char *) et );
+
+    return 0;
+}
+
+/* this is not implemented in openldap and must be implemented in custom code.
+ * This code is adopted from mozldap sort.c 
+ */
+static int ldap_sort_entries(LDAP *ld, LDAPMessage **result, const char* attr, LDAP_SORT_AD_CMP_PROC *cmp) 
+{
+    char    *attrs[2];
+    attrs[0] = (char *) attr;
+    attrs[1] = NULL;
+    return ldap_multisort_entries(ld, result, attr ? attrs : NULL, cmp);
+} 
+
 TPS_PUBLIC int find_tus_token_entries_no_vlv(char *filter, LDAPMessage **result, int order) 
 {
     int rc = LDAP_OTHER, tries = 0;
 
     tus_check_conn();
     for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_search_s (ld, baseDN, LDAP_SCOPE_SUBTREE, filter,
-                       NULL, 0, result)) == LDAP_SUCCESS) {
+        if ((rc = ldap_search_ext_s (ld, baseDN, LDAP_SCOPE_SUBTREE, filter,
+                       NULL, 0, NULL, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
             /* we do client-side sorting here */
             if (order == 0) {
-              rc = ldap_sort_entries(ld, result, "dateOfCreate", 
-                                     sort_cmp);
+                rc = ldap_sort_entries(ld, result, "dateOfCreate", 
+                                     sort_cmp); 
             } else { /* order == 1 */
-              rc = ldap_sort_entries(ld, result, "dateOfCreate", 
-                                     reverse_sort_cmp);
+                rc = ldap_sort_entries(ld, result, "dateOfCreate", 
+                                     reverse_sort_cmp); 
             }
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2779,8 +2945,8 @@ TPS_PUBLIC int find_tus_user_entries_no_vlv(char *filter, LDAPMessage **result, 
     
     tus_check_conn();
     for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_search_s (ld, peopleBaseDN, LDAP_SCOPE_ONELEVEL, filter,
-                       userAttributes, 0, result)) == LDAP_SUCCESS) {
+        if ((rc = ldap_search_ext_s (ld, peopleBaseDN, LDAP_SCOPE_ONELEVEL, filter,
+                       userAttributes, 0, NULL, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
             /* we do client-side sorting here */
             if (order == 0) {
                 rc = ldap_sort_entries(ld, result, USER_ID, sort_cmp);
@@ -2789,7 +2955,10 @@ TPS_PUBLIC int find_tus_user_entries_no_vlv(char *filter, LDAPMessage **result, 
             }
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2819,11 +2988,14 @@ TPS_PUBLIC int find_tus_user_role_entries( const char*uid, LDAPMessage **result)
 
     tus_check_conn();
     for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_search_s (ld, groupBaseDN, LDAP_SCOPE_SUBTREE, filter,
-            subgroup_attrs, 0, result)) == LDAP_SUCCESS) {
+        if ((rc = ldap_search_ext_s (ld, groupBaseDN, LDAP_SCOPE_SUBTREE, filter,
+            subgroup_attrs, 0, NULL, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2840,8 +3012,8 @@ TPS_PUBLIC int find_tus_activity_entries_no_vlv(char *filter, LDAPMessage **resu
 
     tus_check_conn();
     for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_search_s (ld, activityBaseDN, LDAP_SCOPE_SUBTREE, filter,
-                       NULL, 0, result)) == LDAP_SUCCESS) {
+        if ((rc = ldap_search_ext_s (ld, activityBaseDN, LDAP_SCOPE_SUBTREE, filter,
+                       NULL, 0, NULL, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
             /* we do client-side sorting here */
             if (order == 0) {
               rc = ldap_sort_entries(ld, result, "dateOfCreate", 
@@ -2852,7 +3024,10 @@ TPS_PUBLIC int find_tus_activity_entries_no_vlv(char *filter, LDAPMessage **resu
             }
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -2866,24 +3041,27 @@ TPS_PUBLIC int find_tus_activity_entries_no_vlv(char *filter, LDAPMessage **resu
 TPS_PUBLIC int find_tus_token_entries(char *filter, int max, LDAPMessage **result, int order) 
 {
     int rc = LDAP_OTHER, tries = 0;
-    LDAPsortkey **sortKeyList;
+    LDAPSortKey **sortKeyList;
     LDAPControl *controls[3];
-    LDAPVirtualList vlv_data;
+    LDAPVLVInfo vlv_data;
 
     tus_check_conn();
     controls[0] = NULL;
     controls[1] = NULL;
     controls[2] = NULL;
 
-    vlv_data.ldvlist_before_count = 0;
-    vlv_data.ldvlist_after_count = max - 1;
-    vlv_data.ldvlist_attrvalue = NULL;
-    vlv_data.ldvlist_size = max;
-    vlv_data.ldvlist_index = 0;
-    ldap_create_virtuallist_control(ld, &vlv_data, &controls[0]);
+    vlv_data.ldvlv_before_count = 0;
+    vlv_data.ldvlv_after_count = max - 1;
+    vlv_data.ldvlv_attrvalue = NULL;
+    vlv_data.ldvlv_count = max;
+    vlv_data.ldvlv_offset = 0;
+    vlv_data.ldvlv_version = 1; 
+    vlv_data.ldvlv_context = NULL;
+    vlv_data.ldvlv_extradata = NULL;
+    ldap_create_vlv_control(ld, &vlv_data, &controls[0]);
 
     ldap_create_sort_keylist(&sortKeyList, "-dateOfCreate");
-     (*sortKeyList)->sk_reverseorder = order;
+     (*sortKeyList)->reverseOrder = order;
     ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */,
         &controls[1]);
 
@@ -2892,7 +3070,10 @@ TPS_PUBLIC int find_tus_token_entries(char *filter, int max, LDAPMessage **resul
                        NULL, 0, controls, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -3083,9 +3264,9 @@ TPS_PUBLIC int tus_has_active_tokens(char *userid)
     int n = 0;
 
     int rc = LDAP_OTHER, tries = 0;
-    LDAPsortkey **sortKeyList;
+    LDAPSortKey **sortKeyList;
     LDAPControl *controls[3];
-    LDAPVirtualList vlv_data;
+    LDAPVLVInfo vlv_data;
     int max = 1000;
     
     tus_check_conn();
@@ -3094,12 +3275,15 @@ TPS_PUBLIC int tus_has_active_tokens(char *userid)
     controls[1] = NULL;
     controls[2] = NULL;
 
-    vlv_data.ldvlist_before_count = 0;
-    vlv_data.ldvlist_after_count = max - 1;
-    vlv_data.ldvlist_attrvalue = NULL;
-    vlv_data.ldvlist_size = max;
-    vlv_data.ldvlist_index = 0;
-    ldap_create_virtuallist_control(ld, &vlv_data, &controls[0]);
+    vlv_data.ldvlv_before_count = 0;
+    vlv_data.ldvlv_after_count = max - 1;
+    vlv_data.ldvlv_attrvalue = NULL;
+    vlv_data.ldvlv_count = max;
+    vlv_data.ldvlv_offset = 0;
+    vlv_data.ldvlv_version = 1; 
+    vlv_data.ldvlv_context = NULL;
+    vlv_data.ldvlv_extradata = NULL;
+    ldap_create_vlv_control(ld, &vlv_data, &controls[0]);
 
     ldap_create_sort_keylist(&sortKeyList, "-dateOfCreate");
     ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */,
@@ -3110,7 +3294,10 @@ TPS_PUBLIC int tus_has_active_tokens(char *userid)
                        NULL, 0, controls, NULL, NULL, 0, &result)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -3122,7 +3309,10 @@ TPS_PUBLIC int tus_has_active_tokens(char *userid)
         if ((n = ldap_count_entries (ld, result)) >= 0) {
             break;
         } else {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -3151,8 +3341,8 @@ TPS_PUBLIC int find_tus_certificate_entries_by_order_no_vlv (char *filter,
 
     tus_check_conn();
     for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_search_s (ld, certBaseDN, LDAP_SCOPE_SUBTREE, filter,
-                       NULL, 0, result)) == LDAP_SUCCESS) {
+        if ((rc = ldap_search_ext_s (ld, certBaseDN, LDAP_SCOPE_SUBTREE, filter,
+                       NULL, 0, NULL, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
             /* we do client-side sorting here */
             if (order == 0) {
               rc = ldap_sort_entries(ld, result, "dateOfCreate", 
@@ -3163,7 +3353,10 @@ TPS_PUBLIC int find_tus_certificate_entries_by_order_no_vlv (char *filter,
             }
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential; 
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);  
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -3178,24 +3371,27 @@ TPS_PUBLIC int find_tus_certificate_entries_by_order (char *filter, int max,
   LDAPMessage **result, int order)
 {   
     int  rc = LDAP_OTHER, tries = 0;
-    LDAPsortkey **sortKeyList;
+    LDAPSortKey **sortKeyList;
     LDAPControl *controls[3];
-    LDAPVirtualList vlv_data;
+    LDAPVLVInfo vlv_data;
                        
     tus_check_conn();
     controls[0] = NULL;
     controls[1] = NULL;
     controls[2] = NULL;
             
-    vlv_data.ldvlist_before_count = 0;
-    vlv_data.ldvlist_after_count = max - 1;
-    vlv_data.ldvlist_attrvalue = NULL;
-    vlv_data.ldvlist_size = max;
-    vlv_data.ldvlist_index = 0;
-    ldap_create_virtuallist_control(ld, &vlv_data, &controls[0]);
+    vlv_data.ldvlv_before_count = 0;
+    vlv_data.ldvlv_after_count = max - 1;
+    vlv_data.ldvlv_attrvalue = NULL;
+    vlv_data.ldvlv_count = max;
+    vlv_data.ldvlv_offset = 0;
+    vlv_data.ldvlv_version = 1; 
+    vlv_data.ldvlv_context = NULL;
+    vlv_data.ldvlv_extradata = NULL;
+    ldap_create_vlv_control(ld, &vlv_data, &controls[0]);
 
     ldap_create_sort_keylist(&sortKeyList, "-dateOfCreate");
-    (*sortKeyList)->sk_reverseorder = order;
+    (*sortKeyList)->reverseOrder = order;
     ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */,
         &controls[1]);
 
@@ -3204,7 +3400,10 @@ TPS_PUBLIC int find_tus_certificate_entries_by_order (char *filter, int max,
                        NULL, 0, controls, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential; 
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);  
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -3222,21 +3421,24 @@ TPS_PUBLIC int find_tus_certificate_entries_by_order (char *filter, int max,
 int find_tus_certificate_entries (char *filter, int max, LDAPMessage **result)
 {
     int  rc = LDAP_OTHER, tries = 0;
-    LDAPsortkey **sortKeyList;
+    LDAPSortKey **sortKeyList;
     LDAPControl *controls[3];
-    LDAPVirtualList vlv_data;
+    LDAPVLVInfo vlv_data;
 
     tus_check_conn();
     controls[0] = NULL;
     controls[1] = NULL;
     controls[2] = NULL;
 
-    vlv_data.ldvlist_before_count = 0;
-    vlv_data.ldvlist_after_count = max - 1;
-    vlv_data.ldvlist_attrvalue = NULL;
-    vlv_data.ldvlist_size = max;
-    vlv_data.ldvlist_index = 0;
-    ldap_create_virtuallist_control(ld, &vlv_data, &controls[0]);
+    vlv_data.ldvlv_before_count = 0;
+    vlv_data.ldvlv_after_count = max - 1;
+    vlv_data.ldvlv_attrvalue = NULL;
+    vlv_data.ldvlv_count = max;
+    vlv_data.ldvlv_offset = 0;
+    vlv_data.ldvlv_version = 1; 
+    vlv_data.ldvlv_context = NULL;
+    vlv_data.ldvlv_extradata = NULL;
+    ldap_create_vlv_control(ld, &vlv_data, &controls[0]);
 
     ldap_create_sort_keylist(&sortKeyList, "-dateOfCreate");
     ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */, 
@@ -3247,7 +3449,10 @@ int find_tus_certificate_entries (char *filter, int max, LDAPMessage **result)
                        NULL, 0, controls, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -3265,21 +3470,24 @@ int find_tus_certificate_entries (char *filter, int max, LDAPMessage **result)
 int find_tus_activity_entries (char *filter, int max, LDAPMessage **result)
 {
     int  rc = LDAP_OTHER, tries = 0;
-    LDAPsortkey **sortKeyList;
+    LDAPSortKey **sortKeyList;
     LDAPControl *controls[3];
-    LDAPVirtualList vlv_data;
+    LDAPVLVInfo vlv_data;
 
     tus_check_conn();
     controls[0] = NULL;
     controls[1] = NULL;
     controls[2] = NULL;
 
-    vlv_data.ldvlist_before_count = 0;
-    vlv_data.ldvlist_after_count = max - 1;
-    vlv_data.ldvlist_attrvalue = NULL;
-    vlv_data.ldvlist_size = max;
-    vlv_data.ldvlist_index = 0;
-    ldap_create_virtuallist_control(ld, &vlv_data, &controls[0]);
+    vlv_data.ldvlv_before_count = 0;
+    vlv_data.ldvlv_after_count = max - 1;
+    vlv_data.ldvlv_attrvalue = NULL;
+    vlv_data.ldvlv_count = max;
+    vlv_data.ldvlv_offset = 0;
+    vlv_data.ldvlv_version = 1; 
+    vlv_data.ldvlv_context = NULL;
+    vlv_data.ldvlv_extradata = NULL;
+    ldap_create_vlv_control(ld, &vlv_data, &controls[0]);
 
     ldap_create_sort_keylist(&sortKeyList, "-dateOfCreate");
     ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */, 
@@ -3290,7 +3498,10 @@ int find_tus_activity_entries (char *filter, int max, LDAPMessage **result)
                        NULL, 0, controls, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -3308,7 +3519,7 @@ int find_tus_activity_entries (char *filter, int max, LDAPMessage **result)
 TPS_PUBLIC int find_tus_activity_entries_pcontrol_1(char *filter, int max, int time_limit, int size_limit, LDAPMessage **result)
 {
     int  rc = LDAP_OTHER, tries = 0;
-    LDAPsortkey **sortKeyList;
+    LDAPSortKey **sortKeyList;
     LDAPControl *controls[3];
     struct berval *cookie=NULL;
     struct timeval timeout;
@@ -3321,7 +3532,7 @@ TPS_PUBLIC int find_tus_activity_entries_pcontrol_1(char *filter, int max, int t
     controls[1] = NULL;
     controls[2] = NULL;
 
-    rc = ldap_create_page_control_cs(ld, max, cookie, 0, &controls[0]);
+    rc = ldap_create_page_control(ld, max, cookie, 0, &controls[0]);
 
     ldap_create_sort_keylist(&sortKeyList, "-dateOfCreate");
     ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */,
@@ -3335,7 +3546,10 @@ TPS_PUBLIC int find_tus_activity_entries_pcontrol_1(char *filter, int max, int t
         if ((rc == LDAP_SUCCESS) || (rc == LDAP_PARTIAL_RESULTS)) {
             break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -3365,7 +3579,10 @@ int get_number_of_entries (LDAPMessage *result)
         if ((n = ldap_count_entries (ld, result)) >= 0) {
             break;
         } else {
-            rc = ldap_simple_bind_s (ld, bindDN, bindPass);
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
             if (rc != LDAP_SUCCESS) {
                 bindStatus = rc;
                 break;
@@ -3448,61 +3665,64 @@ CERTCertificate **get_certificates(LDAPMessage *entry) {
    
 }
 
-char **get_attribute_values(LDAPMessage *entry, const char *attribute)
+struct berval **get_attribute_values(LDAPMessage *entry, const char *attribute)
 {
     int i;
     unsigned int j;
-    struct berval **bvals;
-    CERTCertificate *cert;
+    struct berval **bvals = NULL;
     char buffer[2048];
     int c = 0;
-    char **ret = NULL;
-
+    struct berval **ret = NULL;
 
     tus_check_conn();
     if (PL_strcasecmp(attribute, "userCertificate") == 0) {
-       bvals = ldap_get_values_len(ld, entry, attribute);
-       if (bvals == NULL)
-		return NULL;
-       for (i = 0; bvals[i] != NULL; i++ ) {
-	 c++;
-       }  
-       ret = (char **) malloc ((sizeof (char *) * c) + 1);
-       c = 0;
-       for (i = 0; bvals[i] != NULL; i++ ) {
-         char *tmp = BTOA_DataToAscii((unsigned char *)bvals[i]->bv_val,
-                        (int)bvals[i]->bv_len);
-         sprintf(buffer, "%s", tmp); 
-         PORT_Free(tmp);
+        bvals = ldap_get_values_len(ld, entry, attribute);
+        if (bvals == NULL)
+            return NULL;
+        for (i = 0; bvals[i] != NULL; i++ ) {
+	    c++;
+        }  
+        ret = (struct berval **) malloc ((sizeof (struct berval *) * c) + 1);
+        for (i=0; i< c; i++) {
+            ret[i] = (struct berval *) malloc(sizeof(struct berval));
+        }
+        ret[c] = NULL;
+        c = 0;
+        for (i = 0; bvals[i] != NULL; i++ ) {
+            char *tmp = BTOA_DataToAscii((unsigned char *)bvals[i]->bv_val,
+                                         (int)bvals[i]->bv_len);
+            snprintf(buffer, 2048, "%s", tmp); 
+            PORT_Free(tmp);
 
-         /* remove \r\n that javascript does not like */
-         for (j = 0; j < strlen(buffer); j++) {
-            if (buffer[j] == '\r') {
-              buffer[j] = '.';
+            /* remove \r\n that javascript does not like */
+            for (j = 0; j < strlen(buffer); j++) {
+                if (buffer[j] == '\r') {
+                    buffer[j] = '.';
+                }
+                if (buffer[j] == '\n') {
+                    buffer[j] = '.';
+                }
             }
-            if (buffer[j] == '\n') {
-              buffer[j] = '.';
-            }
-         }
-	 ret[c] = strdup(buffer);
-	 c++;
-       }  
-       if (bvals != NULL) {
-           ldap_value_free_len(bvals);
-           bvals = NULL;
-       }
-       ret[c] = NULL;
-       return ret;
+	    ret[c]->bv_val = PL_strdup(buffer);
+            ret[c]->bv_len = PL_strlen(buffer);
+	    c++;
+        }  
+        if (bvals != NULL) {
+            ldap_value_free_len(bvals);
+            bvals = NULL;
+        }
+
+        return ret;
     } else {
-       return ldap_get_values(ld, entry, attribute);
+        return ldap_get_values_len(ld, entry, attribute);
     }
 }
 
-void free_values(char **values, int ldapValues)
+void free_values(struct berval **values, int ldapValues)
 {
-    if( ldapValues != (int) NULL ) {
+    if (ldapValues != 0) {
         if( values != NULL ) {
-            ldap_value_free( values );
+            ldap_value_free_len( values );
             values = NULL;
         }
     } else {
@@ -3518,9 +3738,9 @@ TPS_PUBLIC char *get_token_users_name()
     return tokenAttributes[I_TOKEN_USER];
 }
 
-char **get_token_users(LDAPMessage *entry)
+struct berval **get_token_users(LDAPMessage *entry)
 {
-    return ldap_get_values(ld, entry, TOKEN_USER);
+    return ldap_get_values_len(ld, entry, TOKEN_USER);
 }
 
 char *get_token_id_name()
@@ -3528,165 +3748,84 @@ char *get_token_id_name()
     return tokenAttributes[I_TOKEN_ID];
 }
 
-TPS_PUBLIC char *get_token_reason(LDAPMessage *e)
+char *get_cert_attr_byname(LDAPMessage *entry, const char *name)
 {
-    char **v = NULL;
+    struct berval **v = NULL;
     char *value = NULL;
 
-    v = ldap_get_values(ld, e, "tokenReason");
+    if (entry == NULL) return NULL;
+
+    v = ldap_get_values_len(ld, entry, name);
     if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
+    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
+        value = PL_strdup(v[0]->bv_val);
     }
     if( v != NULL ) {
-        ldap_value_free( v );
+        ldap_value_free_len( v );
         v = NULL;
     }
 
     return value;
+}
+
+int get_cert_attr_byname_int(LDAPMessage *entry, const char *name)
+{
+    struct berval **v = NULL;
+    int  n = 0;
+
+    if (entry == NULL) return 0;
+
+    v = ldap_get_values_len(ld, entry, name);
+    if (v == NULL) return 0;
+    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
+        n = atoi(v[0]->bv_val);
+    }
+    if( v != NULL ) {
+        ldap_value_free_len( v );
+        v = NULL;
+    }
+
+    return n;
+}
+
+
+TPS_PUBLIC char *get_token_reason(LDAPMessage *entry)
+{
+    return get_cert_attr_byname(entry, "tokenReason");
 }
 
 char *get_token_id(LDAPMessage *entry)
 {
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, TOKEN_ID);
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, TOKEN_ID);
 }
 
 char *get_cert_tokenType(LDAPMessage *entry)
 {
-    char **v = NULL; 
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, "tokenType");
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, "tokenType");
 }
 
 char *get_cert_serial(LDAPMessage *entry)
 {
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, "tokenSerial");
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, "tokenSerial");
 }
 
 char *get_cert_type(LDAPMessage *entry)
 {
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, "tokenKeyType");
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
-}
-
-char *get_cert_attr_byname(LDAPMessage *entry, char *name)
-{
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, name);
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, "tokenKeyType");
 }
 
 char *get_cert_status(LDAPMessage *entry)
 {
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, "tokenStatus");
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, "tokenStatus");
 }
 
 char *get_cert_issuer(LDAPMessage *entry) {
-    char **v = NULL;
-    char *value = NULL;
-        
-    v = ldap_get_values(ld, entry, "tokenIssuer");
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, "tokenIssuer");
 }
 
 char *get_cert_cn(LDAPMessage *entry)
 {
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, "cn");
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, "cn");
 }
 
 char *get_token_status_name()
@@ -3706,20 +3845,7 @@ TPS_PUBLIC char *get_policy_name()
 
 char *get_token_status(LDAPMessage *entry)
 {
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, TOKEN_STATUS);
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, TOKEN_STATUS);
 }
 
 char *get_applet_id_name()
@@ -3729,20 +3855,7 @@ char *get_applet_id_name()
 
 char *get_applet_id(LDAPMessage *entry)
 {
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, TOKEN_APPLET);
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, TOKEN_APPLET);
 }
 
 char *get_key_info_name()
@@ -3752,20 +3865,7 @@ char *get_key_info_name()
 
 char *get_key_info(LDAPMessage *entry)
 {
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, TOKEN_KEY_INFO);
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, TOKEN_KEY_INFO);
 }
 
 char *get_creation_date_name()
@@ -3775,20 +3875,7 @@ char *get_creation_date_name()
 
 char *get_creation_date(LDAPMessage *entry)
 {
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, TOKEN_C_DATE);
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, TOKEN_C_DATE);
 }
 
 char *get_modification_date_name()
@@ -3798,20 +3885,7 @@ char *get_modification_date_name()
 
 char *get_modification_date(LDAPMessage *entry)
 {
-    char **v = NULL;
-    char *value = NULL;
-
-    v = ldap_get_values(ld, entry, TOKEN_M_DATE);
-    if (v == NULL) return NULL;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        value = PL_strdup(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return value;
+    return get_cert_attr_byname(entry, TOKEN_M_DATE);
 }
 
 char *get_number_of_modifications_name()
@@ -3821,20 +3895,7 @@ char *get_number_of_modifications_name()
 
 int get_number_of_modifications(LDAPMessage *entry)
 {
-    char **v = NULL;
-    int  n = 0;
-
-    v = ldap_get_values(ld, entry, TOKEN_MODS);
-    if (v == NULL) return 0;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        n = atoi(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return n;
+    return get_cert_attr_byname_int(entry, TOKEN_MODS);
 }
 
 TPS_PUBLIC char *get_dn(LDAPMessage *entry)
@@ -3855,20 +3916,7 @@ char *get_number_of_resets_name()
 
 int get_number_of_resets(LDAPMessage *entry)
 {
-    char **v = NULL;
-    int  n = 0;
-
-    v = ldap_get_values(ld, entry, TOKEN_RESETS);
-    if (v == NULL) return 0;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        n = atoi(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return n;
+    return get_cert_attr_byname_int(entry, TOKEN_RESETS);
 }
 
 char *get_number_of_enrollments_name()
@@ -3878,20 +3926,7 @@ char *get_number_of_enrollments_name()
 
 int get_number_of_enrollments(LDAPMessage *entry)
 {
-    char **v = NULL;
-    int  n = 0;
-
-    v = ldap_get_values(ld, entry, TOKEN_ENROLLMENTS);
-    if (v == NULL) return 0;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        n = atoi(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return n;
+    return get_cert_attr_byname_int(entry, TOKEN_ENROLLMENTS);
 }
 
 char *get_number_of_renewals_name()
@@ -3901,20 +3936,7 @@ char *get_number_of_renewals_name()
 
 int get_number_of_renewals(LDAPMessage *entry)
 {
-    char **v = NULL;
-    int  n = 0;
-
-    v = ldap_get_values(ld, entry, TOKEN_RENEWALS);
-    if (v == NULL) return 0;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        n = atoi(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return n;
+    return get_cert_attr_byname_int(entry, TOKEN_RENEWALS);
 }
 
 char *get_number_of_recoveries_name()
@@ -3924,27 +3946,14 @@ char *get_number_of_recoveries_name()
 
 int get_number_of_recoveries(LDAPMessage *entry)
 {
-    char **v = NULL;
-    int  n = 0;
-
-    v = ldap_get_values(ld, entry, TOKEN_RECOVERIES);
-    if (v == NULL) return 0;
-    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-        n = atoi(v[0]);
-    }
-    if( v != NULL ) {
-        ldap_value_free( v );
-        v = NULL;
-    }
-
-    return n;
+    return get_cert_attr_byname_int(entry, TOKEN_RECOVERIES);
 }
 
 TPS_PUBLIC char *get_token_userid(char *cn)
 {
     LDAPMessage *result = NULL;
     LDAPMessage *e = NULL;
-    char **v = NULL;
+    struct berval **v = NULL;
     char *ret = NULL;
     int rc = -1;
 
@@ -3952,12 +3961,12 @@ TPS_PUBLIC char *get_token_userid(char *cn)
         if ((rc = find_tus_db_entry (cn, 0, &result)) == LDAP_SUCCESS) {
             e = get_first_entry (result);
             if (e != NULL) {
-                if ((v = ldap_get_values(ld, e, TOKEN_USER)) != NULL) {
-                    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-                            ret = PL_strdup(v[0]);
+                if ((v = ldap_get_values_len(ld, e, TOKEN_USER)) != NULL) {
+                    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
+                            ret = PL_strdup(v[0]->bv_val);
                     }
                     if( v != NULL ) {
-                        ldap_value_free( v );
+                        ldap_value_free_len( v );
                         v = NULL;
                     }
                 }
@@ -3975,20 +3984,20 @@ TPS_PUBLIC char *get_token_policy(char *cn)
 {
     LDAPMessage *result = NULL;
     LDAPMessage *e = NULL;
-    char **v = NULL;
+    struct berval **v = NULL;
     char *ret = NULL;
     int rc = -1;
 
     if (cn != NULL && PL_strlen(cn) > 0) {
-        if ((rc = find_tus_db_entry (cn, 0, &result)) == LDAP_SUCCESS) {
+        if ((rc = find_tus_db_entry(cn, 0, &result)) == LDAP_SUCCESS) {
             e = get_first_entry (result);
             if (e != NULL) {
-                if ((v = ldap_get_values(ld, e, TOKEN_POLICY)) != NULL) {
-                    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-                            ret = PL_strdup(v[0]);
+                if ((v = ldap_get_values_len(ld, e, TOKEN_POLICY)) != NULL) {
+                    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
+                            ret = PL_strdup(v[0]->bv_val);
                     }
                     if( v != NULL ) {
-                        ldap_value_free( v );
+                        ldap_value_free_len( v );
                         v = NULL;
                     }
                 }
@@ -4002,26 +4011,11 @@ TPS_PUBLIC char *get_token_policy(char *cn)
     return ret;
 }
 
-TPS_PUBLIC int allow_token_renew(char *cn)
-{
-    return allow_token_enroll_policy(cn, "RENEW=YES");
-}
-
-TPS_PUBLIC int allow_token_reenroll(char *cn)
-{
-    return allow_token_enroll_policy(cn, "RE_ENROLL=YES");
-}
-
-TPS_PUBLIC int force_token_format(char *cn)
-{
-    return allow_token_enroll_policy(cn,"FORCE_FORMAT=YES");
-}
-
 TPS_PUBLIC int allow_token_enroll_policy(char *cn, const char *policy)
 {
     LDAPMessage *result = NULL;
     LDAPMessage *e = NULL;
-    char **v = NULL;
+    struct berval **v = NULL;
     int can_reenroll = 0;
     int token_is_uninitialized = 0;
     int is_reenroll_attempt = 0;
@@ -4047,9 +4041,9 @@ TPS_PUBLIC int allow_token_enroll_policy(char *cn, const char *policy)
                     }
                 }
 
-                if ((v = ldap_get_values(ld, e, TOKEN_POLICY)) != NULL) {
-                    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-                        if (PL_strstr(v[0], policy)) {
+                if ((v = ldap_get_values_len(ld, e, TOKEN_POLICY)) != NULL) {
+                    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
+                        if (PL_strstr(v[0]->bv_val, policy)) {
                             can_reenroll = 1;
                         }  else  {
                             if( is_reenroll_attempt && token_is_uninitialized)  {
@@ -4058,7 +4052,7 @@ TPS_PUBLIC int allow_token_enroll_policy(char *cn, const char *policy)
                         }
                     }
                     if( v != NULL ) {
-                        ldap_value_free( v );
+                        ldap_value_free_len( v );
                         v = NULL;
                     }
                 }
@@ -4070,6 +4064,21 @@ TPS_PUBLIC int allow_token_enroll_policy(char *cn, const char *policy)
         }
     }
     return can_reenroll;
+}
+
+TPS_PUBLIC int allow_token_renew(char *cn)
+{
+    return allow_token_enroll_policy(cn, "RENEW=YES");
+}
+
+TPS_PUBLIC int allow_token_reenroll(char *cn)
+{
+    return allow_token_enroll_policy(cn, "RE_ENROLL=YES");
+}
+
+TPS_PUBLIC int force_token_format(char *cn)
+{
+    return allow_token_enroll_policy(cn,"FORCE_FORMAT=YES");
 }
 
 TPS_PUBLIC int is_token_present(char *cn)
@@ -4098,7 +4107,7 @@ TPS_PUBLIC int is_token_pin_resetable(char *cn)
 {
     LDAPMessage *result = NULL;
     LDAPMessage *e = NULL;
-    char **v = NULL;
+    struct berval **v = NULL;
     int resetable = 1;
     int rc = -1;
 
@@ -4106,14 +4115,14 @@ TPS_PUBLIC int is_token_pin_resetable(char *cn)
         if ((rc = find_tus_db_entry (cn, 0, &result)) == LDAP_SUCCESS) {
             e = get_first_entry (result);
             if (e != NULL) {
-                if ((v = ldap_get_values(ld, e, TOKEN_POLICY)) != NULL) {
-                    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-                        if (PL_strstr(v[0], "PIN_RESET=NO")) {
+                if ((v = ldap_get_values_len(ld, e, TOKEN_POLICY)) != NULL) {
+                    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
+                        if (PL_strstr(v[0]->bv_val, "PIN_RESET=NO")) {
                             resetable = 0;
                         }
                     }
                     if( v != NULL ) {
-                        ldap_value_free( v );
+                        ldap_value_free_len( v );
                         v = NULL;
                     }
                 }
@@ -4131,7 +4140,7 @@ TPS_PUBLIC int is_update_pin_resetable_policy(char *cn)
 {
     LDAPMessage *result = NULL;
     LDAPMessage *e = NULL;
-    char **v = NULL;
+    struct berval **v = NULL;
     int resetable = 0;
     int rc = -1;
 
@@ -4139,14 +4148,14 @@ TPS_PUBLIC int is_update_pin_resetable_policy(char *cn)
         if ((rc = find_tus_db_entry (cn, 0, &result)) == LDAP_SUCCESS) {
             e = get_first_entry (result);
             if (e != NULL) {
-                if ((v = ldap_get_values(ld, e, TOKEN_POLICY)) != NULL) {
-                    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-                        if (PL_strstr(v[0], "RESET_PIN_RESET_TO_NO=YES")) {
+                if ((v = ldap_get_values_len(ld, e, TOKEN_POLICY)) != NULL) {
+                    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
+                        if (PL_strstr(v[0]->bv_val, "RESET_PIN_RESET_TO_NO=YES")) {
                             resetable = 1;
                         }
                     }
                     if( v != NULL ) {
-                        ldap_value_free( v );
+                        ldap_value_free_len( v );
                         v = NULL;
                     }
                 }
@@ -4164,7 +4173,7 @@ TPS_PUBLIC int is_tus_db_entry_disabled(char *cn)
 {
     LDAPMessage *result = NULL;
     LDAPMessage *e = NULL;
-    char **v = NULL;
+    struct berval **v = NULL;
     int disabled = 0;
     int rc = -1;
 
@@ -4172,14 +4181,14 @@ TPS_PUBLIC int is_tus_db_entry_disabled(char *cn)
         if ((rc = find_tus_db_entry (cn, 0, &result)) == LDAP_SUCCESS) {
             e = get_first_entry (result);
             if (e != NULL) {
-                if ((v = ldap_get_values(ld, e, TOKEN_STATUS)) != NULL) {
-                    if (v[0] != NULL && PL_strlen(v[0]) > 0) {
-                        if (!PL_strcasecmp(v[0], STATE_DISABLED)) {
+                if ((v = ldap_get_values_len(ld, e, TOKEN_STATUS)) != NULL) {
+                    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
+                        if (!PL_strcasecmp(v[0]->bv_val, STATE_DISABLED)) {
                             disabled = 1;
                         }
                     }
                     if( v != NULL ) {
-                        ldap_value_free( v );
+                        ldap_value_free_len( v );
                         v = NULL;
                     }
                 }
@@ -4225,31 +4234,22 @@ void free_modifications(LDAPMod **mods, int ldapValues)
         return;
     }
 
+    if (ldapValues) {
+        ldap_mods_free(mods, 0);
+        return;
+    }
+
     for (i = 0; mods[i] != NULL; i++) {
         if ((mods[i]->mod_op & LDAP_MOD_BVALUES) &&
             (mods[i]->mod_bvalues != NULL)) {
-            if (ldapValues) {
-                if( mods[i]->mod_bvalues != NULL ) {
-                    ber_bvecfree( mods[i]->mod_bvalues );
-                    mods[i]->mod_bvalues = NULL;
-                }
-            } else {
-                if( ( mods[i] != NULL ) && ( mods[i]->mod_bvalues != NULL ) ) {
-                    PR_Free( mods[i]->mod_bvalues );
-                    mods[i]->mod_bvalues = NULL;
-                }
+            if( ( mods[i] != NULL ) && ( mods[i]->mod_bvalues != NULL ) ) {
+                PR_Free( mods[i]->mod_bvalues );
+                mods[i]->mod_bvalues = NULL;
             }
         } else if (mods[i]->mod_values != NULL) {
-            if (ldapValues) {
-                if( mods[i]->mod_values != NULL ) {
-                    ldap_value_free( mods[i]->mod_values );
-                    mods[i]->mod_values = NULL;
-                }
-            } else {
-                if( ( mods[i] != NULL ) && ( mods[i]->mod_values != NULL ) ) {
-                    PR_Free( mods[i]->mod_values );
-                    mods[i]->mod_values = NULL;
-                }
+            if( ( mods[i] != NULL ) && ( mods[i]->mod_values != NULL ) ) {
+                PR_Free( mods[i]->mod_values );
+                mods[i]->mod_values = NULL;
             }
         }
     }

@@ -72,7 +72,7 @@
 #endif /* !XP_WIN32 */
 
 SECStatus PK11_GenerateRandom(unsigned char *,int);
-void PrintPRTime(PRTime,char *);
+void PrintPRTime(PRTime, const char *);
 
 
 // This parameter is read from the config file. It is the
@@ -1230,7 +1230,7 @@ bool RA_Enroll_Processor::CheckAndUpgradeApplet(
 			RA::Debug(FN, "TKS connection id =%s", connid);
 			//StatusUpdate(a_session, a_extensions, 5, "PROGRESS_UPGRADE_APPLET");
 
-			if (UpgradeApplet(a_session, OP_PREFIX, (char*) a_tokenType,
+			if (UpgradeApplet(a_session, (char *) OP_PREFIX, (char*) a_tokenType,
 				o_major_version, o_minor_version, 
 				g_applet_target_version, 
 				applet_dir, security_level, 
@@ -1898,7 +1898,6 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
     char *tokentype = NULL;
     char *profile_state = NULL;
 	RA_Status st;
-    int token_present = 0;
     bool renewed = false;
     bool do_force_format = false;
 
@@ -2569,7 +2568,7 @@ op.enroll.certificates.caCert.label=caCert Label
           goto loser;
       }
 
-      if(xb.size() > totalAvailableMemory) {
+      if((int) xb.size() > totalAvailableMemory) {
           status = STATUS_ERROR_MAC_ENROLL_PDU;
           RA::Debug("RA_Enroll_Processor::Failure pkcs11 object may exceed applet memory"," failed");
           PR_snprintf(audit_msg, 512, "Applet memory exceeded when writing out final token data");
@@ -3086,19 +3085,27 @@ bool RA_Enroll_Processor::GenerateCertsAfterRecoveryPolicy(AuthParams *login, RA
     } else {
         nEntries = RA::ra_get_number_of_entries(ldapResult);
         for (e = RA::ra_get_first_entry(ldapResult); e != NULL; e = RA::ra_get_next_entry(e)) {   
-            char ** attr_values = RA::ra_get_attribute_values(e, "tokenStatus");
-            RA::Debug(LL_PER_CONNECTION,FN, "tokenStatus = %s",
-              attr_values[0]);
+            struct berval ** attr_values = RA::ra_get_attribute_values(e, "tokenStatus");
 
-            strcpy(tokenStatus, attr_values[0]);
+            if ((attr_values == NULL) || (attr_values[0] == NULL)) {
+                RA::Debug(LL_PER_CONNECTION,FN, "Error obtaining token status");
+                r = false;
+                o_status = STATUS_ERROR_BAD_STATUS;
+                if (attr_values != NULL) {
+                    RA::ra_free_values(attr_values);
+                    attr_values = NULL;
+                }
+                goto loser;
+            }
+          
+            RA::Debug(LL_PER_CONNECTION,FN, "tokenStatus = %s",
+              attr_values[0]->bv_val);
+
+            strncpy(tokenStatus, attr_values[0]->bv_val, 100);
             // free attr_values
             if (attr_values != NULL) {
-              int cc = 0;
-              while (attr_values[cc] != NULL) {
-                free(attr_values[cc]);
-                cc++;
-              }
-              free(attr_values); 
+              RA::ra_free_values(attr_values);
+              attr_values = NULL;
             }
             tokenid = RA::ra_get_token_id(e);
             RA::Debug(LL_PER_CONNECTION,FN, "tokenID = %s", tokenid);
@@ -3334,7 +3341,6 @@ CERTCertificate **o_cert, char *error_msg)
     Buffer *cert = NULL;
     char *cert_string = NULL;
 
-    const char *FN="RA_Enroll_Processor::DoRenewal";
     PRUint64 snum = DER_GetInteger(&(i_cert)->serialNumber);
     RA::Debug("RA_Enroll_Processor::DoRenewal", "begins renewal for serial number %u with profileId=%s", (int)snum, profileId);
 
@@ -3540,10 +3546,10 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                 char *certId = (char *)RA::GetConfigStore()->GetConfigAsString(configname, "C0");
                 PR_snprintf((char *)configname, 256, "op.enroll.%s.renewal.%s.certAttrId", tokenType, keyTypeValue);
                 char *certAttrId = (char *)RA::GetConfigStore()->GetConfigAsString(configname, "c0");
-                PR_snprintf((char *)configname, 256, "%s.privateKeyAttrId", keyTypePrefix);
-                const char *priKeyAttrId = RA::GetConfigStore()->GetConfigAsString(configname, "k0");
-                PR_snprintf((char *)configname,  256,"%s.publicKeyAttrId", keyTypePrefix);
-                const char *pubKeyAttrId = RA::GetConfigStore()->GetConfigAsString(configname, "k1");
+                //PR_snprintf((char *)configname, 256, "%s.privateKeyAttrId", keyTypePrefix);
+                //const char *priKeyAttrId = RA::GetConfigStore()->GetConfigAsString(configname, "k0");
+                //PR_snprintf((char *)configname,  256,"%s.publicKeyAttrId", keyTypePrefix);
+                //const char *pubKeyAttrId = RA::GetConfigStore()->GetConfigAsString(configname, "k1");
                 RA::Debug("RA_Enroll_Processor::ProcessRenewal",
                   "certId=%s, certAttrId=%s",certId, certAttrId);
 
@@ -4389,7 +4395,7 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			  goto rloser;
 			}
 
-			if ((tmp_c == NULL) || (tmp_c =="")) {
+			if ((tmp_c == NULL) || (strcmp(tmp_c,"")==0)) {
 			  RA::Debug("RA_Enroll_Processor::ProcessRecovery", "NSSBase64_EncodeItem failed");
                           PR_snprintf(audit_msg, 512, "Key Recovery failed. NSSBase64_EncodeItem failed");
 			  goto rloser;
@@ -5076,7 +5082,7 @@ int RA_Enroll_Processor::UnrevokeRecoveredCert(const LDAPMessage *e, char *&stat
     return statusNum;
 }
 
-void PrintPRTime(PRTime theTime,char *theName)
+void PrintPRTime(PRTime theTime, const char *theName)
 {
   struct tm t;
   PRExplodedTime explode;

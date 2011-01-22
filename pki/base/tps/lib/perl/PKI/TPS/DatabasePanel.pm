@@ -119,22 +119,7 @@ sub update
     my $flavor = "pki";
     $flavor =~ s/\n//g;
 
-    my $mozldap_path = "/usr/lib/mozldap";
-    my $arch = "";
-    if ($^O eq "linux") {
-        $arch = `uname -i`;
-        $arch =~ s/\n//g;
-        if ($arch eq "x86_64") {
-          $mozldap_path = "/usr/lib64/mozldap";
-        }
-    } elsif ($^O eq "solaris") {
-        $arch=`uname -p`;
-        $arch =~ s/\n//g;
-        if( ( $arch eq "sparc" ) &&
-            ( -d "/usr/lib/sparcv9/" ) ) {
-            $mozldap_path = "/usr/lib/sparcv9/mozldap6";
-        }
-    }
+    my $ldapmodify_path = "/usr/bin/ldapmodify";
 
     # creating database
     my $tmp = "/tmp/database-$$.ldif";
@@ -144,13 +129,13 @@ sub update
               "-e 's/\$TYPE/$type/' " .
               "-e 's/\$VALUE/$value/' " .
               "/usr/share/$flavor/tps/scripts/database.ldif > $tmp");
-    system("$mozldap_path/ldapmodify -h '$host' -p '$port' -D '$binddn' " .
+    system("$ldapmodify_path -h '$host' -p '$port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
               "-f '$tmp'");
     system("rm $tmp");
 
     # add schema
-    system("$mozldap_path/ldapmodify -h '$host' -p '$port' " .
+    system("$ldapmodify_path -h '$host' -p '$port' " .
               "-D '$binddn' -w '$bindpwd' -a " .
               "-f '/usr/share/$flavor/tps/scripts/schemaMods.ldif'");
 
@@ -158,7 +143,7 @@ sub update
     $tmp = "/tmp/addTokens-$$.ldif";
     system("sed -e 's/\$TOKENDB_ROOT/$basedn/g' " .
               "/usr/share/$flavor/tps/scripts/addTokens.ldif > $tmp");
-    system("$mozldap_path/ldapmodify -h '$host' -p '$port' -D '$binddn' " .
+    system("$ldapmodify_path -h '$host' -p '$port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
               "-f '$tmp'");
     system("rm $tmp");
@@ -167,7 +152,7 @@ sub update
     $tmp = "/tmp/addIndexes-$$.ldif";
     system("sed -e 's/userRoot/$database/g' " .
               "/usr/share/$flavor/tps/scripts/addIndexes.ldif > $tmp");
-    system("$mozldap_path/ldapmodify -h '$host' -p '$port' -D '$binddn' " .
+    system("$ldapmodify_path -h '$host' -p '$port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
               "-f '$tmp'");
     system("rm $tmp");
@@ -176,7 +161,7 @@ sub update
     $tmp = "/tmp/addVLVIndexes-$$.ldif";
     system("sed -e 's/userRoot/$database/g;s/\$TOKENDB_ROOT/$basedn/g' " .
               "/usr/share/$flavor/tps/scripts/addVLVIndexes.ldif > $tmp");
-    system("$mozldap_path/ldapmodify -h '$host' -p '$port' -D '$binddn' " .
+    system("$ldapmodify_path -h '$host' -p '$port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
               "-f '$tmp'");
     system("rm $tmp");

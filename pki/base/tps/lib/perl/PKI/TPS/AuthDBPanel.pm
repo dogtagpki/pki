@@ -88,24 +88,10 @@ sub update
 
     # try to do a ldapsearch
     my $tmp = "/tmp/file$$";
-    my $mozldap_path = "/usr/lib/mozldap";
-    my $arch = "";
-    if ($^O eq "linux") {
-        $arch = `uname -i`;
-        $arch =~ s/\n//g;
-        if ($arch eq "x86_64") {
-          $mozldap_path = "/usr/lib64/mozldap";
-        }
-    } elsif ($^O eq "solaris") {
-        $arch=`uname -p`;
-        $arch =~ s/\n//g;
-        if( ( $arch eq "sparc" ) &&
-            ( -d "/usr/lib/sparcv9/" ) ) {
-            $mozldap_path = "/usr/lib/sparcv9/mozldap6";
-        }
-    }
-    &PKI::TPS::Wizard::debug_log("AuthDBPanel: invoking $mozldap_path/ldapsearch");
-    my $status = system("$mozldap_path/ldapsearch -h '$host' " .
+    my $ldapsearch_path = "/usr/bin/ldapsearch";
+
+    &PKI::TPS::Wizard::debug_log("AuthDBPanel: invoking $ldapsearch_path");
+    my $status = system("$ldapsearch_path -h '$host' " .
                      "-p '$port' -b '$basedn' -s base 'objectclass=*' > $tmp 2>&1");
     if ($status eq "0") {
      &PKI::TPS::Wizard::debug_log("AuthDBPanel: auth database looks ok");

@@ -313,7 +313,7 @@ AM_CONDITIONAL(SOLARIS,test "$platform" = "solaris")
 # Check for library dependencies
 m4_include(m4/nspr.m4)
 m4_include(m4/nss.m4)
-m4_include(m4/mozldap.m4)
+m4_include(m4/openldap.m4)
 m4_include(m4/sasl.m4)
 m4_include(m4/svrcore.m4)
 m4_include(m4/apr.m4)

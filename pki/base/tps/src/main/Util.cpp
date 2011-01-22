@@ -96,9 +96,9 @@ TPS_PUBLIC BYTE* Util::bool2byte(bool b) {
 
 static int isAlphaNumeric (char ch)
 {
-    return ((ch >='a') && (ch <= 'z') ||   /* logical AND &&, OR || */ 
-  	    (ch >='A') && (ch <= 'Z') || 
-	    (ch >='0') && (ch <= '9') );
+    return (((ch >='a') && (ch <= 'z')) ||   /* logical AND &&, OR || */ 
+  	    ((ch >='A') && (ch <= 'Z')) || 
+	    ((ch >='0') && (ch <= '9')) );
 }
 
 static char bin2hex (BYTE ch)

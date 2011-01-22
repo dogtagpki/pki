@@ -39,6 +39,7 @@
 #include "pk11func.h"
 #include "engine/audit.h"
 #include "ldap.h"
+#include "lber.h"
 #include "main/Base.h"
 #include "main/ConfigStore.h"
 #include "main/Buffer.h"
@@ -150,7 +151,7 @@ class RA
 	  static void DebugBuffer(RA_Log_Level level, const char *func_name, const char *prefix, Buffer *buf);
           TPS_PUBLIC static void FlushAuditLogBuffer();
           TPS_PUBLIC static void SignAuditLog(NSSUTF8 *msg);
-          TPS_PUBLIC static char *GetAuditSigningMessage(NSSUTF8 *msg);
+          TPS_PUBLIC static char *GetAuditSigningMessage(const NSSUTF8 *msg);
           TPS_PUBLIC static void SetFlushInterval(int interval);
           TPS_PUBLIC static void SetBufferSize(int size);
           static void RunFlushThread(void *arg);
@@ -170,8 +171,9 @@ class RA
           TPS_PUBLIC static CERTCertificate **ra_get_certificates(LDAPMessage *e);
           TPS_PUBLIC static LDAPMessage *ra_get_first_entry(LDAPMessage *e);
           TPS_PUBLIC static LDAPMessage *ra_get_next_entry(LDAPMessage *e);
-          TPS_PUBLIC static char **ra_get_attribute_values(LDAPMessage *e, const char *p);
-          TPS_PUBLIC static char *ra_get_cert_attr_byname(LDAPMessage *e, char *name);
+          TPS_PUBLIC static struct berval **ra_get_attribute_values(LDAPMessage *e, const char *p);
+          TPS_PUBLIC static void ra_free_values(struct berval **values);
+          TPS_PUBLIC static char *ra_get_cert_attr_byname(LDAPMessage *e, const char *name);
           TPS_PUBLIC static char *ra_get_token_id(LDAPMessage *e);
       TPS_PUBLIC static char *ra_get_cert_tokenType(LDAPMessage *entry);
       TPS_PUBLIC static char *ra_get_token_status(LDAPMessage *entry);
@@ -209,7 +211,7 @@ class RA
           static int tdb_add_token_entry(char *userid, char* cuid, const char *status, const char *token_type);
 	  static int tdb_update(const char *userid, char *cuid, char *applet_version, char *key_info, const char *state, const char *reason, const char * token_type);
 	  static int tdb_update_certificates(char *cuid, char **tokentypes, char *userid, CERTCertificate **certificates, char **ktypes, char **origins, int numOfCerts);
-	  static int tdb_activity(char *ip, char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
+	  static int tdb_activity(const char *ip, const char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
 	  static int testTokendb();
           static int InitializeAuthentication();
           static AuthenticationEntry *GetAuth(const char *id);

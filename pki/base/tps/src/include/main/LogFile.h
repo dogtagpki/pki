@@ -71,7 +71,7 @@ class LogFile {
     bool isOpen();
 
     /* read and write */
-    virtual int write(char * msg);
+    virtual int write(const char * msg);
     int printf(const char* fmt, ...);
     int write(char *msg, size_t n);
     int vfprintf(const char* fmt, va_list ap);

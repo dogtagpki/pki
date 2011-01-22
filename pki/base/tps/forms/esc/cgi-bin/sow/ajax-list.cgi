@@ -49,7 +49,7 @@ sub main()
             "-h \"" . $ldapHost . "\" " .
             "-p \"" . $ldapPort ."\" " .
             "-S \"cn\" " .
-            "-1 -s sub \"(cn=" . $letters . "*)\" cn uid > " . $tmpfile;
+            "-s sub \"(cn=" . $letters . "*)\" cn uid > " . $tmpfile;
   system($cmd);
 
   my $result = "";

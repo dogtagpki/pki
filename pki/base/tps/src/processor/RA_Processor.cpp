@@ -676,6 +676,7 @@ bool RA_Processor::GetTokenType(const char *prefix, int major_version, int minor
 	int start_pos = 0, done = 0;
 	unsigned int end_pos = 0;
 	const char *cuid_x = NULL;
+        int rc=0;
 
 	cuid_x = cuid;
 
@@ -778,7 +779,7 @@ bool RA_Processor::GetTokenType(const char *prefix, int major_version, int minor
 			}
 
 			char *pend = NULL;
-			strtol((const char *) tokenCUIDStart, &pend, 16);
+			rc = strtol((const char *) tokenCUIDStart, &pend, 16);
 
 			if(*pend != '\0')
 			{
@@ -811,7 +812,7 @@ bool RA_Processor::GetTokenType(const char *prefix, int major_version, int minor
 			}
 
 			char *pend = NULL;
-			strtol((const char *) tokenCUIDEnd, &pend, 16);
+			rc = strtol((const char *) tokenCUIDEnd, &pend, 16);
 
 			if(*pend != '\0')
 			{
@@ -1874,7 +1875,7 @@ Secure_Channel *RA_Processor::GenerateSecureChannel(
     bool serverKeygen = RA::GetConfigStore()->GetConfigAsBool(configname, false);
 
     if (serverKeygen) {
-      if ((drm_desKey_s == "") || (drm_desKey_s == NULL)) {
+      if ((drm_desKey_s == NULL) || (strcmp(drm_desKey_s, "")==0)) {
 	RA::Debug(LL_PER_PDU, "RA_Processor::Setup_Secure_Channel",
 		  "RA_Processor::GenerateSecureChannel - did not get drm_desKey_s");
 	return NULL;
@@ -1882,7 +1883,7 @@ Secure_Channel *RA_Processor::GenerateSecureChannel(
 	RA::Debug(LL_PER_PDU, "RA_Processor::Setup_Secure_Channel",
 		  "RA_Processor::GenerateSecureChannel - drm_desKey_s = %s", drm_desKey_s);
       }
-      if ((kek_desKey_s == "") || (kek_desKey_s == NULL)) {
+      if ((kek_desKey_s == NULL) || (strcmp(kek_desKey_s,"")==0))  {
 	RA::Debug(LL_PER_PDU, "RA_Processor::Setup_Secure_Channel",
 		  "RA_Processor::GenerateSecureChannel - did not get kek_desKey_s");
 	return NULL;
@@ -1890,7 +1891,7 @@ Secure_Channel *RA_Processor::GenerateSecureChannel(
 	RA::Debug(LL_PER_PDU, "RA_Processor::Setup_Secure_Channel",
 		  "RA_Processor::GenerateSecureChannel - kek_desKey_s = %s", kek_desKey_s);
       }
-      if ((keycheck_s == "") || (keycheck_s == NULL)) {
+      if ((keycheck_s == NULL) || (strcmp(keycheck_s,"")==0)) {
 	RA::Debug(LL_PER_PDU, "RA_Processor::Setup_Secure_Channel",
 		  "RA_Processor::GenerateSecureChannel - did not get keycheck_s");
 	return NULL;
@@ -2337,7 +2338,6 @@ int RA_Processor::ComputeRandomData(Buffer &data_out, int dataSize,  const char 
     } else {
         int tks_curr = RA::GetCurrentIndex(tksConn);
         int currRetries = 0;
-        char *data = NULL;
 
         PR_snprintf((char *)body, 5000, "dataNumBytes=%d"
           , dataSize );
@@ -2373,7 +2373,6 @@ int RA_Processor::ComputeRandomData(Buffer &data_out, int dataSize,  const char 
             response = tksConn->getResponse(tks_curr, servletID, body);
         }
 
-        Buffer *randomData = NULL;
         status = 0;
         if (response != NULL) {
             RA::Debug(LL_PER_PDU, "RA_Processor::ComputeRandomData Response is not ","NULL");
@@ -2448,7 +2447,7 @@ bool RA_Processor::RevokeCertificates(RA_Session *session, char *cuid,char *audi
                                         char *userid,
                                         RA_Status &status )
 {
-        char *OP_PREFIX = "op.format";
+        const char *OP_PREFIX = "op.format";
         char *statusString = NULL;
         char configname[256];
         char filter[512];
@@ -2639,10 +2638,7 @@ RA_Status RA_Processor::Format(RA_Session *session, NameValueSet *extensions, bo
     LDAPMessage *ldapResult = NULL;
     LDAPMessage *e = NULL;
     LDAPMessage  *result = NULL;
-    char serial[100];
-    char *statusString = NULL;
     char filter[512];
-    int statusNum;
     Buffer curKeyInfo;
     BYTE curVersion;
     bool tokenFound = false;

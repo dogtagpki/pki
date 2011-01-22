@@ -168,29 +168,14 @@ sub update
     my $flavor = "pki";
     $flavor =~ s/\n//g;
 
-    my $mozldap_path = "/usr/lib/mozldap";
-    my $arch = "";
-    if ($^O eq "linux") {
-        $arch = `uname -i`;
-        $arch =~ s/\n//g;
-        if ($arch eq "x86_64") {
-          $mozldap_path = "/usr/lib64/mozldap";
-        }
-    } elsif ($^O eq "solaris") {
-        $arch=`uname -p`;
-        $arch =~ s/\n//g;
-        if( ( $arch eq "sparc" ) &&
-            ( -d "/usr/lib/sparcv9/" ) ) {
-            $mozldap_path = "/usr/lib/sparcv9/mozldap6";
-        }
-    }
+    my $ldapmodify_path = "/usr/bin/ldapmodify";
 
     $admincert =~ s/\//\\\//g;
     system("sed -e 's/\$TOKENDB_ROOT/$basedn/' " .
               "-e 's/\$TOKENDB_AGENT_PWD/$password/' " .
               "-e 's/\$TOKENDB_AGENT_CERT/$admincert/' " .
               "/usr/share/$flavor/tps/scripts/addAgents.ldif > $tmp");
-    system("$mozldap_path/ldapmodify -h '$ldap_host' -p '$ldap_port' -D '$binddn' " .
+    system("$ldapmodify_path -h '$ldap_host' -p '$ldap_port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
               "-f '$tmp'");
     system("rm $tmp");

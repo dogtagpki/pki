@@ -23,29 +23,8 @@
 #
 # Establish platform-dependent variables:
 #
-my $default_hardware_platform="";
-my $ldapsearch="";
-if( $^O eq "linux" ) {
-	$default_hardware_platform=`uname -i`;
-	chomp($default_hardware_platform);
-	if( $default_hardware_platform eq "i386" ) {
-		$ldapsearch = "/usr/lib/mozldap/ldapsearch";
-	} elsif( $default_hardware_platform eq "x86_64" ) {
-		$ldapsearch = "/usr/lib64/mozldap/ldapsearch";
-	}
-} elsif( $^O eq "solaris" ) {
-	$default_hardware_platform=`uname -p`;
-	chomp($default_hardware_platform);
-	if( ( $default_hardware_platform eq "sparc" ) &&
-		( -d "/usr/lib/sparcv9/" ) ) {
-		$default_hardware_platform="sparcv9";
-	}
-	if( $default_hardware_platform eq "sparc" ) {
-		$ldapsearch = "/usr/lib/mozldap6/ldapsearch";
-	} elsif( $default_hardware_platform eq "sparcv9" ) {
-		$ldapsearch = "/usr/lib/sparcv9/mozldap6/ldapsearch";
-	}
-}
+
+my $ldapsearch = "/usr/bin/ldapsearch";
 
 #
 # Feel free to modify the following parameters:
@@ -135,7 +114,7 @@ sub is_agent()
             "-b \"" . "cn=TUS Officers,ou=Groups,".$x_basedn . "\" " .
             "-h \"" . $x_host . "\" " .
             "-p \"" . $x_port ."\" " .
-            "-1 \"(uid=" . $uid . "*)\" | wc -l";
+            "member | grep \"uid=" . $uid . ",\" | wc -l";
 
   my $matched = `$cmd`;
 
@@ -174,8 +153,7 @@ sub is_user()
             "-b \"" . "ou=people,".$x_basedn . "\" " .
             "-h \"" . $x_host . "\" " .
             "-p \"" . $x_port ."\" " .
-            "-1 \"(uid=" . $uid . "*)\" | wc -l";
-
+            "\"(uid=" . $uid . ")\" uid | grep \"uid:\" | wc -l";
 
   my $matched = `$cmd`;
 

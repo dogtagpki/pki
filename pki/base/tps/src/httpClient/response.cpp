@@ -178,9 +178,9 @@ PRBool RecvBuf::_getBytes(int size) {
 }
 
 int RecvBuf::getAllContent() {
-    int result[10];
-    int j=0;
-    int k=0;
+    //int result[10];
+    //int j=0;
+    //int k=0;
     int number = 0;
     for (int i=0; i<_curSize; i++) {
         if (_buf[i] == '\r') {

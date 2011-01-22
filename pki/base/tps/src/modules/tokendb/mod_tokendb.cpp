@@ -207,7 +207,10 @@ enum token_ui_states  {
 **  _________________________________________________________________
 */
 
+#ifdef DEBUG_Tokendb
 static PRFileDesc *debug_fd                  = NULL;
+#endif
+
 static char *templateDir                     = NULL;
 static char *errorTemplate                   = NULL;
 static char *indexTemplate                   = NULL;
@@ -353,6 +356,11 @@ inline void do_strfree(char *buf)
     }
 }
 
+inline bool valid_berval(struct berval** b)
+{
+    return (b != NULL) && (b[0] != NULL) && (b[0]->bv_val != NULL);
+}
+
 /**
  * unencode
  * summary: takes a URL encoded string and returns an unencoded string 
@@ -430,7 +438,7 @@ char *get_post_field( apr_table_t *post, const char *fname, int len)
    char *ret = NULL;
    if (post) {
       ret = unencode(apr_table_get(post, fname));
-      if ((ret != NULL) && (PL_strlen(ret) > len)) {
+      if ((ret != NULL) && ((int) PL_strlen(ret) > len)) {
         PR_Free(ret);
         return NULL;
       } else {
@@ -461,7 +469,7 @@ char *get_encoded_post_field(apr_table_t *post, const char *fname, int len)
    char *ret = NULL;
    if (post) {
       ret = PL_strdup(apr_table_get(post, fname));
-      if ((ret != NULL) && (PL_strlen(ret) > len)) {
+      if ((ret != NULL) && ((int) PL_strlen(ret) > len)) {
         PL_strfree(ret);
         return NULL;
       } else {
@@ -525,7 +533,7 @@ void add_allowed_token_transitions(int token_ui_state, char *injection)
     int i=1;
     char state[128];
 
-    sprintf(state, "var allowed_transitions=\"", token_ui_state);
+    sprintf(state, "var allowed_transitions=\"");
     PL_strcat(injection, state);
     for (i=1; i<=MAX_TOKEN_UI_STATE; i++) {
         if (transition_allowed(token_ui_state, i)) {
@@ -2622,7 +2630,7 @@ static int util_read(request_rec *r, const char **rbuf)
 static int read_post(request_rec *r, apr_table_t **tab)
 {
     const char *data;
-    const char *key, *val, *type;
+    const char *key, *val;
     int rc = OK;
 
     if((rc = util_read(r, &data)) != OK) {
@@ -2713,7 +2721,7 @@ int check_injection_size(char **injection, int *psize, char *fixed_injection)
  */
 int audit_attribute_change(LDAPMessage *e, const char *fname, char *fvalue, char *msg)
 { 
-    char **attr_values = NULL;
+    struct berval **attr_values = NULL;
     char pString[512]="";
 
     attr_values = get_attribute_values( e, fname );
@@ -2721,7 +2729,8 @@ int audit_attribute_change(LDAPMessage *e, const char *fname, char *fvalue, char
         if (fvalue == NULL) {
             // value has been deleted
             PR_snprintf(pString, 512, "%s;;no_value", fname);
-        } else if (strcmp(fvalue, attr_values[0]) != 0) {
+        } else if (valid_berval(attr_values) && 
+                   (strcmp(fvalue, attr_values[0]->bv_val) != 0)) {
             // value has been changed 
             PR_snprintf(pString, 512, "%s;;%s", fname, fvalue);
         }
@@ -2736,6 +2745,7 @@ int audit_attribute_change(LDAPMessage *e, const char *fname, char *fvalue, char
         if (strlen(msg) != 0) PL_strncat(msg, "+", 4096 - strlen(msg));
         PL_strncat(msg, pString, 4096 - strlen(msg));
     }
+    return 0;
 }
 
 /**
@@ -2908,13 +2918,12 @@ bool agent_must_approve(char *conf_type)
  * 
  * function will return 0 on success, non-zero otherwise
  **/
-int set_config_state_timestamp(char *type, char* name, char *old_ts, char *new_state, char *who, bool new_config, char *userid)
+int set_config_state_timestamp(char *type, char* name, char *old_ts, const char *new_state, const char *who, bool new_config, char *userid)
 {
     char ts_name[256] = "";
     char state_name[256] = "";
     char writer_name[256] = "";
     char new_ts[256] ="";
-    char new_writer[256]="";
     char final_state[256] = "";
     char me[256]="";
     int ret =0;
@@ -3111,7 +3120,7 @@ char *get_fixed_pattern(char *ptype, char *pname)
         return NULL;
     }
 
-    if (p = PL_strstr(pattern, "$name")) {
+    if ((p = PL_strstr(pattern, "$name"))) {
         PL_strncpy(tmpc, pattern, p-pattern);
         tmpc[p-pattern] = '\0';
         sprintf(tmpc+(p-pattern), "%s%s", pname, p+PL_strlen("$name"));
@@ -3149,15 +3158,14 @@ ConfigStore *get_pattern_substore(char *ptype, char *pname)
  * parse the parameter string of form foo=bar&&foo2=baz&& ...
  * and perform (and audit) the changes
  **/
-void parse_and_apply_changes(char* userid, char* ptype, char* pname, char *operation, char *params) {
+void parse_and_apply_changes(char* userid, char* ptype, char* pname, const char *operation, char *params) {
     char *pair;
     char *line = NULL;
     int i;
     int len;
     char *lasts = NULL;
-    int op;
+    int op=0;
     char audit_str[4096] = "";
-    char configname[256]="";
     char *fixed_pattern = NULL;
     regex_t *regex=NULL;
     int err_no;
@@ -3265,7 +3273,7 @@ static int get_time_limit(char *query)
   } 
 
   ret = atoi(val);
-  if ((ret == 0) || (maxTimeLimit == NULL) || (ret > maxTimeLimit)) {
+  if ((ret == 0) || (ret > maxTimeLimit)) {
       return maxTimeLimit;
   } 
   return ret;
@@ -3282,7 +3290,7 @@ static int get_size_limit(char *query)
   }
 
   ret = atoi(val);
-  if ((ret == 0) || (maxSizeLimit == NULL) || (ret > maxSizeLimit)) {
+  if ((ret == 0) || (ret > maxSizeLimit)) {
       return maxSizeLimit;
   }
   return ret;
@@ -3369,6 +3377,7 @@ mod_tokendb_handler( request_rec *rq )
 
     char **attrs        = NULL;
     char **vals         = NULL;
+    struct berval **bvals = NULL;
     int maxReturns;
     int q;
     int i, n, len, nEntries, entryNum;
@@ -3397,7 +3406,7 @@ mod_tokendb_handler( request_rec *rq )
     char *statusString = NULL;
     char *s1, *s2;
     char *end;
-    char **attr_values = NULL;
+    struct berval **attr_values = NULL;
     char *auth_filter = NULL;
 
     /* authorization */
@@ -3692,8 +3701,8 @@ mod_tokendb_handler( request_rec *rq )
             if( e != NULL ) {
                 attr_values = get_attribute_values( e, "tokenUserID" );
                 tokendbDebug( "cuidUserId:" );
-                if (attr_values != NULL) {
-                    PL_strcpy( cuidUserId, attr_values[0] );
+                if (valid_berval(attr_values)) {
+                    PL_strcpy( cuidUserId, attr_values[0]->bv_val );
                     tokendbDebug( cuidUserId );
                     free_values(attr_values, 1);
                     attr_values = NULL;
@@ -3702,8 +3711,8 @@ mod_tokendb_handler( request_rec *rq )
                  
                 attr_values = get_attribute_values( e, "tokenType" );
                 tokendbDebug( "tokenType:" );
-                if (attr_values != NULL) {
-                    PL_strcpy( tokenType, attr_values[0] );
+                if (valid_berval(attr_values)) {
+                    PL_strcpy( tokenType, attr_values[0]->bv_val );
                     tokendbDebug( tokenType );
                     free_values(attr_values, 1);
                     attr_values = NULL;
@@ -3712,8 +3721,8 @@ mod_tokendb_handler( request_rec *rq )
  
                 attr_values = get_attribute_values( e, "tokenStatus" );
                 tokendbDebug( "tokenStatus:" );
-                if (attr_values != NULL) {
-                    PL_strcpy( tokenStatus, attr_values[0] );
+                if (valid_berval(attr_values)) {
+                    PL_strcpy( tokenStatus, attr_values[0]->bv_val );
                     tokendbDebug( tokenStatus );
                     free_values(attr_values, 1);
                     attr_values = NULL;
@@ -3722,8 +3731,8 @@ mod_tokendb_handler( request_rec *rq )
 
                 attr_values = get_attribute_values( e, "tokenReason" );
                 tokendbDebug( "tokenReason:" );
-                if (attr_values != NULL) {
-                    PL_strcpy( tokenReason, attr_values[0] );
+                if (valid_berval(attr_values)) {
+                    PL_strcpy( tokenReason, attr_values[0]->bv_val );
                     tokendbDebug( tokenReason );
                     free_values(attr_values, 1);
                     attr_values = NULL;
@@ -5638,7 +5647,7 @@ mod_tokendb_handler( request_rec *rq )
                 }
                 i++;
             }
-            if (value= (char *) store->GetConfigAsString(&pair[0])) {  // key exists
+            if ((value= (char *) store->GetConfigAsString(&pair[0]))) {  // key exists
                 if (PL_strcmp(value, &pair[i+1]) != 0) {
                     // value has changed
                     PR_snprintf(changed_str, PL_strlen(pvalues), "%s%s%s=%s", changed_str, 
@@ -6277,7 +6286,7 @@ mod_tokendb_handler( request_rec *rq )
 
             for( n = 0; attrs[n] != NULL; n++ ) {
                 /* Get the values of the attribute. */
-                if( ( vals = get_attribute_values( e, attrs[n] ) ) != NULL ) {
+                if( ( bvals = get_attribute_values( e, attrs[n] ) ) != NULL ) {
                     int v_start =0;
                     int v_end = MAX_INJECTION_SIZE;
                     PL_strcat( injection, "o." );
@@ -6289,7 +6298,7 @@ mod_tokendb_handler( request_rec *rq )
                         v_end = end_val;
                     } 
 
-                    for( i = v_start; (vals[i] != NULL) && (i < v_end); i++ ) {
+                    for( i = v_start; (bvals[i] != NULL) && (i < v_end); i++ ) {
                         if( i > start_val ) {
                             PL_strcat( injection, "#" );
                         } else {
@@ -6297,10 +6306,12 @@ mod_tokendb_handler( request_rec *rq )
                         }
 
                         // make sure to escape any special characters
-                        char *escaped = escapeSpecialChars(vals[i]);
-                        PL_strcat( injection, escaped );
-                        if (escaped != NULL) {
-                            PL_strfree(escaped);
+                        if (bvals[i]->bv_val != NULL) {
+                            char *escaped = escapeSpecialChars(bvals[i]->bv_val);
+                            PL_strcat( injection, escaped );
+                            if (escaped != NULL) {
+                                PL_strfree(escaped);
+                            }
                         }
                     }
 
@@ -6310,16 +6321,16 @@ mod_tokendb_handler( request_rec *rq )
                         PL_strcat( injection, "null;\n" );
                     }
 
-                    if ((PL_strcmp(attrs[n], TOKEN_STATUS)==0) && show_token_ui_state) {
-                        PL_strcpy( tokenStatus, vals[0] );
+                    if ((PL_strcmp(attrs[n], TOKEN_STATUS)==0) && show_token_ui_state && valid_berval(bvals)) {
+                        PL_strncpy( tokenStatus, bvals[0]->bv_val, 100 );
                     }
 
-                    if ((PL_strcmp(attrs[n], TOKEN_REASON)==0) && show_token_ui_state) {
-                        PL_strcpy( tokenReason, vals[0] );
+                    if ((PL_strcmp(attrs[n], TOKEN_REASON)==0) && show_token_ui_state && valid_berval(bvals)) {
+                        PL_strncpy( tokenReason, bvals[0]->bv_val, 100 );
                     }
 
                     if (PL_strstr(attrs[n], PROFILE_ID))  {
-                        if (vals[i] != NULL) { 
+                        if (bvals[i] != NULL) { 
                             PL_strcat( injection, "var has_more_profile_vals = \"true\";\n");
                         } else {
                             PL_strcat( injection, "var has_more_profile_vals = \"false\";\n");
@@ -6330,9 +6341,9 @@ mod_tokendb_handler( request_rec *rq )
                     }
 
                     /* Free the attribute values from memory when done. */
-                    if( vals != NULL ) {
-                        free_values( vals, 1 );
-                        vals = NULL;
+                    if( bvals != NULL ) {
+                        free_values( bvals, 1 );
+                        bvals = NULL;
                     }
                 }
             }
@@ -7354,7 +7365,7 @@ mod_tokendb_handler( request_rec *rq )
         int logSigningBufferSize = atoi(logSigningBufferSize_str);
         do_free(logSigningBufferSize_str);
 
-        if ((logSigningBufferSize >=512) && (logSigningBufferSize != RA::m_buffer_size)) {
+        if ((logSigningBufferSize >= 512) && (logSigningBufferSize != (int) RA::m_buffer_size)) {
             RA::SetBufferSize(logSigningBufferSize);
             PR_snprintf((char *)msg, 512, "'%s' has modified the  audit log signing buffer size to %d bytes", userid, logSigningBufferSize);
             RA::tdb_activity(rq->connection->remote_ip, "", "modify_audit_signing", "success", msg, userid, NO_TOKEN_TYPE);

@@ -68,7 +68,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/m4/nspr.m4 $(top_srcdir)/m4/nss.m4 \
-	$(top_srcdir)/m4/mozldap.m4 $(top_srcdir)/m4/sasl.m4 \
+	$(top_srcdir)/m4/openldap.m4 $(top_srcdir)/m4/sasl.m4 \
 	$(top_srcdir)/m4/svrcore.m4 $(top_srcdir)/m4/apr.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -442,6 +442,7 @@ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
+PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
@@ -594,7 +595,7 @@ AM_CPPFLAGS = $(DEBUG_DEFINES) $(TPS_INCLUDES) $(PATH_DEFINES)
 # Linker Flags
 #------------------------
 APR_LINK = @apr_lib@ -l@apr_lib_version@
-LDAPSDK_LINK = @ldapsdk_lib@ -lssldap60 -lprldap60 -lldap60 -lldif60
+LDAPSDK_LINK = @ldapsdk_lib@ -lldap -lldap_r -llber
 SVRCORE_LINK = @svrcore_lib@ -lsvrcore
 SASL_LINK = @sasl_lib@ -lsasl2
 NSS_LINK = @nss_lib@ -lnss3 -lssl3 -lsmime3 -lsoftokn3
