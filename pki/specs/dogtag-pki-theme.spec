@@ -1,6 +1,6 @@
 Name:             dogtag-pki-theme
 Version:          9.0.0
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -21,11 +21,27 @@ ExcludeArch:      ppc ppc64 s390 s390x
 %endif
 
 %global overview                                                       \
-Several PKI packages require a "virtual" Theme component.  These       \
-"virtual" Theme components are "Provided" by various Theme "flavors"   \
+Several PKI packages require a "virtual" theme component.  These       \
+"virtual" theme components are "Provided" by various theme "flavors"   \
 including "dogtag", "redhat", and "ipa".  Consequently,                \
-all "dogtag", "redhat", and "ipa" Theme components MUST be             \
+all "dogtag", "redhat", and "ipa" theme components MUST be             \
 mutually exclusive!                                                    \
+                                                                       \
+On Fedora systems, the "dogtag" theme packages are the ONLY available  \
+theme components.                                                      \
+                                                                       \
+Similarly, the "ipa" theme packages are ONLY available on RHEL         \
+systems, and represent the default theme components.                   \
+                                                                       \
+Alternatively, on RHEL systems, if the "dogtag" theme packages are     \
+available as EPEL packages, while they may be used as a transparent    \
+replacement for their corresponding "ipa" theme package, they are not  \
+intended to be used as a replacement for their corresponding "redhat"  \
+theme components.                                                      \
+                                                                       \
+Finally, if available for a RHEL system (e. g. - RHCS subscription),   \
+each "redhat" theme package MUST be used as a transparent replacement  \
+for its corresponding "ipa" theme package or "dogtag" theme package.   \
 %{nil}
 
 %description %{overview}
@@ -35,12 +51,17 @@ mutually exclusive!                                                    \
 Summary:          Certificate System - PKI Common Framework User Interface
 Group:            System Environment/Base
 
-Conflicts:        ipa-pki-common-theme
-Conflicts:        ipa-pki-common-ui
+%if 0%{?rhel}
+# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
 Conflicts:        redhat-pki-common-theme
 Conflicts:        redhat-pki-common-ui
 
-Obsoletes:        dogtag-pki-common-ui <= 1.3.3
+# EPEL version of Dogtag "theme" ALWAYS replaces ALL versions of IPA "theme"
+Obsoletes:        ipa-pki-common-theme <= 9999
+Provides:         ipa-pki-common-theme = %{version}-%{release}
+%endif
+
+Obsoletes:        dogtag-pki-common-ui <= 9
 
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
@@ -60,12 +81,17 @@ Group:            System Environment/Base
 
 Requires:         dogtag-pki-common-theme = %{version}-%{release}
 
-Conflicts:        ipa-pki-ca-theme
-Conflicts:        ipa-pki-ca-ui
+%if 0%{?rhel}
+# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
 Conflicts:        redhat-pki-ca-theme
 Conflicts:        redhat-pki-ca-ui
 
-Obsoletes:        dogtag-pki-ca-ui <= 1.3.2
+# EPEL version of Dogtag "theme" ALWAYS replaces ALL versions of IPA "theme"
+Obsoletes:        ipa-pki-ca-theme <= 9999
+Provides:         ipa-pki-ca-theme = %{version}-%{release}
+%endif
+
+Obsoletes:        dogtag-pki-ca-ui <= 9
 
 Provides:         pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-ui = %{version}-%{release}
@@ -85,10 +111,13 @@ Group:            System Environment/Base
 
 Requires:         dogtag-pki-common-theme = %{version}-%{release}
 
+%if 0%{?rhel}
+# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
 Conflicts:        redhat-pki-kra-theme
 Conflicts:        redhat-pki-kra-ui
+%endif
 
-Obsoletes:        dogtag-pki-kra-ui <= 1.3.2
+Obsoletes:        dogtag-pki-kra-ui <= 9
 
 Provides:         pki-kra-theme = %{version}-%{release}
 Provides:         pki-kra-ui = %{version}-%{release}
@@ -108,10 +137,13 @@ Group:            System Environment/Base
 
 Requires:         dogtag-pki-common-theme = %{version}-%{release}
 
+%if 0%{?rhel}
+# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
 Conflicts:        redhat-pki-ocsp-theme
 Conflicts:        redhat-pki-ocsp-ui
+%endif
 
-Obsoletes:        dogtag-pki-ocsp-ui <= 1.3.1
+Obsoletes:        dogtag-pki-ocsp-ui <= 9
 
 Provides:         pki-ocsp-theme = %{version}-%{release}
 Provides:         pki-ocsp-ui = %{version}-%{release}
@@ -129,10 +161,13 @@ This package is used by the Dogtag Certificate System.
 Summary:          Certificate System - Registration Authority User Interface
 Group:            System Environment/Base
 
+%if 0%{?rhel}
+# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
 Conflicts:        redhat-pki-ra-theme
 Conflicts:        redhat-pki-ra-ui
+%endif
 
-Obsoletes:        dogtag-pki-ra-ui <= 1.3.2
+Obsoletes:        dogtag-pki-ra-ui <= 9
 
 Provides:         pki-ra-theme = %{version}-%{release}
 Provides:         pki-ra-ui = %{version}-%{release}
@@ -152,10 +187,13 @@ Group:            System Environment/Base
 
 Requires:         dogtag-pki-common-theme = %{version}-%{release}
 
+%if 0%{?rhel}
+# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
 Conflicts:        redhat-pki-tks-theme
 Conflicts:        redhat-pki-tks-ui
+%endif
 
-Obsoletes:        dogtag-pki-tks-ui <= 1.3.1
+Obsoletes:        dogtag-pki-tks-ui <= 9
 
 Provides:         pki-tks-theme = %{version}-%{release}
 Provides:         pki-tks-ui = %{version}-%{release}
@@ -173,10 +211,13 @@ This package is used by the Dogtag Certificate System.
 Summary:          Certificate System - Token Processing System User Interface
 Group:            System Environment/Base
 
+%if 0%{?rhel}
+# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
 Conflicts:        redhat-pki-tps-theme
 Conflicts:        redhat-pki-tps-ui
+%endif
 
-Obsoletes:        dogtag-pki-tps-ui <= 1.3.3
+Obsoletes:        dogtag-pki-tps-ui <= 9
 
 Provides:         pki-tps-theme = %{version}-%{release}
 Provides:         pki-tps-ui = %{version}-%{release}
@@ -196,10 +237,13 @@ Group:            System Environment/Base
 
 Requires:         java >= 1:1.6.0
 
+%if 0%{?rhel}
+# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
 Conflicts:        redhat-pki-console-theme
 Conflicts:        redhat-pki-console-ui
+%endif
 
-Obsoletes:        dogtag-pki-console-ui <= 1.3.2
+Obsoletes:        dogtag-pki-console-ui <= 9
 
 Provides:         pki-console-theme = %{version}-%{release}
 Provides:         pki-console-ui = %{version}-%{release}
@@ -237,6 +281,18 @@ cd build
 
 chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
+
+# NOTE:  Several "theme" packages require ownership of the "/usr/share/pki"
+#        directory because the PKI subsystems (CA, DRM, OCSP, TKS, RA, TPS)
+#        which require them may be installed either independently or in
+#        multiple combinations.
+#
+#        Since CA, DRM, OCSP, and TKS subsystems all require the
+#        "dogtag-pki-common-theme" as well as their individual "themes",
+#        only "dogtag-pki-common-theme" needs to require this directory.
+#
+#        However, RA and TPS subsystems still require their own individual
+#        ownership of this directory.
 
 %files -n dogtag-pki-common-theme
 %defattr(-,root,root,-)
@@ -290,6 +346,19 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Fri Jan 21 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-3
+- Bugzilla Bug #671030 - Review Request: dogtag-pki-theme - Certificate
+  System, Dogtag PKI Theme Components
+-    Augmented overview description.
+-    Isolated and corrected EPEL information
+-    Added comment regarding '/usr/share/pki' file ownership
+- 'dogtag-pki-common-theme'
+-     Bugzilla Bug #671058 - ipa2 - ipa-server-install fails on pkisilent -
+      xml parsing string -- ?
+- 'dogtag-pki-ca-theme'
+-     Bugzilla Bug #564207 - Searches for completed requests in the agent
+      interface returns zero entries
+
 * Thu Jan 20 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-2
 - Bugzilla Bug #671030 - Review Request: dogtag-pki-theme - Certificate
   System, Dogtag PKI Theme Components
