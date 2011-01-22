@@ -1,6 +1,6 @@
 Name:           pki-tps
 Version:        9.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System
 URL:            http://pki.fedoraproject.org/
 License:        LGPLv2
@@ -12,7 +12,7 @@ BuildRequires:  apr-devel
 BuildRequires:  apr-util-devel
 BuildRequires:  cyrus-sasl-devel
 BuildRequires:  httpd-devel >= 2.2.3
-BuildRequires:  mozldap-devel
+BuildRequires:  openldap-devel
 BuildRequires:  nspr-devel >= 4.6.99
 BuildRequires:  nss-devel >= 3.12.3.99
 BuildRequires:  pcre-devel
@@ -23,7 +23,7 @@ BuildRequires:  zlib-devel
 Requires:       mod_nss >= 1.0.7
 Requires:       mod_perl
 Requires:       mod_revocator >= 1.0.3
-Requires:       mozldap
+Requires:       openldap-clients
 Requires:       pki-native-tools
 Requires:       pki-selinux
 Requires:       pki-setup
@@ -214,5 +214,8 @@ fi
 %{_libdir}/libtps.so
 
 %changelog
+* Fri Jan 21 2011 Ade Lee <alee@redhat.com> 9.0.0-2
+- Bugzilla Bug 606944- Use openldap instead of mozldap
+
 * Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0.
