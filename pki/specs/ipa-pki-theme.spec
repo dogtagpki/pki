@@ -1,5 +1,5 @@
 Name:             ipa-pki-theme
-Version:          9.0.2
+Version:          9.0.3
 Release:          1%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -19,11 +19,27 @@ ExcludeArch:      ppc ppc64 s390 s390x
 %endif
 
 %global overview                                                       \
-Several PKI packages require a "virtual" Theme component.  These       \
-"virtual" Theme components are "Provided" by various Theme "flavors"   \
+Several PKI packages require a "virtual" theme component.  These       \
+"virtual" theme components are "Provided" by various theme "flavors"   \
 including "dogtag", "redhat", and "ipa".  Consequently,                \
-all "dogtag", "redhat", and "ipa" Theme components MUST be             \
+all "dogtag", "redhat", and "ipa" theme components MUST be             \
 mutually exclusive!                                                    \
+                                                                       \
+On Fedora systems, the "dogtag" theme packages are the ONLY available  \
+theme components.                                                      \
+                                                                       \
+Similarly, the "ipa" theme packages are ONLY available on RHEL         \
+systems, and represent the default theme components.                   \
+                                                                       \
+Alternatively, on RHEL systems, if the "dogtag" theme packages are     \
+available as EPEL packages, while they may be used as a transparent    \
+replacement for their corresponding "ipa" theme package, they are not  \
+intended to be used as a replacement for their corresponding "redhat"  \
+theme components.                                                      \
+                                                                       \
+Finally, if available for a RHEL system (e. g. - RHCS subscription),   \
+each "redhat" theme package MUST be used as a transparent replacement  \
+for its corresponding "ipa" theme package or "dogtag" theme package.   \
 %{nil}
 
 %description %{overview}
@@ -110,9 +126,16 @@ cd build
 
 
 %changelog
+* Thu Jan 20 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
+- Augmented overview description.
+- 'ipa-pki-ca-theme'
+-     Bugzilla Bug #564207 - Searches for completed requests in the agent
+      interface returns zero entries
+
 * Thu Jan 20 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
-- Bugzilla Bug #671058 - ipa2 - ipa-server-install fails on pkisilent - xml
-  parsing string -- ?
+- 'ipa-pki-common-theme'
+-     Bugzilla Bug #671058 - ipa2 - ipa-server-install fails on pkisilent -
+      xml parsing string -- ?
 
 * Tue Jan 18 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
 - Made 'ipa-pki-common-theme' a runtime dependency of 'ipa-pki-ca-theme'
