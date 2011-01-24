@@ -395,7 +395,11 @@ public class ProfileProcessServlet extends ProfileServlet {
             // commit request to the storage
             if (!op.equals("validate")) { 
                 try {
-                    queue.updateRequest(req);
+                    if (op.equals("approve")) {
+                        queue.markAsServiced(req);
+                    } else {
+                        queue.updateRequest(req);
+                    }
                 } catch (EBaseException e) {
                     CMS.debug("ProfileProcessServlet: Request commit error " + 
                         e.toString());
