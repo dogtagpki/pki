@@ -169,6 +169,14 @@ public class LDAPSecurityDomainSessionTable
                 LDAPEntry entry = res.next();
                 ret.add(entry.getAttribute("cn").getStringValueArray()[0]);
             }
+        } catch (LDAPException e) {
+            switch (e.getLDAPResultCode()) {
+                case LDAPException.NO_SUCH_OBJECT:
+                    CMS.debug("SecurityDomainSessionTable: getSessionIds():  no sessions have been created");
+                    break;
+                default:
+                    CMS.debug("SecurityDomainSessionTable: unable to query sessionIds due to ldap exception: " + e);
+            }
         } catch(Exception e) {
             CMS.debug("SecurityDomainSessionTable: unable to query sessionIds: " + e);
         }

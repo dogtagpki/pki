@@ -1140,7 +1140,8 @@ public class WizardPanelBase implements IWizardPanel {
     // retrieve the associated HTTPS Admin port
     public String getSecurityDomainAdminPort( IConfigStore config,
                                               String hostname,
-                                              String https_ee_port ) {
+                                              String https_ee_port,
+                                              String cstype ) {
         String https_admin_port = new String();
 
         try {
@@ -1157,7 +1158,7 @@ public class WizardPanelBase implements IWizardPanel {
             ByteArrayInputStream bis = new ByteArrayInputStream( c.getBytes() );
             XMLObject parser = new XMLObject( bis );
             Document doc = parser.getDocument();
-            NodeList nodeList = doc.getElementsByTagName( "CA" );
+            NodeList nodeList = doc.getElementsByTagName( cstype.toUpperCase() );
 
             int len = nodeList.getLength();
             for( int i = 0; i < len; i++ ) {
