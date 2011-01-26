@@ -1604,6 +1604,8 @@ throws EBaseException {
        CMS.debug("CRSEnrollment: Submitting request");
        profile.submit(authToken, reqs[0]);
        CMS.debug("CRSEnrollment: Done submitting request");
+       profile.getRequestQueue().markAsServiced(reqs[0]);
+       CMS.debug("CRSEnrollment: Request marked as serviced");
 
        return reqs[0];
 
