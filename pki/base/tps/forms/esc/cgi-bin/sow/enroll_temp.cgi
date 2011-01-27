@@ -197,6 +197,7 @@ sub GenerateEnrollmentPage
 
   my $tmpfile = "/tmp/read-$$.txt";
   my $cmd = $ldapsearch . "\" " .
+            "-x " .
             "-b \"" . $basedn . "\" " .
             "-h \"" . $ldapHost . "\" " .
             "-p \"" . $ldapPort ."\" " .

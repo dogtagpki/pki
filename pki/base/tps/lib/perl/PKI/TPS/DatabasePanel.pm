@@ -129,13 +129,13 @@ sub update
               "-e 's/\$TYPE/$type/' " .
               "-e 's/\$VALUE/$value/' " .
               "/usr/share/$flavor/tps/scripts/database.ldif > $tmp");
-    system("$ldapmodify_path -h '$host' -p '$port' -D '$binddn' " .
+    system("$ldapmodify_path -x -h '$host' -p '$port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
               "-f '$tmp'");
     system("rm $tmp");
 
     # add schema
-    system("$ldapmodify_path -h '$host' -p '$port' " .
+    system("$ldapmodify_path -x -h '$host' -p '$port' " .
               "-D '$binddn' -w '$bindpwd' -a " .
               "-f '/usr/share/$flavor/tps/scripts/schemaMods.ldif'");
 
@@ -143,7 +143,7 @@ sub update
     $tmp = "/tmp/addTokens-$$.ldif";
     system("sed -e 's/\$TOKENDB_ROOT/$basedn/g' " .
               "/usr/share/$flavor/tps/scripts/addTokens.ldif > $tmp");
-    system("$ldapmodify_path -h '$host' -p '$port' -D '$binddn' " .
+    system("$ldapmodify_path -x -h '$host' -p '$port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
               "-f '$tmp'");
     system("rm $tmp");
@@ -152,7 +152,7 @@ sub update
     $tmp = "/tmp/addIndexes-$$.ldif";
     system("sed -e 's/userRoot/$database/g' " .
               "/usr/share/$flavor/tps/scripts/addIndexes.ldif > $tmp");
-    system("$ldapmodify_path -h '$host' -p '$port' -D '$binddn' " .
+    system("$ldapmodify_path -x -h '$host' -p '$port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
               "-f '$tmp'");
     system("rm $tmp");
@@ -161,7 +161,7 @@ sub update
     $tmp = "/tmp/addVLVIndexes-$$.ldif";
     system("sed -e 's/userRoot/$database/g;s/\$TOKENDB_ROOT/$basedn/g' " .
               "/usr/share/$flavor/tps/scripts/addVLVIndexes.ldif > $tmp");
-    system("$ldapmodify_path -h '$host' -p '$port' -D '$binddn' " .
+    system("$ldapmodify_path -x -h '$host' -p '$port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
               "-f '$tmp'");
     system("rm $tmp");

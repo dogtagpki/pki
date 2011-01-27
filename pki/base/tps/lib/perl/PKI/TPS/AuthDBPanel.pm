@@ -91,7 +91,7 @@ sub update
     my $ldapsearch_path = "/usr/bin/ldapsearch";
 
     &PKI::TPS::Wizard::debug_log("AuthDBPanel: invoking $ldapsearch_path");
-    my $status = system("$ldapsearch_path -h '$host' " .
+    my $status = system("$ldapsearch_path -x -h '$host' " .
                      "-p '$port' -b '$basedn' -s base 'objectclass=*' > $tmp 2>&1");
     if ($status eq "0") {
      &PKI::TPS::Wizard::debug_log("AuthDBPanel: auth database looks ok");

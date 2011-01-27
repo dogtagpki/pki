@@ -175,7 +175,7 @@ sub update
               "-e 's/\$TOKENDB_AGENT_PWD/$password/' " .
               "-e 's/\$TOKENDB_AGENT_CERT/$admincert/' " .
               "/usr/share/$flavor/tps/scripts/addAgents.ldif > $tmp");
-    system("$ldapmodify_path -h '$ldap_host' -p '$ldap_port' -D '$binddn' " .
+    system("$ldapmodify_path -x -h '$ldap_host' -p '$ldap_port' -D '$binddn' " .
               "-w '$bindpwd' -a " .
               "-f '$tmp'");
     system("rm $tmp");

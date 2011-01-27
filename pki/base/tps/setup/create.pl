@@ -953,7 +953,7 @@ sub LDAPModify
   $OrgPath = &getPath();
   &setPath($serverRoot . "/shared/lib" . $pathSep . $OrgPath);
 
-  system("$serverRoot/shared/bin/ldapmodify -h '$tusHost' -p '$tusPort' -D 'cn=directory manager' -w '$tusPass' -f '$file'");
+  system("$serverRoot/shared/bin/ldapmodify -x -h '$tusHost' -p '$tusPort' -D 'cn=directory manager' -w '$tusPass' -f '$file'");
 
   &setPath($OrgPath);
 }
@@ -965,7 +965,7 @@ sub LDAPAdd
   $OrgPath = &getPath();
   &setPath($serverRoot . "/shared/lib" . $pathSep . $OrgPath);
 
-  system("$serverRoot/shared/bin/ldapmodify -h '$tusHost' -p '$tusPort' -D 'cn=directory manager' -w '$tusPass' -a -f '$file'");
+  system("$serverRoot/shared/bin/ldapmodify -x -h '$tusHost' -p '$tusPort' -D 'cn=directory manager' -w '$tusPass' -a -f '$file'");
 
   &setPath($OrgPath);
 }

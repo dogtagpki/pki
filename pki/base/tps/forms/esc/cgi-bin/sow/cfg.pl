@@ -109,6 +109,7 @@ sub is_agent()
   chomp($x_bindpwd);
 
    my $cmd = $ldapsearch . " " .
+            "-x " .
             "-D \"" . $x_binddn . "\" " .
             "-w \"" . $x_bindpwd . "\" " .
             "-b \"" . "cn=TUS Officers,ou=Groups,".$x_basedn . "\" " .
@@ -148,6 +149,7 @@ sub is_user()
   chomp($x_bindpwd);
 
    my $cmd = $ldapsearch . " " .
+            "-x " .
             "-D \"" . $x_binddn . "\" " .
             "-w \"" . $x_bindpwd . "\" " .
             "-b \"" . "ou=people,".$x_basedn . "\" " .
