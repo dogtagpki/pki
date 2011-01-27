@@ -12,8 +12,8 @@ BuildRequires:    cmake
 BuildRequires:    apr-devel
 BuildRequires:    apr-util-devel
 BuildRequires:    cyrus-sasl-devel
-BuildRequires:    httpd-devel >= 2.2.3
-BuildRequires:    mozldap-devel
+BuildRequires:    httpd-devel
+BuildRequires:    openldap-devel
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    pcre-devel
@@ -21,10 +21,10 @@ BuildRequires:    svrcore-devel
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
-Requires:         mod_nss >= 1.0.8
-Requires:         mod_perl >= 1.99_16
-Requires:         mod_revocator >= 1.0.3
-Requires:         mozldap >= 6.0.2
+Requires:         mod_nss
+Requires:         mod_perl
+Requires:         mod_revocator
+Requires:         openldap-clients
 Requires:         pki-native-tools
 Requires:         pki-selinux
 Requires:         pki-setup
@@ -78,17 +78,6 @@ following "Mutually-Exclusive" PKI Theme packages:                        \
 %description %{overview}
 
 
-%package devel
-Group:            Development/Libraries
-Summary:          Dogtag Certificate System - Token Processing System Library Symlinks
-
-Requires:         %{name} = %{version}-%{release}
-
-%description devel
-This package contains symlinks to the Certificate System (CS)
-Token Processing System (TPS) library files required to link executables.
-
-
 ==================================
 ||  ABOUT "CERTIFICATE SYSTEM"  ||
 ================================== 
@@ -135,12 +124,23 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
+chmod 755 %{buildroot}%{_datadir}/pki/tps/cgi-bin/demo/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/tps/cgi-bin/home/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/tps/cgi-bin/so/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/tps/cgi-bin/sow/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/tps/cgi-bin/sow/cfg.pl
+
 # This should be done in CMAKE
 cd %{buildroot}/%{_datadir}/pki/tps/docroot
 %{__ln_s} tokendb tus
 
-
-%pre
+# Internal libraries for 'tps' are present in:
+#
+#     * '/usr/lib/tps'    (i386)
+#     * '/usr/lib64/tps'  (x86_64)
+#
+mkdir %{buildroot}%{_sysconfdir}/ld.so.conf.d
+echo %{_libdir}/tps > %{buildroot}%{_sysconfdir}/ld.so.conf.d/tps-%{_arch}.conf
 
 
 %post
@@ -166,9 +166,10 @@ fi
 %defattr(-,root,root,-)
 %doc base/tps/LICENSE
 %{_initrddir}/pki-tpsd
+%config(noreplace) %{_sysconfdir}/ld.so.conf.d/tps-%{_arch}.conf
 %{_bindir}/tpsclient
 %{_libdir}/httpd/modules/*
-%{_libdir}/lib*
+%{_libdir}/tps/
 %dir %{_datadir}/pki/tps
 %{_datadir}/pki/tps/applets/
 %{_datadir}/pki/tps/cgi-bin/
@@ -180,13 +181,6 @@ fi
 %{_datadir}/pki/tps/setup/
 %dir %{_localstatedir}/lock/pki/tps
 %dir %{_localstatedir}/run/pki/tps
-
-
-%files devel
-%defattr(-,root,root,-)
-%{_libdir}/libldapauth.so
-%{_libdir}/libtokendb.so
-%{_libdir}/libtps.so
 
 
 %changelog
@@ -256,6 +250,8 @@ fi
   and CA
 - Bugzilla Bug #669055 - TPS server does not re-start when signedAudit
   logging is turned ON
+- Bugzilla Bug #606944 - Convert TPS to use ldap utilities and API from
+  OpenLDAP instead of the Mozldap
 
 * Wed Aug 04 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
 - Bugzilla Bug #601299 - tps installation does not update security domain

@@ -160,6 +160,10 @@ cd %{buildroot}%{_datadir}/pki/tps/conf
 mv CS.cfg.in CS.cfg
 sed -i 's/^preop.product.version=.*$/preop.product.version=%{version}/' %{buildroot}%{_datadir}/pki/tps/conf/CS.cfg
 
+# fix location of ldapauth shared object in primary configuration file
+sed -i 's/^auth.instance.0.libraryName=.*$/auth.instance.0.libraryName=[SYSTEM_USER_LIBRARIES]\/[LIB_PREFIX]ldapauth[OBJ_EXT]/' %{buildroot}%{_datadir}/pki/tps/conf/CS.cfg
+sed -i 's/^auth.instance.1.libraryName=.*$/auth.instance.1.libraryName=[SYSTEM_USER_LIBRARIES]\/[LIB_PREFIX]ldapauth[OBJ_EXT]/' %{buildroot}%{_datadir}/pki/tps/conf/CS.cfg
+
 # rename config.desktop.in --> config.desktop
 cd %{buildroot}%{_datadir}/pki/tps/setup
 mv config.desktop.in config.desktop

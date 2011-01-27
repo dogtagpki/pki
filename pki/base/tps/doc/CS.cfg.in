@@ -288,7 +288,7 @@ auth.instance._041=# where
 auth.instance._042=#  <n>  - authentication connection ID
 auth.instance._043=#########################################
 auth.instance.0.type=LDAP_Authentication
-auth.instance.0.libraryName=[SYSTEM_USER_LIBRARIES]/[LIB_PREFIX]ldapauth[OBJ_EXT]
+auth.instance.0.libraryName=[SYSTEM_USER_LIBRARIES]/tps/[LIB_PREFIX]ldapauth[OBJ_EXT]
 auth.instance.0.libraryFactory=GetAuthentication
 auth.instance.0.authId=ldap1
 auth.instance.0.hostport=[LDAP_HOST]:[LDAP_PORT]
@@ -309,7 +309,7 @@ auth.instance.0.ui.id.PASSWORD.name.en=LDAP Password
 auth.instance.0.ui.id.UID.description.en=LDAP User ID
 auth.instance.0.ui.id.PASSWORD.description.en=LDAP Password
 auth.instance.1.type=LDAP_Authentication
-auth.instance.1.libraryName=[SYSTEM_USER_LIBRARIES]/[LIB_PREFIX]ldapauth[OBJ_EXT]
+auth.instance.1.libraryName=[SYSTEM_USER_LIBRARIES]/tps/[LIB_PREFIX]ldapauth[OBJ_EXT]
 auth.instance.1.libraryFactory=GetAuthentication
 auth.instance.1.authId=ldap2
 auth.instance.1.bindDN=cn=Directory Manager

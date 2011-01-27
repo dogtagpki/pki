@@ -99,19 +99,18 @@ export httpd
 pki_logs_directory=${PKI_SERVER_ROOT}/logs
 export pki_logs_directory
 
-# see if httpd is linked with the openldap libraries - we need to override them
+# see if httpd is linked with the openldap libraries - we need to override
+# their use of OpenSSL
 if [ ${OS} = "Linux" ]; then
     hasopenldap=0
 
     /usr/bin/ldd ${httpd} 2>&1 | grep libldap- > /dev/null 2>&1 && hasopenldap=1
 
     if [ ${hasopenldap} -eq 1 ] ; then
-        LD_PRELOAD="${PKI_SYSTEM_USER_LIBRARIES}/libldap60.so"
         LD_PRELOAD="${PKI_SYSTEM_USER_LIBRARIES}/libssl3.so:${LD_PRELOAD}"
         export LD_PRELOAD
     fi
 elif [ ${OS} = "SunOS" ]; then
-    LD_PRELOAD_64="${PKI_SYSTEM_USER_LIBRARIES}/libldap60.so"
     LD_PRELOAD_64="${PKI_SYSTEM_USER_LIBRARIES}/dirsec/libssl3.so:${LD_PRELOAD_64}"
     export LD_PRELOAD_64
 fi
