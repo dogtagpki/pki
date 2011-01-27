@@ -270,7 +270,7 @@ int RA::InitializeSignedAudit()
             }
             switch(m_audit_signing_key->keyType) {
                 case rsaKey:
-                  m_audit_signAlgTag = SEC_OID_PKCS1_SHA1_WITH_RSA_ENCRYPTION;
+                  m_audit_signAlgTag = SEC_OID_PKCS1_SHA256_WITH_RSA_ENCRYPTION;
                   break;
                 case dsaKey:
                   m_audit_signAlgTag = SEC_OID_ANSIX9_DSA_SIGNATURE_WITH_SHA1_DIGEST;
