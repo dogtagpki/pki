@@ -1593,8 +1593,17 @@ throws EBaseException {
          CMS.debug("CRSEnrollment: Request (" + reqs.length + ") have been created");
        }
        // set transaction id
-       reqs[0].setExtData("profileId", mProfileId);
        reqs[0].setSourceId(req.getTransactionID());
+       reqs[0].setExtData("profile", "true");
+       reqs[0].setExtData("profileId", mProfileId);
+       reqs[0].setExtData(IEnrollProfile.CTX_CERT_REQUEST_TYPE, IEnrollProfile.REQ_TYPE_PKCS10);
+       reqs[0].setExtData(IEnrollProfile.CTX_CERT_REQUEST, pkcs10blob);
+       reqs[0].setExtData("requestor_name", "");
+       reqs[0].setExtData("requestor_email", "");
+       reqs[0].setExtData("requestor_phone", "");
+       reqs[0].setExtData("profileRemoteHost", httpReq.getRemoteHost());
+       reqs[0].setExtData("profileRemoteAddr", httpReq.getRemoteAddr());
+       reqs[0].setExtData("profileApprovedBy", profile.getApprovedBy());
 
        CMS.debug("CRSEnrollment: Populating inputs");
        profile.populateInput(ctx, reqs[0]);

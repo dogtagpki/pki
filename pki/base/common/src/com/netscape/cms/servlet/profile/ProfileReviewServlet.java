@@ -213,7 +213,8 @@ public class ProfileReviewServlet extends ProfileServlet {
         String profileSetId = req.getExtDataInString("profileSetId");
 
         CMS.debug("ProfileReviewServlet: profileSetId=" + profileSetId);
-        Enumeration policyIds = profile.getProfilePolicyIds(profileSetId);
+        Enumeration policyIds = (profileSetId != null && profileSetId.length() > 0)?
+                                 profile.getProfilePolicyIds(profileSetId): null;
         int count = 0;
         ArgList list = new ArgList();
 
