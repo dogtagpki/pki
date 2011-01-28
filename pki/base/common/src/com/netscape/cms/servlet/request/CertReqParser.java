@@ -628,7 +628,7 @@ public class CertReqParser extends ReqParser {
         arg.addStringValue("certExtsEnabled", "yes");
         String profile = req.getExtDataInString("profile");
 
-        CMS.debug("CertReqParser: profile=" + profile);
+        //CMS.debug("CertReqParser: profile=" + profile);
         if (profile != null) {
             arg.addStringValue("profile", profile);
             String requestorDN = getRequestorDN(req);
