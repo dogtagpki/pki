@@ -16,6 +16,8 @@ BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-12
 BuildRequires:    ldapjdk
+BuildRequires:    nspr-devel
+BuildRequires:    nss-devel
 BuildRequires:    osutil
 BuildRequires:    pki-util
 

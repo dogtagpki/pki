@@ -11,6 +11,8 @@ BuildArch:        noarch
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
+BuildRequires:    nspr-devel
+BuildRequires:    nss-devel
 
 Requires:         mod_nss >= 1.0.8
 Requires:         mod_perl >= 1.99_16
