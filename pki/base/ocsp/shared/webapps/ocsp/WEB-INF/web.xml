@@ -76,51 +76,6 @@
         </init-param>
     </servlet>
 
-    <servlet>
-        <servlet-name>config-db</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigDatabaseServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>config-hsm</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigHSMServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>config-rootca</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigRootCAServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>config-join</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigJoinServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>config-clone</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigCloneServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
 
    <servlet>
       <servlet-name>  ocspacl  </servlet-name>

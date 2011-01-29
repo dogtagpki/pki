@@ -85,69 +85,6 @@
         </init-param>
     </servlet>
 
-    <servlet>
-        <servlet-name>config-certreq</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigCertReqServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>config-importcert</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigImportCertServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>config-db</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigDatabaseServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>config-hsm</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigHSMServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>config-rootca</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigRootCAServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>config-join</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigJoinServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>config-clone</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.ConfigCloneServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
    <servlet>
       <servlet-name>  services </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.MainPageServlet </servlet-class>
@@ -2418,41 +2355,6 @@
     <servlet-mapping>
         <servlet-name>csadmin-login</servlet-name>
         <url-pattern>/admin/console/config/login</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>config-db</servlet-name>
-        <url-pattern>/admin/console/config/config_db</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>config-certreq</servlet-name>
-        <url-pattern>/admin/console/config/config_certreq</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>config-importcert</servlet-name>
-        <url-pattern>/admin/console/config/config_importcert</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>config-hsm</servlet-name>
-        <url-pattern>/admin/console/config/config_hsm</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>config-rootca</servlet-name>
-        <url-pattern>/admin/console/config/config_rootca</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>config-join</servlet-name>
-        <url-pattern>/admin/console/config/config_join</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>config-clone</servlet-name>
-        <url-pattern>/admin/console/config/config_clone</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
