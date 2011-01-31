@@ -36,7 +36,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
-import netscape.security.provider.RSAPublicKey;
+//import netscape.security.provider.RSAPublicKey;
 import netscape.security.pkcs.PKCS10;
 //import java.security.Signature;
 import netscape.security.x509.X500Name;
