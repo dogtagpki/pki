@@ -30,7 +30,7 @@ import java.security.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import netscape.security.x509.*;
-import netscape.security.provider.*;
+//import netscape.security.provider.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.*;

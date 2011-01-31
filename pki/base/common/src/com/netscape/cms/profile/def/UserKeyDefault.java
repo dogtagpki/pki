@@ -31,7 +31,8 @@ import com.netscape.certsrv.apps.CMS;
 
 import java.security.interfaces.DSAParams;
 import netscape.security.x509.*;
-import netscape.security.provider.*;
+import netscape.security.provider.RSAPublicKey;
+import netscape.security.provider.DSAPublicKey;
 
 
 /**

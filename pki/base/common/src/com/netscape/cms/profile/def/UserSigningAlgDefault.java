@@ -29,9 +29,9 @@ import com.netscape.certsrv.property.*;
 import com.netscape.certsrv.apps.*;
 import com.netscape.certsrv.apps.CMS;
 
-import java.security.interfaces.DSAParams;
+//import java.security.interfaces.DSAParams;
 import netscape.security.x509.*;
-import netscape.security.provider.*;
+//import netscape.security.provider.*;
 
 
 /**

@@ -32,7 +32,7 @@ import com.netscape.cms.profile.common.*;
 import com.netscape.cms.profile.def.*;
 
 import netscape.security.x509.*;
-import netscape.security.provider.*;
+//import netscape.security.provider.*;
 import netscape.security.util.*;
 import java.math.BigInteger;
 

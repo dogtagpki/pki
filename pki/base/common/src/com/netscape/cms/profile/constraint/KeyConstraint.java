@@ -30,7 +30,8 @@ import com.netscape.cms.profile.common.*;
 import com.netscape.cms.profile.def.*;
 
 import netscape.security.x509.*;
-import netscape.security.provider.*;
+import netscape.security.provider.RSAPublicKey;
+import netscape.security.provider.DSAPublicKey;
 import java.security.interfaces.DSAParams;
 import java.math.BigInteger;
 

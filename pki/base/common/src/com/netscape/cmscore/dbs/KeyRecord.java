@@ -23,7 +23,7 @@ import java.io.*;
 import java.util.*;
 import java.security.*;
 import java.security.cert.*;
-import netscape.security.provider.*;
+//import netscape.security.provider.*;
 import netscape.security.x509.*;
 import netscape.security.pkcs.*;
 import netscape.ldap.*;

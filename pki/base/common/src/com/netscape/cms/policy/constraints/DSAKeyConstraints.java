@@ -28,7 +28,7 @@ import com.netscape.certsrv.logging.*;
 import com.netscape.certsrv.apps.CMS;
 import netscape.security.x509.*;
 import netscape.security.util.*;
-import netscape.security.provider.*;
+import netscape.security.provider.DSAPublicKey;
 import java.security.interfaces.DSAParams;
 import java.math.BigInteger;
 import com.netscape.cms.policy.APolicyRule;
