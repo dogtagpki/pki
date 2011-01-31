@@ -32,7 +32,7 @@ import netscape.security.util.*;
 import netscape.security.util.BigInt;
 import netscape.security.pkcs.*;
 import netscape.security.x509.*;
-import netscape.security.provider.*;
+import netscape.security.provider.RSAPublicKey;
 import org.mozilla.jss.*;
 import org.mozilla.jss.crypto.*;
 import org.mozilla.jss.util.*;
