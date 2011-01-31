@@ -48,7 +48,7 @@ import org.mozilla.jss.asn1.*;
 import org.mozilla.jss.pkix.primitive.*;
 import org.mozilla.jss.pkix.crmf.*;
 
-import netscape.security.provider.RSAPublicKey;
+//import netscape.security.provider.RSAPublicKey;
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.X500Name;
 import netscape.security.util.BigInt;
