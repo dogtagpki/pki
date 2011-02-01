@@ -810,7 +810,6 @@ public abstract class BasicProfile implements IProfile {
         }
 
         // Now make sure we aren't trying to add a policy that already exists
-        //  Make sure the combo of defaultClassId and constraintClassId does not exist
         IConfigStore policySetStore = mConfig.getSubStore("policyset");
         String setlist =  null;
         try {
@@ -858,14 +857,12 @@ public abstract class BasicProfile implements IProfile {
                     CMS.debug("WARNING, can't get constraint plugin id!");
                 }
 
-                //Disallow duplicate defaults or constraints with the following exceptions:
-                // noDefaultImpl, genericExtDefaultImpl, noDefaultConstraint
- 
+                //Disallow duplicate defaults  with the following exceptions:
+                // noDefaultImpl, genericExtDefaultImpl
+
                 if ((curDefaultClassId.equals(defaultClassId)  && 
                     !curDefaultClassId.equals(PROP_NO_DEFAULT) && 
-                    !curDefaultClassId.equals(PROP_GENERIC_EXT_DEFAULT)) || 
-                    (curConstraintClassId.equals(constraintClassId) && 
-                    !curConstraintClassId.equals(PROP_NO_CONSTRAINT))) {
+                    !curDefaultClassId.equals(PROP_GENERIC_EXT_DEFAULT)) ) {
 
                     matches++;
                     if (createConfig) {
