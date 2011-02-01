@@ -2951,6 +2951,23 @@ bool RA_Enroll_Processor::GenerateCertificates(AuthParams *login, RA_Session *se
             
     }
 
+    if (noFailedCerts == true) {
+    //In this special case of re-enroll
+    //Revoke  current certs for this token  
+    // before the just enrolled certs are written to the db
+         char error_msg[512];
+         bool success = RevokeCertificates(session, cuid,error_msg,(char *)final_applet_version,
+                                             NULL,(char *)tokenType,(char *)userid,o_status
+         );
+
+         RA::Debug("GenerateCertificates","Revoke result %d  ",(int) success);
+
+         if (!success) {
+              //Don't blow the whole thing up for this.
+              RA::Debug("GenerateCertificates","Revocation failure %s  ",error_msg);
+         }
+
+    }
  loser:
     if(lastErrorStatus != STATUS_NO_ERROR) {
         o_status = lastErrorStatus;
