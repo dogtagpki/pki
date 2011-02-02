@@ -702,7 +702,7 @@ start_instance()
             port=`grep '^pkicreate.unsecure_port=' ${pki_instance_configuration_file} | cut -b25- -`
             while [ $count -lt $tries ]
             do
-                netstat -an | grep ${port} > /dev/null
+                netstat -antl | grep ${port} > /dev/null
                 netrv=$?
                 if [ $netrv -eq 0 ] ; then
                     break;
