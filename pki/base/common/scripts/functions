@@ -694,6 +694,25 @@ start_instance()
     $PKI_INSTANCE_INITSCRIPT start
     rv=$?
 
+    # On Tomcat subsystems, make certain that the service has started
+    case $PKI_SUBSYSTEM_TYPE in
+        ca|kra|ocsp|tks)
+            count=0
+            tries=30
+            port=`grep '^pkicreate.unsecure_port=' ${pki_instance_configuration_file} | cut -b25- -`
+            while [ $count -lt $tries ]
+            do
+                netstat -an | grep ${port} > /dev/null
+                netrv=$?
+                if [ $netrv -eq 0 ] ; then
+                    break;
+                fi
+                sleep 1
+                let count=$count+1;
+            done
+            ;;
+    esac
+
     if [ $rv -eq 0 ] ; then
         # From the PKI point of view a returned error code of 6 implies
         # that the program is not "configured". An error code of 1 implies
