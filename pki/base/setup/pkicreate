@@ -1180,8 +1180,8 @@ sub parse_arguments
 
 
     ## Optional "-group=<groupname>" option
-    if ($groupname ne "") {
-        if ($username eq "") {
+    if (defined $groupname) {
+        if (!defined $username) {
             usage();
             emit("Must ALSO specify user ownership using -user!\n",
                   "error");
@@ -1214,8 +1214,8 @@ sub parse_arguments
 
 
     ## Optional "-user=<username>" option
-    if ($username ne "") {
-        if ($groupname eq "") {
+    if (defined $username) {
+        if (!defined $groupname) {
             usage();
             emit("Must ALSO specify group ownership using -group!\n",
                   "error");
