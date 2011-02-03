@@ -226,6 +226,14 @@ fi
   interface is no longer available through console
 - Bugzilla Bug #531137 - RHCS 7.1 - Running out of Java Heap Memory During
   CRL Generation
+- Bugzilla Bug #672111 - CC doc: certServer.usrgrp.administration missing
+  information
+- Bugzilla Bug #583825 - CC: Obsolete servlets to be removed from web.xml
+  as part of the CC interface review
+- Bugzilla Bug #656663 - Please Update Spec File to use 'ghost' on files
+  in /var/run and /var/lock
+- Bugzilla Bug #674917 - Restore identification of Tomcat-based PKI subsystem
+  instances
 
 * Wed Aug 04 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.3-1
 - Bugzilla Bug #608086 - CC: CA, OCSP, and DRM need to add more audit calls

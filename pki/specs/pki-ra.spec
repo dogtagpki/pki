@@ -182,6 +182,8 @@ fi
   a GUI interface
 - Bugzilla Bug #643206 - New CMake based build system for Dogtag
 - Bugzilla Bug #499494 - change CA defaults to SHA2
+- Bugzilla Bug #656664 - Please Update Spec File to use 'ghost' on files
+  in /var/run and /var/lock
 
 * Thu Apr 08 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
 - Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text

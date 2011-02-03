@@ -282,6 +282,15 @@ fi
   logging is turned ON
 - Bugzilla Bug #606944 - Convert TPS to use ldap utilities and API from
   OpenLDAP instead of the Mozldap
+- Bugzilla Bug #606944 - Convert TPS to use ldap utilities and API from
+  OpenLDAP instead of the Mozldap
+- Bugzilla Bug #614639 - 64k gemalto usb token no longer works properly
+  after a "logout" request is issued
+- Bugzilla Bug #671522 - TPS AuditVerify fails.
+- Bugzilla Bug #669804 - on active token re-enroll, TPS does not revoke and
+  remove existing certs.
+- Bugzilla Bug #656666 - Please Update Spec File to use 'ghost' on files
+  in /var/run and /var/lock
 
 * Wed Aug 04 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.2-1
 - Bugzilla Bug #601299 - tps installation does not update security domain

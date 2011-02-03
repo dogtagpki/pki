@@ -261,6 +261,16 @@ fi
 - Bugzilla Bug #472597 - Disable policy code,UI
 - Bugzilla Bug #504359 - pkiconsole - Administrator Group's Description
   References Fedora
+- Bugzilla Bug #672111 - CC doc: certServer.usrgrp.administration missing
+  information
+- Bugzilla Bug #583825 - CC: Obsolete servlets to be removed from web.xml
+  as part of CC interface review
+- Bugzilla Bug #673614 - CC: Review of cryptographic algorithms provided by
+  'netscape.security.provider' package
+- Bugzilla Bug #656662 - Please Update Spec File to use 'ghost' on files
+  in /var/run and /var/lock
+- Bugzilla Bug #674917 - Restore identification of Tomcat-based PKI subsystem
+  instances
 
 * Mon Apr 26 2010 Ade Lee <alee@redhat.com> 1.3.3-1
 - Bugzilla Bug 584917- Can not access CA Configuration Web UI after
