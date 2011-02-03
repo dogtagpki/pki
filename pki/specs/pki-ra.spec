@@ -29,6 +29,14 @@ Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+Requires:         initscripts
+%endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -104,6 +112,20 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%{__mkdir_p} %{buildroot}%{_sysconfdir}/tmpfiles.d
+# generate 'pki-ra.conf' under the 'tmpfiles.d' directory
+echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
+echo "D /var/lock/pki/ra 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
+echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
+echo "D /var/run/pki/ra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
+%endif
+
 
 %pre
 
@@ -138,6 +160,14 @@ fi
 %{_datadir}/pki/ra/setup/
 %dir %{_localstatedir}/lock/pki/ra
 %dir %{_localstatedir}/run/pki/ra
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ra.conf
+%endif
 
 
 %changelog
