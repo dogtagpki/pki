@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # From "http://fedoraproject.org/wiki/FCNewInit/Initscripts":
 # 
@@ -728,7 +728,37 @@ start_instance()
             # 6 program is not configured
             return 6
         else
-	    # 0 success
+            # 0 success
+
+            # Tomcat instances automatically place pid files under
+            # '/var/run' and lock files under '/var/lock/subsys'.
+            #
+            # However, since PKI subsystem instances can have any name,
+            # in order to identify the PKI subsystem type of a particular
+            # PKI instance, we create a separate "pki subsystem identity"
+            # symlink to the PKI instance pid file and place it under
+            # '/var/run/pki/<pki subsystem>', and a separate
+            # "pki subsystem identity" symlink to the PKI instance
+            # lock file and place it under '/var/lock/pki/<pki subsystem>'.
+            #
+            case $PKI_SUBSYSTEM_TYPE in
+                ca|kra|ocsp|tks)
+                    if [ -h ${PKI_PIDFILE} ]; then
+                        rm -f ${PKI_PIDFILE}
+                    fi
+                    if [ -f ${TOMCAT_PIDFILE} ]; then
+                        ln -s ${TOMCAT_PIDFILE} ${PKI_PIDFILE}
+                        chown -h ${TOMCAT_USER}:${TOMCAT_GROUP} ${PKI_PIDFILE}
+                    fi
+                    if [ -h ${PKI_LOCKFILE} ]; then
+                        rm -f ${PKI_LOCKFILE}
+                    fi
+                    if [ -f ${TOMCAT_LOCKFILE} ]; then
+                        ln -s ${TOMCAT_LOCKFILE} ${PKI_LOCKFILE}
+                    fi
+                    ;;
+            esac
+
             return 0
         fi
     fi
@@ -742,6 +772,19 @@ stop_instance()
     # Invoke the initscript for this instance
     $PKI_INSTANCE_INITSCRIPT stop
     rv=$?
+
+    # On Tomcat subsystems, always remove the "pki subsystem identity" symlinks
+    # that were previously associated with the Tomcat 'pid' and 'lock' files.
+    case $PKI_SUBSYSTEM_TYPE in
+        ca|kra|ocsp|tks)
+            if [ -h ${PKI_PIDFILE} ]; then
+                rm -f ${PKI_PIDFILE}
+            fi
+            if [ -h ${PKI_LOCKFILE} ]; then
+                rm -f ${PKI_LOCKFILE}
+            fi
+            ;;
+    esac
 
     return $rv
 }
