@@ -27,6 +27,14 @@ Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+Requires:         initscripts
+%endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -96,6 +104,20 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%{__mkdir_p} %{buildroot}%{_sysconfdir}/tmpfiles.d
+# generate 'pki-tks.conf' under the 'tmpfiles.d' directory
+echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+echo "D /var/lock/pki/tks 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+%endif
+
 
 %pre
 
@@ -130,6 +152,14 @@ fi
 %{_datadir}/pki/tks/webapps/
 %dir %{_localstatedir}/lock/pki/tks
 %dir %{_localstatedir}/run/pki/tks
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tks.conf
+%endif
 
 
 %changelog
