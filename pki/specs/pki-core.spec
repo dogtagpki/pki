@@ -1,6 +1,6 @@
 Name:             pki-core
-Version:          9.0.1
-Release:          3%{?dist}
+Version:          9.0.2
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -582,6 +582,51 @@ fi
 
 
 %changelog
+* Thu Feb 3 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
+- Bugzilla Bug #673233 - Rebase pki-core to pick the latest features and fixes
+- 'pki-setup'
+-     Bugzilla Bug #673638 - Installation within IPA hangs
+- 'pki-symkey'
+- 'pki-native-tools'
+- 'pki-util'
+- 'pki-java-tools'
+-     Bugzilla Bug #673614 - CC: Review of cryptographic algorithms provided
+      by 'netscape.security.provider' package
+- 'pki-common'
+-     Bugzilla Bug #672291 - CA is not publishing certificates issued using
+      "Manual User Dual-Use Certificate Enrollment"
+-     Bugzilla Bug #670337 - CA Clone configuration throws TCP connection
+      error.
+-     Bugzilla Bug #504056 - Completed SCEP requests are assigned to the
+      "begin" state instead of "complete".
+-     Bugzilla Bug #504055 - SCEP requests are not properly populated
+-     Bugzilla Bug #564207 - Searches for completed requests in the agent
+      interface returns zero entries
+-     Bugzilla Bug #672291 - CA is not publishing certificates issued using
+      "Manual User Dual-Use Certificate Enrollment" -
+-     Bugzilla Bug #673614 - CC: Review of cryptographic algorithms provided
+      by 'netscape.security.provider' package
+-     Bugzilla Bug #672920 - CA console: adding policy to a profile throws
+      'Duplicate policy' error in some cases.
+-     Bugzilla Bug #673199 - init script returns control before web apps have
+      started
+-     Bugzilla Bug #674917 - Restore identification of Tomcat-based PKI
+      subsystem instances
+- 'pki-selinux'
+- 'pki-ca'
+-     Bugzilla Bug #504013 - sscep request is rejected due to authentication
+      error if submitted through one time pin router certificate enrollment.
+-     Bugzilla Bug #672111 - CC doc: certServer.usrgrp.administration missing
+      information
+-     Bugzilla Bug #583825 - CC: Obsolete servlets to be removed from web.xml
+      as part of CC interface review
+-     Bugzilla Bug #672333 - Creation of RA agent fails in IPA installation
+-     Bugzilla Bug #674917 - Restore identification of Tomcat-based PKI
+      subsystem instances
+- 'pki-silent'
+-     Bugzilla Bug #673614 - CC: Review of cryptographic algorithms provided
+      by 'netscape.security.provider' package
+
 * Wed Feb 2 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-3
 - Bugzilla Bug #656661 - Please Update Spec File to use 'ghost' on files
   in /var/run and /var/lock
