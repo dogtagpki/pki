@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.1
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -309,6 +309,14 @@ Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+Requires:         initscripts
+%endif
 
 %description -n   pki-ca
 The Certificate Authority (CA) is a required PKI subsystem which issues,
@@ -380,6 +388,20 @@ cd %{buildroot}%{_jnidir}
 %{__rm} symkey.jar
 %{__ln_s} %{_libdir}/symkey/symkey.jar symkey.jar
 
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%{__mkdir_p} %{buildroot}%{_sysconfdir}/tmpfiles.d
+# generate 'pki-ca.conf' under the 'tmpfiles.d' directory
+echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
+echo "D /var/lock/pki/ca 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
+echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
+echo "D /var/run/pki/ca 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
+%endif
+
 
 %pre -n pki-selinux
 %saveFileContext targeted
@@ -429,8 +451,10 @@ fi
 %dir %{_datadir}/pki
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/pkicommon.pm
+%if 0%{?rhel} || 0%{?fedora} < 15
 %dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/run/pki
+%endif
 
 
 %files -n pki-symkey
@@ -538,6 +562,14 @@ fi
 %{_datadir}/pki/ca/setup/
 %dir %{_localstatedir}/lock/pki/ca
 %dir %{_localstatedir}/run/pki/ca
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ca.conf
+%endif
 
 
 %files -n pki-silent
@@ -550,6 +582,10 @@ fi
 
 
 %changelog
+* Wed Feb 2 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-3
+- Bugzilla Bug #656661 - Please Update Spec File to use 'ghost' on files
+  in /var/run and /var/lock
+
 * Thu Jan 20 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-2
 - 'pki-symkey'
 -     Bugzilla Bug #671265 - pki-symkey jar version incorrect
