@@ -33,6 +33,14 @@ Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+Requires:         initscripts
+%endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -142,6 +150,20 @@ cd %{buildroot}/%{_datadir}/pki/tps/docroot
 mkdir %{buildroot}%{_sysconfdir}/ld.so.conf.d
 echo %{_libdir}/tps > %{buildroot}%{_sysconfdir}/ld.so.conf.d/tps-%{_arch}.conf
 
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%{__mkdir_p} %{buildroot}%{_sysconfdir}/tmpfiles.d
+# generate 'pki-tps.conf' under the 'tmpfiles.d' directory
+echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /var/lock/pki/tps 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /var/run/pki/tps 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+%endif
+
 
 %post
 /sbin/ldconfig
@@ -181,6 +203,14 @@ fi
 %{_datadir}/pki/tps/setup/
 %dir %{_localstatedir}/lock/pki/tps
 %dir %{_localstatedir}/run/pki/tps
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tps.conf
+%endif
 
 
 %changelog
