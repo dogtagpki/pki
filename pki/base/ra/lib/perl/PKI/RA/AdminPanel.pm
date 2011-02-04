@@ -157,38 +157,6 @@ sub update
     my $admincert = $response->{Requests}->{Request}->{b64};
     &PKI::RA::Wizard::debug_log("AdminPanel: admincert " . $admincert);
 
-    my $ldap_host = $::config->get("preop.database.host");
-    my $ldap_port = $::config->get("preop.database.port");
-    my $basedn = $::config->get("preop.database.basedn");
-    my $binddn = $::config->get("preop.database.binddn");
-#    my $bindpwd = $::config->get("tokendb.bindPass");
-    my $bindpwd = `grep \"tokendbBindPass:\" \"$instanceDir/conf/password.conf\" | cut -c17-`;
-    $bindpwd =~ s/\n$//g;
-
-    my $tmp = "/tmp/addAgents-$$.ldif";
-
-    my $flavor = "pki";
-    $flavor =~ s/\n//g;
-
-    my $mozldap_path = "/usr/lib/mozldap";
-    my $arch = "";
-    if ($^O eq "linux") {
-        $arch = `uname -i`;
-        $arch =~ s/\n//g;
-        if ($arch eq "x86_64") {
-          $mozldap_path = "/usr/lib64/mozldap";
-        }
-    } elsif ($^O eq "solaris") {
-        $arch=`uname -p`;
-        $arch =~ s/\n//g;
-        if( ( $arch eq "sparc" ) &&
-            ( -d "/usr/lib/sparcv9/" ) ) {
-            $mozldap_path = "/usr/lib/sparcv9/mozldap6";
-        }
-    }
-
-#    $admincert =~ s/\//\\\//g;
-
     # create local database
     my $dbh = DBI->connect(
                 "dbi:SQLite:dbname=$instanceDir/conf/dbfile","","");
@@ -223,15 +191,6 @@ sub update
                     ")";
     $dbh->do($insert);
     $dbh->disconnect();
-
-
-#    system("sed -e 's/\$TOKENDB_ROOT/$basedn/' " .
-#              "-e 's/\$TOKENDB_AGENT_CERT/$admincert/' " .
-#              "/usr/share/$flavor/ra/scripts/addAgents.ldif > $tmp");
-#    system("$mozldap_path/ldapmodify -h '$ldap_host' -p '$ldap_port' -D '$binddn' " .
-#              "-w '$bindpwd' -a " .
-#              "-f '$tmp'");
-    system("rm $tmp");
 
     my $reqid = $response->{Requests}->{Request}->{Id};
     $::config->put("preop.admincert.requestId.0", $reqid);

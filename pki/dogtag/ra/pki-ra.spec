@@ -1,6 +1,6 @@
 Name:           pki-ra
 Version:        9.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Registration Authority
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -15,7 +15,6 @@ BuildRequires:  ant
 Requires:       mod_nss >= 1.0.7
 Requires:       mod_perl >= 1.99_16
 Requires:       mod_revocator >= 1.0.3
-Requires:       mozldap >= 6.0.2
 Requires:       pki-native-tools
 Requires:       pki-ra-ui
 Requires:       pki-selinux
@@ -112,5 +111,10 @@ fi
 %{_localstatedir}/run/*
 
 %changelog
+* Fri Feb 4 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-2
+- Bugzilla Bug #606943 - Convert RA to use ldap utilities from
+  OpenLDAP instead of the Mozldap
+
 * Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0.
+

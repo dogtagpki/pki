@@ -17,7 +17,6 @@ BuildRequires:    nss-devel
 Requires:         mod_nss >= 1.0.8
 Requires:         mod_perl >= 1.99_16
 Requires:         mod_revocator >= 1.0.3
-Requires:         mozldap >= 6.0.2
 Requires:         pki-native-tools
 Requires:         pki-ra-theme
 Requires:         pki-selinux
@@ -184,6 +183,8 @@ fi
 - Bugzilla Bug #499494 - change CA defaults to SHA2
 - Bugzilla Bug #656664 - Please Update Spec File to use 'ghost' on files
   in /var/run and /var/lock
+- Bugzilla Bug #606943 - Convert RA to use ldap utilities from
+  OpenLDAP instead of the Mozldap
 
 * Thu Apr 08 2010 Matthew Harmsen <mharmsen@redhat.com> 1.3.1-1
 - Bugzilla Bug #564131 - Config wizard : all subsystems - done panel text

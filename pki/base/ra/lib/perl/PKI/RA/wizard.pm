@@ -71,7 +71,6 @@ use PKI::RA::CAInfoPanel;
 use PKI::RA::DisplayCertChain2Panel;
 use PKI::RA::AdminAuthPanel;
 use PKI::RA::AgentAuthPanel;
-use PKI::RA::AuthDBPanel;
 use PKI::RA::DatabasePanel;
 use PKI::RA::ModulePanel;
 use PKI::RA::SizePanel;
