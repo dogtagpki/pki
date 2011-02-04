@@ -1,6 +1,6 @@
 Name:           dogtag-pki-tps-ui
 Version:        9.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2 and LGPLv2
@@ -57,5 +57,9 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Fri Feb 4 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-2
+- Bugzilla Bug 606944- Use openldap instead of mozldap
+
 * Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0.
+
