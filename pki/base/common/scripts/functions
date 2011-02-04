@@ -949,9 +949,6 @@ restart()
 {
     stop
     sleep 2
-    echo
-    echo "============================================================"
-    echo
     start
 
     return $?

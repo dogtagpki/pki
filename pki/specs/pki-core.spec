@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.2
+Version:          9.0.3
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -582,6 +582,11 @@ fi
 
 
 %changelog
+* Fri Feb 4 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
+- 'pki-common'
+-     Bugzilla Bug #674894 - ipactl restart : an annoy output line
+-     Bugzilla Bug #675179 - ipactl restart : an annoy output line
+
 * Thu Feb 3 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
 - Bugzilla Bug #673233 - Rebase pki-core to pick the latest features and fixes
 - 'pki-setup'
