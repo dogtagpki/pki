@@ -111,6 +111,20 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/admin/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/admin/group/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/admin/user/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/agent/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/agent/cert/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/agent/request/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/ee/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/ee/agent/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/ee/request/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/ee/scep/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/ee/server/*.cgi
+chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/ee/user/*.cgi
+
 %if 0%{?fedora} >= 15
 # Details:
 #
@@ -124,9 +138,6 @@ echo "D /var/lock/pki/ra 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfile
 echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
 echo "D /var/run/pki/ra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
 %endif
-
-
-%pre
 
 
 %post

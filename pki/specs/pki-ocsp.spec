@@ -125,9 +125,6 @@ echo "D /var/run/pki/ocsp 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfi
 %endif
 
 
-%pre
-
-
 %post
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-ocspd || :
