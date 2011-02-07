@@ -18,14 +18,12 @@ BuildRequires:    jss >= 4.2.6-12
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
-BuildRequires:    osutil
 BuildRequires:    pki-util
 
 Requires:         idm-console-framework
 Requires:         java >= 1:1.6.0
 Requires:         jss >= 4.2.6-12
 Requires:         ldapjdk
-Requires:         osutil
 Requires:         pki-console-theme
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
