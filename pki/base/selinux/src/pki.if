@@ -150,6 +150,9 @@ template(`pki_ca_template',`
 	# These are used to read tomcat class files in /var/lib/tomcat
 	files_read_var_lib_files($1_t)
 	files_read_var_lib_symlinks($1_t)
+        
+        #needed in tps key archival in kra
+        files_list_var($1_t)
 
 	kernel_read_network_state($1_t)
 	kernel_read_system_state($1_t)
