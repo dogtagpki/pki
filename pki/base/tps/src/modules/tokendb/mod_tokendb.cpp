@@ -3390,7 +3390,6 @@ mod_tokendb_handler( request_rec *rq )
     char configname[512] ="";
     char filter[512] = "";
     char msg[512] = "";
-    char template1[512] = "";
     char question_no[100] ="";
     char cuid[256] = "";
     char cuidUserId[100]="";
@@ -4758,6 +4757,7 @@ mod_tokendb_handler( request_rec *rq )
         PL_strcat(injection, JS_STOP);
 
         buf = getData( doTokenTemplate, injection );
+/* currently not used - alee
     } else if( ( PL_strstr( query, "op=revoke" ) ) ) {
         tokendbDebug("authorization\n");
 
@@ -4772,10 +4772,6 @@ mod_tokendb_handler( request_rec *rq )
 
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "revoke", "Success", "Tokendb user authorization");
 
-        /* XXX - chrisho */
-        /* op=revoke */
-        /* tid=cuid */
-
         PR_snprintf( injection, MAX_INJECTION_SIZE,
                      "%s%s%s%s%s%s%s", JS_START,
                     "var uriBase = \"", uri, "\";\n",
@@ -4785,6 +4781,7 @@ mod_tokendb_handler( request_rec *rq )
         PL_strcat(injection, JS_STOP);
 
         buf = getData( revokeTemplate, injection );
+*/
     } else if( ( PL_strstr( query, "op=search_activity_admin" ) ) ) {
         tokendbDebug( "authorization\n" );
 
@@ -5921,7 +5918,6 @@ mod_tokendb_handler( request_rec *rq )
                ( PL_strstr( query, "op=view_activity" ) )    ||
                ( PL_strstr( query, "op=view_users" ) )       ||
                ( PL_strstr( query, "op=view" ) )             ||
-               ( PL_strstr( query, "op=edit_admin" ) )       ||
                ( PL_strstr( query, "op=edit_user" ) )        ||
                ( PL_strstr( query, "op=edit" ) )             ||
                ( PL_strstr( query, "op=show_certificate" ) ) ||
@@ -5938,8 +5934,7 @@ mod_tokendb_handler( request_rec *rq )
             ( PL_strstr( query, "op=show_admin" ) ) ||
             ( PL_strstr( query, "op=view_users") )  ||
             ( PL_strstr( query, "op=edit_user") )   ||
-            ( PL_strstr( query, "op=user_delete_confirm") ) ||
-            ( PL_strstr( query, "op=edit_admin" ) ) ) {
+            ( PL_strstr( query, "op=user_delete_confirm") ) ) {
             tokendbDebug( "authorization for admin ops\n" );
 
             if( ! is_admin ) {
@@ -6075,7 +6070,6 @@ mod_tokendb_handler( request_rec *rq )
                                                             0 );
         } else if( PL_strstr( query, "op=show_admin" ) ||
                    PL_strstr( query, "op=show" )       ||
-                   PL_strstr( query, "op=edit_admin" ) ||
                    PL_strstr( query, "op=confirm" )    ||
                    PL_strstr( query, "op=do_confirm_token" ) ) {
             status = find_tus_token_entries_no_vlv( complete_filter, &result, 0 );
@@ -7002,6 +6996,7 @@ mod_tokendb_handler( request_rec *rq )
             "%s %s", firstName, lastName);
 
         PR_snprintf(oString, 512, "uid;;%s", uid);
+        PR_snprintf(pString, 512, "givenName;;%s+sn;;%s", firstName, lastName);
 
         /* to meet STIG requirements, every user in ldap must have a password, even if that password is never used */
         char *pwd = generatePassword(pwLength);
@@ -7009,7 +7004,7 @@ mod_tokendb_handler( request_rec *rq )
         do_free(pwd);
 
         if (status != LDAP_SUCCESS) {
-            RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "Failure", oString, "", "failure in adding tokendb user"); 
+            RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "Failure", oString, pString, "failure in adding tokendb user"); 
             PR_snprintf((char *)msg, 512, "LDAP Error in adding new user %s", uid);   
             ldap_error_out(msg, msg);
             do_free(uid);
@@ -7030,48 +7025,70 @@ mod_tokendb_handler( request_rec *rq )
             "'%s' has created new user %s", userid, uid);
         RA::tdb_activity(rq->connection->remote_ip, "", "add_user", "success", msg, uid, NO_TOKEN_TYPE);
 
-        RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "success", oString, "", "tokendb user added"); 
+        RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "success", oString, pString, "tokendb user added"); 
 
+        PR_snprintf(pString, 512, "role;;operator");
         if ((opOperator != NULL) && (PL_strstr(opOperator, OPERATOR))) {
             status = add_user_to_role_db_entry(userid, uid, OPERATOR);
             if ((status!= LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "failure", oString, pString, "Error adding user to role");
                 PR_snprintf(msg, 512, "Error adding user %s to role %s", uid, OPERATOR);
                 post_ldap_error(msg);
+            } else {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "success", oString, pString, "user added to role");
             }
         } else {
             status = delete_user_from_role_db_entry(userid, uid, OPERATOR);
             if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "failure", oString, pString, "Error deleting user from role");
                 PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, OPERATOR);
                 post_ldap_error(msg);
+            } else {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "success", oString, pString, "user deleted from role");
             }
+
         }
 
+        PR_snprintf(pString, 512, "role;;agent");
         if ((opAgent != NULL) && (PL_strstr(opAgent, AGENT))) {
             status = add_user_to_role_db_entry(userid, uid, AGENT);
             if ((status!= LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "failure", oString, pString, "Error adding user to role");
                 PR_snprintf(msg, 512, "Error adding user %s to role %s", uid, AGENT);
                 post_ldap_error(msg);
+            } else {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "success", oString, pString, "user added to role");
             }
         } else {
             status = delete_user_from_role_db_entry(userid, uid, AGENT);
             if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "failure", oString, pString, "Error deleting user from role");
                 PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, AGENT);
                 post_ldap_error(msg);
+            } else {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "success", oString, pString, "user deleted from role");
             }
         }
+
+        PR_snprintf(pString, 512, "role;;admin");
         if ((opAdmin != NULL) && (PL_strstr(opAdmin, ADMINISTRATOR))) {
             status = add_user_to_role_db_entry(userid, uid, ADMINISTRATOR);
             if ((status!= LDAP_SUCCESS) && (status != LDAP_TYPE_OR_VALUE_EXISTS)) {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "failure", oString, pString, "Error adding user to role");
                 PR_snprintf(msg, 512, "Error adding user %s to role %s", uid, ADMINISTRATOR);
                 post_ldap_error(msg);
+            } else {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "success", oString, pString, "user added to role");
             }
         } else {
             status = delete_user_from_role_db_entry(userid, uid, ADMINISTRATOR);
             if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "failure", oString, pString, "Error deleting user from role");
                 PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, ADMINISTRATOR);
                 post_ldap_error(msg);
+            } else {
+                RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "success", oString, pString, "user deleted from role");
             }
-
         }
 
         do_free(firstName);
@@ -7209,23 +7226,6 @@ mod_tokendb_handler( request_rec *rq )
         PL_strcat(injection, JS_STOP);
 
         buf = getData( deleteResultTemplate, injection );
-    } else if( PL_strstr( query, "op=load" ) ) {
-        tokendbDebug( "authorization for op=load\n" );
-
-        if( (! is_agent ) && (! is_operator) ) {
-            RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "load", "Failure", "Tokendb user authorization");
-            error_out("Authorization Failure", "Failed to authorize request");
-            do_free(buf);
-            do_strfree(uri);
-            do_strfree(query);
-
-            return DONE;
-        }
-        RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "load", "Success", "Tokendb user authorization");
-
-        getTemplateName( template1, query );
-
-        buf = getData( template1, injection );
     } else if ( PL_strstr( query, "op=audit_admin") ) {
         tokendbDebug( "authorization for op=audit_admin\n" );
 
