@@ -599,6 +599,47 @@ set(pki-console_java_SRCS
     com/netscape/admin/certsrv/notification/RequestCompletePanel.java
     com/netscape/admin/certsrv/notification/RequestRevokedPanel.java
     com/netscape/admin/certsrv/IUIMapper.java
+    com/netscape/admin/certsrv/images/alertl.gif
+    com/netscape/admin/certsrv/images/rulesobj.gif
+    com/netscape/admin/certsrv/images/secure.gif
+    com/netscape/admin/certsrv/images/red-ball-small.gif
+    com/netscape/admin/certsrv/images/error.gif
+    com/netscape/admin/certsrv/images/UGobjs.gif
+    com/netscape/admin/certsrv/images/allfolder16n.gif
+    com/netscape/admin/certsrv/images/aclobj.gif
+    com/netscape/admin/certsrv/images/alllogfolder16n.gif
+    com/netscape/admin/certsrv/images/alluser16n.gif
+    com/netscape/admin/certsrv/images/authobj.gif
+    com/netscape/admin/certsrv/images/plugin.gif
+    com/netscape/admin/certsrv/images/LOGobjs.gif
+    com/netscape/admin/certsrv/images/acl.gif
+    com/netscape/admin/certsrv/images/messagel.gif
+    com/netscape/admin/certsrv/images/genobject.gif
+    com/netscape/admin/certsrv/images/auth.gif
+    com/netscape/admin/certsrv/images/cms-branding.gif
+    com/netscape/admin/certsrv/images/plug.gif
+    com/netscape/admin/certsrv/images/servlet-16.gif
+    com/netscape/admin/certsrv/images/CertificateServer.gif
+    com/netscape/admin/certsrv/images/ruleplugin-16.gif
+    com/netscape/admin/certsrv/images/aclplugin.gif
+    com/netscape/admin/certsrv/images/ruleDisable-16.gif
+    com/netscape/admin/certsrv/images/servletobj.gif
+    com/netscape/admin/certsrv/images/authplugin.gif
+    com/netscape/admin/certsrv/images/CertificateServerL.gif
+    com/netscape/admin/certsrv/images/alllogdoc16n.gif
+    com/netscape/admin/certsrv/images/jobplugin.gif
+    com/netscape/admin/certsrv/images/pluginfolder.gif
+    com/netscape/admin/certsrv/images/rule-16.gif
+    com/netscape/admin/certsrv/images/jobs.gif
+    com/netscape/admin/certsrv/images/cert41.gif
+    com/netscape/admin/certsrv/images/cert42.gif
+    com/netscape/admin/certsrv/images/cert24.gif
+    com/netscape/admin/certsrv/images/servlet-plugin-16.gif
+    com/netscape/admin/certsrv/images/jobobj.gif
+    com/netscape/admin/certsrv/images/alluserwithcert16n.gif
+    com/netscape/admin/certsrv/images/notsecure.gif
+    com/netscape/admin/certsrv/images/ldapub.gif
+    com/netscape/admin/certsrv/images/allgroup16n.gif
 )
 
 # set classpath
