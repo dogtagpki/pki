@@ -382,6 +382,7 @@ int RA_Processor::UpgradeApplet(RA_Session *session, char *prefix, char *tokenTy
 	if (channel == NULL) {
              RA::Error(LL_PER_PDU, "RA_Processor::UpgradeApplet", 
 		  "channel creation failure");
+             rc = -1;
 	     goto loser;
 	}
 
@@ -3085,6 +3086,18 @@ locale),
          */
         SelectApplet(session, 0x04, 0x00, NetKeyAID);
         RA::tdb_activity(session->GetRemoteIP(), cuid, "format", "failure", "applet upgrade error", "", tokenType);
+        // rc = -1 denotes Secure Channel Failure
+        
+        if (rc == -1) {
+             RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+               userid, cuid, msn, "Failure", "format",
+               keyVersion != NULL? keyVersion : "", appletVersion, expected_version, "failed to setup secure channel");
+        } else {
+
+            RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+               userid, cuid, msn, "Success", "format",
+               keyVersion != NULL? keyVersion : "", appletVersion, expected_version, "setup secure channel");
+        }
     
         RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE, 
           userid, cuid, msn, "Failure", "format", 
@@ -3092,6 +3105,10 @@ locale),
 
         goto loser;
     } 
+
+    RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+            userid, cuid, msn, "Success", "format",
+            keyVersion != NULL? keyVersion : "", appletVersion, expected_version, "setup secure channel");
 
     RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE, 
       userid, cuid, msn, "Success", "format", 

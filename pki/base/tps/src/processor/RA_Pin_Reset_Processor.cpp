@@ -324,12 +324,28 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
                */
               SelectApplet(session, 0x04, 0x00, NetKeyAID);
 
+              if (upgrade_rc == -1) {
+                 RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+                 userid, cuid, msn, "Failure", "pin_reset",
+                 keyVersion != NULL? keyVersion : "", appletVersion, expected_version, "failed to setup secure channel");
+              } else {
+
+                  RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+                  userid, cuid, msn, "Success", "pin_reset",
+                  keyVersion != NULL? keyVersion : "", appletVersion, expected_version, "setup secure channel");
+             }
+
               RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
                 userid, cuid, msn, "Failure", "pin_reset", 
                 keyVersion != NULL? keyVersion : "", 
                 appletVersion, expected_version, "applet upgrade");
               goto loser;
 	    }
+
+
+            RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+                  userid, cuid, msn, "Success", "pin_reset",
+                  keyVersion != NULL? keyVersion : "", appletVersion, expected_version, "setup secure channel");
 
             RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
               userid, cuid, msn, "Success", "pin_reset", 

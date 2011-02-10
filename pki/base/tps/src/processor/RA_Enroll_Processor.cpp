@@ -1187,6 +1187,7 @@ bool RA_Enroll_Processor::CheckAndUpgradeApplet(
 		RA_Status &o_status, 
                 char **keyVersion )
 {
+        int rc = 0;
 	const char *FN = "RA_Enroll_Processor::CheckAndUpgradeApplet";
 	bool r = true;
 	const char *applet_dir=NULL;
@@ -1230,7 +1231,7 @@ bool RA_Enroll_Processor::CheckAndUpgradeApplet(
 			RA::Debug(FN, "TKS connection id =%s", connid);
 			//StatusUpdate(a_session, a_extensions, 5, "PROGRESS_UPGRADE_APPLET");
 
-			if (UpgradeApplet(a_session, (char *) OP_PREFIX, (char*) a_tokenType,
+			if (rc = UpgradeApplet(a_session, (char *) OP_PREFIX, (char*) a_tokenType,
 				o_major_version, o_minor_version, 
 				g_applet_target_version, 
 				applet_dir, security_level, 
@@ -1248,6 +1249,18 @@ bool RA_Enroll_Processor::CheckAndUpgradeApplet(
 				o_status = STATUS_ERROR_UPGRADE_APPLET;		 
 				r = false;
 
+                                if (rc == -1) {
+                                    RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+                                        a_userid, a_cuid, a_msn, "Failure", "enrollment",
+                                        *keyVersion != NULL? *keyVersion : "", o_current_applet_on_token, g_applet_target_version, "failed to setup secure channel");
+                                } else {
+
+                                    RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+                                    a_userid, a_cuid, a_msn, "Success", "enrollment",
+                                    *keyVersion != NULL? *keyVersion : "", o_current_applet_on_token, g_applet_target_version, "setup secure channel");
+                                }
+
+
                                 RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
                                   a_userid, a_cuid, a_msn, "Failure", "enrollment",
                                   *keyVersion != NULL? *keyVersion : "",
@@ -1261,7 +1274,11 @@ bool RA_Enroll_Processor::CheckAndUpgradeApplet(
 			}
 
 			// Upgrade Applet reported success
-                        
+			
+                        RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
+                            a_userid, a_cuid, a_msn, "Success", "enrollment",
+                            *keyVersion != NULL? *keyVersion : "", o_current_applet_on_token, g_applet_target_version, "setup secure channel");
+
                         RA::Audit(EV_APPLET_UPGRADE, AUDIT_MSG_APPLET_UPGRADE,
                           a_userid, a_cuid, a_msn, "Success", "enrollment",
                           *keyVersion != NULL? *keyVersion : "",
