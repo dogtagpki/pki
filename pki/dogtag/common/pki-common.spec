@@ -22,6 +22,14 @@ BuildRequires:  velocity
 BuildRequires:  xalan-j2
 Buildrequires:  xerces-j2
 
+%if 0%{?fedora} >= 14
+Requires:       apache-commons-lang
+Requires:       apache-commons-logging
+%endif
+%if 0%{?rhel} || 0%{?fedora} < 14
+Requires:       jakarta-commons-lang
+Requires:       jakarta-commons-logging
+%endif
 Requires:       java >= 1:1.6.0
 Requires:       jss >= 4.2.6
 Requires:       osutil

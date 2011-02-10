@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.3
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -233,6 +233,14 @@ Group:            System Environment/Base
 
 BuildArch:        noarch
 
+%if 0%{?fedora} >= 14
+Requires:         apache-commons-lang
+Requires:         apache-commons-logging
+%endif
+%if 0%{?rhel} || 0%{?fedora} < 14
+Requires:         jakarta-commons-lang
+Requires:         jakarta-commons-logging
+%endif
 Requires:         java >= 1:1.6.0
 Requires:         jss >= 4.2.6-12
 Requires:         osutil
@@ -582,6 +590,13 @@ fi
 
 
 %changelog
+* Wed Feb 9 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-2
+- 'pki-common'
+-     Bugzilla Bug #676051 - IPA installation failing - Fails to create CA
+      instance
+-     Bugzilla Bug #676182 - IPA installation failing - Fails to create CA
+      instance
+
 * Fri Feb 4 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
 - 'pki-common'
 -     Bugzilla Bug #674894 - ipactl restart : an annoy output line
