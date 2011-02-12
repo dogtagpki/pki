@@ -2,7 +2,7 @@ dn: cn=index1160527115, cn=index, cn=tasks, cn=config
 objectclass: top
 objectclass: extensibleObject
 cn: index1160527115
-ttl: 1
+ttl: 10
 nsInstance: {database}
 nsIndexVLVAttribute: allKeys-{instanceId}Index
 nsIndexVLVAttribute: kraAll-{instanceId}Index

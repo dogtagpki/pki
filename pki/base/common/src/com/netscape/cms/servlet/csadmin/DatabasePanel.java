@@ -947,6 +947,7 @@ public class DatabasePanel extends WizardPanelBase {
            */
           String wait_dn = cs.getString("preop.internaldb.wait_dn", "");
           if (!wait_dn.equals("")) {
+            int i = 0;
             LDAPEntry task = null;
             boolean taskComplete = false;
             CMS.debug("Checking wait_dn " + wait_dn);
@@ -964,10 +965,17 @@ public class DatabasePanel extends WizardPanelBase {
                        } 
                    } 
                 }
-              } catch (LDAPException e) {
+              } catch (LDAPException le) {
+                CMS.debug("Still checking wait_dn '" + wait_dn + "' (" + le.toString() + ")");
+              } catch (Exception e) {
+                CMS.debug("Still checking wait_dn '" + wait_dn + "' (" + e.toString() + ").");
               }
-            } while (!taskComplete);
-            CMS.debug("Done checking wait_dn " + wait_dn);
+            } while ((!taskComplete) && (i < 20));
+            if (i < 20) {
+              CMS.debug("Done checking wait_dn " + wait_dn);
+            } else {
+              CMS.debug("Done checking wait_dn " + wait_dn + " due to timeout.");
+            }
           }
 
           conn.disconnect();

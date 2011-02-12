@@ -2,7 +2,7 @@ dn: cn=index1160589769, cn=index, cn=tasks, cn=config
 objectclass: top
 objectclass: extensibleObject
 cn: index1160589769
-ttl: 1
+ttl: 10
 nsInstance: {database}
 nsIndexVLVAttribute: allCerts-{instanceId}Index
 nsIndexVLVAttribute: allExpiredCerts-{instanceId}Index
