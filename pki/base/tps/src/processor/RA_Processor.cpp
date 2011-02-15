@@ -2646,6 +2646,8 @@ RA_Status RA_Processor::Format(RA_Session *session, NameValueSet *extensions, bo
     char filter[512];
     Buffer curKeyInfo;
     BYTE curVersion;
+    char *curKeyInfoStr = NULL;
+    char *newVersionStr = NULL;
     bool tokenFound = false;
     int finalKeyVersion = 0;
     char *keyVersion = NULL;
@@ -3250,13 +3252,33 @@ locale),
             // need to check return value of rc
              // and create audit log for failure
 
+            curKeyInfoStr = Util::Buffer2String(curKeyInfo);
+            newVersionStr = Util::Buffer2String(newVersion);
+
+            char curVer[10];
+            char newVer[10];
+
+            if(curKeyInfoStr != NULL && strlen(curKeyInfoStr) >= 2) {
+                curVer[0] = curKeyInfoStr[0]; curVer[1] = curKeyInfoStr[1]; curVer[2] = 0;
+            }
+            else {
+                curVer[0] = 0;
+            }
+
+            if(newVersionStr != NULL && strlen(newVersionStr) >= 2) {
+                newVer[0] = newVersionStr[0] ; newVer[1] = newVersionStr[1] ; newVer[2] = 0;
+            }
+            else {
+                newVer[0] = 0;
+            }
+
             if (rc != 0) {
                 RA::Audit(EV_KEY_CHANGEOVER, AUDIT_MSG_KEY_CHANGEOVER,
-                    userid, cuid, msn, "Failure", "format", 
-                    final_applet_version, curVersion, ((BYTE*)newVersion)[0], 
+                    userid != NULL ? userid : "", cuid != NULL ? cuid : "", msn != NULL ? msn : "", "Failure", "format",
+                    final_applet_version != NULL ? final_applet_version : "", curVer, newVer,
                     "key changeover failed");
                 // do we goto loser here?
-            } 
+            }
 
              finalKeyVersion = ((int) ((BYTE *)newVersion)[0]);
             /**
@@ -3290,8 +3312,8 @@ locale),
             }
 
             RA::Audit(EV_KEY_CHANGEOVER, AUDIT_MSG_KEY_CHANGEOVER,
-                    userid, cuid, msn, "Success", "format",
-                    final_applet_version, curVersion, ((BYTE*)newVersion)[0],
+                    userid != NULL ? userid : "", cuid != NULL ? cuid : "", msn != NULL ? msn : "", "Success", "format",
+                    final_applet_version != NULL ? final_applet_version : "", curVer, newVer,
                     "key changeover");
 
         }     
@@ -3388,6 +3410,16 @@ loser:
                 userid != NULL? userid : "", 
                 tokenType);
         } 
+    }
+
+    if (curKeyInfoStr != NULL) {
+        PR_Free( (char *) curKeyInfoStr);
+        curKeyInfoStr = NULL;
+    }
+
+    if (newVersionStr != NULL) {
+        PR_Free( (char *) newVersionStr);
+        newVersionStr == NULL;
     }
 
     if (keyVersion != NULL) {

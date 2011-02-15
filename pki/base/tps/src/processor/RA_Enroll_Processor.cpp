@@ -1606,6 +1606,11 @@ bool RA_Enroll_Processor::CheckAndUpgradeSymKeys(
 	bool r = false;
 	Buffer key_data_set;
         char audit_msg[512] = "";
+        char curVer[10];
+        char newVer[10];
+
+        char *curKeyInfoStr = NULL;
+        char *newVersionStr = NULL;
 
 	// the TKS is responsible for doing much of the symmetric keys update
 	// so lets find which TKS we're talking about TKS now.
@@ -1737,10 +1742,29 @@ bool RA_Enroll_Processor::CheckAndUpgradeSymKeys(
 					curIndex,
 					&key_data_set);
 
+
+                        curKeyInfoStr = Util::Buffer2String(curKeyInfo);
+                        newVersionStr = Util::Buffer2String(newVersion);
+
+                        if(curKeyInfoStr != NULL && strlen(curKeyInfoStr) >= 2) {
+                            curVer[0] = curKeyInfoStr[0]; curVer[1] = curKeyInfoStr[1]; curVer[2] = 0;
+                        }
+                        else {
+                            curVer[0] = 0;
+                        }
+
+                        if(newVersionStr != NULL && strlen(newVersionStr) >= 2) {
+                            newVer[0] = newVersionStr[0] ; newVer[1] = newVersionStr[1] ; newVer[2] = 0;
+                        }
+                        else {
+                            newVer[0] = 0;
+                        }
+
+
                         if (rc!=0) {
                             RA::Audit(EV_KEY_CHANGEOVER, AUDIT_MSG_KEY_CHANGEOVER,
-                              a_userid, a_cuid, a_msn, "Failure", "enrollment",
-                              a_applet_version, curVersion, ((BYTE*)newVersion)[0],
+                              a_userid != NULL ? a_userid : "", a_cuid != NULL ? a_cuid : "",  a_msn != NULL ? a_msn : "", "Failure", "enrollment",
+                              a_applet_version != NULL ? a_applet_version : "", curVer, newVer,
                               "key changeover");
 
                             if ((a_cuid != NULL) && (a_tokenType != NULL)) {
@@ -1755,8 +1779,8 @@ bool RA_Enroll_Processor::CheckAndUpgradeSymKeys(
                             goto loser;
                         } else {
                             RA::Audit(EV_KEY_CHANGEOVER, AUDIT_MSG_KEY_CHANGEOVER,
-                              a_userid, a_cuid, a_msn, "Success", "enrollment",
-                              a_applet_version, curVersion, ((BYTE*)newVersion)[0],
+                              a_userid != NULL ? a_userid : "", a_cuid != NULL ? a_cuid : "", a_msn != NULL ? a_msn : "", "Success", "enrollment",
+                              a_applet_version != NULL ? a_applet_version : "", curVer, newVer,
                               "key changeover");
                         }
 
@@ -1782,8 +1806,9 @@ bool RA_Enroll_Processor::CheckAndUpgradeSymKeys(
 				r = true;  // Success!!
 
                                 RA::Audit(EV_ENROLLMENT, AUDIT_MSG_PROC,
-                                  a_userid, a_cuid, a_msn, "success", "enrollment", a_applet_version, 
-                                  ((BYTE*)newVersion)[0], "enrollment processing, key upgrade completed");
+                                  a_userid != NULL ? a_userid : "", a_cuid != NULL ? a_cuid : "", 
+                                  a_msn != NULL ? a_msn : "", "success", "enrollment", a_applet_version != NULL ? a_applet_version : "",
+                                  newVer, "enrollment processing, key upgrade completed");
 			}
 
 		}
@@ -1809,6 +1834,17 @@ bool RA_Enroll_Processor::CheckAndUpgradeSymKeys(
                   "enrollment processing, key upgrade disabled");
 	}
 loser:
+    
+    if (curKeyInfoStr != NULL) {
+        PR_Free( (char *) curKeyInfoStr);
+        curKeyInfoStr = NULL;
+    }
+
+    if (newVersionStr != NULL) {
+        PR_Free( (char *) newVersionStr);
+        newVersionStr = NULL;
+    }
+
     if (strlen(audit_msg) > 0) { // a failure occurred
         RA::Audit(EV_ENROLLMENT, AUDIT_MSG_PROC,
           a_userid != NULL ? a_userid : "",
