@@ -1926,6 +1926,7 @@ void RA::AuditThis (RA_Log_Level level, const char *func_name, const char *fmt, 
                       "AuditThis: Failure to write to the audit log.  Shutting down ..."); 
                 _exit(APEXIT_CHILDFATAL);
             }
+            m_audit_log->setSigned(false);
 
             if (m_audit_signed) SignAuditLog(audit_msg);
         } else {
@@ -1958,6 +1959,7 @@ TPS_PUBLIC void RA::FlushAuditLogBuffer()
                   "RA::FlushAuditLogBuffer: Failure to write to the audit log.  Shutting down ...");
             _exit(APEXIT_CHILDFATAL);
         }
+        m_audit_log->setSigned(false);
         if (m_audit_signed) {
             SignAuditLog((NSSUTF8 *) m_audit_log_buffer);
         }
