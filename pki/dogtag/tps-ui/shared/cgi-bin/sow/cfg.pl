@@ -113,7 +113,7 @@ sub is_agent()
             "-b \"" . "cn=TUS Officers,ou=Groups,".$x_basedn . "\" " .
             "-h \"" . $x_host . "\" " .
             "-p \"" . $x_port ."\" " .
-            "\"(uid=" . $uid . "*)\" | wc -l";
+            "-LLL \"(uid=" . $uid . "*)\" | wc -l";
 
   my $matched = `$cmd`;
 
@@ -153,7 +153,7 @@ sub is_user()
             "-b \"" . "ou=people,".$x_basedn . "\" " .
             "-h \"" . $x_host . "\" " .
             "-p \"" . $x_port ."\" " .
-            "\"(uid=" . $uid . "*)\" | wc -l";
+            "-LLL \"(uid=" . $uid . "*)\" | wc -l";
 
 
   my $matched = `$cmd`;
