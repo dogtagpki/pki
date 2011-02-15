@@ -115,7 +115,7 @@ sub is_agent()
             "-b \"" . "cn=TUS Officers,ou=Groups,".$x_basedn . "\" " .
             "-h \"" . $x_host . "\" " .
             "-p \"" . $x_port ."\" " .
-            "member | grep \"uid=" . $uid . ",\" | wc -l";
+            "-LLL member | grep \"uid=" . $uid . ",\" | wc -l";
 
   my $matched = `$cmd`;
 
@@ -155,7 +155,7 @@ sub is_user()
             "-b \"" . "ou=people,".$x_basedn . "\" " .
             "-h \"" . $x_host . "\" " .
             "-p \"" . $x_port ."\" " .
-            "\"(uid=" . $uid . ")\" uid | grep \"uid:\" | wc -l";
+            "-LLL \"(uid=" . $uid . ")\" uid | grep \"uid:\" | wc -l";
 
   my $matched = `$cmd`;
 

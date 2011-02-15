@@ -201,7 +201,7 @@ sub GenerateEnrollmentPage
             "-b \"" . $basedn . "\" " .
             "-h \"" . $ldapHost . "\" " .
             "-p \"" . $ldapPort ."\" " .
-            "\"(uid=" . $uid . ")\" > " . $tmpfile;
+            "-LLL \"(uid=" . $uid . ")\" > " . $tmpfile;
   system($cmd);
 
   open(F, "<$tmpfile");
