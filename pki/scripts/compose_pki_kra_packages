@@ -205,5 +205,5 @@ chmod 775 ${PKI_KRA_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-script -c ./package_${PKI_KRA} package_${PKI_KRA}.log
+bash ./package_${PKI_KRA} | tee package_${PKI_KRA}.log 2>&1
 

@@ -205,5 +205,5 @@ chmod 775 ${PKI_OCSP_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-script -c ./package_${PKI_OCSP} package_${PKI_OCSP}.log
+bash ./package_${PKI_OCSP} | tee package_${PKI_OCSP}.log 2>&1
 

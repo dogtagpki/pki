@@ -215,5 +215,5 @@ chmod 775 ${IPA_PKI_THEME_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-script -c ./package_${IPA_PKI_THEME} package_${IPA_PKI_THEME}.log
+bash ./package_${IPA_PKI_THEME} | tee package_${IPA_PKI_THEME}.log 2>&1
 

@@ -205,5 +205,5 @@ chmod 775 ${PKI_TKS_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-script -c ./package_${PKI_TKS} package_${PKI_TKS}.log
+bash ./package_${PKI_TKS} | tee package_${PKI_TKS}.log 2>&1
 
