@@ -69,6 +69,12 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
     unsigned int minlen = 0, maxlen = 0;
     const char *applet_dir;
     bool upgrade_enc = false;
+    char curVer[10];
+    char newVer[10];
+
+    char *curKeyInfoStr = NULL;
+    char *newVersionStr = NULL;
+
     SecurityLevel security_level = SECURE_MSG_MAC_ENC;
     Buffer *CardManagerAID = RA::GetConfigStore()->GetConfigAsBuffer(
 		    RA::CFG_APPLET_CARDMGR_INSTANCE_AID,
@@ -114,6 +120,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
     int maxReturns = 10;
     char audit_msg[512] = "";
     char *profile_state = NULL;
+    int key_change_over_success = 0;
 
 
     RA::Debug("RA_Pin_Reset_Processor::Process", "Client %s",                       session->GetRemoteIP());
@@ -255,7 +262,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
         PR_snprintf((char *)configname, 256, "%s.%s.update.applet.emptyToken.enable", OP_PREFIX,
           tokenType); 
          if (RA::GetConfigStore()->GetConfigAsBool(configname, 0)) {
-                 appletVersion = PL_strdup( "" );
+                 appletVersion = PL_strdup( "unknown" );
          } else {
           	RA::Error("RA_Pin_Reset_Processor::Process", 
 			"no applet found and applet upgrade not enabled");
@@ -424,10 +431,27 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
                   curIndex,
                   &key_data_set);
 
+        curKeyInfoStr = Util::Buffer2String(curKeyInfo);
+        newVersionStr = Util::Buffer2String(newVersion);
+
+        if(curKeyInfoStr != NULL && strlen(curKeyInfoStr) >= 2) {
+            curVer[0] = curKeyInfoStr[0]; curVer[1] = curKeyInfoStr[1]; curVer[2] = 0;
+        }
+        else {
+            curVer[0] = 0;
+        }
+
+        if(newVersionStr != NULL && strlen(newVersionStr) >= 2) {
+            newVer[0] = newVersionStr[0] ; newVer[1] = newVersionStr[1] ; newVer[2] = 0;
+        }
+        else {
+            newVer[0] = 0;
+        }
+
         if (rc!=0) {
             RA::Audit(EV_KEY_CHANGEOVER, AUDIT_MSG_KEY_CHANGEOVER,
-                userid, cuid, msn, "Failure", "pin_reset",
-                final_applet_version, curVersion, ((BYTE*)newVersion)[0],
+                userid != NULL ? userid : "", cuid != NULL ? cuid : "", msn != NULL ? msn : "", "Failure", "pin_reset",
+                final_applet_version != NULL ? final_applet_version : "", curVer, newVer,
                 "key changeover failed");
         }
 
@@ -452,9 +476,10 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
          }
 
         RA::Audit(EV_KEY_CHANGEOVER, AUDIT_MSG_KEY_CHANGEOVER,
-                userid, cuid, msn, "Success", "pin_reset",
-                final_applet_version, curVersion, ((BYTE*)newVersion)[0],
+                userid != NULL ? userid : "", cuid != NULL ? cuid : "", msn != NULL ? msn : "", "Success", "pin_reset",
+                final_applet_version != NULL ? final_applet_version : "", curVer, newVer,
                 "key changeover");
+        key_change_over_success = 1;
       }
     } else {
       PR_snprintf((char *)configname, 256, "%s.%s.tks.conn", OP_PREFIX, tokenType);
@@ -802,7 +827,16 @@ locale),
         PR_snprintf(audit_msg, 512, "Failed to close channel, status = STATUS_ERROR_CONNECTION");
         goto loser;
     }
+    
 
+    //Update the KeyInfo in case of successful key changeover
+    if (key_change_over_success != 0) {
+        RA::tdb_update( userid  != NULL ? userid : (char *) "",
+                         cuid != NULL ? cuid : (char *) "" ,
+                         final_applet_version != NULL ? (char *) final_applet_version : (char *) "" ,
+                          keyVersion != NULL ? keyVersion : (char *) "","active", "",
+                          tokenType != NULL ? tokenType : (char *) "");
+    }
     RA::Audit(EV_PIN_RESET, AUDIT_MSG_PROC,
       userid != NULL ? userid : "",
       cuid != NULL ? cuid : "",
@@ -888,6 +922,16 @@ loser:
                     userid != NULL ? userid : "",
                     tokenType);
            }
+    }
+
+    if (curKeyInfoStr != NULL) {
+        PR_Free( (char *) curKeyInfoStr);
+        curKeyInfoStr = NULL;
+    }
+
+    if (newVersionStr != NULL) {
+        PR_Free( (char *) newVersionStr);
+        newVersionStr = NULL;
     }
 
     if( token_status != NULL ) {
