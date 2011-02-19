@@ -1,7 +1,7 @@
 set(pki-console-theme_java Java)
 
 set(pki-console-theme_java_RCS
-    ../CMSAdminRS.properties
+    CMSAdminRS.properties
     com/netscape/management/client/theme/theme.properties
     com/netscape/management/client/theme/images/login.gif
     com/netscape/management/client/theme/images/ConsoleBanner.gif

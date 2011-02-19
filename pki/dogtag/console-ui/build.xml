@@ -60,7 +60,7 @@
         <echo message="${begin.build.jars.log.message}"/>
         <mkdir dir="${build.jars}"/>
         <jar jarfile="${build.jars}/pki-console-theme-${version}.jar">
-            <fileset dir=".">
+            <fileset dir="${src.dir}">
                 <include name="CMSAdminRS.properties"/>
             </fileset>
             <fileset dir="${build.classes}">
@@ -222,10 +222,10 @@
                 <include name="${product.name}.spec"/>
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
-                <include name="CMSAdminRS.properties"/>
                 <include name="config/product*.xml"/>
                 <include name="config/release*.xml"/>
                 <include name="release"/>
+                <include name="src/CMSAdminRS.properties"/>
                 <include name="src/**"/>
             </zipfileset>
         </zip>
@@ -240,10 +240,10 @@
                 <include name="${product.name}.spec"/>
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
-                <include name="CMSAdminRS.properties"/>
                 <include name="config/product*.xml"/>
                 <include name="config/release*.xml"/>
                 <include name="release"/>
+                <include name="src/CMSAdminRS.properties"/>
                 <include name="src/**"/>
             </tarfileset>
         </tar>
