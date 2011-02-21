@@ -106,7 +106,7 @@ die $perl_version_error_message if $] < $MINIMUM_PERL_VERSION;
 # invocation directory has not been deleted!
 my $cwd = `/bin/pwd`;
 chomp $cwd;
-if ($cwd eq "") {
+if (!$cwd) {
     emit("Cannot invoke '$0' from non-existent directory!\n", "error");
     exit 255;
 }
@@ -1066,7 +1066,7 @@ sub user_disallows_shell
     my ($name, $passwd, $uid, $gid, $quota,
         $comment, $gcos, $dir, $shell, $expire) = getpwnam($username);
 
-    if ($shell eq "") {
+    if (!$shell) {
         $result = 1;
     } elsif ($shell eq $sans_shell) {
         $result = 1;
@@ -1609,7 +1609,7 @@ sub certutil_create_databases
                       $default_system_libraries,
                       $original_library_path]);
 
-    if ($pwdfile eq "") {
+    if (!$pwdfile) {
         $command = "$default_certutil_command "
                  . "-N "
                  . "-d $instance_path";
@@ -1686,7 +1686,7 @@ sub certutil_generate_CSR
                       $default_system_libraries,
                       $original_library_path]);
 
-    if ($pwdfile eq "") {
+    if (!$pwdfile) {
         $command = "$default_certutil_command "
                  . "-R "
                  . "-d $instance_path "
@@ -1751,7 +1751,7 @@ sub certutil_generate_self_signed_cert
                       $default_system_libraries,
                       $original_library_path]);
 
-    if ($pwdfile eq "") {
+    if (!$pwdfile) {
         $command = "$default_certutil_command "
                  . "-S "
                  . "-d $instance_path "
@@ -1862,7 +1862,7 @@ sub certutil_print_cert
                       $default_system_libraries,
                       $original_library_path]);
 
-    if ($token ne "") {
+    if ($token) {
         # Raidzilla Bug #57616 - certutil is not being consistent, nickname 
         #                        requires token name for no reason.
         $command = "$default_certutil_command "
@@ -2993,13 +2993,13 @@ sub set_owner_group_on_directory_contents
 
     return 1 if $dry_run;
 
-    if ($dir eq "" || !directory_exists($dir)) {
+    if (!$dir || !directory_exists($dir)) {
         emit("set_owner_group_on_directory_contents(): invalid directory specified.\n",
               "error");
         return 0;
     }
 
-    if ($owner eq "" || $group eq "") {
+    if (!$owner || !$group) {
         emit("set_owner_group_on_directory_contents(): directory $dir needs a user and group!\n",
               "error");
         return 0;
@@ -3152,7 +3152,7 @@ sub remove_symlink
 
     return 1 if $dry_run;
 
-    if ($symlink eq "") {
+    if (!$symlink) {
         # symlink is NULL
         return 1;
     }
@@ -3179,13 +3179,13 @@ sub set_owner_group_on_symlink
 
     return 1 if $dry_run;
 
-    if ($symlink eq "" || !symlink_exists($symlink)) {
+    if (!$symlink || !symlink_exists($symlink)) {
         emit("set_owner_group_on_symlink(): invalid symbolic link specified \"$symlink\"\n",
               "error");
         return 1;
     }
 
-    if ($owner eq "" || $group eq "") {
+    if (!$owner || !$group) {
         emit("set_owner_group_on_symlink(): symbolic link \"$symlink\" needs a user and group!\n",
               "error");
         return 0;

@@ -50,7 +50,7 @@ use Getopt::Long qw(GetOptions);
 # invocation directory has not been deleted!
 my $cwd = `/bin/pwd`;
 chomp $cwd;
-if ($cwd eq "") {
+if (!$cwd) {
     emit("Cannot invoke '$0' from non-existent directory!\n", "error");
     exit 255;
 }
@@ -548,13 +548,13 @@ sub main
     $pki_instance_root = normalize_path($pki_instance_root);
 
     # Check for valid content of command-line arguments.
-    if ($pki_instance_root eq "") {
+    if (!$pki_instance_root) {
         emit("$0:  Must have value for -pki_instance_root!", "error");
         usage();
         exit 255;
     }
 
-    if ($pki_instance_name eq "") {
+    if (!$pki_instance_name) {
         emit("$0:  The instance ID of the PKI instance "
              . "to be removed is required!", "error");
         usage();

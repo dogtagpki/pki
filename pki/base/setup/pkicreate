@@ -60,7 +60,7 @@ umask 00002;
 # invocation directory has not been deleted!
 my $cwd = `/bin/pwd`;
 chomp $cwd;
-if ($cwd eq "") {
+if (!$cwd) {
     emit("Cannot invoke '$0' from non-existent directory!\n", "error");
     exit 255;
 }
@@ -929,7 +929,7 @@ sub parse_arguments
 
 
     ## Mandatory "-pki_instance_root=s" option
-    if ($pki_instance_root eq "") {
+    if (!$pki_instance_root) {
         usage();
         emit("Must have value for -pki_instance_root!\n", "error");
         return 0;
@@ -981,7 +981,7 @@ sub parse_arguments
 
 
     ## Mandatory "-pki_instance_name=s" option
-    if ($pki_instance_name eq "") {
+    if (!$pki_instance_name) {
         usage();
         emit("Must have value for -pki_instance_name!\n", "error");
         return 0;
@@ -1180,8 +1180,8 @@ sub parse_arguments
 
 
     ## Optional "-group=<groupname>" option
-    if (defined $groupname) {
-        if (!defined $username) {
+    if ($groupname) {
+        if (!$username) {
             usage();
             emit("Must ALSO specify user ownership using -user!\n",
                   "error");
@@ -1214,8 +1214,8 @@ sub parse_arguments
 
 
     ## Optional "-user=<username>" option
-    if (defined $username) {
-        if (!defined $groupname) {
+    if ($username) {
+        if (!$groupname) {
             usage();
             emit("Must ALSO specify group ownership using -group!\n",
                   "error");
@@ -1849,7 +1849,7 @@ sub process_pki_directories
                                   $default_dir_permissions, $pki_user, $pki_group);
 
     # Check for an optionally redirected "conf" directory path ...
-    if ($redirected_conf_path eq "") {
+    if (!$redirected_conf_path) {
         $noise_instance_file_path         = $conf_instance_path
                                           . "/" . $noise_base_name;
         $password_conf_instance_file_path = $conf_instance_path
@@ -1953,7 +1953,7 @@ sub process_pki_directories
 
 
     # Check for an optionally redirected "logs" directory path ...
-    if ($redirected_logs_path eq "") {
+    if (!$redirected_logs_path) {
         # create instance directory
         return 0 if !create_directory(${logs_instance_path},
                                       $default_dir_permissions, $pki_user, $pki_group);
@@ -2901,14 +2901,14 @@ sub process_pki_selinux_setup
 
     emit("configuring SELinux ...\n");
 
-    if ($redirected_logs_path eq "") {
+    if (!$redirected_logs_path) {
         $log_path = $logs_instance_path;
     }
     else {
         $log_path =$redirected_logs_path;
     }
 
-    if ($redirected_conf_path eq "") {
+    if (!$redirected_conf_path) {
         $conf_path = $conf_instance_path;
     }
     else {
@@ -2960,7 +2960,7 @@ sub process_pki_selinux_setup
 
     # set file context for $log_path
     $log_path =~ s/\/+$//;
-    if ($log_path eq "") {
+    if (!$log_path) {
         emit("Error: Cannot set selinux context $setype" . "_log_t for directory /");
     } else {
         if ($log_path ne $default_log_path) {
@@ -2973,7 +2973,7 @@ sub process_pki_selinux_setup
 
     # set file context for $conf_path
     $conf_path =~ s/\/+$//;
-    if ($conf_path eq "") {
+    if (!$conf_path) {
         emit("Error: Cannot set selinux context $setype" . "_etc_rw_t for directory /");
     } else {
         add_selinux_file_context($setype . "_etc_rw_t", 
