@@ -694,6 +694,10 @@ start_instance()
     $PKI_INSTANCE_INITSCRIPT start
     rv=$?
 
+    if [ $rv -ne 0 ] ; then
+        return $rv
+    fi
+
     # On Tomcat subsystems, make certain that the service has started
     case $PKI_SUBSYSTEM_TYPE in
         ca|kra|ocsp|tks)
@@ -710,6 +714,9 @@ start_instance()
                 sleep 1
                 let count=$count+1;
             done
+            if [ $netrv -ne 0 ] ; then
+                return 1
+            fi
             ;;
     esac
 
