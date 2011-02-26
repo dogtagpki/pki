@@ -1219,7 +1219,7 @@ bool RA_Enroll_Processor::CheckAndUpgradeApplet(
 			/* upgrade applet */
 			PR_snprintf((char *)configname, 256, "%s.%s.update.applet.directory", OP_PREFIX, a_tokenType);
 			applet_dir = RA::GetConfigStore()->GetConfigAsString(configname);
-			if (applet_dir == NULL) {
+			if (applet_dir == NULL || strlen(applet_dir) == 0) {
 				RA::Error(LL_PER_CONNECTION, FN,
 						"Failed to read applet directory parameter %s", configname);
 				o_status = STATUS_ERROR_MISCONFIGURATION;		 

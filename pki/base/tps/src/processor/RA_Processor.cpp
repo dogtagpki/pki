@@ -2849,7 +2849,7 @@ RA_Status RA_Processor::Format(RA_Session *session, NameValueSet *extensions, bo
     /* upgrade applet */
     PR_snprintf((char *)configname, 256, "%s.%s.update.applet.directory", OP_PREFIX, tokenType);
     applet_dir = RA::GetConfigStore()->GetConfigAsString(configname);
-    if (applet_dir == NULL) {
+    if (applet_dir == NULL || strlen(applet_dir) == 0) {
         RA::Error(LL_PER_PDU, "RA_Processor::UpdateApplet",
           "Failed to get %s", applet_dir);
         status = STATUS_ERROR_MISCONFIGURATION;		 

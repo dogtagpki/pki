@@ -308,7 +308,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
                 /* upgrade applet */
             PR_snprintf((char *)configname, 256, "%s.%s.update.applet.directory", OP_PREFIX, tokenType);
             applet_dir = RA::GetConfigStore()->GetConfigAsString(configname);
-            if (applet_dir == NULL) {
+            if (applet_dir == NULL || strlen(applet_dir) == 0) {
                 RA::Error(LL_PER_PDU, "RA_Processor::UpgradeApplet",
                                 "Failed to get %s", applet_dir);
                 PR_snprintf(audit_msg, 512, "Failed to get %s", applet_dir);
@@ -480,7 +480,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
                 final_applet_version != NULL ? final_applet_version : "", curVer, newVer,
                 "key changeover");
         key_change_over_success = 1;
-      }
+      } else { key_change_over_success = 1; }
     } else {
       PR_snprintf((char *)configname, 256, "%s.%s.tks.conn", OP_PREFIX, tokenType);
       connId = RA::GetConfigStore()->GetConfigAsString(configname);
