@@ -38,12 +38,7 @@ PKI_TKS_VERSION="9.0.0"
 ## Establish the SOURCE files/directories of the 'pki-tks' source directory
 ##
 
-PKI_DIR="pki"
-PKI_BASE_DIR="${PKI_DIR}/base"
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_TKS}.spec"
-PKI_FILE_LIST="CMakeLists.txt COPYING CPackConfig.cmake ConfigureChecks.cmake DefineOptions.cmake README cmake_uninstall.cmake.in config.h.cmake"
-PKI_CMAKE_DIR="cmake"
-PKI_BASE_MANIFEST="CMakeLists.txt"
 PKI_COMPONENT_LIST="tks"
 
 
@@ -105,89 +100,93 @@ rm -f  ${PKI_TKS_SRPMS_DIR}/${PKI_TKS}-${PKI_TKS_VERSION}*.rpm
 cp -p ${PKI_SPECS_FILE} ${PKI_TKS_SPECS_DIR}
 
 
-##
-## Always start with a new 'pki-tks' staging directory
-##
+if [ ${USE_PATCH_FILES} -eq 1 ] ; then
+	Retrieve_Source_Tarball_and_Patches ${PKI_SPECS_FILE} ${PKI_PATCHES_DIR} ${PKI_TKS_SOURCES_DIR}
+else
+	##
+	## Always start with a new 'pki-tks' staging directory
+	##
 
-rm -rf ${PKI_TKS_STAGING_DIR}
-
-
-##
-## To generate the 'pki-tks' tarball, construct a staging area
-## consisting of the 'pki-tks' source components from the
-## current contents of the PKI working repository
-##
-
-mkdir -p ${PKI_TKS_DIR}
-cd ${PKI_DIR}
-for file in "${PKI_FILE_LIST}" ;
-do
-	cp -p ${file} ${PKI_TKS_DIR}
-done
-find ${PKI_CMAKE_DIR}             \
-	-name .svn -prune -o          \
-	-name *.swp -prune -o         \
-	-print | cpio -pdum ${PKI_TKS_DIR} > /dev/null 2>&1
-cd - > /dev/null 2>&1
-
-mkdir -p ${PKI_TKS_BASE_DIR}
-cd ${PKI_BASE_DIR}
-cp -p ${PKI_BASE_MANIFEST} ${PKI_TKS_BASE_DIR}
-for component in "${PKI_COMPONENT_LIST}" ;
-do
-	find ${component}             \
-	-name .svn -prune -o          \
-	-name *.swp -prune -o         \
-	-name Makefile.am -prune -o   \
-	-name Makefile.in -prune -o   \
-	-name aclocal.m4 -prune -o    \
-	-name autogen.sh -prune -o    \
-	-name build.xml -prune -o     \
-	-name compile -prune -o       \
-	-name config.guess -prune -o  \
-	-name config.h.in -prune -o   \
-	-name config.sub -prune -o    \
-	-name configure -prune -o     \
-	-name configure.ac -prune -o  \
-	-name depcomp -prune -o       \
-	-name install-sh -prune -o    \
-	-name ltmain.sh -prune -o     \
-	-name m4 -prune -o            \
-	-name missing -prune -o       \
-	-name setup_package -prune -o \
-	-print | cpio -pdum ${PKI_TKS_BASE_DIR} > /dev/null 2>&1
-done
-cd - > /dev/null 2>&1
+	rm -rf ${PKI_TKS_STAGING_DIR}
 
 
-##
-## Due to the following lower-level 'config' subdirectories,
-## INDEPENDENTLY remove ALL top-level 'config' directories:
-##
-##     * ./console/src/com/netscape/admin/certsrv/config (N/A 'pki-tks')
-##     * ./tps/forms/tps/admin/console/config            (N/A 'pki-tks')
-##
+	##
+	## To generate the 'pki-tks' tarball, construct a staging area
+	## consisting of the 'pki-tks' source components from the
+	## current contents of the PKI working repository
+	##
 
-rm -rf ${PKI_TKS_BASE_DIR}/*/config
+	mkdir -p ${PKI_TKS_DIR}
+	cd ${PKI_DIR}
+	for file in "${PKI_FILE_LIST}" ;
+	do
+		cp -p ${file} ${PKI_TKS_DIR}
+	done
+	find ${PKI_CMAKE_DIR}             \
+		-name .svn -prune -o          \
+		-name *.swp -prune -o         \
+		-print | cpio -pdum ${PKI_TKS_DIR} > /dev/null 2>&1
+	cd - > /dev/null 2>&1
+
+	mkdir -p ${PKI_TKS_BASE_DIR}
+	cd ${PKI_BASE_DIR}
+	cp -p ${PKI_BASE_MANIFEST} ${PKI_TKS_BASE_DIR}
+	for component in "${PKI_COMPONENT_LIST}" ;
+	do
+		find ${component}             \
+		-name .svn -prune -o          \
+		-name *.swp -prune -o         \
+		-name Makefile.am -prune -o   \
+		-name Makefile.in -prune -o   \
+		-name aclocal.m4 -prune -o    \
+		-name autogen.sh -prune -o    \
+		-name build.xml -prune -o     \
+		-name compile -prune -o       \
+		-name config.guess -prune -o  \
+		-name config.h.in -prune -o   \
+		-name config.sub -prune -o    \
+		-name configure -prune -o     \
+		-name configure.ac -prune -o  \
+		-name depcomp -prune -o       \
+		-name install-sh -prune -o    \
+		-name ltmain.sh -prune -o     \
+		-name m4 -prune -o            \
+		-name missing -prune -o       \
+		-name setup_package -prune -o \
+		-print | cpio -pdum ${PKI_TKS_BASE_DIR} > /dev/null 2>&1
+	done
+	cd - > /dev/null 2>&1
 
 
-##
-## Create the 'pki-tks' tarball
-##
+	##
+	## Due to the following lower-level 'config' subdirectories,
+	## INDEPENDENTLY remove ALL top-level 'config' directories:
+	##
+	##     * ./console/src/com/netscape/admin/certsrv/config (N/A 'pki-tks')
+	##     * ./tps/forms/tps/admin/console/config            (N/A 'pki-tks')
+	##
 
-mkdir -p ${PKI_TKS_SOURCES_DIR}
-cd ${PKI_TKS_STAGING_DIR}
-gtar -zcvf ${PKI_TKS_TARBALL}    \
-	"${PKI_TKS}-${PKI_TKS_VERSION}" > /dev/null 2>&1
-mv ${PKI_TKS_TARBALL} ${PKI_TKS_SOURCES_DIR}
-cd - > /dev/null 2>&1
+	rm -rf ${PKI_TKS_BASE_DIR}/*/config
 
 
-##
-## Always remove the PKI staging area
-##
+	##
+	## Create the 'pki-tks' tarball
+	##
 
-rm -rf ${PKI_TKS_STAGING_DIR}
+	mkdir -p ${PKI_TKS_SOURCES_DIR}
+	cd ${PKI_TKS_STAGING_DIR}
+	gtar -zcvf ${PKI_TKS_TARBALL}    \
+		"${PKI_TKS}-${PKI_TKS_VERSION}" > /dev/null 2>&1
+	mv ${PKI_TKS_TARBALL} ${PKI_TKS_SOURCES_DIR}
+	cd - > /dev/null 2>&1
+
+
+	##
+	## Always remove the PKI staging area
+	##
+
+	rm -rf ${PKI_TKS_STAGING_DIR}
+fi
 
 
 ##

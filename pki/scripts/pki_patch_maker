@@ -1,0 +1,113 @@
+#!/bin/bash
+## BEGIN COPYRIGHT BLOCK
+## (C) 2011 Red Hat, Inc.
+## All rights reserved.
+## END COPYRIGHT BLOCK
+
+## This shell script must always be executed in the base
+## directory located one level above this shell script
+cd `dirname $0`/..
+
+
+##
+## Usage statement
+##
+
+Usage()
+{
+	printf "\n"
+	printf "Usage:  $0 <startrev> <endrev> <srpm> <basever>\n\n"
+	printf "        where:\n\n"
+	printf "            <startrev> is the starting SVN revision\n\n"
+	printf "            <endrev> is the ending SVN revision\n\n"
+	printf "            <srpm> is one of the following:\n\n"
+	printf "                 ipa-pki-theme\n"
+	printf "                 pki-core\n\n"
+	printf "            <basever> is the version of the specified <srpm>\n"
+	printf "\n"
+	printf "IMPORTANT:  Successful use of this script relies upon separation\n"
+	printf "            of 'pki-core' and 'ipa-pki-theme' check-ins.  All\n"
+	printf "            patch files automatically produced by this script\n"
+	printf "            should be applied and tested thoroughly before\n"
+	printf "            being accepted as proper patches.\n\n"
+}
+
+
+##
+## Identify source associated with srpm
+##
+IPA_PKI_THEME="dogtag/ca-ui dogtag/common-ui"
+PKI_CORE="base/ca base/common base/java-tools base/native-tools base/selinux base/setup base/silent base/symkey base/util"
+
+
+##
+## Check for command line argument validity
+##
+
+if [ $# -ne 4 ] ; then
+    printf "ERROR:  Insufficent parameters!\n"
+	Usage
+	exit 255
+fi
+
+startrev=$1
+endrev=$2
+srpm=$3
+basever=$4
+
+if [ ${srpm} == "pki-core" ]; then
+    source=${PKI_CORE}
+elif [ ${srpm} == "ipa-pki-theme" ]; then
+    source=${IPA_PKI_THEME}
+else
+    printf "ERROR:  Invalid <srpm> specified!\n"
+	Usage
+	exit 255
+fi
+
+if [ ${startrev} -ge ${endrev} ]; then
+    printf "ERROR:  <startrev> must be less than <endrev>!\n"
+	Usage
+	exit 255
+fi
+
+
+##
+## Always establish a new working directory
+##
+workingdir=/tmp/pki_patch_maker
+if [ ! -e ${workingdir} ]; then
+    mkdir ${workingdir}
+fi
+rm -rf ${workingdir}/${srpm}
+mkdir ${workingdir}/${srpm}
+
+
+##
+## Process specified SVN revision numbers
+##
+for i in ${source}
+do
+    svn log -q -r${startrev}:${endrev} $i |grep "^r"|awk '{print $1}'|sed 's/r//' >> ${workingdir}/${srpm}/revnos
+done
+
+cat ${workingdir}/${srpm}/revnos |sort |uniq > ${workingdir}/${srpm}/revnos2
+
+
+##
+## Generate patches for the specified SRPM based upon SVN revision numbers
+##
+while read rev0 
+do
+    svn diff -c $rev0 --diff-cmd /usr/bin/diff -x "-Nurb" > ${workingdir}/${srpm}/${srpm}-${basever}-r${rev0}.patch
+done < ${workingdir}/${srpm}/revnos2
+
+
+##
+## Generate sample changelog messages associated with these patches
+##
+while read rev0
+do
+    echo `svn log -r $rev0 |grep -i "Resolves"`, $rev0 >> ${workingdir}/${srpm}/changelog
+done < ${workingdir}/${srpm}/revnos2
+

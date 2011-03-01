@@ -38,12 +38,7 @@ DOGTAG_PKI_THEME_VERSION="9.0.1"
 ## Establish the SOURCE files/directories of the 'dogtag-pki' source directory
 ##
 
-PKI_DIR="pki"
-PKI_DOGTAG_DIR="${PKI_DIR}/dogtag"
 PKI_SPECS_FILE="${PKI_DIR}/specs/${DOGTAG_PKI_THEME}.spec"
-PKI_FILE_LIST="CMakeLists.txt COPYING CPackConfig.cmake ConfigureChecks.cmake DefineOptions.cmake README cmake_uninstall.cmake.in config.h.cmake"
-PKI_CMAKE_DIR="cmake"
-PKI_DOGTAG_MANIFEST="CMakeLists.txt"
 PKI_COMPONENT_LIST="common-ui ca-ui kra-ui ocsp-ui tks-ui ra-ui tps-ui console-ui"
 
 
@@ -73,6 +68,7 @@ DOGTAG_PKI_THEME_DOGTAG_DIR="${DOGTAG_PKI_THEME_DIR}/dogtag"
 ##
 
 mkdir -p ${PKI_PACKAGES}
+
 
 
 ##
@@ -105,77 +101,81 @@ rm -f  ${DOGTAG_PKI_THEME_SRPMS_DIR}/${DOGTAG_PKI_THEME}-${DOGTAG_PKI_THEME_VERS
 cp -p ${PKI_SPECS_FILE} ${DOGTAG_PKI_THEME_SPECS_DIR}
 
 
-##
-## Always start with a new 'dogtag-pki' staging directory
-##
+if [ ${USE_PATCH_FILES} -eq 1 ] ; then
+	Retrieve_Source_Tarball_and_Patches ${PKI_SPECS_FILE} ${PKI_PATCHES_DIR} ${DOGTAG_PKI_THEME_SOURCES_DIR}
+else
+	##
+	## Always start with a new 'dogtag-pki' staging directory
+	##
 
-rm -rf ${DOGTAG_PKI_THEME_STAGING_DIR}
-
-
-##
-## To generate the 'dogtag-pki' tarball, construct a staging area
-## consisting of the 'dogtag-pki' source components from the
-## current contents of the PKI working repository
-##
-
-mkdir -p ${DOGTAG_PKI_THEME_DIR}
-cd ${PKI_DIR}
-for file in "${PKI_FILE_LIST}" ;
-do
-	cp -p ${file} ${DOGTAG_PKI_THEME_DIR}
-done
-find ${PKI_CMAKE_DIR}             \
-	-name .svn -prune -o          \
-	-name *.swp -prune -o         \
-	-print | cpio -pdum ${DOGTAG_PKI_THEME_DIR} > /dev/null 2>&1
-cd - > /dev/null 2>&1
-
-mkdir -p ${DOGTAG_PKI_THEME_DOGTAG_DIR}
-cd ${PKI_DOGTAG_DIR}
-cp -p ${PKI_DOGTAG_MANIFEST} ${DOGTAG_PKI_THEME_DOGTAG_DIR}
-for component in "${PKI_COMPONENT_LIST}" ;
-do
-	find ${component}             \
-	-name .svn -prune -o          \
-	-name config-ext -prune -o    \
-	-name *.spec -prune -o        \
-	-name *.swp -prune -o         \
-	-name build.xml -prune -o     \
-	-name build_dogtag -prune -o  \
-	-print | cpio -pdum ${DOGTAG_PKI_THEME_DOGTAG_DIR} > /dev/null 2>&1
-done
-cd - > /dev/null 2>&1
+	rm -rf ${DOGTAG_PKI_THEME_STAGING_DIR}
 
 
-##
-## Due to the following lower-level 'config' subdirectories,
-## INDEPENDENTLY remove ALL top-level 'config' directories:
-##
-##     * ./common-ui/shared/admin/console/config
-##     * ./ra-ui/shared/docroot/ra/admin/console/config
-##     * ./tps-ui/shared/docroot/tps/admin/console/config
-##
+	##
+	## To generate the 'dogtag-pki' tarball, construct a staging area
+	## consisting of the 'dogtag-pki' source components from the
+	## current contents of the PKI working repository
+	##
 
-rm -rf ${DOGTAG_PKI_THEME_DOGTAG_DIR}/*/config
+	mkdir -p ${DOGTAG_PKI_THEME_DIR}
+	cd ${PKI_DIR}
+	for file in "${PKI_FILE_LIST}" ;
+	do
+		cp -p ${file} ${DOGTAG_PKI_THEME_DIR}
+	done
+	find ${PKI_CMAKE_DIR}             \
+		-name .svn -prune -o          \
+		-name *.swp -prune -o         \
+		-print | cpio -pdum ${DOGTAG_PKI_THEME_DIR} > /dev/null 2>&1
+	cd - > /dev/null 2>&1
+
+	mkdir -p ${DOGTAG_PKI_THEME_DOGTAG_DIR}
+	cd ${PKI_DOGTAG_DIR}
+	cp -p ${PKI_DOGTAG_MANIFEST} ${DOGTAG_PKI_THEME_DOGTAG_DIR}
+	for component in "${PKI_COMPONENT_LIST}" ;
+	do
+		find ${component}             \
+		-name .svn -prune -o          \
+		-name config-ext -prune -o    \
+		-name *.spec -prune -o        \
+		-name *.swp -prune -o         \
+		-name build.xml -prune -o     \
+		-name build_dogtag -prune -o  \
+		-print | cpio -pdum ${DOGTAG_PKI_THEME_DOGTAG_DIR} > /dev/null 2>&1
+	done
+	cd - > /dev/null 2>&1
 
 
-##
-## Create the 'dogtag-pki' tarball
-##
+	##
+	## Due to the following lower-level 'config' subdirectories,
+	## INDEPENDENTLY remove ALL top-level 'config' directories:
+	##
+	##     * ./common-ui/shared/admin/console/config
+	##     * ./ra-ui/shared/docroot/ra/admin/console/config
+	##     * ./tps-ui/shared/docroot/tps/admin/console/config
+	##
 
-mkdir -p ${DOGTAG_PKI_THEME_SOURCES_DIR}
-cd ${DOGTAG_PKI_THEME_STAGING_DIR}
-gtar -zcvf ${DOGTAG_PKI_THEME_TARBALL}    \
-	"${DOGTAG_PKI_THEME}-${DOGTAG_PKI_THEME_VERSION}" > /dev/null 2>&1
-mv ${DOGTAG_PKI_THEME_TARBALL} ${DOGTAG_PKI_THEME_SOURCES_DIR}
-cd - > /dev/null 2>&1
+	rm -rf ${DOGTAG_PKI_THEME_DOGTAG_DIR}/*/config
 
 
-##
-## Always remove the PKI staging area
-##
+	##
+	## Create the 'dogtag-pki' tarball
+	##
 
-rm -rf ${DOGTAG_PKI_THEME_STAGING_DIR}
+	mkdir -p ${DOGTAG_PKI_THEME_SOURCES_DIR}
+	cd ${DOGTAG_PKI_THEME_STAGING_DIR}
+	gtar -zcvf ${DOGTAG_PKI_THEME_TARBALL}    \
+		"${DOGTAG_PKI_THEME}-${DOGTAG_PKI_THEME_VERSION}" > /dev/null 2>&1
+	mv ${DOGTAG_PKI_THEME_TARBALL} ${DOGTAG_PKI_THEME_SOURCES_DIR}
+	cd - > /dev/null 2>&1
+
+
+	##
+	## Always remove the PKI staging area
+	##
+
+	rm -rf ${DOGTAG_PKI_THEME_STAGING_DIR}
+fi
 
 
 ##
