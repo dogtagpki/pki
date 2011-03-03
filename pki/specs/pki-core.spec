@@ -254,6 +254,8 @@ Requires:         %{_javadir}/velocity.jar
 Requires:         %{_javadir}/xalan-j2.jar
 Requires:         %{_javadir}/xalan-j2-serializer.jar
 Requires:         %{_javadir}/xerces-j2.jar
+Requires:         %{_javadir}/xml-commons-apis.jar
+Requires:         %{_javadir}/xml-commons-resolver.jar
 Requires:         velocity
 
 %description -n   pki-common
