@@ -95,6 +95,22 @@ public class GetStats extends CMSServlet {
         IAuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
 
+        try {
+            authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "read");
+        } catch (EAuthzAccessDenied e) {
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+        }
+
+        if (authzToken == null) {
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            return;
+        }
+
         // Construct an ArgBlock
         IArgBlock args = cmsReq.getHttpParams();
 

@@ -580,6 +580,8 @@
                          <param-value> /agent/ca/getStats.template </param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
                          <param-value> stats </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
              <init-param><param-name>  resourceID  </param-name>
                          <param-value> certServer.ca.systemstatus </param-value> </init-param>
              <init-param><param-name>  AuthMgr     </param-name>
