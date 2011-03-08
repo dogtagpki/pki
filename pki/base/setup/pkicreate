@@ -596,7 +596,7 @@ if ($^O eq "linux") {
         # 64-bit Linux
 
         # Supported hardware token PKCS #11 modules
-        %supported_sec_modules_hash = ("lunasa" => "/usr/lunasa/lib/libCryptoki2.so",
+        %supported_sec_modules_hash = ("lunasa" => "/usr/lunasa/lib/libCryptoki2_64.so",
                                        "nfast"  => "/opt/nfast/toolkits/pkcs11/libcknfast.so");
     } else {
         emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!\n", "error");
