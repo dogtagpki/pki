@@ -100,6 +100,9 @@ public class ConfigureOCSP
     public static String bind_password = null;
     public static String base_dn = null;
     public static String db_name = null;
+    public static String secure_conn = null;
+    public static String clone_start_tls = null;
+    public static String remove_data = null;
 
     public static String key_type = null;
     public static String key_size = null;
@@ -401,7 +404,9 @@ public class ConfigureOCSP
                                 "&basedn=" + URLEncoder.encode(base_dn) +
                                 "&database=" + URLEncoder.encode(db_name) +
                                 "&display=" + URLEncoder.encode("$displayStr") +
-                                ""; 
+                                (secure_conn.equals("true")? "&secureConn=on": "") +
+                                (clone_start_tls.equals("true")? "&cloneStartTLS=on": "") +
+                                (remove_data.equals("true")? "&removeData=true": "");
 
         hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
 
@@ -962,6 +967,9 @@ public class ConfigureOCSP
         StringHolder x_bind_password = new StringHolder();
         StringHolder x_base_dn = new StringHolder();
         StringHolder x_db_name = new StringHolder();
+        StringHolder x_secure_conn = new StringHolder();
+        StringHolder x_clone_start_tls = new StringHolder();
+        StringHolder x_remove_data = new StringHolder();
 
         // key properties (defaults)
         StringHolder x_key_size = new StringHolder();
@@ -1067,6 +1075,9 @@ public class ConfigureOCSP
                             x_base_dn); 
         parser.addOption ("-db_name %s #db name",
                             x_db_name); 
+        parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn); 
+        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data); 
+        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls); 
 
         // key and algorithm options (default)
         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type);
@@ -1173,6 +1184,9 @@ public class ConfigureOCSP
         bind_password = x_bind_password.value;
         base_dn = x_base_dn.value;
         db_name = x_db_name.value;
+        secure_conn = set_default(x_secure_conn.value, "false");
+        remove_data = set_default(x_remove_data.value, "false");
+        clone_start_tls = set_default(x_clone_start_tls.value, "false");
 
         key_type = set_default(x_key_type.value, DEFAULT_KEY_TYPE);
         signing_key_type = set_default(x_signing_key_type.value, key_type);

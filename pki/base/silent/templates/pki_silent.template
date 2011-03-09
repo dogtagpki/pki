@@ -379,7 +379,9 @@ pki_silent_tps_log=/tmp/tps.log
 ##         ca_signing_signingalgorithm      - optionally specify the algorithm used by the CA signing cert to sign objects
 ##         ca_ocsp_signing_signingalgorithm - optionally specify the algorithm used by the CA ocsp signing cert to sign objects
 ##
-
+##  NOTE:  Additional variables to specify the LDAP connection are as follows:
+##         remove_data                       - set to true/false.  Remove any existing data found under the baseDN
+##         secure_conn                       - use the ldaps port
 ca_agent_name="CA\ Administrator\ of\ Instance\ ${ca_instance_name}\'s\ ${pki_security_domain_name}\ ID"
 ca_agent_key_size=2048
 ca_agent_key_type=rsa
@@ -418,12 +420,16 @@ ca_audit_signing_cert_subject_name="cn=CA\ Audit\ Signing\ Certificate,o=${pki_s
 ##  sd_admin_port=
 ##  sd_admin_name=
 ##  sd_admin_password=
+##  clone_start_tls=false
 ##
 ##  NOTES: 
 ##  1. ca_clone_p12_file must be just the filename relative to the alias directory.
 ##     So in the example above, ca_clone_p12_file="ca-master.p12"
 ##  2. sd_* refer to the CA where the security domain is hosted. 
 ##  3. clone_uri has the following format: https://<hostname>:<EE port> fo the CA to be cloned
+##  4. clone_start_tls can be set to true if we require replication between the master and clone databases 
+##     to be encrypted using startTLS on the standard (non-ldaps) port.  The databases must 
+##     be ssl enabled first or the replication will fail.
 ##
 ##  ADDITIONAL NOTES:
 ##  1. The clone CA and master CA cannot share the same database instance.  A new 
@@ -521,11 +527,15 @@ ca_audit_signing_cert_subject_name="cn=CA\ Audit\ Signing\ Certificate,o=${pki_s
 ##  kra_clone_p12_file=          
 ##  kra_clone_p12_password=
 ##  kra_clone_uri=
+##  clone_start_tls=false
 ##
 ##  NOTES: 
 ##  1. drm_clone_p12_file must be just the filename relative to the alias directory.
 ##     So in the example above, drm_clone_p12_file="drm-master.p12"
 ##  2. drm_clone_uri has the following format: https://<hostname>:<EE port> of the DRM to be cloned
+##  3. clone_start_tls can be set to true if we require replication between the master and clone databases 
+##     to be encrypted using startTLS on the standard (non-ldaps) port.  The databases must 
+##     be ssl enabled first or the replication will fail.
 ##
 ##  ADDITIONAL NOTES:
 ##  1. The clone DRM and master DRM cannot share the same database instance.  A new 
@@ -1175,6 +1185,7 @@ pkisilent ConfigureCA \
 #       -sd_admin_port ${sd_admin_port} \
 #       -sd_admin_name ${sd_admin_name} \
 #       -sd_admin_password ${sd_admin_password} \
+#       -clone_start_tls ${clone_start_tls} \
 #	| tee ${pki_silent_ca_log}
 
 ##  Restart CA
@@ -1440,6 +1451,7 @@ pkisilent ConfigureDRM \
 #       -clone_p12_file ${kra_clone_p12_file} \
 #       -clone_p12_password ${kra_clone_p12_password} \
 #       -clone_uri ${kra_uri} \
+#       -clone_start_tls ${clone_start_tls} \
 #	| tee ${pki_silent_kra_log}
 
 ##  Restart drm

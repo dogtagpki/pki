@@ -146,6 +146,7 @@ public class DatabasePanel extends WizardPanelBase {
         String database = null;
         String errorString = "";
         String secure = "false";
+        String cloneStartTLS = "false";
         try {
             String s = cs.getString("preop.database.removeData");
         } catch (Exception e) {
@@ -166,6 +167,7 @@ public class DatabasePanel extends WizardPanelBase {
                 binddn = cs.getString("internaldb.ldapauth.bindDN", "");
                 database = cs.getString("internaldb.database", "");
             	secure =  cs.getString("internaldb.ldapconn.secureConn", "");
+            	cloneStartTLS =  cs.getString("internaldb.ldapconn.cloneStartTLS", "");
                 errorString = cs.getString("preop.database.errorString", "");
             } catch (Exception e) {
                 CMS.debug("DatabasePanel display: " + e.toString());
@@ -220,7 +222,8 @@ public class DatabasePanel extends WizardPanelBase {
         context.put("binddn", binddn);
         context.put("bindpwd", bindpwd);
         context.put("database", database);
-		context.put("secureConn", (secure.equals("true")? "on":"off"));
+        context.put("secureConn", (secure.equals("true")? "on":"off"));
+        context.put("cloneStartTLS", (cloneStartTLS.equals("true")? "on":"off"));
         context.put("panel", "admin/console/config/databasepanel.vm");
         context.put("errorString", errorString);
     }
@@ -278,6 +281,9 @@ public class DatabasePanel extends WizardPanelBase {
 
         String secure = HttpInput.getCheckbox(request, "secureConn");
         context.put("secureConn", secure);
+
+        String cloneStartTLS = HttpInput.getCheckbox(request, "cloneStartTLS");
+        context.put("cloneStartTLS", cloneStartTLS);
 
         String select = "";
         try {
@@ -866,6 +872,9 @@ public class DatabasePanel extends WizardPanelBase {
         cs.putString("internaldb.database", database2);
         String secure = HttpInput.getCheckbox(request, "secureConn");
         cs.putString("internaldb.ldapconn.secureConn", (secure.equals("on")?"true":"false"));
+        String cloneStartTLS = HttpInput.getCheckbox(request, "cloneStartTLS");
+        cs.putString("internaldb.ldapconn.cloneStartTLS", (cloneStartTLS.equals("on")?"true":"false"));
+
         String remove = HttpInput.getID(request, "removeData");
         if (isPanelDone() && (remove == null || remove.equals(""))) {
              /* if user submits the same data, they just want to skip 
@@ -987,7 +996,7 @@ public class DatabasePanel extends WizardPanelBase {
         // setup replication after indexes have been created
         if (select.equals("clone")) {
             CMS.debug("Start setting up replication.");
-            setupReplication(request, context, (secure.equals("on")?"true":"false"));
+            setupReplication(request, context, (secure.equals("on")?"true":"false"), (cloneStartTLS.equals("on")?"true":"false"));
             CMS.debug("Finish setting up replication.");
 
             try {
@@ -1016,7 +1025,7 @@ public class DatabasePanel extends WizardPanelBase {
     }
 
     private void setupReplication(HttpServletRequest request,
-				  Context context, String secure) throws IOException {
+				  Context context, String secure, String cloneStartTLS) throws IOException {
         String bindpwd = HttpInput.getPassword(request, "__bindpwd");
         IConfigStore cs = CMS.getConfigStore();
  
@@ -1122,10 +1131,10 @@ public class DatabasePanel extends WizardPanelBase {
             CMS.debug("DatabasePanel setupReplication: Finished enabling replication");
 
             createReplicationAgreement(replicadn, conn1, masterAgreementName, 
-              master2_hostname, master2_port, master2_replicationpwd, basedn, cloneBindUser, secure);
+              master2_hostname, master2_port, master2_replicationpwd, basedn, cloneBindUser, secure, cloneStartTLS);
 
             createReplicationAgreement(replicadn, conn2, cloneAgreementName, 
-              master1_hostname, master1_port, master1_replicationpwd, basedn, masterBindUser, secure);
+              master1_hostname, master1_port, master1_replicationpwd, basedn, masterBindUser, secure, cloneStartTLS);
 
             // initialize consumer
             initializeConsumer(replicadn, conn1, masterAgreementName);
@@ -1320,7 +1329,7 @@ public class DatabasePanel extends WizardPanelBase {
 
     private void createReplicationAgreement(String replicadn, 
       LDAPConnection conn, String name, String replicahost, int replicaport, 
-      String replicapwd, String basedn, String bindUser, String secure) throws LDAPException {
+      String replicapwd, String basedn, String bindUser, String secure, String cloneStartTLS) throws LDAPException {
         String dn = "cn="+name+","+replicadn;
         CMS.debug("DatabasePanel createReplicationAgreement: dn: "+dn);
         LDAPEntry entry = null;
@@ -1341,7 +1350,10 @@ public class DatabasePanel extends WizardPanelBase {
 
             if (secure.equals("true")) {
                 attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "SSL"));
+            } else if (cloneStartTLS.equals("true")) {
+                attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "TLS"));
             }
+
             CMS.debug("About to set description attr to " + name);
             attrs.add(new LDAPAttribute("description",name));
 
