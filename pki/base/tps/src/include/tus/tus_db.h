@@ -132,7 +132,7 @@
 #define SUBGROUP_ID         "cn"
 
 /* roles */
-#define OPERATOR            "Officers"
+#define OPERATOR            "Operators"
 #define AGENT               "Agents"
 #define ADMINISTRATOR       "Administrators"
 #define MAX_RETRIES         2

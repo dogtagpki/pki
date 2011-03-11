@@ -95,7 +95,7 @@ extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
 #define BASE64_HEADER "-----BEGIN CERTIFICATE-----\n"
 #define BASE64_FOOTER "-----END CERTIFICATE-----\n"
 
-#define TOKENDB_OPERATORS_IDENTIFIER       "TUS Officers"
+#define TOKENDB_OPERATORS_IDENTIFIER       "TUS Operators"
 #define TOKENDB_AGENTS_IDENTIFIER         "TUS Agents"
 #define TOKENDB_ADMINISTRATORS_IDENTIFIER "TUS Administrators"
 
@@ -6384,7 +6384,7 @@ mod_tokendb_handler( request_rec *rq )
                  e = get_next_entry( e ) ) {
                 char *dn = NULL;
                 dn = get_dn(e);
-                if (PL_strstr(dn, "Officers"))
+                if (PL_strstr(dn, "Operators"))
                     officer=true; 
                 if (PL_strstr(dn, "Agents"))
                     agent = true; 

@@ -712,7 +712,7 @@ TPS_PUBLIC char *tus_authenticate(char *cert)
 /*********
  * tus_authorize
  * parameters passed in: 
- *   char * group ("TUS Agents", "TUS Officers", "TUS Administrators") 
+ *   char * group ("TUS Agents", "TUS Operators", "TUS Administrators") 
  *   const char* userid
  * returns : 1 if userid is member of that group
  *           0 otherwise
@@ -2336,7 +2336,7 @@ TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPa
  * summary: adds user to be member of group (administrators, agents, operators)
  * params: agentid -user who is performing this change
  *       : userid - userid of user to be added to role
- *       : role - Officers, Agents or Administrators
+ *       : role - Operators, Agents or Administrators
  * returns: LDAP return code
  */
 TPS_PUBLIC int add_user_to_role_db_entry(const char *agentid, char *userid, const char *role) {
@@ -2377,7 +2377,7 @@ TPS_PUBLIC int add_user_to_role_db_entry(const char *agentid, char *userid, cons
  * summary: removes user from role group (administrators, agents, operators)
  * params: agentid -user who is performing this change
  *       : userid - userid of user to be removed from role
- *       : role - Officers, Agents or Administrators
+ *       : role - Operators, Agents or Administrators
  *  returns: LDAP return code
  */
 TPS_PUBLIC int delete_user_from_role_db_entry(const char *agentid, char *userid, const char *role) {

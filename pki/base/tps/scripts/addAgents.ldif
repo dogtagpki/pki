@@ -43,7 +43,7 @@ objectClass: top
 objectClass: groupOfNames
 cn: TUS Officers
 member: uid=admin,ou=People,$TOKENDB_ROOT
-description: Operators for TUS
+description: Security Officers for TUS
 
 dn: cn=TUS Administrators,ou=Groups,$TOKENDB_ROOT
 objectClass: top
@@ -51,3 +51,10 @@ objectClass: groupOfNames
 cn: TUS Administrators
 member: uid=admin,ou=People,$TOKENDB_ROOT
 description: Administrators for TUS
+
+dn: cn=TUS Operators,ou=Groups,$TOKENDB_ROOT
+objectClass: top
+objectClass: groupOfNames
+cn: TUS Operators
+member: uid=admin,ou=People,$TOKENDB_ROOT
+description: Operators for TUS
