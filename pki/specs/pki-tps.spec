@@ -1,5 +1,5 @@
 Name:             pki-tps
-Version:          9.0.0
+Version:          9.0.1
 Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
@@ -214,6 +214,23 @@ fi
 
 
 %changelog
+* Thu Mar 17 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
+- Bugzilla Bug #688763 - Rebase updated Dogtag Packages for Fedora 15 (alpha)
+- Bugzilla Bug #676421 - CC: Remove unused TPS interface calls and add
+  audit logging
+- Bugzilla Bug #676678 - Missing audit log messages for Secure Channel
+  Generation.
+- Bugzilla Bug #606944 - Convert TPS to use ldap utilities and API from
+  OpenLDAP instead of the Mozldap
+- Bugzilla Bug #676152 - Token enrollment with symmetric key change over
+  fails.
+- Bugzilla Bug #674396 - TPS: some audit signatures failed to verify
+- Bugzilla Bug #680567 - CC doc: remove update.applet.directory audit
+  message from TPS doc.
+- Bugzilla Bug #681066 - TPS authentication crash when exercising audit
+  log message.
+- Bugzilla Bug #684259 - incorrect group used for tps operators
+
 * Wed Dec 1 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0
 - Bugzilla Bug #620863 - saved CS.cfg files should be moved to a subdirectory

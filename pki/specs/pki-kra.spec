@@ -1,5 +1,5 @@
 Name:             pki-kra
-Version:          9.0.0
+Version:          9.0.1
 Release:          1%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
@@ -159,6 +159,10 @@ fi
 
 
 %changelog
+* Thu Mar 17 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
+- Bugzilla Bug #688763 - Rebase updated Dogtag Packages for Fedora 15 (alpha)
+- Bugzilla Bug #673638 - Installation within IPA hangs
+
 * Wed Dec 1 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0
 - Bugzilla Bug #620925 - CC: auditor needs to be able to download audit logs

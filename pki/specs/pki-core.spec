@@ -1,6 +1,6 @@
 Name:             pki-core
-Version:          9.0.3
-Release:          2%{?dist}
+Version:          9.0.4
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -592,6 +592,36 @@ fi
 
 
 %changelog
+* Thu Mar 17 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
+- Bugzilla Bug #688763 - Rebase updated Dogtag Packages for Fedora 15 (alpha)
+- Bugzilla Bug #676182 - IPA installation failing - Fails to create CA
+  instance
+- Bugzilla Bug #675742 - Profile caIPAserviceCert Not Found
+- 'pki-setup'
+-     Bugzilla Bug #678157 - uninitialized variable warnings from Perl
+-     Bugzilla Bug #679574 - Velocity fails to load all dependent classes
+-     Bugzilla Bug #680420 - xml-commons-apis.jar dependency
+-     Bugzilla Bug #682013 - pkisilent needs xml-commons-apis.jar in it's
+      classpath
+-     Bugzilla Bug #673508 - CS8 64 bit pkicreate script uses wrong library
+      name for SafeNet LunaSA
+- 'pki-common'
+-     Bugzilla Bug #673638 - Installation within IPA hangs
+-     Bugzilla Bug #678715 - netstat loop fixes needed
+-     Bugzilla Bug #673609 - CC: authorize() call needs to be added to
+      getStats servlet
+- 'pki-selinux'
+-     Bugzilla Bug #674195: SELinux error message thrown during token
+      enrollment
+- 'pki-ca'
+-     Bugzilla Bug #673638 - Installation within IPA hangs
+-     Bugzilla Bug #673609 - CC: authorize() call needs to be added to
+      getStats servlet
+-     Bugzilla Bug #676330 - init script cannot start service
+- 'pki-silent'
+-     Bugzilla Bug #682013 - pkisilent needs xml-commons-apis.jar in it's
+      classpath
+
 * Wed Feb 9 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-2
 - 'pki-common'
 -     Bugzilla Bug #676051 - IPA installation failing - Fails to create CA

@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.1
+Version:          9.0.2
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -346,6 +346,15 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Thu Mar 17 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
+- Bugzilla Bug #688763 - Rebase updated Dogtag Packages for Fedora 15 (alpha)
+- Bugzilla Bug #676421 - CC: Remove unused TPS interface calls and add
+  audit logging
+- Bugzilla Bug #606944 - Convert TPS to use ldap utilities and API from
+  OpenLDAP instead of the Mozldap
+- Bugzilla Bug #678142 - Flakey JAR packaging encountered on Fedora 15
+  when using Mock
+
 * Fri Feb 4 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
 - Bugzilla Bug #606944 - Convert TPS to use ldap utilities and API from
   OpenLDAP instead of the Mozldap
