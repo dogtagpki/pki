@@ -648,6 +648,10 @@ pkicreate -pki_instance_root=<pki_instance_root>   # Instance root directory
 
           #####################################################################
           ###   OR SELECT a single secure port shared by AGENT,EE and ADMIN ###
+          ###                                                               ###
+          ###   WARNING:  Use of a single shared secure port has been       ###
+          ###             DEPRECATED!  Use 'port separation' in conjunction ###
+          ###             with 'port forwarding' to emulate this behavior.  ###
           #####################################################################
 
           -secure_port=<secure_port>               # Secure port
