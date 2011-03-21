@@ -151,7 +151,7 @@ function doAdd(form) {
       </font>
     </td>
     <td> Operator
-      <input TYPE=CHECKBOX NAME=opOperator value="Officers" CHECKED>
+      <input TYPE=CHECKBOX NAME=opOperator value="Operators" CHECKED>
       &nbsp;&nbsp;&nbsp;&nbsp;Agent
       <input TYPE=CHECKBOX NAME=opAgent value="Agents" >
       &nbsp;&nbsp;&nbsp;&nbsp;Admin

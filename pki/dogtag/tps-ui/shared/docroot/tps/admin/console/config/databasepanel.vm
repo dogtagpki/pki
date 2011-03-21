@@ -59,7 +59,7 @@ Each instance needs access to a Fedora Directory Server instance to store reques
         <th>Port:</th>
                                 
         <td><input type="text" size="40" name="port" value="$portStr" />  
-<input type="CHECKBOX" NAME="secureConn">SSL
+<input type="CHECKBOX" NAME="secureConn" value="true">SSL
 </td>
       </tr>       
       <tr>

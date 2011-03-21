@@ -130,7 +130,7 @@ if (typeof(results) == "undefined" || results.length == 0) {
     document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
                    "Role:&nbsp;</font>\n");
     document.write("</td>\n");
-    document.write("<td ><input type=checkbox name=opOperator value=Officers disabled=true " + operator + ">Operator</td>\n");
+    document.write("<td ><input type=checkbox name=opOperator value=Operators disabled=true " + operator + ">Operator</td>\n");
     document.write("<td ><input type=checkbox name=opAgent value=Agents disabled=true " + agent + ">Agent</td>\n");
     document.write("<td ><input type=checkbox name=opAdmin value=Administrators disabled=true " + admin + ">Administrator</td>\n");
     document.write("</tr>\n");
