@@ -279,25 +279,26 @@ sub update_domain
 
 sub remove_fcontext
 {
-    my ($fcontext, $fname, $ftype) = @_;
-    my $errs;
-
+    my ($fcontext, $fname, $ftype, $cmd_ref) = @_;
     emit(sprintf("remove_fcontext(%s)\n", join(", ", @_)), "debug");
 
-    return if $dry_run;
+    my $tmp = `$semanage fcontext -l -C |grep $fcontext |grep $fname |wc -l`;
+    chomp $tmp;
+    if ($tmp eq "0" ) {
+        emit("File context $fcontext for $fname defined in policy, not deleted", "debug");
+        return 0;
+    } 
 
     if ($ftype eq "f") {
-        $errs = `$semanage fcontext -d -t $fcontext -f -- $fname 2>&1`
+        $$cmd_ref .= "fcontext -d -t $fcontext -f -- $fname\n";
     } else {
-        $errs = `$semanage fcontext -d -t $fcontext $fname 2>&1`
-    }
-    if (($? != 0)  && ($errs !~ /defined in policy, cannot be deleted/)) {
-        emit("Failed setting selinux file context $fcontext for $fname ($errs)", "error");
+        $$cmd_ref .= "fcontext -d -t $fcontext $fname\n";
     }
 }
 
-sub remove_selinux_fcontexts
+sub get_selinux_fcontexts
 {
+    my ($cmd_ref) = @_;
     my $setype                = "pki_" . $subsystem_type;
     my $default_instance_name = "pki-" . $subsystem_type;
     my $default_instance_root = "/var/lib";
@@ -324,47 +325,46 @@ sub remove_selinux_fcontexts
         $conf_path = readlink $conf_path;
     };
 
-    print STDOUT "Removing selinux file contexts.\n";
-
     # For backwards compatibility, support removal of instances
     # which use the legacy start/stop implementation
     if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
         # remove context for "$default_initscripts_path/$pki_instance_name"
         if ($pki_instance_name ne $default_instance_name) {
             remove_fcontext($setype . "_script_exec_t", 
-                              "/etc/rc\\.d/init\\.d/$pki_instance_name", "f");
+                              "/etc/rc\\.d/init\\.d/$pki_instance_name", "f", $cmd_ref);
         }
     }
 
     # remove context for $pki_instance_root/$pki_instance_name
     if (($pki_instance_name ne $default_instance_name) || ($pki_instance_root ne $default_instance_root)) {
         remove_fcontext($setype . "_var_lib_t", 
-            "\"$pki_instance_root/$pki_instance_name(/.*)?\"", "a");
+            "\"$pki_instance_root/$pki_instance_name(/.*)?\"", "a", $cmd_ref);
     }
 
     # remove context for /var/run/$pki_instance_name.pid
     if (($java_component) && ($pki_instance_name ne $default_instance_name)) {
         remove_fcontext($setype . "_var_run_t", 
-            "/var/run/$pki_instance_name\\.pid", "f");
+            "/var/run/$pki_instance_name" . '.pid', "f", $cmd_ref);
     }
 
     # remove context for $log_path
     if ($log_path ne $default_log_path) {
         remove_fcontext($setype . "_log_t",
-            "\"$log_path(/.*)?\"", "a"); 
+            "\"$log_path(/.*)?\"", "a", $cmd_ref); 
     }
 
     # remove context for $conf_path
     if ($conf_path ne $default_conf_path) {
          remove_fcontext($setype . "_etc_rw_t",
-             "\"$conf_path(/.*)?\"", "a");
+             "\"$conf_path(/.*)?\"", "a", $cmd_ref);
     }
 
 }
 
 
-sub remove_selinux_ports
+sub get_selinux_ports
 {
+    my ($cmd_ref) = @_;
     my $status;
     my $semanage = "/usr/sbin/semanage";
     my $secure_port;
@@ -411,17 +411,12 @@ sub remove_selinux_ports
     print(STDOUT "\n");
     foreach my $port (@ports) {
         my $setype = "pki_" . $subsystem_type . "_port_t";
-        my $errs;
-        print STDOUT "Removing port $port from selinux policy.\n";
-	next if $dry_run;
-        $errs = `$semanage port -d -t $setype -ptcp $port 2>&1`;
-        if ($? != 0)  {
-            if ($errs !~ /defined in policy, cannot be deleted/) {
-                warn "Port $port not removed from selinux policy correctly.\n";
-                print $errs;
-            } else {
-                print "Port $port not removed from selinux policy because it is defined in policy.\nThis is OK.\n";
-            }
+        my $tmp = `$semanage port -l -C |grep $setype |grep $port | wc -l`;
+        chomp $tmp;
+        if ($tmp eq "0") {
+            emit("Port context $setype for $port defined in policy, not deleting", "debug");        
+        } else {
+            $$cmd_ref .= "port -d -t $setype -ptcp $port\n";
         }
     }
 }
@@ -459,11 +454,25 @@ ASK_AGAIN:
     warn "Error updating security domain: " . $@ if $@;
 
     if (($^O eq "linux") && (is_Fedora() || (is_RHEL() && (! is_RHEL4())))) {
-        eval { remove_selinux_ports(); };
-        warn "Error removing selinux ports: " . $@ if $@; 
+        my $semanage_cmds = "";
 
-        eval { remove_selinux_fcontexts(); };
-        warn "Error removing selinux file contexts: " . $@ if $@;
+        eval { get_selinux_ports(\$semanage_cmds); };
+        warn "Error getting selinux ports: " . $@ if $@; 
+
+        eval { get_selinux_fcontexts(\$semanage_cmds); };
+        warn "Error getting selinux file contexts: " . $@ if $@;
+
+        print STDOUT "Removing selinux contexts\n";
+        if ($semanage_cmds ne "") {
+            emit("Executing selinux commands in batch mode.\n", "debug");
+            if (! $dry_run) {
+                if (! run_command("$semanage -S targeted -i - " . '<< _EOF' . "\n$semanage_cmds\n" . '_EOF' . "\n")) {
+                    emit("Error executing selinux batch commands\n", "error");
+                }
+            }
+        } else {
+            emit("No selinux contexts need to be removed.  No need to run semanage. \n");
+        } 
     }
 
     # De-register this instance with "chkconfig"
