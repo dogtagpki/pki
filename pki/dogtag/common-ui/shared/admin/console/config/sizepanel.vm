@@ -34,6 +34,7 @@ div#simple
 var rsalist="${rsalist}";
 var ecclist="${ecclist}"; 
 var curvelist="${curvelist}";
+var displaycurvelist = "${displaycurvelist}";
 
 function myOnLoad() {
    var form = document.forms[0];
@@ -322,7 +323,7 @@ function curveChange()
 
 function displayCurveList()
 {
-  var list = curvelist.split(",");
+  var list = displaycurvelist.split(",");
   var linelen = 0;
   for (var i=0; i < list.length -1 ; i++) {
     document.write(list[i] + ",");
@@ -336,7 +337,7 @@ function displayCurveList()
 }
   
 </SCRIPT>
-Select the key pair type(s), associated key pair size(s) or curve name(s), and signature algorithm(s) from the pulldown menus. <a href="javascript:toggle_details();">[Details]</a>
+Select the key pair type(s), associated key pair size(s) or curve name(s), and signature algorithm(s) from the pulldown menus.  <font color="red">Currently, the Audit Log Signing functionality only supports RSA keys.  Users that require ECC keys must select the Advanced tab, and specify RSA keys for the Audit Log Signing Certificate.  All other keys can be ECC.  </font><a href="javascript:toggle_details();">[Details]</a>
 <SCRIPT type="text/JavaScript">
 function toggle_details()
 {
@@ -362,7 +363,7 @@ Each certificate can have its own key pair generated with its own independent se
 However, longer key pair sizes also increase the time required to perform operations such as signing certificates, so long keys can affect performance.
 </li>
 <li>
-<b><i>ECC strength: Curve Name</i></b>. Sets the curve algorithm to use, which can be any one of the curves listed below.  Note that not all curves may be supported by the token.
+<b><i>ECC strength: Curve Name</i></b>. Sets the curve algorithm to use, which can be any one of the curves listed below.  The curves that are included in parenthesis are equivalent - and either name can be used.  Note that not all curves may be supported by the token.
 <br/><ul style="list-style:none"><li><i>
 <SCRIPT type="text/JavaScript">
 displayCurveList();
