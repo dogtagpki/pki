@@ -130,7 +130,7 @@ public class SizePanel extends WizardPanelBase {
         }
 
         try {
-            default_ecc_curve_name = config.getString("keys.ecc.curve.default", "nistp521"); 
+            default_ecc_curve_name = config.getString("keys.ecc.curve.default", "nistp256"); 
         } catch (Exception e) {
         }
 
@@ -305,6 +305,7 @@ public class SizePanel extends WizardPanelBase {
                     config.putString(PCERT_PREFIX + ct + ".signingalgorithm", signingalgorithm);
                     config.putString(PCERT_PREFIX + ct + ".keysize.select",
                             "default");
+
                     if (keytype != null && keytype.equals("ecc")) {
                       config.putString(PCERT_PREFIX + ct + 
                             ".curvename.custom_name",
@@ -615,8 +616,11 @@ public class SizePanel extends WizardPanelBase {
             s = config.getString("preop.rsa.algorithm.list", "SHA256withRSA,SHA1withRSA,SHA512withRSA,MD5withRSA,MD2withRSA");
             context.put("rsalist", s);
 
-            s = config.getString("keys.ecc.curve.list", "nistp521");
+            s = config.getString("keys.ecc.curve.list", "nistp256");
             context.put("curvelist", s);
+
+            s = config.getString("keys.ecc.curve.display.list", "nistp256");
+            context.put("displaycurvelist", s);
 
             s = config.getString("pkicreate.subsystem_type");
             context.put("subsystemtype", s);
