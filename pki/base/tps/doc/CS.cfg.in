@@ -1,23 +1,6 @@
-# --- BEGIN COPYRIGHT BLOCK ---
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation;
-# version 2.1 of the License.
-#
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor,
-# Boston, MA  02110-1301  USA
-#
-# Copyright (C) 2007 Red Hat, Inc.
-# All rights reserved.
-# --- END COPYRIGHT BLOCK ---
-#
+_000=##
+_001=## Token Processing System (TPS) Configuration File
+_002=##
 pkicreate.pki_instance_root=[PKI_INSTANCE_ROOT]
 pkicreate.pki_instance_name=[PKI_INSTANCE_ID]
 pkicreate.subsystem_type=[PKI_SUBSYSTEM_TYPE]
@@ -363,11 +346,17 @@ channel.encryption=true
 channel.blocksize=248
 channel.defKeyVersion=0
 channel.defKeyIndex=0
-#Config the size of memory managed memory in the applet
-#Default is 5000, try not go get close to the instanceSize
-#Which defaults to 18000
-#channel.instanceSize=18000
-#channel.appletMemorySize=5000
+# NOTE:  Since the following comments will be 'scrubbed' from any TPS
+#        instance's configuration file, they will ONLY be viewable in
+#        the '/usr/share/pki/tps/conf/CS.cfg' TPS subsystem template!
+#
+#        Config the size of memory managed memory in the applet
+#        Default is 5000, try not go get close to the instanceSize
+#        which defaults to 18000:
+#
+#            * channel.instanceSize=18000
+#            * channel.appletMemorySize=5000
+#
 preop.pin=[PKI_RANDOM_NUMBER]
 preop.product.version=@VERSION@
 preop.cert._000=#########################################
@@ -649,12 +638,20 @@ op.enroll.userKey._074=#
 op.enroll.userKey._075=# There is a special case of tokenType userKeyTemporary.
 op.enroll.userKey._076=# Make sure the profile specified by the profileId to have
 op.enroll.userKey._077=# short validity period (eg, 7 days) for the certificate.
-op.enroll.userKey._078=#########################################
+op.enroll.userKey._078=#
+op.enroll.userKey._079=# The three recovery schemes supported are:
+op.enroll.userKey._080=#
+op.enroll.userKey._081=# * GenerateNewKey               - Generate a new
+op.enroll.userKey._082=#                                  cert for the
+op.enroll.userKey._083=#                                  encryption cert.
+op.enroll.userKey._084=# * RecoverLast                  - Recover the most
+op.enroll.userKey._085=#                                  recent cert for the
+op.enroll.userKey._086=#                                  encryption cert.
+op.enroll.userKey._087=# * GenerateNewKeyandRecoverLast - Generate new cert AND
+op.enroll.userKey._088=#                                  recover last for
+op.enroll.userKey._089=#                                  encryption cert.
+op.enroll.userKey._090=#########################################
 op.enroll.allowUnknownToken=true
-#The three recovery schemes supported are:
-# GenerateNewKey - Generate a new cert for the encryption cert.
-# RecoverLast - Recover the most recent cert for the encryption cert.
-# GenerateNewKeyandRecoverLast - Generate new cert AND recover last for encryption cert.
 op.enroll.userKey.temporaryToken.tokenType=userKeyTemporary
 op.enroll.userKey.keyGen.recovery.destroyed.keyType.num=2
 op.enroll.userKey.keyGen.recovery.destroyed.keyType.value.0=signing
@@ -937,28 +934,36 @@ op.enroll.userKeyTemporary.tks.conn=tks1
 op.enroll.userKeyTemporary.cardmgr_instance=A0000000030000
 op.enroll.userKeyTemporary.auth.id=ldap1
 op.enroll.userKeyTemporary.auth.enable=true
-# Token Renewal.
-# For each token in TPS UI set the following:
-#     RENEW=YES
-# To trigger renewal operations.
+op.enroll.userKey.renewal._000=#########################################
+op.enroll.userKey.renewal._001=# Token Renewal.
+op.enroll.userKey.renewal._002=#
+op.enroll.userKey.renewal._003=# For each token in TPS UI, set the
+op.enroll.userKey.renewal._004=# following to trigger renewal
+op.enroll.userKey.renewal._005=# operations:
+op.enroll.userKey.renewal._006=#
+op.enroll.userKey.renewal._007=#     RENEW=YES
+op.enroll.userKey.renewal._008=#
+op.enroll.userKey.renewal._009=# Optional grace period enforcement
+op.enroll.userKey.renewal._010=# must coincide exactly with what
+op.enroll.userKey.renewal._011=# the CA enforces.
+op.enroll.userKey.renewal._012=#
+op.enroll.userKey.renewal._013=# In case of renewal, encryption certId
+op.enroll.userKey.renewal._014=# values are for completeness only, server
+op.enroll.userKey.renewal._015=# code calculates actual values used.
+op.enroll.userKey.renewal._016=#
+op.enroll.userKey.renewal._017=#########################################
 op.enroll.userKey.renewal.keyType.num=2
 op.enroll.userKey.renewal.keyType.value.0=signing
 op.enroll.userKey.renewal.keyType.value.1=encryption
 op.enroll.userKey.renewal.signing.enable=true
-#optional grace period enforcement
-#must coincide exactly with what the CA enforces
 op.enroll.userKey.renewal.signing.gracePeriod.enable=false
 op.enroll.userKey.renewal.signing.gracePeriod.before=30
 op.enroll.userKey.renewal.signing.gracePeriod.after=30
 op.enroll.userKey.renewal.signing.certId=C1
-#in case of renewal, encryption certId values for completeness only
-#server code calculates actual values used.
 op.enroll.userKey.renewal.encryption.certId=C2
 op.enroll.userKey.renewal.signing.certAttrId=c1
 op.enroll.userKey.renewal.encryption.certAttrId=c2
 op.enroll.userKey.renewal.encryption.enable=true
-#optional grace period enforcement
-#must coincide exactly with what the CA enforces
 op.enroll.userKey.renewal.encryption.gracePeriod.enable=false
 op.enroll.userKey.renewal.encryption.gracePeriod.before=30
 op.enroll.userKey.renewal.encryption.gracePeriod.after=30

@@ -1,7 +1,6 @@
-#
-#cs.state=0 (pre-operational)
-#cs.state=1 (running)
-#
+_000=##
+_001=## Certificate Authority (CA) Configuration File
+_002=##
 pkicreate.pki_instance_root=[PKI_INSTANCE_ROOT]
 pkicreate.pki_instance_name=[PKI_INSTANCE_ID]
 pkicreate.subsystem_type=[PKI_SUBSYSTEM_TYPE]
@@ -21,6 +20,10 @@ preop.product.name=CS
 preop.product.version=@VERSION@
 preop.system.name=CA
 preop.system.fullname=Certificate Authority
+cs.state._000=##
+cs.state._001=## cs.state=0 (pre-operational)
+cs.state._002=## cs.state=1 (running)
+cs.state._003=##
 cs.state=0
 cs.type=CA
 authType=pwd
@@ -206,16 +209,24 @@ ca.maxNumberOfNonces=100
 ca.reqdbInc=20
 ca.transitMaxRecords=1000000
 ca.transitRecordPageSize=200
-# maxSearchReturns - limits number of search results returned by SearchReqs and SrchCerts
-# ca.maxSearchReturns=1000
+ca.maxSearchReturns._000=##
+ca.maxSearchReturns._001=## limits number of search results
+ca.maxSearchReturns._002=## returned by SearchReqs and SrchCerts
+ca.maxSearchReturns._003=##
+ca.maxSearchReturns=1000
+ca.scep._000=##
+ca.scep._001=## Enable the following parameters to enable SCEP requests
+ca.scep._002=## to be signed by a separate key pair:
+ca.scep._003=##
+ca.scep._004=##     ca.scep.nickname=
+ca.scep._005=##     ca.scep.tokenname=
+ca.scep._006=##
 ca.scep.enable=false
 ca.scep.hashAlgorithm=SHA1
 ca.scep.allowedHashAlgorithms=SHA1,SHA256,SHA512
 ca.scep.encryptionAlgorithm=DES3
 ca.scep.allowedEncryptionAlgorithms=DES3
 ca.scep.nonceSizeLimit=16
-## ca.scep.nickname=
-## ca.scep.tokenname=
 ca.Policy._000=##
 ca.Policy._001=## Certificate Policy Framework (deprecated)
 ca.Policy._002=##

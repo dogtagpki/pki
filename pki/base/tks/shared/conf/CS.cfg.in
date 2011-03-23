@@ -1,10 +1,5 @@
-# --- BEGIN COPYRIGHT BLOCK ---
-# Copyright (C) 2006 Red Hat, Inc.
-# All rights reserved.
-# --- END COPYRIGHT BLOCK ---
-#
 _000=##
-_001=## File Created On     : Mon Oct 10 15:57:03 PDT 2005
+_001=## Token Key Service (TKS) Configuration File
 _002=##
 pkicreate.pki_instance_root=[PKI_INSTANCE_ROOT]
 pkicreate.pki_instance_name=[PKI_INSTANCE_ID]

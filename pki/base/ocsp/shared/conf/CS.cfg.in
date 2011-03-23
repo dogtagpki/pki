@@ -1,8 +1,6 @@
-# --- BEGIN COPYRIGHT BLOCK ---
-# Copyright (C) 2006 Red Hat, Inc.
-# All rights reserved.
-# --- END COPYRIGHT BLOCK ---
-#
+_000=##
+_001=## Online Certificate Status Protocol (OCSP) Responder Configuration File
+_002=##
 pkicreate.pki_instance_root=[PKI_INSTANCE_ROOT]
 pkicreate.pki_instance_name=[PKI_INSTANCE_ID]
 pkicreate.subsystem_type=[PKI_SUBSYSTEM_TYPE]
