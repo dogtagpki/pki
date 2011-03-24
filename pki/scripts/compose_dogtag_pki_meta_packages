@@ -1,0 +1,78 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2010 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+##
+## Include common 'compose' functions
+##
+
+COMPOSE_PWD=`dirname $0`
+
+
+## Always switch into the base directory three levels
+## above this shell script prior to executing it so
+## that all of its output is written to this directory
+
+cd `dirname $0`/../..
+
+
+##
+## Retrieve the name of this base directory
+##
+
+PKI_PWD=`pwd`
+
+##
+## Establish packages directory for 'dogtag-pki' META packages
+##
+
+PKI_PACKAGES="${PKI_PWD}/packages"
+
+
+##
+## Specify 'dogtag-pki' META functions
+##
+
+create_packages_directory()
+{
+	printf "Creating top-level 'packages' directory . . . "
+	mkdir -p ${PKI_PACKAGES}
+	printf "done.\n"
+}
+
+create_META_package_directories()
+{
+	printf "Creating 'dogtag-pki' META package directories . . . "
+	mkdir -p ${PKI_PACKAGES}
+	mkdir -p ${PKI_PACKAGES}/BUILD
+	mkdir -p ${PKI_PACKAGES}/BUILDROOT
+	mkdir -p ${PKI_PACKAGES}/RPMS
+	mkdir -p ${PKI_PACKAGES}/SOURCES
+	mkdir -p ${PKI_PACKAGES}/SPECS
+	mkdir -p ${PKI_PACKAGES}/SRPMS
+	printf "done.\n"
+}
+
+build_specified_META_package()
+{
+	package=$1
+	spec_file_path="${PKI_PWD}/pki/specs"
+	spec_file="${package}.spec"
+
+	printf "BEGIN: Building '${package}' META package . . .\n"
+	cp ${spec_file_path}/${spec_file} ${PKI_PACKAGES}/SPECS
+	rpmbuild --define "_topdir ${PKI_PACKAGES}" -ba --clean ${PKI_PACKAGES}/SPECS/${spec_file} > /dev/null 2>&1
+	printf "END:   Building '${package}' META package.\n"
+}
+
+
+##
+## Build the 'dogtag-pki' META package
+##
+
+create_packages_directory
+create_META_package_directories
+build_specified_META_package dogtag-pki
+
