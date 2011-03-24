@@ -187,6 +187,9 @@ public class ConfigureCA {
     public static String clone_p12_passwd = null;
     public static String clone_p12_file = null;
 
+    // sleep time
+    public static int sleep_msecs = 5;
+
     //for correct selection of CA to be cloned
     public static String urls;
 
@@ -197,7 +200,7 @@ public class ConfigureCA {
     public void sleep_time() {
         try {
             System.out.println("Sleeping for 5 secs..");
-            Thread.sleep(5000);
+            Thread.sleep(sleep_msecs * 1000);
         } catch (Exception e) {
             System.out.println("ERROR: sleep problem");
         }
@@ -1535,6 +1538,7 @@ public class ConfigureCA {
         StringHolder x_sd_admin_name = new StringHolder();
         StringHolder x_sd_admin_password = new StringHolder();
 
+        StringHolder x_sleep_msecs = new StringHolder();
 
         // parse the args
         ArgParser parser = new ArgParser("ConfigureCA");
@@ -1653,6 +1657,8 @@ public class ConfigureCA {
         parser.addOption ("-sd_admin_password %s #Security Domain admin password (optional, required if -clone=true)",
             x_sd_admin_password);
 
+        parser.addOption ("-sleep_msecs %s #Sleep time between panels (optional, default 5)", x_sleep_msecs);
+
 
         // and then match the arguments
         String[] unmatched = null;
@@ -1757,6 +1763,13 @@ public class ConfigureCA {
         sd_admin_port = x_sd_admin_port.value;
         sd_admin_name = x_sd_admin_name.value;
         sd_admin_password = x_sd_admin_password.value;
+
+        if (x_sleep_msecs != null) {
+            try {
+                sleep_msecs = Integer.parseInt(x_sleep_msecs.value);
+            } catch (Exception e) {
+            }
+        }
 
         boolean st = ca.ConfigureCAInstance();
 	
