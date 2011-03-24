@@ -401,7 +401,7 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
         }
     }
 
-    # set selftest and audit logging variables (always use the "latest" subsystem nickname)
+    # set selftest variables (always use the "latest" subsystem nickname)
     my $selftestNickname = $::config->get( "preop.cert.subsystem.nickname" );
     my $selftestNickname_sslserver = $::config->get( "preop.cert.sslserver.nickname" );
     my $selftestNickname_audit_signing = $::config->get( "preop.cert.audit_signing.nickname" );
@@ -417,9 +417,6 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
                         "$tk$selftestNickname" );
         $::config->put( "tps.cert.audit_signing.nickname",
                         "$tk$selftestNickname_audit_signing" );
-
-        $::config->put( "logging.audit.signedAuditCertNickname",
-                        "$tk$selftestNickname_audit_signing" );
     } else {
         $::config->put( "selftests.plugin.TPSPresence.nickname",
                         "$selftestNickname" );
@@ -431,9 +428,6 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
         $::config->put( "tps.cert.subsystem.nickname",
                         "$selftestNickname" );
         $::config->put( "tps.cert.audit_signing.nickname",
-                        "$selftestNickname_audit_signing" );
-
-        $::config->put( "logging.audit.signedAuditCertNickname",
                         "$selftestNickname_audit_signing" );
     }
     $::config->commit();
