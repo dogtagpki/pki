@@ -93,6 +93,6 @@ public class ExtJoiner {
 
         byte data[] = new byte[fis.available()];
         fis.read(data);
-        return com.netscape.osutil.OSUtil.BtoA(data).getBytes();
+        return  com.netscape.osutil.OSUtil.AtoB(new String(data));
     }
 }
