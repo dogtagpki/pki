@@ -1,5 +1,5 @@
 Name:             pki-kra
-Version:          9.0.1
+Version:          9.0.2
 Release:          1%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
@@ -159,6 +159,12 @@ fi
 
 
 %changelog
+* Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
+- Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
+- Bugzilla Bug #683581 - CA configuration with ECC(Default
+  EC curve-nistp521) CA fails with 'signing operation failed'
+- Bugzilla Bug #684381 - CS.cfg specifies incorrect type of comments
+
 * Thu Mar 17 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
 - Bugzilla Bug #688763 - Rebase updated Dogtag Packages for Fedora 15 (alpha)
 - Bugzilla Bug #673638 - Installation within IPA hangs

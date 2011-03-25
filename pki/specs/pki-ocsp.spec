@@ -1,5 +1,5 @@
 Name:             pki-ocsp
-Version:          9.0.0
+Version:          9.0.1
 Release:          1%{?dist}
 Summary:          Certificate System - Online Certificate Status Protocol Manager
 URL:              http://pki.fedoraproject.org/
@@ -166,6 +166,12 @@ fi
 
 
 %changelog
+* Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
+- Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
+- Bugzilla Bug #683581 - CA configuration with ECC(Default
+  EC curve-nistp521) CA fails with 'signing operation failed'
+- Bugzilla Bug #684381 - CS.cfg specifies incorrect type of comments
+
 * Wed Dec 1 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0
 - Bugzilla Bug #620925 - CC: auditor needs to be able to download audit logs

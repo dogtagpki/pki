@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.4
+Version:          9.0.5
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -592,6 +592,34 @@ fi
 
 
 %changelog
+* Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
+- Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
+- 'pki-setup'
+-     Bugzilla Bug #688287 - Add "deprecation" notice regarding using
+      "shared ports" in pkicreate -help . . .
+-     Bugzilla Bug #688251 - Dogtag installation under IPA takes
+      too much time - SELinux policy compilation
+- 'pki-symkey'
+- 'pki-native-tools'
+- 'pki-util'
+- 'pki-java-tools'
+-     Bugzilla Bug #689501 - ExtJoiner tool fails to join the multiple
+      extensions
+- 'pki-common'
+-     Bugzilla Bug #683581 - CA configuration with ECC(Default
+      EC curve-nistp521) CA fails with 'signing operation failed'
+-     Bugzilla Bug #689662 - ocsp publishing needs to be re-enabled
+      on the EE port
+- 'pki-selinux'
+-     Bugzilla Bug #684871 - ldaps selinux link change
+- 'pki-ca'
+-     Bugzilla Bug #683581 - CA configuration with ECC(Default
+      EC curve-nistp521) CA fails with 'signing operation failed'
+-     Bugzilla Bug #684381 - CS.cfg specifies incorrect type of comments
+-     Bugzilla Bug #689453 - CRMFPopClient request to CA's unsecure port
+      throws file not found exception.(profile and CS.cfg only)
+- 'pki-silent'
+
 * Thu Mar 17 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
 - Bugzilla Bug #688763 - Rebase updated Dogtag Packages for Fedora 15 (alpha)
 - Bugzilla Bug #676182 - IPA installation failing - Fails to create CA

@@ -1,5 +1,5 @@
 Name:             pki-tps
-Version:          9.0.1
+Version:          9.0.2
 Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
@@ -214,6 +214,12 @@ fi
 
 
 %changelog
+* Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
+- Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
+- Bugzilla Bug #684381 - CS.cfg specifies incorrect type of comments
+- Bugzilla Bug #689956 - TPS Configuration with nethsm: audit signing
+  certificate location is not configured to nethsm in CS.cfg
+
 * Thu Mar 17 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
 - Bugzilla Bug #688763 - Rebase updated Dogtag Packages for Fedora 15 (alpha)
 - Bugzilla Bug #676421 - CC: Remove unused TPS interface calls and add

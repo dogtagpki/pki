@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.2
+Version:          9.0.3
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -346,6 +346,20 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
+- Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
+- 'dogtag-pki-ca-theme'
+- 'dogtag-pki-common-theme'
+-     Bugzilla Bug #683581 - CA configuration with ECC(Default
+      EC curve-nistp521) CA fails with 'signing operation failed'
+- 'dogtag-pki-console-theme'
+- 'dogtag-pki-kra-theme'
+- 'dogtag-pki-ocsp-theme'
+- 'dogtag-pki-ra-theme'
+- 'dogtag-pki-tks-theme'
+- 'dogtag-pki-tps-theme'
+-     Bugzilla Bug #684259 - wrong group used for tps operators
+
 * Thu Mar 17 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
 - Bugzilla Bug #688763 - Rebase updated Dogtag Packages for Fedora 15 (alpha)
 - Bugzilla Bug #676421 - CC: Remove unused TPS interface calls and add
