@@ -13,7 +13,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-12
+BuildRequires:    jss >= 4.2.6-15
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    pki-common
@@ -164,6 +164,7 @@ fi
 - Bugzilla Bug #683581 - CA configuration with ECC(Default
   EC curve-nistp521) CA fails with 'signing operation failed'
 - Bugzilla Bug #684381 - CS.cfg specifies incorrect type of comments
+- Require "jss >= 4.2.6-15" as a build and runtime requirement
 
 * Thu Mar 17 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
 - Bugzilla Bug #688763 - Rebase updated Dogtag Packages for Fedora 15 (alpha)

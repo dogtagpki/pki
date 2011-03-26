@@ -1,5 +1,5 @@
 Name:             pki-console
-Version:          9.0.1
+Version:          9.0.2
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
@@ -14,7 +14,7 @@ BuildRequires:    cmake
 BuildRequires:    idm-console-framework
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-12
+BuildRequires:    jss >= 4.2.6-15
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
@@ -22,7 +22,7 @@ BuildRequires:    pki-util
 
 Requires:         idm-console-framework
 Requires:         java >= 1:1.6.0
-Requires:         jss >= 4.2.6-12
+Requires:         jss >= 4.2.6-15
 Requires:         ldapjdk
 Requires:         pki-console-theme
 
@@ -72,6 +72,10 @@ cd build
 
 
 %changelog
+* Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
+- Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
+- Require "jss >= 4.2.6-15" as a build and runtime requirement
+
 * Thu Mar 17 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
 - Bugzilla Bug #688763 - Rebase updated Dogtag Packages for Fedora 15 (alpha)
 - Bugzilla Bug #676682 - REGRESSION: Restore missing 'gif' files

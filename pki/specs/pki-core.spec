@@ -15,7 +15,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-12
+BuildRequires:    jss >= 4.2.6-15
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
@@ -24,7 +24,11 @@ BuildRequires:    osutil
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
 BuildRequires:    selinux-policy-devel
+%if 0%{?fedora} >= 15
+BuildRequires:    tomcatjss >= 2.1.1
+%else
 BuildRequires:    tomcatjss >= 2.0.0
+%endif
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
@@ -117,7 +121,7 @@ Group:            System Environment/Libraries
 
 Requires:         java >= 1:1.6.0
 Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-12
+Requires:         jss >= 4.2.6-15
 Requires:         nss
 
 Provides:         symkey = %{version}-%{release}
@@ -158,7 +162,7 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-12
+Requires:         jss >= 4.2.6-15
 Requires:         ldapjdk
 
 %description -n   pki-util
@@ -242,13 +246,17 @@ Requires:         jakarta-commons-lang
 Requires:         jakarta-commons-logging
 %endif
 Requires:         java >= 1:1.6.0
-Requires:         jss >= 4.2.6-12
+Requires:         jss >= 4.2.6-15
 Requires:         osutil
 Requires:         pki-common-theme >= 9.0.0
 Requires:         pki-java-tools = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
-Requires:         tomcatjss >= 2.0.0
+%if 0%{?fedora} >= 15
+BuildRequires:    tomcatjss >= 2.1.1
+%else
+BuildRequires:    tomcatjss >= 2.0.0
+%endif
 Requires:         %{_javadir}/ldapjdk.jar
 Requires:         %{_javadir}/velocity.jar
 Requires:         %{_javadir}/xalan-j2.jar
@@ -594,6 +602,9 @@ fi
 %changelog
 * Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
 - Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
+- Require "jss >= 4.2.6-15" as a build and runtime requirement
+- Require "tomcatjss >= 2.1.1" as a build and runtime requirement
+  for Fedora 15 and later platforms
 - 'pki-setup'
 -     Bugzilla Bug #688287 - Add "deprecation" notice regarding using
       "shared ports" in pkicreate -help . . .
