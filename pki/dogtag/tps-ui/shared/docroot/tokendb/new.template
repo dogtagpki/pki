@@ -52,7 +52,7 @@ if (typeof(uriBase) == "undefined") {
 }
 
 document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
-               "<a href=\""+uri0+"\">Main Menu</a> : Agent Operations : Add New Token</font>\n");
+               "<a href=\""+uri0+"\">Main Menu</a> : Administrator Operations : Add New Token</font>\n");
 document.write("<table width=\"100%\"><tr><td align=\"right\">" +
                 "<b>UID:</b>" +
                 userid + "</td></tr></table>\n");
