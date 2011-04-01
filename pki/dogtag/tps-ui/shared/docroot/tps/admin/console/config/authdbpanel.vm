@@ -47,12 +47,14 @@ If, however, the end user's identity fails to be verified, TPS will not establis
         <th>Host:</th>
         <td><input type="text" length="128" size="40" name="host" value="$hostname" /></td>
       </tr>
-            
+
       <tr>
         <th>Port:</th>
-                                
-        <td><input type="text" length="64" size="40" name="port" value="$portStr" /></td>
-      </tr>       
+
+        <td><input type="text" length="64" size="40" name="port" value="$portStr" />
+          <input type="CHECKBOX" NAME="secureConn" value="true">SSL </td>
+      </tr>
+            
       <tr>
         <th>Base DN:</th>
         <td><input type="text" length="128" size="40" name="basedn" value="$basedn" /></td>

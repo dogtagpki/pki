@@ -1,6 +1,6 @@
 Name:           pki-tps
 Version:        9.0.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Dogtag Certificate System - Token Processing System
 URL:            http://pki.fedoraproject.org/
 License:        LGPLv2
@@ -28,6 +28,7 @@ Requires:       pki-native-tools
 Requires:       pki-selinux
 Requires:       pki-setup
 Requires:       pki-tps-ui
+Requires:       perl-Mozilla-LDAP
 Requires(post):    chkconfig
 Requires(preun):   chkconfig
 Requires(preun):   initscripts
@@ -218,6 +219,9 @@ fi
 %{_libdir}/libtps.so
 
 %changelog
+* Thu Mar 31 2011 Ade Lee <alee@redhat.com> 9.0.0-3
+- Bugzilla Bug 691867 - Add ldaps support for install wizard and sow pages
+
 * Fri Jan 21 2011 Ade Lee <alee@redhat.com> 9.0.0-2
 - Bugzilla Bug 606944- Use openldap instead of mozldap
 
