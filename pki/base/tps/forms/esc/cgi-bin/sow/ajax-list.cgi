@@ -22,18 +22,21 @@
 #
 
 use CGI;
+use Mozilla::LDAP::Conn;
+use PKI::TPS::Common;
 
 [REQUIRE_CFG_PL]
-
-my $ldapHost = get_ldap_host();
-my $ldapPort = get_ldap_port();
-my $basedn = get_base_dn();
-my $ldapsearch = get_ldapsearch();
 
 sub main()
 {
 
   my $q = new CGI;
+
+  my $host = get_ldap_host();
+  my $port = get_ldap_port();
+  my $secureconn = get_ldap_secure();
+  my $basedn = get_base_dn();
+  my $certdir = get_ldap_certdir();
 
   my $letters = $q->param('letters');
   if ($letters eq "") {
@@ -43,35 +46,33 @@ sub main()
     $letters =~ s/\+/ /g;
   }
 
-  my $tmpfile = "/tmp/ajax-list-$$.txt";
-  my $cmd = $ldapsearch . " " .
-            "-x " .
-            "-b \"" .  $basedn . "\" " .
-            "-h \"" . $ldapHost . "\" " .
-            "-p \"" . $ldapPort ."\" " .
-            "-S \"cn\" " .
-            "-LLL -s sub \"(cn=" . $letters . "*)\" cn uid > " . $tmpfile;
-  system($cmd);
-
   my $result = "";
-  open(F, "<$tmpfile");
-  my $cn;
-  my $uid;
-  while (<F>) {
-    if (/cn/) {
-      $cn = $_;
-      chomp($cn);
-      $cn =~ s/cn: //g;
-      $uid = <F>;
-      chomp($uid);
-      $uid =~ s/uid: //g;
-      $result .= $uid . "###" . $cn . "|";
-    }
-  }
-  close(F);
-  system("rm $tmpfile");
 
   print "Content-Type: text/html\n\n";
+
+  my $conn =  PKI::TPS::Common::make_connection(
+                  {host => $host, port => $port, cert => $certdir},
+                  $secureconn);
+
+  return if (!$conn);
+
+  my $entry = $conn->search ( { base =>$basedn,
+                                scope => "sub",
+                                filter => "cn=$letters*",
+                                attrsonly => 0,
+                                attrs => qw(cn uid),
+                                sortattrs => qw(cn)}
+                            );
+
+  while ($entry) {
+    my $cn =  ($entry->getValues("cn"))[0]  || "";
+    my $uid = ($entry->getValues("uid"))[0] || "";
+    $result .= $uid . "###" . $cn . "|";
+    $entry  $conn->nextEntry();
+  }
+
+  $conn->close();
+
   print $result;
 }
 

@@ -25,6 +25,7 @@ use strict;
 use warnings;
 use PKI::TPS::GlobalVar;
 use PKI::TPS::Common;
+use Mozilla::LDAP::Conn;
 
 package PKI::TPS::DatabasePanel;
 $PKI::TPS::DatabasePanel::VERSION = '1.00';
@@ -72,6 +73,7 @@ sub update
     my ($q) = @_;
     &PKI::TPS::Wizard::debug_log("DatabasePanel: update");
     my $instDir =  $::config->get("service.instanceDir");
+    my $certdir = "$instDir/alias";
 
     my $host = $q->param('host');
     my $port = $q->param('port');
@@ -79,6 +81,25 @@ sub update
     my $database = $q->param('database');
     my $binddn = $q->param('binddn');
     my $bindpwd = $q->param('__bindpwd');
+    my $secureconn = $q->param('secureConn') || "false";
+
+    &PKI::TPS::Wizard::debug_log("DatabasePanel: host=$host port=$port basedn=$basedn");
+    &PKI::TPS::Wizard::debug_log("DatabasePanel: database=$database binddn=$binddn");
+    &PKI::TPS::Wizard::debug_log("DatabasePanel: secureconn=$secureconn");
+
+    # try to make a connection
+    # we need to test the ldaps connection first because testing an ldaps port with ldap:// will hang the query!
+    my $msg;
+    my $conn = &PKI::TPS::Common::test_and_make_connection(
+                  {host => $host, port => $port, cert => $certdir, bind =>  $binddn, pswd => $bindpwd},
+                  $secureconn,
+                  \$msg);
+
+    if (!$conn) {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: failed to connect to internal db: $msg");
+      $::symbol{errorString} = $msg;
+      return 0;
+    }
 
     # save values to CS.cfg
     $::config->put("preop.database.host", $host);
@@ -91,9 +112,10 @@ sub update
     $::config->put("tokendb.certBaseDN", "ou=Certificates," . $basedn);
     $::config->put("tokendb.hostport", $host . ":" . $port);
     $::config->put("tokendb.userBaseDN", $basedn);
-
+    $::config->put("tokendb.ssl", $secureconn);
     $::config->put("auth.instance.1.hostport", $host . ":" . $port);
     $::config->put("auth.instance.1.baseDN", $basedn);
+    $::config->put("auth.instance.1.ssl", $secureconn);
     $::config->commit();
 
 #    $::config->put("tokendb.bindPass", $bindpwd);
@@ -102,9 +124,6 @@ sub update
       print PWD_CONF "tokendbBindPass:$bindpwd\n";
       close (PWD_CONF);
     }
-
-    &PKI::TPS::Wizard::debug_log("DatabasePanel: host=$host port=$port basedn=$basedn");
-    &PKI::TPS::Wizard::debug_log("DatabasePanel: database=$database binddn=$binddn");
 
     my $rdn = $basedn;
     $rdn =~ s/,.*//g;
@@ -119,8 +138,6 @@ sub update
     my $flavor = "pki";
     $flavor =~ s/\n//g;
 
-    my $ldapmodify_path = "/usr/bin/ldapmodify";
-
     # creating database
     my $tmp = "/tmp/database-$$.ldif";
     system("sed -e 's/\$DATABASE/$database/' " .
@@ -129,42 +146,79 @@ sub update
               "-e 's/\$TYPE/$type/' " .
               "-e 's/\$VALUE/$value/' " .
               "/usr/share/$flavor/tps/scripts/database.ldif > $tmp");
-    system("$ldapmodify_path -x -h '$host' -p '$port' -D '$binddn' " .
-              "-w '$bindpwd' -a " .
-              "-f '$tmp'");
+    if (! &PKI::TPS::Common::import_ldif($conn, $tmp, \$msg)) {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: $msg");
+      $::symbol{errorString} = "Failed to create database";
+      $conn->close();
+      return 0;
+    };
+    if ($msg ne "") {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: database creation errors : $msg");
+      $msg="";
+    }
     system("rm $tmp");
 
     # add schema
-    system("$ldapmodify_path -x -h '$host' -p '$port' " .
-              "-D '$binddn' -w '$bindpwd' -a " .
-              "-f '/usr/share/$flavor/tps/scripts/schemaMods.ldif'");
+    if (! &PKI::TPS::Common::import_ldif($conn, "/usr/share/$flavor/tps/scripts/schemaMods.ldif", \$msg)) {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: $msg");
+      $::symbol{errorString} = "Failed to add schema";
+      $conn->close();
+      return 0;
+    };
+    if ($msg ne "") {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: schema creation errors : $msg");
+      $msg="";
+    }
 
-    # populdate database
+    # populate database
     $tmp = "/tmp/addTokens-$$.ldif";
     system("sed -e 's/\$TOKENDB_ROOT/$basedn/g' " .
               "/usr/share/$flavor/tps/scripts/addTokens.ldif > $tmp");
-    system("$ldapmodify_path -x -h '$host' -p '$port' -D '$binddn' " .
-              "-w '$bindpwd' -a " .
-              "-f '$tmp'");
+    if (! &PKI::TPS::Common::import_ldif($conn, $tmp, \$msg)) {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: $msg");
+      $::symbol{errorString} = "Failed to populate database";
+      $conn->close();
+      return 0;
+    };
+    if ($msg ne "") {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: database population errors : $msg");
+      $msg="";
+    }
     system("rm $tmp");
 
     # add regular indexes
     $tmp = "/tmp/addIndexes-$$.ldif";
     system("sed -e 's/userRoot/$database/g' " .
               "/usr/share/$flavor/tps/scripts/addIndexes.ldif > $tmp");
-    system("$ldapmodify_path -x -h '$host' -p '$port' -D '$binddn' " .
-              "-w '$bindpwd' -a " .
-              "-f '$tmp'");
+    if (! &PKI::TPS::Common::import_ldif($conn, $tmp, \$msg)) {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: $msg");
+      $::symbol{errorString} = "Failed to add indexes";
+      $conn->close();
+      return 0;
+    };
+    if ($msg ne "") {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: adding index errors : $msg");
+      $msg="";
+    }
     system("rm $tmp");
 
     # add VLV indexes
     $tmp = "/tmp/addVLVIndexes-$$.ldif";
     system("sed -e 's/userRoot/$database/g;s/\$TOKENDB_ROOT/$basedn/g' " .
               "/usr/share/$flavor/tps/scripts/addVLVIndexes.ldif > $tmp");
-    system("$ldapmodify_path -x -h '$host' -p '$port' -D '$binddn' " .
-              "-w '$bindpwd' -a " .
-              "-f '$tmp'");
+    if (! &PKI::TPS::Common::import_ldif($conn, $tmp, \$msg)) {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: $msg");
+      $::symbol{errorString} = "Failed to add vlv indexes";
+      $conn->close();
+      return 0;
+    };
+    if ($msg ne "") {
+      &PKI::TPS::Wizard::debug_log("DatabasePanel: adding VLV index errors : $msg");
+      $msg="";
+    }
     system("rm $tmp");
+
+    $conn->close();
 
     $::config->put("preop.database.done", "true");
     $::config->commit();
@@ -205,6 +259,9 @@ sub display
     if ($binddn ne "") {
       $::symbol{binddn} = $binddn;
     }
+
+    my $secureconn = $::config->get("auth.instance.1.ssl") || "false";
+    $::symbol{secureconn} =  $secureconn;
 
     $::symbol{bindpwd} = "";
 
