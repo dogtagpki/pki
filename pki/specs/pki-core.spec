@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.5
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -253,9 +253,9 @@ Requires:         pki-java-tools = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
 %if 0%{?fedora} >= 15
-BuildRequires:    tomcatjss >= 2.1.1
+Requires:         tomcatjss >= 2.1.1
 %else
-BuildRequires:    tomcatjss >= 2.0.0
+Requires:         tomcatjss >= 2.0.0
 %endif
 Requires:         %{_javadir}/ldapjdk.jar
 Requires:         %{_javadir}/velocity.jar
@@ -600,6 +600,9 @@ fi
 
 
 %changelog
+* Tue Apr 5 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-2
+- Bugzilla Bug #693327 - Missing requires: tomcatjss
+
 * Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
 - Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
 - Require "jss >= 4.2.6-15" as a build and runtime requirement
