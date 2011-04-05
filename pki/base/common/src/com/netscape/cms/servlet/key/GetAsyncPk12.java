@@ -68,6 +68,14 @@ public class GetAsyncPk12 extends CMSServlet {
     private com.netscape.certsrv.kra.IKeyService mService = null;
     private final static String OUT_STATUS = "status";
 
+    private final static String
+        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS =
+        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";
+
+    private final static String
+        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE =
+        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE_4";
+
     private String mFormPath = null;
 
     /**
@@ -112,6 +120,9 @@ public class GetAsyncPk12 extends CMSServlet {
 
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
+        String auditMessage = null;
+        String agent = null;
+        String reqID = null;
 
         IAuthToken authToken = authenticate(cmsReq);
 
@@ -153,12 +164,11 @@ public class GetAsyncPk12 extends CMSServlet {
 
         // get status and populate argSet
         try {
-            String reqID = req.getParameter("reqID");
+            reqID = req.getParameter("reqID");
             header.addStringValue("reqID", reqID);
 
             // only the init DRM agent can get the pkcs12
             SessionContext sContext = SessionContext.getContext();
-            String agent = null;
 
             if (sContext != null) {
                 agent = (String) sContext.get(SessionContext.USER_ID);
@@ -208,6 +218,16 @@ public class GetAsyncPk12 extends CMSServlet {
                     resp.setContentType("application/x-pkcs12");
                     resp.getOutputStream().write(pkcs12);
                     mRenderResult = false;
+
+                    auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
+                        agent,
+                        ILogger.SUCCESS,
+                        reqID,
+                        "");
+
+                     audit(auditMessage);
+
                     return;
                 } catch (IOException e) {
                     header.addStringValue(OUT_ERROR,
@@ -222,6 +242,17 @@ public class GetAsyncPk12 extends CMSServlet {
             }
         } catch (EBaseException e) {
             header.addStringValue(OUT_ERROR, e.toString(locale[0]));
+        }
+
+        if ((agent != null) && (reqID != null)) {
+            auditMessage = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
+                agent,
+                ILogger.FAILURE,
+                reqID,
+                "");
+
+            audit(auditMessage);
         }
 
         try {

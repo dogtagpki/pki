@@ -421,6 +421,7 @@ public abstract class CMSServlet extends HttpServlet {
                 pn.equalsIgnoreCase("pin")                  ||
                 pn.equalsIgnoreCase("pwd")                  ||
                 pn.equalsIgnoreCase("pwdagain")             ||
+                pn.startsWith("p12Password")                ||
                 pn.equalsIgnoreCase("uPasswd") ) {
               CMS.debug("CMSServlet::service() param name='" + pn +
                         "' value='(sensitive)'" );
