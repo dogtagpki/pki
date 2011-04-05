@@ -1,5 +1,5 @@
 Name:             pki-tps
-Version:          9.0.2
+Version:          9.0.3
 Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
@@ -25,6 +25,7 @@ Requires:         mod_nss
 Requires:         mod_perl
 Requires:         mod_revocator
 Requires:         openldap-clients
+Requires:         perl-Mozilla-LDAP
 Requires:         pki-native-tools
 Requires:         pki-selinux
 Requires:         pki-setup
@@ -214,6 +215,10 @@ fi
 
 
 %changelog
+* Tue Apr 5 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
+- Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
+- Bugzilla Bug #691867 - add ldaps support through perLDAP
+
 * Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
 - Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
 - Bugzilla Bug #684381 - CS.cfg specifies incorrect type of comments

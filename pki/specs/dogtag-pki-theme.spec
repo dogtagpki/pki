@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.3
+Version:          9.0.4
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -346,6 +346,20 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Tue Apr 5 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
+- Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
+- 'dogtag-pki-ca-theme'
+- 'dogtag-pki-common-theme'
+- 'dogtag-pki-console-theme'
+- 'dogtag-pki-kra-theme'
+- 'dogtag-pki-ocsp-theme'
+- 'dogtag-pki-ra-theme'
+- 'dogtag-pki-tks-theme'
+- 'dogtag-pki-tps-theme'
+-     Bugzilla Bug #691447 - TPS UI Admin tab 'Add new token' opens a
+      page with text 'Agent operations: Add new tokens'.
+-     Bugzilla Bug #691867 - add ldaps support through perLDAP
+
 * Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
 - Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
 - 'dogtag-pki-ca-theme'

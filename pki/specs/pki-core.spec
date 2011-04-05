@@ -1,6 +1,6 @@
 Name:             pki-core
-Version:          9.0.5
-Release:          2%{?dist}
+Version:          9.0.6
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -600,6 +600,25 @@ fi
 
 
 %changelog
+* Tue Apr 5 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.6-1
+- Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
+- Bugzilla Bug #693327 - Missing requires: tomcatjss
+- 'pki-setup'
+-     Bugzilla Bug #690626 - pkiremove removes the registry entry for
+      all instances on a machine
+- 'pki-symkey'
+- 'pki-native-tools'
+- 'pki-util'
+- 'pki-java-tools'
+-     Bugzilla Bug #689453 - CRMFPopClient request to CA's unsecure port
+      throws file not found exception.
+- 'pki-common'
+-     Bugzilla Bug #692990 - Audit log messages needed to match CC doc:
+      DRM Recovery audit log messages
+- 'pki-selinux'
+- 'pki-ca'
+- 'pki-silent'
+
 * Tue Apr 5 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-2
 - Bugzilla Bug #693327 - Missing requires: tomcatjss
 
