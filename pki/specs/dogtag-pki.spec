@@ -140,6 +140,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Tue Apr 5 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-3
+- Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
 - Bugzilla Bug #693327 - Missing requires: tomcatjss
 
 * Fri Mar 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-2
