@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.6
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -164,6 +164,7 @@ Requires:         java >= 1:1.6.0
 Requires:         jpackage-utils
 Requires:         jss >= 4.2.6-15
 Requires:         ldapjdk
+Requires:         osutil
 
 %description -n   pki-util
 The PKI Utility Framework is required by the following four PKI subsystems:
@@ -247,7 +248,6 @@ Requires:         jakarta-commons-logging
 %endif
 Requires:         java >= 1:1.6.0
 Requires:         jss >= 4.2.6-15
-Requires:         osutil
 Requires:         pki-common-theme >= 9.0.0
 Requires:         pki-java-tools = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
@@ -600,6 +600,9 @@ fi
 
 
 %changelog
+* Mon Apr 11 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.6-2
+- Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
+
 * Tue Apr 5 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.6-1
 - Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
 - Bugzilla Bug #693327 - Missing requires: tomcatjss
