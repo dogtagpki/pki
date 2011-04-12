@@ -334,7 +334,12 @@ public class UpdateDomainXML extends CMSServlet {
  
             if ((operation !=  null) && (operation.equals("remove"))) {
                     status = remove_from_ldap(dn);
-                    String adminUserDN = "uid=" + type + "-" + host + "-" + agentsport + ",ou=People," + basedn;
+                    String adminUserDN;
+                    if ((agentsport != null) && (!agentsport.equals(""))) {
+                        adminUserDN = "uid=" + type + "-" + host + "-" + agentsport + ",ou=People," + basedn;
+                    } else {
+                        adminUserDN = "uid=" + type + "-" + host + "-" + sport + ",ou=People," + basedn;
+                    }
                     if (status.equals(SUCCESS)) {
                         // remove the client cert for this subsystem's admin
                         status = remove_from_ldap(adminUserDN);
