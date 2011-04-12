@@ -310,6 +310,7 @@ public class LogAdminServlet extends AdminServlet {
             sendResponse(ERROR, e.toString(getLocale(req)), null, resp);
         } catch (Exception e) {
             System.out.println("XXX >>>" + e.toString() + "<<<");
+            e.printStackTrace();
             sendResponse(ERROR,
                 CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
                 null, resp);
@@ -1835,7 +1836,7 @@ public class LogAdminServlet extends AdminServlet {
                 newLogPath = auditCheckLogPath(req);
 
                 // check to see if the log expiration time parameter was changed
-                newExpirationTime = auditCheckLogExpirationTime(req);
+                // newExpirationTime = auditCheckLogExpirationTime(req);
 
                 // cleanup
                 restore(instancesConfig, id, saveParams);
@@ -1855,6 +1856,7 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 // (regardless of logType)
+                /*
                 if (!(newExpirationTime.equals(origExpirationTime))) {
                     auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
@@ -1864,7 +1866,7 @@ public class LogAdminServlet extends AdminServlet {
                                 newExpirationTime);
 
                     audit(auditMessage);
-                }
+                }*/
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -1886,7 +1888,7 @@ public class LogAdminServlet extends AdminServlet {
                 newLogPath = auditCheckLogPath(req);
 
                 // check to see if the log expiration time parameter was changed
-                newExpirationTime = auditCheckLogExpirationTime(req);
+                //newExpirationTime = auditCheckLogExpirationTime(req);
 
                 restore(instancesConfig, id, saveParams);
 
@@ -1905,7 +1907,7 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 // (regardless of logType)
-                if (!(newExpirationTime.equals(origExpirationTime))) {
+                /*if (!(newExpirationTime.equals(origExpirationTime))) {
                     auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
                                 auditSubjectID,
@@ -1914,7 +1916,7 @@ public class LogAdminServlet extends AdminServlet {
                                 newExpirationTime);
 
                     audit(auditMessage);
-                }
+                }*/
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -1936,7 +1938,7 @@ public class LogAdminServlet extends AdminServlet {
                 newLogPath = auditCheckLogPath(req);
 
                 // check to see if the log expiration time parameter was changed
-                newExpirationTime = auditCheckLogExpirationTime(req);
+                //newExpirationTime = auditCheckLogExpirationTime(req);
 
                 restore(instancesConfig, id, saveParams);
 
@@ -1955,7 +1957,7 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 // (regardless of logType)
-                if (!(newExpirationTime.equals(origExpirationTime))) {
+                /* if (!(newExpirationTime.equals(origExpirationTime))) {
                     auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
                                 auditSubjectID,
@@ -1964,7 +1966,7 @@ public class LogAdminServlet extends AdminServlet {
                                 newExpirationTime);
 
                     audit(auditMessage);
-                }
+                } */
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -1993,7 +1995,7 @@ public class LogAdminServlet extends AdminServlet {
                 newLogPath = auditCheckLogPath(req);
 
                 // check to see if the log expiration time parameter was changed
-                newExpirationTime = auditCheckLogExpirationTime(req);
+                // newExpirationTime = auditCheckLogExpirationTime(req);
 
                 // don't commit in this case and cleanup the new substore.
                 restore(instancesConfig, id, saveParams);
@@ -2013,7 +2015,7 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 // (regardless of logType)
-                if (!(newExpirationTime.equals(origExpirationTime))) {
+                /* if (!(newExpirationTime.equals(origExpirationTime))) {
                     auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
                                 auditSubjectID,
@@ -2022,7 +2024,7 @@ public class LogAdminServlet extends AdminServlet {
                                 newExpirationTime);
 
                     audit(auditMessage);
-                }
+                } */
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -2043,7 +2045,7 @@ public class LogAdminServlet extends AdminServlet {
                 newLogPath = auditCheckLogPath(req);
 
                 // check to see if the log expiration time parameter was changed
-                newExpirationTime = auditCheckLogExpirationTime(req);
+                // newExpirationTime = auditCheckLogExpirationTime(req);
 
                 restore(instancesConfig, id, saveParams);
 
@@ -2062,7 +2064,7 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 // (regardless of logType)
-                if (!(newExpirationTime.equals(origExpirationTime))) {
+                /* if (!(newExpirationTime.equals(origExpirationTime))) {
                     auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
                                 auditSubjectID,
@@ -2071,7 +2073,7 @@ public class LogAdminServlet extends AdminServlet {
                                 newExpirationTime);
 
                     audit(auditMessage);
-                }
+                } */
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -2097,7 +2099,7 @@ public class LogAdminServlet extends AdminServlet {
                 newLogPath = auditCheckLogPath(req);
 
                 // check to see if the log expiration time parameter was changed
-                newExpirationTime = auditCheckLogExpirationTime(req);
+                // newExpirationTime = auditCheckLogExpirationTime(req);
 
                 // clean up.
                 restore(instancesConfig, id, saveParams);
@@ -2118,7 +2120,7 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 // (regardless of logType)
-                if (!(newExpirationTime.equals(origExpirationTime))) {
+                /* if (!(newExpirationTime.equals(origExpirationTime))) {
                     auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
                                 auditSubjectID,
@@ -2127,7 +2129,7 @@ public class LogAdminServlet extends AdminServlet {
                                 newExpirationTime);
 
                     audit(auditMessage);
-                }
+                }*/
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -2160,7 +2162,7 @@ public class LogAdminServlet extends AdminServlet {
             newLogPath = auditCheckLogPath(req);
 
             // check to see if the log expiration time parameter was changed
-            newExpirationTime = auditCheckLogExpirationTime(req);
+            //newExpirationTime = auditCheckLogExpirationTime(req);
 
             // store a message in the signed audit log file
             // (regardless of logType)
@@ -2177,7 +2179,7 @@ public class LogAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             // (regardless of logType)
-            if (!(newExpirationTime.equals(origExpirationTime))) {
+            /*if (!(newExpirationTime.equals(origExpirationTime))) {
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
                             auditSubjectID,
@@ -2186,7 +2188,7 @@ public class LogAdminServlet extends AdminServlet {
                             newExpirationTime);
 
                 audit(auditMessage);
-            }
+            }*/
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -2206,7 +2208,7 @@ public class LogAdminServlet extends AdminServlet {
             newLogPath = auditCheckLogPath(req);
 
             // check to see if the log expiration time parameter was changed
-            newExpirationTime = auditCheckLogExpirationTime(req);
+            // newExpirationTime = auditCheckLogExpirationTime(req);
 
             // store a message in the signed audit log file
             // (regardless of logType)
@@ -2223,7 +2225,7 @@ public class LogAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             // (regardless of logType)
-            if (!(newExpirationTime.equals(origExpirationTime))) {
+            /* if (!(newExpirationTime.equals(origExpirationTime))) {
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
                             auditSubjectID,
@@ -2232,7 +2234,7 @@ public class LogAdminServlet extends AdminServlet {
                             newExpirationTime);
 
                 audit(auditMessage);
-            }
+            } */
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -2252,7 +2254,7 @@ public class LogAdminServlet extends AdminServlet {
             newLogPath = auditCheckLogPath(req);
 
             // check to see if the log expiration time parameter was changed
-            newExpirationTime = auditCheckLogExpirationTime(req);
+            // newExpirationTime = auditCheckLogExpirationTime(req);
 
             // store a message in the signed audit log file
             // (regardless of logType)
@@ -2269,7 +2271,7 @@ public class LogAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             // (regardless of logType)
-            if (!(newExpirationTime.equals(origExpirationTime))) {
+            /*if (!(newExpirationTime.equals(origExpirationTime))) {
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
                             auditSubjectID,
@@ -2278,7 +2280,7 @@ public class LogAdminServlet extends AdminServlet {
                             newExpirationTime);
 
                 audit(auditMessage);
-            }
+            }*/
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
