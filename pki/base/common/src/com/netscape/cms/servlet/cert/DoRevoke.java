@@ -249,10 +249,18 @@ public class DoRevoke extends CMSServlet {
                 cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
                 return;
             }
+ 
             
             if (mAuthMgr != null && mAuthMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
-
                 if (authToken != null) {
+
+                    String serialNumber = req.getParameter("serialNumber");
+                    X509CertImpl sslCert = (X509CertImpl) getSSLClientCertificate(req);
+
+                    if (serialNumber != null)  {
+                        eeSerialNumber = serialNumber;
+                    }
+
                     authMgr = authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
                     String agentID = authToken.getInString("userid");
 
@@ -273,6 +281,7 @@ public class DoRevoke extends CMSServlet {
                     eeSubjectDN = sslCert.getSubjectDN().toString();
                     eeSerialNumber = sslCert.getSerialNumber().toString();
                 }
+
             }
 
             if (authorized) {
@@ -391,6 +400,7 @@ public class DoRevoke extends CMSServlet {
         String auditApprovalStatus = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         String auditReasonNum = String.valueOf(reason);
 
+         CMS.debug("DoRevoke: eeSerialNumber: " + eeSerialNumber + " auditSerialNumber: " + auditSerialNumber);
         long startTime = CMS.getCurrentDate().getTime();
 
         try {
@@ -1114,10 +1124,33 @@ public class DoRevoke extends CMSServlet {
         if (eeSerialNumber != null) {
             serialNumber = eeSerialNumber.trim();
 
+            // find out if the value is hex or decimal
+
+            int value = -1;
+           
+            //try int 
+            try { 
+                value = Integer.parseInt(serialNumber,10);
+            } catch (NumberFormatException e) {
+            }
+ 
+            //try hex
+            if( value == -1) {
+                try {
+                    value = Integer.parseInt(serialNumber,16);
+
+                } catch (NumberFormatException e) {
+                }
+            }
+            // give up if it isn't hex or dec
+            if ( value == -1)   {
+                throw new NumberFormatException();
+            }
+
             // convert it to hexadecimal
             serialNumber = "0x"
                     + Integer.toHexString(
-                        Integer.valueOf(serialNumber).intValue());
+                        value);
         } else {
             serialNumber = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
