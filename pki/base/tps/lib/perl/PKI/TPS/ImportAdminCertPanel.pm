@@ -86,6 +86,8 @@ sub update
     my $instanceDir = $::config->get("service.instanceDir");
     my $securePort = $::config->get("service.securePort");
     my $subsystemName = $::config->get("preop.subsystem.name");
+    my $tokenname = $::config->get("preop.module.token");
+    my $token_pwd = $::pwdconf->get($tokenname);
     my $db_password = `grep \"internal:\" \"$instanceDir/conf/password.conf\" | cut -c10-`;
     my $name = $subsystemName;
     my $subCertNickName = $::config->get("preop.cert.subsystem.nickname");
@@ -101,7 +103,12 @@ sub update
 
     my $sd_host =  $sdom_url->host;
     my $sd_agent_port = $sdom_url->port;
-    my $cmd = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$subCertNickName\" -r \"/ca/agent/ca/updateDomainXML\" -e \"$params\" $sd_host:$sd_agent_port`;
+    my $cmd;
+    if (($tokenname eq "") || ($tokenname eq "NSS Certificate DB")) {
+        $cmd = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$subCertNickName\" -r \"/ca/agent/ca/updateDomainXML\" -e \"$params\" $sd_host:$sd_agent_port`;
+    } else {
+        $cmd = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -n \"$subCertNickName\" -r \"/ca/agent/ca/updateDomainXML\" -e \"$params\" $sd_host:$sd_agent_port`;
+    }
 
     # Fetch the "updated" security domain and display it 
     &PKI::TPS::Wizard::debug_log("ImportAdminCertPanel:  Dump contents of updated Security Domain . . .");
@@ -110,7 +117,12 @@ sub update
     my $nickname = $::config->get("preop.cert.sslserver.nickname");
     $sd_host = $sdom_info->host;
     my $sd_admin_port = $sdom_info->port;
-    my $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$nickname\" -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
+    my $content;
+    if (($tokenname eq "") || ($tokenname eq "NSS Certificate DB")) {
+        $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$nickname\" -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
+    } else {
+        $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -n \"$nickname\" -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
+    }
     $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;
     $content = $1;
     &PKI::TPS::Wizard::debug_log($content);

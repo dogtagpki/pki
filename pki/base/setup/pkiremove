@@ -35,7 +35,10 @@ use Getopt::Long qw(GetOptions);
 #               -pki_instance_name=<pki_instance_id>   # Unique PKI subsystem
 #                                                      # instance name
 #                                                      # (e. g. - pki-pki1)
-#                       
+#
+#               [-token_pwd=<token pw>]                # Password of token containing
+#                                                      # subsystem certificate
+#
 #               [-force]                               # Don't ask any
 #                                                      # questions
 #
@@ -104,6 +107,7 @@ my $semanage = "/usr/sbin/semanage";
 my $pki_instance_root               = undef;
 my $pki_instance_name               = undef;
 my $force                           = 0;
+my $token_pwd                       = "";
 
 my $conf_file                       = undef;
 my $pki_instance_path               = undef;
@@ -146,6 +150,8 @@ Usage:  pkiremove -pki_instance_root=<pki_instance_root> # Instance root
                                                          # subsystem
                                                          # instance name
                                                          # (e. g. - pki-pki1)
+                                                         #
+[-token_pwd=<token password>] # Password for token containing subsystem cert.          
 
 [-force]   # Don't ask any questions
 
@@ -176,7 +182,7 @@ sub update_domain
     my $secselect;
     my $subsystemnick;
     my $machinename;
-    my $subsytemnick;
+    my $typeval;
     my $url;
     
     get_cs_cfg($conf_file, {"service.machineName"               => \$machinename,
@@ -188,10 +194,12 @@ sub update_domain
                             "securitydomain.httpsagentport"     => \$secagentport,
                             "securitydomain.httpsadminport"     => \$secadminport,
                             "securitydomain.select"             => \$secselect,
-                            "pkiremove.cert.subsystem.nickname" => \$subsystemnick,
                             "pkicreate.admin_secure_port"       => \$adminsport,
+                            "cs.type"                           => \$typeval,
                             "pkicreate.agent_secure_port"       => \$agentsport});
 
+    my $subsystemnick_param = lc($typeval) . ".cert.subsystem.nickname";
+    get_cs_cfg($conf_file, {$subsystemnick_param                => \$subsystemnick});
 
     # NOTE:  Don't check for the existence of $httpport, as this will
     #        be undefined for a Security Domain that has been migrated!
@@ -204,6 +212,24 @@ sub update_domain
         return;
     }
 
+    die "Subsystem nickname not defined" if (!defined($subsystemnick));
+    if (!defined($adminsport)) {
+        $adminsport = "";
+    }
+    
+    if (!defined($agentsport)) {
+        $agentsport = "";
+    }
+
+    if (!defined($ncsport)) {
+        $ncsport = "";
+    }
+
+    (my $token_name, my $nick) = split(/:/, $subsystemnick, 2);
+    if ((!defined($nick)) || ($nick eq "")) {
+        $token_name = "internal";
+    }
+ 
     if ($secselect ne "new") {
         # This is not a domain master, so we need to update the master
         print(STDOUT "Contacting the security domain master to update the security domain\n");
@@ -212,68 +238,51 @@ sub update_domain
         my $urlagentheader = "https://" . $sechost . ":" . $secagentport; 
         my $urladminheader = "https://" . $sechost . ":" . $secadminport; 
         my $updateURL = "/ca/agent/ca/updateDomainXML";   
-        my $loginURL = "/ca/admin/ca/securityDomainLogin";
-        my $cookieURL = "/ca/admin/ca/getCookie";
 
-        # Login to security domain
-        use LWP;
-        my $browser= LWP::UserAgent->new;
-
-        #create pk12 files for client cert authentication
-        my $intpw;
-        my $pwfile = $pki_instance_path . "/conf/password.conf";
-        open(DAT, $pwfile) or die "Could not open password.conf file to generate pk12 files.";
-        my @pw_data=<DAT>;
-        foreach my $line (@pw_data) {
-            chomp($line);
-
-            if (($subsystem_type eq $CA)   ||
-                ($subsystem_type eq $KRA)  ||
-                ($subsystem_type eq $OCSP) ||
-                ($subsystem_type eq $TKS)) {
-                (my $varname, my $valname) = split(/=/, $line);
-                if ($varname eq "internal") { $intpw = $valname; }
-            } else {  # TPS, RA
-                (my $varname, my $valname) = split(/:/, $line);
-                if ($varname eq "internal") { $intpw = $valname; }
+        if ($token_pwd eq "") {
+            my $pwfile = $pki_instance_path . "/conf/password.conf";
+            if (-r $pwfile) {
+                open(DAT, $pwfile) or die "Could not open password.conf file to read token password.";
+                my @pw_data=<DAT>;
+                foreach my $line (@pw_data) {
+                    chomp($line);
+                    if (($typeval eq "CA")   ||
+                        ($typeval eq "KRA")  ||
+                        ($typeval eq "OCSP") ||
+                        ($typeval eq "TKS")) {
+                        (my $varname, my $valname) = split(/=/, $line);
+                        if ($varname eq "hardware-$token_name") { $token_pwd = $valname; }
+                        if ($varname eq "$token_name") { $token_pwd = $valname; }
+                    } else {  # TPS, RA
+                        (my $varname, my $valname) = split(/:/, $line);
+                        if ($varname eq $token_name) { $token_pwd = $valname; }
+                        if ($varname eq "hardware-$token_name") { $token_pwd = $valname; }
+                    }
+                }
+                close($pwfile);
             }
         }
-        close($pwfile);
 
-        my $tempfile = "/tmp/" . $$ . ".p12";
-        my $dbpath = $pki_instance_path . "/alias";
-        srand(time() ^($$ + ($$ <<15))) ;
-        my $p12pw = rand();
-
-        my $errs = `pk12util -d $dbpath -o $tempfile -n "$subsystemnick" -K $intpw -W $p12pw 2>&1`;
-        if ($? != 0) {
-            emit($errs, "error");
-            die "Could not generate pk12 file for client authentication.";
+        while ($token_pwd eq "") {
+            $token_pwd  = prompt( "No password found for $token_name. What is the password for this token?");
         }
 
+        my $params = "name=$pki_instance_name" .
+                     "&type=$typeval" .
+                     "&list=$listval" .
+                     "&host=$machinename" .
+                     "&sport=$sport" .
+                     "&ncsport=$ncsport" .
+                     "&adminsport=$adminsport" .
+                     "&agentsport=$agentsport" .
+                     "&operation=remove";
+
         #update domainXML
+        my $cmd = `/usr/bin/sslget -d \"$pki_instance_path/alias\" -p \"$token_pwd\" -v -n \"$subsystemnick\" -r \"$updateURL\" -e \"$params\" $sechost:$secagentport 2>&1`;
+        $cmd =~ /\<Status\>(.*?)\<\/Status\>/;
+        $cmd = $1;
 
-        $url = $urlagentheader . $updateURL;
-        #$ENV{'HTTPS_DEBUG'} = 1; 
-        $ENV{'HTTPS_PKCS12_FILE'}     = $tempfile;
-        $ENV{'HTTPS_PKCS12_PASSWORD'} = $p12pw;
-
-        my $response = $browser->post($url, 
-            [
-                'name'       => $pki_instance_name,
-                'type'       => $subsystem_type,
-                'list'       => $listval,
-                'host'       => $machinename,
-                'sport'      => $sport,
-                'ncsport'    => $ncsport,
-                'adminsport' => $adminsport,
-                'agentsport' => $agentsport,
-                'operation'  => 'remove'
-            ],
-);
- 
-        ($response->is_success) or die ("$url error: " . $response->status_line);
-        unlink $tempfile;
+        die ("Security Domain returns non-zero status for updateDomainXML.") if ($cmd ne "0");
    } 
 }
 
@@ -542,6 +551,7 @@ sub main
     # Parse command-line arguments.
     $result = GetOptions("pki_instance_root=s" => \$pki_instance_root,
                          "pki_instance_name=s" => \$pki_instance_name,
+                         "token_pwd=s"         => \$token_pwd,
                          "verbose+"            => \$verbose,
                          "dry_run"             => \$dry_run,
                          "force"               => \$force);

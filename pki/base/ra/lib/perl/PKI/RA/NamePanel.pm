@@ -376,13 +376,16 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
                         $::config->put("preop.cert.$certtag.nickname", "$tk$nickname");
                     }
                     $changed = "true";
-                }
-                if ($certtag eq "subsystem") {
-                    &PKI::RA::Wizard::debug_log("NamePanel: update: sslnickname changed");
+                } elsif ($certtag eq "subsystem") {
+                    &PKI::RA::Wizard::debug_log("NamePanel: update: subsystem nickname changed");
                     $::config->put("preop.cert.$certtag.nickname", "$tk$nickname");
                     $::config->put("conn.ca1.clientNickname", "$tk$nickname");
                     $::config->put("conn.drm1.clientNickname", "$tk$nickname");
                     $::config->put("conn.tks1.clientNickname", "$tk$nickname");
+                    $::config->put( "ra.cert.subsystem.nickname", "$tk$nickname");
+                } else {
+                    &PKI::RA::Wizard::debug_log("NamePanel: update: $certtag nickname changed");
+                    $::config->put("preop.cert.$certtag.nickname", "$tk$nickname");
                 }
                 $::config->commit();
             } else {
@@ -392,6 +395,7 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
                     $::config->put("conn.ca1.clientNickname", "$nickname");
                     $::config->put("conn.drm1.clientNickname", "$nickname");
                     $::config->put("conn.tks1.clientNickname", "$nickname");
+                    $::config->put( "ra.cert.subsystem.nickname", $nickname");
                 }
                 $::config->commit();
             }
