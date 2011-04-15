@@ -48,9 +48,43 @@ sub r {
   return sub { $a; } 
 }
 
+# special function to add schema elements.  This assumes the entry
+# is ldif update format with changetype "modify" and operation "add"
+#
+sub add_schema_update
+{
+    my ($conn, $aentry, $err_ref) = @_;
+
+    my $sentry = $conn->search($aentry->{dn}, "base", "(objectclass=*)", 0, ("*", "aci"));
+    if (!$sentry) {
+        $$err_ref .= "Error: trying to update entry that does not exist: " . $aentry->{dn} . "\n"; 
+        return 0;
+    }
+
+    my @addtypes = ("attributeTypes", "objectClasses");
+
+    foreach my $attr (@addtypes) {
+        my @vals = $aentry->getValues($attr);
+        push @vals, $vals[0];          # HACK! for some reason, first value always fails with server unwilling to perform
+
+        foreach my $val (@vals) {
+            $sentry->addValue( $attr, $val );
+            $conn->update($sentry);
+            my $rc = $conn->getErrorCode();
+            if ( $rc != 0 ) {
+                my $string = $conn->getErrorString();
+                $$err_ref .= "Error: updating entry " . $sentry->{dn} . " with value $val : $string\n";
+            } else {
+               $$err_ref .= "Updated entry ". $sentry->{dn} . " with value $val : rc = $rc\n";
+            }
+        }
+    }
+    return 1;
+}
+
 sub import_ldif
 {
-  my ($conn, $ldif_file, $msg_ref) = @_;
+  my ($conn, $ldif_file, $msg_ref, $schema) = @_;
 
   if (!open( MYLDIF, "$ldif_file" )) {
     $$msg_ref = "Could not open $ldif_file: $!\n";
@@ -59,14 +93,17 @@ sub import_ldif
 
   my $in = new Mozilla::LDAP::LDIF(*MYLDIF);
   while (my $entry = readOneEntry $in) {
-    if (!$conn->add($entry)) {
-      $$msg_ref .= "Error: could not add entry " . $entry->getDN() . ":" . $conn->getErrorString() . "\n";
+    if (defined($schema) && ($schema == 1)) {
+        add_schema_update($conn, $entry, $msg_ref);
+    } else {
+        if (!$conn->add($entry)) {
+            $$msg_ref .= "Error: could not add entry " . $entry->getDN() . ":" . $conn->getErrorString() . "\n";
+        }
     }
   }
   close( MYLDIF );
   return 1;
 }
-
 
 # this subroutine checks if an ldaps connection is successful first
 # and then if an ldap connection is successful.

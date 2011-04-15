@@ -159,7 +159,7 @@ sub update
     system("rm $tmp");
 
     # add schema
-    if (! &PKI::TPS::Common::import_ldif($conn, "/usr/share/$flavor/tps/scripts/schemaMods.ldif", \$msg)) {
+    if (! &PKI::TPS::Common::import_ldif($conn, "/usr/share/$flavor/tps/scripts/schemaMods.ldif", \$msg, 1)) {
       &PKI::TPS::Wizard::debug_log("DatabasePanel: $msg");
       $::symbol{errorString} = "Failed to add schema";
       $conn->close();
