@@ -299,8 +299,16 @@ public class QueryReq extends CMSServlet {
     		String bottom_s = req.getParameter(OUT_LAST_ENTRY_ON_PAGE);
     		if (bottom_s == null) bottom_s = "0";
     		
-    		top = Integer.parseInt(top_s);
-    		bottom = Integer.parseInt(bottom_s);
+    		if (top_s.trim().startsWith("0x")) {
+    			top = Integer.parseInt(top_s.trim().substring(2), 16);
+    		} else {
+    			top = Integer.parseInt(top_s.trim());
+    		}
+    		if (bottom_s.trim().startsWith("0x")) {
+    			bottom = Integer.parseInt(bottom_s.trim().substring(2), 16);
+    		} else {
+    			bottom = Integer.parseInt(bottom_s.trim());
+    		}
     		
     	} catch (NumberFormatException e) {
 
@@ -369,6 +377,8 @@ public class QueryReq extends CMSServlet {
     		ctp = doSearch(l,filter, count, bottom+1);
     	} else if (direction.equals("begin")) {
     		ctp = doSearch(l,filter, count, 0);
+    	} else if (direction.equals("first")) {
+    		ctp = doSearch(l,filter, count, bottom);
     	} else {  // if 'direction is 'end', default here
     		ctp = doSearch(l,filter, -count, -1);
     	}
