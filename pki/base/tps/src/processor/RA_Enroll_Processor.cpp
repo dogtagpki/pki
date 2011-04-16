@@ -3537,7 +3537,9 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
         ktypes[i] = NULL;
         origins[i] = NULL;
         tokenTypes[i] = NULL;
-
+    }
+    
+    for (i=0; i<keyTypeNum; i++) {
         bool renewable = true;
         // e.g. op.enroll.userKey.renewal.keyType.value.0=signing
         // e.g. op.enroll.userKey.renewal.keyType.value.1=encryption
