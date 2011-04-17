@@ -303,6 +303,24 @@ public class DoRevokeTPS extends CMSServlet {
         String auditApprovalStatus = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         String auditReasonNum = String.valueOf(reason);
 
+
+        if (revokeAll != null) {
+           CMS.debug("DoRevokeTPS.process revokeAll" + revokeAll);
+
+           String serial = "";
+            String[] tokens;
+            tokens = revokeAll.split("=");
+
+            if (tokens.length == 2) {
+                serial = tokens[1];
+                //remove the trailing paren
+                if (serial.endsWith(")")) {
+                    serial = serial.substring(0,serial.length() -1);
+                }
+                auditSerialNumber = serial;    
+            }
+        }
+
         long startTime = CMS.getCurrentDate().getTime();
 
         try {
