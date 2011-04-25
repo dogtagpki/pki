@@ -145,7 +145,7 @@ public class PluginRegistry implements IPluginRegistry {
         }
         PluginInfo info = new PluginInfo(name, desc, classpath);
 
-        addPluginInfo(type, id, info);
+        addPluginInfo(type, id, info, 0);
     }
 
     public void removePluginInfo(String type, String id)
@@ -159,6 +159,11 @@ public class PluginRegistry implements IPluginRegistry {
     }
 
     public void addPluginInfo(String type, String id, IPluginInfo info)
+        throws ERegistryException {
+        addPluginInfo(type, id, info, 1);
+    }
+
+    public void addPluginInfo(String type, String id, IPluginInfo info, int saveConfig)
         throws ERegistryException {
         Hashtable plugins = (Hashtable) mTypes.get(type); 
 
@@ -174,7 +179,7 @@ public class PluginRegistry implements IPluginRegistry {
         plugins.put(id, info);
 
         // rebuild configuration store
-        rebuildConfigStore(locale);
+        if (saveConfig == 1) rebuildConfigStore(locale);
     }
 
     public void rebuildConfigStore(Locale locale)
