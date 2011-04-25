@@ -395,11 +395,10 @@ $debug_req = "/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"(sen
                     $::config->put("conn.ca1.clientNickname", "$nickname");
                     $::config->put("conn.drm1.clientNickname", "$nickname");
                     $::config->put("conn.tks1.clientNickname", "$nickname");
-                    $::config->put( "ra.cert.subsystem.nickname", $nickname");
+                    $::config->put("ra.cert.subsystem.nickname", "$nickname");
                 }
                 $::config->commit();
             }
-
 
             &PKI::RA::Wizard::debug_log("NamePanel: update: done importing cert: $tk$nickname");
             $tmp = `rm $cert_fn`;
