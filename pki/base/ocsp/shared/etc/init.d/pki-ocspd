@@ -34,6 +34,10 @@ PKI_REGISTRY="/etc/sysconfig/pki/ocsp"
 PKI_TYPE="pki-ocsp"
 PKI_TOTAL_PORTS=6
 
+# Avoid using 'systemctl' for now
+SYSTEMCTL_SKIP_REDIRECT=1
+export SYSTEMCTL_SKIP_REDIRECT
+
 # Disallow 'others' the ability to 'write' to new files
 umask 00002
 
