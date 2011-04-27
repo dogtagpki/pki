@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.4
+Version:          9.0.5
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -346,6 +346,20 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Tue Apr 26 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
+- 'dogtag-pki-ca-theme'
+-     Bugzilla Bug #695015 - Serial No. of a revoked certificate is not
+      populated in the CA signedAudit messages
+-     Bugzilla Bug #694143 - CA Agent not returning specified request
+- 'dogtag-pki-common-theme'
+- 'dogtag-pki-console-theme'
+- 'dogtag-pki-kra-theme'
+-     Bugzilla Bug #694143 - CA Agent not returning specified request
+- 'dogtag-pki-ocsp-theme'
+- 'dogtag-pki-ra-theme'
+- 'dogtag-pki-tks-theme'
+- 'dogtag-pki-tps-theme'
+
 * Tue Apr 5 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
 - Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
 - 'dogtag-pki-ca-theme'

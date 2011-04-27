@@ -1,5 +1,5 @@
 Name:             pki-tps
-Version:          9.0.3
+Version:          9.0.4
 Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
@@ -215,6 +215,14 @@ fi
 
 
 %changelog
+* Tue Apr 26 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
+- Bugzilla Bug #697035 - TPS database schema not populated correctly
+- Bugzilla Bug #694569 - parameter used by pkiremove not updated
+- Bugzilla Bug #696851 - TPS crashes that cause AuditVerify on
+  TPS audit logs - some of the signatures are failing.
+- Bugzilla Bug #699837 - service command is not fully backwards compatible
+  with Dogtag pki subsystems
+
 * Tue Apr 5 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
 - Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
 - Bugzilla Bug #691867 - add ldaps support through perLDAP

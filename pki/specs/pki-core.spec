@@ -1,6 +1,6 @@
 Name:             pki-core
-Version:          9.0.6
-Release:          2%{?dist}
+Version:          9.0.7
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -600,6 +600,31 @@ fi
 
 
 %changelog
+* Tue Apr 26 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.7-1
+- 'pki-setup'
+-     Bugzilla Bug #693815 - /var/log/tomcat6/catalina.out owned by pkiuser
+-     Bugzilla Bug #694569 - parameter used by pkiremove not updated
+- 'pki-symkey'
+- 'pki-native-tools'
+- 'pki-util'
+- 'pki-java-tools'
+- 'pki-common'
+-     Bugzilla Bug #695403 - Editing signedaudit or transaction, system logs
+      throws 'Invalid protocol' for OCSP subsystems
+-     Bugzilla Bug #694569 - parameter used by pkiremove not updated
+-     Bugzilla Bug #695015 - Serial No. of a revoked certificate is not
+      populated in the CA signedAudit messages
+-     Bugzilla Bug #694143 - CA Agent not returning specified request
+-     Bugzilla Bug #695015 - Serial No. of a revoked certificate is not
+      populated in the CA signedAudit messages
+-     Bugzilla Bug #698885 - Race conditions during IPA installation
+- 'pki-selinux'
+- 'pki-ca'
+-     Bugzilla Bug #693815 - /var/log/tomcat6/catalina.out owned by pkiuser
+-     Bugzilla Bug #699837 - service command is not fully backwards compatible
+      with Dogtag pki subsystems
+- 'pki-silent'
+
 * Mon Apr 11 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.6-2
 - Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
 
