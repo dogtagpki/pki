@@ -181,7 +181,8 @@ public class UserTab extends CMSBaseUGTab {
         //actionlister to this object
         mRefresh = makeJButton("REFRESH");
         mHelp = makeJButton("HELP");
-		JButton[] buttons = { mRefresh, mHelp };
+	//JButton[] buttons = { mRefresh, mHelp };
+	JButton[] buttons = { mRefresh };
 		return makeJButtonPanel( buttons, true);
     }
 

@@ -117,7 +117,8 @@ public class ACLImplTab extends CMSBaseUGTab {
     protected JPanel createActionPanel() {
         mRefresh = makeJButton("REFRESH");
         mHelp = makeJButton("HELP");
-        JButton[] buttons = { mRefresh, mHelp };
+        //JButton[] buttons = { mRefresh, mHelp };
+        JButton[] buttons = { mRefresh };
         return makeJButtonPanel(buttons, true);
     }
 

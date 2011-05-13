@@ -217,7 +217,8 @@ public abstract class CMSLogPanel extends CMSBasePanel
         mView = makeJButton("VIEW");
         mRefresh = makeJButton("REFRESH");
         mHelp = makeJButton("HELP");
-		JButton[] buttons = { mView,mRefresh,mHelp };
+	//JButton[] buttons = { mView,mRefresh,mHelp };
+	JButton[] buttons = { mView,mRefresh };
 		return makeJButtonPanel(buttons,true,true);
     }
 

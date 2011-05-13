@@ -212,7 +212,8 @@ public class CertificateInfoDialog extends JDialog
             d.width = CMSAdminUtil.DEFAULT_BUTTON_SIZE;
             mHelp.setMinimumSize(d);
         }
-        JButton[] buttons = {mClose, mHelp};
+        //JButton[] buttons = {mClose, mHelp};
+        JButton[] buttons = {mClose};
         return CMSAdminUtil.makeJButtonPanel( buttons );
     }
 

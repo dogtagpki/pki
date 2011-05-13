@@ -260,7 +260,8 @@ public class CMSPassword extends JDialog
         mHelp = CMSAdminUtil.makeJButton(mResource, PREFIX, "HELP",
           null, this);
         
-        JButton[] buttons = { mOK, mCancel, mHelp};
+        //JButton[] buttons = { mOK, mCancel, mHelp};
+        JButton[] buttons = { mOK, mCancel};
         JButtonFactory.resize( buttons );
         return CMSAdminUtil.makeJButtonPanel(buttons, true);
     }

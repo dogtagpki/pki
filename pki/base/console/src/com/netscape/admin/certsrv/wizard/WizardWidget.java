@@ -294,7 +294,8 @@ public class WizardWidget extends JDialog implements ActionListener
         mBHelp.setText(mResource.getString(CMSAdminResources.GENERAL_HELP));
         mBHelp.addActionListener(this);
 
-		JButton[] buttons = {mBBack, mBNext_Done, mBCancel, mBHelp };
+	//JButton[] buttons = {mBBack, mBNext_Done, mBCancel, mBHelp };
+	JButton[] buttons = {mBBack, mBNext_Done, mBCancel};
 		
 		//pass the buttons reference to wizardinfo
 		mInfo.setButtons(mBNext_Done, mBCancel, mBBack);

@@ -386,7 +386,8 @@ public class UserEditor extends JDialog
         mOK = CMSAdminUtil.makeJButton(mResource, PREFIX, "OK", null, this);
         mCancel = CMSAdminUtil.makeJButton(mResource, PREFIX, "CANCEL", null, this);
         mHelp = CMSAdminUtil.makeJButton(mResource, PREFIX, "HELP", null, this);
-        JButton[] buttons = { mOK, mCancel, mHelp };
+        //JButton[] buttons = { mOK, mCancel, mHelp };
+        JButton[] buttons = { mOK, mCancel };
         return CMSAdminUtil.makeJButtonPanel( buttons, true);
     }
 

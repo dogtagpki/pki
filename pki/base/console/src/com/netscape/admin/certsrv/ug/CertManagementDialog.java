@@ -209,7 +209,8 @@ public class CertManagementDialog extends JDialog
         mOK = CMSAdminUtil.makeJButton(mResource, PREFIX, "OK", null, this);
         mCancel = CMSAdminUtil.makeJButton(mResource, PREFIX, "CANCEL", null, this);
         mHelp = CMSAdminUtil.makeJButton(mResource, PREFIX, "HELP", null, this);
-		JButton[] buttons = { mOK, mHelp};
+	// JButton[] buttons = { mOK, mHelp};
+	JButton[] buttons = { mOK};
 		JButtonFactory.resize( buttons );
         return CMSAdminUtil.makeJButtonPanel( buttons, true);
     }
