@@ -89,7 +89,7 @@ class RA_Enroll_Processor : public RA_Processor
                 const char *profileId,
                 CERTCertificate *i_cert,
                 CERTCertificate **o_cert, 
-                char *error_msg);
+                char *error_msg, int *error_code);
 
         bool GenerateCertificate(AuthParams *login,
                 int keyTypeNum, 

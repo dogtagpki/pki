@@ -3403,7 +3403,7 @@ bool RA_Enroll_Processor::isCertRenewable(CERTCertificate *cert, int graceBefore
  * o_cert - cert newly issued
  */
 bool RA_Enroll_Processor::DoRenewal(const char *connid, const char *profileId, CERTCertificate *i_cert,
-CERTCertificate **o_cert, char *error_msg)
+CERTCertificate **o_cert, char *error_msg, int *error_code)
 {
     RA_Status status = STATUS_NO_ERROR;
     bool r = true;
@@ -3411,12 +3411,18 @@ CERTCertificate **o_cert, char *error_msg)
     Buffer *cert = NULL;
     char *cert_string = NULL;
 
+    error_msg[0] =0;
+    *error_code=0; //assume undefined
+
     PRUint64 snum = DER_GetInteger(&(i_cert)->serialNumber);
     RA::Debug("RA_Enroll_Processor::DoRenewal", "begins renewal for serial number %u with profileId=%s", (int)snum, profileId);
 
     certRenewal = new CertEnroll();
     cert = certRenewal->RenewCertificate(snum, connid, profileId, error_msg);
 
+    if (error_msg[0] != 0) { // We can assume a non grace period error here.
+        *error_code = 1;
+    }
 // this is where renewal happens .. audit log for fail/ success here? 
     if (cert == NULL) {
         r = false;
@@ -3495,6 +3501,7 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
     int   maxCertUpdate = 25; 
     char  *renewedCertUpdateList[25];
     int   renewedCertUpdateCount = 0;
+    int renew_error = 0;
 
     int i = 0;
     const char *FN="RA_Enroll_Processor::ProcessRenewal";
@@ -3750,13 +3757,17 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
 
                         // send renewal request to CA
                         // o_cert is the cert gotten back
-                        r = DoRenewal(caconnid, profileId, certs[0], &o_cert, audit_msg);
+                        r = DoRenewal(caconnid, profileId, certs[0], &o_cert, audit_msg, &renew_error);
                         if (r == false) {
-			    RA::Debug("RA_Enroll_Processor::ProcessRenewal", "after DoRenewal failure. o_cert %p",o_cert);
+			    RA::Debug("RA_Enroll_Processor::ProcessRenewal", "after DoRenewal failure. o_cert %p renew_error %d",o_cert,renew_error);
                             o_status = STATUS_ERROR_MAC_ENROLL_PDU;
                             //Assume a renewal grace failure here since we can't obtain the reason.
                             //This is the most likely error and there is a chance the next renewal may succeed.
-                            renewal_failure_found = RENEWAL_FAILURE_GRACE;
+                            if ( renew_error == 0) { //Assume undefined error is error coming from CA
+                                renewal_failure_found = RENEWAL_FAILURE_GRACE;
+                            } else {
+                                renewal_failure_found = RENEWAL_FAILURE;
+                            }
                             char snum[2048];
                             RA::ra_tus_print_integer(snum, &(certs[0])->serialNumber);
                             RA::Audit(EV_RENEWAL, AUDIT_MSG_PROC_CERT_REQ, 
@@ -3766,7 +3777,9 @@ bool RA_Enroll_Processor::ProcessRenewal(AuthParams *login, RA_Session *session,
                             //Since this is merely a grace period or renewal failure for one cert
                             //let's keep it going
 
-                            r = true;
+                            if (renew_error == 0) { //undefined error means probably grace period, forgive that.
+                                r = true;
+                            }
                             goto rloser;
                         }
 
