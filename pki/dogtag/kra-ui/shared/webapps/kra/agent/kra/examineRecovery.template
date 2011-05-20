@@ -98,7 +98,7 @@ if (result.header.errorDetails != null) {
 	document.writeln('<tr>');
 	document.writeln('<td align="right" bgcolor="#e5e5e5">');
 	document.writeln('<input type=submit value="Grant">');
-	document.writeln("<input type=button value=\"Help\" onClick=\"help('/manual/agt_gide/kraagt.htm#1022642')\">");
+	// document.writeln("<input type=button value=\"Help\" onClick=\"help('/manual/agt_gide/kraagt.htm#1022642')\">");
 	document.writeln('</td>');
 	document.writeln('</tr>');
 	document.writeln('</table>');

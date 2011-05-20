@@ -352,8 +352,8 @@ if (issuingPoint != null && issuingPoint.length > 0) {
 </SCRIPT>
       <INPUT TYPE="hidden" NAME="pageStart" VALUE="1">
       <INPUT TYPE="hidden" NAME="pageSize" VALUE="50">
-      <INPUT TYPE="button" VALUE=Help width="72"
-        onClick="help('http://www.redhat.com/docs/manuals/cert-system#Viewing or Examining CRLs')">
+      <!-- <INPUT TYPE="button" VALUE=Help width="72"
+        onClick="help('http://www.redhat.com/docs/manuals/cert-system#Viewing or Examining CRLs')"> -->
     </td>
   </tr>
 </table>

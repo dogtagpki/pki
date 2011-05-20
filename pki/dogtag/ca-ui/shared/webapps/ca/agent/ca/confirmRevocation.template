@@ -194,8 +194,8 @@ document.write('not before: '+ renderDateFromSecs(result.header.validNotBefore) 
 				<input type="hidden" name="op" value="DoRevocation">
 				<input type="hidden" name="templateType" value="RevocationSuccess">
                 <input type="reset" value="Reset" name="reset" width="72">
-                <input type="button" value="Help" 
-					onclick="help('http://www.redhat.com/docs/manuals/cert-system#Confirming a Revocation')" name="button" width="72">
+                <!-- <input type="button" value="Help" 
+					onclick="help('http://www.redhat.com/docs/manuals/cert-system#Confirming a Revocation')" name="button" width="72"> -->
 <SCRIPT type="text/javascript">
 document.write("<INPUT TYPE=hidden name=serialNumber value=\"" + 
 result.header.serialNumber +"\">");

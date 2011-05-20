@@ -374,8 +374,8 @@ if (issuingPoint != null && issuingPoint.length > 0) {
       }
 //-->
 </SCRIPT>
-      <INPUT TYPE="button" VALUE=Help width="72"
-        onClick="help('http://www.redhat.com/docs/manuals/cert-system#Updating the CRL')">
+      <!-- <INPUT TYPE="button" VALUE=Help width="72"
+        onClick="help('http://www.redhat.com/docs/manuals/cert-system#Updating the CRL')"> -->
     </td>
   </tr>
 </table>
