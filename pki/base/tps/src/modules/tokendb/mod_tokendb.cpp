@@ -6876,23 +6876,43 @@ mod_tokendb_handler( request_rec *rq )
         RA::Audit(EV_AUTHZ_SUCCESS, AUDIT_MSG_AUTHZ, userid, "do_delete_user", "Success", "Tokendb user authorization");
 
         uid = get_post_field(post, "uid", SHORT_LEN);
-        opOperator = get_post_field(post, "opOperator", SHORT_LEN);
-        opAdmin = get_post_field(post, "opAdmin", SHORT_LEN);
-        opAgent = get_post_field(post, "opAgent", SHORT_LEN);
 
         if (uid == NULL) {
             error_out("Error in delete user. userid is null", "Error in delete user. userid is null");
             do_free(buf);
             do_strfree(uri);
             do_strfree(query);
-            do_free(opOperator);
-            do_free(opAdmin);
-            do_free(opAgent);
             
             return DONE;
         }
 
-        if (opOperator != NULL) {
+        bool officer = false;
+        bool agent = false;
+        bool admin = false;
+        status = find_tus_user_role_entries( uid, &result );
+        for (e = get_first_entry( result );
+            e != NULL;
+            e = get_next_entry( e ) ) {
+            char *dn = NULL;
+            dn = get_dn(e);
+            if (PL_strstr(dn, "Operators"))
+                officer=true;
+            if (PL_strstr(dn, "Agents"))
+                agent = true;
+            if (PL_strstr(dn, "Administrators"))
+                admin = true;
+            if (dn != NULL) {
+                PL_strfree(dn);
+                dn=NULL;
+            }
+        }
+
+        if (result != NULL) {
+            free_results( result );
+            result = NULL;
+        }
+
+        if (officer) {
             status = delete_user_from_role_db_entry(userid, uid, OPERATOR);
             if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
                 PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, OPERATOR);
@@ -6900,7 +6920,7 @@ mod_tokendb_handler( request_rec *rq )
             }
         }
 
-        if (opAgent != NULL) {
+        if (agent) {
             status = delete_user_from_role_db_entry(userid, uid, AGENT);
             if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
                 PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, AGENT);
@@ -6908,7 +6928,7 @@ mod_tokendb_handler( request_rec *rq )
             }
         }
 
-        if (opAdmin != NULL) {
+        if (admin) {
             status = delete_user_from_role_db_entry(userid, uid, ADMINISTRATOR);
             if ((status!= LDAP_SUCCESS) && (status != LDAP_NO_SUCH_ATTRIBUTE)) {
                 PR_snprintf(msg, 512, "Error deleting user %s from role %s", uid, ADMINISTRATOR);
@@ -6916,10 +6936,6 @@ mod_tokendb_handler( request_rec *rq )
             }
         }
 
-        do_free(opOperator);
-        do_free(opAdmin);
-        do_free(opAgent);
-            
         status = delete_user_db_entry(userid, uid);
 
         if ((status != LDAP_SUCCESS) && (status != LDAP_NO_SUCH_OBJECT)) {
