@@ -2437,7 +2437,12 @@ private void 	createMasterKey(HttpServletRequest req,
             audit(auditMessage);
 
             mConfig.commit(true);
-            sendResponse(SUCCESS, null, null, resp);
+            if(verified == true) {
+                sendResponse(SUCCESS, null, null, resp);
+            } else {
+                sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_CERT_VALIDATE_FAILED"),
+                null, resp);
+            }
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
