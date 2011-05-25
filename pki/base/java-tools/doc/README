@@ -37,6 +37,25 @@ CRMFPopClient                                  A command line utility used to
                                                generate CRMF requests with
                                                proof of possession (POP).
 
+DRMTool -source_ldif_file                      A command line utility used to
+        <path + source ldif file>              change the storage key used
+        -target_ldif_file                      to wrap the symmetric key
+        <path + target ldif file>              which is used to encrypt the
+        -log_file                              user's private key.
+        <path + log file >                     Optionally, this utility
+        [-source_pki_security_database_path    may also be used to re-index IDs
+         <path to PKI source databases>]       associated with the various
+        [-source_storage_token_name            records which may be useful
+         '<source token>']                     for DRM consolidation.
+        [-source_storage_certificate_nickname
+         '<source nickname>']
+        [-target_storage_certificate_file
+         <path to target certificate file>]
+        [-append_id_offset
+         <numeric offset>]
+        [-remove_id_offset
+         <numeric offset>]
+
 ExtJoiner <ext_file0> . . . <ext_file9>        A command line utility utilized
                                                to join a sequence of extensions
                                                together so that the final

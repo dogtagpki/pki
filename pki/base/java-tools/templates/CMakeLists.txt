@@ -10,6 +10,7 @@ set(PKI_COMMANDS
     CMCResponse
     CMCRevoke
     CRMFPopClient
+    DRMTool
     ExtJoiner
     GenExtKeyUsage
     GenIssuerAltNameExt

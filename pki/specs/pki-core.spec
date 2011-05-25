@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.7
+Version:          9.0.8
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -520,6 +520,7 @@ fi
 %{_bindir}/CMCResponse
 %{_bindir}/CMCRevoke
 %{_bindir}/CRMFPopClient
+%{_bindir}/DRMTool
 %{_bindir}/ExtJoiner
 %{_bindir}/GenExtKeyUsage
 %{_bindir}/GenIssuerAltNameExt
@@ -600,6 +601,18 @@ fi
 
 
 %changelog
+* Wed May 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-1
+- 'pki-setup'
+- 'pki-symkey'
+- 'pki-native-tools'
+- 'pki-util'
+- 'pki-java-tools'
+-     Bugzilla Bug #532548 - Tool to do DRM re-key
+- 'pki-common'
+- 'pki-selinux'
+- 'pki-ca'
+- 'pki-silent'
+
 * Tue Apr 26 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.7-1
 - 'pki-setup'
 -     Bugzilla Bug #693815 - /var/log/tomcat6/catalina.out owned by pkiuser

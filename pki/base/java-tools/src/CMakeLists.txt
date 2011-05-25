@@ -54,6 +54,7 @@ set(pki-tools_java_SRCS
     com/netscape/cmstools/GenSubjectAltNameExt.java
     com/netscape/cmstools/CMCResponse.java
     com/netscape/cmstools/PKCS10Client.java
+    com/netscape/cmstools/DRMTool.java
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH
