@@ -58,6 +58,8 @@ public class UpdateNumberRange extends CMSServlet {
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
     private final static String AUTH_FAILURE = "2";
+    private final static String LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER =
+        "LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER_1";
 
     public UpdateNumberRange() {
         super();
@@ -116,10 +118,16 @@ public class UpdateNumberRange extends CMSServlet {
             return;
         }
 
+        String auditMessage = null;
+        String auditSubjectID = auditSubjectID();
+        String auditParams = "source;;updateNumberRange";
+
         try {
             String type = httpReq.getParameter("type");
             IConfigStore cs = CMS.getConfigStore();
             String cstype = cs.getString("cs.type", "");
+
+            auditParams += "+type;;" + type;
 
             BigInteger beginNum = null;
             BigInteger endNum = null;
@@ -201,6 +209,12 @@ public class UpdateNumberRange extends CMSServlet {
                 if (endNum2 == null) {
                     CMS.debug("UpdateNumberRange::process() - " +
                         "Unused requests less than cloneTransferNumber!" );
+                    auditMessage = CMS.getLogMessage(
+                                       LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
+                                       auditSubjectID,
+                                       ILogger.FAILURE,
+                                       auditParams);
+                    audit(auditMessage);
                     return;
                 } else {
                     CMS.debug("Transferring from the end of on-deck range");
@@ -221,12 +235,24 @@ public class UpdateNumberRange extends CMSServlet {
             if( beginNum == null ) {
                 CMS.debug( "UpdateNumberRange::process() - " +
                            "beginNum is null!" );
+                auditMessage = CMS.getLogMessage(
+                                   LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
+                                   auditSubjectID,
+                                   ILogger.FAILURE,
+                                   auditParams);
+                audit(auditMessage);
                 return;
             }
 
             if( endNum == null ) {
                 CMS.debug( "UpdateNumberRange::process() - " +
                            "endNum is null!" );
+                auditMessage = CMS.getLogMessage(
+                                   LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
+                                   auditSubjectID,
+                                   ILogger.FAILURE,
+                                   auditParams);
+                audit(auditMessage);
                 return;
             }
 
@@ -249,8 +275,27 @@ public class UpdateNumberRange extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
             cs.commit(false);
+
+            auditParams += "+beginNumber;;" + beginNum.toString(radix) +
+                          "+endNumber;;" + endNum.toString(radix);
+
+            auditMessage = CMS.getLogMessage(
+                               LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
+                               auditSubjectID,
+                               ILogger.SUCCESS,
+                               auditParams);
+            audit(auditMessage);
+
         } catch (Exception e) {
             CMS.debug("UpdateNumberRange: Failed to update number range. Exception: "+e.toString());
+
+            auditMessage = CMS.getLogMessage(
+                               LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
+                               auditSubjectID,
+                               ILogger.FAILURE,
+                               auditParams);
+            audit(auditMessage);
+
             outputError(httpResp, "Error: Failed to update number range.");
         }
     }

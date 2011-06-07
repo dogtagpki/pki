@@ -65,6 +65,9 @@ public class RegisterUser extends CMSServlet {
     private final static String FAILED = "1";
     private final static String AUTH_FAILURE = "2";
     private String mGroupName = null;
+    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
+        "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
+
 
     public RegisterUser() {
         super();
@@ -143,6 +146,14 @@ public class RegisterUser extends CMSServlet {
         CMS.debug("RegisterUser got name=" + name);
         CMS.debug("RegisterUser got certsString=" + certsString);
 
+        String auditMessage = null;
+        String auditSubjectID = auditSubjectID();
+        String auditParams = "Scope;;users+Operation;;OP_ADD+source;;RegisterUser" + 
+                             "+Resource;;"+ uid +
+                             "+fullname;;"+ name + 
+                             "+state;;1" +
+                             "+userType;;<null>+email;;<null>+password;;<null>+phone;;<null>";
+
         IUGSubsystem ugsys = (IUGSubsystem)CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
         IUser user = null;
@@ -187,29 +198,95 @@ public class RegisterUser extends CMSServlet {
             user.setEmail("");
             user.setPhone("");
             user.setPassword("");
+
             ugsys.addUser(user);
             CMS.debug("RegisterUser created user " + uid);
+            auditMessage = CMS.getLogMessage(
+                              LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                              auditSubjectID,
+                              ILogger.SUCCESS,
+                              auditParams);
+            audit(auditMessage);
           }
+
+          // extract all line separators
+          StringBuffer sb = new StringBuffer();
+          for (int i = 0; i < certsString.length(); i++) {
+              if (!Character.isWhitespace(certsString.charAt(i))) {
+                  sb.append(certsString.charAt(i));
+              }
+          }
+          certsString = sb.toString();
+
+          auditParams = "Scope;;certs+Operation;;OP_ADD+source;;RegisterUser" +
+                        "+Resource;;"+ uid +
+                        "+cert;;"+certsString;
 
           user.setX509Certificates(certs);
           if (!foundByCert) {
             ugsys.addUserCert(user);
             CMS.debug("RegisterUser added user certificate");
+            auditMessage = CMS.getLogMessage(
+                              LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                              auditSubjectID,
+                              ILogger.SUCCESS,
+                              auditParams);
+            audit(auditMessage);
           } else
             CMS.debug("RegisterUser no need to add user certificate");
-        } catch (Exception eee) {
+         } catch (Exception eee) {
             CMS.debug("RegisterUser error " + eee.toString());
+            auditMessage = CMS.getLogMessage(
+                                LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                auditSubjectID,
+                                ILogger.FAILURE,
+                                auditParams);
+
+            audit(auditMessage);
             outputError(httpResp, "Error: Certificate malformed");
             return;
         }
 
 
         // add user to the group
-        Enumeration groups = ugsys.findGroups(mGroupName);
-        IGroup group = (IGroup)groups.nextElement();
-        group.addMemberName(user.getUserID());
-        ugsys.modifyGroup(group);
-        CMS.debug("RegisterUser modified group");
+        auditParams = "Scope;;groups+Operation;;OP_MODIFY+source;;RegisterUser" +
+                      "+Resource;;"+ mGroupName;
+        try {
+            Enumeration groups = ugsys.findGroups(mGroupName);
+            IGroup group = (IGroup)groups.nextElement();
+
+            auditParams += "+user;;";
+            Enumeration members = group.getMemberNames();
+            while (members.hasMoreElements()) {
+                auditParams += (String) members.nextElement();
+                if (members.hasMoreElements()) {
+                    auditParams +=",";
+                }
+            }
+
+            if (!group.isMember(user.getUserID())) {
+                auditParams += "," + user.getUserID();
+                group.addMemberName(user.getUserID());
+                ugsys.modifyGroup(group);
+                CMS.debug("RegisterUser modified group");
+
+                auditMessage = CMS.getLogMessage(
+                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                               auditSubjectID,
+                               ILogger.SUCCESS,
+                               auditParams);
+
+                audit(auditMessage);
+            }
+         } catch (Exception e) {
+             auditMessage = CMS.getLogMessage(
+                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                               auditSubjectID,
+                               ILogger.FAILURE,
+                               auditParams);
+
+             audit(auditMessage);
+         }
 
         // send success status back to the requestor
         try {
