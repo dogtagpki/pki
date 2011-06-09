@@ -40,12 +40,15 @@ import org.w3c.dom.*;
 
 public class GetCookie extends CMSServlet {
 
-    private final static String SUCCESS = "0";
-    private final static String FAILED = "1";
     private static Random mRandom = null;
     private final static int SESSION_MAX_AGE = 3600;
     private String mErrorFormPath = null;
     private String mFormPath = null;
+
+    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE =
+        "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
+    private final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
+        "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
 
     public GetCookie() {
         super();
@@ -163,11 +166,21 @@ public class GetCookie extends CMSServlet {
         } 
 
         String cookie = "";
+        String auditMessage = "";
+       
         if (authToken != null) {
             String uid = authToken.getInString("uid");
             String groupname = getGroupName(uid, subsystem);
 
             if (groupname != null) {
+
+                auditMessage = CMS.getLogMessage(
+                                   LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                                   uid,
+                                   ILogger.SUCCESS,
+                                   groupname);
+                audit(auditMessage);
+
                 // assign cookie
                 long num = mRandom.nextLong();
                 cookie = num+"";
@@ -186,7 +199,26 @@ public class GetCookie extends CMSServlet {
                 } catch (Exception e) {
                 }
 
-                ctable.addEntry(cookie, ip, uid, groupname);
+                String auditParams = "operation;;issue_token+token;;"+ cookie + "+ip;;" + ip +
+                              "+uid;;" + uid + "+groupname;;" + groupname;
+
+                int status = ctable.addEntry(cookie, ip, uid, groupname);
+                if (status == ISecurityDomainSessionTable.SUCCESS) {
+                    auditMessage = CMS.getLogMessage(
+                                       LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
+                                       uid,
+                                       ILogger.SUCCESS,
+                                       auditParams);
+                    audit(auditMessage);
+                } else {
+                    auditMessage = CMS.getLogMessage(
+                                       LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
+                                       uid,
+                                       ILogger.FAILURE,
+                                       auditParams);
+                    audit(auditMessage);
+                }
+
                 try {
                     String sd_url = "https://"+CMS.getEESSLHost()+":"+CMS.getEESSLPort();
                     if (!url.startsWith("$")) {
@@ -226,6 +258,13 @@ public class GetCookie extends CMSServlet {
                     }
                 } catch (Exception e) {
                 }
+            } else {
+                auditMessage = CMS.getLogMessage(
+                                   LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                                   uid,
+                                   ILogger.FAILURE,
+                                   "Enterprise " + subsystem + " Administrators");
+                audit(auditMessage);
             }
         }
     }

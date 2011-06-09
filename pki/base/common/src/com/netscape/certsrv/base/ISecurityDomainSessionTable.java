@@ -27,8 +27,10 @@ import com.netscape.certsrv.base.BaseResources;
  * This interface defines the abstraction for the cookie table.
  **/
 public interface ISecurityDomainSessionTable {
-    public void addEntry(String cookieId, String ip, String uid, String group);
-    public void removeEntry(String sessionId);
+    public static final int SUCCESS =0;
+    public static final int FAILURE =1;
+    public int addEntry(String cookieId, String ip, String uid, String group);
+    public int removeEntry(String sessionId);
     public boolean isSessionIdExist(String sessionId);
     public String getIP(String sessionId);
     public String getUID(String sessionId);

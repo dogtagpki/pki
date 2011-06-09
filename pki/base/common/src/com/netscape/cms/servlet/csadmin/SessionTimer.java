@@ -20,9 +20,13 @@ package com.netscape.cms.servlet.csadmin;
 import java.util.*;
 import com.netscape.certsrv.apps.*;
 import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.logging.ILogger;
 
 public class SessionTimer extends TimerTask {
     private ISecurityDomainSessionTable m_sessiontable = null;
+    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
+    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE =
+        "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
 
     public SessionTimer(ISecurityDomainSessionTable table) {
         super();
@@ -40,6 +44,22 @@ public class SessionTimer extends TimerTask {
             if ((nowTime-beginTime) > timeToLive) {
                 m_sessiontable.removeEntry(sessionId);
                 CMS.debug("SessionTimer run: successfully remove the session id entry from the table.");
+                
+                // audit message
+                String auditParams = "operation;;expire_token+token;;" + sessionId;
+                String auditMessage = CMS.getLogMessage(
+                                         LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
+                                         "system",
+                                         ILogger.SUCCESS,
+                                         auditParams);
+
+                mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
+                                       null,
+                                       ILogger.S_SIGNED_AUDIT,
+                                       ILogger.LL_SECURITY,
+                                       auditMessage);
+
+                
             }
         }
     }
