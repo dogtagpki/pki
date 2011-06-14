@@ -1055,11 +1055,13 @@ public class PublisherProcessor implements
 
          // Bugscape  #52306  -  Remove superfluous log messages on failure
         if (rules == null || !rules.hasMoreElements()) {
-                  CMS.debug("Publishing: can't find publishing rule,bailing.");
-                  return;
+            CMS.debug("Publishing: can't find publishing rule,exiting routine.");
+
+            error = true;
+            errorRule = "No rules enabled";
         }
 
-        while (rules.hasMoreElements()) {
+        while (rules != null && rules.hasMoreElements()) {
             LdapRule rule = (LdapRule) rules.nextElement();
 
             try {
