@@ -467,7 +467,7 @@ public class AdminConnection {
         request.set(Constants.RS_ID, id);
         for (int i = 0; i < pairs.size(); i++) {
             NameValuePair p = (NameValuePair)pairs.elementAt(i);
-            request.set(p.getName(), "");
+            request.set(p.getName(), p.getValue());
         }
 
         Response response = sendRequest(request);

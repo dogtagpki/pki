@@ -163,6 +163,8 @@ public final class CMSAdminServlet extends AdminServlet {
                     getSubjectName(req, resp);
                 else if (scope.equals(ScopeDef.SC_GET_NICKNAMES))
                     getAllNicknames(req, resp);
+                else if (scope.equals(ScopeDef.SC_CERT_PRETTY_PRINT))
+                    getCertPrettyPrint(req, resp);
             } else if (op.equals(OpDef.OP_MODIFY)) {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {

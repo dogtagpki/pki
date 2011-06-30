@@ -126,7 +126,7 @@ public class UserCertsTab extends CMSBaseUGTab {
                 nvps.add(Constants.PR_NICK_NAME, nickname);
                 nvps.add(Constants.PR_SERIAL_NUMBER, serialno);
                 nvps.add(Constants.PR_ISSUER_NAME, issuername);
-                NameValuePairs results = mConnection.process(
+                NameValuePairs results = mConnection.read(
                   DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_CERT_PRETTY_PRINT,
                   Constants.RS_ID_CONFIG, nvps);
                 if (nvps.size() <= 0)
