@@ -380,7 +380,6 @@ TPS_PUBLIC int RA::Initialize(char *cfg_path, RA_Context *ctx)
 
 	m_verify_lock = PR_NewLock();
 	m_debug_log_lock = PR_NewLock();
-	m_audit_log_monitor = PR_NewMonitor();
 	m_error_log_lock = PR_NewLock();
 	m_selftest_log_lock = PR_NewLock();
 	m_config_lock = PR_NewLock();
@@ -406,46 +405,8 @@ TPS_PUBLIC int RA::Initialize(char *cfg_path, RA_Context *ctx)
 	}
 
         m_error_log_level = m_cfg->GetConfigAsInt(CFG_ERROR_LEVEL, (int) LL_PER_SERVER);
-        m_audit_log_level = m_cfg->GetConfigAsInt(CFG_AUDIT_LEVEL, (int) LL_PER_SERVER);
         m_debug_log_level = m_cfg->GetConfigAsInt(CFG_DEBUG_LEVEL, (int) LL_PER_SERVER);
         m_selftest_log_level = m_cfg->GetConfigAsInt(CFG_SELFTEST_LEVEL, (int) LL_PER_SERVER);
-
-        // get events for audit signing
-        m_signedAuditSelectedEvents = PL_strdup(m_cfg->GetConfigAsString(CFG_AUDIT_SELECTED_EVENTS, ""));
-        m_signedAuditSelectableEvents = PL_strdup(m_cfg->GetConfigAsString(CFG_AUDIT_SELECTABLE_EVENTS, ""));
-        m_signedAuditNonSelectableEvents= PL_strdup(m_cfg->GetConfigAsString(CFG_AUDIT_NONSELECTABLE_EVENTS, ""));
-        m_audit_enabled = m_cfg->GetConfigAsBool(CFG_AUDIT_ENABLE, false);
-        m_buffer_size = m_cfg->GetConfigAsInt(CFG_AUDIT_BUFFER_SIZE, 512);
-        m_flush_interval = m_cfg->GetConfigAsInt(CFG_AUDIT_FLUSH_INTERVAL, 5);
-
-	if (m_audit_enabled) {
-                // is audit logSigning on?
-                m_audit_signed = m_cfg->GetConfigAsBool(CFG_AUDIT_SIGNED, false);
-                RA::Debug("RA:: Initialize", "Audit signing is %s",
-                          m_audit_signed? "true":"false");
-
-                m_audit_log = GetLogFile(m_cfg->GetConfigAsString(CFG_AUDIT_FILE_TYPE, "LogFile"));
-                status = m_audit_log->startup(ctx, CFG_AUDIT_PREFIX,
-                             m_cfg->GetConfigAsString((m_audit_signed)? 
-                                 CFG_SIGNED_AUDIT_FILENAME:CFG_AUDIT_FILENAME,
-                                 "/tmp/audit.log"),
-                             m_audit_signed);
-                if (status != PR_SUCCESS) 
-                    goto loser;
-
-                status = m_audit_log->open();
-             
-                if (status != PR_SUCCESS)
-                    goto loser;
-
-                m_audit_log_buffer = (char *) PR_Malloc(m_buffer_size);
-                if (m_audit_log_buffer == NULL) {
-                    RA::Debug("RA:: Initialize", "Unable to allocate memory for audit log buffer ..");
-                    goto loser;
-                }
-                PR_snprintf((char *) m_audit_log_buffer, m_buffer_size, "");
-                m_bytes_unflushed = 0;
-	}
 
 	if (m_cfg->GetConfigAsBool(CFG_ERROR_ENABLE, 0)) {
                 m_error_log = GetLogFile(m_cfg->GetConfigAsString(CFG_ERROR_FILE_TYPE, "LogFile"));
@@ -613,6 +574,50 @@ int RA::InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount) {
         goto loser;
     } 
 
+    // open audit log
+    m_audit_log_monitor = PR_NewMonitor();
+    m_audit_log_level = m_cfg->GetConfigAsInt(CFG_AUDIT_LEVEL, (int) LL_PER_SERVER);
+
+    // get events for audit signing
+    m_signedAuditSelectedEvents = PL_strdup(m_cfg->GetConfigAsString(
+                                                CFG_AUDIT_SELECTED_EVENTS, ""));
+    m_signedAuditSelectableEvents = PL_strdup(m_cfg->GetConfigAsString(
+                                                CFG_AUDIT_SELECTABLE_EVENTS, ""));
+    m_signedAuditNonSelectableEvents= PL_strdup(m_cfg->GetConfigAsString(
+                                                CFG_AUDIT_NONSELECTABLE_EVENTS, ""));
+    m_audit_enabled = m_cfg->GetConfigAsBool(CFG_AUDIT_ENABLE, false);
+    m_buffer_size = m_cfg->GetConfigAsInt(CFG_AUDIT_BUFFER_SIZE, 512);
+    m_flush_interval = m_cfg->GetConfigAsInt(CFG_AUDIT_FLUSH_INTERVAL, 5);
+
+    if (m_audit_enabled) {
+        // is audit logSigning on?
+        m_audit_signed = m_cfg->GetConfigAsBool(CFG_AUDIT_SIGNED, false);
+        RA::Debug("RA:: InitializeInChild", "Audit signing is %s",
+                   m_audit_signed? "true":"false");
+
+        m_audit_log = GetLogFile(m_cfg->GetConfigAsString(CFG_AUDIT_FILE_TYPE, "LogFile"));
+        status = m_audit_log->startup(ctx, CFG_AUDIT_PREFIX,
+                                      m_cfg->GetConfigAsString((m_audit_signed)? 
+                                      CFG_SIGNED_AUDIT_FILENAME:CFG_AUDIT_FILENAME,
+                                      "/tmp/audit.log"),
+                                      m_audit_signed);
+        if (status != PR_SUCCESS) 
+            goto loser;
+
+        status = m_audit_log->open();
+             
+        if (status != PR_SUCCESS)
+            goto loser;
+
+        m_audit_log_buffer = (char *) PR_Malloc(m_buffer_size);
+        if (m_audit_log_buffer == NULL) {
+            RA::Debug("RA:: Initialize", "Unable to allocate memory for audit log buffer ..");
+            goto loser;
+        }
+        PR_snprintf((char *) m_audit_log_buffer, m_buffer_size, "");
+        m_bytes_unflushed = 0;
+    }
+
     RA::Debug("RA::InitializeInChild", "nSignedAuditInitCount=%i",
              nSignedAuditInitCount); 
     if (NSS_IsInitialized() && (nSignedAuditInitCount >1)) {
@@ -648,6 +653,20 @@ int RA::InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount) {
 
     rc =1;
 loser: 
+    // Log the status of this TPS plugin into the web server's log:
+    if( rc != 1 ) {
+        ctx->LogError( "RA::InitializeInChild",
+                       __LINE__,
+                       "The TPS plugin could NOT be "
+                       "initialized (rc = %d)!  See specific details in the "
+                       "TPS plugin log files.", rc );
+    } else {
+        ctx->LogInfo( "RA::InitializeInChild",
+                      __LINE__,
+                      "The TPS plugin was "
+                      "successfully initialized!" );
+    }
+
     return rc;
 }
 
@@ -754,25 +773,10 @@ int RA::IsTpsConfigured()
   return tpsConfigured;
 }
 
-/**
- * Shutdown RA.
- */
-TPS_PUBLIC int RA::Shutdown()
+TPS_PUBLIC int RA::Child_Shutdown()
 {
-
-    tus_db_end();
-    tus_db_cleanup();
-
-    if( m_pod_lock != NULL ) {
-        PR_DestroyLock( m_pod_lock );
-        m_pod_lock = NULL;
-    }
-
-    if( m_auth_lock != NULL ) {
-        PR_DestroyLock( m_auth_lock );
-        m_auth_lock = NULL;
-    }
-
+    RA::Debug("RA::Child_Shutdown", "starts");
+    // clean up connections
     if (m_caConnection != NULL) {
         for (int i=0; i<m_caConns_len; i++) {
             if( m_caConnection[i] != NULL ) {
@@ -799,7 +803,7 @@ TPS_PUBLIC int RA::Shutdown()
         }
     }
 
-	/* close audit file if opened */
+    /* log audit log shutdown */
     PR_EnterMonitor(m_audit_log_monitor);
     if( (m_audit_log != NULL)  && (m_audit_log->isOpen())) {
         if (m_audit_log_buffer != NULL) {
@@ -818,16 +822,47 @@ TPS_PUBLIC int RA::Shutdown()
                 FlushAuditLogBuffer();
         }
     }
+
     if (m_audit_log != NULL) {
         m_audit_log->shutdown();
         delete m_audit_log;
         m_audit_log = NULL;
     }
-    PR_ExitMonitor(m_audit_log_monitor);
 
     if (m_audit_log_buffer) {
         PR_Free(m_audit_log_buffer);
         m_audit_log_buffer = NULL;
+    }
+   
+    PR_ExitMonitor(m_audit_log_monitor);
+
+    if( m_audit_log_monitor != NULL ) {
+        PR_DestroyMonitor( m_audit_log_monitor );
+        m_audit_log_monitor = NULL;
+    }
+
+    return 1;
+}
+
+
+/**
+ * Shutdown RA.
+ */
+TPS_PUBLIC int RA::Shutdown()
+{
+    RA::Debug("RA::Shutdown", "starts");
+
+    tus_db_end();
+    tus_db_cleanup();
+
+    if( m_pod_lock != NULL ) {
+        PR_DestroyLock( m_pod_lock );
+        m_pod_lock = NULL;
+    }
+
+    if( m_auth_lock != NULL ) {
+        PR_DestroyLock( m_auth_lock );
+        m_auth_lock = NULL;
     }
 
     /* close debug file if opened */
@@ -859,11 +894,6 @@ TPS_PUBLIC int RA::Shutdown()
     if( m_debug_log_lock != NULL ) {
         PR_DestroyLock( m_debug_log_lock );
         m_debug_log_lock = NULL;
-    }
-
-    if( m_audit_log_monitor != NULL ) {
-        PR_DestroyMonitor( m_audit_log_monitor );
-        m_audit_log_monitor = NULL;
     }
 
     if( m_error_log_lock != NULL ) {

@@ -249,6 +249,18 @@ mod_tps_terminate( void *data )
     return OK;
 }
 
+static apr_status_t
+mod_tps_child_terminate (void *data)
+{
+    RA::Debug("mod_tps::mod_tps_child_terminate",
+              "The TPS module has been terminated!" );
+    
+     /* Free TPS resources. */
+    RA::Child_Shutdown();
+
+    return OK;
+}
+
 static int
 mod_tps_initialize( apr_pool_t *p,
                     apr_pool_t *plog,
@@ -345,7 +357,7 @@ mod_tps_initialize( apr_pool_t *p,
     if (sc->gconfig->nInitCount < 2 ) {
         sc->gconfig->nSignedAuditInitCount++;
         status = RA::InitializeInChild( sc->context,
-                   sc->gconfig->nSignedAuditInitCount); 
+                   sc->gconfig->nSignedAuditInitCount);
     } else {
         ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, sv,
             "mod_tps_initialize - pid is [%d] - post config already done once -"
@@ -619,6 +631,11 @@ static void mod_tps_init_child(apr_pool_t *p, server_rec *sv)
         srv_cfg->gconfig->nSignedAuditInitCount++; 
         status = RA::InitializeInChild(srv_cfg->context,
                    srv_cfg->gconfig->nSignedAuditInitCount); 
+        /* Register a server termination routine. */
+        apr_pool_cleanup_register( p,
+                                   sv,
+                                   mod_tps_child_terminate,
+                                   apr_pool_cleanup_null );
     } else {
         ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, sv,
                      "mod_tps_init_child - pid is [%d] - config should be done in regular post config",

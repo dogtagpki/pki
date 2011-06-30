@@ -108,6 +108,7 @@ class RA
 //	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx);
 	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount);
 	  TPS_PUBLIC static int Shutdown();
+          TPS_PUBLIC static int Child_Shutdown();
   public:
 
  	  static PK11SymKey *ComputeSessionKey(RA_Session *session,
