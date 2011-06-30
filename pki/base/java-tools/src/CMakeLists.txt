@@ -67,6 +67,12 @@ set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 # build pki-tools
 add_jar(pki-tools ${pki-tools_java_SRCS})
 add_dependencies(pki-tools osutil pki-nsutil pki-cmsutil)
+install(
+    FILES
+        com/netscape/cmstools/DRMTool.cfg
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/pki/java-tools/
+)
 install_jar(pki-tools ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_TOOLS_JAR ${pki-tools_JAR_FILE} CACHE INTERNAL "pki-tools jar file")
 

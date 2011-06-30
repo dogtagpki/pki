@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.8
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -534,6 +534,7 @@ fi
 %{_bindir}/TokenInfo
 %{_javadir}/pki/pki-tools-%{version}.jar
 %{_javadir}/pki/pki-tools.jar
+%{_datadir}/pki/java-tools/
 
 %files -n pki-java-tools-javadoc
 %defattr(-,root,root,-)
@@ -601,6 +602,18 @@ fi
 
 
 %changelog
+* Wed May 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-2
+- 'pki-setup'
+- 'pki-symkey'
+- 'pki-native-tools'
+- 'pki-util'
+- 'pki-java-tools'
+-     Added 'DRMTool.cfg' configuration file to inventory
+- 'pki-common'
+- 'pki-selinux'
+- 'pki-ca'
+- 'pki-silent'
+
 * Wed May 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-1
 - 'pki-setup'
 - 'pki-symkey'
