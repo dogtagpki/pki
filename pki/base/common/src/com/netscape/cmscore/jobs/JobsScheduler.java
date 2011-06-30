@@ -436,17 +436,15 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         while (enums.hasMoreElements()) {
             String id = (String)enums.nextElement();
             Thread currthread = (Thread)mJobThreads.get(id);
-            if (currthread != null) {
-                currthread.destroy();
-            }
+            //if (currthread != null) 
+            //  currthread.destroy();
         }
 
         mJobThreads.clear();
         mJobThreads = null;
 
-        if (mScheduleThread != null) {
-            mScheduleThread.destroy();
-        }
+        //if (mScheduleThread != null) 
+              //  mScheduleThread.destroy();
     }
 
     /**

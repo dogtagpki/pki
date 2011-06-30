@@ -1888,11 +1888,11 @@ public class CertificateRepository extends Repository
     }
 
     public void shutdown() {
-        if (mCertStatusUpdateThread != null)
-            mCertStatusUpdateThread.destroy();
+        //if (mCertStatusUpdateThread != null) 
+        //        mCertStatusUpdateThread.destroy();
 
-        if (mRetrieveModificationsThread != null)
-            mRetrieveModificationsThread.destroy();
+        //if (mRetrieveModificationsThread != null) 
+        //        mRetrieveModificationsThread.destroy();
     }
 }
 

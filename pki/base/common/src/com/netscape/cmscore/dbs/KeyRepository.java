@@ -499,8 +499,8 @@ CMS.debug("filter= " + filter);
     }
 
     public void shutdown() {
-        if (mKeyStatusUpdateThread != null)
-            mKeyStatusUpdateThread.destroy();
+        //if (mKeyStatusUpdateThread != null) 
+        //        mKeyStatusUpdateThread.destroy();
     }
 
 }
