@@ -119,9 +119,9 @@ sub update
     my $sd_admin_port = $sdom_info->port;
     my $content;
     if (($tokenname eq "") || ($tokenname eq "NSS Certificate DB")) {
-        $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$nickname\" -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
+        $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
     } else {
-        $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -n \"$nickname\" -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
+        $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
     }
     $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;
     $content = $1;

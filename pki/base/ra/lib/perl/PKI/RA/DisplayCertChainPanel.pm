@@ -147,7 +147,7 @@ sub display
     my $sd_host = $url_info->host;
     my $sd_admin_port = $url_info->port;
     my $nickname = $::config->get("preop.cert.sslserver.nickname");
-    my $cmd = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$nickname\" -r \"/ca/admin/ca/getCertChain\" $sd_host:$sd_admin_port`;
+    my $cmd = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -r \"/ca/admin/ca/getCertChain\" $sd_host:$sd_admin_port`;
 
     my $caCert = "";
     if ($cmd =~ /\<ChainBase64\>(.*)\<\/ChainBase64\>/) {
@@ -216,7 +216,7 @@ sub get_domain_xml
 
     my $sd_host = $sdom_info->host;
     my $sd_admin_port = $sdom_info->port;
-    my $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$nickname\" -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
+    my $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
 
     $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;
     $content = $1;

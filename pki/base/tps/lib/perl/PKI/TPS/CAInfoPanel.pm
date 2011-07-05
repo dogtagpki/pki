@@ -247,7 +247,7 @@ sub get_domain_xml
 
     my $sd_host = $::config->get("securitydomain.host");
     my $sd_admin_port = $::config->get("securitydomain.httpsadminport");
-    my $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$nickname\" -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
+    my $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
 
     $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;
     $content = $1;

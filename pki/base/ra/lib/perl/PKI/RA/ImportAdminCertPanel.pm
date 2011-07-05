@@ -109,7 +109,7 @@ sub update
     my $nickname = $::config->get("preop.cert.sslserver.nickname");
     my $sd_host = $sdom_info->host;
     my $sd_admin_port = $sdom_info->port;
-    my $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$nickname\" -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
+    my $content = `/usr/bin/sslget -d \"$instanceDir/alias\" -p \"$db_password\" -v -r \"/ca/admin/ca/getDomainXML\" $sd_host:$sd_admin_port`;
     $content =~ /(\<XMLResponse\>.*\<\/XMLResponse\>)/;
     $content = $1; 
     &PKI::RA::Wizard::debug_log($content);

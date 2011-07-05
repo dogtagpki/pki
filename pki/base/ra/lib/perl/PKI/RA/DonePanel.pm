@@ -206,9 +206,9 @@ sub get_kra_transport_cert
     my $port = $krainfo_url->port;
     my $tmpfile = "/tmp/donepanel-$$";
     if (($tokenname eq "") || ($tokenname eq "NSS Certificate DB")) {
-        system("/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$nickname\" -r \"/kra/admin/kra/getTransportCert\" $host:$port > $tmpfile");
+        system("/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$db_password\" -v -r \"/kra/admin/kra/getTransportCert\" $host:$port > $tmpfile");
     } else {
-        system("/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -n \"$nickname\" -r \"/kra/admin/kra/getTransportCert\" $host:$port > $tmpfile");
+        system("/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -r \"/kra/admin/kra/getTransportCert\" $host:$port > $tmpfile");
     }
     my $content = `cat $tmpfile`;
     system("rm $tmpfile");
@@ -264,9 +264,9 @@ sub send_kra_transport_cert
     my $port = $tksinfo_url->port;
     my $tmpfile = "/tmp/donepanel-$$";
     if (($tokenname eq "") || ($tokenname eq "NSS Certificate DB")) {
-        system("/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$db_password\" -v -n \"$nickname\" -r \"/tks/admin/tks/importTransportCert\" $host:$port > $tmpfile");
+        system("/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$db_password\" -v -r \"/tks/admin/tks/importTransportCert\" $host:$port > $tmpfile");
     } else {
-        system("/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -n \"$nickname\" -r \"/tks/admin/tks/importTransportCert\" $host:$port > $tmpfile");
+        system("/usr/bin/sslget -e \"$params\" -d \"$instanceDir/alias\" -p \"$token_pwd\" -v -r \"/tks/admin/tks/importTransportCert\" $host:$port > $tmpfile");
     }
 
     my $content = `cat $tmpfile`;

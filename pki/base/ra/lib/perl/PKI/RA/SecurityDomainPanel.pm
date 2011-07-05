@@ -80,7 +80,7 @@ sub pingCS
     my( $hostname ) = $_[3];
     my( $port ) = $_[4];
 
-    my $content = `/usr/bin/sslget -d $instanceDir/alias -p $db_password -v -n \"$nickname\" -r "/ca/admin/ca/getStatus" $hostname:$port`;
+    my $content = `/usr/bin/sslget -d $instanceDir/alias -p $db_password -v -r "/ca/admin/ca/getStatus" $hostname:$port`;
     if( "$content" eq "" ) {
         return 0;
     } else {
