@@ -790,6 +790,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             }
         } catch (IOException e) {
             ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName, e.toString())));
+            if (mLogSigning) {
+                //error in writing to signed audit log, shut down CMS
+                e.printStackTrace();
+                shutdownCMS();
+            }
         } catch(GeneralSecurityException gse) {
             // error with signed audit log, shutdown CMS
             gse.printStackTrace();
@@ -980,6 +985,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 }
             } catch (IOException e) {
                 ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_WRITE_FAILED", mFileName, entry, e.toString())));
+                if (mLogSigning) {
+                    // Failed to write to audit log, shut down CMS
+                    e.printStackTrace();
+                    shutdownCMS();
+                }
             } catch (IllegalStateException e) {
                 CMS.debug("LogFile: exception thrown in log(): "+e.toString());
                 ConsoleError.send(new SignedAuditEvent(CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION,e.toString())));
