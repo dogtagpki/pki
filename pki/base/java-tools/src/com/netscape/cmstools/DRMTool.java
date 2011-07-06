@@ -2757,9 +2757,15 @@ public class DRMTool
         String next_line = null;
 
         // extract the data
-        input = line.substring(
-                    DRM_LDIF_EXTDATA_REQUEST_NOTES.length() + 1
-                ).trim();
+        if( line.length() > DRM_LDIF_EXTDATA_REQUEST_NOTES.length() ) {
+            input = line.substring(
+                        DRM_LDIF_EXTDATA_REQUEST_NOTES.length() + 1
+                    ).trim();
+        } else {
+            input = line.substring(
+                        DRM_LDIF_EXTDATA_REQUEST_NOTES.length()
+                    ).trim();
+        }
 
         while( ( line = ldif_record.next() ) != null ) {
             if( line.startsWith( SPACE ) ) {
@@ -3887,6 +3893,12 @@ public class DRMTool
             } else {
                 output = line;
             }
+        } else if( record_type.equals( DRM_LDIF_RECORD ) ) {
+            // Non-Request / Non-Key Record:
+            //     Pass through the original
+            //     'serialno' line UNCHANGED
+            //     so that it is ALWAYS written
+            output = line;
         } else {
             log( "ERROR:  Mismatched record field='"
                + DRM_LDIF_SERIAL_NO
