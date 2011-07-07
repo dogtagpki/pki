@@ -75,6 +75,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
     private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
         "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
 
+
+     private final static String LOGGING_SIGNED_AUDIT_AUTH_FAIL =
+        "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
+     private final static String LOGGING_SIGNED_AUDIT_AUTH_SUCCESS =
+        "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
+
+
     public ProfileSubmitServlet() {
     }
 
@@ -423,16 +430,10 @@ public class ProfileSubmitServlet extends ProfileServlet {
         HttpServletResponse response = cmsReq.getHttpResp();
         boolean xmlOutput = false;
 
-        String v = request.getParameter("xml");
+        String v = request.getParameter("xmlOutput");
         if ((v != null) && (v.equalsIgnoreCase("true"))) {
-            xmlOutput = true;
-        }
-        v = request.getParameter("xmlOutput");
-        if ((v != null) && (v.equalsIgnoreCase("true"))) {
-            xmlOutput = true;
-        }
-        if (xmlOutput) {
             CMS.debug("xmlOutput true");
+            xmlOutput = true;
         } else {
             CMS.debug("xmlOutput false");
         }
@@ -925,7 +926,30 @@ public class ProfileSubmitServlet extends ProfileServlet {
         if (statsSub != null) {
           statsSub.startTiming("profile_authentication");
         }
-        if (authenticator != null) { 
+
+        if (authenticator != null) {
+
+            CMS.debug("ProfileSubmitServlet: authentication required.");
+            String uid_cred = "Unidentified";
+            String uid_attempted_cred = "Unidentified";
+            Enumeration authIds = authenticator.getValueNames();
+            //Attempt to possibly fetch attemped uid, may not always be available.
+            if (authIds != null) {
+                while (authIds.hasMoreElements()) {
+                    String authName = (String) authIds.nextElement();
+                    String value = request.getParameter(authName); 
+                    if (value != null) {
+                          if (authName.equals("uid")) {
+                              uid_attempted_cred = value;
+                          }
+                    }
+                }
+            }
+
+            String authSubjectID =  auditSubjectID();
+
+            String authMgrID = authenticator.getName(); 
+            String auditMessage = null; 
             try {
                 if (isRenewal) {
                     CMS.debug("ProfileSubmitServlet: renewal authenticate begins");
@@ -952,8 +976,41 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 if (statsSub != null) {
                   statsSub.endTiming("enrollment");
                 }
+
+                //audit log our authentication failure
+
+                authSubjectID += " : " + uid_cred;
+                auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                        authSubjectID,
+                        ILogger.FAILURE,
+                        authMgrID,
+                        uid_attempted_cred);
+                audit(auditMessage);
+
                 return;
             }
+
+            //Log successful authentication
+
+            //Attempt to get uid from authToken, most tokens respond to the "uid" cred.
+            uid_cred = authToken.getInString("uid");
+
+            if (uid_cred == null || uid_cred.length() == 0) {
+                uid_cred = "Unidentified";
+            }
+
+            authSubjectID = authSubjectID + " : " + uid_cred;
+             
+            // store a message in the signed audit log file
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
+                        authSubjectID,
+                        ILogger.SUCCESS,
+                        authMgrID);
+
+            audit(auditMessage);
+
         }
         if (statsSub != null) {
           statsSub.endTiming("profile_authentication");
