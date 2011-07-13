@@ -612,6 +612,9 @@ template(`pki_tps_template',`
         # allow writing to the kernel keyring
         allow pki_tps_t self:key { write read };
 
+        # new for f14
+        apache_exec(pki_tps_t)
+
 ')
 
 template(`pki_ra_template',`
@@ -793,6 +796,8 @@ template(`pki_ra_template',`
         # allow writing to the kernel keyring
         allow pki_ra_t self:key { write read };
 
+        # new for f14
+        apache_exec(pki_ra_t)
 
 ')
 
