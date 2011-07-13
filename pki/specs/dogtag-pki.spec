@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          9.0.0
-Release:          3%{?dist}
+Release:          4%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -11,17 +11,18 @@ BuildArch:        noarch
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL top-level Dogtag PKI support packages
-Requires:         jss >= 4.2.6-15
-Requires:         osutil >= 2.0.0
+Requires:         jss >= 4.2.6-17
 %if 0%{?fedora} >= 15
+Requires:         osutil >= 2.0.1
 Requires:         tomcatjss >= 2.1.1
 %else
+Requires:         osutil >= 2.0.0
 Requires:         tomcatjss >= 2.0.0
 %endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL top-level Dogtag PKI support javadocs
-Requires:         jss-javadoc >= 4.2.6-15
+Requires:         jss-javadoc >= 4.2.6-17
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI theme packages
@@ -139,6 +140,10 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Wed Jul 13 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-4
+- Updated release of 'osutil' for Fedora 15
+- Updated release of 'jss' and 'jss-javadoc'
+
 * Tue Apr 5 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-3
 - Bugzilla Bug #690950 - Update Dogtag Packages for Fedora 15 (beta)
 - Bugzilla Bug #693327 - Missing requires: tomcatjss

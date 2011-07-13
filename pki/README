@@ -14,26 +14,52 @@ regulations defined at:
 
 These directories contain the following:
 
-    README  - This file.
+   CMakeLists.txt
+   COPYING
+   CPackConfig.cmake
+   ConfigureChecks.cmake
+   DefineOptions.cmake
+   cmake_uninstall.cmake.in
+   config.h.cmake
+   cmake/    - These files and this directory contain
+               the top-level files necessary to integrate
+               the CMake build system in pki.
 
-    base/   - Contains most of the base source code
-              needed to build this project.  Note that
-              this directory does NOT contain
-              implementation specific user-interface
-              components required to build a working
-              Certificate System.
+    README   - This file.
 
-    dogtag/ - Contains the scripts and user-interface
-              components necessary to build a sample
-              working "Dogtag Certificate System".
-              The scripts in this directory leverage
-              the base source code located in the
-              "base/" directory, and are known to
-              work on both 32-bit and 64-bit
-              "Fedora 8" operating systems.  Users
-              who wish to experiment with this project
-              should focus on this directory first.
+    base/    - Contains most of the base source code
+               needed to build this project.  Note that
+               this directory does NOT contain
+               implementation specific user-interface
+               components required to build a working
+               Certificate System.
 
+    dogtag/  - Contains the scripts and user-interface
+               components necessary to build a sample
+               working "Dogtag Certificate System".
+               The scripts in this directory leverage
+               the base source code located in the
+               "base/" directory, and are known to
+               work on both 32-bit and 64-bit
+               "Fedora" operating systems.  Users
+               who wish to experiment with this project
+               should focus on this directory first.
+
+    patches/ - Contains "patches" needed for specific
+               versions of this certificate system.
+
+    scripts/ - Contains "scripts" used by this
+               certificate system.  This directory
+               contains numerous "compose" scripts
+               useful for building RPMS/SRPMS of the
+               various certificate system components.
+
+    specs/   - Contains RPM spec files used for
+               building RPMS/SRPMS of the various
+               certificate system components.
+
+    tools/   - Contains utilities useful to
+               certificate system components.
 
 Detailed instructions for building, installing, and
 running this project are located at:

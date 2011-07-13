@@ -469,10 +469,8 @@ fi
 %dir %{_datadir}/pki
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/pkicommon.pm
-%if 0%{?rhel} || 0%{?fedora} < 15
 %dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/run/pki
-%endif
 
 
 %files -n pki-symkey
@@ -485,7 +483,6 @@ fi
 %files -n pki-native-tools
 %defattr(-,root,root,-)
 %doc base/native-tools/LICENSE base/native-tools/doc/README
-%{_bindir}/bulkissuance
 %{_bindir}/p7tool
 %{_bindir}/revoker
 %{_bindir}/setpin

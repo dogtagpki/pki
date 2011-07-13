@@ -136,37 +136,9 @@ else
 		find ${component}             \
 		-name .svn -prune -o          \
 		-name *.swp -prune -o         \
-		-name Makefile.am -prune -o   \
-		-name Makefile.in -prune -o   \
-		-name aclocal.m4 -prune -o    \
-		-name autogen.sh -prune -o    \
-		-name build.xml -prune -o     \
-		-name compile -prune -o       \
-		-name config.guess -prune -o  \
-		-name config.h.in -prune -o   \
-		-name config.sub -prune -o    \
-		-name configure -prune -o     \
-		-name configure.ac -prune -o  \
-		-name depcomp -prune -o       \
-		-name install-sh -prune -o    \
-		-name ltmain.sh -prune -o     \
-		-name m4 -prune -o            \
-		-name missing -prune -o       \
-		-name setup_package -prune -o \
 		-print | cpio -pdum ${PKI_KRA_BASE_DIR} > /dev/null 2>&1
 	done
 	cd - > /dev/null 2>&1
-
-
-	##
-	## Due to the following lower-level 'config' subdirectories,
-	## INDEPENDENTLY remove ALL top-level 'config' directories:
-	##
-	##     * ./console/src/com/netscape/admin/certsrv/config (N/A 'pki-kra')
-	##     * ./tps/forms/tps/admin/console/config            (N/A 'pki-kra')
-	##
-
-	rm -rf ${PKI_KRA_BASE_DIR}/*/config
 
 
 	##

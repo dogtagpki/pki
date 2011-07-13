@@ -136,26 +136,11 @@ else
 	do
 		find ${component}             \
 		-name .svn -prune -o          \
-		-name config-ext -prune -o    \
 		-name *.spec -prune -o        \
 		-name *.swp -prune -o         \
-		-name build.xml -prune -o     \
-		-name build_dogtag -prune -o  \
 		-print | cpio -pdum ${DOGTAG_PKI_THEME_DOGTAG_DIR} > /dev/null 2>&1
 	done
 	cd - > /dev/null 2>&1
-
-
-	##
-	## Due to the following lower-level 'config' subdirectories,
-	## INDEPENDENTLY remove ALL top-level 'config' directories:
-	##
-	##     * ./common-ui/shared/admin/console/config
-	##     * ./ra-ui/shared/docroot/ra/admin/console/config
-	##     * ./tps-ui/shared/docroot/tps/admin/console/config
-	##
-
-	rm -rf ${DOGTAG_PKI_THEME_DOGTAG_DIR}/*/config
 
 
 	##

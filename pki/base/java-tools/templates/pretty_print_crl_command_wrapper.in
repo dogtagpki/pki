@@ -32,8 +32,8 @@ fi
 ##  (1) Specify variables used by this script.                               ##
 ###############################################################################
 
-PRODUCT=[PKI_PRODUCT]
-COMMAND=[PKI_COMMAND]
+PRODUCT=@PKI_PRODUCT@
+COMMAND=@PKI_COMMAND@
 
 
 ###############################################################################
@@ -143,6 +143,20 @@ export CP
 ##  (6) Execute the java command specified by this java command wrapper      ##
 ##      based upon the preset LD_LIBRARY_PATH and CP environment variables.  ##
 ###############################################################################
+
+if [ $# -eq 1 ] ||
+   [ $# -eq 2 ]
+then
+    file $1 | grep 'ASCII text' > /dev/null
+    if [ $? -ne 0 ] ; then
+        ${JAVA} ${JAVA_OPTIONS} -cp ${CP} com.netscape.cmstools.${COMMAND}
+        printf "\n"
+        printf "ERROR:  '$1' is not an ASCII file!\n\n"
+        printf "        First, use 'BtoA $1 $1.b64'\n"
+        printf "        to convert a binary file into an ASCII file.\n\n"
+        exit 255
+    fi
+fi
 
 ${JAVA} ${JAVA_OPTIONS} -cp ${CP} com.netscape.cmstools.${COMMAND} "$@"
 exit $?
