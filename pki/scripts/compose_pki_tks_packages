@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_TKS="pki-tks"
-PKI_TKS_VERSION="9.0.2"
+PKI_TKS_VERSION="9.0.3"
 
 
 ##

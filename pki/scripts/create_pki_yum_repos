@@ -11,19 +11,19 @@ fi
 # Always switch into the base directory three levels
 # above this shell script prior to executing it so
 # that all of its output is written to this directory
-cd `dirname $0`/../../..
+cd `dirname $0`/../..
 
 # Retrieve the name of this base directory
 PKI_PWD=`pwd`
 
-# Establish the release directory
-PKI_RELEASE_ROOT="${PKI_PWD}/release"
+# Establish a list of 'packages' directories
+PKI_PACKAGE_DIRS_LIST="packages packages.dogtag_theme packages.ipa_theme packages.core packages.kra packages.ocsp packages.ra packages.tks packages.tps packages.console"
 
 # This script is only executable from the directory
-# containing the "./release" directory!
-if [ ! -d ./release ]; then
+# containing at the "./pki" directory!
+if [ ! -d ./pki ]; then
     printf "The '$0' script is ONLY executable\n"
-    printf "from the directory containing './release'!\n"
+    printf "from the directory containing './pki'!\n"
     exit 255
 fi
 
@@ -41,9 +41,14 @@ mkdir RPMS SRPMS
 printf "done.\n\n"
 
 printf "Copying all 'RPMS' and 'SRPMS' into the 'RPMS/' directory . . . "
-cd ./release
-find . -name "*.rpm" | xargs -n1 -I{} cp -p {} ../RPMS
-cd ..
+for package_dir in ${PKI_PACKAGE_DIRS_LIST} ;
+do
+	if [ -d ${package_dir} ] ; then
+		cd ${package_dir}
+		find . -name "*.rpm" | xargs -n1 -I{} cp -p {} ../RPMS
+		cd ..
+	fi
+done
 printf "done.\n\n"
 
 printf "Moving all 'SRPMS' into the 'SRPMS/' directory . . . "

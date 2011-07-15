@@ -44,6 +44,7 @@ pkicreate -pki_instance_root=/var/lib        \
           -subsystem_type=ca                 \
           -agent_secure_port=9443            \
           -ee_secure_port=9444               \
+          -ee_secure_client_auth_port=9446   \
           -admin_secure_port=9445            \
           -unsecure_port=9180                \
           -tomcat_server_port=9701           \

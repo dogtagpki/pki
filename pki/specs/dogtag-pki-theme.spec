@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.5
+Version:          9.0.6
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -346,6 +346,37 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.6-1
+- 'dogtag-pki-ca-theme'
+-      Bugzilla Bug #695015 - Serial No. of a revoked certificate is not
+       populated in the CA signedAudit messages (alee)
+-      Bugzilla Bug #694143 - CA Agent not returning specified request (awnuk)
+-      Bugzilla Bug #704351 - remove help buttons in agent and ee UI in all
+       subsystems (alee)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'dogtag-pki-common-theme'
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'dogtag-pki-console-theme'
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'dogtag-pki-kra-theme'
+-      Bugzilla Bug #694143 - CA Agent not returning specified request (awnuk)
+-      Bugzilla Bug #704351 - remove help buttons in agent and ee UI in all
+       subsystems (alee)
+-      Bugzilla Bug #714068 - KRA: remove monitor servlet from kra (alee)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'dogtag-pki-ocsp-theme'
+-      Bugzilla Bug #704351 - remove help buttons in agent and ee UI in all
+       subsystems (alee)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'dogtag-pki-ra-theme'
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'dogtag-pki-tks-theme'
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'dogtag-pki-tps-theme'
+-      Bugzilla Bug #491008 - Security Officer: Format Card, Set Home URL and
+       Format SO card has 'home phone URL' (jmagne)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+
 * Tue Apr 26 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
 - 'dogtag-pki-ca-theme'
 -     Bugzilla Bug #695015 - Serial No. of a revoked certificate is not

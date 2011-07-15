@@ -1,6 +1,6 @@
 Name:             pki-core
-Version:          9.0.8
-Release:          2%{?dist}
+Version:          9.0.9
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -15,7 +15,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-15
+BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
@@ -25,7 +25,7 @@ BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
 BuildRequires:    selinux-policy-devel
 %if 0%{?fedora} >= 15
-BuildRequires:    tomcatjss >= 2.1.1
+BuildRequires:    tomcatjss >= 6.0.0
 %else
 BuildRequires:    tomcatjss >= 2.0.0
 %endif
@@ -121,7 +121,7 @@ Group:            System Environment/Libraries
 
 Requires:         java >= 1:1.6.0
 Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-15
+Requires:         jss >= 4.2.6-17
 Requires:         nss
 
 Provides:         symkey = %{version}-%{release}
@@ -162,7 +162,7 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-15
+Requires:         jss >= 4.2.6-17
 Requires:         ldapjdk
 Requires:         osutil
 
@@ -247,13 +247,13 @@ Requires:         jakarta-commons-lang
 Requires:         jakarta-commons-logging
 %endif
 Requires:         java >= 1:1.6.0
-Requires:         jss >= 4.2.6-15
+Requires:         jss >= 4.2.6-17
 Requires:         pki-common-theme >= 9.0.0
 Requires:         pki-java-tools = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
 %if 0%{?fedora} >= 15
-Requires:         tomcatjss >= 2.1.1
+Requires:         tomcatjss >= 6.0.0
 %else
 Requires:         tomcatjss >= 2.0.0
 %endif
@@ -599,6 +599,98 @@ fi
 
 
 %changelog
+* Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.9-1
+- Updated release of 'jss'
+- Updated release of 'tomcatjss' for Fedora 15
+- 'pki-setup'
+-      Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
+       (mharmsen)
+-      Bugzilla Bug #693815 - /var/log/tomcat6/catalina.out owned by pkiuser
+       (jdennis)
+-      Bugzilla Bug #694569 - parameter used by pkiremove not updated (alee)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'pki-symkey'
+-      Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
+       (mharmsen)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'pki-native-tools'
+-      Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
+       (mharmsen)
+-      Bugzilla Bug #717765 - TPS configuration: logging into security domain
+       from tps does not work with clientauth=want. (alee)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'pki-util'
+-      Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
+       (mharmsen)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'pki-java-tools'
+-      Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
+       (mharmsen)
+-      Bugzilla Bug #532548 - Tool to do DRM re-key (mharmsen)
+-      Bugzilla Bug #532548 - Tool to do DRM re-key (config file and record
+       processing) (mharmsen)
+-      Bugzilla Bug #532548 - Tool to do DRM re-key (tweaks) (mharmsen)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'pki-common'
+-      Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
+       (mharmsen)
+-      Bugzilla Bug #695403 - Editing signedaudit or transaction, system
+       logs throws 'Invalid protocol' for OCSP subsystems (alee)
+-      Bugzilla Bug #694569 - parameter used by pkiremove not updated (alee)
+-      Bugzilla Bug #695015 - Serial No. of a revoked certificate is not
+       populated in the CA signedAudit messages (alee)
+-      Bugzilla Bug #694143 - CA Agent not returning specified request (awnuk)
+-      Bugzilla Bug #695015 - Serial No. of a revoked certificate is not
+       populated in the CA signedAudit messages (jmagne)
+-      Bugzilla Bug #698885 - Race conditions during IPA installation (alee)
+-      Bugzilla Bug #704792 - CC_LAB_EVAL: CA agent interface:
+       SubjectID=$Unidentified$ fails audit evaluation (jmagne)
+-      Bugzilla Bug #705914 - SCEP mishandles nicknames when processing
+       subsequent SCEP requests. (awnuk)
+-      Bugzilla Bug #661142 - Verification should fail when a revoked
+       certificate is added. (jmagne)
+-      Bugzilla Bug #707416 - CC_LAB_EVAL: Security Domain: missing audit msgs
+       for modify/add (alee)
+-      Bugzilla Bug #707416 - additional audit messages for GetCookie (alee)
+-      Bugzilla Bug #707607 - Published certificate summary has list of
+       non-published certificates with succeeded status (jmagne)
+-      Bugzilla Bug #717813 - EV_AUDIT_LOG_SHUTDOWN audit log not generated
+       for tps and ca on server shutdown (jmagne)
+-      Bugzilla Bug #697939 - DRM signed audit log message - operation should
+       be read instead of modify (jmagne)
+-      Bugzilla Bug #718427 - When audit log is full, server continue to
+       function. (alee)
+-      Bugzilla Bug #718607 - CC_LAB_EVAL: No AUTH message is generated in
+       CA's signedaudit log when a directory based user enrollment is
+       performed (jmagne)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'pki-selinux'
+-      Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
+       (mharmsen)
+-      Bugzilla Bug #720503 - RA and TPS require additional SELinux
+       permissions to run in "Enforcing" mode (alee)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'pki-ca'
+-      Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
+       (mharmsen)
+-      Bugzilla Bug #693815 - /var/log/tomcat6/catalina.out owned by pkiuser
+       (jdennis)
+-      Bugzilla Bug #699837 - service command is not fully backwards
+       compatible with Dogtag pki subsystems (mharmsen)
+-      Bugzilla Bug #649910 - Console: an auditor or agent can be added to an
+       administrator group. (jmagne)
+-      Bugzilla Bug #707416 - CC_LAB_EVAL: Security Domain: missing audit msgs
+       for modify/add (alee)
+-      Bugzilla Bug #716269 - make ra authenticated profiles non-visible on ee
+       pages (alee)
+-      Bugzilla Bug #718621 - CC_LAB_EVAL: PRIVATE_KEY_ARCHIVE_REQUEST occurs
+       for a revocation invoked by EE user (awnuk)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- 'pki-silent'
+-      Bugzilla Bug #695157 - Auditverify on TPS audit log throws error.
+       (mharmsen)
+-      Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+
 * Wed May 25 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-2
 - 'pki-setup'
 - 'pki-symkey'

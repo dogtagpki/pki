@@ -1,5 +1,5 @@
 Name:             pki-tps
-Version:          9.0.4
+Version:          9.0.5
 Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
@@ -215,6 +215,24 @@ fi
 
 
 %changelog
+* Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
+- Bugzilla Bug #697035 - TPS database schema not populated correctly
+  (alee)
+- Bugzilla Bug #694569 - parameter used by pkiremove not updated (alee)
+- Bugzilla Bug #696851 - TPS crashes that cause AuditVerify on TPS audit
+  logs - some of the signatures are failing. (jmagne)
+- Bugzilla Bug #699837 - service command is not fully backwards
+  compatible with Dogtag pki subsystems (mharmsen)
+- Bugzilla Bug #696443 - ESC display Smartcard renewal operation success
+  for a failed renewal operation. (jmagne)
+- Bugzilla Bug #707095 - tps delete user operation should check for roles
+  (not have them passed in) (alee)
+- Bugzilla Bug #717813 - EV_AUDIT_LOG_SHUTDOWN audit log not generated
+  for tps and ca on server shutdown (alee)
+- Bugzilla Bug #717765 - TPS configuration: logging into security domain
+  from tps does not work with clientauth=want. (alee)
+- Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+
 * Tue Apr 26 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
 - Bugzilla Bug #697035 - TPS database schema not populated correctly
 - Bugzilla Bug #694569 - parameter used by pkiremove not updated

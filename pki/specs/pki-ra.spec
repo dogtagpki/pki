@@ -1,5 +1,5 @@
 Name:             pki-ra
-Version:          9.0.2
+Version:          9.0.3
 Release:          1%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
@@ -181,6 +181,15 @@ fi
 
 
 %changelog
+* Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
+- Bugzilla Bug #694569 - parameter used by pkiremove not updated (alee)
+- Bugzilla Bug #699364 - PKI-RA instance not created successfully (alee)
+- Bugzilla Bug #699837 - service command is not fully backwards
+  compatible with Dogtag pki subsystems (mharmsen)
+- Bugzilla Bug #717765 - TPS configuration: logging into security domain
+  from tps does not work with clientauth=want. (alee)
+- Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+
 * Tue Apr 26 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.2-1
 - Bugzilla Bug #694569 - parameter used by pkiremove not updated
 - Bugzilla Bug #699364 - PKI-RA instance not created successfully

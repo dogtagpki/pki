@@ -1,5 +1,5 @@
 Name:             pki-migrate
-Version:          9.0.0
+Version:          9.0.1
 Release:          1%{?dist}
 Summary:          Red Hat Certificate System - PKI Migration Scripts
 URL:              http://pki.fedoraproject.org/
@@ -68,6 +68,9 @@ cd build
 
 
 %changelog
+* Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
+- Bugzilla Bug #669226 - Remove Legacy Build System
+
 * Wed Dec 1 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Updated Dogtag 1.3.x --> Dogtag 2.0.0 (internal) --> Dogtag 9.0.0
 

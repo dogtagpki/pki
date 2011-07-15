@@ -1,5 +1,5 @@
 Name:             pki-kra
-Version:          9.0.3
+Version:          9.0.4
 Release:          1%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
@@ -13,7 +13,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-15
+BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    pki-common
@@ -159,6 +159,19 @@ fi
 
 
 %changelog
+* Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
+- Bugzilla Bug #693815 - /var/log/tomcat6/catalina.out owned by pkiuser
+  (jdennis)
+- Bugzilla Bug #699837 - service command is not fully backwards
+  compatible with Dogtag pki subsystems (mharmsen)
+- Bugzilla Bug #649910 - Console: an auditor or agent can be added to an
+  administrator group. (jmagne)
+- Bugzilla Bug #707416 - CC_LAB_EVAL: Security Domain: missing audit msgs
+  for modify/add (alee)
+- Bugzilla Bug #714068 - KRA: remove monitor servlet from kra (alee)
+- Bugzilla Bug #669226 - Remove Legacy Build System (mharmsen)
+- Updated release of 'jss'
+
 * Tue Apr 26 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
 - Bugzilla Bug #693815 - /var/log/tomcat6/catalina.out owned by pkiuser
 - Bugzilla Bug #699837 - service command is not fully backwards compatible

@@ -1,5 +1,5 @@
 Name:             ipa-pki-theme
-Version:          9.0.3
+Version:          9.0.4
 Release:          1%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -126,6 +126,12 @@ cd build
 
 
 %changelog
+* Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
+- 'ipa-pki-ca-theme'
+-      Bugzilla Bug #669226 - Remove Legacy Build System
+- 'ipa-pki-common-theme'
+-      Bugzilla Bug #669226 - Remove Legacy Build System
+
 * Thu Jan 20 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
 - Augmented overview description.
 - 'ipa-pki-ca-theme'
