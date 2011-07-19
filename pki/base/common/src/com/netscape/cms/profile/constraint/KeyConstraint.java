@@ -20,6 +20,7 @@ package com.netscape.cms.profile.constraint;
 
 import java.util.*;
 import java.io.*;
+import java.security.*;
 import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.profile.*;
 import com.netscape.certsrv.request.*;
@@ -56,6 +57,64 @@ public class KeyConstraint extends EnrollConstraint {
        "c2pnb272w1","c2pnb304w1","c2tnb359w1","c2pnb368w1","c2tnb431r1","secp112r1","secp112r2","secp128r1","secp128r2","sect113r1","sect113r2",
        "sect131r1","sect131r2"
     };
+
+    private final static HashMap<String,Vector> ecOIDs = new HashMap<String,Vector>();
+ 	static
+    {
+       ecOIDs.put( "1.2.840.10045.3.1.7",  new Vector() {{add("nistp256");add("secp256r1");}});
+       ecOIDs.put( "1.3.132.0.34",         new Vector() {{add("nistp384");add("secp384r1");}});
+       ecOIDs.put( "1.3.132.0.35",         new Vector() {{add("nistp521");add("secp521r1");}});
+       ecOIDs.put( "1.3.132.0.1",          new Vector() {{add("sect163k1");add("nistk163");}});
+       ecOIDs.put( "1.3.132.0.2",          new Vector() {{add("sect163r1");}});
+       ecOIDs.put( "1.3.132.0.15",         new Vector() {{add("sect163r2");add("nistb163");}});
+       ecOIDs.put( "1.3.132.0.24",         new Vector() {{add("sect193r1");}});
+       ecOIDs.put( "1.3.132.0.25",         new Vector() {{add("sect193r2");}});
+       ecOIDs.put( "1.3.132.0.26",         new Vector() {{add("sect233k1");add("nistk233");}});
+       ecOIDs.put( "1.3.132.0.27",         new Vector() {{add("sect233r1");add("nistb233");}});
+       ecOIDs.put( "1.3.132.0.3",         new Vector() {{add("sect239k1");}});
+       ecOIDs.put( "1.3.132.0.16",         new Vector() {{add("sect283k1");add("nistk283");}});
+       ecOIDs.put( "1.3.132.0.17",         new Vector() {{add("sect283r1");add("nistb283");}});
+       ecOIDs.put( "1.3.132.0.36",         new Vector() {{add("sect409k1");add("nistk409");}});
+       ecOIDs.put( "1.3.132.0.37",         new Vector() {{add("sect409r1");add("nistb409");}});
+       ecOIDs.put( "1.3.132.0.38",         new Vector() {{add("sect571k1"); add("nistk571");}});
+       ecOIDs.put( "1.3.132.0.39",         new Vector() {{add("sect571r1");add("nistb571");}});
+       ecOIDs.put( "1.3.132.0.9",          new Vector()  {{add("secp160k1");}});
+       ecOIDs.put( "1.3.132.0.8",          new Vector()  {{add("secp160r1");}});
+       ecOIDs.put( "1.3.132.0.30",         new Vector() {{add("secp160r2");}});
+       ecOIDs.put( "1.3.132.0.31",         new Vector() {{add("secp192k1");}});
+       ecOIDs.put( "1.2.840.10045.3.1.1",  new Vector() {{add("secp192r1");add("nistp192");add("prime192v1");}});
+       ecOIDs.put( "1.3.132.0.32",         new Vector() {{add("secp224k1");}});
+       ecOIDs.put( "1.3.132.0.33",         new Vector() {{add("secp224r1");add("nistp224");}});
+       ecOIDs.put( "1.3.132.0.10",         new Vector() {{add("secp256k1");}});
+       ecOIDs.put( "1.2.840.10045.3.1.2",new Vector() {{add("prime192v2");}});
+       ecOIDs.put( "1.2.840.10045.3.1.3",new Vector() {{add("prime192v3");}});
+       ecOIDs.put( "1.2.840.10045.3.1.4",new Vector() {{add("prime239v1");}});
+       ecOIDs.put( "1.2.840.10045.3.1.5",new Vector() {{add("prime239v2");}});
+       ecOIDs.put( "1.2.840.10045.3.1.6",new Vector() {{add("prime239v3");}});
+       ecOIDs.put( "1.2.840.10045.3.0.1",  new Vector() {{add("c2pnb163v1");}});
+       ecOIDs.put( "1.2.840.10045.3.0.2",  new Vector() {{add("c2pnb163v2");}});
+       ecOIDs.put( "1.2.840.10045.3.0.3",  new Vector() {{add("c2pnb163v3");}});
+       ecOIDs.put( "1.2.840.10045.3.0.4",  new Vector() {{add("c2pnb176v1");}});
+       ecOIDs.put( "1.2.840.10045.3.0.5",  new Vector() {{add("c2tnb191v1");}});
+       ecOIDs.put( "1.2.840.10045.3.0.6",  new Vector() {{add("c2tnb191v2");}});
+       ecOIDs.put( "1.2.840.10045.3.0.7",  new Vector() {{add("c2tnb191v3");}});
+       ecOIDs.put( "1.2.840.10045.3.0.10", new Vector() {{add("c2pnb208w1");}});
+       ecOIDs.put( "1.2.840.10045.3.0.11", new Vector() {{add("c2tnb239v1");}});
+       ecOIDs.put( "1.2.840.10045.3.0.12", new Vector() {{add("c2tnb239v2");}});
+       ecOIDs.put( "1.2.840.10045.3.0.13", new Vector() {{add("c2tnb239v3");}});
+       ecOIDs.put( "1.2.840.10045.3.0.16", new Vector() {{add("c2pnb272w1");}});
+       ecOIDs.put( "1.2.840.10045.3.0.17", new Vector() {{add("c2pnb304w1");}});
+       ecOIDs.put( "1.2.840.10045.3.0.19", new Vector() {{add("c2pnb368w1");}});
+       ecOIDs.put( "1.2.840.10045.3.0.20", new Vector() {{add("c2tnb431r1");}});
+       ecOIDs.put( "1.3.132.0.6",          new Vector() {{add("secp112r1");}});
+       ecOIDs.put( "1.3.132.0.7",          new Vector() {{add("secp112r2");}});
+       ecOIDs.put( "1.3.132.0.28",         new Vector() {{add("secp128r1");}});
+       ecOIDs.put( "1.3.132.0.29",         new Vector() {{add("secp128r2");}});
+       ecOIDs.put( "1.3.132.0.4",          new Vector() {{add("sect113r1");}});
+       ecOIDs.put( "1.3.132.0.5",          new Vector() {{add("sect113r2");}});
+       ecOIDs.put( "1.3.132.0.22",         new Vector() {{add("sect131r1");}});
+       ecOIDs.put( "1.3.132.0.23",         new Vector() {{add("sect131r2");}});
+    }
 
     private static String[] cfgECCurves = null;
     private static String keyType = "";
@@ -143,8 +202,6 @@ public class KeyConstraint extends EnrollConstraint {
             String[] keyParams = value.split(",");
 
             if (alg.equals("EC")) {
-                //For now only check for legal EC key type.
-                //We don't have the required EC key class to evaluate curve names.
                 if (!alg.equals(keyType) && !isOptional(keyType)) {
                     throw new ERejectException(
                             CMS.getUserMessage(
@@ -152,7 +209,56 @@ public class KeyConstraint extends EnrollConstraint {
                                 "CMS_PROFILE_KEY_PARAMS_NOT_MATCHED",
                                 value));
                 }
-                CMS.debug("KeyConstraint.validate: EC key constrainst passed.");
+
+                AlgorithmId algid = key.getAlgorithmId();
+
+                CMS.debug("algId: " + algid);
+
+                //Get raw string representation of alg parameters, will give 
+                //us the curve OID.
+
+                String params =  null;
+                if (algid != null) {
+                    params = algid.getParametersString();
+                }
+
+                if (params.startsWith("OID.")) {
+                    params = params.substring(4);
+                } 
+
+                CMS.debug("EC key OID: " + params);
+                Vector vect = ecOIDs.get(params);
+
+                boolean curveFound = false;
+
+                if (vect != null) {
+                    CMS.debug("vect: " + vect.toString());
+
+                    if (!isOptional(keyType)) {
+                        //Check the curve parameters only if explicit ECC or not optional
+                        for (int i = 0 ; i < keyParams.length ; i ++) {
+                            String ecParam =  keyParams[i];
+                            CMS.debug("keyParams[i]: " + i + " param: " + ecParam);
+                            if (vect.contains(ecParam)) {
+                                curveFound = true;
+                                CMS.debug("KeyConstraint.validate: EC key constrainst passed.");
+                                break;
+                            }
+                        }
+                    } else {
+                        curveFound = true;
+                    }
+                }
+
+                if (!curveFound) {
+                     CMS.debug("KeyConstraint.validate: EC key constrainst failed.");
+                    throw new ERejectException(
+                            CMS.getUserMessage(
+                                getLocale(request),
+                                "CMS_PROFILE_KEY_PARAMS_NOT_MATCHED",
+                                value));
+                }
+
             }  else {
                 if ( !arrayContainsString(keyParams,Integer.toString(keySize))) {
                      throw new ERejectException(
