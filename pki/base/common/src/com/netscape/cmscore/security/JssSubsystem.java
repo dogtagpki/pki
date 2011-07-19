@@ -848,8 +848,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
+            String eString = e.toString();
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
+            if (eString.contains("Failed to find certificate that was just imported")) {
+                throw new EBaseException(eString);
+            } else {
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
+            }
         } catch (UserCertConflictException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_USERCERT_CONFLICT"));

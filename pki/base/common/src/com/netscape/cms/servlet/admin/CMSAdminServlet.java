@@ -2275,23 +2275,45 @@ private void 	createMasterKey(HttpServletRequest req,
             //		nickname).
             //
 
+            CMS.debug("CMSAdminServlet.installCert(): About to try jssSubSystem.importCert: "+ nicknameWithoutTokenName);
             try {
                 jssSubSystem.importCert(pkcs, nicknameWithoutTokenName, 
                     certType);
             } catch (EBaseException e) {
-                // if it fails, let use a different nickname to try
-                Date now = new Date();	
-                String newNickname = nicknameWithoutTokenName + "-" +
+
+                boolean certFound = false;
+
+                String eString = e.toString();
+                if(eString.contains("Failed to find certificate that was just imported")) {
+                    CMS.debug("CMSAdminServlet.installCert(): nickname="+nicknameWithoutTokenName + " TokenException: " + eString);
+
+                    X509Certificate cert = null;
+                    try {
+                        cert = CryptoManager.getInstance().findCertByNickname(nickname);
+                        if (cert != null) {
+                            certFound = true;
+                        }
+                        CMS.debug("CMSAdminServlet.installCert() Found cert just imported: " + nickname);
+                    } catch (Exception ex) {
+                        CMS.debug("CMSAdminServlet.installCert() Can't find cert just imported: " + ex.toString());
+                    }
+                } 
+
+                if (!certFound) {
+                    // if it fails, let use a different nickname to try
+                    Date now = new Date();	
+                    String newNickname = nicknameWithoutTokenName + "-" +
                                      now.getTime();
 
-                jssSubSystem.importCert(pkcs, newNickname, certType);
-                nicknameWithoutTokenName = newNickname;
-                if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
-                    nickname = newNickname;
-                } else {
-                    nickname = tokenName + ":" + newNickname;
-                }
-                CMS.debug("CMSAdminServlet: installCert(): nickname="+nickname);
+                    jssSubSystem.importCert(pkcs, newNickname, certType);
+                    nicknameWithoutTokenName = newNickname;
+                    if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+                        nickname = newNickname;
+                    } else {
+                        nickname = tokenName + ":" + newNickname;
+                    }
+                    CMS.debug("CMSAdminServlet: installCert():  After second install attempt following initial error: nickname="+nickname);
+               }
             }
 
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
