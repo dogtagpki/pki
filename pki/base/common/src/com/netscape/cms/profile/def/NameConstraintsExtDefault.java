@@ -305,8 +305,14 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 if(ext == null)  {
                     return;
                 }
+                if ((value == null) || (value.equals("null")) || (value.equals(""))) {
+                    CMS.debug("NameConstraintsExtDefault:setValue : " + 
+                              "blank value for permitted subtrees ... returning");
+                    return;
+                }
+
                 Vector v = parseRecords(value);
-         
+
                 Vector permittedSubtrees = createSubtrees(locale, v);
 
                 ext.set(NameConstraintsExtension.PERMITTED_SUBTREES, 
@@ -316,6 +322,11 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                         getExtension(PKIXExtensions.NameConstraints_Id.toString(), info);
 
                 if(ext == null)  {
+                    return;
+                }
+                if ((value == null) || (value.equals("null")) || (value.equals(""))) {
+                    CMS.debug("NameConstraintsExtDefault:setValue : " + 
+                              "blank value for excluded subtrees ... returning");
                     return;
                 }
                 Vector v = parseRecords(value);
