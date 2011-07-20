@@ -1028,7 +1028,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
             CMS.debug("ProfileSubmitServlet: authz using acl: "+acl);
             if (acl != null && acl.length() > 0) {
                 try {
-                    AuthzToken authzToken = authorize(mAclMethod, authToken, acl);
+                    String resource = profileId + ".authz.acl";
+                    AuthzToken authzToken = authorize(mAclMethod, resource, authToken, acl);
                 } catch (Exception e) {
                     CMS.debug("ProfileSubmitServlet authorize: "+e.toString());
                     if (xmlOutput) {

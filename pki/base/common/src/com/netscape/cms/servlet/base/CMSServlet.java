@@ -1817,11 +1817,76 @@ public abstract class CMSServlet extends HttpServlet {
         }
     }
 
-    public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
+    public AuthzToken authorize(String authzMgrName, String resource, IAuthToken authToken,
       String exp) throws EBaseException {
-        AuthzToken authzToken = mAuthz.authorize(authzMgrName, authToken,
-          exp);
-        return authzToken;
+        AuthzToken authzToken = null;
+        String auditMessage = null;
+        String auditSubjectID = auditSubjectID();
+        String auditGroupID = auditGroupID();
+        String auditACLResource = resource;
+        String auditOperation = "enroll";
+
+        SessionContext auditContext = SessionContext.getExistingContext();
+        String authManagerId = null;
+
+        try {
+            authzToken = mAuthz.authorize(authzMgrName, authToken, exp);
+            if (authzToken != null) {
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                            auditSubjectID,
+                            ILogger.SUCCESS,
+                            auditACLResource,
+                            auditOperation);
+
+                audit(auditMessage);
+
+                // store a message in the signed audit log file
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                            auditSubjectID,
+                            ILogger.SUCCESS,
+                            auditGroupID);
+
+                audit(auditMessage);
+            } else {
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            auditACLResource,
+                            auditOperation);
+
+                audit(auditMessage);
+
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            auditGroupID);
+
+                audit(auditMessage);
+            }
+            return authzToken;
+        } catch (Exception e) {
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditACLResource,
+                        auditOperation);
+
+            audit(auditMessage);
+
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditGroupID);
+
+            audit(auditMessage);
+            throw new EBaseException(e.toString());
+        }
     }
 
     /**
