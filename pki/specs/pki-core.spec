@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.9
+Version:          9.0.10
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -599,6 +599,31 @@ fi
 
 
 %changelog
+* Fri Jul 22 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.10-1
+- 'pki-setup'
+- 'pki-symkey'
+- 'pki-native-tools'
+- 'pki-util'
+-      Bugzilla Bug #719007 - Key Constraint keyParameter being ignored
+       using an ECC CA to generate ECC certs from CRMF. (jmagne)
+-      Bugzilla Bug #716307 - rhcs80 - DER shall not include an encoding
+       for any component value which is equal to its default value (alee)
+- 'pki-java-tools'
+- 'pki-common'
+-      Bugzilla Bug #720510 - Console: Adding a certificate into nethsm
+       throws Token not found error. (jmagne)
+-      Bugzilla Bug #719007 - Key Constraint keyParameter being ignored
+       using an ECC CA to generate ECC certs from CRMF. (jmagne)
+-      Bugzilla Bug #716307 - rhcs80 - DER shall not include an encoding
+       for any component value which is equal to its default value (alee)
+-      Bugzilla Bug #722989 - Registering an agent when a subsystem is
+       created - does not log AUTHZ_SUCCESS event. (alee)
+- 'pki-selinux'
+- 'pki-ca'
+-      Bugzilla Bug #719113 - Add client usage flag to caIPAserviceCert
+       (awnuk)
+- 'pki-silent'
+
 * Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.9-1
 - Updated release of 'jss'
 - Updated release of 'tomcatjss' for Fedora 15
