@@ -378,7 +378,7 @@ public class CMSTemplate extends CMSFile {
             }
 
             if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
-                 in[i+1] == 'n' || in[i+1] == 'f' || in[i+1] == 't' ||
+                 in[i+1] == 'r' || in[i+1] == 'f' || in[i+1] == 't' ||
                  in[i+1] == '\"' || in[i+1] == '\'' || in[i+1] == '\\')) {
                 out[j++] = '\\';
                 out[j++] = in[i+1];
@@ -453,13 +453,13 @@ public class CMSTemplate extends CMSFile {
         for (int i = 0; i < l; i++) {
             char c = in[i];
 
-            if (c > 0x5B) {
+            if (c > 0x5C) {
                 out[j++] = c;
                 continue;
             }
 
             if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
-                 in[i+1] == 'n' || in[i+1] == 'f' || in[i+1] == 't')) {
+                 in[i+1] == 'r' || in[i+1] == 'f' || in[i+1] == 't')) {
                 out[j++] = '\\';
                 out[j++] = in[i+1];
                 i++;
