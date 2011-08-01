@@ -236,7 +236,7 @@ void RA::do_free(char *p)
 int RA::InitializeSignedAudit()
 {
     // cfu
-    RA::Debug("RA:: InitializeSignedAudit", "begins");
+    RA::Debug("RA:: InitializeSignedAudit", "begins pid: %d",getpid());
     tpsConfigured = m_cfg->GetConfigAsBool("tps.configured", false);
     // During installation config, don't do this
     if (IsTpsConfigured() && (m_audit_signed == true) && (m_audit_signing_key == NULL)) {
@@ -527,8 +527,8 @@ int RA::InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount) {
     int status = 0;
     char configname[256];
 
-    RA::Debug( LL_PER_SERVER, "RA::InitializeInChild", "begins: %d",
-                 nSignedAuditInitCount);
+    RA::Debug( LL_PER_SERVER, "RA::InitializeInChild", "begins: %d pid: %d ppid: %d",
+                nSignedAuditInitCount,getpid(),getppid());
     if (!NSS_IsInitialized()) {
 
         RA::Debug( LL_PER_SERVER, "RA::InitializeInChild", "Initializing NSS");
@@ -589,7 +589,7 @@ int RA::InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount) {
     m_buffer_size = m_cfg->GetConfigAsInt(CFG_AUDIT_BUFFER_SIZE, 512);
     m_flush_interval = m_cfg->GetConfigAsInt(CFG_AUDIT_FLUSH_INTERVAL, 5);
 
-    if (m_audit_enabled) {
+    if (m_audit_enabled  && (nSignedAuditInitCount > 1 )) {
         // is audit logSigning on?
         m_audit_signed = m_cfg->GetConfigAsBool(CFG_AUDIT_SIGNED, false);
         RA::Debug("RA:: InitializeInChild", "Audit signing is %s",

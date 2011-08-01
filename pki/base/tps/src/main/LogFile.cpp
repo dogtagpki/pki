@@ -30,6 +30,7 @@
 extern "C"
 {
 #endif
+#include <unistd.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -98,8 +99,8 @@ void LogFile::shutdown()
 {
     m_ctx->LogInfo( "LogFile::shutdown",
                       __LINE__,
-                      "thread = 0x%lx: Logfile %s shutting down",
-                      PR_GetCurrentThread(), m_fname);
+                      "thread = 0x%lx: Logfile %s shutting down pid: %d",
+                      PR_GetCurrentThread(), m_fname,getpid());
 
     PR_EnterMonitor(m_monitor);
     if (m_fd != NULL) {
@@ -124,13 +125,20 @@ int LogFile::open()
 {
     PRFileInfo info;
     PR_EnterMonitor(m_monitor);
+
+    m_ctx->LogInfo( "LogFile::open",
+                      __LINE__,
+                      "Opening Log File: %s pid: %d",
+                      m_fname,getpid());
+
     if (m_fd == NULL) {
         m_fd = PR_Open(m_fname,  PR_RDWR | PR_CREATE_FILE | PR_APPEND, 440|200);
         if (m_fd == NULL) {
             m_ctx->LogError( "LogFile::open",
                       __LINE__,
-                      "Unable to open log file %s",
-                      m_fname);
+                      "Unable to open log file %s error no: %d",
+                      m_fname,PR_GetError());
+
 
             goto loser;
         }

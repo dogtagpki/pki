@@ -631,6 +631,18 @@ static void mod_tps_init_child(apr_pool_t *p, server_rec *sv)
         srv_cfg->gconfig->nSignedAuditInitCount++; 
         status = RA::InitializeInChild(srv_cfg->context,
                    srv_cfg->gconfig->nSignedAuditInitCount); 
+
+
+         if (status !=  RA_INITIALIZATION_SUCCESS) {
+        /* Need to shut down, the child was not initialized properly. */
+           ap_log_error( "mod_tps_init_child",
+                      __LINE__, APLOG_ERR, 0, sv,
+                      "The tps module failed to do the initializeInChild tasks. ");
+           printf( "\nUnable to start Apache:\n"
+                "    The tps module failed to do the initializeInChild tasks. ");
+           goto loser;
+        }
+
         /* Register a server termination routine. */
         apr_pool_cleanup_register( p,
                                    sv,
@@ -645,6 +657,32 @@ static void mod_tps_init_child(apr_pool_t *p, server_rec *sv)
     ap_log_error(APLOG_MARK, APLOG_DEBUG, 0 /* status */, NULL,
                  "Leaving mod_tps_init_child");
     return;
+loser:
+     /* Log TPS module debug information. */
+    RA::Debug( "mod_tps::mod_tps_initialize",
+               "Failed loading the TPS module!" );
+
+    /* Free TPS resources. */
+    /* If we are here, the parent should be up. */
+    RA::Shutdown();
+
+    /* Since all members of mod_tps_server_configuration are allocated */
+    /* from a pool, there is no need to unset any of these members.    */
+
+#ifdef MEM_PROFILING
+    /* If memory profiling is enabled, turn off memory profiling. */
+    MEM_shutdown();
+#endif
+
+    /* Shutdown all APR library routines.                   */
+    /* NOTE:  This automatically destroys all memory pools. */
+    apr_terminate();
+
+    /* Terminate the entire Apache server */
+    _exit(APEXIT_CHILDFATAL);
+
+    return;
+
 }
 
 
