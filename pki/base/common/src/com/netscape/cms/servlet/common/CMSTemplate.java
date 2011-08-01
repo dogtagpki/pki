@@ -379,10 +379,20 @@ public class CMSTemplate extends CMSFile {
 
             if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
                  in[i+1] == 'r' || in[i+1] == 'f' || in[i+1] == 't' ||
+                 in[i+1] == '<' || in[i+1] == '>' ||
                  in[i+1] == '\"' || in[i+1] == '\'' || in[i+1] == '\\')) {
-                out[j++] = '\\';
-                out[j++] = in[i+1];
-                i++;
+                if (in[i+1] == 'x' && ((i+3)<l) && in[i+2] == '3' &&
+                    (in[i+3] == 'c' || in[i+3] == 'e')) {
+                    out[j++] = '\\';
+                    out[j++] = in[i+1];
+                    out[j++] = in[i+2];
+                    out[j++] = in[i+3];
+                    i += 3;
+                } else { 
+                    out[j++] = '\\';
+                    out[j++] = in[i+1];
+                    i++;
+                }
                 continue;
             }
 
@@ -459,10 +469,21 @@ public class CMSTemplate extends CMSFile {
             }
 
             if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
-                 in[i+1] == 'r' || in[i+1] == 'f' || in[i+1] == 't')) {
-                out[j++] = '\\';
-                out[j++] = in[i+1];
-                i++;
+                 in[i+1] == 'r' || in[i+1] == 'f' || in[i+1] == 't' ||
+                 in[i+1] == '<' || in[i+1] == '>' ||
+                 in[i+1] == '\"' || in[i+1] == '\'' || in[i+1] == '\\')) {
+                if (in[i+1] == 'x' && ((i+3)<l) && in[i+2] == '3' &&
+                    (in[i+3] == 'c' || in[i+3] == 'e')) {
+                    out[j++] = '\\';
+                    out[j++] = in[i+1];
+                    out[j++] = in[i+2];
+                    out[j++] = in[i+3];
+                    i += 3;
+                } else { 
+                    out[j++] = '\\';
+                    out[j++] = in[i+1];
+                    i++;
+                }
                 continue;
             }
 
