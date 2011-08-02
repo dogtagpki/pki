@@ -2283,8 +2283,21 @@ public abstract class CMSServlet extends HttpServlet {
             if (c == ',' || c == '=' || c == '+' || c == '<' ||
                 c == '>' || c == '#' || c == ';' || c == '\r' ||
                 c == '\n' || c == '\\' || c == '"') {
+                if ((c == 0x5c) && ((i+1) < v.length())) {
+                    int nextC = v.charAt(i+1);
+                    if ((c == 0x5c) && (nextC == ',' || nextC == '=' || nextC == '+' ||
+                                        nextC == '<' || nextC == '>' || nextC == '#' ||
+                                        nextC == ';' || nextC == '\r' || nextC == '\n' ||
+                                        nextC == '\\' || nextC == '"')) {
+                        if (doubleEscape) result.append('\\');
+                    } else {
                         result.append('\\');
                         if (doubleEscape) result.append('\\');
+                    }
+                } else {
+                    result.append('\\');
+                    if (doubleEscape) result.append('\\');
+                }
             }
             if (c == '\r') {
                 result.append("0D");
