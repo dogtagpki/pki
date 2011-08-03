@@ -180,6 +180,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             s = HttpInput.getPassword(request, "__password");
             if (s == null || s.equals("")) {
                 CMS.debug("RestoreKeyCertPanel validate: password is empty");
+                context.put("updateStatus", "validate-failure");
                 throw new IOException("Empty password");
             }
         }
@@ -202,6 +203,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             } catch (EBaseException e) {
             }
             getConfigEntriesFromMaster(request, response, context);
+            context.put("updateStatus", "success");
             return;
         }
         String pwd = HttpInput.getPassword(request, "__password");
@@ -299,6 +301,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             
                 importkeycert(pkeyinfo_collection, cert_collection);
             } else {
+                context.put("updateStatus", "failure");
                 throw new IOException("The pkcs12 file is not correct.");
             }
         }
@@ -318,6 +321,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             if (!cloneReady) {
                 CMS.debug("RestoreKeyCertPanel update: clone does not have all the certificates.");
                 context.put("errorString", "Make sure you have copied the certificate database over to the clone");
+                context.put("updateStatus", "failure");
                 throw new IOException("Clone is not ready");
             }
         }
@@ -329,6 +333,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         }
 
         getConfigEntriesFromMaster(request, response, context);
+        context.put("updateStatus", "success");
     }
 
     private void getConfigEntriesFromMaster(HttpServletRequest request,

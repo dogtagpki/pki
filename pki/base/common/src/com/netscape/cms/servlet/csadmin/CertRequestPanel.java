@@ -489,8 +489,10 @@ public class CertRequestPanel extends WizardPanelBase {
         } catch (Exception e) {
         }
 
-        if (isPanelDone())
+        if (isPanelDone()) {
+            context.put("updateStatus", "success");
             return;
+        }
 
         try {
             Enumeration c = mCerts.elements();
@@ -735,6 +737,11 @@ public class CertRequestPanel extends WizardPanelBase {
                 }
             }  
         } catch (Exception e) {
+        }
+        if (!hasErr) { 
+            context.put("updateStatus", "success");
+        } else {
+            context.put("updateStatus", "failure");
         }
     }
 

@@ -2660,10 +2660,15 @@ sub process_pki_files_and_symlinks
 
     # create a filled in empty "password.conf"
     # password file for this instance
-    return 0 if !create_file($password_conf_instance_file_path,
-                             "${default_security_token}:${db_password}\n",
-                             $default_file_permissions, $pki_user, $pki_group);
-
+    if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+        return 0 if !create_file($password_conf_instance_file_path,
+                                 "${default_security_token}:${db_password}\n",
+                                 $default_file_permissions, $pki_user, $pki_group);
+    } else {
+        return 0 if !create_file($password_conf_instance_file_path,
+                                 "${default_security_token}=${db_password}\n",
+                                 $default_file_permissions, $pki_user, $pki_group);
+    }
 
     # create a filled in empty temporary "pfile"
     # password file for this instance
@@ -3031,8 +3036,10 @@ sub process_pki_selinux_setup
     if (!$conf_path) {
         emit("Error: Cannot set selinux context $setype" . "_etc_rw_t for directory /");
     } else {
-        add_selinux_file_context($setype . "_etc_rw_t", 
-                                  "\"$conf_path(/.*)?\"", "a", \$semanage_cmds);
+        if ($conf_path ne $default_conf_path) {
+            add_selinux_file_context($setype . "_etc_rw_t", 
+                                     "\"$conf_path(/.*)?\"", "a", \$semanage_cmds);
+        }
         push(@restorecon_cmds, "$restorecon -F -R $conf_path");
     }
     

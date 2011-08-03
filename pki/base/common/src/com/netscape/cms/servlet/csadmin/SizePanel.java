@@ -386,13 +386,16 @@ public class SizePanel extends WizardPanelBase {
             if (hasChanged || (val1 != null && !val1.equals(""))) {
                 mServlet.cleanUpFromPanel(mServlet.getPanelNo(request));
             } else if (isPanelDone()) {
+                context.put("updateStatus", "success");
                 return;
             }
         } catch (IOException e) { 
             CMS.debug("SizePanel: update() IOException caught: " + e.toString());
+            context.put("updateStatus", "failure");
             throw e;
         } catch (NumberFormatException e) {
             CMS.debug("SizePanel: update() NumberFormatException caught: " + e.toString());
+            context.put("updateStatus", "failure");
             throw e;
         } catch (Exception e) { 
             CMS.debug("SizePanel: update() Exception caught: " + e.toString());
@@ -433,6 +436,7 @@ public class SizePanel extends WizardPanelBase {
             } catch (Exception e) {
                 CMS.debug(e);
                 CMS.debug("SizePanel: key generation failure: " + e.toString());
+                context.put("updateStatus", "failure");
                 throw new IOException("key generation failure for the certificate: " + friendlyName + 
                                       ".  See the logs for details.");
             }
@@ -449,6 +453,7 @@ public class SizePanel extends WizardPanelBase {
 	  }
 	}
         CMS.debug("SizePanel: update() done");
+        context.put("updateStatus", "success");
 
     }
 

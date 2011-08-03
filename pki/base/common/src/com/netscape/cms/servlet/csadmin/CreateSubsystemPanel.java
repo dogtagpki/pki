@@ -195,6 +195,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
 
         if (select == null) {
             CMS.debug("CreateSubsystemPanel: choice not found");
+            context.put("updateStatus", "failure");
             throw new IOException("choice not found");
         }
 
@@ -276,6 +277,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
         } else {
             CMS.debug("CreateSubsystemPanel: invalid choice " + select);
             errorString = "Invalid choice";
+            context.put("updateStatus", "failure");
             throw new IOException("invalid choice " + select);
         }
 
@@ -285,6 +287,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
         }
 
         context.put("errorString", errorString);
+        context.put("updateStatus", "success");
     }
 
     /**

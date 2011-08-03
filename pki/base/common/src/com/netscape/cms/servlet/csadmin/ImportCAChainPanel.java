@@ -136,6 +136,7 @@ public class ImportCAChainPanel extends WizardPanelBase {
         context.put("errorString", "");
         context.put("title", "Import CA's Certificate Chain");
         context.put("panel", "admin/console/config/importcachainpanel.vm");
+        context.put("updateStatus", "success");
     }
 
     /**

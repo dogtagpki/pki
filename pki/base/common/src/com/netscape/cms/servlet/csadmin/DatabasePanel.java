@@ -310,15 +310,20 @@ public class DatabasePanel extends WizardPanelBase {
                 } catch (Exception ee) {
                 }
             }
-            if (masterhost.equals(realhostname) && masterport.equals(portStr))
+            if (masterhost.equals(realhostname) && masterport.equals(portStr)) {
+                context.put("updateStatus", "validate-failure");
                 throw new IOException("Master and clone must not share the same internal database");
+            }
 
-            if (!masterbasedn.equals(basedn))
+            if (!masterbasedn.equals(basedn)) {
+                context.put("updateStatus", "validate-failure");
                 throw new IOException("Master and clone should have the same base DN");
+            }
         }
 
         if (hostname == null || hostname.length() == 0) {
             cs.putString("preop.database.errorString", "Host is empty string");
+            context.put("updateStatus", "validate-failure");
             throw new IOException("Host is empty string");
         }
 
@@ -329,32 +334,38 @@ public class DatabasePanel extends WizardPanelBase {
                 port = Integer.parseInt(portStr);
             } catch (Exception e) {
                 cs.putString("preop.database.errorString", "Port is invalid");
+                context.put("updateStatus", "validate-failure");
                 throw new IOException("Port is invalid");
             }
         } else {
             cs.putString("preop.database.errorString", "Port is empty string");
+            context.put("updateStatus", "validate-failure");
             throw new IOException("Port is empty string");
         }
 
         if (basedn == null || basedn.length() == 0) {
             cs.putString("preop.database.errorString", "Base DN is empty string");
+            context.put("updateStatus", "validate-failure");
             throw new IOException("Base DN is empty string");
         }
 
         if (binddn == null || binddn.length() == 0) {
             cs.putString("preop.database.errorString", "Bind DN is empty string");
+            context.put("updateStatus", "validate-failure");
             throw new IOException("Bind DN is empty string");
         }
 
         if (database == null || database.length() == 0) {
             cs.putString("preop.database.errorString",
                     "Database is empty string");
+            context.put("updateStatus", "validate-failure");
             throw new IOException("Database is empty string");
         }
 
         if (bindpwd == null || bindpwd.length() == 0) {
             cs.putString("preop.database.errorString",
                     "Bind password is empty string");
+            context.put("updateStatus", "validate-failure");
             throw new IOException("Bind password is empty string");
         }
 
@@ -882,6 +893,7 @@ public class DatabasePanel extends WizardPanelBase {
             if (hostname1.equals(hostname2) && 
                 portStr1.equals(portStr2) && 
                 database1.equals(database2)) {
+                context.put("updateStatus", "success");
                 return;
             }
         }
@@ -893,11 +905,13 @@ public class DatabasePanel extends WizardPanelBase {
             populateDB(request, context, (secure.equals("on")?"true":"false"));
         } catch (IOException e) {
             CMS.debug("DatabasePanel update: populateDB Exception: "+e.toString());
+            context.put("updateStatus", "failure");
             throw e;
         } catch (Exception e) {
             CMS.debug("DatabasePanel update: populateDB Exception: "+e.toString());
             context.put("errorString", e.toString());
             cs.putString("preop.database.errorString", e.toString());
+            context.put("updateStatus", "failure");
             throw new IOException(e.toString());
         }
 
@@ -914,6 +928,7 @@ public class DatabasePanel extends WizardPanelBase {
             psStore = CMS.createFileConfigStore(passwordFile);
         } catch (Exception e) {
             CMS.debug("ConfigDatabaseServlet update: " + e.toString());
+            context.put("updateStatus", "failure");
             throw new IOException( e.toString() );
         }
         psStore.putString("internaldb", bindpwd);
@@ -935,6 +950,7 @@ public class DatabasePanel extends WizardPanelBase {
             CMS.debug("DatabasePanel update: " + e.toString());
             context.put("errorString", e.toString());
             cs.putString("preop.database.errorString", e.toString());
+            context.put("updateStatus", "failure");
             throw new IOException(e.toString());
         }
 
@@ -1022,6 +1038,7 @@ public class DatabasePanel extends WizardPanelBase {
                             + e.toString());
 	  }
 	}
+        context.put("updateStatus", "success");
     }
 
     private void setupReplication(HttpServletRequest request,

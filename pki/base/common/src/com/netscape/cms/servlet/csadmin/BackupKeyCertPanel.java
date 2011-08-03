@@ -158,11 +158,13 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             String pwdAgain = request.getParameter("__pwdagain");
             if (pwd == null || pwdAgain == null || pwd.equals("") || pwdAgain.equals("")) {
                 CMS.debug("BackupKeyCertPanel validate: Password is null");
+                context.put("updateStatus", "validate-failure");
                 throw new IOException("PK12 password is empty.");
             }
 
             if (!pwd.equals(pwdAgain)) {
                 CMS.debug("BackupKeyCertPanel validate: Password and password again are not the same.");
+                context.put("updateStatus", "validate-failure");
                 throw new IOException("PK12 password is different from the PK12 password again.");
             }
         }
@@ -191,6 +193,7 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             config.commit(false);
         } catch (EBaseException e) {
         }
+        context.put("updateStatus", "success");
     }
 
     /**

@@ -218,6 +218,7 @@ public class DisplayCertChainPanel extends WizardPanelBase {
                 CMS.debug("DisplayCertChainPanel Exception="+ee.toString());
             }
         }
+        context.put("updateStatus", "success");
     }
 
     /**

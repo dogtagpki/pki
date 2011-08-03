@@ -58,6 +58,8 @@ public class ConfigureCA {
     public static final String DEFAULT_KEY_CURVENAME = "nistp256";
     public static final String DEFAULT_KEY_ALGORITHM_RSA = "SHA256withRSA";
     public static final String DEFAULT_KEY_ALGORITHM_ECC = "SHA256withEC";
+    public static final String SUCCESS = "success";
+    public static final String FAILURE = "failure";
 
     // define global variables
 
@@ -194,25 +196,51 @@ public class ConfigureCA {
     public ConfigureCA() {// do nothing :)
     }
 
-    public void sleep_time() {
+    public String getStatus(HTTPResponse hr, String name) {
+        ByteArrayInputStream bais = null;
+        String status = null;
         try {
-            System.out.println("Sleeping for 5 secs..");
-            Thread.sleep(5000);
+            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+            ParseXML px = new ParseXML();
+            px.parse(bais);
+            px.prettyprintxml();
+            status = px.getvalue(name);
         } catch (Exception e) {
-            System.out.println("ERROR: sleep problem");
+            System.out.println("Exception in getStatus(): " + e.toString());
         }
-
+        return status;
     }
+
+    public boolean checkStatus(HTTPResponse hr, String name,
+                               String expected, String location) {
+        return checkStatus(hr,name, new String[] {expected}, location);
+    } 
+
+    public boolean checkStatus(HTTPResponse hr, String name, 
+                               String[] expected, String location) {
+        String status = getStatus(hr, name);
+        if (status == null) {
+            System.out.println("Error in " + location + ": " + name + 
+                               " value is null");
+            return false;
+        } 
+        for (int i=0; i< expected.length; i++) {
+            if (status.equals(expected[i])) {
+                return true;
+            }
+        }
+        System.out.println("Error in " + location + ": " + name + 
+                           " returns " + status);
+        return false;
+     } 
+
 
     public boolean LoginPanel() {
         try {
             boolean st = false;
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
 
             String query_string = "pin=" + pin + "&xml=true"; 
-	
             hr = hc.sslConnect(cs_hostname, cs_port, login_uri, query_string);
             System.out.println("xml returned: " + hr.getHTML());
 
@@ -220,7 +248,6 @@ public class ConfigureCA {
 
             // get cookie
             String temp = hr.getCookieValue("JSESSIONID");
-
             if (temp != null) {
                 int index = temp.indexOf(";");
 
@@ -231,12 +258,9 @@ public class ConfigureCA {
             hr = null;
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
                 "p=0&op=next&xml=true");
-
-            // parse xml here
-
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
+            if (! checkStatus(hr, "status", "display", "LoginPanel()")) {
+                return false;
+            }
 
             return st;
         } catch (Exception e) {
@@ -250,9 +274,6 @@ public class ConfigureCA {
         try {
             boolean st = false;
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
-
             String query_string = null;
 
             // Software Token
@@ -260,10 +281,9 @@ public class ConfigureCA {
                 query_string = "p=1" + "&op=next" + "&xml=true" + "&choice="
                     + URLEncoder.encode("Internal Key Storage Token") + ""; 
                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-                // parse xml
-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-                px.parse(bais);
-                px.prettyprintxml();
+                if (! checkStatus(hr, "updateStatus", SUCCESS, "TokenChoicePanel()")) {
+                    return false;
+                }
             } // HSM
             else {
                 // login to hsm first
@@ -271,19 +291,17 @@ public class ConfigureCA {
                     + URLEncoder.encode(token_name) + "&__uPasswd="
                     + URLEncoder.encode(token_pwd) + ""; 
                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-                // parse xml
-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-                px.parse(bais);
-                px.prettyprintxml();
+                if (! checkStatus(hr, "updateStatus", SUCCESS, "TokenChoicePanel()")) {
+                    return false;
+                }
 		
                 // choice with token name now
                 query_string = "p=1" + "&op=next" + "&xml=true" + "&choice="
                     + URLEncoder.encode(token_name) + ""; 
                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-                // parse xml
-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-                px.parse(bais);
-                px.prettyprintxml();
+                if (! checkStatus(hr, "updateStatus", SUCCESS, "TokenChoicePanel()")) {
+                    return false;
+                }
             }
             return true;
         } catch (Exception e) {
@@ -296,9 +314,6 @@ public class ConfigureCA {
     public boolean DomainPanel() {
         try {
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
-
             String domain_url = "https://" + cs_hostname + ":" + cs_port;
             String query_string = null;
 
@@ -314,15 +329,9 @@ public class ConfigureCA {
             }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-
-            // parse xml
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
-
-            String temp_sdomain = px.getvalue("sdomainName");
-
-            System.out.println("sdomainname=" + temp_sdomain);
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "DomainPanel()")) {
+                return false;
+            }
 
             return true;
         } catch (Exception e) {
@@ -349,8 +358,7 @@ public class ConfigureCA {
         try {
             boolean st = false;
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
+
             String subca_url = "https://" + cs_hostname + ":" + cs_port +
                 "/ca/admin/console/config/wizard" + "?p=5&subsystem=CA" ;
 
@@ -399,8 +407,6 @@ public class ConfigureCA {
         try { 
             boolean st = false;
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
             String query_string = null;
 
             if (!clone) {
@@ -415,22 +421,18 @@ public class ConfigureCA {
             }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-
-            // parse xml
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "CreateCAPanel()")) {
+                return false;
+            }
 
             if (clone) {
 
                 hr = null;
                 query_string = "p=6" + "&op=next" + "&xml=true"; 
                 hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
-
-                // parse xml
-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-                px.parse(bais);
-                px.prettyprintxml();
+                if (! checkStatus(hr, "updateStatus", SUCCESS, "CreateCAPanel(2)")) {
+                    return false;
+                }
             }
 
             return true;
@@ -443,20 +445,16 @@ public class ConfigureCA {
 
     public boolean RestoreKeyCertPanel() {
         try {
-            ByteArrayInputStream bais = null;
             HTTPResponse hr = null;
-            ParseXML px = new ParseXML();
 
             String query_string = "p=7" + "&op=next" + "&xml=true" 
                 + "&__password=" + URLEncoder.encode(clone_p12_passwd)
                 + "&path=" + URLEncoder.encode(clone_p12_file) + "";
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
- 
-            // parse xml
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "RestoreKeyCertPanel()")) {
+                return false;
+            }
             return true;
         } catch (Exception e) {
             System.out.println("Exception in RestoreKeyCertPanel(): " + e.toString());
@@ -470,8 +468,6 @@ public class ConfigureCA {
         try { 
             boolean st = false;
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
 
             String query_string = "p=8" + "&op=next" + "&xml=true" ;
             if (external_ca.equalsIgnoreCase("true")) 
@@ -480,22 +476,9 @@ public class ConfigureCA {
                 query_string += "&choice=root";  
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-
-            // parse xml
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
-
-            /*
-             hr = null;
-             hr = hc.sslConnect(cs_hostname,cs_port,
-             wizard_uri,"p=7&op=next&xml=true");
-
-             // parse xml to return result
-             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-             px.parse(bais);
-             px.prettyprintxml();
-             */
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "HierarchyPanel()")) {
+                return false;
+            }
 
             return true;
         } catch (Exception e) {
@@ -510,8 +493,6 @@ public class ConfigureCA {
         try {
             boolean st = false;
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
 
             String query_string = "p=9" + "&op=next" + "&xml=true" + "&host="
                 + URLEncoder.encode(ldap_host) + "&port="
@@ -526,11 +507,9 @@ public class ConfigureCA {
                 + (remove_data.equals("true")? "&removeData=true": "");
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-
-            // parse xml
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "LdapConnectionPanel()")) {
+                return false;
+            }
 
             return true;
         } catch (Exception e) {
@@ -590,12 +569,14 @@ public class ConfigureCA {
             }
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "KeyPanel()")) {
+                return false;
+            }
 
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
-            px.prettyprintxml();
-		
+
             al = px.constructvaluelist("CertReqPair", "DN");
             // get ca cert subject name
             if (al != null) {
@@ -660,11 +641,12 @@ public class ConfigureCA {
             } 
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "CertSubjectPanel()")) {
+                return false;
+            }
 
-            // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
-            px.prettyprintxml();
 		
             req_list = px.constructvaluelist("CertReqPair", "Request");
             cert_list = px.constructvaluelist("CertReqPair", "Certificate");
@@ -782,12 +764,6 @@ public class ConfigureCA {
         try {
             boolean st = false;
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
-            ArrayList req_list = null;
-            ArrayList cert_list = null;
-            ArrayList dn_list = null;
-            ArrayList pp_list = null;
 
             String query_string = "p=12" + "&op=next" + "&xml=true" + "&subsystem="
                 + URLEncoder.encode(ca_subsystem_cert_cert) + "&subsystem_cc="
@@ -800,12 +776,10 @@ public class ConfigureCA {
                 + "&sslserver_cc=" + ""; 
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "CertificatePanel()")) {
+                return false;
+            }
 
-            // parse xml
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
-		
             return true;
         } catch (Exception e) {
             System.out.println("Exception in CertificatePanel(): " + e.toString());
@@ -839,12 +813,13 @@ public class ConfigureCA {
                 + "&sslserver_cc=" + ""; 
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "CertificatePanelExternal()")) {
+                return false;
+            }
 
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
-            px.prettyprintxml();
 
             req_list = px.constructvaluelist("CertReqPair", "Request");
             cert_list = px.constructvaluelist("CertReqPair", "Certificate");
@@ -913,8 +888,6 @@ public class ConfigureCA {
         try {
             boolean st = false;
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
 
             if (save_p12.equalsIgnoreCase("true")) {
                 String query_string = "p=13" + "&op=next" + "&xml=true"
@@ -922,11 +895,9 @@ public class ConfigureCA {
                     + "&__pwdagain=" + URLEncoder.encode(backup_pwd); 
 
                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
-
-                // parse xml
-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-                px.parse(bais);
-                px.prettyprintxml();
+                if (! checkStatus(hr, "updateStatus", SUCCESS, "BackupPanel()")) {
+                    return false;
+                }
 
                 query_string = ""; 
 
@@ -984,15 +955,12 @@ public class ConfigureCA {
     public boolean BackupContinuePanel() {
         try {
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
                 "p=14&op=next&xml=true");
-
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "BackupContinuePanel()")) {
+                return false;
+            }
 
 	    return true;
         } catch (Exception e) {
@@ -1005,15 +973,12 @@ public class ConfigureCA {
     public boolean ImportCACertPanel() {
         try {
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
                 "p=15&op=next&xml=true");
-
-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-            px.parse(bais);
-            px.prettyprintxml();
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "ImportCACertPanel()")) {
+                return false;
+            }
 
 	    return true;
         } catch (Exception e) {
@@ -1061,11 +1026,13 @@ public class ConfigureCA {
                 + URLEncoder.encode(domain_name) + ""; 
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "AdminCertReqPanel()")) {
+                return false;
+            }
 
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
-            px.prettyprintxml();
 		
             admin_serial_number = px.getvalue("serialNumber");
 
@@ -1082,8 +1049,6 @@ public class ConfigureCA {
         try {
             boolean st = false;
             HTTPResponse hr = null;
-            ByteArrayInputStream bais = null;
-            ParseXML px = new ParseXML();
             String cert_to_import = null;
 
             String query_string = "&serialNumber=" + admin_serial_number
@@ -1145,11 +1110,13 @@ public class ConfigureCA {
                 + ""; 
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            if (! checkStatus(hr, "updateStatus", SUCCESS, "UpdateDomainPanel()")) {
+                return false;
+            }
 
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
-            px.prettyprintxml();
 		
             String caHost = px.getvalue("host");
             String caPort = px.getvalue("port");
@@ -1159,21 +1126,6 @@ public class ConfigureCA {
             System.out.println("caPort=" + caPort);
             System.out.println("systemType=" + systemType);
 		
-            /*
-             query_string = "p=18" + "&op=next" + "&xml=true" +
-             "&caHost=" + URLEncoder.encode(caHost) +
-             "&caPort=" + URLEncoder.encode(caPort) +
-             "&systemType=" + URLEncoder.encode(systemType) +
-             ""; 
-
-             hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
-
-             // parse xml
-             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-             px.parse(bais);
-             px.prettyprintxml();
-             */
-
             return true;
         } catch (Exception e) {
             System.out.println("Exception in UpdateDomainPanel(): " + e.toString());
@@ -1209,7 +1161,6 @@ public class ConfigureCA {
             return false;
         }
 
-        sleep_time();
         // 2. Token Choice Panel
         boolean disp_token = TokenChoicePanel();
 
@@ -1217,7 +1168,6 @@ public class ConfigureCA {
             System.out.println("ERROR: ConfigureCA: TokenChoicePanel() failure");
             return false;
         }
-        sleep_time();
 
         // 3. domain panel
         boolean dom_st = DomainPanel();
@@ -1227,7 +1177,6 @@ public class ConfigureCA {
             return false;
         }
 
-        sleep_time();
         // 4. display cert chain panel and security domain login
         if (clone) {
             boolean disp_st = DisplayCertChainPanel();
@@ -1245,7 +1194,6 @@ public class ConfigureCA {
 
         }
 
-        sleep_time();
         // 5. display create CA panel
         boolean disp_cert = CreateCAPanel();
 
@@ -1254,7 +1202,6 @@ public class ConfigureCA {
             return false;
         }
 
-        sleep_time();
         // 6. display restore key cert panel
         if (clone) {
             boolean restore_st = RestoreKeyCertPanel();
@@ -1264,15 +1211,6 @@ public class ConfigureCA {
             }
         }
 
-        // 6. Admin user panel
-        // boolean disp_ad = AdminUserPanel();
-        // if(!disp_ad)
-        // {
-        // System.out.println("ERROR: ConfigureCA: AdminUserPanel() failure");
-        // return false;
-        // }
-
-        sleep_time();
         // 7. hierarchy panel
         if (! clone) {
             boolean disp_h = HierarchyPanel();
@@ -1283,15 +1221,6 @@ public class ConfigureCA {
             }
         }
 
-        // Agent Auth panel
-        // boolean disp_ag = AgentAuthPanel();
-        // if(!disp_ag)
-        // {
-        // System.out.println("ERROR: ConfigureCA: AgentAuthPanel() failure");
-        // return false;
-        // }
-
-        sleep_time();
         // 8. ldap connection panel
         boolean disp_ldap = LdapConnectionPanel();
 
@@ -1301,8 +1230,6 @@ public class ConfigureCA {
             return false;
         }
 
-        sleep_time();
-        sleep_time();
         // 9. Key Panel
         boolean disp_key = KeyPanel();
 
@@ -1311,7 +1238,6 @@ public class ConfigureCA {
             return false;
         }
 
-        sleep_time();
         // 10. Cert Subject Panel
         boolean disp_csubj = CertSubjectPanel();
 
@@ -1320,7 +1246,6 @@ public class ConfigureCA {
             return false;
         }
 
-        sleep_time();
         // 11. Certificate Panel
         boolean disp_cp;
 
@@ -1349,15 +1274,6 @@ public class ConfigureCA {
             return false;
         }
 
-        // 12. Certificate PP Panel
-        // boolean disp_pp = CertPPPanel();
-        // if(!disp_pp)
-        // {
-        // System.out.println("ERROR: ConfigureCA: CertificatePPPanel() failure");
-        // return false;
-        // }
-
-        sleep_time();
         // 13. Backup Panel
         boolean disp_back = BackupPanel();
 
@@ -1366,7 +1282,6 @@ public class ConfigureCA {
             return false;
         }
 
-        sleep_time();
         // 14. Backup Continue Panel
         boolean disp_back_cont = BackupContinuePanel();
 
@@ -1375,7 +1290,6 @@ public class ConfigureCA {
             return false;
         }
 
-        sleep_time();
 
         // 15. Import CA Cert panel
         boolean disp_import_cacert = ImportCACertPanel();
@@ -1390,7 +1304,6 @@ public class ConfigureCA {
             return true;
         }
 
-        sleep_time();
 
         // 16. Admin Cert Req Panel
         boolean disp_adm = AdminCertReqPanel();
@@ -1400,7 +1313,6 @@ public class ConfigureCA {
             return false;
         }
 
-        sleep_time();
         // 14. Admin Cert import Panel
         boolean disp_im = AdminCertImportPanel();
 
@@ -1410,7 +1322,6 @@ public class ConfigureCA {
             return false;
         }
 
-        sleep_time();
         // 15. Update Domain Panel
         boolean disp_ud = UpdateDomainPanel();
 

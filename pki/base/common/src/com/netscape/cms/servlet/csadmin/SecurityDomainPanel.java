@@ -243,6 +243,7 @@ public class SecurityDomainPanel extends WizardPanelBase {
             String name = HttpInput.getSecurityDomainName(request, "sdomainName");
             if (name == null || name.equals("")) {
                 initParams(request, context);
+                context.put("updateStatus", "validate-failure");
                 throw new IOException("Missing name value for the security domain");
             }
         } else if (select.equals("existingdomain")) {
@@ -251,6 +252,7 @@ public class SecurityDomainPanel extends WizardPanelBase {
             String admin_url = HttpInput.getURL( request, "sdomainURL" );
             if( admin_url == null || admin_url.equals("") ) {
                 initParams( request, context );
+                context.put("updateStatus", "validate-failure");
                 throw new IOException( "Missing SSL Admin HTTPS url value "
                                      + "for the security domain" );
             } else {
@@ -268,6 +270,7 @@ public class SecurityDomainPanel extends WizardPanelBase {
                 } catch( Exception e ) {
                     CMS.debug( "SecurityDomainPanel: exception caught: "
                              + e.toString() );
+                    context.put("updateStatus", "validate-failure");
                     throw new IOException( "Illegal SSL Admin HTTPS url value "
                                          + "for the security domain" );
                 }
@@ -325,6 +328,7 @@ public class SecurityDomainPanel extends WizardPanelBase {
 
         if (select == null) {
             CMS.debug("SecurityDomainPanel: choice not found");
+            context.put("updateStatus", "failure");
             throw new IOException("choice not found");
         }
         IConfigStore config = CMS.getConfigStore();
@@ -383,6 +387,7 @@ public class SecurityDomainPanel extends WizardPanelBase {
                     admin_port = admin_u.getPort();
                 } catch( MalformedURLException e ) {
                     errorString = "Malformed SSL Admin HTTPS URL";
+                    context.put("updateStatus", "failure");
                     throw new IOException( errorString );
                 }
 
@@ -402,6 +407,7 @@ public class SecurityDomainPanel extends WizardPanelBase {
         } else {
             CMS.debug("SecurityDomainPanel: invalid choice " + select);
             errorString = "Invalid choice";
+            context.put("updateStatus", "failure");
             throw new IOException("invalid choice " + select);
         }
 
@@ -418,6 +424,7 @@ public class SecurityDomainPanel extends WizardPanelBase {
         } catch (EBaseException e) {}
 
         context.put("errorString", errorString);
+        context.put("updateStatus", "success");
     }
 
     /**

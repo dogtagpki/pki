@@ -159,8 +159,10 @@ public class HierarchyPanel extends WizardPanelBase {
         IConfigStore config = CMS.getConfigStore();
         try {
             String cstype = config.getString("preop.subsystem.select", "");
-            if (cstype.equals("clone"))
+            if (cstype.equals("clone")) {
+                context.put("updateStatus", "success");
                 return;
+            }
         } catch (Exception e) {
         }
 
@@ -168,6 +170,7 @@ public class HierarchyPanel extends WizardPanelBase {
 
         if (select == null) {
             CMS.debug("HierarchyPanel: choice not found");
+            context.put("updateStatus", "failure");
             throw new IOException("choice not found");
         }
 
@@ -185,8 +188,10 @@ public class HierarchyPanel extends WizardPanelBase {
         } else {
             config.putString(PCERT_PREFIX + "signing.type", "remote");
             CMS.debug("HierarchyPanel: invalid choice " + select);
+            context.put("updateStatus", "failure");
             throw new IOException("invalid choice " + select);
         }
+        context.put("updateStatus", "success");
     }
 
     /**

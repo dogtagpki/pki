@@ -310,9 +310,11 @@ public class ModulePanel extends WizardPanelBase {
               config.putBoolean("preop.ModulePanel.done", true);
 	    }
             config.commit(false);
+            context.put("updateStatus", "success");
         } catch (Exception e) {
             CMS.debug("ModulePanel: Exception caught: " + e.toString());
             System.err.println("Exception caught: " + e.toString());
+            context.put("updateStatus", "failure");
         }
     }
 
