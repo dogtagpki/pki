@@ -1156,47 +1156,22 @@ public class DatabasePanel extends WizardPanelBase {
             // initialize consumer
             initializeConsumer(replicadn, conn1, masterAgreementName);
 
+            while (! replicationDone(replicadn, conn1, masterAgreementName)) {
+                CMS.debug("DatabasePanel setupReplication: Waiting for replication to complete");
+                Thread.sleep(1000);
+            }
 
-            // compare entries
-            compareAndWaitEntries(conn1, conn2, basedn);
+            String status = replicationStatus(replicadn, conn1, masterAgreementName);
+            if (!status.startsWith("0 ")) {
+                CMS.debug("DatabasePanel setupReplication: consumer initialization failed. " +
+                    status);
+                throw new IOException("consumer initialization failed. " + status);
+            } 
 
         } catch (Exception e) {
             CMS.debug("DatabasePanel setupReplication: "+e.toString());
             throw new IOException("Failed to setup the replication for cloning.");
         }
-    }
-
-    private void compareAndWaitEntries(LDAPConnection conn1, 
-                      LDAPConnection conn2, String basedn)
-    {
-        try {
-           LDAPSearchResults res = conn1.search(basedn, 
-                LDAPConnection.SCOPE_ONE, "(objectclass=*)", null, true);
-           while (res.hasMoreElements()) {
-               LDAPEntry source = res.next();
-               // check if this entry is present in conn2
-               LDAPEntry dest = null;
-               do {
-                 CMS.debug("DatabasePanel comparetAndWaitEntries checking " + 
-                     source.getDN());
-                 try {
-                   dest = conn2.read(source.getDN(), (String[])null);
-                 } catch (Exception e1) {
-                   CMS.debug("DatabasePanel comparetAndWaitEntries " + 
-                    source.getDN() + " not found, let's wait!");
-                 try {
-                   Thread.sleep(5000);
-                 } catch (Exception e2) {
-                 }
-               }
-             } while (dest == null);
-
-             // check children of this entry
-             compareAndWaitEntries(conn1, conn2, source.getDN());
-          } // while
-       } catch (Exception ex) {
-              CMS.debug("DatabasePanel comparetAndWaitEntries " + ex);
-       }
     }
 
     /**
@@ -1430,6 +1405,69 @@ public class DatabasePanel extends WizardPanelBase {
         }
 
         CMS.debug("DatabasePanel initializeConsumer: Successfully initialize consumer");
+    }
+
+    private boolean replicationDone(String replicadn, LDAPConnection conn, String name) 
+      throws IOException {
+        String dn = "cn="+name+","+replicadn;
+        String filter = "(objectclass=*)";
+        String[] attrs = {"nsds5beginreplicarefresh"};
+
+        CMS.debug("DatabasePanel replicationDone: dn: "+dn);
+        try {
+            LDAPSearchResults results = conn.search(dn, LDAPConnection.SCOPE_BASE, filter,
+              attrs, true);
+
+            int count = results.getCount();
+            if (count < 1) {
+                throw new IOException("Replication entry not found");
+            } 
+           
+            LDAPEntry entry = results.next();
+            LDAPAttribute refresh = entry.getAttribute("nsds5beginreplicarefresh");
+            if (refresh == null) {
+                return true;
+            } 
+            return false;
+        } catch (Exception e) {
+            CMS.debug("DatabasePanel replicationDone: exception " + e);
+            throw new IOException("Exception in replicationDone: " + e);
+        }
+    }
+
+    private String replicationStatus(String replicadn, LDAPConnection conn, String name) 
+      throws IOException {
+        String dn = "cn="+name+","+replicadn;
+        String filter = "(objectclass=*)";
+        String[] attrs = {"nsds5replicalastinitstatus"};
+        String status = null;
+
+        CMS.debug("DatabasePanel replicationStatus: dn: "+dn);
+        try {
+            LDAPSearchResults results = conn.search(dn, LDAPConnection.SCOPE_BASE, filter,
+              attrs, false);
+
+            int count = results.getCount();
+            if (count < 1) {
+                throw new IOException("Replication entry not found");
+            } 
+
+            LDAPEntry entry = results.next();
+            LDAPAttribute attr = entry.getAttribute("nsds5replicalastinitstatus");
+            if (attr != null) {
+                Enumeration valsInAttr = attr.getStringValues();
+                if (valsInAttr.hasMoreElements()) {
+                    return  (String)valsInAttr.nextElement();
+                } else {
+                    throw new IOException("No value returned for nsds5replicalastinitstatus");
+                }
+            } else {
+                throw new IOException("nsDS5ReplicaLastInitStatus is null.");
+            }
+        } catch (Exception e) {
+            CMS.debug("DatabasePanel replicationStatus: exception " + e);
+            throw new IOException("Exception in replicationStatus: " + e);
+        }
     }
 
     private String getInstanceDir(LDAPConnection conn) {
