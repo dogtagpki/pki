@@ -472,6 +472,7 @@ public class DRMTool
     private static final boolean FAILURE = false;
     private static final boolean SUCCESS = true;
     private static final String COLON = ":";
+    private static final String COMMA = ",";
     private static final String DOT = ".";
     private static final String EQUAL_SIGN = "=";
     private static final String HASH = "#";
@@ -917,11 +918,12 @@ public class DRMTool
     private static final String X509_INFO = "x509.INFO";
 
 
-    // Constants:  DRM LDIF Record Fields (always include trailing delimiters)
+    // Constants:  DRM LDIF Record Fields
     private static final String DRM_LDIF_ARCHIVED_BY = "archivedBy:";
     private static final String DRM_LDIF_CN = "cn:";
     private static final String DRM_LDIF_DATE_OF_MODIFY = "dateOfModify:";
     private static final String DRM_LDIF_DN = "dn:";
+    private static final String DRM_LDIF_DN_EMBEDDED_CN_DATA = "dn: cn";
     private static final String
         DRM_LDIF_EXTDATA_AUTH_TOKEN_USER = "extdata-auth--005ftoken;user:";
     private static final String
@@ -2200,14 +2202,15 @@ public class DRMTool
 
 
     /**
-     * This method accepts an "attribute", a string representation
-     * of numeric data, and a flag indicating whether or not the
-     * string representation is "indexed".
+     * This method accepts an "attribute", its "delimiter", a string
+     * representation of numeric data, and a flag indicating whether
+     * or not the string representation is "indexed".
      *
      * An "attribute" consists of one of the following values:
      *
      * <PRE>
      *     DRM_LDIF_CN = "cn:";
+     *     DRM_LDIF_DN_EMBEDDED_CN_DATA = "dn: cn";
      *     DRM_LDIF_EXTDATA_KEY_RECORD = "extdata-keyrecord:";
      *     DRM_LDIF_EXTDATA_REQUEST_ID = "extdata-requestid:";
      *     DRM_LDIF_EXTDATA_SERIAL_NUMBER = "extdata-serialnumber:";
@@ -2228,12 +2231,14 @@ public class DRMTool
      * <P>
      *
      * @param attribute the string representation of the "name"
+     * @param delimiter the separator between the attribute and its contents
      * @param source_line the string containing the "name" and "value"
      * @param indexed boolean flag indicating if the "value" is "indexed"
      * @return a revised line containing the "name" and "value" with the
      * specified ID offset applied as a "mask" to the "value"
      */
     private static String compose_numeric_line( String attribute,
+                                                String delimiter,
                                                 String source_line,
                                                 boolean indexed ) {
         String target_line = null;
@@ -2325,7 +2330,7 @@ public class DRMTool
                 }
 
                 // set the target_line to the revised data
-                target_line = attribute + SPACE + revised_data;
+                target_line = attribute + delimiter + revised_data;
 
                 // log this information
                 log( "Changed numeric data '"
@@ -2376,6 +2381,7 @@ public class DRMTool
         if( record_type.equals( DRM_LDIF_ENROLLMENT ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_ENROLLMENT_CN ) ) {
                 output = compose_numeric_line( DRM_LDIF_CN,
+                                               SPACE,
                                                line,
                                                false );
             } else {
@@ -2384,6 +2390,7 @@ public class DRMTool
         } else if( record_type.equals( DRM_LDIF_CA_KEY_RECORD ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_CA_KEY_RECORD_CN ) ) {
                 output = compose_numeric_line( DRM_LDIF_CN,
+                                               SPACE,
                                                line,
                                                false );
             } else {
@@ -2392,6 +2399,7 @@ public class DRMTool
         } else if( record_type.equals( DRM_LDIF_RECOVERY ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_RECOVERY_CN ) ) {
                 output = compose_numeric_line( DRM_LDIF_CN,
+                                               SPACE,
                                                line,
                                                false );
             } else {
@@ -2400,6 +2408,7 @@ public class DRMTool
         } else if( record_type.equals( DRM_LDIF_TPS_KEY_RECORD ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_TPS_KEY_RECORD_CN ) ) {
                 output = compose_numeric_line( DRM_LDIF_CN,
+                                               SPACE,
                                                line,
                                                false );
             } else {
@@ -2408,6 +2417,7 @@ public class DRMTool
         } else if( record_type.equals( DRM_LDIF_KEYGEN ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_KEYGEN_CN ) ) {
                 output = compose_numeric_line( DRM_LDIF_CN,
+                                               SPACE,
                                                line,
                                                false );
             } else {
@@ -2543,80 +2553,198 @@ public class DRMTool
     private static String output_dn( String record_type,
                                      String line ) {
         String data = null;
+        String embedded_cn_data[] = null;
+        String embedded_cn_output = null;
+        String input = null;
         String output = null;
 
         try {
             if( record_type.equals( DRM_LDIF_ENROLLMENT ) ) {
                 if( drmtoolCfg.get( DRMTOOL_CFG_ENROLLMENT_DN ) ) {
+
+                    // First check for an embedded "cn=<value>"
+                    // name-value pair
+                    if( line.startsWith( DRM_LDIF_DN_EMBEDDED_CN_DATA ) ) {
+                        // At this point, always extract
+                        // the embedded "cn=<value>" name-value pair
+                        // which will ALWAYS be the first
+                        // portion of the "dn: " attribute
+                        embedded_cn_data = line.split( COMMA, 2 );
+
+                        embedded_cn_output = compose_numeric_line(
+                                                 DRM_LDIF_DN_EMBEDDED_CN_DATA,
+                                                 EQUAL_SIGN,
+                                                 embedded_cn_data[0],
+                                                 false );
+
+                        input = embedded_cn_output
+                              + COMMA
+                              + embedded_cn_data[1];
+                    } else {
+                        input = line;
+                    }
+
                     // Since "-source_drm_naming_context", and
                     // "-target_drm_naming_context" are OPTIONAL
-                    // parameters, ONLY process this field if both of
-                    // these options have been selected
+                    // parameters, ONLY process this portion of the field
+                    // if both of these options have been selected
                     if( mDrmNamingContextsFlag ) {
-                        output = line.replace( mSourceDrmNamingContext,
-                                               mTargetDrmNamingContext );
+                        output = input.replace( mSourceDrmNamingContext,
+                                                mTargetDrmNamingContext );
                     } else {
-                        output = line;
+                        output = input;
                     }
                 } else {
                     output = line;
                 }
             } else if( record_type.equals( DRM_LDIF_CA_KEY_RECORD ) ) {
                 if( drmtoolCfg.get( DRMTOOL_CFG_CA_KEY_RECORD_DN ) ) {
+
+                    // First check for an embedded "cn=<value>"
+                    // name-value pair
+                    if( line.startsWith( DRM_LDIF_DN_EMBEDDED_CN_DATA ) ) {
+                        // At this point, always extract
+                        // the embedded "cn=<value>" name-value pair
+                        // which will ALWAYS be the first
+                        // portion of the "dn: " attribute
+                        embedded_cn_data = line.split( COMMA, 2 );
+
+                        embedded_cn_output = compose_numeric_line(
+                                                 DRM_LDIF_DN_EMBEDDED_CN_DATA,
+                                                 EQUAL_SIGN,
+                                                 embedded_cn_data[0],
+                                                 false );
+
+                        input = embedded_cn_output
+                              + COMMA
+                              + embedded_cn_data[1];
+                    } else {
+                        input = line;
+                    }
+
                     // Since "-source_drm_naming_context", and
                     // "-target_drm_naming_context" are OPTIONAL
-                    // parameters, ONLY process this field if both of
-                    // these options have been selected
+                    // parameters, ONLY process this portion of the field
+                    // if both of these options have been selected
                     if( mDrmNamingContextsFlag ) {
-                        output = line.replace( mSourceDrmNamingContext,
-                                               mTargetDrmNamingContext );
+                        output = input.replace( mSourceDrmNamingContext,
+                                                mTargetDrmNamingContext );
                     } else {
-                        output = line;
+                        output = input;
                     }
                 } else {
                     output = line;
                 }
             } else if( record_type.equals( DRM_LDIF_RECOVERY ) ) {
                 if( drmtoolCfg.get( DRMTOOL_CFG_RECOVERY_DN ) ) {
+
+                    // First check for an embedded "cn=<value>"
+                    // name-value pair
+                    if( line.startsWith( DRM_LDIF_DN_EMBEDDED_CN_DATA ) ) {
+                        // At this point, always extract
+                        // the embedded "cn=<value>" name-value pair
+                        // which will ALWAYS be the first
+                        // portion of the "dn: " attribute
+                        embedded_cn_data = line.split( COMMA, 2 );
+
+                        embedded_cn_output = compose_numeric_line(
+                                                 DRM_LDIF_DN_EMBEDDED_CN_DATA,
+                                                 EQUAL_SIGN,
+                                                 embedded_cn_data[0],
+                                                 false );
+
+                        input = embedded_cn_output
+                              + COMMA
+                              + embedded_cn_data[1];
+                    } else {
+                        input = line;
+                    }
+
                     // Since "-source_drm_naming_context", and
                     // "-target_drm_naming_context" are OPTIONAL
-                    // parameters, ONLY process this field if both of
-                    // these options have been selected
+                    // parameters, ONLY process this portion of the field
+                    // if both of these options have been selected
                     if( mDrmNamingContextsFlag ) {
-                        output = line.replace( mSourceDrmNamingContext,
-                                               mTargetDrmNamingContext );
+                        output = input.replace( mSourceDrmNamingContext,
+                                                mTargetDrmNamingContext );
                     } else {
-                        output = line;
+                        output = input;
                     }
                 } else {
                     output = line;
                 }
             } else if( record_type.equals( DRM_LDIF_TPS_KEY_RECORD ) ) {
                 if( drmtoolCfg.get( DRMTOOL_CFG_TPS_KEY_RECORD_DN ) ) {
+
+                    // First check for an embedded "cn=<value>"
+                    // name-value pair
+                    if( line.startsWith( DRM_LDIF_DN_EMBEDDED_CN_DATA ) ) {
+                        // At this point, always extract
+                        // the embedded "cn=<value>" name-value pair
+                        // which will ALWAYS be the first
+                        // portion of the "dn: " attribute
+                        embedded_cn_data = line.split( COMMA, 2 );
+
+                        embedded_cn_output = compose_numeric_line(
+                                                 DRM_LDIF_DN_EMBEDDED_CN_DATA,
+                                                 EQUAL_SIGN,
+                                                 embedded_cn_data[0],
+                                                 false );
+
+                        input = embedded_cn_output
+                              + COMMA
+                              + embedded_cn_data[1];
+                    } else {
+                        input = line;
+                    }
+
                     // Since "-source_drm_naming_context", and
                     // "-target_drm_naming_context" are OPTIONAL
-                    // parameters, ONLY process this field if both of
-                    // these options have been selected
+                    // parameters, ONLY process this portion of the field
+                    // if both of these options have been selected
                     if( mDrmNamingContextsFlag ) {
-                        output = line.replace( mSourceDrmNamingContext,
-                                               mTargetDrmNamingContext );
+                        output = input.replace( mSourceDrmNamingContext,
+                                                mTargetDrmNamingContext );
                     } else {
-                        output = line;
+                        output = input;
                     }
                 } else {
                     output = line;
                 }
             } else if( record_type.equals( DRM_LDIF_KEYGEN ) ) {
                 if( drmtoolCfg.get( DRMTOOL_CFG_KEYGEN_DN ) ) {
+
+                    // First check for an embedded "cn=<value>"
+                    // name-value pair
+                    if( line.startsWith( DRM_LDIF_DN_EMBEDDED_CN_DATA ) ) {
+                        // At this point, always extract
+                        // the embedded "cn=<value>" name-value pair
+                        // which will ALWAYS be the first
+                        // portion of the "dn: " attribute
+                        embedded_cn_data = line.split( COMMA, 2 );
+
+                        embedded_cn_output = compose_numeric_line(
+                                                 DRM_LDIF_DN_EMBEDDED_CN_DATA,
+                                                 EQUAL_SIGN,
+                                                 embedded_cn_data[0],
+                                                 false );
+
+                        input = embedded_cn_output
+                              + COMMA
+                              + embedded_cn_data[1];
+                    } else {
+                        input = line;
+                    }
+
                     // Since "-source_drm_naming_context", and
                     // "-target_drm_naming_context" are OPTIONAL
-                    // parameters, ONLY process this field if both of
-                    // these options have been selected
+                    // parameters, ONLY process this portion of the field
+                    // if both of these options have been selected
                     if( mDrmNamingContextsFlag ) {
-                        output = line.replace( mSourceDrmNamingContext,
-                                               mTargetDrmNamingContext );
+                        output = input.replace( mSourceDrmNamingContext,
+                                                mTargetDrmNamingContext );
                     } else {
-                        output = line;
+                        output = input;
                     }
                 } else {
                     output = line;
@@ -2635,6 +2763,13 @@ public class DRMTool
                    + "'!"
                    + NEWLINE, true );
             }
+        } catch( PatternSyntaxException exDnEmbeddedCnNameValuePattern ) {
+            log( "ERROR:  line='"
+               + line
+               + "' PatternSyntaxException: '"
+               + exDnEmbeddedCnNameValuePattern.toString()
+               + "'"
+               + NEWLINE, true );
         } catch( NullPointerException exNullPointerException ) {
                 log( "ERROR:  Unable to replace source DRM naming context '"
                    + mSourceDrmNamingContext
@@ -2666,6 +2801,7 @@ public class DRMTool
         if( record_type.equals( DRM_LDIF_ENROLLMENT ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_ENROLLMENT_EXTDATA_KEY_RECORD ) ) {
                 output = compose_numeric_line( DRM_LDIF_EXTDATA_KEY_RECORD,
+                                               SPACE,
                                                line,
                                                false );
             } else {
@@ -2674,6 +2810,7 @@ public class DRMTool
         } else if( record_type.equals( DRM_LDIF_KEYGEN ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_KEYGEN_EXTDATA_KEY_RECORD ) ) {
                 output = compose_numeric_line( DRM_LDIF_EXTDATA_KEY_RECORD,
+                                               SPACE,
                                                line,
                                                false );
             } else {
@@ -2713,6 +2850,7 @@ public class DRMTool
         } else if( record_type.equals( DRM_LDIF_RECOVERY ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_RECOVERY_EXTDATA_REQUEST_ID ) ) {
                 output = compose_numeric_line( DRM_LDIF_EXTDATA_REQUEST_ID,
+                                               SPACE,
                                                line,
                                                false );
             } else {
@@ -2721,6 +2859,7 @@ public class DRMTool
         } else if( record_type.equals( DRM_LDIF_KEYGEN ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_KEYGEN_EXTDATA_REQUEST_ID ) ) {
                 output = compose_numeric_line( DRM_LDIF_EXTDATA_REQUEST_ID,
+                                               SPACE,
                                                line,
                                                false );
             } else {
@@ -3610,6 +3749,7 @@ public class DRMTool
         if( record_type.equals( DRM_LDIF_RECOVERY ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_RECOVERY_EXTDATA_SERIAL_NUMBER ) ) {
                 output = compose_numeric_line( DRM_LDIF_EXTDATA_SERIAL_NUMBER,
+                                               SPACE,
                                                line,
                                                false );
             } else {
@@ -3831,6 +3971,7 @@ public class DRMTool
         if( record_type.equals( DRM_LDIF_ENROLLMENT ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_ENROLLMENT_REQUEST_ID ) ) {
                 output = compose_numeric_line( DRM_LDIF_REQUEST_ID,
+                                               SPACE,
                                                line,
                                                true );
             } else {
@@ -3839,6 +3980,7 @@ public class DRMTool
         } else if( record_type.equals( DRM_LDIF_RECOVERY ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_RECOVERY_REQUEST_ID ) ) {
                 output = compose_numeric_line( DRM_LDIF_REQUEST_ID,
+                                               SPACE,
                                                line,
                                                true );
             } else {
@@ -3847,6 +3989,7 @@ public class DRMTool
         } else if( record_type.equals( DRM_LDIF_KEYGEN ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_KEYGEN_REQUEST_ID ) ) {
                 output = compose_numeric_line( DRM_LDIF_REQUEST_ID,
+                                               SPACE,
                                                line,
                                                true );
             } else {
@@ -3880,6 +4023,7 @@ public class DRMTool
         if( record_type.equals( DRM_LDIF_CA_KEY_RECORD ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_CA_KEY_RECORD_SERIAL_NO ) ) {
                 output = compose_numeric_line( DRM_LDIF_SERIAL_NO,
+                                               SPACE,
                                                line,
                                                true );
             } else {
@@ -3888,6 +4032,7 @@ public class DRMTool
         } else if( record_type.equals( DRM_LDIF_TPS_KEY_RECORD ) ) {
             if( drmtoolCfg.get( DRMTOOL_CFG_TPS_KEY_RECORD_SERIAL_NO ) ) {
                 output = compose_numeric_line( DRM_LDIF_SERIAL_NO,
+                                               SPACE,
                                                line,
                                                true );
             } else {
