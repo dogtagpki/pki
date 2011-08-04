@@ -64,23 +64,31 @@ public class TokenAuthenticate extends CMSServlet {
         String givenHost = httpReq.getParameter("hostname");
         CMS.debug("TokenAuthentication: givenHost=" + givenHost);
 
+        boolean checkIP = false;
+        try {
+            checkIP = config.getBoolean("securitydomain.checkIP", false);
+        } catch (Exception e) {
+        }
+
         ISecurityDomainSessionTable table = CMS.getSecurityDomainSessionTable();
         String uid = "";
         String gid = "";
         CMS.debug("TokenAuthentication: checking session in the session table");
         if (table.isSessionIdExist(sessionId)) {
             CMS.debug("TokenAuthentication: found session");
-            String hostname = table.getIP(sessionId);
-            if (hostname.equals(givenHost)) {
-                CMS.debug("TokenAuthentication: hostname and givenHost matched");
-                uid = table.getUID(sessionId);
-                gid = table.getGroup(sessionId);
-            } else {
-                CMS.debug("TokenAuthentication: hostname=" + hostname + " and givenHost=" + givenHost + " is different");
-                CMS.debug("TokenAuthenticate authenticate failed, wrong hostname.");
-                outputError(httpResp, "Error: Failed Authentication");
-                return;
+            if (checkIP) {
+                String hostname = table.getIP(sessionId);
+                if (! hostname.equals(givenHost)) {
+                    CMS.debug("TokenAuthentication: hostname=" + hostname + " and givenHost=" 
+                        + givenHost + " are different");
+                    CMS.debug("TokenAuthenticate authenticate failed, wrong hostname.");
+                    outputError(httpResp, "Error: Failed Authentication");
+                    return;
+                }
             }
+
+            uid = table.getUID(sessionId);
+            gid = table.getGroup(sessionId);
         } else {
             CMS.debug("TokenAuthentication: session not found");
             CMS.debug("TokenAuthentication authenticate failed, session id does not exist.");
