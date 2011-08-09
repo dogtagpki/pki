@@ -1,8 +1,6 @@
 
 /usr/bin/dtomcat5-pki-ca	--	gen_context(system_u:object_r:pki_ca_exec_t,s0)
 
-/etc/init.d/pki-ca		--	gen_context(system_u:object_r:pki_ca_script_exec_t,s0)
-
 /etc/pki-ca(/.*)?			gen_context(system_u:object_r:pki_ca_etc_rw_t,s0)
 /etc/pki-ca/tomcat5.conf  	--      gen_context(system_u:object_r:pki_ca_tomcat_exec_t,s0)
 
@@ -13,8 +11,6 @@
 /var/log/pki-ca(/.*)?			gen_context(system_u:object_r:pki_ca_log_t,s0)
 
 /usr/bin/dtomcat5-pki-kra	--	gen_context(system_u:object_r:pki_kra_exec_t,s0)
-
-/etc/init.d/pki-kra		--	gen_context(system_u:object_r:pki_kra_script_exec_t,s0)
 
 /etc/pki-kra(/.*)?			gen_context(system_u:object_r:pki_kra_etc_rw_t,s0)
 /etc/pki-kra/tomcat5.conf  	--      gen_context(system_u:object_r:pki_kra_tomcat_exec_t,s0)
@@ -27,8 +23,6 @@
 
 /usr/bin/dtomcat5-pki-ocsp	--	gen_context(system_u:object_r:pki_ocsp_exec_t,s0)
 
-/etc/init.d/pki-ocsp		--	gen_context(system_u:object_r:pki_ocsp_script_exec_t,s0)
-
 /etc/pki-ocsp(/.*)?			gen_context(system_u:object_r:pki_ocsp_etc_rw_t,s0)
 /etc/pki-ocsp/tomcat5.conf  	--      gen_context(system_u:object_r:pki_ocsp_tomcat_exec_t,s0)
 
@@ -39,15 +33,12 @@
 /var/log/pki-ocsp(/.*)?			gen_context(system_u:object_r:pki_ocsp_log_t,s0)
 
 /usr/sbin/httpd.worker  --      gen_context(system_u:object_r:pki_ra_exec_t,s0)
-/etc/init.d/pki-ra      --      gen_context(system_u:object_r:pki_ra_script_exec_t,s0)
 /etc/pki-ra(/.*)?               gen_context(system_u:object_r:pki_ra_etc_rw_t,s0)
 /var/lib/pki-ra(/.*)?           gen_context(system_u:object_r:pki_ra_var_lib_t,s0)
 /var/log/pki-ra(/.*)?           gen_context(system_u:object_r:pki_ra_log_t,s0)
 
 
 /usr/bin/dtomcat5-pki-tks	--	gen_context(system_u:object_r:pki_tks_exec_t,s0)
-
-/etc/init.d/pki-tks		--	gen_context(system_u:object_r:pki_tks_script_exec_t,s0)
 
 /etc/pki-tks(/.*)?			gen_context(system_u:object_r:pki_tks_etc_rw_t,s0)
 /etc/pki-tks/tomcat5.conf  	--      gen_context(system_u:object_r:pki_tks_tomcat_exec_t,s0)
@@ -58,7 +49,6 @@
 
 /var/log/pki-tks(/.*)?			gen_context(system_u:object_r:pki_tks_log_t,s0)
 
-/etc/init.d/pki-tps     --      gen_context(system_u:object_r:pki_tps_script_exec_t,s0)
 /etc/pki-tps(/.*)?              gen_context(system_u:object_r:pki_tps_etc_rw_t,s0)
 /var/lib/pki-tps(/.*)?          gen_context(system_u:object_r:pki_tps_var_lib_t,s0)
 /var/log/pki-tps(/.*)?          gen_context(system_u:object_r:pki_tps_log_t,s0)
@@ -72,36 +62,30 @@
 # labeling for new CA under pki-cad
 
 /var/run/pki/ca(/.*)? 	        gen_context(system_u:object_r:pki_ca_var_run_t,s0)
-/etc/init.d/pki-cad             gen_context(system_u:object_r:pki_ca_script_exec_t,s0)
 /etc/sysconfig/pki/ca(/.*)?	gen_context(system_u:object_r:pki_ca_etc_rw_t,s0)
 
 # labeling for new KRA under pki-krad
 
 /var/run/pki/kra(/.*)? 	        gen_context(system_u:object_r:pki_kra_var_run_t,s0)
-/etc/init.d/pki-krad            gen_context(system_u:object_r:pki_kra_script_exec_t,s0)
 /etc/sysconfig/pki/kra(/.*)?	gen_context(system_u:object_r:pki_kra_etc_rw_t,s0)
 
 # labeling for new OCSP under pki-ocspd
 
 /var/run/pki/ocsp(/.*)?         gen_context(system_u:object_r:pki_ocsp_var_run_t,s0)
-/etc/init.d/pki-ocspd           gen_context(system_u:object_r:pki_ocsp_script_exec_t,s0)
 /etc/sysconfig/pki/ocsp(/.*)?	gen_context(system_u:object_r:pki_ocsp_etc_rw_t,s0)
 
 # labeling for new TKS under pki-tksd
 
 /var/run/pki/tks(/.*)? 	        gen_context(system_u:object_r:pki_tks_var_run_t,s0)
-/etc/init.d/pki-tksd            gen_context(system_u:object_r:pki_tks_script_exec_t,s0)
 /etc/sysconfig/pki/tks(/.*)?	gen_context(system_u:object_r:pki_tks_etc_rw_t,s0)
 
 # labeling for new RA under pki-rad
 
 /var/run/pki/ra(/.*)? 	        gen_context(system_u:object_r:pki_ra_var_run_t,s0)
-/etc/init.d/pki-rad             gen_context(system_u:object_r:pki_ra_script_exec_t,s0)
 /etc/sysconfig/pki/ra(/.*)?	    gen_context(system_u:object_r:pki_ra_etc_rw_t,s0)
 
 # labeling for new TPS under pki-tpsd
 
 /var/run/pki/tps(/.*)? 	        gen_context(system_u:object_r:pki_tps_var_run_t,s0)
-/etc/init.d/pki-tpsd            gen_context(system_u:object_r:pki_tps_script_exec_t,s0)
 /etc/sysconfig/pki/tps(/.*)?	gen_context(system_u:object_r:pki_tps_etc_rw_t,s0)
 

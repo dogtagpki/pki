@@ -3,24 +3,6 @@
 
 ########################################
 ## <summary>
-##	Execute pki_ca server in the pki_ca domain.
-## </summary>
-## <param name="domain">
-##	<summary>
-##	The type of the process performing this action.
-##	</summary>
-## </param>
-#
-interface(`pki_ca_script_domtrans',`
-	gen_require(`
-		attribute pki_ca_script;
-	')
-
-	init_script_domtrans_spec($1,pki_ca_script)
-')
-
-########################################
-## <summary>
 ##	Create a set of derived types for apache
 ##	web content.
 ## </summary>
@@ -46,13 +28,22 @@ template(`pki_ca_template',`
 	# Declarations
 	#
 
-	type $1_t, pki_ca_process;
-	type $1_exec_t, pki_ca_executable;
-	domain_type($1_t)
-	init_daemon_domain($1_t, $1_exec_t)
+        type $1_t, pki_ca_process;
+        type $1_exec_t, pki_ca_executable;
+        domain_type($1_t)
+        init_daemon_domain($1_t, $1_exec_t)
 
-	type $1_script_exec_t, pki_ca_script;
-	init_script_file($1_script_exec_t)
+        type $1_script_t;
+        domain_type($1_script_t)
+        gen_require(`
+                type java_exec_t;
+                type initrc_t;
+        ')
+        domtrans_pattern($1_script_t, java_exec_t, $1_t)
+        unconfined_domain($1_script_t)
+        role system_r types $1_script_t;
+        allow $1_t java_exec_t:file entrypoint;
+        allow initrc_t $1_script_t:process transition;
 
 	type $1_etc_rw_t, pki_ca_config;
 	files_type($1_etc_rw_t)
@@ -136,7 +127,6 @@ template(`pki_ca_template',`
 	corecmd_read_bin_symlinks($1_t)
 	corecmd_exec_shell($1_t)
         corecmd_search_bin($1_t)
-        corecmd_search_sbin($1_t)
 
 	dev_list_sysfs($1_t)
 	dev_read_rand($1_t)
@@ -259,24 +249,6 @@ interface(`pki_ca_admin',`
 
 ########################################
 ## <summary>
-##	Execute pki_kra server in the pki_kra domain.
-## </summary>
-## <param name="domain">
-##	<summary>
-##	The type of the process performing this action.
-##	</summary>
-## </param>
-#
-interface(`pki_kra_script_domtrans',`
-	gen_require(`
-		attribute pki_kra_script;
-	')
-
-	init_script_domtrans_spec($1,pki_kra_script)
-')
-
-########################################
-## <summary>
 ##	All of the rules required to administrate 
 ##	an pki_kra environment
 ## </summary>
@@ -326,25 +298,6 @@ interface(`pki_kra_admin',`
 	manage_all_pattern($1, pki_kra_config)
 	manage_all_pattern($1, pki_kra_tomcat_exec_t)
 ')
-
-########################################
-## <summary>
-##	Execute pki_ocsp server in the pki_ocsp domain.
-## </summary>
-## <param name="domain">
-##	<summary>
-##	The type of the process performing this action.
-##	</summary>
-## </param>
-#
-interface(`pki_ocsp_script_domtrans',`
-	gen_require(`
-		attribute pki_ocsp_script;
-	')
-
-	init_script_domtrans_spec($1,pki_ocsp_script)
-')
-
 
 ########################################
 ## <summary>
@@ -538,11 +491,9 @@ template(`pki_tps_template',`
         allow pki_tps_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
 
         corecmd_exec_bin(pki_tps_t)
-        corecmd_exec_sbin(pki_tps_t)
         corecmd_exec_shell(pki_tps_t)
         corecmd_read_bin_symlinks(pki_tps_t)
         corecmd_search_bin(pki_tps_t)
-        corecmd_search_sbin(pki_tps_t)
 
         corenet_sendrecv_unlabeled_packets(pki_tps_t)
         corenet_tcp_bind_all_nodes(pki_tps_t)
@@ -560,8 +511,7 @@ template(`pki_tps_template',`
         corenet_tcp_sendrecv_all_if(pki_tps_t)
         corenet_tcp_sendrecv_all_nodes(pki_tps_t)
         corenet_tcp_sendrecv_all_ports(pki_tps_t)
-        corenet_non_ipsec_sendrecv(pki_tps_t)
-
+        corenet_all_recvfrom_unlabeled(pki_tps_t)
 
         dev_read_urand(pki_tps_t)
         files_exec_usr_files(pki_tps_t)
@@ -729,11 +679,9 @@ template(`pki_ra_template',`
         allow pki_ra_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
 
         corecmd_exec_bin(pki_ra_t)
-        corecmd_exec_sbin(pki_ra_t)
         corecmd_exec_shell(pki_ra_t)
-        corecmd_read_sbin_symlinks(pki_ra_t)
+        corecmd_read_bin_symlinks(pki_ra_t)
         corecmd_search_bin(pki_ra_t)
-        corecmd_search_sbin(pki_ra_t)
 
         corenet_sendrecv_unlabeled_packets(pki_ra_t)
         corenet_tcp_bind_all_nodes(pki_ra_t)
@@ -742,7 +690,7 @@ template(`pki_ra_template',`
         corenet_tcp_sendrecv_all_if(pki_ra_t)
         corenet_tcp_sendrecv_all_nodes(pki_ra_t)
         corenet_tcp_sendrecv_all_ports(pki_ra_t)
-        corenet_non_ipsec_sendrecv(pki_ra_t)
+        corenet_all_recvfrom_unlabeled(pki_ra_t)
         corenet_tcp_connect_generic_port(pki_ra_t)
 
         # talk to other subsystems
@@ -857,25 +805,6 @@ interface(`pki_ra_admin',`
 	manage_all_pattern($1, pki_ra_var_log)
 	manage_all_pattern($1, pki_ra_config)
 ')
-
-########################################
-## <summary>
-##	Execute pki_tks server in the pki_tks domain.
-## </summary>
-## <param name="domain">
-##	<summary>
-##	The type of the process performing this action.
-##	</summary>
-## </param>
-#
-interface(`pki_tks_script_domtrans',`
-	gen_require(`
-		attribute pki_tks_script;
-	')
-
-	init_script_domtrans_spec($1,pki_tks_script)
-')
-
 
 ########################################
 ## <summary>

@@ -691,8 +691,16 @@ start_instance()
     fi
 
     # Invoke the initscript for this instance
-    $PKI_INSTANCE_INITSCRIPT start
-    rv=$?
+    case $PKI_SUBSYSTEM_TYPE in
+        ca|kra|ocsp|tks)
+            /usr/bin/runcon -t pki_${PKI_SUBSYSTEM_TYPE}_script_t $PKI_INSTANCE_INITSCRIPT start
+            rv=$?
+            ;;
+        ra|tps)
+            $PKI_INSTANCE_INITSCRIPT start
+            rv=$?
+            ;;
+    esac
 
     if [ $rv -ne 0 ] ; then
         return $rv
