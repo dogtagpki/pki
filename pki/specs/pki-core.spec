@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.10
+Version:          9.0.11
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -599,6 +599,38 @@ fi
 
 
 %changelog
+* Wed Aug 10 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.11-1
+- 'pki-setup'
+-      Bugzilla Bug #689909 - Dogtag installation under IPA takes too much
+       time - remove the inefficient sleeps (alee)
+- 'pki-symkey'
+- 'pki-native-tools'
+- 'pki-util'
+- 'pki-java-tools'
+-      Bugzilla Bug #724861 - DRMTool: fix duplicate "dn:" records by
+       renumbering "cn=<value>" (mharmsen)
+- 'pki-common'
+-      Bugzilla Bug #717041 - Improve escaping of some enrollment inputs like
+       (jmagne, awnuk)
+-      Bugzilla Bug #689909 - Dogtag installation under IPA takes too much
+       time - remove the inefficient sleeps (alee)
+-      Bugzilla Bug #708075 - Clone installation does not work over NAT
+       (alee)
+-      Bugzilla Bug #726785 - If replication fails while setting up a clone
+       it will wait forever (alee)
+-      Bugzilla Bug #728332 - xml output has changed on cert requests (awnuk)
+-      Bugzilla Bug #700505 - pki tomcat6 instances currently running
+       unconfined (alee)
+- 'pki-selinux'
+-      Bugzilla Bug #700505 - pki tomcat6 instances currently running
+       unconfined (alee)
+- 'pki-ca'
+-      Bugzilla Bug #728605 - RFE: increase default validity from 6mo to 2yrs
+       in IPA profile (awnuk)
+- 'pki-silent'
+-      Bugzilla Bug #689909 - Dogtag installation under IPA takes too much
+       time - remove the inefficient sleeps (alee)
+
 * Fri Jul 22 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.10-1
 - 'pki-setup'
 - 'pki-symkey'

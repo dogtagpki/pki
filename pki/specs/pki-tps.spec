@@ -1,5 +1,5 @@
 Name:             pki-tps
-Version:          9.0.5
+Version:          9.0.6
 Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
@@ -215,6 +215,10 @@ fi
 
 
 %changelog
+* Wed Aug 10 2011 Jack Magne <jmagne@redhat.com> 9.0.6-1
+- Bugzilla Bug #725572 - Starting TPS subsystem with no pre-existing audit
+  log file does not write audit messages.
+
 * Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
 - Bugzilla Bug #697035 - TPS database schema not populated correctly
   (alee)
