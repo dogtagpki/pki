@@ -693,8 +693,13 @@ start_instance()
     # Invoke the initscript for this instance
     case $PKI_SUBSYSTEM_TYPE in
         ca|kra|ocsp|tks)
-            /usr/bin/runcon -t pki_${PKI_SUBSYSTEM_TYPE}_script_t $PKI_INSTANCE_INITSCRIPT start
-            rv=$?
+            if [ -x /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled; then
+                /usr/bin/runcon -t pki_${PKI_SUBSYSTEM_TYPE}_script_t \
+                     $PKI_INSTANCE_INITSCRIPT start
+                rv=$?
+            else
+                $PKI_INSTANCE_INITSCRIPT start 
+            fi
             ;;
         ra|tps)
             $PKI_INSTANCE_INITSCRIPT start
