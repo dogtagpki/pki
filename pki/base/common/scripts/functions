@@ -699,6 +699,7 @@ start_instance()
                 rv=$?
             else
                 $PKI_INSTANCE_INITSCRIPT start 
+                rv=$?
             fi
             ;;
         ra|tps)
