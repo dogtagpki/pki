@@ -147,7 +147,8 @@ char * trim_strdup(char *s)
 
 void readInputFile() {
     int more_to_read=1;
-    char *thedn, *thepin;
+    char *thedn = NULL;
+    char *thepin = NULL;
     int linenum=0;
 
     pinHashTable = PL_NewHashTable(256, 
@@ -168,9 +169,6 @@ void readInputFile() {
             char *n;
             char *checkdn;
 
-            thedn = NULL;
-            thepin = NULL;
-      
             do {
                 n = fgets(line,4096,input);
                 linenum++;
@@ -226,6 +224,14 @@ void readInputFile() {
                    fprintf(stderr," ...ignoring\n");
                 }
             }
+            if (thedn != NULL) {
+                free(thedn);
+                thedn = NULL;
+            }
+            if (thepin != NULL) {
+                free(thepin);
+                thepin = NULL;
+            }
         } while (more_to_read);
     }
 }
@@ -251,7 +257,7 @@ int main(int ac, char **av) {
             "then run:\n   %s optfile=<svr_root>/bin/cert/tools/setpin.conf\n", programName);
         fprintf(stderr,"\nUsage:  %s option=value ... option=value\n\n", programName);
 
-        for (i=0; i< 200; i+=2) {
+        for (i = 0; i < valid_args_len; i += 2) {
             if (valid_args[i]) {
                 fprintf(stderr,"%13s : %s\n",valid_args[i],valid_args[i+1]);
             } else {
@@ -821,15 +827,16 @@ void processSearchResults(LDAPMessage *r) {
         if (generatedPassword == NULL || (strlen(generatedPassword) == 0)) {
             generatedPassword = newPassword();
         }
+        if (generatedPassword == NULL || (strlen(generatedPassword) == 0)) {
+            errcode=13;
+            exitError("Couldn't generate password.");
+        }
 
         /* should we hash the password? */
         if (o_hash) {
 
             /* we hash the DN of the user and the PIN together */
 
-            if (hashbuf_source) {
-                free(hashbuf_source);
-            }
             if (o_debug) {
                 fprintf(stderr,"checking salt attribute...\n");
             }
@@ -846,7 +853,10 @@ void processSearchResults(LDAPMessage *r) {
 
             hashbuf_source =
                 malloc(strlen(saltval) + strlen(generatedPassword) + 10);
-      
+            if (hashbuf_source == NULL) {
+                errcode=12;
+                exitError("Couldn't allocate 'hashbuf_source'.");
+            }
             strcpy(hashbuf_source,saltval);
             strcat(hashbuf_source,generatedPassword);
 
@@ -899,6 +909,11 @@ void processSearchResults(LDAPMessage *r) {
             }
       
             pindata = hashbuf_dest;
+
+            if (hashbuf_source != NULL) {
+                free(hashbuf_source);
+                hashbuf_source = NULL;
+            }
         } else {
             pindata = generatedPassword;
             pindatasize = strlen(generatedPassword);
@@ -1177,40 +1192,45 @@ void testpingen() {
 
     /* last spot is used to hold invalid chars */
     totals = malloc(sizeof(int)*(charpoolsize+1));
-    for (i=0;i<(charpoolsize);i++) {
-        totals[i] = 0;
-    }
-    totals[charpoolsize]=0;
-    for (i=0;i<256;i++) {
-        index[i] = 255;  /* indicates->invalid */
-    }
-    for (i=0;i<charpoolsize;i++) {
-        index[(int)(charpool[i])] = i;
-    }
-
-    for (i=0;i<count;i++) {
-        pw = newPassword();
-        if (o_debug) {
-            fprintf(output,"%d:%s\n",i+1,pw);
+    if (totals != NULL) {
+        for (i=0;i<(charpoolsize);i++) {
+            totals[i] = 0;
         }
-        pwlen = strlen(pw);
-        for (j=0;j<pwlen;j++) {
-            c = pw[j];
-            if (index[(int)c] == 255) {
-                printf("\ninvalid char found: %02x %c\n",c,c);
-                totals[charpoolsize]++;
-            }
-            else {
-                totals[index[(int)c]]++;
+        totals[charpoolsize]=0;
+        for (i=0;i<256;i++) {
+            index[i] = 255;  /* indicates->invalid */
+        }
+        for (i=0;i<charpoolsize;i++) {
+            index[(int)(charpool[i])] = i;
+        }
+
+        for (i=0;i<count;i++) {
+            pw = newPassword();
+            if (pw != NULL) {
+                if (o_debug) {
+                    fprintf(output,"%d:%s\n",i+1,pw);
+                }
+                pwlen = strlen(pw);
+                for (j=0;j<pwlen;j++) {
+                    c = pw[j];
+                    if (index[(int)c] == 255) {
+                        printf("\ninvalid char found: %02x %c\n",c,c);
+                        totals[charpoolsize]++;
+                    }
+                    else {
+                        totals[index[(int)c]]++;
+                    }
+                }
+                free(pw);
             }
         }
-        free(pw);
-    }
 
-    for (i=0;i<charpoolsize;i++) {
-        fprintf(output,"%c: %10d\n",charpool[i],totals[i]);
+        for (i=0;i<charpoolsize;i++) {
+            fprintf(output,"%c: %10d\n",charpool[i],totals[i]);
+        }
+        fprintf(output,"invalid: %10d\n",totals[charpoolsize]);
+        free(totals);
     }
-    fprintf(output,"invalid: %10d\n",totals[charpoolsize]);
 }
     
   

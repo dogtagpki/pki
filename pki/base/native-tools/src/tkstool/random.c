@@ -67,7 +67,7 @@ UpdateRNG( void )
     /* Get random noise from keyboard strokes */
     randbuf = ( char * ) PORT_Alloc( RAND_BUF_LENGTH );
     count = 0;
-    while( count < NUM_KEYSTROKES+1 ) {
+    while( randbuf != NULL && count < NUM_KEYSTROKES+1 ) {
 #ifdef VMS
         c = GENERIC_GETCHAR_NOECHO();
 #elif XP_UNIX
@@ -82,7 +82,7 @@ UpdateRNG( void )
 
         PK11_RandomUpdate(
         /* data            */  randbuf,
-        /* length in bytes */  sizeof( randbuf ) );
+        /* length in bytes */  RAND_BUF_LENGTH );
 
         if( c != randbuf[0] ) {
             randbuf[0] = c;
@@ -103,7 +103,7 @@ UpdateRNG( void )
         }
     }
 
-    free( randbuf ); 
+    if (randbuf != NULL) free (randbuf); 
 
     FPS "\n\n");
     FPS "Finished.\n");

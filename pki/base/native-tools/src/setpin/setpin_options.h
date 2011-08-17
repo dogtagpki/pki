@@ -43,6 +43,7 @@ extern char *o_certdb,*o_nickname,*o_binddn,*o_bindpw,*o_bindpwfile,*o_filter,*o
   *o_pinmanager,*o_pinmanagerpwd,*o_schemachange;
 
 extern char *valid_args[];
+extern int valid_args_len;
 
 extern void setDefaultOptions();
 extern void getOptions();

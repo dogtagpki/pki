@@ -28,6 +28,7 @@
 
 extern int OPT_getValue(char *option, char **output);
 extern void exitError(char *errstring);
+extern int errcode;
 
 #define PW_DEFAULT_LENGTH 6
 
@@ -65,6 +66,7 @@ char *valid_args[] = {
   NULL
 };
 
+int valid_args_len = sizeof(valid_args)/sizeof(char *);
 
 int i_length, i_minlength, i_maxlength;
 
@@ -183,6 +185,10 @@ void validateOptions() {
   char *errbuf;
 
   errbuf = (char *)malloc(2048);
+  if (errbuf == NULL) {
+    errcode=13;
+    exitError("Couldn't allocate 'errbuf'.");
+  }
 
   if (o_nickname  && equals(o_ssl,"no")) {
     sprintf(errbuf,"specifying nickname doesn't make sense with no SSL");
@@ -236,7 +242,10 @@ void validateOptions() {
     }
   }
 
-  if (o_testpingen) return;
+  if (o_testpingen) {
+	free(errbuf);
+	return;
+  }
   
   if (!o_host || equals(o_host,"")) {
     strcpy(errbuf,"host missing");
@@ -254,6 +263,7 @@ void validateOptions() {
   }
 
   if (o_setup != NULL) {
+	free(errbuf);
 	return;
   }
 
@@ -275,10 +285,13 @@ void validateOptions() {
     goto loser;
   }
   if (equals(o_hash,"none")) o_hash = NULL;
+  free(errbuf);
       
   return ;
   
  loser:
+  errcode=14;
+  free(errbuf);
   exitError(errbuf);
 
 }

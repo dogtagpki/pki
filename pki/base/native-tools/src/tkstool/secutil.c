@@ -185,6 +185,7 @@ SECU_GetPasswordString(void *arg, char *prompt)
     output = fopen(consoleName, "w");
     if (output == NULL) {
 	fprintf(stderr, "Error opening output terminal for write\n");
+	fclose(input);
 	return NULL;
     }
 
@@ -339,6 +340,7 @@ secu_InitSlotPassword(PK11SlotInfo *slot, PRBool retry, void *arg)
     output = fopen(consoleName, "w");
     if (output == NULL) {
 	PR_fprintf(PR_STDERR, "Error opening output terminal for write\n");
+	fclose(input);
 	return NULL;
     }
 
@@ -3541,15 +3543,13 @@ SECU_DerSignDataCRL(PRArenaPool *arena, CERTSignedData *sd,
     if (rv) goto loser;
 
     /* Fill out SignedData object */
-    PORT_Memset(sd, 0, sizeof(sd));
+    PORT_Memset(sd, 0, sizeof(*sd));
     sd->data.data = buf;
     sd->data.len = len;
     sd->signature.data = it.data;
     sd->signature.len = it.len << 3;		/* convert to bit string */
-    if (!sd->signatureAlgorithm.parameters.data) {
-        rv = SECOID_SetAlgorithmID(arena, &sd->signatureAlgorithm, algID, 0);
-        if (rv) goto loser;
-    }
+    rv = SECOID_SetAlgorithmID(arena, &sd->signatureAlgorithm, algID, 0);
+    if (rv) goto loser;
 
     return rv;
 

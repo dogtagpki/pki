@@ -263,6 +263,11 @@ DecodeAndPrintFile(FILE *out, PRFileDesc *in, char *progName, int ascii,
             sprintf(filename, "%s%d.der", prefix, i);
 
             outFile = fopen(filename, "wb");
+            if (outFile == NULL) {
+                fprintf(out, "Couldn't open '%s' file for writing\n", filename);
+                i = -1;
+                break;
+            }
             nb = fwrite((char *) cert, 1, items[i]->len, outFile);
             fclose(outFile);
 
