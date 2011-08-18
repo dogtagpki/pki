@@ -31,6 +31,7 @@ extern void exitError(char *errstring);
 extern int errcode;
 
 #define PW_DEFAULT_LENGTH 6
+#define ERR_BUF_LENGTH 512
 
 char *valid_args[] = {
   "host",     "LDAP host                                [required]",
@@ -182,16 +183,10 @@ int equals(char *s, char *t) {
 }
 
 void validateOptions() {
-  char *errbuf;
-
-  errbuf = (char *)malloc(2048);
-  if (errbuf == NULL) {
-    errcode=13;
-    exitError("Couldn't allocate 'errbuf'.");
-  }
+  char errbuf[ERR_BUF_LENGTH];
 
   if (o_nickname  && equals(o_ssl,"no")) {
-    sprintf(errbuf,"specifying nickname doesn't make sense with no SSL");
+    snprintf(errbuf, ERR_BUF_LENGTH, "specifying nickname doesn't make sense with no SSL");
     goto loser;
   }
 
@@ -243,7 +238,6 @@ void validateOptions() {
   }
 
   if (o_testpingen) {
-	free(errbuf);
 	return;
   }
   
@@ -263,7 +257,6 @@ void validateOptions() {
   }
 
   if (o_setup != NULL) {
-	free(errbuf);
 	return;
   }
 
@@ -281,17 +274,15 @@ void validateOptions() {
        equals(o_hash,"md5") ||
        equals(o_hash,"none"))
       ) {
-    sprintf(errbuf,"invalid hash: %s",o_hash);
+    snprintf(errbuf, ERR_BUF_LENGTH, "invalid hash: %s",o_hash);
     goto loser;
   }
   if (equals(o_hash,"none")) o_hash = NULL;
-  free(errbuf);
       
   return ;
   
  loser:
-  errcode=14;
-  free(errbuf);
+  errcode=13;
   exitError(errbuf);
 
 }
