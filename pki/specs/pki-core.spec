@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.11
+Version:          9.0.12
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -599,6 +599,32 @@ fi
 
 
 %changelog
+* Tue Aug 23 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.12-1
+- 'pki-setup'
+-      Bugzilla Bug #712931 - CS requires too many ports
+       to be open in the FW (alee)
+- 'pki-symkey'
+- 'pki-native-tools'
+-      Bugzilla Bug #717643 - Fopen without NULL check and other Coverity
+       issues (awnuk)
+-      Bugzilla Bug #730801 - Coverity issues in native-tools area (awnuk)
+- 'pki-util'
+- 'pki-java-tools'
+- 'pki-common'
+-      Bugzilla Bug #700522 - pki tomcat6 instances currently running
+       unconfined, allow server to come up when selinux disabled (alee)
+-      Bugzilla Bug #731741 - some CS.cfg nickname parameters not updated
+       correctly when subsystem cloned (using hsm) (alee)
+-      Bugzilla Bug #712931 - CS requires too many ports
+       to be open in the FW (alee)
+- 'pki-selinux'
+-      Bugzilla Bug #712931 - CS requires too many ports
+       to be open in the FW (alee)
+- 'pki-ca'
+-      Bugzilla Bug #712931 - CS requires too many ports
+       to be open in the FW (alee)
+- 'pki-silent'
+
 * Wed Aug 10 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.11-1
 - 'pki-setup'
 -      Bugzilla Bug #689909 - Dogtag installation under IPA takes too much

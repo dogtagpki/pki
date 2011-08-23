@@ -1,5 +1,5 @@
 Name:             pki-tks
-Version:          9.0.3
+Version:          9.0.4
 Release:          1%{?dist}
 Summary:          Certificate System - Token Key Service
 URL:              http://pki.fedoraproject.org/
@@ -160,6 +160,10 @@ fi
 
 
 %changelog
+* Tue Aug 23 2011 Ade Lee <alee@redhat.com> 9.0.4-1
+- Bugzilla Bug #712931 - CS requires too many ports
+  to be open in the FW
+
 * Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
 - Bugzilla Bug #693815 - /var/log/tomcat6/catalina.out owned by pkiuser
   (jdennis)

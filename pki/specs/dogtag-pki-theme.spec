@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.6
+Version:          9.0.7
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -346,6 +346,24 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Tue Aug 23 2011 Ade Lee <alee@redhat.com> 9.0.7-1
+- 'dogtag-pki-ca-theme'
+-      Bugzilla Bug #712931 - CS requires too many ports
+       to be open in the FW
+- 'dogtag-pki-common-theme'
+- 'dogtag-pki-console-theme'
+- 'dogtag-pki-kra-theme'
+-      Bugzilla Bug #712931 - CS requires too many ports
+       to be open in the FW
+- 'dogtag-pki-ocsp-theme'
+-      Bugzilla Bug #712931 - CS requires too many ports
+       to be open in the FW
+- 'dogtag-pki-ra-theme'
+- 'dogtag-pki-tks-theme'
+-      Bugzilla Bug #712931 - CS requires too many ports
+       to be open in the FW
+- 'dogtag-pki-tps-theme'
+
 * Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.6-1
 - 'dogtag-pki-ca-theme'
 -      Bugzilla Bug #695015 - Serial No. of a revoked certificate is not

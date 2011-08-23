@@ -1,5 +1,5 @@
 Name:             ipa-pki-theme
-Version:          9.0.4
+Version:          9.0.5
 Release:          1%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -126,6 +126,17 @@ cd build
 
 
 %changelog
+* Tue Aug 23 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
+- 'ipa-pki-ca-theme'
+-      Bugzilla Bug #695015 - Serial No. of a revoked certificate is not
+       populated in the CA signedAudit messages (alee)
+-      Bugzilla Bug #694143 - CA Agent not returning specified request (awnuk)
+-      Bugzilla Bug #704351 - remove help buttons in agent and ee UI in all
+       subsystems (alee)
+-      Bugzilla Bug #712931 - CS requires too many ports
+       to be open in the FW (alee)
+- 'ipa-pki-common-theme'
+
 * Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
 - 'ipa-pki-ca-theme'
 -      Bugzilla Bug #669226 - Remove Legacy Build System
