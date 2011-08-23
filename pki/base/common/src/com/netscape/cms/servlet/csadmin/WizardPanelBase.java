@@ -1388,6 +1388,22 @@ public class WizardPanelBase implements IWizardPanel {
                             config.putString(name, v);
                         }
                     }
+
+                    // reset nicknames for system cert verification
+                    String token = config.getString("preop.module.token", 
+                                                    "Internal Key Storage Token");
+                    if (! token.equals("Internal Key Storage Token")) {
+                        String certlist = config.getString("preop.cert.list");
+
+                        StringTokenizer t1 = new StringTokenizer(certlist, ",");
+                        while (t1.hasMoreTokens()) {
+                            String tag = t1.nextToken();
+                            if (tag.equals("sslserver")) continue;
+                            config.putString(type + ".cert." + tag + ".nickname", 
+                                token + ":" + 
+                                config.getString(type + ".cert." + tag + ".nickname", ""));
+                        } 
+                    }
                 } else {
                     String error = parser.getValue("Error");
                     throw new IOException(error);
