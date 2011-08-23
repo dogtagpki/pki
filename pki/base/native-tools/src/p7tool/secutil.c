@@ -3183,8 +3183,6 @@ SECU_ErrorStringRaw(int16 err)
         sprintf (SECUErrorBuf, "Certificate is not valid");
     else if (err == SEC_ERROR_EXTENSION_NOT_FOUND)
         sprintf (SECUErrorBuf, "Certificate extension was not found");
-    else if (err == SEC_ERROR_EXTENSION_VALUE_INVALID)
-        sprintf (SECUErrorBuf, "Certificate extension value invalid");
     else if (err == SEC_ERROR_CA_CERT_INVALID)
         sprintf (SECUErrorBuf, "Issuer certificate is invalid");
     else if (err == SEC_ERROR_CERT_USAGES_INVALID)
