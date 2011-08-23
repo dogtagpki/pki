@@ -323,6 +323,7 @@ public class CMSEngine implements ICMSEngine {
             }
         }
         parseServerXML();
+        fixProxyPorts();
     }
 
     /**
@@ -542,6 +543,27 @@ public class CMSEngine implements ICMSEngine {
                CMS.debug("CMSEngine: parseServerXML exception: " + e.toString());
            }
     }
+
+    private void fixProxyPorts() throws EBaseException {
+        try {
+            String port = mConfig.getString("proxy.securePort", "");
+            if (!port.equals("")) {
+                info[EE_SSL][PORT] = port;
+                info[ADMIN][PORT] = port;
+                info[AGENT][PORT] = port;
+                info[EE_CLIENT_AUTH_SSL][PORT] = port;
+            }
+
+            port = mConfig.getString("proxy.unsecurePort", "");
+            if (!port.equals("")) {
+                info[EE_NON_SSL][PORT] = port;
+            }
+        } catch (EBaseException e) {
+            CMS.debug("CMSEngine: fixProxyPorts exception: " + e.toString());
+            throw e;
+        }   
+    }
+
 
     public IConfigStore createFileConfigStore(String path) throws EBaseException {
         try {

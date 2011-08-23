@@ -209,10 +209,10 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
                clientAuth="false" sslProtocol="TLS" />
     -->
 
-    <!-- Define an AJP 1.3 Connector on port 8009 -->
-<!--
-    <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
--->
+    <!-- Define an AJP 1.3 Connector on port [PKI_AJP_PORT] -->
+[PKI_OPEN_AJP_PORT_COMMENT]
+    <Connector port="[PKI_AJP_PORT]" protocol="AJP/1.3" redirectPort="[PKI_AJP_REDIRECT_PORT]" />
+[PKI_CLOSE_AJP_PORT_COMMENT]
 
 
     <!-- An Engine represents the entry point (within Catalina) that processes

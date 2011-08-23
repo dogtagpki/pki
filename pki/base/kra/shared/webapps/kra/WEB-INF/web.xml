@@ -10,6 +10,12 @@
             <param-name>https_port</param-name>
             <param-value>[PKI_AGENT_SECURE_PORT]</param-value>
         </init-param>
+[PKI_OPEN_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
+         </init-param>
+[PKI_CLOSE_ENABLE_PROXY_COMMENT]
         <init-param>
             <param-name>active</param-name>
             <param-value>true</param-value>
@@ -23,6 +29,12 @@
             <param-name>https_port</param-name>
             <param-value>[PKI_ADMIN_SECURE_PORT]</param-value>
         </init-param>
+[PKI_OPEN_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
+         </init-param>
+[PKI_CLOSE_ENABLE_PROXY_COMMENT]
         <init-param>
             <param-name>active</param-name>
             <param-value>true</param-value>
@@ -40,6 +52,16 @@
             <param-name>https_port</param-name>
             <param-value>[PKI_EE_SECURE_PORT]</param-value>
         </init-param>
+[PKI_OPEN_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
+         </init-param>
+        <init-param>
+            <param-name>proxy_http_port</param-name>
+            <param-value>[PKI_PROXY_UNSECURE_PORT]</param-value>
+         </init-param>
+[PKI_CLOSE_ENABLE_PROXY_COMMENT]
         <init-param>
             <param-name>active</param-name>
             <param-value>true</param-value>

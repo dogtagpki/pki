@@ -1214,7 +1214,8 @@ sub AreConnectorPortsValid
 {
     # parse parameters
     my ($secure_port, $unsecure_port, $agent_secure_port, 
-        $ee_secure_port, $admin_secure_port) = @_;
+        $ee_secure_port, $admin_secure_port, $proxy_secure_port, 
+        $proxy_unsecure_port, $ajp_port) = @_;
 
 
     if ($secure_port == -1 && $agent_secure_port == -1)
@@ -1236,18 +1237,30 @@ sub AreConnectorPortsValid
         return 1;
     }
 
-    # Now make sure none of the separated ports are the same
-    if (($agent_secure_port == $admin_secure_port) || 
-        ($agent_secure_port == $ee_secure_port)   ||
-        ($ee_secure_port == $admin_secure_port)) 
-    {
+    if (!portsUnique($agent_secure_port,$ee_secure_port, $admin_secure_port, $proxy_secure_port, 
+        $proxy_unsecure_port, $ajp_port)) {
         return 0;
     }
 
     return 1;
-    
+
 }
 
+#return 1 - if non-negative ports are uique
+#return 0 - otherwise (failure)
+sub portsUnique
+{
+   my @ports = sort @_;
+   my $last_port = -1;
+   for my $port (@ports) {
+       next if ($port < 0);
+       if ($port == $last_port) {
+           return 0;
+       }
+       $last_port = $port;
+   }
+   return 1;
+}
 
 # return 1 - port is available (success)
 # return 0 - port is unavailable; report an error (failure)

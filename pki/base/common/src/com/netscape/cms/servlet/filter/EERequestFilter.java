@@ -29,6 +29,8 @@ public class EERequestFilter implements Filter
     private static final String HTTPS_SCHEME = "https";
     private static final String HTTPS_PORT = "https_port";
     private static final String HTTPS_ROLE = "EE";
+    private static final String PROXY_PORT = "proxy_port";
+    private static final String PROXY_HTTP_PORT = "proxy_http_port";
 
     private FilterConfig config;
     
@@ -55,6 +57,8 @@ public class EERequestFilter implements Filter
         String request_port = null;
         String param_http_port = null;
         String param_https_port = null;
+        String param_proxy_port = null;
+        String param_proxy_http_port = null;
         String msg = null;
         String param_active = null;
 
@@ -100,6 +104,10 @@ public class EERequestFilter implements Filter
                 return; 
             }
 
+            param_proxy_http_port = config.getInitParameter(PROXY_HTTP_PORT);
+            param_proxy_port = config.getInitParameter(PROXY_PORT);
+            boolean bad_port = false;
+
             // If the scheme is "http", compare
             // the request and param "http" ports;
             // otherwise, if the scheme is "https", compare
@@ -107,32 +115,61 @@ public class EERequestFilter implements Filter
             if( scheme.equals( HTTP_SCHEME ) ) {
                 if( ! param_http_port.equals( request_port ) ) {
                     String uri = ((HttpServletRequest) request).getRequestURI();
-                    msg = "Use HTTP port '" + param_http_port
-                        + "' instead of '" + request_port
-                        + "' when performing " + HTTP_ROLE + " tasks!";
-                    CMS.debug( filterName + ":  " + msg );
-                    CMS.debug( filterName + ": uri is " + uri);
-                    if ((param_active != null) &&(param_active.equals("false"))) {
-                        CMS.debug("Filter is disabled .. continuing");
+                    if (param_proxy_http_port != null) {  
+                        if (!param_proxy_http_port.equals(request_port)) {
+                            msg = "Use HTTP port '" + param_http_port
+                                + "' or proxy port '" + param_proxy_http_port
+                                + "' instead of '" + request_port
+                                + "' when performing " + HTTP_ROLE + " tasks!";
+                            bad_port = true;
+                        }
                     } else {
-                        resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
-                        return;
+                        msg = "Use HTTP port '" + param_http_port
+                            + "' instead of '" + request_port
+                            + "' when performing " + HTTP_ROLE + " tasks!";
+                        bad_port = true;
+                    }
+                    if (bad_port) {
+                        CMS.debug( filterName + ":  " + msg );
+                        CMS.debug( filterName + ": uri is " + uri);
+                        if ((param_active != null) &&(param_active.equals("false"))) {
+                            CMS.debug("Filter is disabled .. continuing");
+                        } else {
+                            resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
+                            return;
+                        }
                     }
                 }
             } else if( scheme.equals( HTTPS_SCHEME ) ) {
                 if( ! param_https_port.equals( request_port ) ) {
-                    msg = "Use HTTPS port '" + param_https_port
-                        + "' instead of '" + request_port
-                        + "' when performing " + HTTPS_ROLE + " tasks!";
-                    CMS.debug( filterName + ":  " + msg );
-                    if ((param_active != null) &&(param_active.equals("false"))) {
-                        CMS.debug("Filter is disabled .. continuing");
+                    String uri = ((HttpServletRequest) request).getRequestURI();
+                    if (param_proxy_port != null) {  
+                        if (!param_proxy_port.equals(request_port)) {
+                            msg = "Use HTTPS port '" + param_https_port
+                                + "' or proxy port '" + param_proxy_port
+                                + "' instead of '" + request_port
+                                + "' when performing " + HTTPS_ROLE + " tasks!";
+                            bad_port = true;
+                        }
                     } else {
-                        resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
-                        return;
+                        msg = "Use HTTPS port '" + param_https_port
+                            + "' instead of '" + request_port
+                            + "' when performing " + HTTPS_ROLE + " tasks!";
+                        bad_port = true;
+                    }
+                    if (bad_port) {
+                        CMS.debug( filterName + ":  " + msg );
+                        CMS.debug( filterName + ": uri is " + uri);
+                        if ((param_active != null) &&(param_active.equals("false"))) {
+                            CMS.debug("Filter is disabled .. continuing");
+                        } else {
+                            resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
+                            return;
+                        }
                     }
                 }
             }
+
         }
         // CMS.debug("Exiting the EE filter");
 

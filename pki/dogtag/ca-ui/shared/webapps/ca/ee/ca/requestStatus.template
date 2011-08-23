@@ -23,7 +23,7 @@
 </head>
 
 <SCRIPT LANGUAGE="JavaScript"></SCRIPT>
-<script LANGUAGE="JavaScript" SRC="/ee/helpfun.js"></script>
+<script LANGUAGE="JavaScript" SRC="../helpfun.js"></script>
 
 <CMS_TEMPLATE>
 

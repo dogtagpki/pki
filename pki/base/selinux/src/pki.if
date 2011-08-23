@@ -22,6 +22,7 @@ template(`pki_ca_template',`
                 type rpm_var_lib_t;
                 type rpm_exec_t;
 		type setfiles_t;
+                type httpd_t;
 	')
 	########################################
 	#
@@ -192,6 +193,8 @@ template(`pki_ca_template',`
        # allow writing to the kernel keyring
        allow $1_t self:key { write read };
 
+       #reverse proxy
+       corenet_tcp_connect_dogtag_port($1_t)
 
 ')
 

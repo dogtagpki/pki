@@ -21,7 +21,7 @@
    <title>Check Certificate Status</title>
    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <SCRIPT LANGUAGE="JavaScript"></SCRIPT>
-<SCRIPT LANGUAGE="JavaScript" SRC="/helpfun.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="../helpfun.js"></SCRIPT>
 <SCRIPT LANGUAGE="JavaScript">
 <!--
 if (navigator.appName == "Microsoft Internet Explorer") {

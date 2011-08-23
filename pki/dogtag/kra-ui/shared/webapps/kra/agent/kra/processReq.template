@@ -5,7 +5,7 @@
 </head>  
 <CMS_TEMPLATE>
 <SCRIPT LANGUAGE="JavaScript"></SCRIPT>
-<SCRIPT LANGUAGE="JavaScript" SRC="/helpfun.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="../helpfun.js"></SCRIPT>
 <SCRIPT LANGUAGE="JavaScript">
 //<!--
 

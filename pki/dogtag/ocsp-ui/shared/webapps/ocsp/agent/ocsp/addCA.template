@@ -21,7 +21,7 @@
    <title>Adding Certificate Authority</title>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <SCRIPT LANGUAGE="JavaScript"></SCRIPT>
-<SCRIPT LANGUAGE="JavaScript" SRC="/helpfun.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="../helpfun.js"></SCRIPT>
 <SCRIPT LANGUAGE="JavaScript">
 <!--
 if (navigator.appName == "Microsoft Internet Explorer") {

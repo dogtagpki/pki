@@ -101,10 +101,12 @@ public class ImportCAChainPanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
         try {
             context.put("machineName", cs.getString("machineName"));
-            context.put("https_port", CMS.getEESSLPort());
-            context.put("http_port", CMS.getEENonSSLPort());
-        } catch (EBaseException e) {}
-
+            context.put("https_port", cs.getString("pkicreate.ee_secure_port"));
+            context.put("http_port", cs.getString("pkicreate.unsecure_port"));
+        } catch (EBaseException e) {
+            CMS.debug("ImportCACertChain:display: Exception: " + e.toString()); 
+            context.put("errorString", "Error loading values for Import CA Certificate Panel");
+        }
 
         ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
 
@@ -150,8 +152,8 @@ public class ImportCAChainPanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
         try {
             context.put("machineName", cs.getString("machineName"));
-            context.put("https_port", CMS.getEESSLPort());
-            context.put("http_port", CMS.getEENonSSLPort());
+            context.put("https_port", cs.getString("pkicreate.ee_secure_port"));
+            context.put("http_port", cs.getString("pkicreate.unsecure_port"));
             context.put("title", "Import CA's Certificate Chain");
             context.put("panel", "admin/console/config/importcachainpanel.vm");
         } catch (EBaseException e) {}

@@ -20,6 +20,8 @@ preop.product.name=CS
 preop.product.version=@VERSION@
 preop.system.name=CA
 preop.system.fullname=Certificate Authority
+proxy.securePort=[PKI_PROXY_SECURE_PORT]
+proxy.unsecurePort=[PKI_PROXY_UNSECURE_PORT]
 cs.state._000=##
 cs.state._001=## cs.state=0 (pre-operational)
 cs.state._002=## cs.state=1 (running)

@@ -26,6 +26,7 @@ public class EEClientAuthRequestFilter implements Filter
     private static final String HTTPS_SCHEME = "https";
     private static final String HTTPS_PORT = "https_port";
     private static final String HTTPS_ROLE = "EE Client Auth";
+    private static final String PROXY_PORT = "proxy_port";
 
     private FilterConfig config;
     
@@ -53,6 +54,7 @@ public class EEClientAuthRequestFilter implements Filter
         String param_https_port = null;
         String msg = null;
         String param_active = null;
+        String param_proxy_port = null;
 
         // CMS.debug("Entering the EECA filter");
         param_active = config.getInitParameter( "active");
@@ -84,19 +86,35 @@ public class EEClientAuthRequestFilter implements Filter
                 return;
             }
 
+            param_proxy_port = config.getInitParameter(PROXY_PORT);
+            boolean bad_port = false;
+
             // Compare the request and param "https" ports
             if( ! param_https_port.equals( request_port ) ) {
                 String uri = ((HttpServletRequest) request).getRequestURI();
-                msg = "Use HTTPS port '" + param_https_port
-                    + "' instead of '" + request_port
-                    + "' when performing " + HTTPS_ROLE + " tasks!";
-                CMS.debug( filterName + ":  " + msg );
-                CMS.debug( filterName + ": uri is " + msg);
-                if ((param_active != null) &&(param_active.equals("false"))) {
-                    CMS.debug("Filter is disabled .. continuing");
+                if (param_proxy_port != null) {
+                    if (!param_proxy_port.equals(request_port)) {
+                        msg = "Use HTTPS port '" + param_https_port
+                            + "' or proxy port '" + param_proxy_port
+                            + "' instead of '" + request_port
+                            + "' when performing " + HTTPS_ROLE + " tasks!";
+                        bad_port = true;
+                    }
                 } else {
-                    resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
-                    return;
+                    msg = "Use HTTPS port '" + param_https_port
+                        + "' instead of '" + request_port
+                        + "' when performing " + HTTPS_ROLE + " tasks!";
+                    bad_port = true;
+                }
+                if (bad_port) {
+                    CMS.debug( filterName + ":  " + msg );
+                    CMS.debug( filterName + ": uri is " + uri);
+                    if ((param_active != null) &&(param_active.equals("false"))) {
+                        CMS.debug("Filter is disabled .. continuing");
+                    } else {
+                        resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
+                        return;
+                    }
                 }
             }
         }
