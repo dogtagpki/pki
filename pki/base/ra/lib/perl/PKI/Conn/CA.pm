@@ -68,7 +68,7 @@ sub enroll {
   my ($host, $port) = split(/:/, $cahostport);
  
   if ($nickname =~ /(.*):(.*)/) {
-    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | awk -F: '{print \$2}'`;
   } else {
     $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
   }
@@ -175,7 +175,7 @@ sub revoke {
   my $cahostport = $cfg->get("conn." . $con_id . ".hostagentport");
 
   if ($nickname =~ /(.*):(.*)/) {
-    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | awk -F: '{print \$2}'`;
   } else {
     $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
   }
@@ -240,7 +240,7 @@ sub getCertStatus {
   my ($host, $port) = split(/:/, $cahostport);
 
   if ($nickname =~ /(.*):(.*)/) {
-    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | awk -F: '{print \$2}'`;
   } else {
     $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
   }
@@ -295,7 +295,7 @@ sub scep_get_ca_cert {
   my ($host, $port) = split(/:/, $cahostport);
 
   if ($nickname =~ /(.*):(.*)/) {
-    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | awk -F: '{print \$2}'`;
   } else {
     $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
   }
@@ -327,7 +327,7 @@ sub scep_decode {
   my ($host, $port) = split(/:/, $cahostport);
 
   if ($nickname =~ /(.*):(.*)/) {
-    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | awk -F: '{print \$2}'`;
   } else {
     $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
   }
@@ -359,7 +359,7 @@ sub scep_pki_message {
   my ($host, $port) = split(/:/, $cahostport);
 
   if ($nickname =~ /(.*):(.*)/) {
-    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | cut -c10-`;
+    $db_password = `grep \"$1:\" \"$instdir/conf/password.conf\" | awk -F: '{print \$2}'`;
   } else {
     $db_password = `grep \"internal:\" \"$instdir/conf/password.conf\" | cut -c10-`;
   }
