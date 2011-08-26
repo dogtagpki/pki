@@ -51,6 +51,18 @@ public class JssSSLSocketFactory implements ISocketFactory {
             SSLSocket.SSL3_RSA_EXPORT_WITH_RC4_40_MD5,
             SSLSocket.SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,
             SSLSocket.SSL3_RSA_WITH_NULL_MD5,
+            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+            SSLSocket.TLS_RSA_WITH_AES_128_CBC_SHA,
+            SSLSocket.TLS_RSA_WITH_AES_256_CBC_SHA,
+            SSLSocket.TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,
+            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+            //SSLSocket.TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
+            //SSLSocket.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+            //SSLSocket.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+            SSLSocket.TLS_DHE_DSS_WITH_AES_128_CBC_SHA,
+            SSLSocket.TLS_DHE_DSS_WITH_AES_256_CBC_SHA,
+            SSLSocket.TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
+            SSLSocket.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
             0
         };
 	

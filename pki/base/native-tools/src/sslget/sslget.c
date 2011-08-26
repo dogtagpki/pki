@@ -521,7 +521,23 @@ client_main(
     NSS_SetDomesticPolicy();
 
     /* all the SSL2 and SSL3 cipher suites are enabled by default. */
+
+    /* enable FIPS ciphers */
+    SSL_CipherPrefSetDefault(0xc004 /* TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0xc003 /* TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA */, PR_TRUE);
     SSL_CipherPrefSetDefault(0xC005 /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0xc00a /* TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0x2f /* TLS_RSA_WITH_AES_128_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0x35 /* TLS_RSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0xc008 /* TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0xc009 /* TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0xc012 /* TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0xc013 /* TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0xc014 /* TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0x32 /* TLS_DHE_DSS_WITH_AES_128_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0x38 /* TLS_DHE_DSS_WITH_AES_256_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0x33 /* TLS_DHE_RSA_WITH_AES_128_CBC_SHA */, PR_TRUE);
+    SSL_CipherPrefSetDefault(0x39 /* TLS_DHE_RSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
 
     /*
      *  Rifle through the values for the host

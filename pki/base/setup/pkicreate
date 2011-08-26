@@ -306,7 +306,7 @@ my $TOMCAT_CFG                          = "TOMCAT_CFG";
 my $TOMCAT_SSL_OPTIONS                  = "TOMCAT_SSL_OPTIONS";
 my $TOMCAT_SSL2_CIPHERS                 = "TOMCAT_SSL2_CIPHERS";
 my $TOMCAT_SSL3_CIPHERS                 = "TOMCAT_SSL3_CIPHERS";
-my $TOMCAT_TLS3_CIPHERS                 = "TOMCAT_TLS3_CIPHERS";
+my $TOMCAT_TLS_CIPHERS                  = "TOMCAT_TLS_CIPHERS";
 my $TOMCAT_INSTANCE_COMMON_LIB          = "TOMCAT_INSTANCE_COMMON_LIB";
 my $TOMCAT_LOG_DIR                      = "TOMCAT_LOG_DIR";
 my $PKI_INSTANCE_INITSCRIPT             = "PKI_INSTANCE_INITSCRIPT";
@@ -2520,13 +2520,17 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
                                           . "-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,"
                                           . "-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,"
                                           . "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA";
-        $slot_hash{$TOMCAT_TLS3_CIPHERS}       = "-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,"
-                                          . "+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,"
-                                          . "+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,"
-                                          . "-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,"
-                                          . "-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,"
-                                          . "-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,"
-                                          . "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA";
+        $slot_hash{$TOMCAT_TLS_CIPHERS}       = "-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,"
+                                          . "+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA,+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,"
+                                          . "+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,"
+                                          . "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_RSA_WITH_3DES_EDE_CBC_SHA,"
+                                          . "+TLS_RSA_WITH_AES_128_CBC_SHA,+TLS_RSA_WITH_AES_256_CBC_SHA,"
+                                          . "+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,"
+                                          . "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,"
+                                          . "-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA,"
+                                          . "+TLS_DHE_DSS_WITH_AES_128_CBC_SHA,+TLS_DHE_DSS_WITH_AES_256_CBC_SHA,"
+                                          . "+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA,+TLS_DHE_RSA_WITH_AES_128_CBC_SHA,"
+                                          . "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA";
         $slot_hash{$TOMCAT_INSTANCE_COMMON_LIB} = "$tomcat_instance_common_lib_path/*.jar";
         if (!$redirected_logs_path) {
             $slot_hash{$TOMCAT_LOG_DIR} = $logs_instance_path;

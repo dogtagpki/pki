@@ -71,6 +71,7 @@ PRBool __EXPORT InitSecurity(char* dbpath, char* certname, char* certpassword,
 							 char * prefix ,int verify=1);
 PRBool __EXPORT EnableCipher(const char* ciphername);
 void  __EXPORT EnableAllSSL3Ciphers();
+void  __EXPORT EnableAllTLSCiphers();
 __EXPORT const char * nscperror_lookup(int error);
 
 #endif
