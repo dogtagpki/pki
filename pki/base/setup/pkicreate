@@ -222,7 +222,6 @@ my $velocity_prop_base_name       = "velocity.properties";    # CA, KRA, OCSP, T
 my $web_xml_base_name             = "web.xml";                # CA, KRA, OCSP, TKS
 my $profile_select_base_name      = "ProfileSelect.template"; # CA
 my $proxy_conf_base_name          = "proxy.conf";             # CA
-my $proxy_ipa_conf_base_name      = "proxy-ipa.conf";         # CA
 
 my $registry_template_base_name   = "registry_instance";      # CA, KRA, OCSP, TKS, RA, TPS
 my $pki_apache_initscript_base_name = "pki_apache_initscript"; # RA, TPS
@@ -550,8 +549,6 @@ my $profile_select_template_subsystem_file_path  = undef;  #CA
 my $profile_select_template_instance_file_path   = undef;  #CA
 my $proxy_conf_subsystem_file_path               = undef;  #CA
 my $proxy_conf_instance_file_path                = undef;  #CA
-my $proxy_ipa_conf_subsystem_file_path           = undef;  #CA
-my $proxy_ipa_conf_instance_file_path            = undef;  #CA
 
 # PKI init script variables
 my $pki_registry_initscript                   = undef;  # CA, KRA, OCSP, TKS, RA, TPS
@@ -1615,8 +1612,6 @@ sub initialize_subdirectory_paths
 
         $proxy_conf_subsystem_file_path             = $conf_subsystem_path 
                                                      . "/" . $proxy_conf_base_name;
-        $proxy_ipa_conf_subsystem_file_path         = $conf_subsystem_path 
-                                                     . "/" . $proxy_ipa_conf_base_name;
     }
 
     ## Initialize subdirectory paths (RA, TPS subsystems)
@@ -1973,8 +1968,6 @@ sub process_pki_directories
                                           . "/" . $pki_cfg_base_name;
         $proxy_conf_instance_file_path    = $conf_instance_path
                                           . "/" . $proxy_conf_base_name;
-        $proxy_ipa_conf_instance_file_path = $conf_instance_path
-                                          . "/" . $proxy_ipa_conf_base_name;
         $catalina_properties_instance_file_path = $conf_instance_path
                                                 . "/" . $catalina_properties_base_name;
 
@@ -2024,8 +2017,6 @@ sub process_pki_directories
                                           . "/" . $pki_cfg_base_name;
         $proxy_conf_instance_file_path    = $redirected_conf_path
                                           . "/" . $proxy_conf_base_name;
-        $proxy_ipa_conf_instance_file_path = $redirected_conf_path
-                                          . "/" . $proxy_ipa_conf_base_name;
         $catalina_properties_instance_file_path = $redirected_conf_path
                                                 . "/" . $catalina_properties_base_name;
 
@@ -2582,11 +2573,6 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         return 0 if !process_file_template("proxy_conf",
                                            $proxy_conf_subsystem_file_path,
                                            $proxy_conf_instance_file_path,
-                                           \%slot_hash);
-        # process proxy-ipa.conf file
-        return 0 if !process_file_template("proxy_ipa_conf",
-                                           $proxy_ipa_conf_subsystem_file_path,
-                                           $proxy_ipa_conf_instance_file_path,
                                            \%slot_hash);
     }
 
