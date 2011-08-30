@@ -32,6 +32,7 @@ PKI_ARCH=`uname -p`
 NOARCH="noarch"
 
 # Set packaging variables
+RPM_EXE="/bin/rpm"
 YUM_EXE="/usr/bin/yum"
 YUM_EXE_OPTIONS="-y --nogpgcheck install"
 RPM_DIR="RPMS"
@@ -68,17 +69,35 @@ if [ ! -e "${PKI_SUDOERS}" ]; then
     exit 255
 fi
 
-# Check for the presence of the required sudoers command
-PKI_SUDOERS_COMMAND="(root) NOPASSWD: ${YUM_EXE}"
-PKI_SUDOERS_LINE="${PKI_USERNAME}  ALL = NOPASSWD: ${YUM_EXE}"
+# Check for the presence of the required sudoers command(s)
+PKI_SUDOERS_COMMAND="(root) NOPASSWD: ALL"
+PKI_SUDOERS_LINE="${PKI_USERNAME}  NOPASSWD: ALL"
+PKI_SUDOERS_RPM_COMMAND="(root) NOPASSWD: ${RPM_EXE}"
+PKI_SUDOERS_RPM_LINE="${PKI_USERNAME}  ALL = NOPASSWD: ${RPM_EXE}"
+PKI_SUDOERS_YUM_COMMAND="(root) NOPASSWD: ${YUM_EXE}"
+PKI_SUDOERS_YUM_LINE="${PKI_USERNAME}  ALL = NOPASSWD: ${YUM_EXE}"
 printf "Checking if '${PKI_USERNAME}' has the appropriate '${PKI_SUDO}' permissions . . .\n"
 printf "[NOTE:  A password prompt may appear requiring ${PKI_USERNAME}'s password.]\n"
+# NOTE:  If 'ALL' commands are NOT sudo enabled, then at least BOTH
+#        of the 'RPM' and 'YUM' commands MUST be sudo enabled!
 `${PKI_SUDO} -l | grep "${PKI_SUDOERS_COMMAND}" > /dev/null 2>&1`
 if [ $? -ne 0 ]; then
-    printf "The '$0' script requires that the\n"
-    printf "'${PKI_SUDOERS}' file MUST contain this line:\n\n"
-    printf "    '${PKI_SUDOERS_LINE}'\n\n"
-    exit 255
+    sudo_commands=2
+    `${PKI_SUDO} -l | grep "${PKI_SUDOERS_RPM_COMMAND}" > /dev/null 2>&1`
+    if [ $? -ne 0 ]; then
+        sudo_commands=`expr ${sudo_commands} - 1`
+    fi
+    `${PKI_SUDO} -l | grep "${PKI_SUDOERS_YUM_COMMAND}" > /dev/null 2>&1`
+    if [ $? -ne 0 ]; then
+        sudo_commands=`expr ${sudo_commands} - 1`
+    fi
+    if [ ${sudo_commands} -ne 2 ]; then
+        printf "The '$0' script requires that the\n"
+        printf "'${PKI_SUDOERS}' file MUST contain BOTH of these lines:\n\n"
+        printf "    '${PKI_SUDOERS_RPM_LINE}'\n"
+        printf "    '${PKI_SUDOERS_YUM_LINE}'\n\n"
+        exit 255
+    fi
 fi
 
 # Set 'composition scripts' variables
