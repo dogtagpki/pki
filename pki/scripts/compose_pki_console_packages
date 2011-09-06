@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 # BEGIN COPYRIGHT BLOCK
 # (C) 2010 Red Hat, Inc.
 # All rights reserved.
@@ -138,8 +138,19 @@ else
 		-name *.swp -prune -o         \
 		-print | cpio -pdum ${PKI_CONSOLE_BASE_DIR} > /dev/null 2>&1
 	done
-	cd - > /dev/null 2>&1
 
+        ##
+        ##  Copy the configuration classes from the common tree
+        ##
+
+	find common/src/com/netscape/certsrv/common/         \
+	    -name .svn -prune -o          \
+	    -name *.swp -prune -o         \
+	    -print | cpio -pdum ${PKI_CONSOLE_BASE_DIR} > /dev/null 2>&1
+
+        mv  ${PKI_CONSOLE_BASE_DIR}/common/src/com/netscape/*  \
+            ${PKI_CONSOLE_BASE_DIR}/console/src/com/netscape
+	cd - > /dev/null 2>&1
 
 	##
 	## Create the 'pki-console' tarball
