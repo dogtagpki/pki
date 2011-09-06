@@ -19,14 +19,12 @@ package com.netscape.certsrv.common;
 
 
 /**
- * This interface contains constants that are used 
- * in the protocol between the configuration daemon 
- * and UI configuration wizard.
+ * Constants that are used by daemon and UI configuration.
  *
+ * @author Christine Ho
  * @version $Revision$, $Date$
  */
 public interface ConfigConstants {
-
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final String OPTYPE = "opType";
@@ -34,8 +32,8 @@ public interface ConfigConstants {
  
     // Stages
     public static final String STAGES = "stages";
-    public static final String STAGE_INTERNAL_DB = "stageInternalDB";
     public static final String STAGE_CONNECT_DB = "stageConnectDB";
+    public static final String STAGE_INTERNAL_DB = "stageInternalDB";
     public static final String STAGE_SETUP_PORTS = "stageSetupPorts";
     public static final String STAGE_SETUP_ADMINISTRATOR = "stageSetupAdmin";
     public static final String STAGE_SETUP_SUBSYSTEMS = "stageSubsystems";
@@ -80,9 +78,9 @@ public interface ConfigConstants {
     public static final String STAGE_CACLONING = "stageCACloning";
     public static final String STAGE_RACLONING = "stageRACloning";
     public static final String STAGE_KRACLONING = "stageKRACloning";
-    public static final String STAGE_TKSCLONING = "stageTKSCloning";
     public static final String STAGE_SSLCLONING = "stageSSLCloning";
     public static final String STAGE_OCSPCLONING = "stageOCSPCloning";
+    public static final String STAGE_TKSCLONING = "stageTKSCloning";
     public static final String STAGE_CLONEMASTER = "stageCloneMaster";
     public static final String STAGE_UPDATE_DB_INFO = "stageUpdateDBInfo";
 
@@ -135,7 +133,6 @@ public interface ConfigConstants {
     public static final String PR_EE_SECURE_PORT = "eeGateway.https.port";
     public static final String PR_AGENT_PORT = "agentGateway.https.port";
     public static final String PR_RADM_PORT = "radm.https.port";
-    public static final String PR_RADM_PORT_SETUP="radm.port";
     public static final String PR_EE_PORT_ENABLE = "eeGateway.http.enable";
     public static final String PR_EE_PORTS_ENABLE = "eePortsEnable";
 
@@ -203,6 +200,7 @@ public interface ConfigConstants {
     public static final String PR_SSL_SUBJECT_NAME = "sslSubjectName";
     public static final String PR_KEY_TYPE = "keyType";
     public static final String PR_KEY_LENGTH = "keyLength";
+    public static final String PR_KEY_CURVENAME = "keyCurveName";
     public static final String PR_CERT_REQUEST = "certReq";
     public static final String PR_REQUEST_ID = "ReqID";
     public static final String PR_REQUEST_FORMAT = "ReqFormat";
@@ -275,6 +273,7 @@ public interface ConfigConstants {
     public static final String PR_RSA_MIN_KEYLENGTH = "RSAMinKeyLength";
     public static final String PR_CA_KEYTYPE = "ca_keyType";
     public static final String PR_HASH_TYPE = "hashType";
+    public static final String PR_SIGNEDBY_TYPE = "signedBy";
     public static final String PR_NOTAFTER = "notAfter";
     public static final String PR_CA_O_COMPONENT = "caOComponent";
     public static final String PR_CA_C_COMPONENT = "caCComponent";
@@ -293,8 +292,8 @@ public interface ConfigConstants {
     // CA serial number
     public static final String PR_CA_SERIAL_NUMBER = "caSerialNumber";
     public static final String PR_CA_ENDSERIAL_NUMBER = "caEndSerialNumber";
-    
-	// KRA number
+ 
+    // KRA serial number
     public static final String PR_REQUEST_NUMBER = "requestNumber";
     public static final String PR_ENDREQUEST_NUMBER = "endRequestNumber";
     public static final String PR_SERIAL_REQUEST_NUMBER = "serialRequestNumber";
