@@ -8,7 +8,6 @@ if (UNIX)
   SET(LIB_SUFFIX
     CACHE STRING "Define suffix of directory name (32/64)"
   )
-
   SET(EXEC_INSTALL_PREFIX
     "${CMAKE_INSTALL_PREFIX}"
     CACHE PATH  "Base directory for executables and libraries"
@@ -104,6 +103,14 @@ if (UNIX)
   set(VAR_INSTALL_DIR
       ${EXEC_INSTALL_PREFIX}/var
       CACHE PATH "The /var install dir (default prefix/var)"
+  )
+  SET(SYSTEMD_LIB_INSTALL_DIR
+    "/lib/systemd/system"
+    CACHE PATH  "Base directory for systemd target and service files"
+  )
+  SET(SYSTEMD_ETC_INSTALL_DIR
+    "/etc/systemd/system"
+    CACHE PATH  "Base directory for systemd custom target and service files"
   )
 endif (UNIX)
 

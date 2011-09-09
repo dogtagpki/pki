@@ -99,11 +99,13 @@ public class SecurityDomainPanel extends WizardPanelBase {
         String default_admin_url = "";
         String name = "";
         String cstype = "";
+        String systemdService = "";
 
         try {
             default_admin_url = config.getString("preop.securitydomain.admin_url", "");
             name = config.getString("preop.securitydomain.name", "");
             cstype = config.getString("cs.type", "");
+            systemdService = config.getString("pkicreate.systemd.servicename", "");
         } catch (Exception e) {
             CMS.debug(e.toString());
         }
@@ -214,8 +216,13 @@ public class SecurityDomainPanel extends WizardPanelBase {
         String instanceId = "&lt;security_domain_instance_name&gt;";
         String os = System.getProperty( "os.name" );
         if( os.equalsIgnoreCase( "Linux" ) ) {
-            context.put( "initCommand", "/sbin/service " + initDaemon );
-            context.put( "instanceId", instanceId );
+            if (! systemdService.equals("")) {
+                context.put( "initCommand", "/usr/bin/pkicontrol" );
+                context.put( "instanceId", "ca " + systemdService );
+            } else {
+                context.put( "initCommand", "/sbin/service " + initDaemon );
+                context.put( "instanceId", instanceId );
+            }
         } else {
             /* default case:  e. g. - ( os.equalsIgnoreCase( "SunOS" ) */
             context.put( "initCommand", "/etc/init.d/" + initDaemon );

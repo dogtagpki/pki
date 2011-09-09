@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.12
+Version:          9.0.13
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -32,6 +32,9 @@ BuildRequires:    tomcatjss >= 2.0.0
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
+%if 0%{?fedora} >= 16
+BuildRequires:    systemd-units
+%endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -323,10 +326,17 @@ Requires:         java >= 1:1.6.0
 Requires:         pki-ca-theme >= 9.0.0
 Requires:         pki-common = %{version}-%{release}
 Requires:         pki-selinux = %{version}-%{release}
+%if 0%{?fedora} >= 16
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else 
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
+%endif
+
 %if 0%{?fedora} >= 15
 # Details:
 #
@@ -420,6 +430,13 @@ echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfile
 echo "D /var/run/pki/ca 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
 %endif
 
+%if 0%{?fedora} >= 16
+%{__rm} %{buildroot}%{_initrddir}/pki-cad
+%else
+%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-cad.target.wants
+%{__rm} -rf %{buildroot}%{_unitdir}
+%endif
+
 
 %pre -n pki-selinux
 %saveFileContext targeted
@@ -442,8 +459,8 @@ if [ $1 = 0 ]; then
      %relabel targeted
 fi
 
-
-%post -n pki-ca
+%if 0%{?fedora} < 16
+%post -n pki-ca 
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-cad || :
 
@@ -460,6 +477,24 @@ if [ "$1" -ge "1" ] ; then
     /sbin/service pki-cad condrestart >/dev/null 2>&1 || :
 fi
 
+%else 
+%post -n pki-ca
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+
+%preun -n pki-ca
+if [ $1 = 0 ] ; then
+    /bin/systemctl --no-reload disable pki-cad.target > /dev/null 2>&1 || :
+    /bin/systemctl stop pki-cad.target > /dev/null 2>&1 || :
+fi
+
+
+%postun -n pki-ca
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "$1" -ge "1" ] ; then
+    /bin/systemctl try-restart pki-cad.target >/dev/null 2>&1 || :
+fi
+%endif
+
 
 %files -n pki-setup
 %defattr(-,root,root,-)
@@ -469,8 +504,13 @@ fi
 %dir %{_datadir}/pki
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/pkicommon.pm
+%{_datadir}/pki/scripts/functions
+%{_datadir}/pki/scripts/pki_apache_initscript
 %dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/run/pki
+%if 0%{?fedora} >= 16
+%{_bindir}/pkicontrol
+%endif
 
 
 %files -n pki-symkey
@@ -478,7 +518,6 @@ fi
 %doc base/symkey/LICENSE
 %{_jnidir}/symkey.jar
 %{_libdir}/symkey/
-
 
 %files -n pki-native-tools
 %defattr(-,root,root,-)
@@ -549,8 +588,6 @@ fi
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-cmscore-%{version}.jar
 %{_javadir}/pki/pki-cmscore.jar
-%{_datadir}/pki/scripts/functions
-%{_datadir}/pki/scripts/pki_apache_initscript
 %{_datadir}/pki/setup/
 
 %files -n pki-common-javadoc
@@ -567,7 +604,13 @@ fi
 %files -n pki-ca
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
+%if 0%{?fedora} >= 16
+%dir %{_sysconfdir}/systemd/system/pki-cad.target.wants
+%{_unitdir}/pki-cad@.service
+%{_unitdir}/pki-cad.target
+%else 
 %{_initrddir}/pki-cad
+%endif
 %{_javadir}/pki/pki-ca-%{version}.jar
 %{_javadir}/pki/pki-ca.jar
 %dir %{_datadir}/pki/ca
@@ -599,6 +642,14 @@ fi
 
 
 %changelog
+* Tue Sep 6 2011 Ade Lee <alee@redhat.com> 9.0.13-1
+- 'pki-setup'
+-      Bugzilla Bug #699809 - Convert CS to use systemd (alee)
+- 'pki-ca'
+-      Bugzilla Bug #699809 - Convert CS to use systemd (alee)
+- 'pki-common'
+-      Bugzilla Bug #699809 - Convert CS to use systemd (alee)
+
 * Tue Aug 23 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.12-1
 - 'pki-setup'
 -      Bugzilla Bug #712931 - CS requires too many ports

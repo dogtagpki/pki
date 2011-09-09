@@ -49,7 +49,7 @@ our @EXPORT = qw(
  parse_install_info parse_old_cleanup read_old_cleanup
  read_install_info read_install_info_from_dir write_install_info_to_dir uninstall
  is_Windows is_Linux is_Fedora is_RHEL is_RHEL4 setup_platform_dependent_parameters
- set_library_path get_library_path
+ set_library_path get_library_path fedora_release
  check_for_root_UID user_disallows_shell
  user_exists create_user
  group_exists create_group user_is_a_member_of_group add_user_as_a_member_of_group
@@ -799,6 +799,21 @@ sub is_RHEL4 {
         }
     }
 
+    return 0;
+}
+
+# no args
+# return release_number
+# return 0 if not found
+sub fedora_release {
+    my $releasefd = new FileHandle;
+    if ($releasefd->open("< /etc/fedora-release")) {
+            while (defined(my $line = <$releasefd>)) {
+                if ($line =~ /Fedora release (\d*)/) {
+                    return $1;
+                }
+            }
+    }
     return 0;
 }
 
@@ -2118,7 +2133,7 @@ sub is_path_valid
     foreach $split_path (@pathname) {
         chomp($split_path);
 
-        if (!($split_path !~ /^[-_.a-zA-Z0-9\[\]]+$/)) {
+        if (!($split_path !~ /^[-_.a-zA-Z0-9\[\]\@]+$/)) {
             $valid = 1;
         } else {
             $valid = 0;

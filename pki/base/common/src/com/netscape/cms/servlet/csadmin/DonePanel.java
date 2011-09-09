@@ -180,11 +180,13 @@ public class DonePanel extends WizardPanelBase {
         String type = "";
         String instanceId = "";
         String instanceRoot = "";
+        String systemdService = "";
         try {
             type = cs.getString("cs.type", "");
             instanceId = cs.getString("instanceId");
             instanceRoot = cs.getString("instanceRoot");
             select = cs.getString("preop.subsystem.select", "");
+            systemdService = cs.getString("pkicreate.systemd.servicename", "");
         } catch (Exception e) {}
 
         String initDaemon = "";
@@ -199,8 +201,13 @@ public class DonePanel extends WizardPanelBase {
         }
         String os = System.getProperty( "os.name" );
         if( os.equalsIgnoreCase( "Linux" ) ) {
-            context.put( "initCommand", "/sbin/service " + initDaemon );
-            context.put( "instanceId", instanceId );
+            if (! systemdService.equals("")) {
+                context.put( "initCommand", "/bin/systemctl");
+                context.put( "instanceId", systemdService );
+            } else {
+                context.put( "initCommand", "/sbin/service " + initDaemon );
+                context.put( "instanceId", instanceId );
+            }
         } else {
             /* default case:  e. g. - ( os.equalsIgnoreCase( "SunOS" ) */
             context.put( "initCommand", "/etc/init.d/" + initDaemon );

@@ -1,5 +1,5 @@
 Name:             pki-tks
-Version:          9.0.4
+Version:          9.0.5
 Release:          1%{?dist}
 Summary:          Certificate System - Token Key Service
 URL:              http://pki.fedoraproject.org/
@@ -18,15 +18,25 @@ BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    pki-common
 BuildRequires:    pki-util
+%if 0%{?fedora} >= 16
+BuildRequires:    systemd-units
+%endif
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-common
 Requires:         pki-selinux
 Requires:         pki-tks-theme
+%if 0%{?fedora} >= 16
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else 
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
+%endif
+
 %if 0%{?fedora} >= 15
 # Details:
 #
@@ -118,11 +128,17 @@ echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfil
 echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 %endif
 
+%if 0%{?fedora} >= 16
+%{__rm} %{buildroot}%{_initrddir}/pki-tksd
+%else
+%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-tksd.target.wants
+%{__rm} -rf %{buildroot}%{_unitdir}
+%endif
 
+%if 0%{?fedora} < 16
 %post
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-tksd || :
-
 
 %preun
 if [ $1 = 0 ] ; then
@@ -130,17 +146,38 @@ if [ $1 = 0 ] ; then
     /sbin/chkconfig --del pki-tksd || :
 fi
 
-
 %postun
 if [ "$1" -ge "1" ] ; then
     /sbin/service pki-tksd condrestart >/dev/null 2>&1 || :
 fi
+%else 
+%post 
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+ 
+%preun
+if [ $1 = 0 ] ; then
+    /bin/systemctl --no-reload disable pki-tksd.target > /dev/null 2>&1 || :
+    /bin/systemctl stop pki-tksd.target > /dev/null 2>&1 || :
+fi
+
+%postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "$1" -ge "1" ] ; then
+    /bin/systemctl try-restart pki-tksd.target >/dev/null 2>&1 || :
+fi
+%endif
 
 
 %files
 %defattr(-,root,root,-)
 %doc base/tks/LICENSE
+%if 0%{?fedora} >= 16
+%dir %{_sysconfdir}/systemd/system/pki-tksd.target.wants
+%{_unitdir}/pki-tksd@.service
+%{_unitdir}/pki-tksd.target
+%else 
 %{_initrddir}/pki-tksd
+%endif
 %{_javadir}/pki/pki-tks-%{version}.jar
 %{_javadir}/pki/pki-tks.jar
 %dir %{_datadir}/pki/tks
@@ -160,6 +197,9 @@ fi
 
 
 %changelog
+* Tue Sep 6 2011 Ade Lee <alee@redhat.com> 9.0.5-1
+- Bugzilla Bug #699809 - Convert CS to use systemd
+
 * Tue Aug 23 2011 Ade Lee <alee@redhat.com> 9.0.4-1
 - Bugzilla Bug #712931 - CS requires too many ports
   to be open in the FW

@@ -120,11 +120,18 @@ my $pki_registry_initscript_command = undef;
 # PKI registry variables
 my $pki_registry_subsystem_path     = undef;
 
+#systemd specific variables
+my $use_systemd                        = 0;
+my $pki_instance_systemd_service_name  = undef;
+
 ##############################################################
 # Platform-Dependent Data Initialization
 ##############################################################
 
 if ($^O eq "linux") {
+    if (is_Fedora() && (fedora_release() >= 16)) {
+        $use_systemd = 1;
+    }
 } else {
     emit("Unsupported platform '$^O'!\n", "error");
     exit 255;
@@ -484,23 +491,22 @@ ASK_AGAIN:
         } 
     }
 
-    # De-register this instance with "chkconfig"
-    if ($^O eq "linux") {
-        if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
-            # De-register this instance with '/sbin/chkconfig'
-            print(STDOUT "Removing '$pki_instance_name' from chkconfig.\n");
-            deregister_pki_instance_with_chkconfig($pki_instance_name);
-        }
-    }
-
     $pki_registry_initscript = get_registry_initscript_name($subsystem_type);
 
     # Shutdown this instance
     if ($^O eq "linux") {
-        if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
-            $pki_registry_initscript_command = "/sbin/service $pki_instance_name stop";
+        if ($use_systemd) {
+            $pki_instance_systemd_service_name =
+                "${pki_registry_initscript}\@${pki_instance_name}.service";
+            $pki_registry_initscript_command = 
+                "/bin/systemctl stop $pki_instance_systemd_service_name";
         } else {
-            $pki_registry_initscript_command = "/sbin/service $pki_registry_initscript stop $pki_instance_name";
+            if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
+                $pki_registry_initscript_command = "/sbin/service $pki_instance_name stop";
+            } else {
+                $pki_registry_initscript_command = 
+                    "/sbin/service $pki_registry_initscript stop $pki_instance_name";
+            }
         }
     } else {
         emit("Unsupported platform '$^O'!\n", "error");
@@ -508,10 +514,25 @@ ASK_AGAIN:
     }
     run_command($pki_registry_initscript_command);
 
+    if (!$use_systemd) {
+        # De-register this instance with "chkconfig"
+        if ($^O eq "linux") {
+            if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
+                # De-register this instance with '/sbin/chkconfig'
+                print(STDOUT "Removing '$pki_instance_name' from chkconfig.\n");
+                deregister_pki_instance_with_chkconfig($pki_instance_name);
+            }
+        }
+    }
+
     print(STDOUT "\n");
 
     # Remove all installed files and directories.
     $result = 0 if !uninstall($install_info);
+
+    if ($use_systemd) {
+        run_command("/bin/systemctl --system daemon-reload");
+    }
 
     print(STDOUT "\n");
 

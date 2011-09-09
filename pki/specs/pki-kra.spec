@@ -1,5 +1,5 @@
 Name:             pki-kra
-Version:          9.0.5
+Version:          9.0.6
 Release:          1%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
@@ -18,15 +18,25 @@ BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    pki-common
 BuildRequires:    pki-util
+%if 0%{?fedora} >= 16
+BuildRequires:    systemd-units
+%endif
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-common
 Requires:         pki-kra-theme
 Requires:         pki-selinux
+%if 0%{?fedora} >= 16
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else 
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
+%endif
+
 %if 0%{?fedora} >= 15
 # Details:
 #
@@ -117,7 +127,14 @@ echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfil
 echo "D /var/run/pki/kra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
 %endif
 
+%if 0%{?fedora} >= 16
+%{__rm} %{buildroot}%{_initrddir}/pki-krad
+%else
+%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-krad.target.wants
+%{__rm} -rf %{buildroot}%{_unitdir}
+%endif
 
+%if 0%{?fedora} < 16
 %post
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-krad || :
@@ -134,12 +151,33 @@ fi
 if [ "$1" -ge "1" ] ; then
     /sbin/service pki-krad condrestart >/dev/null 2>&1 || :
 fi
+%else
+%post
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+ 
+%preun 
+if [ $1 = 0 ] ; then
+    /bin/systemctl --no-reload disable pki-krad.target > /dev/null 2>&1 || :
+    /bin/systemctl stop pki-krad.target > /dev/null 2>&1 || :
+fi
 
+%postun 
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "$1" -ge "1" ] ; then
+    /bin/systemctl try-restart pki-krad.target >/dev/null 2>&1 || :
+fi
+%endif
 
 %files
 %defattr(-,root,root,-)
 %doc base/kra/LICENSE
-%{_initrddir}/pki-krad
+%if 0%{?fedora} >= 16
+%dir %{_sysconfdir}/systemd/system/pki-krad.target.wants
+%{_unitdir}/pki-krad@.service
+%{_unitdir}/pki-krad.target
+%else 
+%{_initrddir}/pki-cad
+%endif
 %{_javadir}/pki/pki-kra-%{version}.jar
 %{_javadir}/pki/pki-kra.jar
 %dir %{_datadir}/pki/kra
@@ -159,6 +197,9 @@ fi
 
 
 %changelog
+* Tue Sep 6 2011 Ade Lee <alee@redhat.com> 9.0.6-1
+- Bugzilla Bug #699809 - Convert CS to use systemd (alee)
+
 * Tue Aug 23 2011 Ade Lee <alee@redhat.com> 9.0.5-1
 - Bugzilla Bug #712931 - CS requires too many ports
   to be open in the FW

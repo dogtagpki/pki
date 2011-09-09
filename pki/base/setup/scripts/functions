@@ -143,6 +143,24 @@ usage()
     echo
 }
 
+usage_systemd()
+{
+    echo -n "Usage: /usr/bin/pkicontrol "
+    echo -n "{start"
+    echo -n "|stop"
+    echo -n "|restart"
+    echo -n "|condrestart"
+    echo -n "|force-restart"
+    echo -n "|try-restart"
+    echo -n "|reload"
+    echo -n "|status} "
+    echo -n "subsytem-type "
+    echo -n "[instance-name]"
+    echo
+    echo
+}
+
+
 list_instances()
 {
     echo
@@ -154,35 +172,68 @@ list_instances()
 }
 
 # Check arguments
-if [ $# -lt 1 ] ; then
-    # 3 unimplemented feature (for example, "reload")
-    #     [insufficient arguments]
-    echo "$PROG_NAME:  Insufficient arguments!"
-    echo
-    usage
-    echo "where valid instance names include:"
-    list_instances
-    exit 3
-elif [ ${default_error} -eq 2 ] ; then
-    # 2 invalid argument
-    echo "$PROG_NAME:  Invalid arguments!"
-    echo
-    usage
-    echo "where valid instance names include:"
-    list_instances
-    exit 2
-elif [ $# -gt 2 ] ; then
-    echo "$PROG_NAME:  Excess arguments!"
-    echo
-    usage
-    echo "where valid instance names include:"
-    list_instances
-    if [ "${command}" != "status" ]; then
-        # 2 excess arguments
+if [ $SYSTEMD ]; then
+    if [ $# -lt 2 ] ; then
+        #     [insufficient arguments]
+        echo "$PROG_NAME:  Insufficient arguments!"
+        echo
+        usage_systemd
+        echo "where valid instance names include:"
+        list_instances
+        exit 3
+    elif [ ${default_error} -eq 2 ] ; then
+        # 2 invalid argument
+        echo "$PROG_NAME:  Invalid arguments!"
+        echo
+        usage_systemd
+        echo "where valid instance names include:"
+        list_instances
         exit 2
-    else
-        # 4 program or service status is unknown
-        exit 4
+    elif [ $# -gt 3 ] ; then
+        echo "$PROG_NAME:  Excess arguments!"
+        echo
+        usage_systemd
+        echo "where valid instance names include:"
+        list_instances
+        if [ "${command}" != "status" ]; then
+            # 2 excess arguments
+            exit 2
+        else
+            # 4 program or service status is unknown
+            exit 4
+        fi
+    fi
+else  
+    if [ $# -lt 1 ] ; then
+        # 3 unimplemented feature (for example, "reload")
+        #     [insufficient arguments]
+        echo "$PROG_NAME:  Insufficient arguments!"
+        echo
+        usage
+        echo "where valid instance names include:"
+        list_instances
+        exit 3
+    elif [ ${default_error} -eq 2 ] ; then
+        # 2 invalid argument
+        echo "$PROG_NAME:  Invalid arguments!"
+        echo
+        usage
+        echo "where valid instance names include:"
+        list_instances
+        exit 2
+    elif [ $# -gt 2 ] ; then
+        echo "$PROG_NAME:  Excess arguments!"
+        echo
+        usage
+        echo "where valid instance names include:"
+        list_instances
+        if [ "${command}" != "status" ]; then
+            # 2 excess arguments
+            exit 2
+        else
+            # 4 program or service status is unknown
+            exit 4
+        fi
     fi
 fi
 
@@ -198,8 +249,11 @@ if [ -n "${pki_instance}" ]; then
     done
     if [ $valid -eq 0 ]; then
         echo -n "${pki_instance} is an invalid '${PKI_TYPE}' instance"
-        echo_failure
+        if [ ! $SYSTEMD ]; then
+            echo_failure
+        fi
         echo
+
         if [ "${command}" != "status" ]; then
             # 5 program is not installed
             exit 5
@@ -314,11 +368,7 @@ get_pki_status_definitions_ra()
 
     done
 
-    if [ ${total_ports} -eq $PKI_TOTAL_PORTS ] ; then
-        return 0
-    else
-        return ${default_error}
-    fi
+    return 0;
 }
 
 get_pki_status_definitions_tps()
@@ -377,11 +427,7 @@ get_pki_status_definitions_tps()
 
     done
 
-    if [ ${total_ports} -eq $PKI_TOTAL_PORTS ] ; then
-        return 0
-    else
-        return ${default_error}
-    fi
+    return 0;
 }
 
 get_pki_status_definitions_tomcat()
@@ -442,11 +488,7 @@ get_pki_status_definitions_tomcat()
         fi
     done
 
-    if [ ${total_ports} -eq $PKI_TOTAL_PORTS ] ; then
-        return 0
-    else
-        return ${default_error}
-    fi
+    return 0;
 }
 
 get_pki_configuration_definitions()
@@ -661,10 +703,24 @@ display_configuration_information()
     return $result
 }
 
+display_instance_status_systemd()
+{
+    echo -n "Status for ${PKI_INSTANCE_ID}: "
+    systemctl status "$PKI_SYSTEMD_TARGET@$PKI_INSTANCE_ID.service" > /dev/null 2>&1
+    rv=$?
+
+    if [ $rv -eq 0 ] ; then
+        echo "$PKI_INSTANCE_ID is running .."
+        display_configuration_information
+    else
+        echo "$PKI_INSTANCE_ID is stopped"
+    fi
+
+    return $rv
+}
+
 display_instance_status()
 {
-    rv=0
-
     # Verify there is an initscript for this instance
     if [ ! -f $PKI_INSTANCE_INITSCRIPT ]; then
         # 4 program or service status is unknown
@@ -693,6 +749,12 @@ start_instance()
     # Invoke the initscript for this instance
     case $PKI_SUBSYSTEM_TYPE in
         ca|kra|ocsp|tks)
+
+            # We must export the service name so that the systemd version 
+            # of the tomcat6 init script knows which instance specific
+            # configuration file to source.
+            export SERVICE_NAME=$PKI_INSTANCE_ID
+
             if [ -x /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled; then
                 /usr/bin/runcon -t pki_${PKI_SUBSYSTEM_TYPE}_script_t \
                      $PKI_INSTANCE_INITSCRIPT start
@@ -790,6 +852,7 @@ stop_instance()
 {
     rv=0
 
+    export SERVICE_NAME=$PKI_INSTANCE_ID
     # Invoke the initscript for this instance
     $PKI_INSTANCE_INITSCRIPT stop
     rv=$?
@@ -1000,8 +1063,20 @@ registry_status()
 
         [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
 
-        display_instance_status
-        rv=$?
+        case $PKI_SUBSYSTEM_TYPE in
+            ca|kra|ocsp|tks)
+                if [ $SYSTEMD ]; then 
+                    display_instance_status_systemd
+                else 
+                    display_instance_status
+                fi
+                rv=$?
+                ;;
+            tps|ra)
+                display_instance_status
+                rv=$?
+                ;;
+        esac
         if [ $rv -ne 0 ] ; then
             errors=`expr $errors + 1`
             error_rv=$rv

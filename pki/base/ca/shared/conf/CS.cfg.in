@@ -13,6 +13,7 @@ pkicreate.unsecure_port=[PKI_UNSECURE_PORT]
 pkicreate.tomcat_server_port=[TOMCAT_SERVER_PORT]
 pkicreate.user=[PKI_USER]
 pkicreate.arg11.group=[PKI_GROUP]
+pkicreate.systemd.servicename=[PKI_SYSTEMD_SERVICENAME]
 pkiremove.cert.subsystem.nickname=subsystemCert cert-[PKI_INSTANCE_ID]
 installDate=[INSTALL_TIME]
 preop.wizard.name=CA Setup Wizard
