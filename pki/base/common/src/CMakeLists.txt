@@ -4,7 +4,7 @@ find_file(JSS_JAR
     NAMES
         jss4.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -12,7 +12,7 @@ find_file(LDAPJDK_JAR
     NAMES
         ldapjdk.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -20,7 +20,7 @@ find_file(OSUTIL_JAR
     NAMES
         osutil.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -28,7 +28,7 @@ find_file(SERVLET_JAR
     NAMES
         servlet.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -36,7 +36,7 @@ find_file(VELOCITY_JAR
     NAMES
         velocity.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -44,7 +44,7 @@ find_file(XALAN_JAR
     NAMES
         xalan-j2.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -52,7 +52,7 @@ find_file(XERCES_JAR
     NAMES
         xerces-j2.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 

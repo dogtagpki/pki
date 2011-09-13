@@ -1,5 +1,5 @@
 Name:             pki-console
-Version:          9.0.3
+Version:          9.0.4
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
@@ -13,7 +13,11 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    idm-console-framework
 BuildRequires:    java-devel >= 1:1.6.0
+%if 0%{?fedora} >= 16
+BuildRequires:    jpackage-utils >= 1.7.5-10
+%else
 BuildRequires:    jpackage-utils
+%endif
 BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
@@ -22,6 +26,11 @@ BuildRequires:    pki-util
 
 Requires:         idm-console-framework
 Requires:         java >= 1:1.6.0
+%if 0%{?fedora} >= 16
+Requires:         jpackage-utils >= 1.7.5-10
+%else
+Requires:         jpackage-utils
+%endif
 Requires:         jss >= 4.2.6-17
 Requires:         ldapjdk
 Requires:         pki-console-theme
@@ -54,7 +63,7 @@ following "Mutually-Exclusive" PKI Theme packages:
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CONSOLE:BOOL=ON ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CONSOLE:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -72,6 +81,9 @@ cd build
 
 
 %changelog
+* Wed Aug 31 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
+- Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+
 * Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
 - Bugzilla Bug #700462 - No action on clicking "Help" button of
   pkiconsole's right pane (alee)

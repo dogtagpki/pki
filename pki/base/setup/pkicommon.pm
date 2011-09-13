@@ -31,7 +31,7 @@ our @EXPORT = qw(
  $verbose $dry_run $hostname $default_hardware_platform
  $default_system_binaries $default_lockdir $default_system_libraries $default_system_user_binaries
  $default_system_user_libraries
- $default_java_path $default_pki_java_path $default_system_jni_java_path @default_jar_path
+ $default_java_path $default_pki_java_path $default_x86_64_jni_java_path $default_system_jni_java_path @default_jar_path
  $default_security_libraries $default_certutil_command
  $default_ldapmodify_command $default_modutil_command
  $default_dir_permissions $default_exe_permissions $default_file_permissions
@@ -170,6 +170,7 @@ our $default_system_user_binaries  = undef;
 our $default_system_user_libraries = undef;
 our $default_java_path             = undef;
 our $default_pki_java_path         = undef;
+our $default_x86_64_jni_java_path  = undef;
 our $default_system_jni_java_path  = undef;
 our @default_jar_path              = undef;
 our $default_security_libraries    = undef;
@@ -207,6 +208,7 @@ if ($^O eq "linux") {
         $default_java_path             = "/usr/share/java";
         $default_pki_java_path         = "/usr/share/java/pki";
         $default_system_jni_java_path  = "/usr/lib/java";
+        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_system_jni_java_path);
     } elsif ($default_hardware_platform eq "x86_64") {
         # 64-bit Linux
         $default_system_binaries       = "/bin";
@@ -215,13 +217,13 @@ if ($^O eq "linux") {
         $default_system_user_libraries = "/usr/lib64";
         $default_java_path             = "/usr/share/java";
         $default_pki_java_path         = "/usr/share/java/pki";
+        $default_x86_64_jni_java_path  = "/usr/lib64/java";
         $default_system_jni_java_path  = "/usr/lib/java";
+        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_x86_64_jni_java_path, $default_system_jni_java_path);
     } else {
         emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!", "error");
         exit 255;
     }
-
-    @default_jar_path = ($default_pki_java_path, $default_java_path, $default_system_jni_java_path);
 
     # Retrieve hostname
     if (defined($ENV{'PKI_HOSTNAME'})) {

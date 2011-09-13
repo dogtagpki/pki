@@ -140,6 +140,11 @@ fi
 
 CP=/usr/lib/java/jss4.jar
 CP=/usr/lib/java/dirsec/jss4.jar:${CP}
+if [ "${OS}" = "Linux" ] &&
+   [ "${ARCHITECTURE}" = "x86_64" ] ; then
+    # Fedora 16+
+    CP=/usr/lib64/java/jss4.jar
+fi
 CP=/usr/share/java/ldapjdk.jar:${CP}
 CP=/usr/share/java/idm-console-nmclf.jar:${CP}
 CP=/usr/share/java/idm-console-nmclf_en.jar:${CP}

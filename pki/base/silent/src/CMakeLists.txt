@@ -4,7 +4,7 @@ find_file(JSS_JAR
     NAMES
         jss4.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -12,7 +12,7 @@ find_file(LDAPJDK_JAR
     NAMES
         ldapjdk.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -20,7 +20,7 @@ find_file(XERCES_JAR
     NAMES
         xerces-j2.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 

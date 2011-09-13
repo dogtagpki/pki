@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.7
+Version:          9.0.8
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -12,7 +12,11 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
+%if 0%{?fedora} >= 16
+BuildRequires:    jpackage-utils >= 1.7.5-10
+%else
 BuildRequires:    jpackage-utils
+%endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -270,7 +274,7 @@ This package is used by the Dogtag Certificate System.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DBUILD_DOGTAG_PKI_THEME:BOOL=ON ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_DOGTAG_PKI_THEME:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -346,6 +350,17 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Mon Sep 12 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-1
+- 'dogtag-pki-ca-theme'
+- 'dogtag-pki-common-theme'
+- 'dogtag-pki-console-theme'
+-      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+- 'dogtag-pki-kra-theme'
+- 'dogtag-pki-ocsp-theme'
+- 'dogtag-pki-ra-theme'
+- 'dogtag-pki-tks-theme'
+- 'dogtag-pki-tps-theme'
+
 * Tue Aug 23 2011 Ade Lee <alee@redhat.com> 9.0.7-1
 - 'dogtag-pki-ca-theme'
 -      Bugzilla Bug #712931 - CS requires too many ports

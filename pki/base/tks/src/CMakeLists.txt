@@ -33,7 +33,7 @@ find_file(PKI_NSUTIL_JAR
     NAMES
         pki-nsutil.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java/pki
 )
 
@@ -47,26 +47,26 @@ find_file(LDAPJDK_JAR
 )
 
 
-# '/usr/lib/java' jars
+# '${JAVA_LIB_INSTALL_DIR}' jars
 find_file(JSS_JAR
     NAMES
         jss4.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
 )
 
 find_file(OSUTIL_JAR
     NAMES
         osutil.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
 )
 
 find_file(SYMKEY_JAR
     NAMES
         symkey.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
 )
 
 

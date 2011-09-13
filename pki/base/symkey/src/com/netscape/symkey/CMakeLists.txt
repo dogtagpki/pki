@@ -41,7 +41,7 @@ add_custom_command(
         ${symkey_library_HDRS}
     COMMAND
         ${JAVA_HEADER}
-            -classpath ${SYMKEY_JAVA_OBJECT_DIR}:/usr/lib/java/jss4.jar
+            -classpath ${SYMKEY_JAVA_OBJECT_DIR}:${JAVA_LIB_INSTALL_DIR}/jss4.jar
             -jni -d ${CMAKE_CURRENT_BINARY_DIR}
             com.netscape.symkey.SessionKey
 )

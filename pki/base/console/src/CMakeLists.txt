@@ -5,7 +5,7 @@ find_file(PKI_NSUTIL_JAR
     NAMES
         pki-nsutil.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java/pki
 )
 
@@ -15,7 +15,7 @@ find_file(BASE_JAR
     NAMES
         idm-console-base.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -23,7 +23,7 @@ find_file(LDAPJDK_JAR
     NAMES
         ldapjdk.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -31,7 +31,7 @@ find_file(MMC_JAR
     NAMES
         idm-console-mcc.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -39,7 +39,7 @@ find_file(MMC_EN_JAR
     NAMES
         idm-console-mcc_en.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -47,7 +47,7 @@ find_file(NMCLF_JAR
     NAMES
         idm-console-nmclf.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -55,17 +55,17 @@ find_file(NMCLF_EN_JAR
     NAMES
         idm-console-nmclf_en.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
 
-# '/usr/lib/java' jars
+# '${JAVA_LIB_INSTALL_DIR}' jars
 find_file(JSS_JAR
     NAMES
         jss4.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 
@@ -73,7 +73,7 @@ find_file(OSUTIL_JAR
     NAMES
         osutil.jar
     PATHS
-        /usr/lib/java
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 

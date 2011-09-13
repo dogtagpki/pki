@@ -1,5 +1,5 @@
 Name:             pki-tks
-Version:          9.0.5
+Version:          9.0.6
 Release:          1%{?dist}
 Summary:          Certificate System - Token Key Service
 URL:              http://pki.fedoraproject.org/
@@ -12,7 +12,11 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
+%if 0%{?fedora} >= 16
+BuildRequires:    jpackage-utils >= 0:1.7.5-10
+%else
 BuildRequires:    jpackage-utils
+%endif
 BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
@@ -105,7 +109,7 @@ Additionally, Certificate System requires ONE AND ONLY ONE of the following
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_TKS:BOOL=ON ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_TKS:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -197,6 +201,9 @@ fi
 
 
 %changelog
+* Mon Sep 12 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.6-1
+- Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+
 * Tue Sep 6 2011 Ade Lee <alee@redhat.com> 9.0.5-1
 - Bugzilla Bug #699809 - Convert CS to use systemd
 

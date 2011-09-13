@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.13
+Version:          9.0.14
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -14,7 +14,11 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # pki-ca-theme requires versioning to meet runtime requirements
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
+%if 0%{?fedora} >= 16
+BuildRequires:    jpackage-utils >= 0:1.7.5-10
+%else
 BuildRequires:    jpackage-utils
+%endif
 BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
@@ -123,7 +127,11 @@ Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
 
 Requires:         java >= 1:1.6.0
+%if 0%{?fedora} >= 16
+Requires:         jpackage-utils >= 0:1.7.5-10
+%else
 Requires:         jpackage-utils
+%endif
 Requires:         jss >= 4.2.6-17
 Requires:         nss
 
@@ -164,7 +172,11 @@ Group:            System Environment/Base
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
+%if 0%{?fedora} >= 16
+Requires:         jpackage-utils >= 0:1.7.5-10
+%else
 Requires:         jpackage-utils
+%endif
 Requires:         jss >= 4.2.6-17
 Requires:         ldapjdk
 Requires:         osutil
@@ -206,6 +218,11 @@ Group:            System Environment/Base
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
+%if 0%{?fedora} >= 16
+Requires:         jpackage-utils >= 0:1.7.5-10
+%else
+Requires:         jpackage-utils
+%endif
 Requires:         pki-native-tools = %{version}-%{release}
 Requires:         pki-util = %{version}-%{release}
 
@@ -399,7 +416,7 @@ This package is a part of the PKI Core used by the Certificate System.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CORE:BOOL=ON ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CORE:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -410,11 +427,18 @@ cd build
 
 cd %{buildroot}%{_libdir}/symkey
 %{__rm} symkey.jar
+%if 0%{?fedora} >= 16
+%{__rm} %{buildroot}%{_jnidir}/symkey.jar
+%{__mv} symkey-%{version}.jar %{buildroot}%{_jnidir}/symkey.jar
+%else
 %{__ln_s} symkey-%{version}.jar symkey.jar
+%endif
 
+%if 0%{?rhel} || 0%{?fedora} < 16
 cd %{buildroot}%{_jnidir}
 %{__rm} symkey.jar
 %{__ln_s} %{_libdir}/symkey/symkey.jar symkey.jar
+%endif
 
 %if 0%{?fedora} >= 15
 # Details:
@@ -642,6 +666,24 @@ fi
 
 
 %changelog
+* Fri Sep 9 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.14-1
+- 'pki-setup'
+-      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+- 'pki-symkey'
+-      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+- 'pki-native-tools'
+- 'pki-util'
+-      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+- 'pki-java-tools'
+-      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+- 'pki-common'
+-      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+- 'pki-selinux'
+- 'pki-ca'
+-      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+- 'pki-silent'
+-      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+
 * Tue Sep 6 2011 Ade Lee <alee@redhat.com> 9.0.13-1
 - 'pki-setup'
 -      Bugzilla Bug #699809 - Convert CS to use systemd (alee)
