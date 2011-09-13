@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          9.0.0
-Release:          5%{?dist}
+Release:          6%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -9,65 +9,102 @@ Group:            System Environment/Daemons
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
-# Make certain that this 'meta' package requires the latest version(s)
-# of ALL top-level Dogtag PKI support packages
-Requires:         jss >= 4.2.6-17
-%if 0%{?fedora} >= 15
-Requires:         osutil >= 2.0.1
-Requires:         tomcatjss >= 6.0.0
+# Establish MINIMUM package versions based upon platform
+%if 0%{?fedora} >= 16
+%define dogtag_pki_theme_version   9.0.4
+%define esc_version                1.1.0
+%define jss_version                4.2.6-19.1
+%define osutil_version             2.0.1
+%define pki_core_version           9.0.14
+%define pki_kra_version            9.0.7
+%define pki_ocsp_version           9.0.6
+%define pki_ra_version             9.0.0
+%define pki_tks_version            9.0.6
+%define pki_tps_version            9.0.0
+%define pki_console_version        9.0.4
+%define tomcatjss_version          6.0.1
+%elseif 0%{?fedora} >= 15
+%define dogtag_pki_theme_version   9.0.0
+%define esc_version                1.1.0
+%define jss_version                4.2.6-17
+%define osutil_version             2.0.1
+%define pki_core_version           9.0.0
+%define pki_kra_version            9.0.0
+%define pki_ocsp_version           9.0.0
+%define pki_ra_version             9.0.0
+%define pki_tks_version            9.0.0
+%define pki_tps_version            9.0.0
+%define pki_console_version        9.0.0
+%define tomcatjss_version          6.0.0
 %else
-Requires:         osutil >= 2.0.0
-Requires:         tomcatjss >= 2.0.0
+%define dogtag_pki_theme_version   9.0.0
+%define esc_version                1.1.0
+%define jss_version                4.2.6-17
+%define osutil_version             2.0.0
+%define pki_core_version           9.0.0
+%define pki_kra_version            9.0.0
+%define pki_ocsp_version           9.0.0
+%define pki_ra_version             9.0.0
+%define pki_tks_version            9.0.0
+%define pki_tps_version            9.0.0
+%define pki_console_version        9.0.0
+%define tomcatjss_version          2.0.0
 %endif
 
 # Make certain that this 'meta' package requires the latest version(s)
+# of ALL top-level Dogtag PKI support packages
+Requires:         jss >= %{jss_version}
+Requires:         osutil >= %{osutil_version}
+Requires:         tomcatjss >= %{tomcatjss_version}
+
+# Make certain that this 'meta' package requires the latest version(s)
 # of ALL top-level Dogtag PKI support javadocs
-Requires:         jss-javadoc >= 4.2.6-17
+Requires:         jss-javadoc >= %{jss_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI theme packages
-Requires:         dogtag-pki-ca-theme >= 9.0.0
-Requires:         dogtag-pki-common-theme >= 9.0.0
-Requires:         dogtag-pki-console-theme >= 9.0.0
-Requires:         dogtag-pki-kra-theme >= 9.0.0
-Requires:         dogtag-pki-ocsp-theme >= 9.0.0
-Requires:         dogtag-pki-ra-theme >= 9.0.0
-Requires:         dogtag-pki-tks-theme >= 9.0.0
-Requires:         dogtag-pki-tps-theme >= 9.0.0
+Requires:         dogtag-pki-ca-theme >= %{dogtag_pki_theme_version}
+Requires:         dogtag-pki-common-theme >= %{dogtag_pki_theme_version}
+Requires:         dogtag-pki-console-theme >= %{dogtag_pki_theme_version}
+Requires:         dogtag-pki-kra-theme >= %{dogtag_pki_theme_version}
+Requires:         dogtag-pki-ocsp-theme >= %{dogtag_pki_theme_version}
+Requires:         dogtag-pki-ra-theme >= %{dogtag_pki_theme_version}
+Requires:         dogtag-pki-tks-theme >= %{dogtag_pki_theme_version}
+Requires:         dogtag-pki-tps-theme >= %{dogtag_pki_theme_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core packages
-Requires:         pki-ca >= 9.0.0
-Requires:         pki-common >= 9.0.0
-Requires:         pki-java-tools >= 9.0.0
-Requires:         pki-native-tools >= 9.0.0
-Requires:         pki-selinux >= 9.0.0
-Requires:         pki-setup >= 9.0.0
-Requires:         pki-silent >= 9.0.0
-Requires:         pki-symkey >= 9.0.0
-Requires:         pki-util >= 9.0.0
+Requires:         pki-ca >= %{pki_core_version}
+Requires:         pki-common >= %{pki_core_version}
+Requires:         pki-java-tools >= %{pki_core_version}
+Requires:         pki-native-tools >= %{pki_core_version}
+Requires:         pki-selinux >= %{pki_core_version}
+Requires:         pki-setup >= %{pki_core_version}
+Requires:         pki-silent >= %{pki_core_version}
+Requires:         pki-symkey >= %{pki_core_version}
+Requires:         pki-util >= %{pki_core_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core javadocs
-Requires:         pki-common-javadoc >= 9.0.0
-Requires:         pki-java-tools-javadoc >= 9.0.0
-Requires:         pki-util-javadoc >= 9.0.0
+Requires:         pki-common-javadoc >= %{pki_core_version}
+Requires:         pki-java-tools-javadoc >= %{pki_core_version}
+Requires:         pki-util-javadoc >= %{pki_core_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL other Dogtag PKI subsystems
-Requires:         pki-kra >= 9.0.0
-Requires:         pki-ocsp >= 9.0.0
-Requires:         pki-ra >= 9.0.0
-Requires:         pki-tks >= 9.0.0
-Requires:         pki-tps >= 9.0.0
+Requires:         pki-kra >= %{pki_kra_version}
+Requires:         pki-ocsp >= %{pki_ocsp_version}
+Requires:         pki-ra >= %{pki_ra_version}
+Requires:         pki-tks >= %{pki_tks_version}
+Requires:         pki-tps >= %{pki_tps_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of Dogtag PKI console
-Requires:         pki-console >= 9.0.0
+Requires:         pki-console >= %{pki_console_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI clients
-Requires:         esc >= 1.1.0
+Requires:         esc >= %{esc_version}
 
 # NOTE:  Several PKI packages require a "virtual" theme component.  These
 #        "virtual" theme components are "Provided" by various theme "flavors"
@@ -140,6 +177,10 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Mon Sep 12 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-6
+- Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+- Established MINIMUM package versions based upon platform
+
 * Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-5
 - Bugzilla Bug #669226 - Remove Legacy Build System
 - Updated release of 'tomcatjss' for Fedora 15
