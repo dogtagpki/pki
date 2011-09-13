@@ -138,7 +138,7 @@ echo "D /var/run/pki/kra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfil
 %{__rm} -rf %{buildroot}%{_unitdir}
 %endif
 
-%if 0%{?fedora} < 16
+%if 0%{?rhel} || 0%{?fedora} < 16
 %post
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-krad || :
@@ -157,7 +157,20 @@ if [ "$1" -ge "1" ] ; then
 fi
 %else
 %post
+# Attempt to update ALL old "KRA" instances to "systemd"
+#for inst in `ls /etc/sysconfig/pki/kra`; do
+#    if [ ! -e "/etc/systemd/system/pki-krad.target.wants/pki-krad@${inst}.service" ]; then
+#        ln -s "/lib/systemd/system/pki-krad@.service"   "/etc/systemd/system/pki-krad.target.wants/pki-krad@${inst}.service"
+#        [ -e /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
+#        ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
+#        echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> /var/lib/${inst}/conf/CS.cfg
+#    fi
+#done
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+# Attempt to restart ALL updated "KRA" instances
+#if [ $1 = 2 ] ; then
+#    /bin/systemctl try-restart pki-krad.target >/dev/null 2>&1 || :
+#fi
  
 %preun 
 if [ $1 = 0 ] ; then
@@ -180,7 +193,7 @@ fi
 %{_unitdir}/pki-krad@.service
 %{_unitdir}/pki-krad.target
 %else 
-%{_initrddir}/pki-cad
+%{_initrddir}/pki-krad
 %endif
 %{_javadir}/pki/pki-kra-%{version}.jar
 %{_javadir}/pki/pki-kra.jar
@@ -203,6 +216,7 @@ fi
 %changelog
 * Mon Sep 12 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.7-1
 - Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+- Bugzilla Bug #699809 - Convert CS to use systemd (alee)
 
 * Tue Sep 6 2011 Ade Lee <alee@redhat.com> 9.0.6-1
 - Bugzilla Bug #699809 - Convert CS to use systemd (alee)

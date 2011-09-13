@@ -425,6 +425,10 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
+%if 0%{?rhel} || 0%{?fedora} < 16
+%{__rm} %{buildroot}%{_bindir}/pkicontrol
+%endif
+
 cd %{buildroot}%{_libdir}/symkey
 %{__rm} symkey.jar
 %if 0%{?fedora} >= 16
@@ -483,7 +487,7 @@ if [ $1 = 0 ]; then
      %relabel targeted
 fi
 
-%if 0%{?fedora} < 16
+%if 0%{?rhel} || 0%{?fedora} < 16
 %post -n pki-ca 
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-cad || :
@@ -503,7 +507,20 @@ fi
 
 %else 
 %post -n pki-ca
+# Attempt to update ALL old "CA" instances to "systemd"
+#for inst in `ls /etc/sysconfig/pki/ca`; do
+#    if [ ! -e "/etc/systemd/system/pki-cad.target.wants/pki-cad@${inst}.service" ]; then
+#        ln -s "/lib/systemd/system/pki-cad@.service"   "/etc/systemd/system/pki-cad.target.wants/pki-cad@${inst}.service"
+#        [ -e /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
+#        ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
+#        echo "pkicreate.systemd.servicename=pki-cad@${inst}.service" >> /var/lib/${inst}/conf/CS.cfg
+#    fi
+#done
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+# Attempt to restart ALL updated "CA" instances
+#if [ $1 = 2 ] ; then
+#    /bin/systemctl try-restart pki-cad.target >/dev/null 2>&1 || :
+#fi
 
 %preun -n pki-ca
 if [ $1 = 0 ] ; then
@@ -681,6 +698,7 @@ fi
 - 'pki-selinux'
 - 'pki-ca'
 -      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+-      Bugzilla Bug #699809 - Convert CS to use systemd (alee)
 - 'pki-silent'
 -      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
 

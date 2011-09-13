@@ -146,7 +146,7 @@ echo "D /var/run/pki/ocsp 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfi
 %{__rm} -rf %{buildroot}%{_unitdir}
 %endif
 
-%if 0%{?fedora} < 16
+%if 0%{?rhel} || 0%{?fedora} < 16
 %post
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-ocspd || :
@@ -166,7 +166,20 @@ fi
 
 %else 
 %post 
+# Attempt to update ALL old "OCSP" instances to "systemd"
+#for inst in `ls /etc/sysconfig/pki/ocsp`; do
+#    if [ ! -e "/etc/systemd/system/pki-ocspd.target.wants/pki-ocspd@${inst}.service" ]; then
+#        ln -s "/lib/systemd/system/pki-ocspd@.service"   "/etc/systemd/system/pki-ocspd.target.wants/pki-ocspd@${inst}.service"
+#        [ -e /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
+#        ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
+#        echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> /var/lib/${inst}/conf/CS.cfg
+#    fi
+#done
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+# Attempt to restart ALL updated "OCSP" instances
+#if [ $1 = 2 ] ; then
+#    /bin/systemctl try-restart pki-ocspd.target >/dev/null 2>&1 || :
+#fi
  
 %preun 
 if [ $1 = 0 ] ; then
@@ -214,6 +227,7 @@ fi
 %changelog
 * Mon Sep 12 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.6-1
 - Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
+- Bugzilla Bug #699809 - Convert CS to use systemd (alee)
 
 * Tue Sep 6 2011 Ade Lee <alee@redhat.com> 9.0.5-1
 - Bugzilla Bug #699809 - Convert CS to use systemd (alee)
