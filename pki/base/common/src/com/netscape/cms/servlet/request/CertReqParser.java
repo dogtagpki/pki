@@ -123,7 +123,7 @@ public class CertReqParser extends ReqParser {
 
             if (mDetails) {
                 // show all http parameters stored in request.
-                if (name.equals(IRequest.HTTP_PARAMS)) {
+                if (name.equalsIgnoreCase(IRequest.HTTP_PARAMS)) {
                     Hashtable http_params = req.getExtDataInHashtable(name);
                     // show certType specially 
                     String certType = (String) http_params.get(IRequest.CERT_TYPE);
@@ -155,7 +155,7 @@ public class CertReqParser extends ReqParser {
                         arg.set(parami, new RawJS(rawJS));
                     }
                 } // show all http headers stored in request.
-                else if (name.equals(IRequest.HTTP_HEADERS)) {
+                else if (name.equalsIgnoreCase(IRequest.HTTP_HEADERS)) {
                     Hashtable http_hdrs = req.getExtDataInHashtable(name);
                     Enumeration elms = http_hdrs.keys();
                     int counter = 0;
@@ -175,7 +175,7 @@ public class CertReqParser extends ReqParser {
                         arg.set(parami, new RawJS(rawJS));
                     }
                 } // show all auth token stored in request.
-                else if (name.equals(IRequest.AUTH_TOKEN)) {
+                else if (name.equalsIgnoreCase(IRequest.AUTH_TOKEN)) {
                     IAuthToken auth_token = req.getExtDataInAuthToken(name);
                     Enumeration elms = auth_token.getElements();
                     int counter = 0;
@@ -223,16 +223,16 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equals(IRequest.REQUESTOR_PHONE)
-                || name.equals(IRequest.REQUESTOR_EMAIL)
-                || name.equals(IRequest.REQUESTOR_COMMENTS)
-                || name.equals(IRequest.RESULT)
-                || name.equals(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)
+            if (name.equalsIgnoreCase(IRequest.REQUESTOR_PHONE)
+                || name.equalsIgnoreCase(IRequest.REQUESTOR_EMAIL)
+                || name.equalsIgnoreCase(IRequest.REQUESTOR_COMMENTS)
+                || name.equalsIgnoreCase(IRequest.RESULT)
+                || name.equalsIgnoreCase(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)
             ) {
                 arg.addStringValue(name, req.getExtDataInString(name));
             }
 
-            if (name.equals(IRequest.REQUESTOR_NAME)) {
+            if (name.equalsIgnoreCase(IRequest.REQUESTOR_NAME)) {
                 String requestorName = req.getExtDataInString(name);
 
                 requestorName = requestorName.trim();
@@ -241,7 +241,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equals(IRequest.ERRORS)) {
+            if (name.equalsIgnoreCase(IRequest.ERRORS)) {
                 Vector errorStrings = req.getExtDataInStringVector(name);
                 if (errorStrings != null) {
                     StringBuffer errInfo = new StringBuffer();
@@ -253,11 +253,11 @@ public class CertReqParser extends ReqParser {
                     arg.addStringValue(IRequest.ERRORS, errInfo.toString());
                 }
             }
-            if (name.equals(IRequest.ERROR)) {
+            if (name.equalsIgnoreCase(IRequest.ERROR)) {
                 arg.addStringValue(IRequest.ERRORS, req.getExtDataInString(name));
             }
 
-            if (name.equals(IRequest.CERT_INFO)) {
+            if (name.equalsIgnoreCase(IRequest.CERT_INFO)) {
                 // Get the certificate info from the request 
                 X509CertInfo[] certInfo =
                     req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
@@ -425,7 +425,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equals(IRequest.OLD_SERIALS) && mDetails) {
+            if (name.equalsIgnoreCase(IRequest.OLD_SERIALS) && mDetails) {
                 BigInteger oldSerialNo[] = req.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
 
                 if (oldSerialNo != null) {
@@ -441,7 +441,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equals(IRequest.ISSUED_CERTS) && mDetails &&
+            if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS) && mDetails &&
                 (req.getRequestStatus().toString().equals(RequestStatus.COMPLETE_STRING) ||
                     req.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST))) {
                 X509CertImpl issuedCert[] =
@@ -452,7 +452,7 @@ public class CertReqParser extends ReqParser {
                 if (issuedCert.length == 2)
                     arg.addBigIntegerValue("serialNumber2", issuedCert[1].getSerialNumber(), 16);
             }
-            if (name.equals(IRequest.OLD_CERTS) && mDetails) {
+            if (name.equalsIgnoreCase(IRequest.OLD_CERTS) && mDetails) {
                 X509CertImpl oldCert[] =
                     req.getExtDataInCertArray(IRequest.OLD_CERTS);
 
@@ -471,7 +471,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equals(IRequest.CACERTCHAIN) && mDetails) {
+            if (name.equalsIgnoreCase(IRequest.CACERTCHAIN) && mDetails) {
                 byte[] certChainData = req.getExtDataInByteArray(
                         IRequest.CACERTCHAIN);
                 if (certChainData != null) {
@@ -493,7 +493,7 @@ public class CertReqParser extends ReqParser {
                     }
                 }
             }
-            if (name.equals(IRequest.FINGERPRINTS) && mDetails) {
+            if (name.equalsIgnoreCase(IRequest.FINGERPRINTS) && mDetails) {
                 Hashtable fingerprints = 
                     req.getExtDataInHashtable(IRequest.FINGERPRINTS);
 
@@ -659,7 +659,7 @@ public class CertReqParser extends ReqParser {
 
             if (mDetails) {
                 // show all http parameters stored in request.
-                if (name.equals(IRequest.HTTP_PARAMS)) {
+                if (name.equalsIgnoreCase(IRequest.HTTP_PARAMS)) {
                     Hashtable http_params = req.getExtDataInHashtable(name);
                     // show certType specially 
                     String certType = (String) http_params.get(IRequest.CERT_TYPE);
@@ -686,7 +686,7 @@ public class CertReqParser extends ReqParser {
                         arg.set(parami, new RawJS(rawJS));
                     }
                 } // show all http headers stored in request.
-                else if (name.equals(IRequest.HTTP_HEADERS)) {
+                else if (name.equalsIgnoreCase(IRequest.HTTP_HEADERS)) {
                     Hashtable http_hdrs = req.getExtDataInHashtable(name);
                     Enumeration elms = http_hdrs.keys();
                     int counter = 0;
@@ -706,7 +706,7 @@ public class CertReqParser extends ReqParser {
                         arg.set(parami, new RawJS(rawJS));
                     }
                 } // show all auth token stored in request.
-                else if (name.equals(IRequest.AUTH_TOKEN)) {
+                else if (name.equalsIgnoreCase(IRequest.AUTH_TOKEN)) {
                     IAuthToken auth_token = req.getExtDataInAuthToken(name);
                     Enumeration elms = auth_token.getElements();
                     int counter = 0;
@@ -751,16 +751,16 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equals(IRequest.REQUESTOR_PHONE)
-                || name.equals(IRequest.REQUESTOR_EMAIL)
-                || name.equals(IRequest.REQUESTOR_COMMENTS)
-                || name.equals(IRequest.RESULT)
-                || name.equals(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)
+            if (name.equalsIgnoreCase(IRequest.REQUESTOR_PHONE)
+                || name.equalsIgnoreCase(IRequest.REQUESTOR_EMAIL)
+                || name.equalsIgnoreCase(IRequest.REQUESTOR_COMMENTS)
+                || name.equalsIgnoreCase(IRequest.RESULT)
+                || name.equalsIgnoreCase(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)
             ) {
                 arg.addStringValue(name, req.getExtDataInString(name));
             }
 
-            if (name.equals(IRequest.REQUESTOR_NAME)) {
+            if (name.equalsIgnoreCase(IRequest.REQUESTOR_NAME)) {
                 String requestorName = req.getExtDataInString(name);
 
                 requestorName = requestorName.trim();
@@ -769,7 +769,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equals(IRequest.ERRORS)) {
+            if (name.equalsIgnoreCase(IRequest.ERRORS)) {
                 Vector errorsVector = req.getExtDataInStringVector(name);
                 if (errorsVector != null) {
                     StringBuffer errInfo = new StringBuffer();
@@ -781,11 +781,11 @@ public class CertReqParser extends ReqParser {
                     arg.addStringValue(IRequest.ERRORS, errInfo.toString());
                 }
             }
-            if (name.equals(IRequest.ERROR)) {
+            if (name.equalsIgnoreCase(IRequest.ERROR)) {
                 arg.addStringValue(IRequest.ERRORS, req.getExtDataInString(name));
             }
 
-            if (name.equals(IRequest.CERT_INFO)) {
+            if (name.equalsIgnoreCase(IRequest.CERT_INFO)) {
                 // Get the certificate info from the request 
                 RevokedCertImpl revokedCert[] = req.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
 
@@ -822,7 +822,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equals(IRequest.OLD_SERIALS) && mDetails) {
+            if (name.equalsIgnoreCase(IRequest.OLD_SERIALS) && mDetails) {
                 BigInteger oldSerialNo[] = req.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
 
                 if (oldSerialNo != null) {
@@ -838,7 +838,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equals(IRequest.OLD_CERTS) && mDetails) {
+            if (name.equalsIgnoreCase(IRequest.OLD_CERTS) && mDetails) {
                 //X509CertImpl oldCert[] =
                 //	(X509CertImpl[])req.get(IRequest.OLD_CERTS);
                 Certificate oldCert[] =
@@ -864,7 +864,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equals(IRequest.REVOKED_CERTS) && mDetails &&
+            if (name.equalsIgnoreCase(IRequest.REVOKED_CERTS) && mDetails &&
                 req.getRequestType().equals("getRevocationInfo")) {
                 RevokedCertImpl revokedCert[] = 
                     req.getExtDataInRevokedCertArray(IRequest.REVOKED_CERTS);

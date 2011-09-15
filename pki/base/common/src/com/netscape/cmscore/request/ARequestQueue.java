@@ -1346,7 +1346,13 @@ class Request
 
         Hashtable hashValue = getExtDataInHashtable(key);
         if (hashValue == null) {
-            return null;
+            String s = getExtDataInString(key);
+            if (s == null) {
+                return null;
+            } else {
+                String[] sa = { s };
+                return sa;
+            }
         }
         Set arrayKeys = hashValue.keySet();
         Vector listValue = new Vector(arrayKeys.size());
