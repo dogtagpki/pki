@@ -61,7 +61,7 @@ import com.netscape.symkey.*;
  */
 public class TokenServlet extends CMSServlet {
     protected static final String PROP_ENABLED = "enabled";
-
+    protected static final String TRANSPORT_KEY_NAME ="sharedSecret";
     private final static String INFO = "TokenServlet";
     public static int ERROR = 1;
     private ITKSAuthority mTKS = null;
@@ -251,6 +251,7 @@ public class TokenServlet extends CMSServlet {
         String auditMessage = null;
         String errorMsg = "";
         String badParams = "";
+        String transportKeyName = "";
    
         String rCUID = req.getParameter("CUID"); 
         String keySet = req.getParameter("keySet");
@@ -261,7 +262,7 @@ public class TokenServlet extends CMSServlet {
 
         boolean serversideKeygen = false;
         byte[] drm_trans_wrapped_desKey = null;
-	SymmetricKey desKey = null;
+	PK11SymKey desKey = null;
 	//        PK11SymKey kek_session_key;
         PK11SymKey kek_key;
 
@@ -310,6 +311,14 @@ public class TokenServlet extends CMSServlet {
             isCryptoValidate = sconfig.getBoolean("cardcryptogram.validate.enable", true);
         } catch (EBaseException eee) {
         }
+
+        try {
+            transportKeyName = sconfig.getString("tks.tksSharedSymKeyName",TRANSPORT_KEY_NAME);
+        } catch (EBaseException e) {
+        }
+
+        CMS.debug("TokenServlet: ComputeSessionKey(): tksSharedSymKeyName: " + transportKeyName);
+
 
         String rcard_challenge = req.getParameter("card_challenge");
         String rhost_challenge = req.getParameter("host_challenge");
@@ -407,7 +416,7 @@ public class TokenServlet extends CMSServlet {
                     CMS.debug("TokenServlet about to try ComputeSessionKey selectedToken=" + selectedToken + " keyNickName=" + keyNickName);
                         session_key = SessionKey.ComputeSessionKey(
 			     selectedToken,keyNickName,card_challenge,
-			     host_challenge,keyInfo,CUID, macKeyArray, useSoftToken_s);
+			     host_challenge,keyInfo,CUID, macKeyArray, useSoftToken_s, keySet, transportKeyName );
 
                     if(session_key == null)
                     {
@@ -419,7 +428,7 @@ public class TokenServlet extends CMSServlet {
                     byte encKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".auth_key"));
                     enc_session_key = SessionKey.ComputeEncSessionKey(
                       selectedToken,keyNickName,card_challenge,
-		      host_challenge,keyInfo,CUID, encKeyArray, useSoftToken_s);
+		      host_challenge,keyInfo,CUID, encKeyArray, useSoftToken_s, keySet);
 
                     if(enc_session_key == null)
                     {
@@ -440,9 +449,13 @@ public class TokenServlet extends CMSServlet {
                         CMS.debug("TokenServlet: calling ComputeKekKey");
 
                     byte kekKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
+
+
                         kek_key = SessionKey.ComputeKekKey(
 			     selectedToken,keyNickName,card_challenge,
-			     host_challenge,keyInfo,CUID, kekKeyArray, useSoftToken_s);
+			     host_challenge,keyInfo,CUID, kekKeyArray, useSoftToken_s,keySet);
+
+
                         CMS.debug("TokenServlet: called ComputeKekKey");
 
                         if(kek_key == null)
@@ -470,14 +483,14 @@ public class TokenServlet extends CMSServlet {
 			 */
 			/*generate it on whichever token the master key is at*/
 			if (useSoftToken_s.equals("true")) {
-			   CMS.debug("TokenServlet: key encryption key generated on internal");
+			    CMS.debug("TokenServlet: key encryption key generated on internal");
 //cfu audit here? sym key gen
-			  desKey = SessionKey.GenerateSymkey("internal");
+			    desKey = SessionKey.GenerateSymkey("internal");
 //cfu audit here? sym key gen done
-            } else {
-			   CMS.debug("TokenServlet: key encryption key generated on " + selectedToken);
-			  desKey = SessionKey.GenerateSymkey(selectedToken);
-            }
+                        } else {
+			    CMS.debug("TokenServlet: key encryption key generated on " + selectedToken);
+			    desKey = SessionKey.GenerateSymkey(selectedToken);
+                        }
 			if (desKey != null)
 			    CMS.debug("TokenServlet: key encryption key generated for "+rCUID);
 			else {
@@ -492,7 +505,7 @@ public class TokenServlet extends CMSServlet {
 			 */
 			byte[] encDesKey =
 			    SessionKey.ECBencrypt( kek_key,
-						    desKey.getKeyData());
+						    desKey);
 			/*
 			CMS.debug("computeSessionKey:encrypted desKey size = "+encDesKey.length);
 			CMS.debug(encDesKey);
@@ -503,7 +516,7 @@ public class TokenServlet extends CMSServlet {
 
 			// get keycheck
 			byte[] keycheck = 
-			    SessionKey.ComputeKeyCheck(desKey.getKeyData());
+			    SessionKey.ComputeKeyCheck(desKey);
 			/*
 			CMS.debug("computeSessionKey:keycheck size = "+keycheck.length);
 			CMS.debug(keycheck);
@@ -525,11 +538,12 @@ public class TokenServlet extends CMSServlet {
                         drmTransCert = CryptoManager.getInstance().findCertByNickname(drmTransNickname);
                         // wrap kek session key with DRM transport public key
 			CryptoToken token = null;
-			   if (useSoftToken_s.equals("true")) {
-                     token = CryptoManager.getInstance().getTokenByName("Internal Key Storage Token");
-               } else {
-                     token = CryptoManager.getInstance().getTokenByName(selectedToken);
-               }
+			if (useSoftToken_s.equals("true")) {
+                           //token = CryptoManager.getInstance().getTokenByName(selectedToken);
+                           token = CryptoManager.getInstance().getInternalCryptoToken();
+                        } else {
+                            token = CryptoManager.getInstance().getTokenByName(selectedToken);
+                        }
                         PublicKey pubKey = drmTransCert.getPublicKey();
                         String pubKeyAlgo = pubKey.getAlgorithm();
                         CMS.debug("Transport Cert Key Algorithm: " + pubKeyAlgo);
@@ -542,6 +556,7 @@ public class TokenServlet extends CMSServlet {
                             keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
                             keyWrapper.initWrap(pubKey, null);
                         }
+                        CMS.debug("desKey token " + desKey.getOwningToken().getName() + " token: " + token.getName() );
                         drm_trans_wrapped_desKey = keyWrapper.wrap(desKey);
 			CMS.debug("computeSessionKey:desKey wrapped with drm transportation key.");
 
@@ -550,7 +565,7 @@ public class TokenServlet extends CMSServlet {
                     byte authKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".auth_key"));
                     host_cryptogram = SessionKey.ComputeCryptogram(
                       selectedToken,keyNickName,card_challenge,
-		      host_challenge,keyInfo,CUID,0, authKeyArray, useSoftToken_s);
+		      host_challenge,keyInfo,CUID,0, authKeyArray, useSoftToken_s, keySet);
 
                     if(host_cryptogram == null)
                     {
@@ -560,7 +575,7 @@ public class TokenServlet extends CMSServlet {
                     }
                     card_crypto = SessionKey.ComputeCryptogram(
                       selectedToken,keyNickName,card_challenge,
-		      host_challenge,keyInfo,CUID,1, authKeyArray, useSoftToken_s);
+		      host_challenge,keyInfo,CUID,1, authKeyArray, useSoftToken_s, keySet);
 
                     if(card_crypto == null)
                     {
@@ -880,7 +895,7 @@ public class TokenServlet extends CMSServlet {
           byte kekKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
           KeySetData = SessionKey.DiversifyKey(oldSelectedToken, 
                      newSelectedToken, oldKeyNickName,
-		 newKeyNickName,rnewKeyInfo,CUID, kekKeyArray, useSoftToken_s);
+		 newKeyNickName,rnewKeyInfo,CUID, kekKeyArray, useSoftToken_s, keySet);
 
           if (KeySetData == null || KeySetData.length<=1) {
                   CMS.getLogger().log(ILogger.EV_AUDIT,
@@ -1084,7 +1099,7 @@ public class TokenServlet extends CMSServlet {
           
           byte kekKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
           encryptedData = SessionKey.EncryptData(
-                       selectedToken,keyNickName,data,keyInfo,CUID, kekKeyArray, useSoftToken_s);
+                       selectedToken,keyNickName,data,keyInfo,CUID, kekKeyArray, useSoftToken_s, keySet);
         
           CMS.getLogger().log(ILogger.EV_AUDIT,
                      ILogger.S_TKS,

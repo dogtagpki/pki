@@ -77,12 +77,9 @@ public class SessionKey
         }
     }
 
-    // external calls from RA
-    public static native byte[] ComputeKeyCheck( byte data[] );
 
-    public static native byte[] ComputeCardCryptogram( byte[] raw_auth_key,
-                                                       byte[] card_challenge,
-                                                       byte[] host_challenge );
+    // external calls from RA
+    public static native byte[] ComputeKeyCheck(PK11SymKey desKey ); /* byte data[] ); */
 
     public static native byte[] ComputeSessionKey( String tokenName,
                                                    String keyName,
@@ -91,7 +88,9 @@ public class SessionKey
                                                    byte[] keyInfo,
                                                    byte[] CUID,
                                                    byte[] macKeyArray,
-                                                   String useSoftToken );
+                                                   String useSoftToken,
+                                                   String keySet,
+                                                   String sharedSecretKeyName );
 
     public static native byte[] ComputeEncSessionKey( String tokenName,
                                                       String keyName,
@@ -100,7 +99,8 @@ public class SessionKey
                                                       byte[] keyInfo,
                                                       byte[] CUID,
                                                       byte[] encKeyArray,
-                                                      String useSoftToken );
+                                                      String useSoftToken,
+                                                      String keySet );
 
     public static native PK11SymKey ComputeKekSessionKey( String tokenName,
                                                           String keyName,
@@ -109,7 +109,8 @@ public class SessionKey
                                                           byte[] keyInfo,
                                                           byte[] CUID,
                                                           byte[] kekKeyArray,
-                                                          String useSoftToken );
+                                                          String useSoftToken,
+                                                          String keySet );
 
     public static native PK11SymKey ComputeKekKey( String tokenName,
                                                    String keyName,
@@ -118,10 +119,10 @@ public class SessionKey
                                                    byte[] keyInfo,
                                                    byte[] CUID,
                                                    byte[] kekKeyArray,
-                                                   String useSoftToken );
+                                                   String useSoftToken, String keySet );
 
     public static native byte[] ECBencrypt( PK11SymKey key,
-                                            byte[] data );
+                                            PK11SymKey desKey ); //byte[] data );
 
     public static native PK11SymKey GenerateSymkey( String tokenName );
 
@@ -139,7 +140,7 @@ public class SessionKey
                                                    byte[] CUID,
                                                    int type,
                                                    byte[] authKeyArray,
-                                                   String useSoftToken );
+                                                   String useSoftToken, String keySet );
 
     public static native byte[] EncryptData( String tokenName,
                                              String keyName,
@@ -147,7 +148,7 @@ public class SessionKey
                                              byte[] keyInfo,
                                              byte[] CUID,
                                              byte[] kekKeyArray,
-                                             String useSoftToken );
+                                             String useSoftToken, String keySet );
 
     public static native byte[] DiversifyKey( String tokenName,
                                               String newTokenName,
@@ -156,7 +157,7 @@ public class SessionKey
                                               String keyInfo,
                                               byte[] CUIDValue,
                                               byte[] kekKeyArray,
-                                              String useSoftToken );
+                                              String useSoftToken, String keySet );
 
     // internal calls from config TKS keys tab
     public static native String GenMasterKey( String token,

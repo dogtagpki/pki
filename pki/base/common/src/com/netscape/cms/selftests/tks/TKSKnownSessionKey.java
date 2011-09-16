@@ -34,6 +34,8 @@ import com.netscape.certsrv.selftests.*;
 import com.netscape.cms.selftests.*;
 import java.util.*;
 import com.netscape.symkey.*;
+import org.mozilla.jss.crypto.*;
+
 
 
 //////////////////////
@@ -132,7 +134,7 @@ extends ASelfTest
             if (mSessionKey == null) {
                 mSessionKey = SessionKey.ComputeSessionKey (mToken, mKeyName,
                                                             mCardChallenge, mHostChallenge,
-                                                            mKeyInfo, mCUID, mMacKey, mUseSoftToken);
+                                                            mKeyInfo, mCUID, mMacKey, mUseSoftToken, null, null);
                 if (mSessionKey == null || mSessionKey.length != 16) {
                     mSelfTestSubsystem.log (mSelfTestSubsystem.getSelfTestLogger(),
                                             CMS.getLogMessage("SELFTESTS_MISSING_VALUES",
@@ -295,23 +297,21 @@ extends ASelfTest
     throws ESelfTestException
     {
         String logMessage = null;
+        String keySet = "defKeySet";
 
         byte[] sessionKey = SessionKey.ComputeSessionKey (mToken, mKeyName,
                                                           mCardChallenge, mHostChallenge,
-                                                          mKeyInfo, mCUID, mMacKey, mUseSoftToken);
+                                                          mKeyInfo, mCUID, mMacKey, mUseSoftToken, keySet, null);
+
+        // Now we just see if we can successfully generate a session key.
+        // For FIPS compliance, the routine now returns a wrapped key, which can't be extracted and compared.
         if (sessionKey == null) {
             CMS.debug("TKSKnownSessionKey: generated no session key");
             CMS.debug("TKSKnownSessionKey self test FAILED");
             logMessage = CMS.getLogMessage ("SELFTESTS_TKS_FAILED", getSelfTestName(), getSelfTestName());
             mSelfTestSubsystem.log (logger, logMessage);
             throw new ESelfTestException( logMessage );
-        } else if (!Arrays.equals(mSessionKey, sessionKey)) {
-            CMS.debug("TKSKnownSessionKey: generated invalid session key");
-            CMS.debug("TKSKnownSessionKey self test FAILED");
-            logMessage = CMS.getLogMessage ("SELFTESTS_TKS_FAILED", getSelfTestName(), getSelfTestName());
-            mSelfTestSubsystem.log (logger, logMessage);
-            throw new ESelfTestException( logMessage );
-        } else {
+        } else {  
             logMessage = CMS.getLogMessage ("SELFTESTS_TKS_SUCCEEDED", getSelfTestName(), getSelfTestName());
             mSelfTestSubsystem.log (logger, logMessage);
             CMS.debug("TKSKnownSessionKey self test SUCCEEDED");
@@ -320,4 +320,3 @@ extends ASelfTest
         return;
     }
 }
-

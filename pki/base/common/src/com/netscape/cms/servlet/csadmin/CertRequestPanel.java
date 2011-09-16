@@ -623,8 +623,8 @@ public class CertRequestPanel extends WizardPanelBase {
                                 }
 
                                 if (/*(certchains.length <= 1) &&*/
-				    (b64chain != null)) {
-                                  CMS.debug("CertRequestPanel: cert might not have contained chain...calling importCertificateChain");
+				    (b64chain != null && b64chain.length() != 0)) {
+                                  CMS.debug("CertRequestPanel: cert might not have contained chain...calling importCertificateChain: " + b64chain);
                                   try {
                                     CryptoUtil.importCertificateChain(
 				      CryptoUtil.normalizeCertAndReq(b64chain));

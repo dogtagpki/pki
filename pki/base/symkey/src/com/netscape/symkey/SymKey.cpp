@@ -52,7 +52,6 @@ extern "C"
 #include "certdb.h"
 #include "nss.h"
 
-#include "seccomon.h"
 #include "nspr.h"
 #ifdef __cplusplus
 #include <jni.h>
@@ -87,6 +86,7 @@ typedef struct
 char masterKeyPrefix[PREFIXLENGHT];
 char masterKeyNickName[KEYNAMELENGTH];
 char masterNewKeyNickName[KEYNAMELENGTH];
+char sharedSecretSymKeyName[KEYNAMELENGTH] = { 0 };
 
 //=================================================================================
 #ifdef __cplusplus
@@ -113,7 +113,7 @@ PK11SlotInfo *ReturnSlot(char *tokenNameChars)
     }
     PK11SlotInfo *slot=NULL;
 
-    if(!strcmp( tokenNameChars, "internal" ) )
+    if(!strcmp( tokenNameChars, "internal" ) || !strcmp( tokenNameChars, "Internal Key Storage Token"))
     {
         slot = PK11_GetInternalKeySlot();
     }
@@ -140,7 +140,7 @@ PK11SymKey * ReturnSymKey( PK11SlotInfo *slot, char *keyname)
 
     pwdata.source   = secuPWData::PW_NONE;
     pwdata.data     = (char *) NULL;
-
+    PR_fprintf(PR_STDOUT,"In ReturnSymKey name %s \n",keyname);
     if (keyname == NULL)
     {
         goto cleanup;
@@ -151,7 +151,6 @@ PK11SymKey * ReturnSymKey( PK11SlotInfo *slot, char *keyname)
     }
     /* Initialize the symmetric key list. */
     firstSymKey = PK11_ListFixedKeysInSlot( slot , NULL, ( void *) &pwdata );
-
     /* scan through the symmetric key list for a key matching our nickname */
     sk = firstSymKey;
     while( sk != NULL )
@@ -414,7 +413,11 @@ PK11SymKey *ComputeCardKeyOnSoftToken(PK11SymKey *masterKey, unsigned char *data
 {
     PK11SlotInfo *slot = PK11_GetInternalKeySlot();
     PK11SymKey *key = ComputeCardKey(masterKey, data, slot);
-    PK11_FreeSlot(slot);
+    if( slot != NULL) {
+        PK11_FreeSlot(slot);
+        slot = NULL;
+    }
+
     return key;
 }
 
@@ -422,16 +425,16 @@ PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotI
 {
     PK11SymKey *key = NULL;
     PK11Context *context = NULL;
-    int keysize;
-    keysize = 24;
+    int keysize = DES3_LENGTH;
     unsigned char *keyData = NULL;
-    SECStatus s;
+    SECStatus s = SECSuccess;
     int i = 0;
-    int len=0;
-    static SECItem noParams = { siBuffer, 0, 0 };
+    int len = 0;
+    static SECItem noParams = { siBuffer, NULL, 0 };
     unsigned char *in = data;
     PK11SymKey *tmpkey = NULL;
-    unsigned char wrappedkey[24];
+    unsigned char wrappedkey[DES3_LENGTH];
+    SECItem wrappeditem = { siBuffer, NULL, 0 };
 
     keyData = (unsigned char*)malloc(keysize);
 
@@ -440,9 +443,8 @@ PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotI
         keyData[i] = 0x0;
     }
 
-    if (masterKey == NULL)
-    {
-        printf("ComputeCardKey: master key is null\n");
+    if (masterKey == NULL) {
+        PR_fprintf(PR_STDERR,"ComputeCardKey: master key is null.\n");
         goto done;
     }
 
@@ -450,34 +452,31 @@ PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotI
         masterKey,
         &noParams);
 
-    if (context == NULL)
-    {
-        printf("failed to create context\n");
+    if (context == NULL) {
+        PR_fprintf(PR_STDERR,"ComputeCardKey: failed to create context.\n");
         goto done;
     }
 
     /* Part 1 */
     s = PK11_CipherOp(context, &keyData[0], &len, 8, in, 8);
-    if (s != SECSuccess)
-    {
-        printf("failed to encryp #1\n");
+    if (s != SECSuccess) {
+        PR_fprintf(PR_STDERR,"ComputeCardKey: failed to encrypt #1\n");
         goto done;
     }
-    pk11_FormatDESKey(&keyData[0], 8); /* set parity */
+    pk11_FormatDESKey(&keyData[0], EIGHT_BYTES); /* set parity */
 
     /* Part 2 */
-    s = PK11_CipherOp(context, &keyData[8], &len, 8, in+8, 8);
-    if (s != SECSuccess)
-    {
-        printf("failed to encryp #2\n");
+    s = PK11_CipherOp(context, &keyData[EIGHT_BYTES], &len, EIGHT_BYTES, in+EIGHT_BYTES, EIGHT_BYTES);
+    if (s != SECSuccess) {
+        PR_fprintf(PR_STDERR,"ComputeCardKey: failed to encryp #2.\n");
         goto done;
     }
-    pk11_FormatDESKey(&keyData[8], 8);
+    pk11_FormatDESKey(&keyData[EIGHT_BYTES], EIGHT_BYTES);
 
     /* Part 3 */
-    for(i = 0;i < 8;i++)
+    for(i = 0;i < EIGHT_BYTES;i++)
     {
-        keyData[i+16] = keyData[i];
+        keyData[i+KEYLENGTH] = keyData[i];
     }
 
 #define CKF_KEY_OPERATION_FLAGS 0x000e7b00UL
@@ -489,7 +488,7 @@ PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotI
         PR_FALSE, &pwdata);
 
     if (tmpkey == NULL) {
-        printf("failed to keygen \n");
+        PR_fprintf(PR_STDERR,"ComputeCardKey: failed to keygen. \n");
         goto done;
     }
   
@@ -498,7 +497,7 @@ PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotI
         &noParams);
 
     if (context == NULL) {
-        printf("failed to set context \n");
+        PR_fprintf(PR_STDERR,"ComputeCardKey: failed to set context. \n");
         goto done;
     }
 
@@ -506,11 +505,10 @@ PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotI
     s = PK11_CipherOp(context, wrappedkey, &len, 24, keyData, 24);
     if (s != SECSuccess)
     {
-        printf("failed to encryp #3\n");
+        PR_fprintf(PR_STDERR,"ComputeCardKey: failed to encrypt #3.\n");
         goto done;
     }
 
-    SECItem wrappeditem;
     wrappeditem.data = wrappedkey;
     wrappeditem.len = len;
 
@@ -533,123 +531,82 @@ done:
         PK11_FreeSymKey(tmpkey);
         tmpkey = NULL;
     }
+
     return key;
 }
-
 
 PK11SymKey * ComputeCardKeyOnToken(PK11SymKey *masterKey, BYTE* data)
 {
     PK11SlotInfo *slot = PK11_GetSlotFromKey(masterKey);
     PK11SymKey *key = ComputeCardKey(masterKey, data, slot);
-    PK11_FreeSlot(slot);
+
+    if( slot) {
+        PK11_FreeSlot(slot);
+        slot = NULL;
+    }
+
     return key;
 }
 
-
-PRStatus EncryptDataWithCardKey(PK11SymKey *card_key, Buffer &input, Buffer &output)
-{
-    PRStatus rv = PR_FAILURE;
-
-    PK11Context *context = NULL;
-    int i;
-    SECStatus s = SECFailure;
-    int len;
-    static SECItem noParams = { siBuffer, 0, 0 };
-    unsigned char result[8];
-
-    if (card_key == NULL) {
-        printf("EncryptDataWithCardKey: card_key is null\n");
-        goto done;
-    }
-
-    context = PK11_CreateContextBySymKey(CKM_DES3_ECB, CKA_ENCRYPT, card_key,
-        &noParams);
-    if (context == NULL)
-    {
-        goto done;
-    }
-
-    for(i = 0;i < (int)input.size();i += 8)
-    {
-        s = PK11_CipherOp(context, result, &len, 8,
-            (unsigned char *)(((BYTE*)input)+i), 8);
-
-        if (s != SECSuccess)
-        {
-            goto done;
-        }
-        output.replace(i, result, 8);
-    }
-
-    rv = PR_SUCCESS;
-
-done:
-    if (context)
-    {
-        PK11_DestroyContext(context, PR_TRUE);
-        context = NULL;
-    }
-    return rv;
-}
-
-
-PRStatus EncryptData(Buffer &kek_key, Buffer &input, Buffer &output)
+// Either encrypt data with a provided SymKey OR a key buffer array (for the Default keyset case).
+PRStatus EncryptData(const Buffer &kek_key,PK11SymKey *cardKey, Buffer &input, Buffer &output)
 {
     PRStatus rv = PR_FAILURE;
 
     PK11SymKey *master = NULL;
+    PK11SymKey *transportKey = NULL;
     PK11SlotInfo *slot = NULL;
     PK11Context *context = NULL;
-    int i;
+    int i = 0;
     SECStatus s = SECFailure;
-    int len;
-    static SECItem noParams = { siBuffer, 0, 0 };
+    int len = 0;
+    static SECItem noParams = { siBuffer, NULL, 0 };
 #ifdef DES2_WORKAROUND
-    unsigned char masterKeyData[24];
+    unsigned char masterKeyData[DES3_LENGTH];
 #else
-    unsigned char masterKeyData[16];
+    unsigned char masterKeyData[KEYLENGTH];
 #endif
-    SECItem masterKeyItem = {siBuffer, masterKeyData, sizeof(masterKeyData) };
-    unsigned char result[8];
-
-    /* convert 16-byte to 24-byte triple-DES key */
-    memcpy(masterKeyData, (BYTE*)kek_key, 16);
-#ifdef DES2_WORKAROUND
-    memcpy(masterKeyData+16, (BYTE*)kek_key, 8);
-#endif
+    unsigned char result[EIGHT_BYTES];
 
     slot = PK11_GetInternalKeySlot();
-    if (slot == NULL)
-    {
+
+    if (slot == NULL) {
         goto done;
     }
 
-    master = PK11_ImportSymKeyWithFlags(slot, CKM_DES3_ECB,
-        PK11_OriginGenerated, CKA_ENCRYPT, &masterKeyItem,
-        CKF_ENCRYPT, PR_FALSE, 0);
-    if( master == NULL)
-    {
-        printf("EncryptData: master is null\n"); 
+    if ( cardKey == NULL ) { /* Developer key set mode.*/
+        transportKey = ReturnSymKey( slot, GetSharedSecretKeyName(NULL));
+
+        /* convert 16-byte to 24-byte triple-DES key */
+        memcpy(masterKeyData, kek_key, 16);
+        memcpy(masterKeyData+16, kek_key, 8);
+
+        master = CreateUnWrappedSymKeyOnToken( slot, transportKey,  masterKeyData, sizeof(masterKeyData), PR_FALSE);
+
+    } else {
+        master = cardKey;
+    }
+
+    if( master == NULL) {
         goto done;
     }
 
     context = PK11_CreateContextBySymKey(CKM_DES3_ECB, CKA_ENCRYPT, master,
         &noParams);
-    if (context == NULL)
-    {
+
+    if (context == NULL) {
         goto done;
     }
 
-    for(i = 0;i < (int)input.size();i += 8)
+    for(i = 0;i < (int)input.size();i += EIGHT_BYTES)
     {
-        s = PK11_CipherOp(context, result, &len, 8,
-            (unsigned char *)(((BYTE*)input)+i), 8);
+        s = PK11_CipherOp(context, result, &len, EIGHT_BYTES,
+            (unsigned char *)(((BYTE*)input)+i), EIGHT_BYTES);
 
-        if (s != SECSuccess)
-        {
+        if (s != SECSuccess) {
             goto done;
         }
-        output.replace(i, result, 8);
+        output.replace(i, result, EIGHT_BYTES);
     }
 
     rv = PR_SUCCESS;
@@ -667,7 +624,7 @@ done:
         PK11_FreeSlot(slot);
         slot = NULL;
     }
-    if (master)
+    if (master && cardKey == NULL)
     {
         PK11_FreeSymKey(master);
         master = NULL;
@@ -676,37 +633,27 @@ done:
     return rv;
 }
 
-
-PRStatus ComputeKeyCheck(const Buffer& newKey, Buffer& output)
+PRStatus ComputeKeyCheckWithSymKey(PK11SymKey * newKey, Buffer& output)
 {
     PK11SymKey *key = NULL;
     PRStatus status = PR_FAILURE ;
     PK11SlotInfo *slot = NULL;
     PK11Context *context = NULL;
     SECStatus s = SECFailure;
-    int len;
-    static SECItem noParams = { siBuffer, 0, 0 };
-#ifdef DES2_WORKAROUND
-    unsigned char keyData[24];
-#else
-    unsigned char keyData[16];
-#endif
-    SECItem keyItem = {siBuffer, keyData, sizeof(keyData) };
-    unsigned char value[8];
-    /* convert 16-byte to 24-byte triple-DES key */
-    memcpy(keyData, newKey, 16);
-#ifdef DES2_WORKAROUND
-    memcpy(keyData+16, newKey, 8);
-#endif
+    int len = 0;
+    static SECItem noParams = { siBuffer, NULL, 0 };
+    unsigned char value[EIGHT_BYTES];
+
+    if ( newKey == NULL ) {
+        return status;
+    }
 
     memset(value, 0, sizeof value);
 
     slot = PK11_GetInternalKeySlot();
     if (slot != NULL)
     {
-        key = PK11_ImportSymKeyWithFlags(slot, CKM_DES3_ECB,
-            PK11_OriginGenerated, CKA_ENCRYPT, &keyItem,
-            CKF_ENCRYPT, PR_FALSE, 0);
+        key =  newKey ;
         if( key != NULL )
         {
             context = PK11_CreateContextBySymKey(CKM_DES3_ECB, CKA_ENCRYPT, key,
@@ -723,45 +670,130 @@ PRStatus ComputeKeyCheck(const Buffer& newKey, Buffer& output)
                 }
                 PK11_DestroyContext(context, PR_TRUE);
                 context = NULL;
-                memset(keyData, 0, sizeof keyData);
             }
-            PK11_FreeSymKey(key);
-            key = NULL;
+            //PK11_FreeSymKey(key);
+            //key = NULL;
 
         }
-        PK11_FreeSlot(slot);
+        if( slot != NULL) {
+            PK11_FreeSlot(slot);
+            slot = NULL;
+        }
     }
 
     return status;
 }
 
-
-PRStatus CreateKeySetDataWithKey( Buffer &newMasterVer, PK11SymKey *old_kek_key, Buffer &new_auth_key, Buffer &new_mac_key, Buffer &new_kek_key, Buffer &output)
+// Create key set data with the help of either a provided old_keyk_ke2_sym key or key buffer (for the Default keyset case).
+PRStatus CreateKeySetDataWithSymKeys( Buffer &newMasterVer,const Buffer &old_kek_key2, PK11SymKey *old_kek_key2_sym, PK11SymKey *new_auth_key, PK11SymKey *new_mac_key, PK11SymKey *new_kek_key, Buffer &output)
 {
     PRStatus rv = PR_FAILURE;
+    static SECItem noParams = { siBuffer, NULL, 0 };
+    PK11SymKey *transportKey = NULL;
+    PK11SymKey *wrappingKey = NULL;
+    BYTE masterKeyData[DES3_LENGTH];
 
+    /* Wrapping vars */
+    SECItem wrappedKeyItem   = { siBuffer, NULL , 0 };
+    SECStatus wrapStatus = SECFailure;
+    PK11SlotInfo *slot = NULL;
+    /* Extracting vars */
+
+    CK_ULONG bitPosition = 0;
+    SECItem paramsItem = { siBuffer, NULL, 0 };
+    paramsItem.data = (CK_BYTE *) &bitPosition;
+    paramsItem.len = sizeof bitPosition;
+
+    PK11SymKey *macKey16 = NULL;
+    PK11SymKey *authKey16 = NULL;
+    PK11SymKey *kekKey16 = NULL;
+
+    Buffer encrypted_auth_key(KEYLENGTH);
+    Buffer encrypted_mac_key(KEYLENGTH);
+    Buffer encrypted_kek_key(KEYLENGTH);
+
+    Buffer kc_auth_key(3);
+    Buffer kc_mac_key(3);
+    Buffer kc_kek_key(3);
     Buffer result;
-    if (old_kek_key == NULL)
-    {
-        result = new_auth_key + new_mac_key + new_kek_key + output ;
+
+    PR_fprintf(PR_STDOUT,"In CreateKeySetDataWithSymKeys!\n");
+
+    if ( new_auth_key == NULL || new_mac_key == NULL || new_kek_key == NULL) {
+        return rv;
     }
-    else
-    {
 
-        Buffer encrypted_auth_key(16);
-        EncryptDataWithCardKey(old_kek_key, new_auth_key, encrypted_auth_key);
-        Buffer kc_auth_key(3);
-        ComputeKeyCheck(new_auth_key, kc_auth_key);
+    slot = PK11_GetSlotFromKey(new_auth_key);
+    if ( old_kek_key2_sym == NULL ) { /* perm key mode */
+        /* Find transport key, shared secret */
+        transportKey = ReturnSymKey( slot, GetSharedSecretKeyName(NULL));
+        if ( transportKey == NULL ) {
+            goto done;
+        }
 
-        Buffer encrypted_mac_key(16);
-        EncryptDataWithCardKey(old_kek_key, new_mac_key, encrypted_mac_key);
-        Buffer kc_mac_key(3);
-        ComputeKeyCheck(new_mac_key, kc_mac_key);
+        /* convert 16-byte to 24-byte triple-DES key */
+        memcpy(masterKeyData, old_kek_key2, KEYLENGTH);
+        memcpy(masterKeyData+16, old_kek_key2, EIGHT_BYTES);
 
-        Buffer encrypted_kek_key(16);
-        EncryptDataWithCardKey(old_kek_key, new_kek_key, encrypted_kek_key);
-        Buffer kc_kek_key(3);
-        ComputeKeyCheck(new_kek_key, kc_kek_key);
+        wrappingKey = CreateUnWrappedSymKeyOnToken( slot, transportKey,  masterKeyData, sizeof(masterKeyData), PR_FALSE);
+
+    } else { /* card key mode */
+        wrappingKey = old_kek_key2_sym;
+    }
+
+        //Now derive 16 byte versions of the provided symkeys
+        authKey16 = PK11_Derive(new_auth_key, CKM_EXTRACT_KEY_FROM_KEY, &paramsItem, CKA_ENCRYPT,
+                                                            CKA_DERIVE, 16);
+
+        if ( authKey16 == NULL ) {
+            PR_fprintf(PR_STDERR,"Error deriving authKey16. Error %d \n", PR_GetError());
+            goto done;
+        }
+
+        wrappedKeyItem.data = (unsigned char *) encrypted_auth_key;
+        wrappedKeyItem.len  = encrypted_auth_key.size();
+        wrapStatus = PK11_WrapSymKey(CKM_DES3_ECB,&noParams, wrappingKey, authKey16, &wrappedKeyItem);
+        if ( wrapStatus == SECFailure ) {
+            PR_fprintf(PR_STDERR,"Error wrapping authKey16. Error %d \n", PR_GetError());
+            goto done;
+        }
+
+         macKey16 = PK11_Derive(new_mac_key, CKM_EXTRACT_KEY_FROM_KEY, &paramsItem, CKA_ENCRYPT, CKA_DERIVE, 16);
+
+        if ( macKey16 == NULL ) {
+            PR_fprintf(PR_STDERR,"Error deriving macKey16. Error %d \n", PR_GetError());
+            goto done;
+        }
+
+        wrappedKeyItem.data = (unsigned char *) encrypted_mac_key;
+        wrappedKeyItem.len  = encrypted_mac_key.size();
+        wrapStatus = PK11_WrapSymKey(CKM_DES3_ECB,&noParams, wrappingKey, macKey16, &wrappedKeyItem);
+        if ( wrapStatus == SECFailure) {
+            PR_fprintf(PR_STDERR,"Error wrapping macKey16. Error %d \n", PR_GetError());
+            goto done;
+        }
+
+         kekKey16 = PK11_Derive(new_kek_key, CKM_EXTRACT_KEY_FROM_KEY, &paramsItem, CKA_ENCRYPT,
+                                                            CKA_DERIVE, 16);
+
+        if ( kekKey16 == NULL ) {
+            goto done;
+            PR_fprintf(PR_STDERR,"Error deriving kekKey16. Error %d \n", PR_GetError());
+        }
+
+        wrappedKeyItem.data = (unsigned char *) encrypted_kek_key;
+        wrappedKeyItem.len  = encrypted_mac_key.size();
+        wrapStatus = PK11_WrapSymKey(CKM_DES3_ECB,&noParams, wrappingKey, kekKey16, &wrappedKeyItem);
+        if ( wrapStatus == SECFailure) {
+            PR_fprintf(PR_STDERR,"Error wrapping kekKey16. Error %d \n", PR_GetError());
+            goto done;
+        }
+
+        ComputeKeyCheckWithSymKey(new_auth_key, kc_auth_key);
+
+        ComputeKeyCheckWithSymKey(new_mac_key, kc_mac_key);
+
+        ComputeKeyCheckWithSymKey(new_kek_key, kc_kek_key);
 
         result = newMasterVer +
             Buffer(1, (BYTE)0x81) +
@@ -779,65 +811,46 @@ PRStatus CreateKeySetDataWithKey( Buffer &newMasterVer, PK11SymKey *old_kek_key,
             encrypted_kek_key +
             Buffer(1, (BYTE)0x03) +
             kc_kek_key;
-    }
     output = result;
 
     rv = PR_SUCCESS;
-    return rv;
 
-} /* CreateKeySetDataWithKey */
+done:
 
+    if ( kekKey16 != NULL) {
+         PK11_FreeSymKey( kekKey16);
+         kekKey16 = NULL;
+    } 
 
-PRStatus CreateKeySetData( Buffer &newMasterVer, Buffer &old_kek_key2, Buffer &new_auth_key, Buffer &new_mac_key, Buffer &new_kek_key, Buffer &output)
-{
-    PRStatus rv = PR_FAILURE;
+    if ( authKey16 != NULL) {
+         PK11_FreeSymKey( authKey16);
+         authKey16 = NULL;
+    } 
 
-    Buffer result;
-    if(old_kek_key2 ==  Buffer((BYTE*)"#00#00", 6))
-    {
-        result = new_auth_key + new_mac_key + new_kek_key + output ;
-    } else {
-        Buffer encrypted_auth_key(16);
-        EncryptData(old_kek_key2, new_auth_key, encrypted_auth_key);
-        Buffer kc_auth_key(3);
-        ComputeKeyCheck(new_auth_key, kc_auth_key);
+    if ( macKey16 != NULL) {
+         PK11_FreeSymKey( macKey16);
+         macKey16 = NULL;
+    } 
 
-        Buffer encrypted_mac_key(16);
-        EncryptData(old_kek_key2, new_mac_key, encrypted_mac_key);
-        Buffer kc_mac_key(3);
-        ComputeKeyCheck(new_mac_key, kc_mac_key);
-
-        Buffer encrypted_kek_key(16);
-        EncryptData(old_kek_key2, new_kek_key, encrypted_kek_key);
-        Buffer kc_kek_key(3);
-        ComputeKeyCheck(new_kek_key, kc_kek_key);
-
-        result = newMasterVer +
-            Buffer(1, (BYTE)0x81) +
-            Buffer(1, (BYTE)0x10) +
-            encrypted_auth_key +
-            Buffer(1, (BYTE)0x03) +
-            kc_auth_key +
-            Buffer(1, (BYTE)0x81) +
-            Buffer(1, (BYTE)0x10) +
-            encrypted_mac_key +
-            Buffer(1, (BYTE)0x03) +
-            kc_mac_key +
-            Buffer(1, (BYTE)0x81) +
-            Buffer(1, (BYTE)0x10) +
-            encrypted_kek_key +
-            Buffer(1, (BYTE)0x03) +
-            kc_kek_key;
+    if ( slot != NULL ) {
+         PK11_FreeSlot( slot);
+         slot = NULL;
     }
-    output = result;
 
-    rv = PR_SUCCESS;
+    if ( transportKey != NULL ) {
+        PK11_FreeSymKey( transportKey);
+        transportKey = NULL;
+    }
+
     return rv;
 }
 
-
 void GetDiversificationData(jbyte *cuidValue,BYTE *KDC,keyType keytype)
 {
+    if( ( cuidValue == NULL) || ( KDC == NULL)) {
+        return;
+    }
+
     BYTE *lastTwoBytesOfAID     = (BYTE *)cuidValue;
 //	BYTE *ICFabricationDate		= (BYTE *)cuidValue + 2;
     BYTE *ICSerialNumber        = (BYTE *)cuidValue + 4;
@@ -881,6 +894,10 @@ void GetDiversificationData(jbyte *cuidValue,BYTE *KDC,keyType keytype)
 
 static int getMasterKeyVersion(char *newMasterKeyNameChars)
 {
+    if( newMasterKeyNameChars == NULL || 
+        strlen( newMasterKeyNameChars) < 3) {
+        return 0;
+    }
 
     char masterKeyVersionNumber[3];
     masterKeyVersionNumber[0]=newMasterKeyNameChars[1];
@@ -890,12 +907,25 @@ static int getMasterKeyVersion(char *newMasterKeyNameChars)
     return newMasterKeyVesion;
 }
 
+char *GetSharedSecretKeyName(char *newKeyName) {
+    if ( newKeyName && strlen( newKeyName ) > 0 ) {
+       if( strlen( sharedSecretSymKeyName) == 0) {
+           strncpy( sharedSecretSymKeyName, newKeyName, KEYNAMELENGTH);
+       }
+    }
+
+    return (char *) sharedSecretSymKeyName ;
+}
 
 void getFullName(char * fullMasterKeyName, char * masterKeyNameChars )
 {
+    if( fullMasterKeyName == NULL || masterKeyNameChars == NULL
+        || ( strlen(fullMasterKeyName) + strlen(masterKeyNameChars)) > KEYNAMELENGTH) {
+        return;
+    }
     fullMasterKeyName[0]='\0';
     if(strlen(masterKeyPrefix)>0)
-        strcpy(fullMasterKeyName,masterKeyPrefix);
+        strncpy(fullMasterKeyName,masterKeyPrefix, KEYNAMELENGTH);
     strcat(fullMasterKeyName,masterKeyNameChars);
 }
 
@@ -906,9 +936,9 @@ void getFullName(char * fullMasterKeyName, char * masterKeyNameChars )
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[B)[B
  */
 extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_DiversifyKey
-(JNIEnv *, jclass, jstring, jstring, jstring, jstring, jstring, jbyteArray, jbyteArray, jstring);
+(JNIEnv *, jclass, jstring, jstring, jstring, jstring, jstring, jbyteArray, jbyteArray, jstring, jstring);
 
-extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_DiversifyKey( JNIEnv * env, jclass this2, jstring tokenName,jstring newTokenName, jstring oldMasterKeyName, jstring newMasterKeyName, jstring keyInfo, jbyteArray CUIDValue, jbyteArray kekKeyArray, jstring useSoftToken_s)
+extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_DiversifyKey( JNIEnv * env, jclass this2, jstring tokenName,jstring newTokenName, jstring oldMasterKeyName, jstring newMasterKeyName, jstring keyInfo, jbyteArray CUIDValue, jbyteArray kekKeyArray, jstring useSoftToken_s, jstring keySet)
 {
     PK11SymKey *encKey = NULL;
     PK11SymKey *macKey = NULL;
@@ -923,22 +953,17 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
     char fullNewMasterKeyName[KEYNAMELENGTH];
     PRBool specified_key_is_present = PR_TRUE;
     PK11SymKey *old_kek_sym_key = NULL;
-    SECStatus s;
 
-    jbyte * cuidValue = (jbyte*)(env)->GetByteArrayElements( CUIDValue, NULL);
+    char *keySetStringChars =  NULL;
+    if ( keySet != NULL ) {
+        keySetStringChars = (char *) (env)->GetStringUTFChars( keySet, NULL);
+    }
 
-    BYTE *encKeyData = NULL;
-    BYTE *macKeyData = NULL;
-    BYTE *kekKeyData = NULL;
-
-    BYTE KDCenc[KEYLENGTH];
-    BYTE KDCmac[KEYLENGTH];
-    BYTE KDCkek[KEYLENGTH];
-    jbyte * old_kek_key = (jbyte*)(env)->GetByteArrayElements(kekKeyArray, NULL);
-
-    GetDiversificationData(cuidValue,KDCenc,enc);
-    GetDiversificationData(cuidValue,KDCmac,mac);
-    GetDiversificationData(cuidValue,KDCkek,kek);
+    char *keySetString = keySetStringChars;   
+ 
+    if ( keySetString == NULL ) {
+        keySetString =  (char *) DEFKEYSET_NAME;
+    }
 
     jbyteArray handleBA=NULL;
     jbyte *handleBytes=NULL;
@@ -946,44 +971,87 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
 
     /* find slot */
     char *tokenNameChars = NULL;
+    char * newMasterKeyNameChars = NULL;
     PK11SlotInfo *slot = NULL;
+    PK11SlotInfo *internal = PK11_GetInternalKeySlot();
+
+    Buffer output;
+    PK11SlotInfo *newSlot =NULL;
+    char * newTokenNameChars = NULL;
+    char *keyInfoChars = NULL;
+
+    jbyte * cuidValue =  NULL;
+    jbyte * old_kek_key = NULL;
+
+    PK11SymKey * masterKey = NULL;
+    PK11SymKey * oldMasterKey = NULL;
+
+    BYTE KDCenc[KEYLENGTH];
+    BYTE KDCmac[KEYLENGTH];
+    BYTE KDCkek[KEYLENGTH];
+
+    if( CUIDValue != NULL) {
+        cuidValue = (jbyte*)(env)->GetByteArrayElements( CUIDValue, NULL);
+    }
+
+    if( cuidValue == NULL) {
+       goto done;
+    }
+
+    if( kekKeyArray != NULL) {
+        old_kek_key = (jbyte*)(env)->GetByteArrayElements(kekKeyArray, NULL);
+    }
+
+    if( old_kek_key == NULL) {
+        goto done;
+    }
+
+    PR_fprintf(PR_STDOUT,"In SessionKey.DiversifyKey! \n");
+
+    GetDiversificationData(cuidValue,KDCenc,enc);
+    GetDiversificationData(cuidValue,KDCmac,mac);
+    GetDiversificationData(cuidValue,KDCkek,kek);
 
     if(tokenName)
     {
         tokenNameChars = (char *)(env)->GetStringUTFChars(tokenName, NULL);
         slot = ReturnSlot(tokenNameChars);
-        (env)->ReleaseStringUTFChars(tokenName, (const char *)tokenNameChars);
+        PR_fprintf(PR_STDOUT,"DiversifyKey: tokenNameChars %s slot %p \n", tokenNameChars,slot);
+        if( tokenNameChars != NULL) {
+            (env)->ReleaseStringUTFChars(tokenName, (const char *)tokenNameChars);
+        }
     }
 
-    /* find masterkey */
-    char * newMasterKeyNameChars = NULL;
     if(newMasterKeyName)
     {
         /* newMasterKeyNameChars  #02#01 */
         newMasterKeyNameChars=  (char *)(env)->GetStringUTFChars(newMasterKeyName, NULL);
     }
-
     /* fullNewMasterKeyName - no prefix #02#01 */
     getFullName(fullNewMasterKeyName,newMasterKeyNameChars);
-    Buffer output;
-    PK11SlotInfo *newSlot =NULL;
-    char * newTokenNameChars = NULL;
+    PR_fprintf(PR_STDOUT,"DiversifyKey: fullNewMasterKeyName %s . \n", fullNewMasterKeyName);
+
     if(newTokenName)
     {
         newTokenNameChars = (char *)(env)->GetStringUTFChars(newTokenName, NULL);
         newSlot = ReturnSlot(newTokenNameChars);
-        (env)->ReleaseStringUTFChars(newTokenName, (const char *)newTokenNameChars);
+        PR_fprintf(PR_STDOUT,"DiversifyKey: newTokenNameChars %s newSlot %p . \n", newTokenNameChars,newSlot);
+        if( newTokenNameChars != NULL) {
+            (env)->ReleaseStringUTFChars(newTokenName, (const char *)newTokenNameChars);
+        }
     }
-    PK11SymKey * masterKey =    ReturnSymKey(newSlot,fullNewMasterKeyName);
 
-    if(newMasterKeyNameChars)
-    {
+    masterKey = ReturnSymKey(newSlot,fullNewMasterKeyName);
+
+    if(newMasterKeyNameChars) {
         (env)->ReleaseStringUTFChars(newMasterKeyName, (const char *)newMasterKeyNameChars);
     }
 
     /* packing return */
-    char *keyInfoChars;
-    keyInfoChars = (char *)(env)->GetStringUTFChars(keyInfo, NULL);
+    if( keyInfo != NULL) {
+         keyInfoChars = (char *)(env)->GetStringUTFChars(keyInfo, NULL);
+    }
+
     newMasterKeyVesion = getMasterKeyVersion(keyInfoChars);
 
     if(keyInfoChars)
@@ -996,40 +1064,60 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
     if(oldMasterKeyName)
     {
         oldMasterKeyNameChars = (char *)(env)->GetStringUTFChars(oldMasterKeyName, NULL);
+        PR_fprintf(PR_STDOUT,"DiversifyKey oldMasterKeyNameChars %s \n", oldMasterKeyNameChars);
     }
     getFullName(fullMasterKeyName,oldMasterKeyNameChars);
-
-    if(newSlot == NULL)
-    {
+    PR_fprintf(PR_STDOUT,"DiversifyKey fullMasterKeyName %s \n", fullMasterKeyName);
+    if(newSlot == NULL) {
         newSlot = slot;
     }
     if(strcmp( oldMasterKeyNameChars, "#01#01") == 0 || strcmp( oldMasterKeyNameChars, "#FF#01") == 0)
     {
-        old_kek_key_buff    =   Buffer((BYTE*)old_kek_key, 16);
+        old_kek_key_buff    =   Buffer((BYTE*)old_kek_key, KEYLENGTH);
     }else if(strcmp( oldMasterKeyNameChars, "#00#00") == 0)
     {
-
         /* print Debug message - do not create real keysetdata */
         old_kek_key_buff    =       Buffer((BYTE*)"#00#00", 6);
-        output              =       Buffer((BYTE*)old_kek_key, 16);
+        output              =       Buffer((BYTE*)old_kek_key, KEYLENGTH);
     }
     else
     {
-        PK11SymKey * oldMasterKey =     ReturnSymKey(slot,fullMasterKeyName);
+        oldMasterKey =     ReturnSymKey(slot,fullMasterKeyName);
         old_kek_sym_key = ComputeCardKeyOnToken(oldMasterKey,KDCkek);
-        if (oldMasterKey)
+        if (oldMasterKey) {
             PK11_FreeSymKey( oldMasterKey );
+            oldMasterKey = NULL;
+        }
     }
-    if(oldMasterKeyNameChars)
+    if(oldMasterKeyNameChars) {
         (env)->ReleaseStringUTFChars(oldMasterKeyName, (const char *)oldMasterKeyNameChars);
+    }
 
     /* special case #01#01 */
     if (fullNewMasterKeyName != NULL && strcmp(fullNewMasterKeyName, "#01#01") == 0)
     {
-        encKeyData = (BYTE*)old_kek_key;
-        macKeyData = (BYTE*)old_kek_key;
-        kekKeyData = (BYTE*)old_kek_key;
+        Buffer empty = Buffer();
+
+        encKey  = ReturnDeveloperSymKey(internal,(char *) "auth", keySetString, empty);
+
+        if ( encKey == NULL ) {
+            goto done; 
+        }
+        PR_fprintf(PR_STDOUT, "Special case dev key set for DiversifyKey!\n");
+
+        macKey = ReturnDeveloperSymKey(internal, (char *) "mac", keySetString, empty);
+        if ( macKey == NULL ) {
+            goto done;
+        }
+
+        kekKey = ReturnDeveloperSymKey(internal, (char *) "kek", keySetString, empty);
+
+        if ( kekKey == NULL ) {
+            goto done;
+        }
+
     } else {
+        PR_fprintf(PR_STDOUT,"DiversifyKey: Compute card key on token case ! \n");
         /* compute card key */
         encKey = ComputeCardKeyOnSoftToken(masterKey, KDCenc);
         macKey = ComputeCardKeyOnSoftToken(masterKey, KDCmac);
@@ -1039,73 +1127,65 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
          * is not present -- for each portion of the key, check if
          * the PK11SymKey is NULL before sending it to PK11_GetKeyData()!
          */
-        if( encKey != NULL)
-        {
-            s = PK11_ExtractKeyValue(encKey);
-            encKeyData = (BYTE*)(PK11_GetKeyData(encKey)->data);
-        }
-        else
-        {
+        if( encKey == NULL) {
+            PR_fprintf(PR_STDERR,"Can't create encKey in DiversifyKey! \n");
             specified_key_is_present = PR_FALSE;
             goto done;
         }
-        if( macKey != NULL)
-        {
-            s = PK11_ExtractKeyValue(macKey);
-            macKeyData = (BYTE*)(PK11_GetKeyData(macKey)->data);
-        }
-        else
-        {
+        if( macKey == NULL) {
+            PR_fprintf(PR_STDERR,"Can't create macKey in DiversifyKey! \n");
             specified_key_is_present = PR_FALSE;
             goto done;
         }
-        if( kekKey != NULL)
-        {
-            s = PK11_ExtractKeyValue(kekKey);
-            kekKeyData = (BYTE*)(PK11_GetKeyData(kekKey)->data);
-        }
-        else
-        {
+        if( kekKey == NULL) {
+            PR_fprintf(PR_STDERR,"Can't create kekKey in DiversifyKey! \n");
             specified_key_is_present = PR_FALSE;
             goto done;
         }
-
     }
 
-    encKeyBuff      =       Buffer(encKeyData, 16);
-    macKeyBuff      =       Buffer(macKeyData, 16);
-    kekKeyBuff      =       Buffer(kekKeyData, 16);
-
-    /* decide to whether to create the new key set by using a sym key or
-       a buffered key */
-    if (old_kek_sym_key != NULL)
-    {
-        CreateKeySetDataWithKey(newMasterKeyBuffer,
+    if (old_kek_sym_key != NULL) {
+        CreateKeySetDataWithSymKeys(newMasterKeyBuffer, Buffer(),
             old_kek_sym_key,
-            encKeyBuff,
-            macKeyBuff,
-            kekKeyBuff,
-            output);
-    }
-    else
-    {
-        CreateKeySetData(newMasterKeyBuffer,
-            old_kek_key_buff,
-            encKeyBuff,
-            macKeyBuff,
-            kekKeyBuff,
+            encKey,
+            macKey,
+            kekKey,
+            output); }
+    else {
+        old_kek_sym_key =  ReturnDeveloperSymKey(slot, (char *) "kek", keySetString, old_kek_key_buff);
+        CreateKeySetDataWithSymKeys(newMasterKeyBuffer, Buffer(),
+            old_kek_sym_key,
+            encKey,
+            macKey,
+            kekKey,
             output);
     }
 
 done:
-    if (masterKey != NULL)
+    if (masterKey != NULL) {
         PK11_FreeSymKey( masterKey);
-    if (encKey != NULL)
+        masterKey = NULL;
+    }
+
+    if (encKey != NULL) {
         PK11_FreeSymKey( encKey );
-    if (macKey != NULL)
+        encKey = NULL;
+    }
+
+    if (macKey != NULL) {
         PK11_FreeSymKey( macKey );
-    if (kekKey != NULL)
+        macKey = NULL;
+    }
+
+    if (kekKey != NULL) {
         PK11_FreeSymKey( kekKey );
+        kekKey = NULL;
+    }
+
+    if( keySetStringChars ) {
+        (env)->ReleaseStringUTFChars(keySet, (const char *)keySetStringChars);
+        keySetStringChars = NULL;
+    }
 
     if( specified_key_is_present )
     {
@@ -1116,20 +1196,188 @@ done:
         handleBytes = (env)->GetByteArrayElements(handleBA, NULL);
         memcpy(handleBytes, (BYTE*)output,output.size());
 
-        (env)->ReleaseByteArrayElements( handleBA, handleBytes, 0);
+        if( handleBytes != NULL) {
+            (env)->ReleaseByteArrayElements( handleBA, handleBytes, 0);
+        }
     }
 
-    (env)->ReleaseByteArrayElements(CUIDValue, cuidValue, JNI_ABORT);
+    if( cuidValue != NULL) {
+        (env)->ReleaseByteArrayElements(CUIDValue, cuidValue, JNI_ABORT);
+    }
 
-    if((newSlot != slot)&& newSlot)
-        PK11_FreeSlot( newSlot );
-    if( slot )
-        PK11_FreeSlot( slot );
+    if( kekKeyArray != NULL) {
+        (env)->ReleaseByteArrayElements(kekKeyArray, old_kek_key, JNI_ABORT);
+    }
+
+    if((newSlot != slot) && newSlot) {
+        PK11_FreeSlot( newSlot);
+        newSlot = NULL;
+    }
+
+    if( slot ) {
+        PK11_FreeSlot( slot);
+        slot = NULL;
+    }
+
+    if( internal) {
+        PK11_FreeSlot( internal);
+        internal = NULL;
+    }
 
     return handleBA;
-
 }
 
+PK11SymKey *CreateUnWrappedSymKeyOnToken( PK11SlotInfo *slot, PK11SymKey * unWrappingKey, BYTE *keyToBeUnWrapped, int sizeOfKeyToBeUnWrapped, PRBool isPerm)
+{
+    PK11SymKey * unWrappedSymKey = NULL;
+    int bufSize = 48;
+    unsigned char outbuf[bufSize];
+    int final_len = 0;
+    SECStatus s = SECSuccess;
+    PK11Context * EncContext = NULL;
+    SECItem unWrappedKeyItem = { siBuffer, NULL, 0};
+    PK11SymKey *unwrapper = NULL;
+
+    PR_fprintf( PR_STDOUT,
+        "Creating UnWrappedSymKey on  token. \n");
+
+     if ( (slot == NULL) || (unWrappingKey == NULL) ||
+           (keyToBeUnWrapped == NULL) ||
+           (sizeOfKeyToBeUnWrapped != DES3_LENGTH)
+       )  {
+        return NULL;
+    }
+
+    PK11SlotInfo *unwrapKeySlot = PK11_GetSlotFromKey( unWrappingKey );
+
+    if ( unwrapKeySlot != slot ) {
+        unwrapper =  PK11_MoveSymKey ( slot, CKA_ENCRYPT, 0, PR_FALSE, unWrappingKey);   
+    }
+
+    SECItem *SecParam = PK11_ParamFromIV(CKM_DES3_ECB, NULL);
+    if ( SecParam == NULL) {
+        goto done;
+    }
+
+    EncContext = PK11_CreateContextBySymKey(CKM_DES3_ECB,
+                                                CKA_ENCRYPT,
+                                                unWrappingKey, SecParam);
+
+    if ( EncContext == NULL) {
+        goto done;
+    }
+
+    s = PK11_CipherOp(EncContext, outbuf, &final_len, sizeof( outbuf), keyToBeUnWrapped,
+                         sizeOfKeyToBeUnWrapped);
+
+    if ( s != SECSuccess) {
+        goto done;
+    }
+
+    if ( final_len != DES3_LENGTH ) {
+        goto done;
+    }
+
+    unWrappedKeyItem.data = outbuf;
+    unWrappedKeyItem.len  = final_len;
+
+
+   /* Now try to unwrap our key into the token */
+    unWrappedSymKey = PK11_UnwrapSymKeyWithFlagsPerm(unwrapper ? unwrapper : unWrappingKey,
+                          CKM_DES3_ECB,SecParam, &unWrappedKeyItem,
+                          CKM_DES3_ECB,
+                          CKA_UNWRAP,
+                          sizeOfKeyToBeUnWrapped, 0, isPerm );
+ 
+done:
+
+    if( SecParam != NULL ) {
+        SECITEM_FreeItem(SecParam, PR_TRUE);
+        SecParam = NULL;
+    }
+
+    if( EncContext != NULL ) {
+        PK11_DestroyContext(EncContext, PR_TRUE);
+        EncContext = NULL;
+    }
+
+    if( unwrapper != NULL ) {
+        PK11_FreeSymKey( unwrapper );
+        unwrapper = NULL;
+    } 
+
+    if( unwrapKeySlot != NULL) {
+        PK11_FreeSlot( unwrapKeySlot);
+        unwrapKeySlot = NULL;
+    } 
+
+    PR_fprintf( PR_STDOUT,
+        "UnWrappedSymKey on token result: %p \n",unWrappedSymKey);
+
+    return unWrappedSymKey;
+}
+//Return default keyset developer key. Either auth, mac, or kek
+PK11SymKey *ReturnDeveloperSymKey(PK11SlotInfo *slot, char *keyType, char *keySet, Buffer &inputKey)
+{
+    const int maxKeyNameSize = 56;
+    PK11SymKey *devSymKey = NULL;
+    PK11SymKey *transportKey = NULL;
+    char devKeyName[maxKeyNameSize];
+
+    SECStatus rv = SECSuccess;
+
+    BYTE sessionKey[DES3_LENGTH];
+
+    if( slot == NULL || keyType == NULL || keySet == NULL) {
+        return NULL;
+    }
+
+    snprintf(devKeyName,maxKeyNameSize,"%s-%sKey", keySet, keyType);
+
+    devSymKey = ReturnSymKey( slot, devKeyName );
+ 
+    // Try to create the key once and leave it there. 
+    if( devSymKey == NULL ) {
+        PR_fprintf(PR_STDOUT, "Can't find devSymKey, try to create it on token. \n");
+        if ( inputKey.size() == DES2_LENGTH ) { //Any other size ignored
+            transportKey = ReturnSymKey( slot, GetSharedSecretKeyName(NULL));
+
+            if( transportKey == NULL) {
+                PR_fprintf(PR_STDERR,"Can't get transport key in ReturnDeveloperSymKey! \n");
+                goto done;
+            }
+
+            /* convert 16-byte to 24-byte triple-DES key */
+            memcpy(sessionKey, inputKey, DES2_LENGTH);
+            memcpy(sessionKey+ DES2_LENGTH, inputKey, EIGHT_BYTES);
+
+            //Unwrap this thing on there as permanent, so we don't have to create it again for a given keySet.
+            if( transportKey) {
+                devSymKey = CreateUnWrappedSymKeyOnToken( slot, transportKey,  sessionKey, sizeof(sessionKey), PR_TRUE);
+            }
+
+            PR_fprintf(PR_STDERR,"Tried to create devSymKey %p \n",devSymKey);
+
+            rv = SECSuccess;
+            if( devSymKey ) {
+                rv = PK11_SetSymKeyNickname( devSymKey,  devKeyName );
+
+                if ( rv != SECSuccess ) {
+                    PR_fprintf(PR_STDERR, "Can't set the nickname of just written devKey! \n");
+                }
+            }
+        }
+    }
+
+done:
+    if( transportKey ) {
+        PK11_FreeSymKey( transportKey );
+        transportKey = NULL;
+    }
+
+    // Dont' free slot , let the caller.
+    return devSymKey;
+}
 
 /*
  * Class:     com_netscape_cms_servlet_tks_RASessionKey
