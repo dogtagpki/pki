@@ -244,7 +244,7 @@ function renderPublicKeyInfo()
                          '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
                          'Public key:</font></td>');
         document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
-                         result.header.subjectPublicKey + '</font></td></tr>');
+                         result.header.subjectPublicKey.replace(/\n/g, "<br>") + '</font></td></tr>');
 
         //if (result.header.status == 'pending') {
             //document.writeln('<tr><td valign="top" align="right"></td>');
@@ -957,47 +957,72 @@ function renderPolicyInfo()
     }
 }
 
+function renderLongStrings(value)
+{
+    var len = value.toString().length;
+    if (len > 64 && value.toString().indexOf("\n") > 0) {
+        document.writeln(value.toString().replace(/\n/g, "<br>"));
+    } else if (len > 64) {
+        for (var i = 0; i < len; i += 64) {
+            var n = len;
+            var b = "";
+            if (i+64 < len) {
+                n = i + 64;
+                b = "<br>";
+            }
+            document.writeln(value.toString().substring(i, n)+b);
+        }
+    } else {
+        document.writeln(value);
+    }
+}
+
+function renderNameAndValue(name, value)
+{
+    document.writeln('<tr><td valign="top" align="right">');
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln(name);
+    document.writeln('</font></td>');
+    document.writeln('<td valign="top" align="left" colspan="2">');
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+    renderLongStrings(value);
+    document.writeln('</font></td></tr>');
+}
+
 function renderRequestAttrs()
 {
 	document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
 	document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
 	document.writeln('Unauthenticated Request Attributes</font></td></tr>');
 
-	document.writeln('<tr><td valign="top" align="left" colspan="3">');
-	document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif"><pre>');
 	if (result.header.HTTP_PARAMS.length > 0) {
-		document.writeln("");
 		for (var i = 0; i < result.header.HTTP_PARAMS.length; i++) {
-			document.writeln("HTTP_PARAMS."+result.header.HTTP_PARAMS[i].name+"="+result.header.HTTP_PARAMS[i].value);
+			renderNameAndValue("HTTP_PARAMS."+result.header.HTTP_PARAMS[i].name+":", result.header.HTTP_PARAMS[i].value);
 		}
 	}
 	if (result.header.HTTP_HEADERS.length > 0) {
 		document.writeln("");
 		for (var j = 0; j < result.header.HTTP_HEADERS.length; j++) {
-			document.writeln("HTTP_HEADERS."+result.header.HTTP_HEADERS[j].name+"="+result.header.HTTP_HEADERS[j].value);
+			renderNameAndValue("HTTP_HEADERS."+result.header.HTTP_HEADERS[j].name+":", result.header.HTTP_HEADERS[j].value);
 		}
 	}
-	document.writeln('</pre></font></td></tr>');
 
 	document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
 	document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
 	document.writeln('Authenticate Request Attributes (from authentication, policy and other server modules)</font></td></tr>');
-	document.writeln('<tr><td valign="top" align="left" colspan="3">');
-	document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif"><pre>');
 	if (result.header.AUTH_TOKEN.length > 0) {
 		document.writeln("");
 		for (var k = 0; k < result.header.AUTH_TOKEN.length; k++) {
-			document.writeln("AUTH_TOKEN."+result.header.AUTH_TOKEN[k].name+"="+result.header.AUTH_TOKEN[k].value);
+			renderNameAndValue("AUTH_TOKEN."+result.header.AUTH_TOKEN[k].name+":", result.header.AUTH_TOKEN[k].value);
 		}
 	}
 	if (result.header.SERVER_ATTRS.length > 0) {
 		document.writeln("");
 		for (var l = 0; l < result.header.SERVER_ATTRS.length; l++) {
 			//if (result.header.SERVER_ATTRS[l].name != 'CERT_INFO')
-				document.writeln(result.header.SERVER_ATTRS[l].name+"="+result.header.SERVER_ATTRS[l].value);
+			renderNameAndValue(result.header.SERVER_ATTRS[l].name+":", result.header.SERVER_ATTRS[l].value);
 		}
 	}
-	document.writeln('</pre></font></td></tr>');
 
 }
 
@@ -1370,7 +1395,7 @@ renderPolicyInfo();
 
 document.writeln('</table><br>&nbsp;');
 
-renderFoot();
+//renderFoot();
 
 
 document.writeln('</FORM>');
