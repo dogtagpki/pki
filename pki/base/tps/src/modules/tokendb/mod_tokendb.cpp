@@ -6644,7 +6644,8 @@ mod_tokendb_handler( request_rec *rq )
         }
 
         PR_snprintf((char *)userCN, 256,
-            "%s %s", firstName, lastName);
+            "%s%s%s", ((firstName != NULL && PL_strlen(firstName) > 0)? firstName: ""),
+            ((firstName != NULL && PL_strlen(firstName) > 0)? " ": ""), lastName);
 
         status = update_user_db_entry(userid, uid, lastName, firstName, userCN, userCert);
 
@@ -6993,7 +6994,7 @@ mod_tokendb_handler( request_rec *rq )
         opAgent = get_post_field(post, "opAgent", SHORT_LEN);
         userCert = get_encoded_post_field(post, "cert", HUGE_STRING_LEN); 
 
-        if ((PL_strlen(uid) == 0) || (PL_strlen(firstName) == 0) || (PL_strlen(lastName) == 0)) {
+        if ((PL_strlen(uid) == 0) || (PL_strlen(lastName) == 0)) {
             error_out("Bad input to op=addUser", "Bad input to op=addUser");
             do_free(uid);
             do_free(firstName);
@@ -7008,11 +7009,13 @@ mod_tokendb_handler( request_rec *rq )
 
             return OK;
         }
-        PR_snprintf((char *)userCN, 256, 
-            "%s %s", firstName, lastName);
+        PR_snprintf((char *)userCN, 256,
+            "%s%s%s", ((firstName != NULL && PL_strlen(firstName) > 0)? firstName: ""),
+            ((firstName != NULL && PL_strlen(firstName) > 0)? " ": ""), lastName);
 
         PR_snprintf(oString, 512, "uid;;%s", uid);
-        PR_snprintf(pString, 512, "givenName;;%s+sn;;%s", firstName, lastName);
+        PR_snprintf(pString, 512, "givenName;;%s+sn;;%s", 
+            ((firstName != NULL && PL_strlen(firstName) > 0)? firstName: ""), lastName);
 
         /* to meet STIG requirements, every user in ldap must have a password, even if that password is never used */
         char *pwd = generatePassword(pwLength);

@@ -167,7 +167,8 @@ if (typeof(results) == "undefined" || results.length == 0) {
                    "First Name:&nbsp;</font>\n");
     document.write("</td>\n");
     document.write("<td>\n");
-    document.write("<input TYPE=TEXT NAME=firstName SIZE=20 VALUE=\""+results[0].givenName+"\">\n");
+    document.write("<input TYPE=TEXT NAME=firstName SIZE=20 VALUE=\""+
+                   ((typeof(results[0].givenName) == 'undefined')?'':results[0].givenName)+"\">\n");
     document.write("</td>\n");
     document.write("</tr>\n");
 

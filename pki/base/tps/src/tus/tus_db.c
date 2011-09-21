@@ -1324,7 +1324,7 @@ TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastNa
 
     a03.mod_op = LDAP_MOD_REPLACE;
     a03.mod_type = USER_GIVENNAME;
-    a03.mod_values = givenName_values;
+    a03.mod_values = ((firstName != NULL && PL_strlen(firstName) > 0)? givenName_values: NULL);
 
     mods[0] = &a01;
     mods[1] = &a02;
@@ -2283,7 +2283,9 @@ TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPa
     mods[2]  = &a03;
     mods[3]  = &a04;
     mods[4]  = &a05;
-    mods[5]  = &a06;
+    if (givenName != NULL && PL_strlen(givenName) > 0) {
+        mods[5]  = &a06;
+    }
 
     // now handle certificate
     certlen = strlen(userCert);
@@ -2310,8 +2312,15 @@ TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPa
         a07.mod_type = USER_CERT;
         a07.mod_bvalues = userCert_values;
         
-        mods[6]  = &a07;
+        if (givenName != NULL && PL_strlen(givenName) > 0) {
+            mods[6] = &a07;
+        } else {
+            mods[5] = &a07;
+        }
     } else {
+        if (givenName == NULL || PL_strlen(givenName) == 0) {
+            mods[5] = NULL;
+        }
         mods[6] = NULL;
     }
 
