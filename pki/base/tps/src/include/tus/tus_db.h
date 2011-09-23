@@ -178,7 +178,7 @@ TPS_PUBLIC char *get_token_reason(LDAPMessage *e);
 TPS_PUBLIC int update_tus_db_entry (const char *agentid,
                         char *cn, const char *uid, char *keyInfo,
                         const char *status,
-                        char *applet_version, const char *reason);
+                        char *applet_version, const char *reason, const char* token_type);
 TPS_PUBLIC int update_tus_db_entry_with_mods (const char *agentid, const char *cn, LDAPMod **mods);
 TPS_PUBLIC int check_and_modify_tus_db_entry (char *userid, char *cn, char *check, LDAPMod **mods);
 TPS_PUBLIC int modify_tus_db_entry (char *userid, char *cn, LDAPMod **mods);

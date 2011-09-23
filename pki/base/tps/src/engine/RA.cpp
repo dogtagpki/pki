@@ -3151,7 +3151,7 @@ int RA::tdb_update(const char *userid, char* cuid, char* applet_version, char *k
       /* need code to modify things such as applet version ...*/
       /* ldap modify code to follow...*/
       rc =  update_tus_db_entry ("~tps", cuid, userid, key_info, state,
-                         applet_version, reason);
+                         applet_version, reason, token_type);
     }
 loser:
    if (ldapResult != NULL) {
