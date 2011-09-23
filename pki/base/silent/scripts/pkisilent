@@ -30,20 +30,12 @@ my $libpath="";
 ##  (2) Define helper functions.                                             ##
 ###############################################################################
 
-sub invalid_operating_system()
-{
-   	print "\n";
-   	print "ERROR:  pkisilent does not execute on this operating system!\n";
-   	print "ERROR:  check to make sure pki-native-tools package is installed!\n";
-   	print "\n";
-}
-
 sub invalid_architecture()
 {
-   	print "\n";
-   	print "ERROR:  pkisilent does not execute on this architecture\n";
-   	print "ERROR:  check to make sure pki-native-tools package is installed!\n";
-   	print "\n";
+    print "\n";
+    print "ERROR:  pkisilent does not execute on this architecture\n";
+    print "ERROR:  check to make sure pki-native-tools package is installed!\n";
+    print "\n";
 }
 
 
@@ -53,83 +45,27 @@ sub invalid_architecture()
 ##      search order this command uses to find shared libraries.             ##
 ###############################################################################
 
-my $OS=`uname -s`;
-my $ARCHITECTURE="";
-chop($OS);
+my $ARCHITECTURE=`uname -i`;
+chop( $ARCHITECTURE );
 
+if( $ARCHITECTURE eq "i386" ) {
+    $libpath="/usr/lib";
 
-if($OS eq "Linux")
-{
-	$ARCHITECTURE=`uname -i`;
-	chop($ARCHITECTURE);
-	if($ARCHITECTURE eq "i386")
-	{
-		$libpath="/usr/lib";
+    $ENV{LD_LIBRARY_PATH} = "/usr/lib/osutil:"
+                          . "/usr/lib/jss:"
+                          . "/usr/lib:/lib";
+} elsif($ARCHITECTURE eq "x86_64") {
+    $libpath="/usr/lib64";
 
-		$ENV{LD_LIBRARY_PATH} = "/usr/lib/osutil:"
-					. "/usr/lib/jss:"
-					. "/usr/lib/:/lib/:" ;
-	}
-
-	elsif($ARCHITECTURE eq "x86_64") 
-	{
-		$libpath="/usr/lib64";
-
-		$ENV{LD_LIBRARY_PATH} = "/usr/lib64/osutil:"
-					. "/usr/lib64/jss:"
-					. "/usr/lib64/:/lib64/:"
-					. "/usr/lib/osutil:"
-					. "/usr/lib/jss:"
-					. "/usr/lib/:/lib/:" ;
-	}
-	else
-	{
-		invalid_architecture();
-		exit(255);
-	}
-}
-elsif (${OS} eq "SunOS")
-{ 
-	$ARCHITECTURE=`uname -p`;
-	chop($ARCHITECTURE);
-
-    if( ( ${ARCHITECTURE} eq "sparc" ) &&
-        ( -d "/usr/lib/sparcv9/" ) ) {
-        $ARCHITECTURE="sparcv9";
-    }
-
-	if (${ARCHITECTURE} eq "sparc") 
-	{
-		$libpath="/usr/lib";
-		$ENV{LD_LIBRARY_PATH} = "/usr/lib/java:/usr/lib:/lib"
-					. "/usr/lib/${PRODUCT}:"
-					. "/usr/lib/dirsec:"
-					. "/usr/lib/java/dirsec:";
-	}
-
-	elsif (${ARCHITECTURE} eq "sparcv9")
-	{
-		$libpath="/usr/lib/sparcv9";
-
-		$ENV{LD_LIBRARY_PATH} = "/usr/lib/java:/usr/lib:/lib"
-					. "/usr/lib/${PRODUCT}:"
-					. "/usr/lib/dirsec:"
-					. "/usr/lib/sparcv9:/lib/sparcv9:"
-					. "/usr/lib/sparcv9/java:"
-					. "/usr/lib/sparcv9/${PRODUCT}:"
-					. "/usr/lib/sparcv9/dirsec:"
-					. "/usr/lib/sparcv9/java/dirsec:";
-	}
-	else
-	{
-		invalid_architecture();
-		exit(255);
-	}
-}
-else
-{
-	invalid_operating_system();
-	exit(255);
+    $ENV{LD_LIBRARY_PATH} = "/usr/lib64/osutil:"
+                          . "/usr/lib64/jss:"
+                          . "/usr/lib64:/lib64:"
+                          . "/usr/lib/osutil:"
+                          . "/usr/lib/jss:"
+                          . "/usr/lib:/lib";
+} else {
+    invalid_architecture();
+    exit(255);
 }
 
 
@@ -141,19 +77,26 @@ else
 print "libpath=$libpath\n";
 
 $ENV{CLASSPATH} = "/usr/share/java/${PRODUCT}/pki-silent.jar:"
-	. "/usr/share/java/${PRODUCT}/pki-certsrv.jar:"
-	. "/usr/share/java/${PRODUCT}/pki-cmscore.jar:"
-	. "/usr/share/java/${PRODUCT}/pki-nsutil.jar:"
-	. "/usr/share/java/${PRODUCT}/pki-cmsutil.jar:"
-	. "/usr/share/java/${PRODUCT}/pki-tools.jar:"
-	. "/usr/share/java/ldapjdk.jar:"
-	. "/usr/share/java/xerces-j2.jar:"
-	. "/usr/share/java/xml-commons-apis.jar:"
-	. "/usr/share/java/xml-commons-resolver.jar:"
-	. "/usr/lib/java/dirsec/jss4.jar:"
-	. "/usr/lib/java/jss4.jar:"
-	. "/usr/lib/java/dirsec/osutil.jar:"
-	. "/usr/lib/java/osutil.jar:";
+                . "/usr/share/java/${PRODUCT}/pki-certsrv.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-cmscore.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-nsutil.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-cmsutil.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-tools.jar:"
+                . "/usr/share/java/ldapjdk.jar:"
+                . "/usr/share/java/xerces-j2.jar:"
+                . "/usr/share/java/xml-commons-apis.jar:"
+                . "/usr/share/java/xml-commons-resolver.jar:";
+if( $ARCHITECTURE eq "x86_64" ) {
+    $ENV{CLASSPATH} = $ENV{CLASSPATH}
+                    . "/usr/lib64/java/jss4.jar:"
+                    . "/usr/lib/java/jss4.jar:"
+                    . "/usr/lib64/java/osutil.jar:"
+                    . "/usr/lib/java/osutil.jar";
+} else {
+    $ENV{CLASSPATH} = $ENV{CLASSPATH}
+                    . "/usr/lib/java/jss4.jar:"
+                    . "/usr/lib/java/osutil.jar";
+}
 
 
 ###############################################################################
