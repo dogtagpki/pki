@@ -130,6 +130,7 @@ template(`pki_ca_template',`
         corecmd_search_bin($1_t)
 
 	dev_list_sysfs($1_t)
+        dev_read_sysfs($1_t)
 	dev_read_rand($1_t)
 	dev_read_urand($1_t)
 
@@ -195,6 +196,9 @@ template(`pki_ca_template',`
 
        #reverse proxy
        corenet_tcp_connect_dogtag_port($1_t)
+
+       #connect to ldap
+       corenet_tcp_connect_ldap_port($1_t)
 
 ')
 
