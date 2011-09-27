@@ -1372,7 +1372,7 @@ TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastNa
     return rc;
 }
 
-TPS_PUBLIC int update_tus_db_entry (const char *agentid, char *cn, const char *uid, char *keyInfo, const char *status, char *applet_version, const char *reason)
+TPS_PUBLIC int update_tus_db_entry (const char *agentid, char *cn, const char *uid, char *keyInfo, const char *status, char *applet_version, const char *reason, const char* token_type)
 {
     char dn[256];
     int  len, k;
