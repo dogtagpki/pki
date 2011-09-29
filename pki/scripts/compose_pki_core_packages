@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_CORE="pki-core"
-PKI_CORE_VERSION="9.0.14"
+PKI_CORE_VERSION="9.0.15"
 
 
 ##

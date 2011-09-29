@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.14
+Version:          9.0.15
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -8,36 +8,35 @@ Group:            System Environment/Daemons
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-# jss requires versioning to meet both build and runtime requirements
 # tomcatjss requires versioning since version 2.0.0 requires tomcat6
-# pki-common-theme requires versioning to meet runtime requirements
-# pki-ca-theme requires versioning to meet runtime requirements
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
-%if 0%{?fedora} >= 16
-BuildRequires:    jpackage-utils >= 0:1.7.5-10
-%else
-BuildRequires:    jpackage-utils
-%endif
-BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    openldap-devel
-BuildRequires:    osutil
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
 BuildRequires:    selinux-policy-devel
-%if 0%{?fedora} >= 15
-BuildRequires:    tomcatjss >= 6.0.0
-%else
-BuildRequires:    tomcatjss >= 2.0.0
-%endif
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 %if 0%{?fedora} >= 16
+BuildRequires:    jpackage-utils >= 0:1.7.5-10
+BuildRequires:    jss >= 4.2.6-19.1
+BuildRequires:    osutil >= 2.0.2
 BuildRequires:    systemd-units
+BuildRequires:    tomcatjss >= 6.0.2
+%elseif 0%{?fedora} >= 15
+BuildRequires:    jpackage-utils
+BuildRequires:    jss >= 4.2.6-17
+BuildRequires:    osutil >= 2.0.1
+BuildRequires:    tomcatjss >= 6.0.0
+%else
+BuildRequires:    jpackage-utils
+BuildRequires:    jss >= 4.2.6-17
+BuildRequires:    osutil
+BuildRequires:    tomcatjss >= 2.0.0
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
@@ -127,13 +126,14 @@ Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
 
 Requires:         java >= 1:1.6.0
+Requires:         nss
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
+Requires:         jss >= 4.2.6-19.1
 %else
 Requires:         jpackage-utils
-%endif
 Requires:         jss >= 4.2.6-17
-Requires:         nss
+%endif
 
 Provides:         symkey = %{version}-%{release}
 
@@ -172,14 +172,20 @@ Group:            System Environment/Base
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
+Requires:         ldapjdk
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
+Requires:         jss >= 4.2.6-19.1
+Requires:         osutil >= 2.0.2
+%elseif 0%{?fedora} >= 15
+Requires:         jpackage-utils
+Requires:         jss >= 4.2.6-17
+Requires:         osutil >= 2.0.1
 %else
 Requires:         jpackage-utils
-%endif
 Requires:         jss >= 4.2.6-17
-Requires:         ldapjdk
 Requires:         osutil
+%endif
 
 %description -n   pki-util
 The PKI Utility Framework is required by the following four PKI subsystems:
@@ -218,13 +224,13 @@ Group:            System Environment/Base
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
+Requires:         pki-native-tools = %{version}-%{release}
+Requires:         pki-util = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
 %else
 Requires:         jpackage-utils
 %endif
-Requires:         pki-native-tools = %{version}-%{release}
-Requires:         pki-util = %{version}-%{release}
 
 %description -n   pki-java-tools
 These platform-independent PKI executables are used to help make
@@ -258,25 +264,11 @@ Group:            System Environment/Base
 
 BuildArch:        noarch
 
-%if 0%{?fedora} >= 14
-Requires:         apache-commons-lang
-Requires:         apache-commons-logging
-%endif
-%if 0%{?rhel} || 0%{?fedora} < 14
-Requires:         jakarta-commons-lang
-Requires:         jakarta-commons-logging
-%endif
 Requires:         java >= 1:1.6.0
-Requires:         jss >= 4.2.6-17
 Requires:         pki-common-theme >= 9.0.0
 Requires:         pki-java-tools = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
-%if 0%{?fedora} >= 15
-Requires:         tomcatjss >= 6.0.0
-%else
-Requires:         tomcatjss >= 2.0.0
-%endif
 Requires:         %{_javadir}/ldapjdk.jar
 Requires:         %{_javadir}/velocity.jar
 Requires:         %{_javadir}/xalan-j2.jar
@@ -285,6 +277,27 @@ Requires:         %{_javadir}/xerces-j2.jar
 Requires:         %{_javadir}/xml-commons-apis.jar
 Requires:         %{_javadir}/xml-commons-resolver.jar
 Requires:         velocity
+%if 0%{?fedora} >= 16
+Requires:         apache-commons-lang
+Requires:         apache-commons-logging
+Requires:         jss >= 4.2.6-19.1
+Requires:         tomcatjss >= 6.0.2
+%elseif 0%{?fedora} >= 15
+Requires:         apache-commons-lang
+Requires:         apache-commons-logging
+Requires:         jss >= 4.2.6-17
+Requires:         tomcatjss >= 6.0.0
+%elseif 0%{?fedora} >= 14
+Requires:         apache-commons-lang
+Requires:         apache-commons-logging
+Requires:         jss >= 4.2.6-17
+Requires:         tomcatjss >= 2.0.0
+%else
+Requires:         jakarta-commons-lang
+Requires:         jakarta-commons-logging
+Requires:         jss >= 4.2.6-17
+Requires:         tomcatjss >= 2.0.0
+%endif
 
 %description -n   pki-common
 The PKI Common Framework is required by the following four PKI subsystems:
@@ -347,20 +360,22 @@ Requires:         pki-selinux = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else 
+%elseif 0%{?fedora} >= 15
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
-%endif
-
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 Requires:         initscripts
+%else 
+Requires(post):   chkconfig
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
+Requires(postun): initscripts
 %endif
 
 %description -n   pki-ca
@@ -425,10 +440,6 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
-%if 0%{?rhel} || 0%{?fedora} < 16
-%{__rm} %{buildroot}%{_bindir}/pkicontrol
-%endif
-
 cd %{buildroot}%{_libdir}/symkey
 %{__rm} symkey.jar
 %if 0%{?fedora} >= 16
@@ -461,6 +472,7 @@ echo "D /var/run/pki/ca 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfile
 %if 0%{?fedora} >= 16
 %{__rm} %{buildroot}%{_initrddir}/pki-cad
 %else
+%{__rm} %{buildroot}%{_bindir}/pkicontrol
 %{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-cad.target.wants
 %{__rm} -rf %{buildroot}%{_unitdir}
 %endif
@@ -508,19 +520,27 @@ fi
 %else 
 %post -n pki-ca
 # Attempt to update ALL old "CA" instances to "systemd"
-#for inst in `ls /etc/sysconfig/pki/ca`; do
-#    if [ ! -e "/etc/systemd/system/pki-cad.target.wants/pki-cad@${inst}.service" ]; then
-#        ln -s "/lib/systemd/system/pki-cad@.service"   "/etc/systemd/system/pki-cad.target.wants/pki-cad@${inst}.service"
-#        [ -e /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
-#        ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
-#        echo "pkicreate.systemd.servicename=pki-cad@${inst}.service" >> /var/lib/${inst}/conf/CS.cfg
-#    fi
-#done
+for inst in `ls /etc/sysconfig/pki/ca`; do
+    if [ ! -e "/etc/systemd/system/pki-cad.target.wants/pki-cad@${inst}.service" ]; then
+        ln -s "/lib/systemd/system/pki-cad@.service" \
+              "/etc/systemd/system/pki-cad.target.wants/pki-cad@${inst}.service"
+        [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
+        ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
+
+        if [ -e /var/run/${inst}.pid ]; then
+            kill -9 `cat /var/run/${inst}.pid` || :
+            rm -f /var/run/${inst}.pid
+            echo "pkicreate.systemd.servicename=pki-cad@${inst}.service" >> \
+                 /var/lib/${inst}/conf/CS.cfg || :
+            /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+            /bin/systemctl restart pki-cad@${inst}.service || :
+        else 
+            echo "pkicreate.systemd.servicename=pki-cad@${inst}.service" >> \
+                 /var/lib/${inst}/conf/CS.cfg || :
+        fi
+    fi
+done
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-# Attempt to restart ALL updated "CA" instances
-#if [ $1 = 2 ] ; then
-#    /bin/systemctl try-restart pki-cad.target >/dev/null 2>&1 || :
-#fi
 
 %preun -n pki-ca
 if [ $1 = 0 ] ; then
@@ -683,6 +703,41 @@ fi
 
 
 %changelog
+* Thu Sep 22 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.15-1
+- Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . . (mharmsen)
+- Bugzilla Bug #699809 - Convert CS to use systemd (alee)
+- 'pki-setup'
+-      Bugzilla Bug #730146 - SSL handshake picks non-FIPS ciphers in FIPS
+       mode (cfu)
+- 'pki-symkey'
+-      Bugzilla Bug #730162 - TPS/TKS token enrollment failure in FIPS mode
+       (hsm+NSS). (jmagne)
+- 'pki-native-tools'
+-      Bugzilla Bug #730801 - Coverity issues in native-tools area (awnuk)
+-      Bugzilla Bug #730146 - SSL handshake picks non-FIPS ciphers in FIPS
+       mode (cfu)
+- 'pki-util'
+-      Bugzilla Bug #730146 - SSL handshake picks non-FIPS ciphers in FIPS
+       mode (cfu)
+- 'pki-java-tools'
+- 'pki-common'
+-      Bugzilla Bug #730146 - SSL handshake picks non-FIPS ciphers in FIPS
+       mode (cfu)
+-      Bugzilla Bug #737218 - Incorrect request attribute name matching
+       ignores request attributes during request parsing. (awnuk)
+-      Bugzilla Bug #730162 - TPS/TKS token enrollment failure in FIPS mode
+       (hsm+NSS). (jmagne)
+- 'pki-selinux'
+-      Bugzilla Bug #739708 - pki-selinux lacks rules in F16 (alee)
+- 'pki-ca'
+-      Bugzilla Bug #712931 - CS requires too many ports
+       to be open in the FW (alee)
+-      Bugzilla Bug #730146 - SSL handshake picks non-FIPS ciphers in FIPS
+       mode (cfu)
+- 'pki-silent'
+-      Bugzilla Bug #739201 - pkisilent does not take arch into account
+       as Java packages migrated to arch-dependent directories (mharmsen)
+
 * Fri Sep 9 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.14-1
 - 'pki-setup'
 -      Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .

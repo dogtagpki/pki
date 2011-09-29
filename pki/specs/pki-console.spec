@@ -1,5 +1,5 @@
 Name:             pki-console
-Version:          9.0.4
+Version:          9.0.5
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
@@ -13,27 +13,30 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    idm-console-framework
 BuildRequires:    java-devel >= 1:1.6.0
-%if 0%{?fedora} >= 16
-BuildRequires:    jpackage-utils >= 1.7.5-10
-%else
-BuildRequires:    jpackage-utils
-%endif
-BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
+%if 0%{?fedora} >= 16
+BuildRequires:    jpackage-utils >= 1.7.5-10
+BuildRequires:    jss >= 4.2.6-19.1
+BuildRequires:    pki-util >= 9.0.15
+%else
+BuildRequires:    jpackage-utils
+BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    pki-util
+%endif
 
 Requires:         idm-console-framework
 Requires:         java >= 1:1.6.0
+Requires:         ldapjdk
+Requires:         pki-console-theme >= 9.0.0
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 1.7.5-10
+Requires:         jss >= 4.2.6-19.1
 %else
 Requires:         jpackage-utils
-%endif
 Requires:         jss >= 4.2.6-17
-Requires:         ldapjdk
-Requires:         pki-console-theme
+%endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
@@ -81,6 +84,10 @@ cd build
 
 
 %changelog
+* Thu Sep 22 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
+- Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . . (mharmsen)
+- Bugzilla Bug #699809 - Convert CS to use systemd (alee)
+
 * Wed Aug 31 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.4-1
 - Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
 

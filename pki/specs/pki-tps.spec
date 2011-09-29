@@ -1,5 +1,5 @@
 Name:             pki-tps
-Version:          9.0.6
+Version:          9.0.7
 Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
@@ -29,7 +29,7 @@ Requires:         perl-Mozilla-LDAP
 Requires:         pki-native-tools
 Requires:         pki-selinux
 Requires:         pki-setup
-Requires:         pki-tps-theme
+Requires:         pki-tps-theme >= 9.0.0
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
@@ -215,6 +215,15 @@ fi
 
 
 %changelog
+* Thu Sep 22 2011 Jack Magne <jmagne@redhat.com> 9.0.7-1
+- Bugzilla Bug #730146 - SSL handshake picks non-FIPS ciphers in FIPS mode (cfu)
+- Bugzilla Bug #730162 - TPS/TKS token enrollment failure in FIPS mode
+  (hsm+NSS).  (jmagne)
+- Bugzilla Bug #737184 - TPS UI display admin user name as
+  "undefined TUS Administrator". (awnuk)
+- Bugzilla Bug #735191 - in ou=tokens, token_type not getting updated if a
+  card is changed from one type to another (awnuk)
+
 * Wed Aug 10 2011 Jack Magne <jmagne@redhat.com> 9.0.6-1
 - Bugzilla Bug #725572 - Starting TPS subsystem with no pre-existing audit
   log file does not write audit messages.

@@ -1,5 +1,5 @@
 Name:             pki-ra
-Version:          9.0.3
+Version:          9.0.4
 Release:          1%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
@@ -18,7 +18,7 @@ Requires:         mod_nss >= 1.0.8
 Requires:         mod_perl >= 1.99_16
 Requires:         mod_revocator >= 1.0.3
 Requires:         pki-native-tools
-Requires:         pki-ra-theme
+Requires:         pki-ra-theme >= 9.0.0
 Requires:         pki-selinux
 Requires:         pki-setup
 Requires:         perl-DBD-SQLite
@@ -181,6 +181,10 @@ fi
 
 
 %changelog
+* Thu Sep 22 2011 Ade Lee <alee@redhat.com> 9.0.4-1
+- Bugzilla Bug #733065 - User enrollment with RA -- this fails with
+  CA Connection Error
+
 * Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.3-1
 - Bugzilla Bug #694569 - parameter used by pkiremove not updated (alee)
 - Bugzilla Bug #699364 - PKI-RA instance not created successfully (alee)

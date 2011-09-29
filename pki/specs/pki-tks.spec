@@ -1,5 +1,5 @@
 Name:             pki-tks
-Version:          9.0.6
+Version:          9.0.7
 Release:          1%{?dist}
 Summary:          Certificate System - Token Key Service
 URL:              http://pki.fedoraproject.org/
@@ -12,42 +12,49 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
-%if 0%{?fedora} >= 16
-BuildRequires:    jpackage-utils >= 0:1.7.5-10
-%else
-BuildRequires:    jpackage-utils
-%endif
-BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
+%if 0%{?fedora} >= 16
+BuildRequires:    jpackage-utils >= 0:1.7.5-10
+BuildRequires:    jss >= 4.2.6-19.1
+BuildRequires:    pki-common >= 9.0.15
+BuildRequires:    pki-util >= 9.0.15
+BuildRequires:    systemd-units
+%else
+BuildRequires:    jpackage-utils
+BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    pki-common
 BuildRequires:    pki-util
-%if 0%{?fedora} >= 16
-BuildRequires:    systemd-units
 %endif
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-common
-Requires:         pki-selinux
-Requires:         pki-tks-theme
+Requires:         pki-tks-theme >= 9.0.0
 %if 0%{?fedora} >= 16
+Requires:         pki-common >= 9.0.15
+Requires:         pki-selinux >= 9.0.15
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else 
+%elseif 0%{?fedora} >= 15
+Requires:         pki-common
+Requires:         pki-selinux
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
-%endif
-
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 Requires:         initscripts
+%else 
+Requires:         pki-common
+Requires:         pki-selinux
+Requires(post):   chkconfig
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
+Requires(postun): initscripts
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
@@ -157,19 +164,27 @@ fi
 %else 
 %post 
 # Attempt to update ALL old "TKS" instances to "systemd"
-#for inst in `ls /etc/sysconfig/pki/tks`; do
-#    if [ ! -e "/etc/systemd/system/pki-tksd.target.wants/pki-tksd@${inst}.service" ]; then
-#        ln -s "/lib/systemd/system/pki-tksd@.service"   "/etc/systemd/system/pki-tksd.target.wants/pki-tksd@${inst}.service"
-#        [ -e /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
-#        ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
-#        echo "pkicreate.systemd.servicename=pki-tksd@${inst}.service" >> /var/lib/${inst}/conf/CS.cfg
-#    fi
-#done
+for inst in `ls /etc/sysconfig/pki/tks`; do
+    if [ ! -e "/etc/systemd/system/pki-tksd.target.wants/pki-tksd@${inst}.service" ]; then
+        ln -s "/lib/systemd/system/pki-tksd@.service" \
+              "/etc/systemd/system/pki-tksd.target.wants/pki-tksd@${inst}.service"
+        [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
+        ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
+
+        if [ -e /var/run/${inst}.pid ]; then
+            kill -9 `cat /var/run/${inst}.pid` || :
+            rm -f /var/run/${inst}.pid
+            echo "pkicreate.systemd.servicename=pki-tksd@${inst}.service" >> \
+                 /var/lib/${inst}/conf/CS.cfg || :
+            /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+            /bin/systemctl restart pki-tksd@${inst}.service || :
+        else 
+            echo "pkicreate.systemd.servicename=pki-tksd@${inst}.service" >> \
+                 /var/lib/${inst}/conf/CS.cfg || :
+        fi
+    fi
+done
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-# Attempt to restart ALL updated "TKS" instances
-#if [ $1 = 2 ] ; then
-#    /bin/systemctl try-restart pki-tksd.target >/dev/null 2>&1 || :
-#fi
  
 %preun
 if [ $1 = 0 ] ; then
@@ -214,6 +229,13 @@ fi
 
 
 %changelog
+* Thu Sep 22 2011 Jack Magne <jmagne@redhat.com> 9.0.7-1
+- Bugzilla Bug #730146 - SSL handshake picks non-FIPS ciphers in FIPS mode (cfu)
+- Bugzilla Bug #730162 - TPS/TKS token enrollment failure in FIPS mode
+  (hsm+NSS).  (jmagne)
+- Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . . (mharmsen)
+- Bugzilla Bug #699809 - Convert CS to use systemd (alee)
+
 * Mon Sep 12 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.6-1
 - Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . .
 - Bugzilla Bug #699809 - Convert CS to use systemd (alee)

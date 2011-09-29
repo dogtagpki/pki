@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.8
+Version:          9.0.9
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -350,6 +350,20 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Thu Sep 22 2011 Andrew Wnuk <awnuk@redhat.com> 9.0.9-1
+- 'dogtag-pki-ca-theme'
+-      Bugzilla Bug #737423 - Ability to view migrated policy requests
+       is very limited. (awnuk)
+- 'dogtag-pki-common-theme'
+- 'dogtag-pki-console-theme'
+- 'dogtag-pki-kra-theme'
+- 'dogtag-pki-ocsp-theme'
+- 'dogtag-pki-ra-theme'
+- 'dogtag-pki-tks-theme'
+- 'dogtag-pki-tps-theme'
+-      Bugzilla Bug #737184 - TPS UI display admin user name as
+       "undefined TUS Administrator". (awnuk)
+
 * Mon Sep 12 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-1
 - 'dogtag-pki-ca-theme'
 - 'dogtag-pki-common-theme'
