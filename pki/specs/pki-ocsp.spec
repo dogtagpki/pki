@@ -10,6 +10,11 @@ BuildArch:        noarch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+# specify '_unitdir' macro for platforms that don't use 'systemd'
+%if 0%{?rhel} || 0%{?fedora} < 15
+%define           _unitdir /lib/systemd/system
+%endif
+
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    nspr-devel
@@ -35,7 +40,8 @@ Requires:         pki-selinux >= 9.0.15
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%elseif 0%{?fedora} >= 15
+%else
+%if 0%{?fedora} >= 15
 Requires:         pki-common
 Requires:         pki-selinux
 Requires(post):   chkconfig
@@ -55,6 +61,7 @@ Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
+%endif
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz

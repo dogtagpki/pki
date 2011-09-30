@@ -8,6 +8,11 @@ Group:            System Environment/Daemons
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+# specify '_unitdir' macro for platforms that don't use 'systemd'
+%if 0%{?rhel} || 0%{?fedora} < 15
+%define           _unitdir /lib/systemd/system
+%endif
+
 # tomcatjss requires versioning since version 2.0.0 requires tomcat6
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
@@ -27,7 +32,8 @@ BuildRequires:    jss >= 4.2.6-19.1
 BuildRequires:    osutil >= 2.0.2
 BuildRequires:    systemd-units
 BuildRequires:    tomcatjss >= 6.0.2
-%elseif 0%{?fedora} >= 15
+%else
+%if 0%{?fedora} >= 15
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    osutil >= 2.0.1
@@ -37,6 +43,7 @@ BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    osutil
 BuildRequires:    tomcatjss >= 2.0.0
+%endif
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
@@ -177,7 +184,8 @@ Requires:         ldapjdk
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-19.1
 Requires:         osutil >= 2.0.2
-%elseif 0%{?fedora} >= 15
+%else
+%if 0%{?fedora} >= 15
 Requires:         jpackage-utils
 Requires:         jss >= 4.2.6-17
 Requires:         osutil >= 2.0.1
@@ -185,6 +193,7 @@ Requires:         osutil >= 2.0.1
 Requires:         jpackage-utils
 Requires:         jss >= 4.2.6-17
 Requires:         osutil
+%endif
 %endif
 
 %description -n   pki-util
@@ -282,12 +291,14 @@ Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jss >= 4.2.6-19.1
 Requires:         tomcatjss >= 6.0.2
-%elseif 0%{?fedora} >= 15
+%else
+%if 0%{?fedora} >= 15
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jss >= 4.2.6-17
 Requires:         tomcatjss >= 6.0.0
-%elseif 0%{?fedora} >= 14
+%else
+%if 0%{?fedora} >= 14
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jss >= 4.2.6-17
@@ -297,6 +308,8 @@ Requires:         jakarta-commons-lang
 Requires:         jakarta-commons-logging
 Requires:         jss >= 4.2.6-17
 Requires:         tomcatjss >= 2.0.0
+%endif
+%endif
 %endif
 
 %description -n   pki-common
@@ -360,7 +373,8 @@ Requires:         pki-selinux = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%elseif 0%{?fedora} >= 15
+%else
+%if 0%{?fedora} >= 15
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
@@ -376,6 +390,7 @@ Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
+%endif
 %endif
 
 %description -n   pki-ca

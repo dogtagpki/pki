@@ -23,7 +23,8 @@ BuildArch:        noarch
 %define pki_tps_version            9.0.7
 %define pki_console_version        9.0.5
 %define tomcatjss_version          6.0.2
-%elseif 0%{?fedora} >= 15
+%else
+%if 0%{?fedora} >= 15
 %define dogtag_pki_theme_version   9.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-17
@@ -49,6 +50,7 @@ BuildArch:        noarch
 %define pki_tps_version            9.0.0
 %define pki_console_version        9.0.0
 %define tomcatjss_version          2.0.0
+%endif
 %endif
 
 # Make certain that this 'meta' package requires the latest version(s)
