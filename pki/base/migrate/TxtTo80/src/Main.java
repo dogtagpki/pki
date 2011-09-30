@@ -150,6 +150,8 @@ class CS80LdifParser
 				requestAttributes.addElement(
 					line.substring(1, line.length()));
 			} else {
+				// #737216 - skip unnecessary empty lines in attributes
+				if (line.trim().length() == 0) continue;
 				requestAttributes.setElementAt(
 					(String)
 					requestAttributes.lastElement() + 
