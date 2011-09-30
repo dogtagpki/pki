@@ -351,13 +351,6 @@ my $PKI_OPEN_COMMENT                  = "<!--";
 my $PKI_CLOSE_COMMENT                 = "-->";
 my $PKI_WEBAPPS_NAME                  = "PKI_WEBAPPS_NAME";
 
-#selinux constants
-my $semanage                     = "/usr/sbin/semanage";
-my $restorecon                   = "/sbin/restorecon";
-my $SELINUX_PORT_UNDEFINED       = 0;
-my $SELINUX_PORT_DEFINED         = 1;
-my $SELINUX_PORT_WRONGLY_DEFINED = 2;
-
 #proxy defaults
 my $PROXY_SECURE_PORT_DEFAULT   = "443";
 my $PROXY_UNSECURE_PORT_DEFAULT = "80";
@@ -369,9 +362,6 @@ my $AJP_PORT_DEFAULT            = "9447";
 
 # Useful pki references
 my %redirects = ();
-
-my %selinux_ports = ();
-
 my %supported_sec_modules_hash = ();
 
 ##############################################################
@@ -3018,78 +3008,6 @@ sub process_pki_security_modules
 
     return 1;
 }
-
-sub parse_selinux_ports
-{
-    open SM, '/usr/sbin/semanage port -l |grep tcp |sed \'s/tcp/___/g\'|sed \'s/\s//g\'|';
-    while (<SM>) {
-         chomp($_);
-         my ($type, $portstr) = split /___/, $_;
-         my @ports = split /,/, $portstr;
-         foreach my $port (@ports) {
-            if ($port =~ /(.*)-(.*)/) {
-                for (my $count = $1; $count <= $2; $count++) {
-                   $selinux_ports{$count} =  $type;
-                }
-            } else {
-                $selinux_ports{$port} = $type;
-            }
-         }
-    }
-    close(SM);
-}
-
-sub check_selinux_port
-{
-    my ($setype, $seport) = @_;
-
-    return $SELINUX_PORT_UNDEFINED if $dry_run;
-
-    if (defined $selinux_ports{$seport}) {
-        if ($selinux_ports{$seport} eq $setype) {
-            return $SELINUX_PORT_DEFINED;
-        } else {
-            return $SELINUX_PORT_WRONGLY_DEFINED;
-        }
-    } else {
-        return $SELINUX_PORT_UNDEFINED;
-    }
-}
-
-sub add_selinux_port
-{
-    my ($setype, $seport, $cmds_ref) = @_;
-    my $status = check_selinux_port($setype, $seport);
-
-    if ($status == $SELINUX_PORT_UNDEFINED) {
-        $$cmds_ref .= "port -a -t $setype -p tcp $seport\n";
-    } elsif ($status == $SELINUX_PORT_WRONGLY_DEFINED) {
-        emit("Failed setting selinux context $setype for $seport\n", "error");
-    }
-}
-
-sub add_selinux_file_context
-{
-   my ($fcontext, $fname, $ftype, $cmds_ref) = @_;
-   my ($result);
-   
-   emit(sprintf("add_selinux_file_context(%s)\n", join(", ", @_)), "debug");
-
-   #check if fcontext has already been set
-   my $tmp = `$semanage fcontext -l -n |grep $fname |grep ":$fcontext:" | wc -l`;
-   chomp $tmp;
-   if ($tmp ne "0") {
-      emit("selinux fcontext for $fname already defined\n", "debug");
-      return;
-   }
-
-   if ($ftype eq "f") {
-       $$cmds_ref .= "fcontext -a -t $fcontext -f -- $fname\n";
-   } else {
-       $$cmds_ref .= "fcontext -a -t $fcontext $fname\n";
-   }
-}
-
 
 sub process_pki_selinux_setup
 {

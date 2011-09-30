@@ -4,6 +4,7 @@ install(
     FILES
         pkicreate
         pkiremove
+        pki-setup-proxy
         scripts/pkicontrol
     DESTINATION
         ${BIN_INSTALL_DIR}

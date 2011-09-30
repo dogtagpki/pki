@@ -577,6 +577,7 @@ fi
 %doc base/setup/LICENSE
 %{_bindir}/pkicreate
 %{_bindir}/pkiremove
+%{_bindir}/pki-setup-proxy
 %dir %{_datadir}/pki
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/pkicommon.pm
@@ -724,6 +725,7 @@ fi
 - 'pki-setup'
 -      Bugzilla Bug #730146 - SSL handshake picks non-FIPS ciphers in FIPS
        mode (cfu)
+-      Bugzilla Bug #737192 - Need script to upgrade proxy configuration (alee)
 - 'pki-symkey'
 -      Bugzilla Bug #730162 - TPS/TKS token enrollment failure in FIPS mode
        (hsm+NSS). (jmagne)

@@ -43,6 +43,7 @@ our @EXPORT = qw(
  $CA_INITSCRIPT $KRA_INITSCRIPT $OCSP_INITSCRIPT
  $TKS_INITSCRIPT $RA_INITSCRIPT $TPS_INITSCRIPT
  $install_info_basename $cleanup_basename %installation_info
+ $semanage $restorecon $SELINUX_PORT_UNDEFINED $SELINUX_PORT_DEFINED $SELINUX_PORT_WRONGLY_DEFINED
 
  add_install_info remove_install_info get_install_description
  format_install_info get_install_info_description
@@ -72,7 +73,8 @@ our @EXPORT = qw(
  symlink_exists create_symlink remove_symlink set_owner_group_on_symlink
  run_command get_cs_cfg get_registry_initscript_name 
  register_pki_instance_with_chkconfig deregister_pki_instance_with_chkconfig
- find_jar
+ find_jar  
+ check_selinux_port parse_selinux_ports add_selinux_port add_selinux_file_context
  );
 
 
@@ -155,6 +157,9 @@ our $dry_run = 0;
 
 our $hostname = undef;
 
+# selinux structures
+our %selinux_ports = ();
+
 ##############################################################
 # Shared Default Values
 ##############################################################
@@ -183,6 +188,12 @@ our $default_registry_path         = undef;
 our $default_dir_permissions       = 00770;
 our $default_exe_permissions       = 00770;
 our $default_file_permissions      = 00660;
+
+our $semanage                     = "/usr/sbin/semanage";
+our $restorecon                   = "/sbin/restorecon";
+our $SELINUX_PORT_UNDEFINED       = 0;
+our $SELINUX_PORT_DEFINED         = 1;
+our $SELINUX_PORT_WRONGLY_DEFINED = 2;
 
 
 
@@ -3478,6 +3489,90 @@ sub get_registry_initscript_name
         die "unknown subsystem type \"$subsystem_type\"";
     }
 
+}
+
+#######################################
+# Generic selinux routines
+#######################################
+
+sub check_selinux_port
+{
+    my ($setype, $seport) = @_;
+
+    return $SELINUX_PORT_UNDEFINED if $dry_run;
+
+    if (defined $selinux_ports{$seport}) {
+        if ($selinux_ports{$seport} eq $setype) {
+            return $SELINUX_PORT_DEFINED;
+        } else {
+            return $SELINUX_PORT_WRONGLY_DEFINED;
+        }
+    } else {
+        return $SELINUX_PORT_UNDEFINED;
+    }
+}
+
+sub parse_selinux_ports
+{
+    open SM, '/usr/sbin/semanage port -l |grep tcp |sed \'s/tcp/___/g\'|sed \'s/\s//g\'|';
+    while (<SM>) {
+         chomp($_);
+         my ($type, $portstr) = split /___/, $_;
+         my @ports = split /,/, $portstr;
+         foreach my $port (@ports) {
+            if ($port =~ /(.*)-(.*)/) {
+                for (my $count = $1; $count <= $2; $count++) {
+                   $selinux_ports{$count} =  $type;
+                }
+            } else {
+                $selinux_ports{$port} = $type;
+            }
+         }
+    }
+    close(SM);
+}
+
+sub add_selinux_port
+{
+    my ($setype, $seport, $cmds_ref) = @_;
+    my $status = check_selinux_port($setype, $seport);
+
+    if ($status == $SELINUX_PORT_UNDEFINED) {
+        if ($cmds_ref) {
+            $$cmds_ref .= "port -a -t $setype -p tcp $seport\n";
+        } else {
+            my $cmd = "$semanage port -a -t $setype -p tcp $seport\n";
+            if (! run_command($cmd)) {
+                emit("Failed to set selinux context for $seport", "error");
+            }
+        }
+
+    } elsif ($status == $SELINUX_PORT_WRONGLY_DEFINED) {
+        emit("Failed setting selinux context $setype for $seport.  " .
+             "Port already defined otherwise.\n", "error");
+    }
+}
+
+sub add_selinux_file_context
+{
+   my ($fcontext, $fname, $ftype, $cmds_ref) = @_;
+   my ($result);
+
+   emit(sprintf("add_selinux_file_context(%s)\n", join(", ", @_)), "debug");
+
+   #check if fcontext has already been set
+   my $tmp = `$semanage fcontext -l -n |grep $fname |grep ":$fcontext:" | wc -l`;
+   chomp $tmp;
+   if ($tmp ne "0") {
+      emit("selinux fcontext for $fname already defined\n", "debug");
+      return;
+   }
+
+   if ($ftype eq "f") {
+       $$cmds_ref .= "fcontext -a -t $fcontext -f -- $fname\n";
+   } else {
+       $$cmds_ref .= "fcontext -a -t $fcontext $fname\n";
+   }
 }
 
 1;
