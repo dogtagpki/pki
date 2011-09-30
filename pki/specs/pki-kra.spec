@@ -11,7 +11,7 @@ BuildArch:        noarch
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # specify '_unitdir' macro for platforms that don't use 'systemd'
-%if 0%{?rhel} || 0%{?fedora} < 15
+%if 0%{?rhel} || 0%{?fedora} < 16
 %define           _unitdir /lib/systemd/system
 %endif
 
