@@ -1,0 +1,65 @@
+Index: base/silent/scripts/pkisilent
+===================================================================
+--- base/silent/scripts/pkisilent	(revision 1878)
++++ base/silent/scripts/pkisilent	(revision 1879)
+@@ -148,6 +148,7 @@
+ 	. "/usr/share/java/${PRODUCT}/pki-tools.jar:"
+ 	. "/usr/share/java/ldapjdk.jar:"
+ 	. "/usr/share/java/xerces-j2.jar:"
++	. "/usr/share/java/xml-commons-apis.jar:"
+ 	. "/usr/share/java/xml-commons-resolver.jar:"
+ 	. "/usr/lib/java/dirsec/jss4.jar:"
+ 	. "/usr/lib/java/jss4.jar:"
+Index: base/setup/pkicreate
+===================================================================
+--- base/setup/pkicreate	(revision 1878)
++++ base/setup/pkicreate	(revision 1879)
+@@ -193,6 +193,7 @@
+ my $apache_commons_lang_jar_base_name     = "apache-commons-lang.jar";
+ my $jakarta_commons_lang_jar_base_name    = "jakarta-commons-lang.jar";
+ my $xml_commons_apis_jar_base_name        = "xml-commons-apis.jar";
++my $xml_commons_resolver_jar_base_name    = "xml-commons-resolver.jar";
+ 
+ my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
+ my $catalina_properties_base_name = "catalina.properties";    # CA, KRA, OCSP, TKS
+@@ -477,6 +478,8 @@
+ my $xerces_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+ my $xml_commons_apis_jar_file_path               = undef;  # CA, KRA, OCSP, TKS
+ my $xml_commons_apis_jar_symlink_path            = undef;  # CA, KRA, OCSP, TKS
++my $xml_commons_resolver_jar_file_path           = undef;  # CA, KRA, OCSP, TKS
++my $xml_commons_resolver_jar_symlink_path        = undef;  # CA, KRA, OCSP, TKS
+ my $httpd_conf_instance_file_path                = undef;  # RA, TPS
+ my $httpd_conf_subsystem_file_path               = undef;  # RA, TPS
+ my $index_jsp_instance_file_path                 = undef;  # CA, KRA, OCSP, TKS
+@@ -1758,6 +1761,11 @@
+             return 0;
+         }
+ 
++        if (!defined($xml_commons_resolver_jar_file_path = find_jar($xml_commons_resolver_jar_base_name))) {
++            emit("could not find jar: $xml_commons_resolver_jar_base_name", "error");
++            return 0;
++        }
++
+         $webinf_instance_path              = $webapps_instance_path
+                                            . "/" . $subsystem_type
+                                            . "/" . $webinf_base_instance_dir;
+@@ -1808,6 +1816,8 @@
+                                            . "/" . $xerces_jar_base_name;
+         $xml_commons_apis_jar_symlink_path = $webinf_lib_instance_path
+                                            . "/" . $xml_commons_apis_jar_base_name;
++        $xml_commons_resolver_jar_symlink_path = $webinf_lib_instance_path
++                                           . "/" . $xml_commons_resolver_jar_base_name;
+ 
+ 
+         $webapps_root_instance_path        = $webapps_instance_path
+@@ -2754,6 +2764,10 @@
+         return 0 if !create_symlink($xml_commons_apis_jar_symlink_path, $xml_commons_apis_jar_file_path,
+                                     $pki_user, $pki_group);
+ 
++        # create instance symlink to "xml_commons_resolver.jar"
++        return 0 if !create_symlink($xml_commons_resolver_jar_symlink_path, $xml_commons_resolver_jar_file_path,
++                                    $pki_user, $pki_group);
++
+     }
+ 
+     return 1;

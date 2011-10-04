@@ -1,0 +1,29 @@
+Date
+
+  Fri Oct  3 00:37:14 EDT 2008
+
+Version
+
+  CMS 8.0
+
+Overview
+
+  In CMS8.0, the security domain data has been migrated into the 
+  internal LDAP database to allow easier replication of this data
+  when cloning.  Prior to this release, this information was stored
+  in the domain.xml configuration file on the CA serving as the Domain 
+  Master.  
+
+Program
+
+  MigrateSecurityDomain - This command will add the relevant schema and migrate 
+  security domain data that resides in domain.xml into the internal database.  
+  The program needs only two arguments - the location of the instance root directory 
+  (like /var/lib/pki-ca) and the directory user's password.
+
+Example
+
+  Here is an example of MigrateSecurityDomain usage
+java -cp /usr/share/java/ldapjdk.jar:/usr/share/java/pki/cmscore.jar:/usr/share/java/pki/cmsutil.jar:/usr/share/java/pki/certsrv.jar:.  MigrateSecurityDomain  /var/lib/pki-ca  mypassword
+
+

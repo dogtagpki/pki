@@ -1,0 +1,65 @@
+Index: dogtag/ca-ui/shared/webapps/ca/ee/ca/requestStatus.template
+===================================================================
+--- dogtag/ca-ui/shared/webapps/ca/ee/ca/requestStatus.template	(revision 2160)
++++ dogtag/ca-ui/shared/webapps/ca/ee/ca/requestStatus.template	(revision 2161)
+@@ -23,7 +23,7 @@
+ </head>
+ 
+ <SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+-<script LANGUAGE="JavaScript" SRC="/ee/helpfun.js"></script>
++<script LANGUAGE="JavaScript" SRC="../helpfun.js"></script>
+ 
+ <CMS_TEMPLATE>
+ 
+Index: dogtag/ca-ui/shared/webapps/ca/ee/ca/ProfileSelect.template
+===================================================================
+--- dogtag/ca-ui/shared/webapps/ca/ee/ca/ProfileSelect.template	(revision 2160)
++++ dogtag/ca-ui/shared/webapps/ca/ee/ca/ProfileSelect.template	(revision 2161)
+@@ -282,7 +282,7 @@
+   var uri = 'profileSubmit';
+   if (typeof(authName) != "undefined") {
+     if (authIsSSLClientRequired == 'true') {
+-      uri = 'https://[PKI_MACHINE_NAME]:[PKI_EE_SECURE_CLIENT_AUTH_PORT]/[PKI_SUBSYSTEM_TYPE]/eeca/[PKI_SUBSYSTEM_TYPE]/profileSubmitSSLClient';
++      uri = 'https://[PKI_MACHINE_NAME]:[PKI_EE_SECURE_CLIENT_AUTH_PORT_UI]/[PKI_SUBSYSTEM_TYPE]/eeca/[PKI_SUBSYSTEM_TYPE]/profileSubmitSSLClient';
+     }
+   }
+   if (navigator.appName == "Microsoft Internet Explorer") {
+Index: dogtag/ca-ui/shared/webapps/ca/agent/ca/getOCSPInfo.template
+===================================================================
+--- dogtag/ca-ui/shared/webapps/ca/agent/ca/getOCSPInfo.template	(revision 2160)
++++ dogtag/ca-ui/shared/webapps/ca/agent/ca/getOCSPInfo.template	(revision 2161)
+@@ -20,7 +20,7 @@
+ <head>
+    <title>Display CRL</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+-<SCRIPT type="text/javascript" SRC="/helpfun.js"></SCRIPT>
++<SCRIPT type="text/javascript" SRC="../helpfun.js"></SCRIPT>
+ <SCRIPT type="text/javascript">
+ <!--
+ if (navigator.appName == "Microsoft Internet Explorer") {
+Index: dogtag/ca-ui/shared/webapps/ca/agent/ca/displayCRL.template
+===================================================================
+--- dogtag/ca-ui/shared/webapps/ca/agent/ca/displayCRL.template	(revision 2160)
++++ dogtag/ca-ui/shared/webapps/ca/agent/ca/displayCRL.template	(revision 2161)
+@@ -20,7 +20,7 @@
+ <head>
+    <title>Display CRL</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+-<SCRIPT type="text/javascript" SRC="/helpfun.js"></SCRIPT>
++<SCRIPT type="text/javascript" SRC="../helpfun.js"></SCRIPT>
+ <SCRIPT type="text/javascript">
+ <!--
+ if (navigator.appName == "Microsoft Internet Explorer") {
+Index: dogtag/ca-ui/shared/webapps/ca/agent/ca/getStats.template
+===================================================================
+--- dogtag/ca-ui/shared/webapps/ca/agent/ca/getStats.template	(revision 2160)
++++ dogtag/ca-ui/shared/webapps/ca/agent/ca/getStats.template	(revision 2161)
+@@ -20,7 +20,7 @@
+ <head>
+    <title>Display CRL</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+-<SCRIPT type="text/javascript" SRC="/helpfun.js"></SCRIPT>
++<SCRIPT type="text/javascript" SRC="../helpfun.js"></SCRIPT>
+ <SCRIPT type="text/javascript">
+ <!--
+ if (navigator.appName == "Microsoft Internet Explorer") {

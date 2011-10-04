@@ -1,0 +1,132 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<title>Server Certificate Request</title>
+    <link rel="shortcut icon" href="/ra/admin/console/img/favicon.ico" />
+    <link rel="stylesheet" href="/css/pki-base.css" type="text/css" />
+    <META http-equiv=Content-Type content="text/html; charset=UTF-8">
+
+</head>
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+
+#include ( "header.vm" )
+
+<div id="mainNavOuter">
+<div id="mainNav">
+<div id="mainNavInner">
+
+</div><!-- end mainNavInner -->
+</div><!-- end mainNav -->
+</div><!-- end mainNavOuter -->
+                                                                                
+                                                                                
+<div id="bar">
+                                                                                
+<div id="systembar">
+<div id="systembarinner">
+                                                                                
+<div>
+  -
+</div>
+                                                                                
+                                                                                
+</div>
+</div>
+                                                                                
+</div>
+
+<SCRIPT LANGUAGE="JavaScript">
+
+function validate()
+{
+    var x = document.enrollment.server_id.value;
+    if (x == '') {
+      alert("server id is empty");
+      return false;
+    }
+    var s = document.enrollment.site_id.value;
+    if (s == '') {
+      alert("site id is empty");
+      return false;
+    }
+    var e = document.enrollment.email.value;
+    if (e == '') {
+      alert("email is empty");
+      return false;
+    }
+    var c = document.enrollment.csr.value;
+    if (c == '') {
+      alert("csr is empty");
+      return false;
+    }
+}
+</SCRIPT>
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<a href="/ee/index.cgi">RA Services</a> :
+<a href="/ee/server/index.cgi">Server Enrollment</a><br />
+Server Administrator Interface
+</font><br>
+<p> 
+This form is for server administrator to request for a server certificate.
+<p> 
+
+<script language=javascript>
+<!--
+ if (navigator.appName == "Microsoft Internet Explorer") { 
+   document.writeln('<form name="enrollment" method=post action="submit.cgi">');
+  } else {
+   document.writeln('<form name="enrollment" onSubmit="return validate();" method=post action="submit.cgi">');
+  }
+-->
+</script>
+<center>
+<table border="0" cellspacing="1" cellpadding="1">
+<tr>
+  <td width=20%>Server ID:</td>
+  <td><input type=text name=server_id value="" ></td>
+</tr>
+<tr>
+  <td>Site ID:</td>
+  <td><input type=text name=site_id value=""></td>
+</tr>
+<tr>
+  <td>Your Email:</td>
+  <td><input type=text name=email value=""></td>
+</tr>
+<tr>
+  <td>CSR:</td>
+  <td><textarea cols=40 rows=5 name=csr></textarea></td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td><input type=submit name=Submit value="Submit"></td>
+  <td></td>
+</tr>
+</table>
+</form>
+</center>
+#include ( "footer.vm" )
+
+</body>
+</html>

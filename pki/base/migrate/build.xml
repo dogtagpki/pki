@@ -1,0 +1,437 @@
+<!-- ### BEGIN COPYRIGHT BLOCK ###
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; version 2 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+  Copyright (C) 2007 Red Hat, Inc.
+  All rights reserved.
+     ### END COPYRIGHT BLOCK ### -->
+<project name="migrate" default="main" basedir=".">
+
+    <import file="config/product.xml"/>
+    <import file="config/product-ext.xml" optional="true"/>
+
+
+    <target name="clean"
+            depends=""
+            description="--> remove component directories">
+        <echo message="${begin.clean.log.message}"/>
+        <delete dir="${dist.base}"/>
+        <delete dir="${build.dir}"/>
+        <echo message="${end.clean.log.message}"/>
+    </target>
+
+
+    <target name="download"
+            depends=""
+            description="--> download dependent components">
+        <echo message="${begin.download.log.message}"/>
+        <echo message="${empty.download.log.message}"/>
+        <echo message="${end.download.log.message}"/>
+    </target>
+
+
+    <target name="compile_java"
+            depends=""
+            description="--> compile java source code into classes">
+        <echo message="${begin.compile.java.log.message}"/>
+        <echo message="${empty.compile.java.log.message}"/>
+        <echo message="${end.compile.java.log.message}"/>
+    </target>
+
+
+    <target name="build_jars"
+            depends="compile_java"
+            description="--> generate jar files">
+        <echo message="${begin.build.jars.log.message}"/>
+        <echo message="${empty.build.jars.log.message}"/>
+        <echo message="${end.build.jars.log.message}"/>
+    </target>
+
+
+    <target name="build_jni_headers"
+            depends="compile_java"
+            description="--> generate jni header files">
+        <echo message="${begin.build.jni.headers.log.message}"/>
+        <echo message="${empty.build.jni.headers.log.message}"/>
+        <echo message="${end.build.jni.headers.log.message}"/>
+    </target>
+
+
+    <target name="build"
+            depends="build_jars,build_jni_headers"
+            description="--> build classes, jars, and jni headers">
+        <echo message="${notify.build.log.message}"/>
+    </target>
+
+
+    <target name="compile_junit_tests"
+            depends="build"
+            description="--> compile junit test source code">
+        <echo message="${begin.compile.junit.tests.log.message}"/>
+        <echo message="${empty.compile.junit.tests.log.message}"/>
+        <echo message="${end.compile.junit.tests.log.message}"/>
+    </target>
+
+
+    <target name="run_junit_tests"
+            depends="compile_junit_tests"
+            description="--> execute junit tests">
+        <echo message="${begin.run.junit.tests.log.message}"/>
+        <echo message="${empty.run.junit.tests.log.message}"/>
+        <echo message="${end.run.junit.tests.log.message}"/>
+    </target>
+
+
+    <target name="verify"
+            depends="run_junit_tests"
+            description="--> build and execute junit tests">
+        <echo message="${notify.verify.log.message}"/>
+    </target>
+
+
+    <target name="clean_javadocs"
+            depends=""
+            description="--> remove javadocs directory">
+        <echo message="${begin.clean.javadocs.log.message}"/>
+        <echo message="${empty.clean.javadocs.log.message}"/>
+        <echo message="${end.clean.javadocs.log.message}"/>
+    </target>
+
+
+    <target name="compose_javadocs"
+            depends="build"
+            description="--> generate javadocs">
+        <echo message="${begin.compose.javadocs.log.message}"/>
+        <echo message="${empty.compose.javadocs.log.message}"/>
+        <echo message="${end.compose.javadocs.log.message}"/>
+    </target>
+
+
+    <target name="document"
+            depends="clean_javadocs,compose_javadocs"
+            description="--> remove old javadocs and compose new javadocs">
+        <echo message="${notify.document.log.message}"/>
+    </target>
+
+
+    <target name="distribute_binaries"
+            depends="document"
+            description="--> create the zip and gzipped tar binary distributions">
+        <echo message="${begin.distribute.binaries.log.message}"/>
+        <mkdir dir="${dist.base.binaries}"/>
+
+        <echo message="${begin.binary.wrappers.log.message}"/>
+        <echo message="${empty.binary.wrappers.log.message}"/>
+        <echo message="${end.binary.wrappers.log.message}"/>
+
+        <echo message="${begin.binary.zip.log.message}"/>
+        <zip destfile="${dist.base.binaries}/${dist.name}.zip">
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="usr/share/${product.prefix}/${product}">
+                <include name="42SP2ToTxt/*.sh"/>
+                <include name="42SP2ToTxt/classes/**"/>
+                <include name="47ToTxt/*.sh"/>
+                <include name="47ToTxt/classes/**"/>
+                <include name="45ToTxt/*.sh"/>
+                <include name="45ToTxt/classes/**"/>
+                <include name="TxtTo72/*.sh"/>
+                <include name="TxtTo72/classes/**"/>
+                <include name="63ToTxt/*.sh"/>
+                <include name="63ToTxt/classes/**"/>
+                <include name="72ToTxt/*.sh"/>
+                <include name="72ToTxt/classes/**"/>
+                <include name="TxtTo71/*.sh"/>
+                <include name="TxtTo71/classes/**"/>
+                <include name="62ToTxt/*.sh"/>
+                <include name="62ToTxt/classes/**"/>
+                <include name="71ToTxt/*.sh"/>
+                <include name="71ToTxt/classes/**"/>
+                <include name="TxtTo62/*.sh"/>
+                <include name="TxtTo62/classes/**"/>
+                <include name="61ToTxt/*.sh"/>
+                <include name="61ToTxt/classes/**"/>
+                <include name="TxtTo70/*.sh"/>
+                <include name="TxtTo70/classes/**"/>
+                <include name="42ToTxt/*.sh"/>
+                <include name="42ToTxt/classes/**"/>
+                <include name="60ToTxt/*.sh"/>
+                <include name="60ToTxt/classes/**"/>
+                <include name="70ToTxt/*.sh"/>
+                <include name="70ToTxt/classes/**"/>
+                <include name="TxtTo60/*.sh"/>
+                <include name="TxtTo60/classes/**"/>
+                <include name="TxtTo61/*.sh"/>
+                <include name="TxtTo61/classes/**"/>
+                <include name="41ToTxt/*.sh"/>
+                <include name="41ToTxt/classes/**"/>
+                <include name="73ToTxt/*.sh"/>
+                <include name="73ToTxt/classes/**"/>
+                <include name="TxtTo73/*.sh"/>
+                <include name="TxtTo73/classes/**"/>
+                <include name="TxtTo80/*.sh"/>
+                <include name="TxtTo80/classes/**"/>
+                <include name="80/*.class"/>
+                <include name="TpsTo80/linux/**"/>
+                <include name="TpsTo80/solaris/**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="644"
+                        prefix="usr/share/${product.prefix}/${product}">
+                <include name="*/*.bat"/>
+                <include name="80/*.ldif"/>
+                <include name="80/readme"/>
+                <include name="TpsTo80/readme"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="644"
+                        prefix="usr/share/doc/${dist.name}">
+                <include name="EULA"/>
+                <include name="LICENSE"/>
+            </zipfileset>
+        </zip>
+        <echo message="${end.binary.zip.log.message}"/>
+
+        <echo message="${begin.binary.tar.log.message}"/>
+        <tar longfile="gnu"
+             destfile="${dist.base.binaries}/${dist.name}.tar">
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="${dist.name}/usr/share/${product.prefix}/${product}">
+                <include name="42SP2ToTxt/*.sh"/>
+                <include name="42SP2ToTxt/classes/**"/>
+                <include name="47ToTxt/*.sh"/>
+                <include name="47ToTxt/classes/**"/>
+                <include name="45ToTxt/*.sh"/>
+                <include name="45ToTxt/classes/**"/>
+                <include name="TxtTo72/*.sh"/>
+                <include name="TxtTo72/classes/**"/>
+                <include name="63ToTxt/*.sh"/>
+                <include name="63ToTxt/classes/**"/>
+                <include name="72ToTxt/*.sh"/>
+                <include name="72ToTxt/classes/**"/>
+                <include name="TxtTo71/*.sh"/>
+                <include name="TxtTo71/classes/**"/>
+                <include name="62ToTxt/*.sh"/>
+                <include name="62ToTxt/classes/**"/>
+                <include name="71ToTxt/*.sh"/>
+                <include name="71ToTxt/classes/**"/>
+                <include name="TxtTo62/*.sh"/>
+                <include name="TxtTo62/classes/**"/>
+                <include name="61ToTxt/*.sh"/>
+                <include name="61ToTxt/classes/**"/>
+                <include name="TxtTo70/*.sh"/>
+                <include name="TxtTo70/classes/**"/>
+                <include name="42ToTxt/*.sh"/>
+                <include name="42ToTxt/classes/**"/>
+                <include name="60ToTxt/*.sh"/>
+                <include name="60ToTxt/classes/**"/>
+                <include name="70ToTxt/*.sh"/>
+                <include name="70ToTxt/classes/**"/>
+                <include name="TxtTo60/*.sh"/>
+                <include name="TxtTo60/classes/**"/>
+                <include name="TxtTo61/*.sh"/>
+                <include name="TxtTo61/classes/**"/>
+                <include name="41ToTxt/*.sh"/>
+                <include name="41ToTxt/classes/**"/>
+                <include name="73ToTxt/*.sh"/>
+                <include name="73ToTxt/classes/**"/>
+                <include name="TxtTo73/*.sh"/>
+                <include name="TxtTo73/classes/**"/>
+                <include name="TxtTo80/*.sh"/>
+                <include name="TxtTo80/classes/**"/>
+                <include name="80/*.class"/>
+                <include name="TpsTo80/linux/**"/>
+                <include name="TpsTo80/solaris/**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="644"
+                        prefix="${dist.name}/usr/share/${product.prefix}/${product}">
+                <include name="*/*.bat"/>
+                <include name="80/*.ldif"/>
+                <include name="80/readme"/>
+                <include name="TpsTo80/readme"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="644"
+                        prefix="${dist.name}/usr/share/doc/${dist.name}">
+                <include name="EULA"/>
+                <include name="LICENSE"/>
+            </tarfileset>
+        </tar>
+        <echo message="${end.binary.tar.log.message}"/>
+
+        <echo message="${begin.binary.gtar.log.message}"/>
+        <gzip destfile="${dist.base.binaries}/${dist.name}.tar.gz"
+              src="${dist.base.binaries}/${dist.name}.tar"/>
+        <delete file="${dist.base.binaries}/${dist.name}.tar"/>
+        <delete dir="${dist.name}"/>
+        <checksum fileext=".md5">
+            <fileset dir="${dist.base.binaries}/">
+                <include name="**/*"/>
+                <exclude name="**/*.asc"/>
+                <exclude name="**/*.md5"/>
+            </fileset>
+        </checksum>
+        <checksum fileext=".sha1"
+                  algorithm="SHA">
+            <fileset dir="${dist.base.binaries}/">
+                <include name="**/*"/>
+                <exclude name="**/*.asc"/>
+                <exclude name="**/*.md5"/>
+            </fileset>
+        </checksum>
+        <echo message="${end.binary.gtar.log.message}"/>
+
+        <echo message="${end.distribute.binaries.log.message}"/>
+    </target>
+
+
+    <target name="distribute_source"
+            depends=""
+            description="--> create the zip and gzipped tar source distributions">
+        <echo message="${begin.distribute.source.log.message}"/>
+        <mkdir dir="${dist.base.source}"/>
+
+        <echo message="${begin.source.zip.log.message}"/>
+        <zip destfile="${dist.base.source}/${src.dist.name}.zip">
+            <zipfileset dir="."
+                        filemode="755"
+                        prefix="${src.dist.name}">
+                <include name="${specfile}"/>
+                <exclude name="EULA"/>
+                <exclude name="LICENSE"/>
+                <include name="build.xml"/>
+                <include name="config/product*.xml"/>
+                <include name="config/release*.xml"/>
+                <include name="release"/>
+                <include name="41ToTxt/**"/>
+                <include name="42ToTxt/**"/>
+                <include name="42SP2ToTxt/**"/>
+                <include name="45ToTxt/**"/>
+                <include name="47ToTxt/**"/>
+                <include name="60ToTxt/**"/>
+                <include name="61ToTxt/**"/>
+                <include name="62ToTxt/**"/>
+                <include name="63ToTxt/**"/>
+                <include name="70ToTxt/**"/>
+                <include name="71ToTxt/**"/>
+                <include name="72ToTxt/**"/>
+                <include name="73ToTxt/**"/>
+                <include name="TxtTo60/**"/>
+                <include name="TxtTo61/**"/>
+                <include name="TxtTo62/**"/>
+                <include name="TxtTo70/**"/>
+                <include name="TxtTo71/**"/>
+                <include name="TxtTo72/**"/>
+                <include name="TxtTo73/**"/>
+                <include name="TxtTo80/**"/>
+                <include name="80/**"/>
+                <include name="TpsTo80/**"/>
+            </zipfileset>
+            <zipfileset dir="."
+                        filemode="644"
+                        prefix="${src.dist.name}">
+                <include name="EULA"/>
+                <include name="LICENSE"/>
+            </zipfileset>
+        </zip>
+        <echo message="${end.source.zip.log.message}"/>
+
+        <echo message="${begin.source.tar.log.message}"/>
+        <tar longfile="gnu"
+             destfile="${dist.base.source}/${src.dist.name}.tar">
+            <tarfileset dir="."
+                        mode="755"
+                        prefix="${src.dist.name}">
+                <include name="${specfile}"/>
+                <exclude name="EULA"/>
+                <exclude name="LICENSE"/>
+                <include name="build.xml"/>
+                <include name="config/product*.xml"/>
+                <include name="config/release*.xml"/>
+                <include name="release"/>
+                <include name="41ToTxt/**"/>
+                <include name="42ToTxt/**"/>
+                <include name="42SP2ToTxt/**"/>
+                <include name="45ToTxt/**"/>
+                <include name="47ToTxt/**"/>
+                <include name="60ToTxt/**"/>
+                <include name="61ToTxt/**"/>
+                <include name="62ToTxt/**"/>
+                <include name="63ToTxt/**"/>
+                <include name="70ToTxt/**"/>
+                <include name="71ToTxt/**"/>
+                <include name="72ToTxt/**"/>
+                <include name="73ToTxt/**"/>
+                <include name="TxtTo60/**"/>
+                <include name="TxtTo61/**"/>
+                <include name="TxtTo62/**"/>
+                <include name="TxtTo70/**"/>
+                <include name="TxtTo71/**"/>
+                <include name="TxtTo72/**"/>
+                <include name="TxtTo73/**"/>
+                <include name="TxtTo80/**"/>
+                <include name="80/**"/>
+                <include name="TpsTo80/**"/>
+            </tarfileset>
+            <tarfileset dir="."
+                        mode="644"
+                        prefix="${src.dist.name}">
+                <include name="EULA"/>
+                <include name="LICENSE"/>
+            </tarfileset>
+        </tar>
+        <echo message="${end.source.tar.log.message}"/>
+
+        <echo message="${begin.source.gtar.log.message}"/>
+        <gzip destfile="${dist.base.source}/${src.dist.name}.tar.gz"
+              src="${dist.base.source}/${src.dist.name}.tar"/>
+        <delete file="${dist.base.source}/${src.dist.name}.tar"/>
+        <delete dir="${dist.name}"/>
+        <checksum fileext=".md5">
+            <fileset dir="${dist.base.source}/">
+                <include name="**/*"/>
+                <exclude name="**/*.asc"/>
+                <exclude name="**/*.md5"/>
+            </fileset>
+        </checksum>
+        <checksum fileext=".sha1"
+                  algorithm="SHA">
+            <fileset dir="${dist.base.source}/">
+                <include name="**/*"/>
+                <exclude name="**/*.asc"/>
+                <exclude name="**/*.md5"/>
+            </fileset>
+        </checksum>
+        <echo message="${end.source.gtar.log.message}"/>
+
+        <echo message="${end.distribute.source.log.message}"/>
+    </target>
+
+
+    <target name="distribute"
+            depends="distribute_binaries,distribute_source"
+            description="--> create binary and source component distributions">
+        <echo message="${notify.distribute.log.message}"/>
+    </target>
+
+
+    <target name="main"
+            depends="clean,distribute"
+            description="--> clean, build, verify, document, distribute [default]">
+        <echo message="${notify.main.log.message}"/>
+    </target>
+
+</project>
+

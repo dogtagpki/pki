@@ -1,0 +1,441 @@
+Index: base/common/src/com/netscape/cms/servlet/csadmin/DatabasePanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/DatabasePanel.java	(revision 1885)
++++ base/common/src/com/netscape/cms/servlet/csadmin/DatabasePanel.java	(revision 1886)
+@@ -146,6 +146,7 @@
+         String database = null;
+         String errorString = "";
+         String secure = "false";
++        String cloneStartTLS = "false";
+         try {
+             String s = cs.getString("preop.database.removeData");
+         } catch (Exception e) {
+@@ -166,6 +167,7 @@
+                 binddn = cs.getString("internaldb.ldapauth.bindDN", "");
+                 database = cs.getString("internaldb.database", "");
+             	secure =  cs.getString("internaldb.ldapconn.secureConn", "");
++            	cloneStartTLS =  cs.getString("internaldb.ldapconn.cloneStartTLS", "");
+                 errorString = cs.getString("preop.database.errorString", "");
+             } catch (Exception e) {
+                 CMS.debug("DatabasePanel display: " + e.toString());
+@@ -221,6 +223,7 @@
+         context.put("bindpwd", bindpwd);
+         context.put("database", database);
+ 		context.put("secureConn", (secure.equals("true")? "on":"off"));
++        context.put("cloneStartTLS", (cloneStartTLS.equals("true")? "on":"off"));
+         context.put("panel", "admin/console/config/databasepanel.vm");
+         context.put("errorString", errorString);
+     }
+@@ -279,6 +282,9 @@
+         String secure = HttpInput.getCheckbox(request, "secureConn");
+         context.put("secureConn", secure);
+ 
++        String cloneStartTLS = HttpInput.getCheckbox(request, "cloneStartTLS");
++        context.put("cloneStartTLS", cloneStartTLS);
++
+         String select = "";
+         try {
+             select = cs.getString("preop.subsystem.select", "");
+@@ -866,6 +872,9 @@
+         cs.putString("internaldb.database", database2);
+         String secure = HttpInput.getCheckbox(request, "secureConn");
+         cs.putString("internaldb.ldapconn.secureConn", (secure.equals("on")?"true":"false"));
++        String cloneStartTLS = HttpInput.getCheckbox(request, "cloneStartTLS");
++        cs.putString("internaldb.ldapconn.cloneStartTLS", (cloneStartTLS.equals("on")?"true":"false"));
++
+         String remove = HttpInput.getID(request, "removeData");
+         if (isPanelDone() && (remove == null || remove.equals(""))) {
+              /* if user submits the same data, they just want to skip 
+@@ -987,7 +996,7 @@
+         // setup replication after indexes have been created
+         if (select.equals("clone")) {
+             CMS.debug("Start setting up replication.");
+-            setupReplication(request, context, (secure.equals("on")?"true":"false"));
++            setupReplication(request, context, (secure.equals("on")?"true":"false"), (cloneStartTLS.equals("on")?"true":"false"));
+             CMS.debug("Finish setting up replication.");
+ 
+             try {
+@@ -1016,7 +1025,7 @@
+     }
+ 
+     private void setupReplication(HttpServletRequest request,
+-				  Context context, String secure) throws IOException {
++				  Context context, String secure, String cloneStartTLS) throws IOException {
+         String bindpwd = HttpInput.getPassword(request, "__bindpwd");
+         IConfigStore cs = CMS.getConfigStore();
+  
+@@ -1122,10 +1131,10 @@
+             CMS.debug("DatabasePanel setupReplication: Finished enabling replication");
+ 
+             createReplicationAgreement(replicadn, conn1, masterAgreementName, 
+-              master2_hostname, master2_port, master2_replicationpwd, basedn, cloneBindUser, secure);
++              master2_hostname, master2_port, master2_replicationpwd, basedn, cloneBindUser, secure, cloneStartTLS);
+ 
+             createReplicationAgreement(replicadn, conn2, cloneAgreementName, 
+-              master1_hostname, master1_port, master1_replicationpwd, basedn, masterBindUser, secure);
++              master1_hostname, master1_port, master1_replicationpwd, basedn, masterBindUser, secure, cloneStartTLS);
+ 
+             // initialize consumer
+             initializeConsumer(replicadn, conn1, masterAgreementName);
+@@ -1320,7 +1329,7 @@
+ 
+     private void createReplicationAgreement(String replicadn, 
+       LDAPConnection conn, String name, String replicahost, int replicaport, 
+-      String replicapwd, String basedn, String bindUser, String secure) throws LDAPException {
++      String replicapwd, String basedn, String bindUser, String secure, String cloneStartTLS) throws LDAPException {
+         String dn = "cn="+name+","+replicadn;
+         CMS.debug("DatabasePanel createReplicationAgreement: dn: "+dn);
+         LDAPEntry entry = null;
+@@ -1341,7 +1350,10 @@
+ 
+             if (secure.equals("true")) {
+                 attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "SSL"));
++            } else if (cloneStartTLS.equals("true")) {
++                attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "TLS"));
+             }
++
+             CMS.debug("About to set description attr to " + name);
+             attrs.add(new LDAPAttribute("description",name));
+ 
+Index: base/silent/src/tks/ConfigureTKS.java
+===================================================================
+--- base/silent/src/tks/ConfigureTKS.java	(revision 1885)
++++ base/silent/src/tks/ConfigureTKS.java	(revision 1886)
+@@ -99,6 +99,9 @@
+     public static String bind_password = null;
+     public static String base_dn = null;
+     public static String db_name = null;
++    public static String secure_conn = null;
++    public static String clone_start_tls = null;
++    public static String remove_data = null;
+ 
+     public static String key_type = null;
+     public static String key_size = null;
+@@ -384,7 +387,9 @@
+                                 "&basedn=" + URLEncoder.encode(base_dn) +
+                                 "&database=" + URLEncoder.encode(db_name) +
+                                 "&display=" + URLEncoder.encode("$displayStr") +
+-                                ""; 
++                                (secure_conn.equals("true")? "&secureConn=on": "") +
++                                (clone_start_tls.equals("true")? "&cloneStartTLS=on": "") + 
++                                (remove_data.equals("true")? "&removeData=true": "");
+ 
+         hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+ 
+@@ -931,6 +936,9 @@
+         StringHolder x_bind_password = new StringHolder();
+         StringHolder x_base_dn = new StringHolder();
+         StringHolder x_db_name = new StringHolder();
++        StringHolder x_secure_conn = new StringHolder();
++        StringHolder x_clone_start_tls = new StringHolder();
++        StringHolder x_remove_data = new StringHolder();
+ 
+         // key properties (defaults)
+         StringHolder x_key_size = new StringHolder();
+@@ -1028,6 +1036,9 @@
+                             x_base_dn); 
+         parser.addOption ("-db_name %s #db name",
+                             x_db_name); 
++        parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn); 
++        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data); 
++        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls); 
+ 
+         // key and algorithm options (default)
+         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type);
+@@ -1124,6 +1135,9 @@
+         bind_password = x_bind_password.value;
+         base_dn = x_base_dn.value;
+         db_name = x_db_name.value;
++        secure_conn = set_default(x_secure_conn.value, "false");
++        remove_data = set_default(x_remove_data.value, "false");
++        clone_start_tls = set_default(x_clone_start_tls.value, "false");
+ 
+         key_type = set_default(x_key_type.value, DEFAULT_KEY_TYPE);
+         audit_signing_key_type = set_default(x_audit_signing_key_type.value, key_type);
+Index: base/silent/src/drm/ConfigureDRM.java
+===================================================================
+--- base/silent/src/drm/ConfigureDRM.java	(revision 1885)
++++ base/silent/src/drm/ConfigureDRM.java	(revision 1886)
+@@ -102,6 +102,9 @@
+     public static String bind_password = null;
+     public static String base_dn = null;
+     public static String db_name = null;
++    public static String secure_conn = null;
++    public static String clone_start_tls = null;
++    public static String remove_data = null;
+ 
+     public static String key_type = null;
+     public static String key_size = null;
+@@ -456,7 +459,10 @@
+                               "&__bindpwd=" + URLEncoder.encode(bind_password) +
+                               "&basedn=" + URLEncoder.encode(base_dn) +
+                               "&database=" + URLEncoder.encode(db_name) +
+-                              "&display=" + URLEncoder.encode("$displayStr"); 
++                              "&display=" + URLEncoder.encode("$displayStr") + 
++                              (secure_conn.equals("true")? "&secureConn=on": "") +
++                              (clone_start_tls.equals("true")? "&cloneStartTLS=on": "") +
++                              (remove_data.equals("true")? "&removeData=true": "");
+ 
+         hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+ 
+@@ -1071,6 +1077,9 @@
+         StringHolder x_bind_password = new StringHolder();
+         StringHolder x_base_dn = new StringHolder();
+         StringHolder x_db_name = new StringHolder();
++        StringHolder x_secure_conn = new StringHolder();
++        StringHolder x_clone_start_tls = new StringHolder();
++        StringHolder x_remove_data = new StringHolder();
+ 
+         // key properties (defaults)
+         StringHolder x_key_size = new StringHolder();
+@@ -1188,6 +1197,9 @@
+                             x_base_dn); 
+         parser.addOption ("-db_name %s #db name",
+                             x_db_name); 
++        parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn); 
++        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data); 
++        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls); 
+ 
+         // key and algorithm options (default)
+         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type);
+@@ -1307,6 +1319,9 @@
+         bind_password = x_bind_password.value;
+         base_dn = x_base_dn.value;
+         db_name = x_db_name.value;
++        secure_conn = set_default(x_secure_conn.value, "false");
++        remove_data = set_default(x_remove_data.value, "false");
++        clone_start_tls = set_default(x_clone_start_tls.value, "false");
+ 
+         key_type = set_default(x_key_type.value, DEFAULT_KEY_TYPE);
+         transport_key_type = set_default(x_transport_key_type.value, key_type);
+Index: base/silent/src/ca/ConfigureCA.java
+===================================================================
+--- base/silent/src/ca/ConfigureCA.java	(revision 1885)
++++ base/silent/src/ca/ConfigureCA.java	(revision 1886)
+@@ -99,6 +99,9 @@
+     public static String bind_password = null;
+     public static String base_dn = null;
+     public static String db_name = null;
++    public static String secure_conn = null;
++    public static String clone_start_tls = null;
++    public static String remove_data = null;
+ 
+     public static String key_type = null;
+     public static String key_size = null;
+@@ -517,7 +520,10 @@
+                 + URLEncoder.encode(bind_password) + "&basedn="
+                 + URLEncoder.encode(base_dn) + "&database="
+                 + URLEncoder.encode(db_name) + "&display="
+-                + URLEncoder.encode("$displayStr") + ""; 
++                + URLEncoder.encode("$displayStr") 
++                + (secure_conn.equals("true")? "&secureConn=on": "") 
++                + (clone_start_tls.equals("true")? "&cloneStartTLS=on": "") 
++                + (remove_data.equals("true")? "&removeData=true": "");
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+ 
+@@ -1447,6 +1453,9 @@
+         StringHolder x_bind_password = new StringHolder();
+         StringHolder x_base_dn = new StringHolder();
+         StringHolder x_db_name = new StringHolder();
++        StringHolder x_secure_conn = new StringHolder();
++        StringHolder x_clone_start_tls = new StringHolder();
++        StringHolder x_remove_data = new StringHolder();
+ 
+         // key properties (defaults)
+         StringHolder x_key_size = new StringHolder();
+@@ -1556,6 +1565,9 @@
+                 x_bind_password); 
+         parser.addOption("-base_dn %s #base dn", x_base_dn); 
+         parser.addOption("-db_name %s #db name", x_db_name); 
++        parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn); 
++        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data); 
++        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls); 
+ 
+         // key and algorithm options (default)
+         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type); 
+@@ -1672,6 +1684,9 @@
+         bind_password = x_bind_password.value;
+         base_dn = x_base_dn.value;
+         db_name = x_db_name.value;
++        secure_conn = set_default(x_secure_conn.value, "false");
++        remove_data = set_default(x_remove_data.value, "false");
++        clone_start_tls = set_default(x_clone_start_tls.value, "false");
+ 
+         key_type = set_default(x_key_type.value, DEFAULT_KEY_TYPE);
+         signing_key_type = set_default(x_signing_key_type.value, key_type);
+Index: base/silent/src/ocsp/ConfigureOCSP.java
+===================================================================
+--- base/silent/src/ocsp/ConfigureOCSP.java	(revision 1885)
++++ base/silent/src/ocsp/ConfigureOCSP.java	(revision 1886)
+@@ -100,6 +100,9 @@
+     public static String bind_password = null;
+     public static String base_dn = null;
+     public static String db_name = null;
++    public static String secure_conn = null;
++    public static String clone_start_tls = null;
++    public static String remove_data = null;
+ 
+     public static String key_type = null;
+     public static String key_size = null;
+@@ -401,7 +404,9 @@
+                                 "&basedn=" + URLEncoder.encode(base_dn) +
+                                 "&database=" + URLEncoder.encode(db_name) +
+                                 "&display=" + URLEncoder.encode("$displayStr") +
+-                                ""; 
++                                (secure_conn.equals("true")? "&secureConn=on": "") +
++                                (clone_start_tls.equals("true")? "&cloneStartTLS=on": "") +
++                                (remove_data.equals("true")? "&removeData=true": "");
+ 
+         hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+ 
+@@ -962,6 +967,9 @@
+         StringHolder x_bind_password = new StringHolder();
+         StringHolder x_base_dn = new StringHolder();
+         StringHolder x_db_name = new StringHolder();
++        StringHolder x_secure_conn = new StringHolder();
++        StringHolder x_clone_start_tls = new StringHolder();
++        StringHolder x_remove_data = new StringHolder();
+ 
+         // key properties (defaults)
+         StringHolder x_key_size = new StringHolder();
+@@ -1067,6 +1075,9 @@
+                             x_base_dn); 
+         parser.addOption ("-db_name %s #db name",
+                             x_db_name); 
++        parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn); 
++        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data); 
++        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls); 
+ 
+         // key and algorithm options (default)
+         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type);
+@@ -1173,6 +1184,9 @@
+         bind_password = x_bind_password.value;
+         base_dn = x_base_dn.value;
+         db_name = x_db_name.value;
++        secure_conn = set_default(x_secure_conn.value, "false");
++        remove_data = set_default(x_remove_data.value, "false");
++        clone_start_tls = set_default(x_clone_start_tls.value, "false");
+ 
+         key_type = set_default(x_key_type.value, DEFAULT_KEY_TYPE);
+         signing_key_type = set_default(x_signing_key_type.value, key_type);
+Index: base/silent/src/subca/ConfigureSubCA.java
+===================================================================
+--- base/silent/src/subca/ConfigureSubCA.java	(revision 1885)
++++ base/silent/src/subca/ConfigureSubCA.java	(revision 1886)
+@@ -102,6 +102,9 @@
+     public static String bind_password = null;
+     public static String base_dn = null;
+     public static String db_name = null;
++    public static String secure_conn = null;
++    public static String clone_start_tls = null;
++    public static String remove_data = null;
+ 
+     public static String key_type = null;
+     public static String key_size = null;
+@@ -430,7 +433,9 @@
+                                 "&binddn=" + URLEncoder.encode(bind_dn) +
+                                 "&__bindpwd=" + URLEncoder.encode(bind_password) +
+                                 "&display=" + URLEncoder.encode("$displayStr") +
+-                                ""; 
++                                (secure_conn.equals("true")? "&secureConn=on": "") + 
++                                (clone_start_tls.equals("true")? "&cloneStartTLS=on": "") +
++                                (remove_data.equals("true")? "&removeData=true": "");
+ 
+         hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+ 
+@@ -1014,6 +1019,9 @@
+         StringHolder x_bind_password = new StringHolder();
+         StringHolder x_base_dn = new StringHolder();
+         StringHolder x_db_name = new StringHolder();
++        StringHolder x_secure_conn = new StringHolder();
++        StringHolder x_clone_start_tls = new StringHolder();
++        StringHolder x_remove_data = new StringHolder();
+ 
+         // key properties (defaults)
+         StringHolder x_key_size = new StringHolder();
+@@ -1126,6 +1134,9 @@
+                             x_base_dn); 
+         parser.addOption ("-db_name %s #db name",
+                             x_db_name); 
++        parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn); 
++        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data); 
++        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls); 
+ 
+         // key and algorithm options (default)
+         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type); 
+@@ -1236,6 +1247,9 @@
+         bind_password = x_bind_password.value;
+         base_dn = x_base_dn.value;
+         db_name = x_db_name.value;
++        secure_conn = set_default(x_secure_conn.value, "false");
++        remove_data = set_default(x_remove_data.value, "false");
++        clone_start_tls = set_default(x_clone_start_tls.value, "false");
+ 
+         key_type = set_default(x_key_type.value, DEFAULT_KEY_TYPE);
+         signing_key_type = set_default(x_signing_key_type.value, key_type);
+Index: base/silent/templates/pki_silent.template
+===================================================================
+--- base/silent/templates/pki_silent.template	(revision 1885)
++++ base/silent/templates/pki_silent.template	(revision 1886)
+@@ -379,7 +379,9 @@
+ ##         ca_signing_signingalgorithm      - optionally specify the algorithm used by the CA signing cert to sign objects
+ ##         ca_ocsp_signing_signingalgorithm - optionally specify the algorithm used by the CA ocsp signing cert to sign objects
+ ##
+-
++##  NOTE:  Additional variables to specify the LDAP connection are as follows:
++##         remove_data                       - set to true/false.  Remove any existing data found under the baseDN
++##         secure_conn                       - use the ldaps port
+ ca_agent_name="CA\ Administrator\ of\ Instance\ ${ca_instance_name}\'s\ ${pki_security_domain_name}\ ID"
+ ca_agent_key_size=2048
+ ca_agent_key_type=rsa
+@@ -418,6 +420,7 @@
+ ##  sd_admin_port=
+ ##  sd_admin_name=
+ ##  sd_admin_password=
++##  clone_start_tls=false
+ ##
+ ##  NOTES: 
+ ##  1. ca_clone_p12_file must be just the filename relative to the alias directory.
+@@ -431,6 +434,9 @@
+ ##  2. The variables ca_base_dn and ca_db_name defined above MUST be identical to the
+ ##     ca_base_dn and ca_db_name of the master CA. The following assignments attempt
+ ##     to ensure this is correct.
++##  3. clone_start_tls can be set to true if we require replication between the master and clone databases 
++##     to be encrypted using startTLS on the standard (non-ldaps) port.  The databases must 
++##     be ssl enabled first or the replication will fail.
+ ##
+ ##  ca_master_instance_name=
+ ##  ca_base_dn="dc=${pki_host}-${ca_master_instance_name}"
+@@ -521,11 +527,15 @@
+ ##  kra_clone_p12_file=          
+ ##  kra_clone_p12_password=
+ ##  kra_clone_uri=
++##  clone_start_tls=false
+ ##
+ ##  NOTES: 
+ ##  1. drm_clone_p12_file must be just the filename relative to the alias directory.
+ ##     So in the example above, drm_clone_p12_file="drm-master.p12"
+ ##  2. drm_clone_uri has the following format: https://<hostname>:<EE port> of the DRM to be cloned
++##  3. clone_start_tls can be set to true if we require replication between the master and clone databases 
++##     to be encrypted using startTLS on the standard (non-ldaps) port.  The databases must 
++##     be ssl enabled first or the replication will fail.
+ ##
+ ##  ADDITIONAL NOTES:
+ ##  1. The clone DRM and master DRM cannot share the same database instance.  A new 
+@@ -1175,6 +1185,7 @@
+ #       -sd_admin_port ${sd_admin_port} \
+ #       -sd_admin_name ${sd_admin_name} \
+ #       -sd_admin_password ${sd_admin_password} \
++#       -clone_start_tls ${clone_start_tls} \
+ #	| tee ${pki_silent_ca_log}
+ 
+ ##  Restart CA
+@@ -1440,6 +1451,7 @@
+ #       -clone_p12_file ${kra_clone_p12_file} \
+ #       -clone_p12_password ${kra_clone_p12_password} \
+ #       -clone_uri ${kra_uri} \
++#       -clone_start_tls ${clone_start_tls} \
+ #	| tee ${pki_silent_kra_log}
+ 
+ ##  Restart drm

@@ -1,0 +1,404 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<style>
+TABLE { border-spacing: 0 0; }
+</style>
+
+<script type="text/javascript">
+function escapeValue(value)
+{
+   return value.replace(/"/g,'&quot;');
+}
+
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
+    return outStr;
+}
+
+document.writeln('<font size="+1" face="PrimaSans BT, Verdana, sans-serif">Request ');
+document.writeln(requestId);
+document.writeln('<br></font>');
+</script>
+<font size="-1" face="PrimaSans BT, Verdana, sans-serif"></font>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/agent/graphics/hr.gif"
+width="100%">
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<p>
+<script type="text/javascript">
+if (requestStatus == 'pending') {
+  document.writeln('<form method=post action="profileProcess">');
+  document.writeln('<input type=hidden name=requestId value=' + requestId + '>');
+}
+document.writeln('<p>');
+document.writeln('<TABLE width=100%><TR><TD valign="top" align="left" colspan="3" bgcolor="#e5e5e5"><FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">Request Information</FONT></TD></TR></TABLE>');
+document.writeln('<table border=1 width=100%>');
+document.writeln('<tr>');
+document.writeln('<td width=20%>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Request ID:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(requestId);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Request Type:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(requestType);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Request Status:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(requestStatus);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Requestor Host:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileRemoteHost);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Assigned To:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(requestOwner);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Creation Time:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(requestCreationTime);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Modification Time:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(requestModificationTime);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('</table>');
+document.writeln('<p>');
+document.writeln('<TABLE width=100%><TR><TD valign="top" align="left" colspan="3" bgcolor="#e5e5e5"><FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">Certificate Profile Information</FONT></TD></TR></TABLE>');
+document.writeln('<table border=1 width=100%>');
+document.writeln('<tr>');
+document.writeln('<td width=20%>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Certificate Profile Id:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileId);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td width=20%>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Approved By:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileApprovedBy);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Certificate Profile Name:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileName);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Certificate Profile Description:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileDesc);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('</table>');
+document.writeln('<p>');
+if (requestStatus != 'pending') {
+  document.writeln('<TABLE width=100%><TR><TD valign="top" align="left" colspan="3" bgcolor="#e5e5e5"><FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">Additional Notes</FONT></TD></TR></TABLE>');
+  document.writeln('<table width=100% border=1>');
+  document.writeln('<tr>');
+  document.writeln('<td>');
+  document.writeln(requestNotes);
+  document.writeln('</td>');
+  document.writeln('</tr>');
+  document.writeln('</table>');
+  document.writeln('<p>');
+}
+if (profileIsVisible == 'true') {
+document.writeln('<TABLE width=100%><TR><TD valign="top" align="left" colspan="3" bgcolor="#e5e5e5"><FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">Certificate Profile Inputs</FONT></TD></TR></TABLE>');
+document.writeln('<table border=1 width=100%>');
+document.writeln('<tr>');
+document.writeln('<td width=20%>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Id</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td width=40%>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Input Names</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Input Values</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+for (var i = 0; i < inputListSet.length; i++) {
+  document.writeln('<tr>');
+  document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln(inputListSet[i].inputId);
+document.writeln('</FONT>');
+  document.writeln('</td>');
+  document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln(inputListSet[i].inputName);
+document.writeln('</FONT>');
+  document.writeln('</td>');
+  document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln(addEscapes(inputListSet[i].inputVal));
+document.writeln('</FONT>');
+  document.writeln('</td>');
+  document.writeln('</tr>');
+}
+document.writeln('</table>');
+document.writeln('<p>');
+}
+if (requestStatus == 'complete') {
+document.writeln('<TABLE width=100%><TR><TD valign="top" align="left" colspan="3" bgcolor="#e5e5e5"><FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">Certificate Profile Outputs</FONT></TD></TR></TABLE>');
+for (var i = 0; i < outputListSet.length; i++) {
+    document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">'
+);
+    document.writeln('<li>');
+    document.writeln(outputListSet[i].outputName);
+    document.writeln('</FONT>');
+    document.writeln('<p>');
+    if (outputListSet[i].outputSyntax == 'string') {
+      document.writeln(outputListSet[i].outputVal);
+    } else if (outputListSet[i].outputSyntax == 'pretty_print') {
+      document.writeln('<pre>');
+      document.writeln(outputListSet[i].outputVal);
+      document.writeln('</pre>');
+    } else if (outputListSet[i].outputSyntax == 'der_b64') {
+      document.writeln('<pre>');
+      document.writeln('-----BEGIN CERTIFICATE-----');
+      document.writeln(outputListSet[i].outputVal);
+      document.writeln('-----END CERTIFICATE-----');
+      document.writeln('</pre>');
+    }
+    document.writeln('</p>');
+}
+}
+if (requestStatus == 'pending') {
+document.writeln('<TABLE width=100%><TR><TD valign="top" align="left" colspan="3" bgcolor="#e5e5e5"><FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">Policy Information</FONT></TD></TR></TABLE>');
+document.writeln('<table>');
+document.writeln('<tr>');
+document.writeln('<td width=20%>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Certificate Profile Set Id:</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileSetId);
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('</table>');
+document.writeln('<table border=1 width=100%>');
+document.writeln('<tr>');
+document.writeln('<td width=10%>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>#</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td width=45%>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Extensions / Fields</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('<td width=45%>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Constraints</b>');
+document.writeln('</FONT>');
+document.writeln('</td>');
+document.writeln('</tr>');
+for (var i = 0; i < recordSet.length; i++) {
+  document.writeln('<tr valign=top>');
+  document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln(recordSet[i].policyId);
+document.writeln('</FONT>');
+  document.writeln('</td>');
+  document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln(recordSet[i].defDesc);
+document.writeln('</FONT>');
+  document.writeln('<p>');
+  document.writeln('<table width=100%>');
+  for (var j = 0; j < recordSet[i].defListSet.length; j++) {
+    document.writeln('<tr valign=top>');
+    if (typeof(recordSet[i].defListSet[j].defName) != 'undefined') {
+      document.writeln('<td width=30%><i>');
+      document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+      document.writeln(recordSet[i].defListSet[j].defName + ':');
+      document.writeln('</FONT>');
+      document.writeln('</i></td>');
+      document.writeln('<td width=70%>');
+      if (recordSet[i].defListSet[j].defConstraint == 'readonly') {
+          document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+          document.writeln(recordSet[i].defListSet[j].defVal);
+          document.writeln('</FONT>');
+      } else {
+        if (recordSet[i].defListSet[j].defSyntax == 'string') {
+          document.writeln('<input size=32 type=text name="' + recordSet[i].defListSet[j].defId + '" value="' + escapeValue(recordSet[i].defListSet[j].defVal) + '">');
+        } else if (recordSet[i].defListSet[j].defSyntax == 'string_list') {
+          document.writeln('<textarea cols=40 rows=5 name="' + recordSet[i].defListSet[j].defId + '">' + recordSet[i].defListSet[j].defVal + '</textarea>');
+        } else if (recordSet[i].defListSet[j].defSyntax == 'integer') {
+          document.writeln('<input size=6 type=text name="' + recordSet[i].defListSet[j].defId + '" value="' + recordSet[i].defListSet[j].defVal + '">');
+        } else if (recordSet[i].defListSet[j].defSyntax == 'image_url') {
+          document.writeln('<img border=0 src="' + recordSet[i].defListSet[j].defVal + '">');
+          document.writeln('<input type=hidden name="' + recordSet[i].defListSet[j].defId + '" value="' + recordSet[i].defListSet[j].defVal + '">');
+        } else if (recordSet[i].defListSet[j].defSyntax == 'choice') {
+          document.writeln('<select name="' + recordSet[i].defListSet[j].defId + '">');
+	  var c = recordSet[i].defListSet[j].defConstraint.split(',');
+          for(var k = 0; k < c.length; k++) {
+            if (recordSet[i].defListSet[j].defVal == c[k]) {
+              document.writeln('<option selected value=' + c[k] + '>');
+	    } else { 
+              document.writeln('<option value=' + c[k] + '>');
+            }
+            document.writeln(c[k]);
+            document.writeln('</option>');
+          }
+
+          document.writeln('</select>');
+        } else if (recordSet[i].defListSet[j].defSyntax == 'boolean') {
+          document.writeln('<select name="' + recordSet[i].defListSet[j].defId + '">');
+          if (recordSet[i].defListSet[j].defVal == 'true') {
+            document.writeln('<option selected value=true>true</option>');
+            document.writeln('<option value=false>false</option>');
+          } else {
+            document.writeln('<option value=true>true</option>');
+            document.writeln('<option selected value=false>false</option>');
+          }
+          document.writeln('</select>');
+        }
+      }
+      document.writeln('</td>');
+    }
+    document.writeln('</tr>');
+  }
+  document.writeln('</table>');
+  document.writeln('</td>');
+  document.writeln('<td>');
+document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln(recordSet[i].conDesc);
+document.writeln('</FONT>');
+  document.writeln('</td>');
+  document.writeln('</tr>');
+} // for
+document.writeln('</table>'); 
+document.writeln('<p>');
+document.writeln('<TABLE width=100%><TR><TD valign="top" align="left" colspan="3" bgcolor="#e5e5e5"><FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">Additional Notes</FONT></TD></TR></TABLE>');
+document.writeln('<textarea cols=40 rows=5 name="requestNotes">' + requestNotes + '</textarea>');
+document.writeln('<p>');
+     document.writeln('<SELECT NAME="op">');
+     document.writeln('<OPTION VALUE="update">Update request</OPTION>');
+     document.writeln('<OPTION VALUE="validate">Validate request</OPTION>');
+     document.writeln('<OPTION SELECTED VALUE="approve">Approve request</OPTION>');
+     document.writeln('<OPTION VALUE="reject">Reject request</OPTION>');
+     document.writeln('<OPTION VALUE="cancel">Cancel request</OPTION>');
+     document.writeln('<OPTION VALUE="assign">Assign request</OPTION>');
+     document.writeln('<OPTION VALUE="unassign">Unassign request</OPTION>');
+     document.writeln('</SELECT>');
+if (typeof(nonce) != "undefined") {
+     document.writeln("<INPUT TYPE=hidden name=nonce value=\"" + nonce +"\">");
+}
+document.writeln('<input type=submit name=submit value=submit>');
+document.writeln('</form>');
+} // if
+</script>
+</html>

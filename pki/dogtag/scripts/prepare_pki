@@ -1,0 +1,189 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+# Always switch into the base directory of this
+# shell script prior to executing it so that all
+# of its output is written to this directory
+cd `dirname $0`
+
+# Retrieve the name of this base directory
+PKI_PWD=`pwd`
+
+# Establish the name of the machine
+PKI_HOSTNAME=`hostname`
+
+# Set pre-defined variables
+ROOT_UID=0
+
+# This script may ONLY be run on Linux!
+PKI_OS=`uname`
+if [ "${PKI_OS}" != "Linux" ]; then
+    printf "The '$0' script is ONLY executable\n"
+    printf "on a 'Linux' machine!\n"
+    exit 255
+fi
+
+# For Fedora machines, compute the FEDORA_VERSION
+if [ -e /etc/fedora-release ]; then
+    FEDORA_VERSION=`rpm -qf --qf='%{VERSION}' /etc/fedora-release | tr -d [A-Z] | tr -d [a-z]`
+else
+    # For now, just give FEDORA_VERSION a bogus value if not using Fedora.
+    FEDORA_VERSION=9999
+fi
+
+# Set Linux variables
+PKI_PLATFORM="LINUX"
+PKI_UPDATE="/usr/bin/yum"
+PKI_UPDATE_OPTIONS="-y install"
+PKI_UPDATE_DIR=""
+
+# Set sudo variables
+PKI_SUDO="/usr/bin/sudo"
+PKI_SUDOERS="/etc/sudoers"
+
+# Set user identity variables
+PKI_EUID=`/usr/bin/id -u`
+PKI_UID=`/usr/bin/id -ur`
+PKI_USERNAME=`/usr/bin/id -un`
+
+# Make sure that this script is NOT being run as root!
+if [ ${PKI_UID} -eq ${ROOT_UID} ] ||
+   [ ${PKI_EUID} -eq ${ROOT_UID} ]; then
+    printf "The '$0' script may NOT be run as root!\n"
+    exit 255
+fi
+
+# Check for the presence of the 'sudo' executable
+if [ ! -x "${PKI_SUDO}" ]; then
+    printf "The '$0' script requires the '${PKI_SUDO}' executable\n"
+    printf "to be available on '${PKI_HOSTNAME}'!\n"
+    exit 255
+fi
+
+# Check for the presence of the 'sudoers' file
+if [ ! -e "${PKI_SUDOERS}" ]; then
+    printf "The '$0' script requires the '${PKI_SUDOERS}' file\n"
+    printf "to be available on '${PKI_HOSTNAME}'!\n"
+    exit 255
+fi
+
+# Check for the presence of the required sudoers command
+PKI_SUDOERS_COMMAND="(root) NOPASSWD: ${RPM_EXE}"
+PKI_SUDOERS_LINE="${PKI_USERNAME}  ALL = NOPASSWD: ${RPM_EXE}"
+printf "Checking if '${PKI_USERNAME}' has the appropriate '${PKI_SUDO}' permissions . . .\n"
+printf "[NOTE:  A password prompt may appear requiring ${PKI_USERNAME}'s password.]\n"
+`${PKI_SUDO} -l | grep "${PKI_SUDOERS_COMMAND}" > /dev/null 2>&1`
+if [ $? -ne 0 ]; then
+    printf "The '$0' script requires that the\n"
+    printf "'${PKI_SUDOERS}' file MUST contain this line:\n\n"
+    printf "    '${PKI_SUDOERS_LINE}'\n\n"
+    exit 255
+fi
+
+# Establish PKI support package names
+NSPR=nspr
+NSPR_DEVEL=nspr-devel
+NSS=nss
+NSS_DEVEL=nss-devel
+NSS_TOOLS=nss-tools
+JSS=jss
+JSS_JAVADOC=jss-javadoc
+SVRCORE=svrcore
+SVRCORE_DEVEL=svrcore-devel
+CYRUS_SASL=cyrus-sasl
+CYRUS_SASL_DEVEL=cyrus-sasl-devel
+OPENLDAP=openldap
+OPENLDAP_DEVEL=openldap-devel
+OPENLDAP_CLIENTS=openldap-tools
+PERL=perl
+APR=apr
+PCRE=pcre
+EXPAT=expat
+APR_UTIL=apr-util
+HTTPD=httpd
+MOD_NSS=mod_nss
+MOD_PERL=mod_perl
+PERL_PARSE_RECDESCENT=perl-Parse-RecDescent
+PERL_HTML_TAGSET=perl-HTML-Tagset
+PERL_HTML_PARSER=perl-HTML-Parser
+PERL_URI=perl-URI
+PERL_LIBWWW_PERL=perl-libwww-perl
+PERL_XML_PARSER=perl-XML-Parser
+PERL_XML_SIMPLE=perl-XML-Simple
+PERL_XML_NAMESPACESUPPORT=perl-XML-NamespaceSupport
+PERL_XML_SAX=perl-XML-SAX
+JPACKAGE_UTILS=jpackage-utils
+JAKARTA_COMMONS_LOGGING=jakarta-commons-logging
+TOMCAT5_SERVLET_2_4_API=tomcat5-servlet-2.4-api
+JAKARTA_COMMONS_COLLECTIONS=jakarta-commons-collections
+JAKARTA_COMMONS_BEANUTILS=jakarta-commons-beanutils
+JAKARTA_COMMONS_DIGESTER=jakarta-commons-digester
+ORO=oro
+CLASSPATHX_JAF=classpathx-jaf
+LDAPJDK=ldapjdk
+JAKARTA_COMMONS_POOL=jakarta-commons-pool
+JAKARTA_COMMONS_FILEUPLOAD=jakarta-commons-fileupload
+XML_COMMONS=xml-commons
+XML_COMMONS_APIS=xml-commons-apis
+REGEXP=regexp
+BCEL=bcel
+JAKARTA_COMMONS_DBCP=jakarta-commons-dbcp
+TOMCAT5_JASPER=tomcat5-jasper
+JAKARTA_COMMONS_DISCOVERY=jakarta-commons-discovery
+JAKARTA_COMMONS_HTTPCLIENT3=jakarta-commons-httpclient3
+JMS=jms
+JAKARTA_COMMONS_LAUNCHER=jakarta-commons-launcher
+JAKARTA_COMMONS_EL=jakarta-commons-el
+JAKARTA_COMMONS_DAEMON=jakarta-commons-daemon
+if [ ${FEDORA_VERSION} -eq 6 ]; then
+    # Required by Fedora Core 6
+    GNU_CRYPTO_SASL_JDK1_4=gnu-crypto-sasl-jdk1.4
+else
+    GNU_CRYPTO_SASL_JDK1_4=
+fi
+CLASSPATHX_MAIL=classpathx-mail
+XERCES_J2=xerces-j2
+XALAN_J2=xalan-j2
+LOG4J=log4j
+XML_COMMONS_RESOLVER=xml-commons-resolver
+AVALON_LOGKIT=avalon-logkit
+AVALON_FRAMEWORK=avalon-framework
+JDOM=jdom
+WERKEN_XPATH=werken-xpath
+VELOCITY=velocity
+ANT=ant
+WSDL4J=wsdl4j
+AXIS=axis
+MX4J=mx4j
+GERONIMO_SPECS=geronimo-specs
+JAKARTA_COMMONS_MODELER=jakarta-commons-modeler
+IDM_CONSOLE_FRAMEWORK=idm-console-framework
+TOMCAT5=tomcat5
+TOMCATJSS=tomcatjss
+MAKE=make
+M4=m4
+POLICYCOREUTILS=policycoreutils
+SELINUX_POLICY_DEVEL=selinux-policy-devel
+SELINUX_POLICY_TARGETED=selinux-policy-targeted
+READLINE=readline
+READLINE_DEVEL=readline-devel
+NCURSES=ncurses
+NCURSES_DEVEL=ncurses-devel
+TCL=tcl
+TCL_DEVEL=tcl-devel
+SQLITE=sqlite
+SQLITE_DEVEL=sqlite-devel
+PERL_DBI=perl-DBI
+PERL_DBD_SQLITE=perl-DBD-SQLite
+PCRE_DEVEL=pcre-devel
+EXPAT_DEVEL=expat-devel
+APR_DEVEL=apr-devel
+APR_UTIL_DEVEL=apr-util-devel
+HTTPD_DEVEL=httpd-devel
+
+# Build and install PKI support packages
+${PKI_SUDO} ${PKI_UPDATE} ${PKI_UPDATE_OPTIONS} ${NSPR} ${NSPR_DEVEL} ${NSS} ${NSS_DEVEL} ${NSS_TOOLS} ${JSS} ${JSS_JAVADOC} ${SVRCORE} ${SVRCORE_DEVEL} ${CYRUS_SASL} ${CYRUS_SASL_DEVEL} ${OPENLDAP} ${OPENLDAP_DEVEL} ${OPENLDAP_CLIENTS} ${PERL} ${APR} ${PCRE} ${EXPAT} ${APR_UTIL} ${HTTPD} ${MOD_NSS} ${MOD_PERL} ${PERL_PARSE_RECDESCENT} ${PERL_HTML_TAGSET} ${PERL_HTML_PARSER} ${PERL_URI} ${PERL_LIBWWW_PERL} ${PERL_XML_PARSER} ${PERL_XML_SIMPLE} ${PERL_XML_NAMESPACESUPPORT} ${PERL_XML_SAX} ${JPACKAGE_UTILS} ${JAKARTA_COMMONS_LOGGING} ${TOMCAT5_SERVLET_2_4_API} ${JAKARTA_COMMONS_COLLECTIONS} ${JAKARTA_COMMONS_BEANUTILS} ${JAKARTA_COMMONS_DIGESTER} ${ORO} ${CLASSPATHX_JAF} ${LDAPJDK} ${JAKARTA_COMMONS_POOL} ${JAKARTA_COMMONS_FILEUPLOAD} ${XML_COMMONS} ${XML_COMMONS_APIS} ${REGEXP} ${BCEL} ${JAKARTA_COMMONS_DBCP} ${TOMCAT5_JASPER} ${JAKARTA_COMMONS_DISCOVERY} ${JAKARTA_COMMONS_HTTPCLIENT3} ${JMS} ${JAKARTA_COMMONS_LAUNCHER} ${JAKARTA_COMMONS_EL} ${JAKARTA_COMMONS_DAEMON} ${GNU_CRYPTO_SASL_JDK1_4} ${CLASSPATHX_MAIL} ${XERCES_J2} ${XALAN_J2} ${LOG4J} ${XML_COMMONS_RESOLVER} ${AVALON_LOGKIT} ${AVALON_FRAMEWORK} ${JDOM} ${WERKEN_XPATH} ${VELOCITY} ${ANT} ${WSDL4J} ${AXIS} ${MX4J} ${GERONIMO_SPECS} ${JAKARTA_COMMONS_MODELER} ${IDM_CONSOLE_FRAMEWORK} ${TOMCAT5} ${TOMCATJSS} ${MAKE} ${M4} ${POLICYCOREUTILS} ${SELINUX_POLICY_DEVEL} ${SELINUX_POLICY_TARGETED} ${READLINE} ${READLINE_DEVEL} ${NCURSES} ${NCURSES_DEVEL} ${TCL} ${TCL_DEVEL} ${SQLITE} ${SQLITE_DEVEL} ${PERL_DBI} ${PERL_DBD_SQLITE} ${PCRE_DEVEL} ${EXPAT_DEVEL} ${APR_DEVEL} ${APR_UTIL_DEVEL} ${HTTPD_DEVEL}
+

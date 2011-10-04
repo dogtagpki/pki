@@ -1,0 +1,53 @@
+Index: base/setup/pkicreate
+===================================================================
+--- base/setup/pkicreate	(revision 1874)
++++ base/setup/pkicreate	(revision 1875)
+@@ -192,6 +192,7 @@
+ my $jakarta_commons_logging_jar_base_name = "jakarta-commons-logging.jar";
+ my $apache_commons_lang_jar_base_name     = "apache-commons-lang.jar";
+ my $jakarta_commons_lang_jar_base_name    = "jakarta-commons-lang.jar";
++my $xml_commons_apis_jar_base_name        = "xml-commons-apis.jar";
+ 
+ my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
+ my $catalina_properties_base_name = "catalina.properties";    # CA, KRA, OCSP, TKS
+@@ -474,6 +475,8 @@
+ my $velocity_jar_symlink_path                    = undef;  # CA, KRA, OCSP, TKS
+ my $xerces_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+ my $xerces_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
++my $xml_commons_apis_jar_file_path               = undef;  # CA, KRA, OCSP, TKS
++my $xml_commons_apis_jar_symlink_path            = undef;  # CA, KRA, OCSP, TKS
+ my $httpd_conf_instance_file_path                = undef;  # RA, TPS
+ my $httpd_conf_subsystem_file_path               = undef;  # RA, TPS
+ my $index_jsp_instance_file_path                 = undef;  # CA, KRA, OCSP, TKS
+@@ -1750,6 +1753,11 @@
+             return 0;
+         }
+ 
++        if (!defined($xml_commons_apis_jar_file_path = find_jar($xml_commons_apis_jar_base_name))) {
++            emit("could not find jar: $xml_commons_apis_jar_base_name", "error");
++            return 0;
++        }
++
+         $webinf_instance_path              = $webapps_instance_path
+                                            . "/" . $subsystem_type
+                                            . "/" . $webinf_base_instance_dir;
+@@ -1798,6 +1806,8 @@
+                                            . "/" . $velocity_jar_base_name;
+         $xerces_jar_symlink_path           = $webinf_lib_instance_path
+                                            . "/" . $xerces_jar_base_name;
++        $xml_commons_apis_jar_symlink_path = $webinf_lib_instance_path
++                                           . "/" . $xml_commons_apis_jar_base_name;
+ 
+ 
+         $webapps_root_instance_path        = $webapps_instance_path
+@@ -2740,6 +2750,10 @@
+         return 0 if !create_symlink($xerces_jar_symlink_path, $xerces_jar_file_path,
+                                     $pki_user, $pki_group);
+ 
++        # create instance symlink to "xml_commons_apis.jar"
++        return 0 if !create_symlink($xml_commons_apis_jar_symlink_path, $xml_commons_apis_jar_file_path,
++                                    $pki_user, $pki_group);
++
+     }
+ 
+     return 1;

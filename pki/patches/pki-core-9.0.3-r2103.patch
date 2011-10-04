@@ -1,0 +1,34 @@
+Index: base/common/src/com/netscape/cmscore/registry/PluginRegistry.java
+===================================================================
+--- base/common/src/com/netscape/cmscore/registry/PluginRegistry.java	(revision 2102)
++++ base/common/src/com/netscape/cmscore/registry/PluginRegistry.java	(revision 2103)
+@@ -145,7 +145,7 @@
+         }
+         PluginInfo info = new PluginInfo(name, desc, classpath);
+ 
+-        addPluginInfo(type, id, info);
++        addPluginInfo(type, id, info, 0);
+     }
+ 
+     public void removePluginInfo(String type, String id)
+@@ -160,6 +160,11 @@
+ 
+     public void addPluginInfo(String type, String id, IPluginInfo info)
+         throws ERegistryException {
++        addPluginInfo(type, id, info, 1);
++    }
++
++    public void addPluginInfo(String type, String id, IPluginInfo info, int saveConfig)
++        throws ERegistryException {
+         Hashtable plugins = (Hashtable) mTypes.get(type); 
+ 
+         if (plugins == null) {
+@@ -174,7 +179,7 @@
+         plugins.put(id, info);
+ 
+         // rebuild configuration store
+-        rebuildConfigStore(locale);
++        if (saveConfig == 1) rebuildConfigStore(locale);
+     }
+ 
+     public void rebuildConfigStore(Locale locale)

@@ -1,0 +1,3343 @@
+#!/usr/bin/perl
+#
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2007-2010 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+
+use strict;
+use warnings;
+
+use File::Slurp qw(read_file write_file);
+use Getopt::Long qw(GetOptions);
+
+##############################################################
+# This script is used to create a new instance of a
+# subsystem within a PKI installation.
+#
+# Sample Invocation (for CA):
+#
+#    ./pkicreate -pki_instance_root=/var/lib
+#                -pki_instance_name=pki-ca
+#                -subsystem_type=ca
+#                -agent_secure_port=9443
+#                -ee_secure_port=9444
+#                -ee_secure_client_auth_port=9446
+#                -admin_secure_port=9445
+#                -unsecure_port=9180
+#                -tomcat_server_port=9701
+#                -user=pkiuser
+#                -group=pkiuser
+#                -redirect conf=/etc/pki-ca
+#                -redirect logs=/var/log/pki-ca
+#                -verbose
+#
+##############################################################
+
+
+##############################################################
+# Execution Check
+##############################################################
+
+# Disallow 'others' the ability to 'write' to new files
+umask 00002;
+
+# Check to insure that this script's original
+# invocation directory has not been deleted!
+my $cwd = `/bin/pwd`;
+chomp $cwd;
+if (!$cwd) {
+    emit("Cannot invoke '$0' from non-existent directory!\n", "error");
+    exit 255;
+}
+
+
+##############################################################
+# Environment Variables
+##############################################################
+
+# option to not run this script.
+if (defined($ENV{'DONT_RUN_PKICREATE'})) {
+    if ($ENV{'DONT_RUN_PKICREATE'} == 1) {
+        emit("Env. variable DONT_RUN_PKICREATE is set. Exiting.\n", "error");
+        exit 0;
+    }
+}
+
+# untaint called subroutines
+if (($^O ne 'Windows_NT') && ($^O ne 'MSWin32')) {
+    $> = $<;   # set effective user ID to real UID
+    $) = $(;   # set effective group ID to real GID
+    $ENV{'PATH'} = '/bin:/usr/bin';
+    $ENV{'ENV'} = '' if !defined($ENV{'ENV'});
+}
+
+
+##############################################################
+# Command-Line Variables
+##############################################################
+
+my $ARGS = ($#ARGV + 1);
+
+
+##############################################################
+# Shared Common Perl Data and Subroutines
+##############################################################
+
+use lib "/usr/share/pki/scripts";
+use pkicommon;
+
+# Establish path to scripts
+my $pki_subsystem_common_area = "/usr/share/$pki_flavor";
+
+# make -w happy by suppressing warnings of Global variables used only once
+my $suppress = "";
+$suppress = $hostname;
+$suppress = $obj_ext;
+$suppress = $tmp_dir;
+$suppress = $default_security_libraries;
+$suppress = $default_system_libraries;
+$suppress = $lib_prefix;
+$suppress = $PKI_USER;
+$suppress = $PKI_GROUP;
+$suppress = $install_info_basename;
+
+##############################################################
+# Local Constants
+##############################################################
+
+# Base subsystem directory names
+my $applets_base_subsystem_dir  = "applets";   # TPS
+my $cgibin_base_subsystem_dir   = "cgi-bin";   # TPS (Apache)
+my $conf_base_subsystem_dir     = "conf";      # CA, KRA, OCSP, TKS, RA, TPS
+my $docroot_base_subsystem_dir  = "docroot";   # RA, TPS (Apache)
+my $emails_base_subsystem_dir   = "emails";    # CA
+my $lib_base_subsystem_dir      = "lib";       # RA, TPS
+my $profiles_base_subsystem_dir = "profiles";  # CA, KRA, OCSP, TKS
+my $samples_base_subsystem_dir  = "samples";   # TPS
+my $scripts_base_subsystem_dir  = "scripts";   # RA, TPS
+my $webapps_base_subsystem_dir  = "webapps";   # CA, KRA, OCSP, TKS
+
+# Base instance directory names
+my $alias_base_instance_dir        = "alias";      # CA, KRA, OCSP, TKS, RA, TPS
+my $bin_base_instance_dir          = "bin";        # TPS
+my $cgibin_base_instance_dir       = "cgi-bin";    # TPS (Apache)
+my $conf_base_instance_dir         = "conf";       # CA, KRA, OCSP, TKS, RA, TPS
+my $docroot_base_instance_dir      = "docroot";    # RA, TPS (Apache)
+my $emails_base_instance_dir       = "emails";     # CA
+my $lib_base_instance_dir          = "lib";        # RA, TPS
+my $logs_base_instance_dir         = "logs";       # CA, KRA, OCSP, TKS, RA, TPS
+my $profiles_base_instance_dir     = "profiles";   # CA, KRA, OCSP, TKS
+my $scripts_base_instance_dir      = "scripts";    # RA, TPS
+my $tomcat_instance_common_lib_dir = "common/lib"; # CA, KRA, OCSP, TKS (Tomcat)
+my $shared_base_instance_dir       = "shared";     # CA, KRA, OCSP, TKS (Tomcat)
+my $temp_base_instance_dir         = "temp";       # CA, KRA, OCSP, TKS (Tomcat)
+my $webapps_base_instance_dir      = "webapps";    # CA, KRA, OCSP, TKS
+my $work_base_instance_dir         = "work";       # CA, KRA, OCSP, TKS (Tomcat)
+
+# Base instance symbolic link names
+my $common_base_instance_symlink  = "common";   # CA, KRA, OCSP, TKS
+my $conf_base_instance_symlink    = "conf";     # CA, KRA, OCSP, TKS, RA, TPS
+my $logs_base_instance_symlink    = "logs";     # CA, KRA, OCSP, TKS, RA, TPS
+my $run_base_instance_symlink     = "run";      # RA, TPS
+
+# Base names
+my $cgi_home_base_name           = "home/index.cgi";       # TPS
+my $cgi_demo_base_name           = "demo/index.cgi";       # TPS
+my $cgi_so_base_name             = "so/index.cgi";         # TPS
+my $cgi_so_enroll_name           = "so/enroll.cgi";        # TPS
+my $cgi_sow_dir_name             = "sow";                  # TPS
+my $cgi_sow_cfg_pl_name          = "sow/cfg.pl";           # TPS
+my $addAgents_ldif_base_name     = "addAgents.ldif";       # TPS
+my $addIndexes_ldif_base_name    = "addIndexes.ldif";      # TPS
+my $addTokens_ldif_base_name     = "addTokens.ldif";       # TPS
+my $addVLVIndexes_ldif_base_name = "addVLVIndexes.ldif";   # TPS
+my $nss_pcache_base_name         = "nss_pcache";           # RA, TPS
+my $pki_subsystem_jar_base_name  = undef;                  # CA, KRA, OCSP, TKS
+
+my $pki_certsrv_jar_base_name     = "pki-certsrv.jar";     # CA, KRA, OCSP, TKS
+my $pki_cms_jar_base_name         = "pki-cms.jar";         # CA, KRA, OCSP, TKS
+my $pki_cmsbundle_jar_base_name   = "pki-cmsbundle.jar";   # CA, KRA, OCSP, TKS
+my $pki_cmscore_jar_base_name     = "pki-cmscore.jar";     # CA, KRA, OCSP, TKS
+my $pki_cmsutil_jar_base_name     = "pki-cmsutil.jar";     # CA, KRA, OCSP, TKS
+my $commons_collections_jar_base_name = undef;                 # CA, KRA, OCSP, TKS
+my $commons_lang_jar_base_name    = undef;                 # CA, KRA, OCSP, TKS
+my $commons_logging_jar_base_name = undef;                 # CA, KRA, OCSP, TKS
+my $jss_jar_base_name             = "jss4.jar";            # CA, KRA, OCSP, TKS
+my $ldapjdk_jar_base_name         = "ldapjdk.jar";         # CA, KRA, OCSP, TKS
+my $pki_nsutil_jar_base_name      = "pki-nsutil.jar";      # CA, KRA, OCSP, TKS
+my $osutil_jar_base_name          = "osutil.jar";          # CA, KRA, OCSP, TKS
+my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
+my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
+my $xerces_jar_base_name          = "xerces-j2.jar";       # CA, KRA, OCSP, TKS
+
+my $apache_commons_collections_jar_base_name  = "apache-commons-collections.jar";
+my $jakarta_commons_collections_jar_base_name = "jakarta-commons-collections.jar";
+my $apache_commons_logging_jar_base_name  = "apache-commons-logging.jar";
+my $jakarta_commons_logging_jar_base_name = "jakarta-commons-logging.jar";
+my $apache_commons_lang_jar_base_name     = "apache-commons-lang.jar";
+my $jakarta_commons_lang_jar_base_name    = "jakarta-commons-lang.jar";
+my $xml_commons_apis_jar_base_name        = "xml-commons-apis.jar";
+my $xml_commons_resolver_jar_base_name    = "xml-commons-resolver.jar";
+
+my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
+my $catalina_properties_base_name = "catalina.properties";    # CA, KRA, OCSP, TKS
+
+my $httpd_conf_base_name          = "httpd.conf";             # RA, TPS
+my $index_jsp_base_name           = "index.jsp";              # CA, KRA, OCSP, TKS
+                                                              # RA, TPS
+my $magic_base_name               = "magic";                  # RA, TPS
+my $mime_types_base_name          = "mime.types";             # RA, TPS
+my $noise_base_name               = "noise";                  # CA, KRA, OCSP, TKS,
+                                                              # RA, TPS
+my $nss_conf_base_name            = "nss.conf";               # RA, TPS
+my $perl_conf_base_name           = "perl.conf";              # RA, TPS
+my $password_conf_base_name       = "password.conf";          # CA, KRA, OCSP, TKS,
+                                                              # RA, TPS
+my $pfile_base_name               = "pfile";                  # CA, KRA, OCSP, TKS,
+                                                              # RA, TPS
+my $pwcache_conf_base_name        = "pwcache.conf";           # RA, TPS
+my $pki_cfg_base_name             = "CS.cfg";                 # CA, KRA, OCSP, TKS,
+                                                              # RA, TPS
+my $schemaMods_ldif_base_name     = "schemaMods.ldif";        # RA, TPS
+my $server_xml_base_name          = "server.xml";             # CA, KRA, OCSP, TKS
+my $servercertnick_conf_base_name = "serverCertNick.conf";    # CA, KRA, OCSP, TKS
+my $tomcat6_conf_base_name        = "tomcat6.conf";           # CA, KRA, OCSP, TKS
+my $velocity_prop_base_name       = "velocity.properties";    # CA, KRA, OCSP, TKS
+my $web_xml_base_name             = "web.xml";                # CA, KRA, OCSP, TKS
+my $profile_select_base_name      = "ProfileSelect.template"; # CA
+my $proxy_conf_base_name          = "proxy.conf";             # CA
+
+my $registry_template_base_name   = "registry_instance";      # CA, KRA, OCSP, TKS, RA, TPS
+my $pki_apache_initscript_base_name = "pki_apache_initscript"; # RA, TPS
+
+# Subdirectory names
+my $perl_base_instance_symlink      = "perl";        # RA, TPS
+my $perl_base_subsystem_dir         = "perl";        # RA, TPS
+my $signed_audit_base_instance_dir  = "signedAudit"; # CA, KRA, OCSP, TKS, TPS
+my $webapps_root_base_instance_dir  = "ROOT";        # CA, KRA, OCSP, TKS
+my $webapps_root_base_subsystem_dir = "ROOT";        # CA, KRA, OCSP, TKS
+my $webinf_base_instance_dir        = "WEB-INF";     # CA, KRA, OCSP, TKS
+
+# Defaults
+my $default_apache_pids_path       = "/var/run/pki";
+my $default_tomcat_pids_path       = "/var/run";
+my $default_tomcat_lib_path        = "/usr/share/tomcat6/lib";
+my $default_security_token         = "internal";
+my $default_nfast_group            = "nfast";
+
+# Default PKI user and group to give to PKI installed files
+my $pki_user  = $PKI_USER;
+my $pki_group = $PKI_GROUP;
+
+# PKI creation constants
+my $db_password_low  = 100000000000;
+my $db_password_high = 999999999999;
+
+# Template slot constants (RA, TPS)
+my $HTTPD_CONF                 = "HTTPD_CONF";
+my $LIB_PREFIX                 = "LIB_PREFIX";
+my $NSS_CONF                   = "NSS_CONF";
+my $OBJ_EXT                    = "OBJ_EXT";
+my $PORT                       = "PORT";
+my $PROCESS_ID                 = "PROCESS_ID";
+my $SECURE_PORT                = "SECURE_PORT";
+my $NON_CLIENTAUTH_SECURE_PORT = "NON_CLIENTAUTH_SECURE_PORT";
+my $SECURITY_LIBRARIES         = "SECURITY_LIBRARIES";
+my $SERVER_NAME                = "SERVER_NAME";
+my $SERVER_ROOT                = "SERVER_ROOT";
+my $SYSTEM_LIBRARIES           = "SYSTEM_LIBRARIES";
+my $SYSTEM_USER_LIBRARIES      = "SYSTEM_USER_LIBRARIES";
+my $TMP_DIR                    = "TMP_DIR";
+my $TPS_DIR                    = "TPS_DIR";
+my $FORTITUDE_APACHE           = "FORTITUDE_APACHE";
+my $FORTITUDE_DIR              = "FORTITUDE_DIR";
+my $FORTITUDE_MODULE           = "FORTITUDE_MODULE";
+my $FORTITUDE_LIB_DIR          = "FORTITUDE_LIB_DIR";
+my $FORTITUDE_AUTH_MODULES     = "FORTITUDE_AUTH_MODULES";
+my $FORTITUDE_NSS_MODULES      = "FORTITUDE_NSS_MODULES";
+my $REQUIRE_CFG_PL             = "REQUIRE_CFG_PL";
+my $PKI_PIDDIR                 = "PKI_PIDDIR";
+my $PKI_LOCKDIR                = "PKI_LOCKDIR";
+
+# Template slot constants (CA, KRA, OCSP, TKS, RA, TPS)
+my $PKI_INSTANCE_ID_SLOT       = "PKI_INSTANCE_ID";
+my $PKI_REGISTRY_FILE_SLOT     = "PKI_REGISTRY_FILE";
+
+# Template slot constants (CA, KRA, OCSP, TKS)
+my $INSTALL_TIME                        = "INSTALL_TIME";
+my $PKI_AGENT_CLIENTAUTH_SLOT           = "PKI_AGENT_CLIENTAUTH";
+my $PKI_CERT_DB_PASSWORD_SLOT           = "PKI_CERT_DB_PASSWORD";
+my $PKI_CFG_PATH_NAME_SLOT              = "PKI_CFG_PATH_NAME";
+my $PKI_GROUP_SLOT                      = "PKI_GROUP";
+my $PKI_INSTANCE_PATH_SLOT              = "PKI_INSTANCE_PATH";
+my $PKI_INSTANCE_ROOT_SLOT              = "PKI_INSTANCE_ROOT";
+my $PKI_MACHINE_NAME_SLOT               = "PKI_MACHINE_NAME";
+my $PKI_RANDOM_NUMBER_SLOT              = "PKI_RANDOM_NUMBER";
+my $PKI_SECURE_PORT_SLOT                = "PKI_SECURE_PORT";
+my $PKI_EE_SECURE_PORT_SLOT             = "PKI_EE_SECURE_PORT";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_UI_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT_UI";
+my $PKI_AGENT_SECURE_PORT_SLOT          = "PKI_AGENT_SECURE_PORT";
+my $PKI_ADMIN_SECURE_PORT_SLOT          = "PKI_ADMIN_SECURE_PORT";
+my $PKI_SERVER_XML_CONF                 = "PKI_SERVER_XML_CONF";
+my $PKI_SUBSYSTEM_TYPE_SLOT             = "PKI_SUBSYSTEM_TYPE";
+my $PKI_UNSECURE_PORT_SLOT              = "PKI_UNSECURE_PORT";
+my $PKI_USER_SLOT                       = "PKI_USER";
+my $TOMCAT_SERVER_PORT_SLOT             = "TOMCAT_SERVER_PORT";
+my $TOMCAT_PIDFILE                      = "TOMCAT_PIDFILE";
+my $TOMCAT_CFG                          = "TOMCAT_CFG";
+my $TOMCAT_SSL_OPTIONS                  = "TOMCAT_SSL_OPTIONS";
+my $TOMCAT_SSL2_CIPHERS                 = "TOMCAT_SSL2_CIPHERS";
+my $TOMCAT_SSL3_CIPHERS                 = "TOMCAT_SSL3_CIPHERS";
+my $TOMCAT_TLS3_CIPHERS                 = "TOMCAT_TLS3_CIPHERS";
+my $TOMCAT_INSTANCE_COMMON_LIB          = "TOMCAT_INSTANCE_COMMON_LIB";
+my $TOMCAT_LOG_DIR                      = "TOMCAT_LOG_DIR";
+my $PKI_INSTANCE_INITSCRIPT             = "PKI_INSTANCE_INITSCRIPT";
+my $PKI_FLAVOR_SLOT                     = "PKI_FLAVOR";
+my $PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT              = "PKI_UNSECURE_PORT_CONNECTOR_NAME";
+my $PKI_SECURE_PORT_CONNECTOR_NAME_SLOT                = "PKI_SECURE_PORT_CONNECTOR_NAME";
+my $PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT          = "PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME";
+my $PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT             = "PKI_EE_SECURE_PORT_CONNECTOR_NAME";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME";
+my $PKI_UNSECURE_PORT_COMMENT_SERVER_SLOT              = "PKI_UNSECURE_PORT_SERVER_COMMENT";
+my $PKI_SECURE_PORT_COMMENT_SERVER_SLOT                = "PKI_SECURE_PORT_SERVER_COMMENT";
+my $PKI_ADMIN_SECURE_PORT_COMMENT_SERVER_SLOT          = "PKI_ADMIN_SECURE_PORT_SERVER_COMMENT";
+my $PKI_EE_SECURE_PORT_COMMENT_SERVER_SLOT             = "PKI_EE_SECURE_PORT_SERVER_COMMENT";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_COMMENT_SERVER_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT_SERVER_COMMENT";
+my $PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT        = "PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT";
+my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT       = "PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT";
+my $PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT           = "PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT";
+my $PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT          = "PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT";
+my $PKI_OPEN_AJP_PORT_COMMENT_SLOT                     = "PKI_OPEN_AJP_PORT_COMMENT";
+my $PKI_CLOSE_AJP_PORT_COMMENT_SLOT                    = "PKI_CLOSE_AJP_PORT_COMMENT";
+my $PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT                 = "PKI_OPEN_ENABLE_PROXY_COMMENT";
+my $PKI_CLOSE_ENABLE_PROXY_COMMENT_SLOT                = "PKI_CLOSE_ENABLE_PROXY_COMMENT";
+my $PKI_AJP_REDIRECT_PORT_SLOT                         = "PKI_AJP_REDIRECT_PORT";
+my $PKI_AJP_PORT_SLOT                                  = "PKI_AJP_PORT";
+my $PROXY_SECURE_PORT_SLOT                             = "PKI_PROXY_SECURE_PORT";
+my $PROXY_UNSECURE_PORT_SLOT                           = "PKI_PROXY_UNSECURE_PORT";
+my $PKI_UNSECURE_PORT_NAME                  = "Unsecure";
+my $PKI_AGENT_SECURE_PORT_NAME              = "Agent";
+my $PKI_ADMIN_SECURE_PORT_NAME              = "Admin";
+my $PKI_EE_SECURE_PORT_NAME                 = "EE";
+my $PKI_EE_SECURE_CLIENT_AUTH_PORT_NAME     = "EEClientAuth";
+my $PKI_SECURE_PORT_NAME                    = "Secure";
+my $PKI_UNUSED_SECURE_PORT_NAME             = "Unused";
+my $PKI_UNSECURE_SEPARATE_PORTS_COMMENT     = "<!-- Port Separation:  Unsecure Port Connector -->";
+my $PKI_AGENT_SECURE_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  Agent Secure Port Connector -->";
+my $PKI_ADMIN_SECURE_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  Admin Secure Port Connector -->";
+my $PKI_EE_SECURE_SEPARATE_PORTS_COMMENT    = "<!-- Port Separation:  EE Secure Port Connector -->";
+my $PKI_EE_SECURE_CLIENT_AUTH_SEPARATE_PORTS_COMMENT = "<!-- Port Separation:  EE Secure Client Auth Port Connector -->";
+my $PKI_UNSECURE_SHARED_PORTS_COMMENT = "<!-- Shared Ports:  Unsecure Port Connector -->";
+my $PKI_SECURE_SHARED_PORTS_COMMENT   = "<!-- Shared Ports:  Agent, EE, and Admin Secure Port Connector -->";
+my $PKI_OPEN_COMMENT                  = "<!--";
+my $PKI_CLOSE_COMMENT                 = "-->";
+my $PKI_WEBAPPS_NAME                  = "PKI_WEBAPPS_NAME";
+
+#proxy defaults
+my $PROXY_SECURE_PORT_DEFAULT   = "443";
+my $PROXY_UNSECURE_PORT_DEFAULT = "80";
+my $AJP_PORT_DEFAULT            = "9447";
+
+##############################################################
+# Local Data Structures
+##############################################################
+
+# Useful pki references
+my %redirects = ();
+my %supported_sec_modules_hash = ();
+
+##############################################################
+# Local Variables
+##############################################################
+
+# Command-line variables (mandatory)
+my $pki_instance_root          = undef;
+my $pki_instance_name          = undef;
+my $subsystem_type             = undef;
+my $secure_port                = -1;
+my $non_clientauth_secure_port = -1;
+my $unsecure_port              = -1;
+my $tomcat_server_port         = -1;
+
+# Command-line variables (optional)
+my $agent_secure_port          = -1;
+my $ee_secure_port             = -1;
+my $ee_secure_client_auth_port = -1;
+my $admin_secure_port          = -1;
+my $proxy_secure_port          = -1;
+my $proxy_unsecure_port        = -1;
+my $ajp_port                   = -1;
+my $enable_proxy               = undef;
+my $username                   = undef;
+my $groupname                  = undef;
+my $redirected_conf_path       = undef;
+my $redirected_logs_path       = undef;
+
+# Base subsystem directory paths
+my $pki_subsystem_path       = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $applets_subsystem_path   = undef;  # TPS
+my $bin_subsystem_path       = undef;  # TPS
+my $cgibin_subsystem_path    = undef;  # TPS (Apache)
+my $conf_subsystem_path      = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $docroot_subsystem_path   = undef;  # RA, TPS (Apache)
+my $emails_subsystem_path    = undef;  # CA
+my $lib_subsystem_path       = undef;  # RA, TPS
+my $profiles_subsystem_path  = undef;  # CA, KRA, OCSP, TKS
+my $samples_subsystem_path   = undef;  # TPS
+my $scripts_subsystem_path   = undef;  # RA, TPS
+my $webapps_subsystem_path   = undef;  # CA, KRA, OCSP, TKS
+my $common_ui_subsystem_path = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $ui_subsystem_path        = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+
+# Base instance directory paths
+my $pki_instance_path               = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $alias_instance_path             = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $bin_instance_path               = undef;  # TPS
+my $cgibin_instance_path            = undef;  # TPS (Apache)
+my $conf_instance_path              = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $docroot_instance_path           = undef;  # RA, TPS (Apache)
+my $emails_instance_path            = undef;  # CA
+my $lib_instance_path               = undef;  # RA, TPS
+my $logs_instance_path              = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $profiles_instance_path          = undef;  # CA, KRA, OCSP, TKS
+my $scripts_instance_path           = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $tomcat_instance_common_lib_path = undef;  # CA, KRA, OCSP, TKS (Tomcat)
+my $shared_instance_path            = undef;  # CA, KRA, OCSP, TKS (Tomcat)
+my $temp_instance_path              = undef;  # CA, KRA, OCSP, TKS (Tomcat)
+my $webapps_instance_path           = undef;  # CA, KRA, OCSP, TKS
+my $webapps_subsystem_instance_path = undef;  # CA, KRA, OCSP, TKS
+my $work_instance_path              = undef;  # CA, KRA, OCSP, TKS (Tomcat)
+my $pki_piddir_path                 = undef;  # RA, TPS
+my $pki_lockdir_path                = undef;  # RA, TPS
+
+# Base instance symbolic link paths
+my $conf_instance_symlink_path    = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $logs_instance_symlink_path    = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $run_instance_symlink_path     = undef;  # RA, TPS
+
+# Subdirectory paths
+my $cgi_home_instance_file_path                  = undef;  # TPS
+my $cgi_home_subsystem_file_path                 = undef;  # TPS
+my $cgi_demo_instance_file_path                  = undef;  # TPS
+my $cgi_demo_subsystem_file_path                 = undef;  # TPS
+my $cgi_so_instance_file_path                    = undef;  # TPS
+my $cgi_so_subsystem_file_path                   = undef;  # TPS
+my $cgi_so_instance_enroll_file_path             = undef;  # TPS
+my $cgi_so_subsystem_enroll_file_path            = undef;  # TPS
+my $cgi_sow_instance_file_path                   = undef;  # TPS
+my $cgi_sow_subsystem_file_path                  = undef;  # TPS
+my $cgi_sow_instance_cgi_file_path               = undef;  # TPS
+my $cgi_sow_subsystem_cgi_file_path              = undef;  # TPS
+my $cgi_sow_instance_cfg_pl_path                 = undef;  # TPS
+my $addAgents_ldif_instance_file_path            = undef;  # TPS
+my $addAgents_ldif_subsystem_file_path           = undef;  # TPS
+my $addIndexes_ldif_instance_file_path           = undef;  # TPS
+my $addIndexes_ldif_subsystem_file_path          = undef;  # TPS
+my $addTokens_ldif_instance_file_path            = undef;  # TPS
+my $addTokens_ldif_subsystem_file_path           = undef;  # TPS
+my $addVLVIndexes_ldif_instance_file_path        = undef;  # TPS
+my $addVLVIndexes_ldif_subsystem_file_path       = undef;  # TPS
+my $pki_certsrv_jar_file_path                    = undef;  # CA, KRA, OCSP, TKS
+my $pki_certsrv_jar_symlink_path                 = undef;  # CA, KRA, OCSP, TKS
+my $pki_cms_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
+my $pki_cms_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmsbundle_jar_file_path                  = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmsbundle_jar_symlink_path               = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmscore_jar_file_path                    = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmscore_jar_symlink_path                 = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmsutil_jar_file_path                    = undef;  # CA, KRA, OCSP, TKS
+my $pki_cmsutil_jar_symlink_path                 = undef;  # CA, KRA, OCSP, TKS
+my $commons_collections_jar_file_path            = undef;  # CA, KRA, OCSP, TKS
+my $commons_collections_jar_symlink_path         = undef;  # CA, KRA, OCSP, TKS
+my $commons_lang_jar_file_path                   = undef;  # CA, KRA, OCSP, TKS
+my $commons_lang_jar_symlink_path                = undef;  # CA, KRA, OCSP, TKS
+my $commons_logging_jar_file_path                = undef;  # CA, KRA, OCSP, TKS
+my $commons_logging_jar_symlink_path             = undef;  # CA, KRA, OCSP, TKS
+my $jss_jar_file_path                            = undef;  # CA, KRA, OCSP, TKS
+my $jss_jar_symlink_path                         = undef;  # CA, KRA, OCSP, TKS
+my $ldapjdk_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
+my $ldapjdk_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
+my $pki_nsutil_jar_file_path                     = undef;  # CA, KRA, OCSP, TKS
+my $pki_nsutil_jar_symlink_path                  = undef;  # CA, KRA, OCSP, TKS
+my $osutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $osutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $symkey_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $symkey_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
+my $tomcatjss_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
+my $velocity_jar_file_path                       = undef;  # CA, KRA, OCSP, TKS
+my $velocity_jar_symlink_path                    = undef;  # CA, KRA, OCSP, TKS
+my $xerces_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
+my $xerces_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $xml_commons_apis_jar_file_path               = undef;  # CA, KRA, OCSP, TKS
+my $xml_commons_apis_jar_symlink_path            = undef;  # CA, KRA, OCSP, TKS
+my $xml_commons_resolver_jar_file_path           = undef;  # CA, KRA, OCSP, TKS
+my $xml_commons_resolver_jar_symlink_path        = undef;  # CA, KRA, OCSP, TKS
+my $httpd_conf_instance_file_path                = undef;  # RA, TPS
+my $httpd_conf_subsystem_file_path               = undef;  # RA, TPS
+my $index_jsp_instance_file_path                 = undef;  # CA, KRA, OCSP, TKS
+my $index_jsp_subsystem_file_path                = undef;  # CA, KRA, OCSP, TKS
+my $magic_instance_file_path                     = undef;  # RA, TPS
+my $magic_subsystem_file_path                    = undef;  # RA, TPS
+my $mime_types_instance_file_path                = undef;  # RA, TPS
+my $mime_types_subsystem_file_path               = undef;  # RA, TPS
+my $noise_instance_file_path                     = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $nss_conf_instance_file_path                  = undef;  # RA, TPS
+my $nss_conf_subsystem_file_path                 = undef;  # RA, TPS
+my $nss_pcache_instance_file_path                = undef;  # RA, TPS
+my $nss_pcache_subsystem_file_path               = undef;  # RA, TPS
+my $perl_conf_instance_file_path                 = undef;  # RA, TPS
+my $perl_conf_subsystem_file_path                = undef;  # RA, TPS
+my $password_conf_instance_file_path             = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $perl_instance_symlink_path                   = undef;  # RA, TPS
+my $perl_subsystem_path                          = undef;  # RA, TPS
+my $pfile_instance_file_path                     = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $pwcache_conf_instance_file_path              = undef;  # RA, TPS
+my $pki_cfg_subsystem_file_path                  = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $pki_cfg_instance_file_path                   = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $pki_apache_initscript_file_path              = undef;  # RA, TPS
+my $schemaMods_ldif_instance_file_path           = undef;  # RA, TPS
+my $schemaMods_ldif_subsystem_file_path          = undef;  # RA, TPS
+my $server_xml_instance_file_path                = undef;  # CA, KRA, OCSP, TKS
+my $server_xml_subsystem_file_path               = undef;  # CA, KRA, OCSP, TKS
+my $servercertnick_conf_instance_file_path       = undef;  # CA, KRA, OCSP, TKS
+my $servercertnick_conf_subsystem_file_path      = undef;  # CA, KRA, OCSP, TKS
+my $pki_subsystem_jar_file_path                  = undef;  # CA, KRA, OCSP, TKS
+my $pki_subsystem_jar_symlink_path               = undef;  # CA, KRA, OCSP, TKS
+my $tomcat6_conf_subsystem_file_path             = undef;  # CA, KRA, OCSP, TKS
+my $tomcat6_conf_instance_file_path              = undef;  # CA, KRA, OCSP, TKS
+my $tomcat6_instance_pid_file_path               = undef;  # CA, KRA, OCSP, TKS
+my $velocity_prop_instance_file_path             = undef;  # CA, KRA, OCSP, TKS
+my $velocity_prop_subsystem_file_path            = undef;  # CA, KRA, OCSP, TKS
+my $web_xml_instance_file_path                   = undef;  # CA, KRA, OCSP, TKS
+my $web_xml_subsystem_file_path                  = undef;  # CA, KRA, OCSP, TKS
+my $catalina_properties_instance_file_path       = undef;  # CA, KRA, OCSP, TKS
+my $catalina_properties_subsystem_file_path      = undef;  # CA, KRA, OCSP, TKS
+my $webapps_root_instance_path                   = undef;  # CA, KRA, OCSP, TKS
+my $webapps_root_subsystem_path                  = undef;  # CA, KRA, OCSP, TKS
+my $webinf_instance_path                         = undef;  # CA, KRA, OCSP, TKS
+my $webinf_lib_instance_path                     = undef;  # CA, KRA, OCSP, TKS
+my $webinf_subsystem_path                        = undef;  # CA, KRA, OCSP, TKS
+my $profile_select_template_subsystem_file_path  = undef;  #CA
+my $profile_select_template_instance_file_path   = undef;  #CA
+my $proxy_conf_subsystem_file_path               = undef;  #CA
+my $proxy_conf_instance_file_path                = undef;  #CA
+
+# PKI init script variables
+my $pki_registry_initscript                   = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+my $pki_registry_initscript_command           = undef;  # CA, KRA, OCSP, TKS, RA, TPS
+
+# PKI registry variables
+my $pki_registry_subsystem_path               = undef;  # CA, KRA, OCSP, TKS RA, TPS
+my $pki_registry_subsystem_file_path          = undef;  # CA, KRA, OCSP, TKS RA, TPS
+my $pki_registry_instance_file_path           = undef;  # CA, KRA, OCSP, TKS RA, TPS
+
+# PKI creation variables
+my $host        = undef;
+my $db_password = undef;
+my $random      = undef;
+
+# Linux specific variables
+my $setup_base_subsystem_dir         = "setup";
+my $setup_subsystem_path             = undef;
+my $setup_config_instance_file_path  = undef;
+my $setup_config_subsystem_file_path = undef;
+my $setup_config_area                = undef;
+my $setup_config_name                = undef;
+my $tomcat6_initscript_path          = undef;
+my $tomcat6_instance_config_path     = undef;
+my $root_user                        = undef;
+my $root_group                       = undef;
+my $pki_instance_initscript_path     = undef;
+
+
+##############################################################
+# Platform-Dependent Data Initialization
+##############################################################
+
+if ($^O eq "linux") {
+    # Linux required desktop files
+    $setup_config_area = "/usr/share/applications";
+    $setup_config_name = "config.desktop";
+
+    # Linux init scripts
+    $tomcat6_initscript_path = "${default_initscripts_path}/tomcat6";
+
+    # Tomcat instance config directory
+    $tomcat6_instance_config_path = "/etc/sysconfig";
+
+    # Superuser and group to give to PKI installed files
+    $root_user = "root";
+    $root_group = "root";
+} else {
+    emit("Unsupported platform '$^O'!\n", "error");
+    exit 255;
+}
+
+
+##############################################################
+# Local Data Initialization
+##############################################################
+
+# Initialize Java-specific variables
+if ($^O eq "linux") {
+    if ($default_hardware_platform eq "i386") {
+        # 32-bit Linux
+
+        # Supported hardware token PKCS #11 modules
+        %supported_sec_modules_hash = ("lunasa" => "/usr/lunasa/lib/libCryptoki2.so",
+                                       "nfast"  => "/opt/nfast/toolkits/pkcs11/libcknfast.so");
+    } elsif ($default_hardware_platform eq "x86_64") {
+        # 64-bit Linux
+
+        # Supported hardware token PKCS #11 modules
+        %supported_sec_modules_hash = ("lunasa" => "/usr/lunasa/lib/libCryptoki2_64.so",
+                                       "nfast"  => "/opt/nfast/toolkits/pkcs11/libcknfast.so");
+    } else {
+        emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!\n", "error");
+        exit 255;
+    }
+} else {
+    emit("Unsupported platform '$^O'!\n", "error");
+    exit 255;
+}
+
+##############################################################
+# PKI Instance Creation Subroutines
+##############################################################
+
+# no args
+# no return value
+sub usage
+{
+    print STDOUT <<'EOF';
+###############################################################################
+###   USAGE:  CA, KRA, OCSP, or TKS subsystem instance creation (Tomcat)    ###
+###############################################################################
+
+pkicreate -pki_instance_root=<pki_instance_root>   # Instance root directory
+                                                   # destination
+
+          -pki_instance_name=<pki_instance_id>     # Unique PKI subsystem
+                                                   # instance name
+
+          -subsystem_type=<subsystem_type>         # Subsystem type
+                                                   # [ca | kra | ocsp | tks]
+
+          #####################################################################
+          ###   SELECT separate secure ports for AGENT, EE, and ADMIN:      ###
+          #####################################################################
+
+          -agent_secure_port=<agent_secure_port>   # Agent secure port
+
+          -ee_secure_port=<ee_secure_port>         # EE secure port
+
+          -admin_secure_port=<admin_secure_port>   # Admin secure port
+
+          #####################################################################
+          ###   ... and a client auth EE port, required for CAs only        ###
+          #####################################################################
+
+          -ee_secure_client_auth_port=<ee_secure_client_auth_port>
+                                         # EE secure client authentication port
+
+          #####################################################################
+          ###   OR SELECT a single secure port shared by AGENT,EE and ADMIN ###
+          #####################################################################
+
+          -secure_port=<secure_port>               # Secure port
+                                                   # (shared by Agent,
+                                                   #  EE, and Admin)
+
+          #####################################################################
+          ###   END secure port SELECTION                                   ###
+          #####################################################################
+
+          -unsecure_port=<unsecure_port>           # Unsecure port
+
+          -tomcat_server_port=<tomcat_server_port> # Unique port for each
+                                                   # Tomcat instance
+
+          #####################################################################
+          ###  proxy configuration                                          ###
+          ###  if -enable_proxy is set, ajp_port, proxy_secure_port, and    ###
+          ###  proxy_unsecure_port are also set.                            ###
+          #####################################################################
+
+          [-enable_proxy]                            #enable proxy configuration
+          [-ajp_port=<ajp_port>]                     #AJP port, default 9447
+
+          [-proxy_secure_port=<proxy_secure_port>]   # Proxy secure port, 
+                                                     # default 443
+
+          [-proxy_unsecure_port=<unsecure_port>]     # Proxy unsecure port,
+                                                     # default 80
+
+          #####################################################################
+          ###   END proxy configuration                                     ###
+          #####################################################################
+
+          [-user=<username>]                       # User ownership
+                                                   # (must ALSO specify
+                                                   #  group ownership)
+                                                   #
+                                                   # [Default=pkiuser]
+
+          [-group=<groupname>]                     # Group ownership
+                                                   # (must ALSO specify
+                                                   #  user ownership)
+                                                   #
+                                                   # [Default=pkiuser]
+
+          [-redirect conf=<real conf dir path>]    # Redirection of
+                                                   # 'conf' directory
+
+          [-redirect logs=<real logs dir path>]    # Redirection of
+                                                   # 'logs' directory
+
+          [-verbose]                               # Print out liberal info
+                                                   # during 'pkicreate'.
+                                                   # Specify multiple times
+                                                   # to increase verbosity.
+
+          [-dry_run]                               # Do not perform any actions.
+                                                   # Just report what would have
+                                                   # been done.
+
+          [-help]                                  # Print out this screen
+
+
+###############################################################################
+###   USAGE:  RA or TPS subsystem instance creation (Apache)                ###
+###############################################################################
+
+pkicreate -pki_instance_root=<pki_instance_root>   # Instance root directory
+                                                   # destination
+
+          -pki_instance_name=<pki_instance_id>     # Unique PKI subsystem
+                                                   # instance name
+
+          -subsystem_type=<subsystem_type>         # Subsystem type
+                                                   # [ra | tps]
+
+          -secure_port=<secure_port>               # Secure port
+                                                   # (clientauth)
+                                                   # for each
+                                                   # Apache instance
+
+          -non_clientauth_secure_port=<non_clientauth_secure_port>
+
+                                                   # Secure port
+                                                   # (non-clientauth)
+                                                   # for each
+                                                   # Apache instance
+
+          -unsecure_port=<unsecure_port>           # Unsecure port
+
+          [-user=<username>]                       # User ownership
+                                                   # (must ALSO specify
+                                                   #  group ownership)
+                                                   #
+                                                   # [Default=pkiuser]
+
+          [-group=<groupname>]                     # Group ownership
+                                                   # (must ALSO specify
+                                                   #  user ownership)
+                                                   #
+                                                   # [Default=pkiuser]
+
+          [-redirect conf=<real conf dir path>]    # Redirection of
+                                                   # 'conf' directory
+
+          [-redirect logs=<real logs dir path>]    # Redirection of
+                                                   # 'logs' directory
+
+          [-verbose]                               # Print out liberal info
+                                                   # during 'pkicreate'.
+                                                   # Specify multiple times
+                                                   # to increase verbosity.
+
+          [-dry_run]                               # Do not perform any actions.
+                                                   # Just report what would have
+                                                   # been done.
+
+          [-help]                                  # Print out this screen
+
+
+###############################################################################
+###   EXAMPLES:                                                             ###
+###       PKI (Tomcat) subsystem instance creation of a  CA                 ###
+###       PKI (Tomcat) subsystem instance creation of a  Subordinate CA     ###
+###       PKI (Tomcat) subsystem instance creation of a  KRA                ###
+###       PKI (Tomcat) subsystem instance creation of an OCSP               ###
+###       PKI (Tomcat) subsystem instance creation of a  TKS                ###
+###       PKI (Apache) subsystem instance creation of an RA                 ###
+###       PKI (Apache) subsystem instance creation of a  TPS                ###
+###       PKI (Apache) subsystem instance creation of a  second TPS         ###
+###############################################################################
+
+pkicreate -pki_instance_root=/var/lib        \
+          -pki_instance_name=pki-ca          \
+          -subsystem_type=ca                 \
+          -agent_secure_port=9443            \
+          -ee_secure_port=9444               \
+          -ee_secure_client_auth_port=9446   \
+          -admin_secure_port=9445            \
+          -unsecure_port=9180                \
+          -tomcat_server_port=9701           \
+          -user=pkiuser                      \
+          -group=pkiuser                     \
+          -redirect conf=/etc/pki-ca         \
+          -redirect logs=/var/log/pki-ca     \
+          -verbose
+
+pkicreate -pki_instance_root=/var/lib        \
+          -pki_instance_name=pki-subca       \
+          -subsystem_type=ca                 \
+          -agent_secure_port=9543            \
+          -ee_secure_port=9544               \
+          -ee_secure_client_auth_port=9546   \
+          -admin_secure_port=9545            \
+          -unsecure_port=9580                \
+          -tomcat_server_port=9801           \
+          -user=pkiuser                      \
+          -group=pkiuser                     \
+          -redirect conf=/etc/pki-subca      \
+          -redirect logs=/var/log/pki-subca  \
+          -verbose
+
+pkicreate -pki_instance_root=/var/lib        \
+          -pki_instance_name=pki-kra         \
+          -subsystem_type=kra                \
+          -agent_secure_port=10443           \
+          -ee_secure_port=10444              \
+          -admin_secure_port=10445           \
+          -unsecure_port=10180               \
+          -tomcat_server_port=10701          \
+          -user=pkiuser                      \
+          -group=pkiuser                     \
+          -redirect conf=/etc/pki-kra        \
+          -redirect logs=/var/log/pki-kra    \
+          -verbose
+
+pkicreate -pki_instance_root=/var/lib        \
+          -pki_instance_name=pki-ocsp        \
+          -subsystem_type=ocsp               \
+          -agent_secure_port=11443           \
+          -ee_secure_port=11444              \
+          -admin_secure_port=11445           \
+          -unsecure_port=11180               \
+          -tomcat_server_port=11701          \
+          -user=pkiuser                      \
+          -group=pkiuser                     \
+          -redirect conf=/etc/pki-ocsp       \
+          -redirect logs=/var/log/pki-ocsp   \
+          -verbose
+
+pkicreate -pki_instance_root=/var/lib        \
+          -pki_instance_name=pki-tks         \
+          -subsystem_type=tks                \
+          -agent_secure_port=13443           \
+          -ee_secure_port=13444              \
+          -admin_secure_port=13445           \
+          -unsecure_port=13180               \
+          -tomcat_server_port=13701          \
+          -user=pkiuser                      \
+          -group=pkiuser                     \
+          -redirect conf=/etc/pki-tks        \
+          -redirect logs=/var/log/pki-tks    \
+          -verbose
+
+pkicreate -pki_instance_root=/var/lib        \
+          -pki_instance_name=pki-ra          \
+          -subsystem_type=ra                 \
+          -secure_port=12889                 \
+          -non_clientauth_secure_port=12890  \
+          -unsecure_port=12888               \
+          -user=pkiuser                      \
+          -group=pkiuser                     \
+          -redirect conf=/etc/pki-ra         \
+          -redirect logs=/var/log/pki-ra     \
+          -verbose
+
+pkicreate -pki_instance_root=/var/lib        \
+          -pki_instance_name=pki-tps         \
+          -subsystem_type=tps                \
+          -secure_port=7889                  \
+          -non_clientauth_secure_port=7890   \
+          -unsecure_port=7888                \
+          -user=pkiuser                      \
+          -group=pkiuser                     \
+          -redirect conf=/etc/pki-tps        \
+          -redirect logs=/var/log/pki-tps    \
+          -verbose
+
+pkicreate -pki_instance_root=/var/lib        \
+          -pki_instance_name=pki-tps1        \
+          -subsystem_type=tps                \
+          -secure_port=7989                  \
+          -non_clientauth_secure_port=7990   \
+          -unsecure_port=7988                \
+          -user=pkiuser                      \
+          -group=pkiuser                     \
+          -redirect conf=/etc/pki-tps1       \
+          -redirect logs=/var/log/pki-tps1   \
+          -verbose
+
+IMPORTANT:  Must be run as root!
+EOF
+
+    return;
+}
+
+
+# arg0 instance name
+# return 1 - exists, or
+# return 0 - DOES NOT exist
+sub pki_instance_already_exists
+{
+    my ($name) = @_;
+    my $result = 0;
+    my $instance = "";
+
+    $instance = $pki_registry_path
+              . "/" . $subsystem_type
+              . "/" . $name;
+
+    if (-e $instance) {
+        $result = 1;
+    }
+
+    return $result;
+}
+
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub parse_arguments
+{
+    my $l_secure_port        = -1;
+    my $l_non_clientauth_secure_port = -1;
+    my $l_unsecure_port      = -1;
+    my $l_tomcat_server_port = -1;
+    my $l_agent_secure_port  = -1;
+    my $l_ee_secure_port     = -1;
+    my $l_ee_secure_client_auth_port     = -1;
+    my $l_admin_secure_port  = -1;
+    my $l_proxy_secure_port  = -1;
+    my $l_proxy_unsecure_port  = -1;
+    my $l_ajp_port  = -1;
+    my $show_help            = 0;
+
+    my $result = GetOptions("help"                         => \$show_help,
+                            "pki_instance_root=s"          => \$pki_instance_root,
+                            "pki_instance_name=s"          => \$pki_instance_name,
+                            "subsystem_type=s"             => \$subsystem_type,
+                            "secure_port:i"                => \$l_secure_port,
+                            "non_clientauth_secure_port:i" => \$l_non_clientauth_secure_port,
+                            "unsecure_port:i"              => \$l_unsecure_port,
+                            "agent_secure_port:i"          => \$l_agent_secure_port,
+                            "ee_secure_port:i"             => \$l_ee_secure_port,
+                            "ee_secure_client_auth_port:i" => \$l_ee_secure_client_auth_port,
+                            "admin_secure_port:i"          => \$l_admin_secure_port, 
+                            "tomcat_server_port:i"         => \$l_tomcat_server_port,
+                            "proxy_secure_port:i"          => \$l_proxy_secure_port,
+                            "proxy_unsecure_port:i"        => \$l_proxy_unsecure_port,
+                            "ajp_port:i"                   => \$l_ajp_port,
+                            "enable_proxy"                 => \$enable_proxy,
+                            "user=s"                       => \$username,
+                            "group=s"                      => \$groupname,
+                            "verbose+"                     => \$verbose,
+                            "dry_run"                      => \$dry_run,
+                            "redirect=s"                   => \%redirects);
+
+
+    ## Optional "-help" option - no "mandatory" options are required
+    if ($show_help) {
+        usage();
+        return 0;
+    }
+
+
+    ## Mandatory "-pki_instance_root=s" option
+    if (!$pki_instance_root) {
+        usage();
+        emit("Must have value for -pki_instance_root!\n", "error");
+        return 0;
+    }
+
+    if ($pki_instance_root eq "/") {
+        usage();
+        emit("Don't even think about making root the pki_instance_root! "
+            . "Try again.\n", "error");
+        return 0;
+    }
+
+    # Remove all trailing directory separators ('/')
+    $pki_instance_root =~ s/\/+$//;
+
+    if (!is_path_valid($pki_instance_root)) {
+        usage();
+        emit("Target directory $pki_instance_root is not a "
+            . "legal directory try again.\n",
+              "error");
+        return 0;
+    }
+
+    ## Mandatory "-subsystem_type=s" option
+    if ($subsystem_type ne $CA   &&
+        $subsystem_type ne $KRA  &&
+        $subsystem_type ne $OCSP &&
+        $subsystem_type ne $TKS  &&
+        $subsystem_type ne $RA   &&
+        $subsystem_type ne $TPS) {
+        usage();
+        emit("Illegal  value => $subsystem_type :  for -subsystem_type!\n",
+              "error");
+        return 0;
+    }
+
+    $pki_subsystem_path = $pki_subsystem_common_area
+                        . "/" . $subsystem_type;
+
+    if (!(-d $pki_subsystem_path)) {
+        usage();
+        emit("$pki_subsystem_path not present.  "
+            . "Please install the corresponding subsystem RPM first!\n",
+              "error");
+        return 0;
+    } else {
+        emit("    subsystem_type      $subsystem_type\n");
+    }
+
+
+    ## Mandatory "-pki_instance_name=s" option
+    if (!$pki_instance_name) {
+        usage();
+        emit("Must have value for -pki_instance_name!\n", "error");
+        return 0;
+    }
+
+    if (!is_name_valid($pki_instance_name)) {
+        usage();
+        emit("Illegal Value => $pki_instance_name for -pki_instance_name!\n",
+              "error");
+        return 0;
+    }
+
+    if (pki_instance_already_exists($pki_instance_name) && !$dry_run) {
+        usage();
+        emit("An instance named $pki_instance_name "
+            . "already exists; please try again.\n", "error");
+        return 0;
+    }
+
+    $pki_instance_path  = "${pki_instance_root}/${pki_instance_name}";
+
+    if (directory_exists($pki_instance_path) && !$dry_run) {
+        usage();
+        emit("Target directory $pki_instance_path "
+            . "already exists; clean up and "
+            . "try again.\n", "error");
+        return 0;
+    }
+
+    # Capture installation information in a log file, always overwrite this file.
+    # When creating an instance it's a fatal error if the logfile
+    # cannot be created.
+    my $logfile = "/var/log/${pki_instance_name}-install.log";
+    if (!open_logfile($logfile, $default_file_permissions)) {
+        emit("can not create logfile ($logfile)", "error");
+        return 0;
+    }
+
+    add_install_info($logfile, 'file', 'preserve');
+
+    printf(STDOUT "Capturing installation information in %s\n", $logfile);
+
+    emit("Parsing PKI creation arguments ...\n");
+
+    if ($verbose) {
+        emit("    verbose mode ENABLED (level=$verbose)\n");
+    }
+
+    if ($dry_run) {
+        emit("    dry run mode ENABLED, system will not be modified\n");
+        print STDOUT "dry run mode ENABLED, system will not be modified\n";
+    }
+
+    emit("    pki_instance_root   $pki_instance_root\n");
+    emit("    pki_instance_name   $pki_instance_name\n");
+
+    ## Mandatory "-secure_port=<secure_port>" option
+    if ($l_secure_port >= 0) {
+        $secure_port = $l_secure_port;
+
+        emit("    secure_port         $secure_port\n");
+    } else {
+        if ($l_agent_secure_port == -1)
+        {
+            usage();
+            emit("Must include value for secure_port!\n", "error");
+            return 0;
+        }
+    }
+
+    ## Mandatory "-non_clientauth_secure_port=<non_clientauth_secure_port>"
+    ## option/exclusion
+    if (($subsystem_type eq $RA || $subsystem_type eq $TPS)) {
+        if ($l_non_clientauth_secure_port >= 0) {
+            $non_clientauth_secure_port = $l_non_clientauth_secure_port;
+
+            emit("    non_clientauth_secure_port         "
+                . "$non_clientauth_secure_port\n");
+        } else {
+            if ($l_non_clientauth_secure_port == -1)
+            {
+                usage();
+                emit("Must include value for non_clientauth_secure_port!\n",
+                      "error");
+                return 0;
+            }
+        }
+
+        if ($l_agent_secure_port > 0 ||
+            $l_ee_secure_port > 0    ||
+            $l_ee_secure_client_auth_port > 0    ||
+            $l_admin_secure_port > 0)  {
+            usage();
+            emit("Must NOT include values for any agent|admin|ee ports!\n",
+                  "error");
+            return 0;
+        }
+    } else {
+        ## Mandatory EXCLUSION for CA, KRA, OCSP, and TKS subsystems
+        if ($l_non_clientauth_secure_port != -1) {
+            usage();
+            emit("Must NOT include value for non_clientauth_secure_port!\n",
+                  "error");
+            return 0;
+        }
+    }
+ 
+    ## Mandatory "-unsecure_port=<unsecure_port>" option
+    if ($l_unsecure_port >= 0) {
+        $unsecure_port = $l_unsecure_port;
+
+        emit("    unsecure_port       $unsecure_port\n");
+    } else {
+        usage();
+        emit("Must include value for unsecure_port!\n", "error");
+        return 0;
+    }
+
+    ## Mandatory "-tomcat_server_port=<tomcat_server_port>" option/exclusion
+    if (!($subsystem_type eq $RA || $subsystem_type eq $TPS)) {
+        ## Mandatory OPTION for CA, KRA, OCSP, and TKS subsystems
+        if ($l_tomcat_server_port < 0) {
+            usage();
+            emit("Must include value for tomcat_server_port!\n", "error");
+            return 0;
+        }
+
+        $tomcat_server_port = $l_tomcat_server_port;
+
+        emit("    tomcat_server_port  $tomcat_server_port\n");
+    } else {
+        ## Mandatory EXCLUSION for RA and TPS subsystems
+        if ($l_tomcat_server_port != -1) {
+            usage();
+            emit("Must NOT include value for tomcat_server_port!\n",
+                  "error");
+            return 0;
+        }
+    }
+
+    if ($l_agent_secure_port >= 0) {
+        $agent_secure_port = $l_agent_secure_port;
+     
+        emit("    agent_secure_port   $agent_secure_port\n");
+
+    }
+
+    ## Mandatory ee_secure_port  if "-agent_secure_port" is given 
+
+    if ($l_ee_secure_port >= 0) {
+        $ee_secure_port = $l_ee_secure_port;
+     
+        emit("    ee_secure_port      $ee_secure_port\n");
+
+    } else {
+        if ($agent_secure_port >= 0) {
+            emit("Must include value for ee_secure_port if agent_secure_port is given!\n");
+        }
+    }
+
+    ## Mandatory ee_secure_client_auth_port  if "-agent_secure_port" is given, and CA subsystem
+
+    if ($l_ee_secure_client_auth_port >= 0) {
+        $ee_secure_client_auth_port = $l_ee_secure_client_auth_port;
+     
+        emit("    ee_secure_client_auth_port      $ee_secure_client_auth_port\n");
+
+    } else {
+        if (($agent_secure_port >= 0) && ($subsystem_type eq $CA)) {
+            usage();
+            emit("For CAs, must include value for ee_secure_client_auth_port if agent_secure_port is given!\n");
+            return 0;
+        }
+    }
+
+     ## Mandatory admin_secure_port if "-agent_secure_port" is given 
+
+    if ($l_admin_secure_port >= 0) {
+        $admin_secure_port = $l_admin_secure_port;
+    
+        emit("    admin_secure_port   $admin_secure_port\n");
+
+    } else {
+        if ($agent_secure_port >= 0) {
+            emit("Must include value for admin_secure_port if agent_secure_port is given!\n");
+        }
+    }
+
+    if ($enable_proxy) {
+
+        $proxy_secure_port = ($l_proxy_secure_port >= 0) ? $l_proxy_secure_port : 
+            $PROXY_SECURE_PORT_DEFAULT;
+        emit("    proxy_secure_port   $proxy_secure_port\n");
+
+        $proxy_unsecure_port = ($l_proxy_unsecure_port >= 0) ? $l_proxy_unsecure_port : 
+            $PROXY_UNSECURE_PORT_DEFAULT;
+        emit("    proxy_unsecure_port   $proxy_unsecure_port\n");
+
+        $ajp_port = ($l_ajp_port >= 0) ? $l_ajp_port : $AJP_PORT_DEFAULT;  
+        emit("    ajp_port   $ajp_port\n");
+    }
+ 
+    if (!AreConnectorPortsValid($secure_port,$unsecure_port,$agent_secure_port,
+         $ee_secure_port,$ee_secure_client_auth_port, $admin_secure_port, 
+         $proxy_secure_port, $proxy_unsecure_port))
+    {
+        usage();
+        emit("Invalid port numbers submitted!\n","error");
+        return 0;
+    }
+
+
+    ## Optional "-group=<groupname>" option
+    if ($groupname) {
+        if (!$username) {
+            usage();
+            emit("Must ALSO specify user ownership using -user!\n",
+                  "error");
+            return 0;
+        }
+
+        if (!group_exists($groupname)) {
+            if (!create_group($groupname)) {
+                usage();
+                emit("Unable to create group '$groupname' on this machine!\n",
+                      "error");
+                return 0;
+            }
+        }
+
+        # Overwrite default value of $pki_group with user-specified $groupname
+        $pki_group = $groupname;
+    }
+
+
+    # At this point in time, ALWAYS check that $pki_group exists!
+    if (!group_exists($pki_group)) {
+        if (!create_group($pki_group)) {
+            usage();
+            emit("Unable to create group '$pki_group' on this machine!\n",
+                  "error");
+            return 0;
+        }
+    }
+
+
+    ## Optional "-user=<username>" option
+    if ($username) {
+        if (!$groupname) {
+            usage();
+            emit("Must ALSO specify group ownership using -group!\n",
+                  "error");
+            return 0;
+        }
+
+        if (!user_exists($username)) {
+            if (!create_user($username, $groupname)) {
+                usage();
+                emit("Unable to create user '$username' on this machine!\n",
+                      "error");
+                return 0;
+            }
+        }
+
+        # Overwrite default value of $pki_user with user-specified $username
+        $pki_user = $username;
+    }
+
+
+    # At this point in time, ALWAYS check that $pki_user exists!
+    if (!user_exists($pki_user)) {
+        if (!create_user($pki_user, $pki_group)) {
+            usage();
+            emit("Unable to create user '$pki_user' on this machine!\n",
+                  "error");
+            return 0;
+        }
+    }
+
+
+    # At this point in time, ALWAYS check that shell access for $pki_user is
+    # disallowed; for now, simply notify the user performing the installation
+    # and continue
+    if (!user_disallows_shell($pki_user)) {
+        emit("Please contact your system administrator "
+            . "to disallow shell access for '$pki_user'!\n");
+    }
+
+
+    # At this point in time, ALWAYS check that $pki_user
+    # is a valid member of $pki_group
+    #
+    # NOTE:  Uncomment the following code to enforce a strict policy of
+    #        requiring $pki_user to be a member of $pki_group . . .
+    #
+    # if (!user_is_a_member_of_group($pki_user, $pki_group)) {
+    #     usage();
+    #     emit("The user '$pki_user' is NOT a member of group '$pki_group'!\n",
+    #           "error");
+    #     return 0;
+    # }
+
+
+    # At this point in time, ALWAYS attempt to add $pki_user as a
+    # valid member of $default_nfast_group (presuming one exists)
+    if (group_exists($default_nfast_group)) {
+        # Ignore failures as this should be considered a 'benign' error
+        if (add_user_as_a_member_of_group($pki_user,
+                                           $default_nfast_group)) {
+            emit("User '$pki_user' is a member of group "
+                . "'$default_nfast_group'.\n");
+        }
+    }
+
+
+    ## Optional "-redirect <dir_name>=<real dir path> ..." option
+    while (my ($key, $value) = each(%redirects)) {
+        if (!is_path_valid($value)) {
+            usage();
+            emit("Illegal redirect directory value:  key=$key  value="
+                . "$value\n", "error");
+            return 0;
+        }
+
+        if ($key eq "conf") {
+            $redirected_conf_path = $value;
+            emit("setting conf_path $redirected_conf_path\n");
+        } elsif ($key eq "logs") {
+            $redirected_logs_path = $value;
+            emit("setting logs_path $redirected_logs_path\n");
+        } else {
+            usage();
+            emit("Illegal redirect directory key:  key=$key  value="
+                . "$value\n", "error");
+            return 0;
+        }
+
+        emit("redirect            $key => $value\n");
+    }
+
+    ## selinux warning
+    if (($pki_instance_root ne "/var/lib") && ($^O eq "linux")) {
+        print STDOUT <<"EOF";
+WARNING: This utility will attempt to relabel the selinux context of the
+$pki_instance_path directory and the files within it
+as pki_$subsystem_type _var_lib_t
+ 
+Depending on the location of pki_instance_root and the selinux rules
+currently in place on the system, this may not succeed. In that case, the
+directory may have to be manually relabeled, or selinux will have to be run
+in permissive mode.
+
+It is therefore recommended that the default setting of /var/lib be used
+for pki_instance_root.
+EOF
+
+ASK_CONTINUE_NONSTD_INSTANCE_ROOT:
+
+        my $confirm  = prompt("You have chosen the following value for pki_instance_root instead: "
+                              .  $pki_instance_root
+                              . "\nDo you wish to proceed with this value (Y/N)?");
+
+        if ($confirm eq "N" || $confirm eq "n") {
+            return 0;
+        } elsif ($confirm ne "Y" && $confirm ne "y") {
+           goto ASK_CONTINUE_NONSTD_INSTANCE_ROOT;
+        }
+    }  
+
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub initialize_subsystem_paths
+{
+    ## Initialize subsystem directory paths (subsystem independent)
+    $conf_subsystem_path     = $pki_subsystem_path
+                             . "/" . $conf_base_subsystem_dir;
+    $setup_subsystem_path    = $pki_subsystem_path
+                             . "/" . $setup_base_subsystem_dir;
+
+    $pki_registry_subsystem_path      = $pki_registry_path
+                                      . "/" . $subsystem_type;
+    $pki_registry_subsystem_file_path = $setup_subsystem_path
+                                      . "/" . $registry_template_base_name;
+
+
+    ## Initialize subsystem directory paths (CA subsystems)
+    if ($subsystem_type eq $CA) {
+        $emails_subsystem_path = $pki_subsystem_path
+                               . "/" . $emails_base_subsystem_dir;
+    }
+
+
+    $common_ui_subsystem_path  = $pki_subsystem_common_area . "/" .
+                                 "common-ui";
+    $ui_subsystem_path         = $pki_subsystem_path . "-ui";
+
+    ## Initialize subsystem directory paths (RA, TPS subsystems)
+    if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+        if ($subsystem_type eq $TPS) {
+            $applets_subsystem_path = $pki_subsystem_path
+                                    . "/" . $applets_base_subsystem_dir;
+            $bin_subsystem_path     = $default_system_user_libraries
+                                    . "/" . $pki_flavor
+                                    . "/" . $subsystem_type;
+            $samples_subsystem_path = $pki_subsystem_path
+                                    . "/" . $samples_base_subsystem_dir;
+        }
+
+        $lib_subsystem_path     = $pki_subsystem_path
+                                . "/" . $lib_base_subsystem_dir;
+        $scripts_subsystem_path = $pki_subsystem_path
+                                . "/" . $scripts_base_subsystem_dir;
+
+        # Apache Specific
+        if ($subsystem_type eq $TPS) {
+            $cgibin_subsystem_path  = $pki_subsystem_path
+                                    . "/" . $cgibin_base_subsystem_dir;
+        }
+
+        # Apache Specific
+        $docroot_subsystem_path = $pki_subsystem_path
+                                . "/" . $docroot_base_subsystem_dir;
+    } else {
+
+    ## Initialize subsystem directory paths (CA, KRA, OCSP, TKS subsystems)
+
+        $profiles_subsystem_path = $pki_subsystem_path
+                                 . "/" . $profiles_base_subsystem_dir;
+        $webapps_subsystem_path  = $pki_subsystem_path
+                                 . "/" . $webapps_base_subsystem_dir;
+    }
+
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub initialize_instance_paths
+{
+    ## Initialize instance directory paths (instance independent)
+    $alias_instance_path = $pki_instance_path
+                         . "/" . $alias_base_instance_dir;
+    $conf_instance_path  = $pki_instance_path
+                         . "/" . $conf_base_instance_dir;
+    $logs_instance_path  = $pki_instance_path
+                         . "/" . $logs_base_instance_dir;
+
+
+    ## Initialize the pki registry instance
+    $pki_registry_instance_file_path = $pki_registry_subsystem_path
+                                     . "/" . $pki_instance_name;
+
+    ## Initialize path to per instance init script
+    $pki_instance_initscript_path = $pki_instance_path
+                                  . "/" . $pki_instance_name;
+
+    ## Initialize tomcat6 instance conf
+    $tomcat6_conf_instance_file_path = $tomcat6_instance_config_path
+                                     . "/" . $pki_instance_name;
+    ## Initialize tomcat6 pid file
+    $tomcat6_instance_pid_file_path = $default_tomcat_pids_path
+                                    . "/" . $pki_instance_name
+                                    . ".pid";
+
+    ## Initialize instance directory paths (RA, TPS instances)
+    if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+        if ($subsystem_type eq $TPS) {
+            $bin_instance_path      = $pki_instance_path
+                                    . "/" . $bin_base_instance_dir;
+        }
+
+        $lib_instance_path      = $pki_instance_path
+                                . "/" . $lib_base_instance_dir;
+        $scripts_instance_path  = $pki_instance_path
+                                . "/" . $scripts_base_instance_dir;
+
+        # Apache Specific
+        if ($subsystem_type eq $TPS) {
+            $cgibin_instance_path   = $pki_instance_path
+                                    . "/" . $cgibin_base_instance_dir;
+        }
+
+        # Apache Specific
+        $docroot_instance_path  = $pki_instance_path
+                                . "/" . $docroot_base_instance_dir;
+    } else {
+        ## Initialize instance directory paths (CA, KRA, OCSP, TKS instances)
+        $emails_instance_path   = $pki_instance_path
+                                . "/" . $emails_base_instance_dir;
+        $profiles_instance_path = $pki_instance_path
+                                . "/" . $profiles_base_instance_dir;
+        $webapps_instance_path = $pki_instance_path
+                                . "/" . $webapps_base_instance_dir;
+        $webapps_subsystem_instance_path = $webapps_instance_path . "/" 
+                                .  $subsystem_type;
+
+        # Tomcat Specific
+        $shared_instance_path = $pki_instance_path
+                              . "/" . $shared_base_instance_dir;
+        $tomcat_instance_common_lib_path = $pki_instance_path
+                                         . "/" . $tomcat_instance_common_lib_dir;
+        $temp_instance_path   = $pki_instance_path
+                              . "/" . $temp_base_instance_dir;
+        $work_instance_path   = $pki_instance_path
+                              . "/" . $work_base_instance_dir;
+    }
+
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub initialize_instance_symlink_paths
+{
+    ## Initialize instance symlinks (instance independent)
+    $conf_instance_symlink_path = $pki_instance_path
+                                . "/" . $conf_base_instance_symlink;
+    $logs_instance_symlink_path = $pki_instance_path
+                                . "/" . $logs_base_instance_symlink;
+
+
+    ## Initialize instance symlinks (CA instances)
+    # if ($subsystem_type eq $CA) {
+    # }
+
+
+    ## Initialize instance symlinks (RA, TPS instances)
+    if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+        # Apache Specific
+        $run_instance_symlink_path     = $pki_instance_path
+                                       . "/" . $run_base_instance_symlink;
+    }
+
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub initialize_subdirectory_paths
+{
+    ## Initialize subdirectory paths (subsystem independent)
+    $pki_cfg_subsystem_file_path      = $conf_subsystem_path
+                                      . "/" . $pki_cfg_base_name;
+    $setup_config_instance_file_path  = $setup_config_area
+                                      . "/" . $pki_instance_name
+                                      . "-" . $setup_config_name;
+    $setup_config_subsystem_file_path = $setup_subsystem_path
+                                      . "/" . $setup_config_name;
+
+    $pki_registry_initscript = get_registry_initscript_name($subsystem_type);
+
+    ## Initialize subdirectory paths (CA subsystems)
+    if ($subsystem_type eq $CA) {
+        $profile_select_template_subsystem_file_path = $ui_subsystem_path 
+                                                     . "/" . $webapps_base_subsystem_dir
+                                                     . "/" . $subsystem_type
+                                                     . "/ee/" . $subsystem_type
+                                                     . "/" . $profile_select_base_name; 
+        $profile_select_template_instance_file_path = $webapps_subsystem_instance_path
+                                                     . "/ee/". $subsystem_type 
+                                                     . "/" . $profile_select_base_name;
+
+        $proxy_conf_subsystem_file_path             = $conf_subsystem_path 
+                                                     . "/" . $proxy_conf_base_name;
+    }
+
+    ## Initialize subdirectory paths (RA, TPS subsystems)
+    if ($subsystem_type eq $TPS) {
+            $cgi_sow_subsystem_file_path           = $cgibin_subsystem_path
+                                                   . "/"
+                                                   . $cgi_sow_dir_name;
+            $cgi_sow_instance_cfg_pl_path          = $cgibin_instance_path
+                                                   . "/"
+                                                   . $cgi_sow_cfg_pl_name;
+    }
+
+    if ($subsystem_type eq $RA  || $subsystem_type eq $TPS) {
+
+        if ($subsystem_type eq $TPS) {
+
+            $cgi_home_instance_file_path           = $cgibin_instance_path
+                                                   . "/"
+                                                   . $cgi_home_base_name;
+            $cgi_home_subsystem_file_path          = $cgibin_subsystem_path
+                                                   . "/"
+                                                   . $cgi_home_base_name;
+            $cgi_demo_instance_file_path           = $cgibin_instance_path
+                                                   . "/"
+                                                   . $cgi_demo_base_name;
+            $cgi_demo_subsystem_file_path          = $cgibin_subsystem_path
+                                                   . "/"
+                                                   . $cgi_demo_base_name;
+            $cgi_so_instance_file_path             = $cgibin_instance_path
+                                                   . "/"
+                                                   . $cgi_so_base_name;
+            $cgi_so_subsystem_file_path            = $cgibin_subsystem_path
+                                                   . "/"
+                                                   . $cgi_so_base_name;
+            $cgi_so_instance_enroll_file_path      = $cgibin_instance_path
+                                                   . "/"
+                                                   . $cgi_so_enroll_name;
+            $cgi_so_subsystem_enroll_file_path     = $cgibin_subsystem_path
+                                                   . "/"
+                                                   . $cgi_so_enroll_name;
+            $cgi_sow_instance_file_path            = $cgibin_instance_path
+                                                   . "/"
+                                                   . $cgi_sow_dir_name;
+            $addAgents_ldif_instance_file_path     = $scripts_instance_path
+                                                   . "/"
+                                                   . $addAgents_ldif_base_name;
+            $addAgents_ldif_subsystem_file_path    = $scripts_subsystem_path
+                                                   . "/"
+                                                   . $addAgents_ldif_base_name;
+            $addIndexes_ldif_instance_file_path    = $scripts_instance_path
+                                                   . "/"
+                                                   . $addIndexes_ldif_base_name;
+            $addIndexes_ldif_subsystem_file_path   = $scripts_subsystem_path
+                                                   . "/"
+                                                   . $addIndexes_ldif_base_name;
+            $addTokens_ldif_instance_file_path     = $scripts_instance_path
+                                                   . "/"
+                                                   . $addTokens_ldif_base_name;
+            $addTokens_ldif_subsystem_file_path    = $scripts_subsystem_path
+                                                   . "/"
+                                                   . $addTokens_ldif_base_name;
+            $addVLVIndexes_ldif_instance_file_path = $scripts_instance_path
+                                                . "/"
+                                                . $addVLVIndexes_ldif_base_name;
+            $addVLVIndexes_ldif_subsystem_file_path = $scripts_subsystem_path
+                                                . "/"
+                                                . $addVLVIndexes_ldif_base_name;
+            $schemaMods_ldif_instance_file_path    = $scripts_instance_path
+                                                   . "/"
+                                                   . $schemaMods_ldif_base_name;
+            $schemaMods_ldif_subsystem_file_path   = $scripts_subsystem_path
+                                                   . "/"
+                                                   . $schemaMods_ldif_base_name;
+        }
+
+        $pki_piddir_path                        = $default_apache_pids_path
+                                                . "/" . $subsystem_type;
+        $pki_lockdir_path                       = $default_lockdir
+                                                . "/" . $subsystem_type;
+        $pki_apache_initscript_file_path        = $pki_subsystem_common_area
+                                                . "/" . $scripts_base_subsystem_dir
+                                                . "/" . $pki_apache_initscript_base_name;
+        $nss_pcache_instance_file_path          = $scripts_instance_path
+                                                . "/"
+                                                . $nss_pcache_base_name;
+        $nss_pcache_subsystem_file_path         = $scripts_subsystem_path
+                                                . "/"
+                                                . $nss_pcache_base_name;
+        $httpd_conf_subsystem_file_path         = $conf_subsystem_path
+                                                . "/" . $httpd_conf_base_name;
+        $magic_subsystem_file_path              = $conf_subsystem_path
+                                                . "/" . $magic_base_name;
+        $mime_types_subsystem_file_path         = $conf_subsystem_path
+                                                . "/" . $mime_types_base_name;
+        $nss_conf_subsystem_file_path           = $conf_subsystem_path
+                                                . "/" . $nss_conf_base_name;
+        $perl_conf_subsystem_file_path          = $conf_subsystem_path
+                                                . "/" . $perl_conf_base_name;
+        $perl_instance_symlink_path             = $lib_instance_path
+                                                . "/"
+                                                . $perl_base_instance_symlink;
+        $perl_subsystem_path                    = $lib_subsystem_path
+                                                . "/"
+                                                . $perl_base_subsystem_dir;
+    } else {
+        ## Initialize subdirectory paths (CA, KRA, OCSP, TKS subsystems)
+
+        $pki_subsystem_jar_base_name = "pki-${subsystem_type}.jar";
+
+        if (!defined($pki_certsrv_jar_file_path = find_jar($pki_certsrv_jar_base_name))) {
+            emit("could not find jar: $pki_certsrv_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($pki_cms_jar_file_path = find_jar($pki_cms_jar_base_name))) {
+            emit("could not find jar: $pki_cms_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($pki_cmsbundle_jar_file_path = find_jar($pki_cmsbundle_jar_base_name))) {
+            emit("could not find jar: $pki_cmsbundle_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($pki_cmscore_jar_file_path = find_jar($pki_cmscore_jar_base_name))) {
+            emit("could not find jar: $pki_cmscore_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($pki_cmsutil_jar_file_path = find_jar($pki_cmsutil_jar_base_name))) {
+            emit("could not find jar: $pki_cmsutil_jar_base_name", "error");
+            return 0;
+        }
+
+        # jakarta-commons-* has been renamed to apache-commons-* on some
+        # systems, search which one is available, preferring apache-commons
+        if (defined($commons_collections_jar_file_path = find_jar($apache_commons_collections_jar_base_name))) {
+            $commons_collections_jar_base_name = $apache_commons_collections_jar_base_name;
+        } else {
+            if (defined($commons_collections_jar_file_path = find_jar($jakarta_commons_collections_jar_base_name))) {
+            $commons_collections_jar_base_name = $jakarta_commons_collections_jar_base_name;
+            } else {
+                emit("could not find jar: $apache_commons_collections_jar_base_name or $jakarta_commons_collections_jar_base_name", "error");
+                return 0;
+            }
+        }
+
+        if (defined($commons_lang_jar_file_path = find_jar($apache_commons_lang_jar_base_name))) {
+            $commons_lang_jar_base_name = $apache_commons_lang_jar_base_name;
+        } else {
+            if (defined($commons_lang_jar_file_path = find_jar($jakarta_commons_lang_jar_base_name))) {
+            $commons_lang_jar_base_name = $jakarta_commons_lang_jar_base_name;
+            } else {
+                emit("could not find jar: $apache_commons_lang_jar_base_name or $jakarta_commons_lang_jar_base_name", "error");
+                return 0;
+            }
+        }
+
+        if (defined($commons_logging_jar_file_path = find_jar($apache_commons_logging_jar_base_name))) {
+            $commons_logging_jar_base_name = $apache_commons_logging_jar_base_name;
+        } else {
+            if (defined($commons_logging_jar_file_path = find_jar($jakarta_commons_logging_jar_base_name))) {
+                $commons_logging_jar_base_name = $jakarta_commons_logging_jar_base_name;
+            } else {
+                emit("could not find jar: $apache_commons_logging_jar_base_name or $jakarta_commons_logging_jar_base_name", "error");
+                return 0;
+            }
+        }
+
+        if (!defined($jss_jar_file_path = find_jar($jss_jar_base_name))) {
+            emit("could not find jar: $jss_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($ldapjdk_jar_file_path = find_jar($ldapjdk_jar_base_name))) {
+            emit("could not find jar: $ldapjdk_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($pki_nsutil_jar_file_path = find_jar($pki_nsutil_jar_base_name))) {
+            emit("could not find jar: $pki_nsutil_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($osutil_jar_file_path = find_jar($osutil_jar_base_name))) {
+            emit("could not find jar: $osutil_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($pki_subsystem_jar_file_path = find_jar($pki_subsystem_jar_base_name))) {
+            emit("could not find jar: $pki_subsystem_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($symkey_jar_file_path = find_jar($symkey_jar_base_name))) {
+            emit("could not find jar: $symkey_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($tomcatjss_jar_file_path = find_jar($tomcatjss_jar_base_name))) {
+            emit("could not find jar: $tomcatjss_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($velocity_jar_file_path = find_jar($velocity_jar_base_name))) {
+            emit("could not find jar: $velocity_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($xerces_jar_file_path = find_jar($xerces_jar_base_name))) {
+            emit("could not find jar: $xerces_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($xml_commons_apis_jar_file_path = find_jar($xml_commons_apis_jar_base_name))) {
+            emit("could not find jar: $xml_commons_apis_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($xml_commons_resolver_jar_file_path = find_jar($xml_commons_resolver_jar_base_name))) {
+            emit("could not find jar: $xml_commons_resolver_jar_base_name", "error");
+            return 0;
+        }
+
+        $webinf_instance_path              = $webapps_instance_path
+                                           . "/" . $subsystem_type
+                                           . "/" . $webinf_base_instance_dir;
+        $webinf_subsystem_path             = $webapps_subsystem_path
+                                           . "/" . $subsystem_type
+                                           . "/" . $webinf_base_instance_dir;
+        $webinf_lib_instance_path          = $webinf_instance_path
+                                           . "/" . $lib_base_instance_dir;
+        $webapps_root_subsystem_path       = $webapps_subsystem_path
+                                           . "/"
+                                           . $webapps_root_base_subsystem_dir;
+        $webapps_subsystem_instance_path   = $webapps_instance_path
+                                           . "/" . $subsystem_type;
+
+        $pki_certsrv_jar_symlink_path      = $webinf_lib_instance_path
+                                           . "/" . $pki_certsrv_jar_base_name;
+        $pki_cms_jar_symlink_path          = $webinf_lib_instance_path
+                                           . "/" . $pki_cms_jar_base_name;
+        $pki_cmsbundle_jar_symlink_path    = $webinf_lib_instance_path
+                                           . "/" . $pki_cmsbundle_jar_base_name;
+        $pki_cmscore_jar_symlink_path      = $webinf_lib_instance_path
+                                           . "/" . $pki_cmscore_jar_base_name;
+        $pki_cmsutil_jar_symlink_path      = $webinf_lib_instance_path
+                                           . "/" . $pki_cmsutil_jar_base_name;
+        $commons_collections_jar_symlink_path = $webinf_lib_instance_path
+                                           . "/" . $commons_collections_jar_base_name;
+        $commons_lang_jar_symlink_path     = $webinf_lib_instance_path
+                                           . "/" . $commons_lang_jar_base_name;
+        $commons_logging_jar_symlink_path  = $tomcat_instance_common_lib_path
+                                           . "/" . $commons_logging_jar_base_name;
+        $jss_jar_symlink_path              = $tomcat_instance_common_lib_path
+                                           . "/" . $jss_jar_base_name;
+        $ldapjdk_jar_symlink_path          = $webinf_lib_instance_path
+                                           . "/" . $ldapjdk_jar_base_name;
+        $pki_nsutil_jar_symlink_path       = $webinf_lib_instance_path
+                                           . "/" . $pki_nsutil_jar_base_name;
+        $osutil_jar_symlink_path           = $webinf_lib_instance_path
+                                           . "/" . $osutil_jar_base_name;
+        $symkey_jar_symlink_path           = $webinf_lib_instance_path
+                                           . "/" . $symkey_jar_base_name;
+        $pki_subsystem_jar_symlink_path    = $webinf_lib_instance_path
+                                           . "/" . $pki_subsystem_jar_base_name;
+        $tomcatjss_jar_symlink_path        = $tomcat_instance_common_lib_path
+                                           . "/" . $tomcatjss_jar_base_name;
+        $velocity_jar_symlink_path         = $webinf_lib_instance_path
+                                           . "/" . $velocity_jar_base_name;
+        $xerces_jar_symlink_path           = $webinf_lib_instance_path
+                                           . "/" . $xerces_jar_base_name;
+        $xml_commons_apis_jar_symlink_path = $webinf_lib_instance_path
+                                           . "/" . $xml_commons_apis_jar_base_name;
+        $xml_commons_resolver_jar_symlink_path = $webinf_lib_instance_path
+                                           . "/" . $xml_commons_resolver_jar_base_name;
+
+
+        $webapps_root_instance_path        = $webapps_instance_path
+                                           . "/"
+                                           . $webapps_root_base_instance_dir;
+        $index_jsp_instance_file_path      = $webapps_root_instance_path
+                                           . "/" . $index_jsp_base_name;
+        $index_jsp_subsystem_file_path     = $webapps_root_subsystem_path
+                                           . "/" . $index_jsp_base_name;
+        $server_xml_subsystem_file_path    = $conf_subsystem_path
+                                           . "/" . $server_xml_base_name;
+        $servercertnick_conf_subsystem_file_path    = $conf_subsystem_path
+                                           . "/" . $servercertnick_conf_base_name;
+        $tomcat6_conf_subsystem_file_path  = $conf_subsystem_path
+                                           . "/" . $tomcat6_conf_base_name;
+        $velocity_prop_instance_file_path  = $webinf_instance_path
+                                           . "/" . $velocity_prop_base_name;
+        $velocity_prop_subsystem_file_path = $webinf_subsystem_path
+                                           . "/" . $velocity_prop_base_name;
+        $web_xml_instance_file_path        = $webinf_instance_path
+                                           . "/" . $web_xml_base_name;
+        $web_xml_subsystem_file_path       = $webinf_subsystem_path
+                                           . "/" . $web_xml_base_name;
+        $catalina_properties_subsystem_file_path = $conf_subsystem_path
+                                                 . "/" . $catalina_properties_base_name;
+    }
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub initialize_paths
+{
+    return 0 if !initialize_subsystem_paths();
+    return 0 if !initialize_instance_paths();
+    return 0 if !initialize_instance_symlink_paths();
+    return 0 if !initialize_subdirectory_paths();
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub initialize_pki_creation_values
+{
+    # obtain the fully-qualified domain name of this host
+    $host = get_FQDN($hostname);
+
+    # we need the certdb password generated now ...
+    $db_password = generate_random($db_password_low, $db_password_high);
+
+    # generate a random value for a pin ...
+    $random = generate_random_string(20);
+
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub process_pki_directories
+{
+    my $remove_dir="";
+
+    emit("Processing PKI directories for '$pki_instance_path' ...\n");
+
+    ## Populate instance directory paths (instance independent)
+    return 0 if !create_directory($alias_instance_path,
+                                  $default_dir_permissions, $pki_user, $pki_group);
+
+    # Check for an optionally redirected "conf" directory path ...
+    if (!$redirected_conf_path) {
+        $noise_instance_file_path         = $conf_instance_path
+                                          . "/" . $noise_base_name;
+        $password_conf_instance_file_path = $conf_instance_path
+                                          . "/" . $password_conf_base_name;
+        $pfile_instance_file_path         = $conf_instance_path
+                                          . "/" . $pfile_base_name;
+        $pki_cfg_instance_file_path       = $conf_instance_path
+                                          . "/" . $pki_cfg_base_name;
+        $proxy_conf_instance_file_path    = $conf_instance_path
+                                          . "/" . $proxy_conf_base_name;
+        $catalina_properties_instance_file_path = $conf_instance_path
+                                                . "/" . $catalina_properties_base_name;
+
+        if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+            $httpd_conf_instance_file_path = $conf_instance_path
+                                           . "/" . $httpd_conf_base_name;
+            $magic_instance_file_path      = $conf_instance_path
+                                           . "/" . $magic_base_name;
+            $mime_types_instance_file_path = $conf_instance_path
+                                           . "/" . $mime_types_base_name;
+            $nss_conf_instance_file_path   = $conf_instance_path
+                                           . "/" . $nss_conf_base_name;
+            $perl_conf_instance_file_path  = $conf_instance_path
+                                           . "/" . $perl_conf_base_name;
+            $pwcache_conf_instance_file_path = $conf_instance_path
+                                             . "/" . $pwcache_conf_base_name;
+
+            # create instance directory
+            return 0 if !create_directory($conf_instance_path,
+                                          $default_dir_permissions, $pki_user, $pki_group);
+
+            # only copy selected files
+            return 0 if !copy_file($magic_subsystem_file_path, $magic_instance_file_path,
+                                   $default_file_permissions, $pki_user, $pki_group);
+
+            return 0 if !copy_file($mime_types_subsystem_file_path, $mime_types_instance_file_path,
+                                   $default_file_permissions, $pki_user, $pki_group);
+
+        } else {
+            $server_xml_instance_file_path   = $conf_instance_path
+                                             . "/" . $server_xml_base_name;
+            $servercertnick_conf_instance_file_path   = $conf_instance_path
+                                             . "/" . $servercertnick_conf_base_name;
+
+            return 0 if !copy_directory($conf_subsystem_path, $conf_instance_path,
+                                        $default_dir_permissions, $default_file_permissions,
+                                        $pki_user, $pki_group);
+        }
+    } else {
+        $noise_instance_file_path         = $redirected_conf_path
+                                          . "/" . $noise_base_name;
+        $password_conf_instance_file_path = $redirected_conf_path
+                                          . "/" . $password_conf_base_name;
+        $pfile_instance_file_path         = $redirected_conf_path
+                                          . "/" . $pfile_base_name;
+        $pki_cfg_instance_file_path       = $redirected_conf_path
+                                          . "/" . $pki_cfg_base_name;
+        $proxy_conf_instance_file_path    = $redirected_conf_path
+                                          . "/" . $proxy_conf_base_name;
+        $catalina_properties_instance_file_path = $redirected_conf_path
+                                                . "/" . $catalina_properties_base_name;
+
+        # Populate optionally redirected instance directory path
+        # and setup a symlink in the standard area
+        if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+            $httpd_conf_instance_file_path = $redirected_conf_path
+                                           . "/" . $httpd_conf_base_name;
+            $magic_instance_file_path      = $redirected_conf_path
+                                           . "/" . $magic_base_name;
+            $mime_types_instance_file_path = $redirected_conf_path
+                                           . "/" . $mime_types_base_name;
+            $nss_conf_instance_file_path   = $redirected_conf_path
+                                           . "/" . $nss_conf_base_name;
+            $perl_conf_instance_file_path  = $redirected_conf_path
+                                           . "/" . $perl_conf_base_name;
+            $pwcache_conf_instance_file_path = $redirected_conf_path
+                                             . "/" . $pwcache_conf_base_name;
+
+            # create redirected instance directory
+            return 0 if !create_directory($redirected_conf_path,
+                                          $default_dir_permissions, $pki_user, $pki_group);
+
+            # only copy selected files
+            return 0 if !copy_file($magic_subsystem_file_path, $magic_instance_file_path,
+                                   $default_file_permissions, $pki_user, $pki_group);
+
+            return 0 if !copy_file($mime_types_subsystem_file_path, $mime_types_instance_file_path,
+                                   $default_file_permissions, $pki_user, $pki_group);
+
+        } else {
+            $server_xml_instance_file_path   = $redirected_conf_path
+                                             . "/" . $server_xml_base_name;
+            $servercertnick_conf_instance_file_path   = $redirected_conf_path
+                                             . "/" . $servercertnick_conf_base_name;
+
+            return 0 if !copy_directory($conf_subsystem_path, $redirected_conf_path,
+                                        $default_dir_permissions, $default_file_permissions,
+                                        $pki_user, $pki_group);
+        }
+
+        return 0 if !create_symlink($conf_instance_symlink_path, $redirected_conf_path,
+                                    $pki_user, $pki_group);
+
+    }
+
+
+    # Check for an optionally redirected "logs" directory path ...
+    if (!$redirected_logs_path) {
+        # create instance directory
+        return 0 if !create_directory(${logs_instance_path},
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        ## (CA, KRA, OCSP, TKS, TPS instances)
+        if ($subsystem_type ne $RA) {
+            ## Create a "signedAudit" directory
+            return 0 if !create_directory("${logs_instance_path}/${signed_audit_base_instance_dir}",
+                                          $default_dir_permissions, $pki_user, $pki_group);
+        }
+    } else {
+        # create redirected instance directory
+        # and setup a symlink in the standard area
+        return 0 if !create_directory($redirected_logs_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        ## (CA, KRA, OCSP, TKS, TPS instances)
+        if ($subsystem_type ne $RA) {
+            ## Create a "signedAudit" directory
+            return 0 if !create_directory("${redirected_logs_path}/${signed_audit_base_instance_dir}",
+                                          $default_dir_permissions, $pki_user, $pki_group);
+        }
+
+        return 0 if !create_symlink($logs_instance_symlink_path, $redirected_logs_path,
+                                    $pki_user, $pki_group);
+
+        return 0 if !set_owner_group_on_directory_contents($redirected_logs_path, $pki_user, $pki_group);
+    }
+
+
+    ## Populate pki instance registry
+    # create pki registry for this subsystem
+    return 0 if !create_directory($pki_registry_subsystem_path,
+                                  $default_dir_permissions, $pki_user, $pki_group, 'preserve');
+
+
+    ## Populate instance directory paths (CA instances)
+    if ($subsystem_type eq $CA) {
+        return 0 if !copy_directory($emails_subsystem_path, $emails_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
+
+        return 0 if !copy_directory($profiles_subsystem_path, $profiles_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
+    }
+
+
+    ## Populate instance directory paths (RA, TPS instances)
+    if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+
+        if ($subsystem_type eq $TPS) {
+            return 0 if !create_directory($bin_instance_path,
+                                          $default_dir_permissions, $pki_user, $pki_group);
+        }
+
+        return 0 if !create_directory($lib_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        return 0 if !create_directory($scripts_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        # Apache Specific
+        if ($subsystem_type eq $TPS) {
+            return 0 if !copy_directory($cgibin_subsystem_path, $cgibin_instance_path,
+                                        $default_dir_permissions, $default_file_permissions,
+                                        $pki_user, $pki_group);
+        }
+
+        # Apache Specific
+        return 0 if !copy_directory($docroot_subsystem_path, $docroot_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
+
+
+        return 0 if !copy_directory($ui_subsystem_path, $pki_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
+
+        # fix permissions
+        if (!is_Windows()) {
+            # Apache Specific
+            if ($subsystem_type eq $TPS) {
+                set_permissions("${cgibin_instance_path}/demo",        $default_dir_permissions);
+                set_permissions("${cgibin_instance_path}/demo/*.cgi",  $default_exe_permissions);
+                set_permissions("${cgibin_instance_path}/demo/*.html", $default_file_permissions);
+                set_permissions("${cgibin_instance_path}/home",        $default_dir_permissions);
+                set_permissions("${cgibin_instance_path}/home/*.cgi",  $default_exe_permissions);
+                set_permissions("${cgibin_instance_path}/home/*.html", $default_file_permissions);
+                set_permissions("${cgibin_instance_path}/so",          $default_dir_permissions);
+                set_permissions("${cgibin_instance_path}/so/*.cgi",    $default_exe_permissions);
+                set_permissions("${cgibin_instance_path}/so/*.html",   $default_file_permissions);
+                set_permissions("${cgibin_instance_path}/sow",         $default_dir_permissions);
+                set_permissions("${cgibin_instance_path}/sow/*.cgi",   $default_exe_permissions);
+                set_permissions("${cgibin_instance_path}/sow/*.html",  $default_file_permissions);
+                set_permissions("${cgibin_instance_path}/sow/*.pl",    $default_exe_permissions);
+                set_permissions("${docroot_instance_path}/",           $default_dir_permissions);
+                set_permissions("${docroot_instance_path}/*.cgi",      $default_exe_permissions);
+            }
+        }
+    } else {
+        ## Populate instance directory paths (CA, KRA, OCSP, TKS instances)
+        return 0 if !copy_directory($webapps_subsystem_path, $webapps_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
+
+        return 0 if !copy_directory($common_ui_subsystem_path, $webapps_subsystem_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
+
+        return 0 if !copy_directory($ui_subsystem_path, $pki_instance_path,
+                                    $default_dir_permissions, $default_file_permissions,
+                                    $pki_user, $pki_group);
+        
+        ## Tomcat Specific
+        return 0 if !create_directory($shared_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        return 0 if !create_directory("$shared_instance_path/classes",
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        return 0 if !create_directory("$shared_instance_path/lib",
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        return 0 if !create_directory($tomcat_instance_common_lib_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        return 0 if !create_directory($temp_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        return 0 if !create_directory($work_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
+    }
+
+    ## Set appropriate permissions
+    return 0 if !set_owner_group_on_directory_contents($pki_instance_path, $pki_user, $pki_group);
+
+    return 1;
+}
+
+
+# process_file_template
+#
+# template_name
+#     Used to identify the template.
+# src_path
+#     The file pathname of the template.
+# dst_path
+#     The file pathname the processed template will be written to.
+# substitutions
+#     Pointer to a hash. Each key is a substitution name, the key's
+#     value is the string to substitute.
+#
+# Given a template file, read it's contents in. Then perform text
+# replacements on any string of the form "[name]". name will be used
+# as a key in the substitutions hash, if the key exists in the hash then
+# it's value will replace the string "[name]".
+#
+# Example, if the src template contained this line:
+#
+#     Open port [PORT] on your firewall.
+#
+# And the substitutions hash was this {'PORT' => '1234'}
+# 
+# Then the dst file contents will look like this:
+#
+#     Open port 1234 on your firewall.
+#
+# Return 1 if success, 0 if failure
+
+sub process_file_template
+{
+    my ($template_name, $src_path, $dst_path, $substitutions) = @_;
+
+    my $buf = "";
+    my $num_subs = 0;
+    my $total_subs = 0;
+    my @keys;
+    my $key;
+    my $value;
+    emit("    Template ($template_name) \"${src_path}\" ==> \"${dst_path}\" ...\n");
+
+    # Check for a valid source file
+    if (!is_path_valid($src_path)) {
+        emit("process_file_template():  invalid source path ${src_path}!\n", "error");
+        return 0;
+    }
+
+    # Check for a valid destination file
+    if (!is_path_valid($dst_path)) {
+        emit("process_file_template():  invalid destination path ${dst_path}!\n", "error");
+        return 0;
+    }
+
+    # Read in contents of source file
+    $buf = read_file($src_path);
+
+    # Process each line substituting each [KEY]
+    # with its corresponding slot hash value
+    @keys = sort(keys %$substitutions);
+    foreach $key (@keys) {
+        $value = $substitutions->{$key};
+        # Perform global substitution on buffer and
+        # get count of how many substitutions were actually performed.
+        $num_subs = $buf =~ s/\[$key\]/$value/g;
+        $total_subs += $num_subs;
+
+        # If any substitutions were performed then log what was done.
+        if ($num_subs > 0) {
+            # Hide sensitive information by emitting the word "(sensitive)"
+            # rather rather than the substituted value.
+            if ($key eq $PKI_CERT_DB_PASSWORD_SLOT) {
+                emit(sprintf("        %3d substitutions: %s ==> (sensitive)\n", $num_subs, $key));
+            } else {
+                emit(sprintf("        %3d substitutions: %s ==> \"%s\"\n", $num_subs, $key, $value));
+            }
+        }
+    }
+
+    emit("    $total_subs substitutions were made in '$dst_path'\n");
+
+    # Sanity check, are there any strings left in the buffer which look
+    # like a substitution.
+    foreach my $match ($buf =~ /\[[A-Z_]+\]/g) {
+        emit("WARNING: Possible missed substitution \"$match\" in $src_path");
+    }
+
+    # Record that we've installed this file.
+    add_install_info($dst_path, 'file');
+
+    if ($verbose >= 2) {
+        # For debugging, emit the contents after substitution.
+        emit(sprintf(">> $dst_path\n%s<< $dst_path\n", $buf));
+    }
+
+    if (!$dry_run) {
+        # Write out these modified contents to the destination file.
+        write_file($dst_path, \$buf);
+    }
+
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub process_pki_templates
+{
+    my $use_port_separation = 0;
+    if ($agent_secure_port >= 0 &&
+        ($subsystem_type ne $RA) &&
+        ($subsystem_type ne $TPS)) {
+        $use_port_separation = 1;
+    }
+ 
+    my %slot_hash = ();
+
+    emit("Processing PKI templates for '$pki_instance_path' ...\n");
+
+    $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
+    $slot_hash{$PKI_INSTANCE_ID_SLOT}      = $pki_instance_name;
+    $slot_hash{$PKI_INSTANCE_ROOT_SLOT}    = $pki_instance_root;
+    $slot_hash{$PKI_INSTANCE_INITSCRIPT}   = $pki_instance_initscript_path;
+    $slot_hash{$PKI_REGISTRY_FILE_SLOT}    = $pki_registry_instance_file_path;
+    $slot_hash{$PKI_USER_SLOT}             = $pki_user;
+    $slot_hash{$PKI_GROUP_SLOT}            = $pki_group;
+
+    if ($subsystem_type eq $TPS) {
+        $slot_hash{$REQUIRE_CFG_PL}        = "require \"${cgi_sow_instance_cfg_pl_path}\";";
+    }
+
+    if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+        # Setup templates (RA, TPS)
+        $slot_hash{$HTTPD_CONF}            = $httpd_conf_instance_file_path;
+        $slot_hash{$LIB_PREFIX}            = $lib_prefix;
+        $slot_hash{$NSS_CONF}              = $nss_conf_instance_file_path;
+        $slot_hash{$OBJ_EXT}               = $obj_ext;
+        $slot_hash{$PORT}                  = $unsecure_port;
+        $slot_hash{$PROCESS_ID}            = $$;
+        $slot_hash{$SECURE_PORT}           = $secure_port;
+        $slot_hash{$NON_CLIENTAUTH_SECURE_PORT} = $non_clientauth_secure_port;
+        $slot_hash{$SECURITY_LIBRARIES}    = $default_security_libraries;
+        $slot_hash{$SERVER_NAME}           = $host;
+        $slot_hash{$SERVER_ROOT}           = $pki_instance_path;
+        $slot_hash{$SYSTEM_LIBRARIES}      = $default_system_libraries;
+        $slot_hash{$SYSTEM_USER_LIBRARIES} = $default_system_user_libraries;
+        $slot_hash{$TMP_DIR}               = $tmp_dir;
+        $slot_hash{$TPS_DIR}               = $pki_subsystem_path;
+        $slot_hash{$PKI_FLAVOR_SLOT}       = $pki_flavor;
+        $slot_hash{$PKI_RANDOM_NUMBER_SLOT} = $random;
+        $slot_hash{$PKI_PIDDIR}            = $pki_piddir_path;
+        $slot_hash{$PKI_LOCKDIR}           = $pki_lockdir_path;
+        if (is_Fedora() || (is_RHEL() && (! is_RHEL4()))) {
+            $slot_hash{$FORTITUDE_APACHE}  = "Apache2";
+            $slot_hash{$FORTITUDE_DIR}     = "/usr";
+            $slot_hash{$FORTITUDE_LIB_DIR} = "/etc/httpd";
+            $slot_hash{$FORTITUDE_MODULE}  = "/etc/httpd/modules";
+            $slot_hash{$FORTITUDE_AUTH_MODULES} =
+"
+LoadModule auth_basic_module /etc/httpd/modules/mod_auth_basic.so
+LoadModule authn_file_module /etc/httpd/modules/mod_authn_file.so
+LoadModule authz_user_module /etc/httpd/modules/mod_authz_user.so
+LoadModule authz_groupfile_module /etc/httpd/modules/mod_authz_groupfile.so
+LoadModule authz_host_module /etc/httpd/modules/mod_authz_host.so
+";
+            $slot_hash{$FORTITUDE_NSS_MODULES} =
+"
+LoadModule nss_module  /etc/httpd/modules/libmodnss.so
+";
+        }
+        else {
+            $slot_hash{$FORTITUDE_APACHE}  = "Apache";
+            $slot_hash{$FORTITUDE_DIR}     = "/opt/fortitude";
+            $slot_hash{$FORTITUDE_LIB_DIR} = "/opt/fortitude";
+            $slot_hash{$FORTITUDE_MODULE}  = "/opt/fortitude/modules.local";
+            $slot_hash{$FORTITUDE_AUTH_MODULES} =
+"
+LoadModule auth_module /opt/fortitude/modules/mod_auth.so
+LoadModule access_module /opt/fortitude/modules/mod_access.so
+";
+            $slot_hash{$FORTITUDE_NSS_MODULES} =
+"
+LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
+";
+        }
+    } else {
+        # Setup templates (CA, KRA, OCSP, TKS)
+        $slot_hash{$INSTALL_TIME}              = localtime;
+        $slot_hash{$PKI_CERT_DB_PASSWORD_SLOT} = $db_password;
+        $slot_hash{$PKI_CFG_PATH_NAME_SLOT}    = $pki_cfg_instance_file_path;
+        $slot_hash{$PKI_INSTANCE_PATH_SLOT}    = $pki_instance_path;
+        $slot_hash{$PKI_MACHINE_NAME_SLOT}     = $host;
+        $slot_hash{$PKI_RANDOM_NUMBER_SLOT}    = $random;
+        $slot_hash{$PKI_SERVER_XML_CONF}       = $server_xml_instance_file_path;
+        $slot_hash{$PKI_UNSECURE_PORT_SLOT}    = $unsecure_port;
+
+        # Define "Port Separation" (default) versus "Shared Ports" (legacy)
+        if ($use_port_separation) {
+            # Establish "Port Separation" Connector Names
+            $slot_hash{$PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT}     = $PKI_UNSECURE_PORT_NAME;
+            $slot_hash{$PKI_SECURE_PORT_CONNECTOR_NAME_SLOT}       = $PKI_AGENT_SECURE_PORT_NAME;
+            $slot_hash{$PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT} = $PKI_ADMIN_SECURE_PORT_NAME;
+            $slot_hash{$PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT}    = $PKI_EE_SECURE_PORT_NAME;
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT}    = $PKI_EE_SECURE_CLIENT_AUTH_PORT_NAME;
+
+            # Establish "Port Separation" Connector Ports
+            $slot_hash{$PKI_SECURE_PORT_SLOT}       = $agent_secure_port;
+            $slot_hash{$PKI_AGENT_SECURE_PORT_SLOT} = $agent_secure_port;
+            $slot_hash{$PKI_EE_SECURE_PORT_SLOT}    = $ee_secure_port; 
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT}    = $ee_secure_client_auth_port; 
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_UI_SLOT} = $ee_secure_client_auth_port; 
+            $slot_hash{$PKI_ADMIN_SECURE_PORT_SLOT} = $admin_secure_port;
+
+            # Comment "Port Separation" appropriately
+            $slot_hash{$PKI_UNSECURE_PORT_COMMENT_SERVER_SLOT}     = $PKI_UNSECURE_SEPARATE_PORTS_COMMENT;
+            $slot_hash{$PKI_SECURE_PORT_COMMENT_SERVER_SLOT}       = $PKI_AGENT_SECURE_SEPARATE_PORTS_COMMENT;
+            $slot_hash{$PKI_ADMIN_SECURE_PORT_COMMENT_SERVER_SLOT} = $PKI_ADMIN_SECURE_SEPARATE_PORTS_COMMENT;
+            $slot_hash{$PKI_EE_SECURE_PORT_COMMENT_SERVER_SLOT}    = $PKI_EE_SECURE_SEPARATE_PORTS_COMMENT;
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_COMMENT_SERVER_SLOT}    = $PKI_EE_SECURE_CLIENT_AUTH_SEPARATE_PORTS_COMMENT;
+
+            # Set appropriate "clientAuth" parameter for "Port Separation"
+            $slot_hash{$PKI_AGENT_CLIENTAUTH_SLOT} = "true";
+
+            # Do NOT comment out the "Admin/EE" Ports
+            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = "";
+            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT} = "";
+
+            # Do NOT comment out the "Admin/Agent/EE" Filters
+            # used by Port Separation
+            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT}  = "";
+            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT} = "";
+        } else {
+            # Establish "Shared Ports" Connector Names
+            $slot_hash{$PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT}     = $PKI_UNSECURE_PORT_NAME;
+            $slot_hash{$PKI_SECURE_PORT_CONNECTOR_NAME_SLOT}       = $PKI_SECURE_PORT_NAME;
+            $slot_hash{$PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT} = $PKI_UNUSED_SECURE_PORT_NAME;
+            $slot_hash{$PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT}    = $PKI_UNUSED_SECURE_PORT_NAME;
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT}    = $PKI_UNUSED_SECURE_PORT_NAME;
+
+            # Establish "Shared Ports" Connector Ports
+            $slot_hash{$PKI_SECURE_PORT_SLOT}       = $secure_port;
+            $slot_hash{$PKI_AGENT_SECURE_PORT_SLOT} = $secure_port;
+            $slot_hash{$PKI_EE_SECURE_PORT_SLOT}    = $secure_port; 
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT}       = $secure_port; 
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_UI_SLOT}    = $secure_port; 
+            $slot_hash{$PKI_ADMIN_SECURE_PORT_SLOT} = $secure_port;
+
+            # Comment "Shared Ports" appropriately
+            $slot_hash{$PKI_UNSECURE_PORT_COMMENT_SERVER_SLOT}     = $PKI_UNSECURE_SHARED_PORTS_COMMENT;
+            $slot_hash{$PKI_SECURE_PORT_COMMENT_SERVER_SLOT}       = $PKI_SECURE_SHARED_PORTS_COMMENT;
+            $slot_hash{$PKI_ADMIN_SECURE_PORT_COMMENT_SERVER_SLOT} = "";
+            $slot_hash{$PKI_EE_SECURE_PORT_COMMENT_SERVER_SLOT}    = "";
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_COMMENT_SERVER_SLOT}    = "";
+
+            # Set appropriate "clientAuth" parameter for "Shared Ports"
+            $slot_hash{$PKI_AGENT_CLIENTAUTH_SLOT} = "agent";
+
+            # Comment out the "Admin/EE" Ports
+            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = $PKI_OPEN_COMMENT;
+            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_SERVER_SLOT} = $PKI_CLOSE_COMMENT;;
+
+            # Comment out the "Admin/Agent/EE" Filters
+            $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_WEB_SLOT}  = $PKI_OPEN_COMMENT;
+            $slot_hash{$PKI_CLOSE_SEPARATE_PORTS_COMMENT_WEB_SLOT} = $PKI_CLOSE_COMMENT;
+        }
+
+        if ($enable_proxy) {
+            if ($use_port_separation) {
+                $slot_hash{$PKI_AJP_REDIRECT_PORT_SLOT}  = $ee_secure_port;
+            } else {
+                $slot_hash{$PKI_AJP_REDIRECT_PORT_SLOT}  = $secure_port;
+            }
+            $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_UI_SLOT} = $proxy_secure_port; 
+            $slot_hash{$PKI_AJP_PORT_SLOT}                      = $ajp_port;
+            $slot_hash{$PKI_OPEN_AJP_PORT_COMMENT_SLOT}         = "";
+            $slot_hash{$PKI_CLOSE_AJP_PORT_COMMENT_SLOT}        = "";
+            $slot_hash{$PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT}     = "";
+            $slot_hash{$PKI_CLOSE_ENABLE_PROXY_COMMENT_SLOT}    = "";
+        } else {
+            $slot_hash{$PKI_OPEN_AJP_PORT_COMMENT_SLOT}      = $PKI_OPEN_COMMENT;
+            $slot_hash{$PKI_CLOSE_AJP_PORT_COMMENT_SLOT}     = $PKI_CLOSE_COMMENT;
+            $slot_hash{$PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT}  = $PKI_OPEN_COMMENT;
+            $slot_hash{$PKI_CLOSE_ENABLE_PROXY_COMMENT_SLOT} = $PKI_CLOSE_COMMENT;
+        }
+
+        $slot_hash{$PROXY_SECURE_PORT_SLOT}   = ($proxy_secure_port >=0) ? 
+            $proxy_secure_port : "";
+        $slot_hash{$PROXY_UNSECURE_PORT_SLOT} = ($proxy_unsecure_port>=0) ? 
+            $proxy_unsecure_port : "";
+
+        $slot_hash{$PKI_WEBAPPS_NAME}          = $webapps_base_subsystem_dir; 
+        $slot_hash{$PKI_FLAVOR_SLOT}           = $pki_flavor;
+        $slot_hash{$TOMCAT_SERVER_PORT_SLOT}   = $tomcat_server_port;
+        $slot_hash{$TOMCAT_PIDFILE}            = $tomcat6_instance_pid_file_path;
+        $slot_hash{$TOMCAT_CFG}                = $tomcat6_conf_instance_file_path;
+        $slot_hash{$TOMCAT_SSL_OPTIONS}        = "ssl2=true,ssl3=true,tls=true";
+        $slot_hash{$TOMCAT_SSL2_CIPHERS}       = "-SSL2_RC4_128_WITH_MD5,-SSL2_RC4_128_EXPORT40_WITH_MD5,"
+                                          . "-SSL2_RC2_128_CBC_WITH_MD5,-SSL2_RC2_128_CBC_EXPORT40_WITH_MD5,"
+                                          . "-SSL2_DES_64_CBC_WITH_MD5,-SSL2_DES_192_EDE3_CBC_WITH_MD5";
+        $slot_hash{$TOMCAT_SSL3_CIPHERS}       = "-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,"
+                                          . "+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,"
+                                          . "+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,"
+                                          . "-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,"
+                                          . "-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,"
+                                          . "-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,"
+                                          . "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA";
+        $slot_hash{$TOMCAT_TLS3_CIPHERS}       = "-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,"
+                                          . "+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,"
+                                          . "+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,"
+                                          . "-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,"
+                                          . "-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,"
+                                          . "-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,"
+                                          . "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA";
+        $slot_hash{$TOMCAT_INSTANCE_COMMON_LIB} = "$tomcat_instance_common_lib_path/*.jar";
+        if (!$redirected_logs_path) {
+            $slot_hash{$TOMCAT_LOG_DIR} = $logs_instance_path;
+        }
+        else {
+            $slot_hash{$TOMCAT_LOG_DIR} = $redirected_logs_path;
+        }
+
+    }
+
+    ## Process templates (instance independent)
+    #
+    #  NOTE:  The values substituted may differ across subsystems.
+    #
+
+    # process "CS.cfg" template
+    return 0 if !process_file_template("pki_cfg",
+                                       $pki_cfg_subsystem_file_path,
+                                       $pki_cfg_instance_file_path,
+                                       \%slot_hash);
+    return 0 if !set_file_props($pki_cfg_instance_file_path,
+                                $default_file_permissions, $pki_user, $pki_group);
+
+    if ($^O eq "linux") {
+        # process "config.desktop" template
+        return 0 if !process_file_template("setup_config",
+                                           $setup_config_subsystem_file_path,
+                                           $setup_config_instance_file_path,
+                                           \%slot_hash);
+        }
+
+
+    ## Process registry instance template
+    return 0 if !process_file_template("pki_registry_template",
+                                       $pki_registry_subsystem_file_path,
+                                       $pki_registry_instance_file_path, 
+                                       \%slot_hash);
+    return 0 if !set_file_props($pki_registry_instance_file_path,
+                                $default_file_permissions, $root_user, $root_group);
+
+    ## Process templates (CA instances)
+    if ($subsystem_type eq $CA) {
+        # process ProfileSelect.template
+        return 0 if !process_file_template("profile_select_template",
+                                           $profile_select_template_subsystem_file_path,
+                                           $profile_select_template_instance_file_path,
+                                           \%slot_hash);
+        # process proxy.conf file
+        return 0 if !process_file_template("proxy_conf",
+                                           $proxy_conf_subsystem_file_path,
+                                           $proxy_conf_instance_file_path,
+                                           \%slot_hash);
+    }
+
+
+    ## Process templates (RA, TPS instances)
+    if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+
+        if ($subsystem_type eq $TPS) {
+
+          # process "cgi" template
+          return 0 if !process_file_template("cgi_home",
+                                             $cgi_home_subsystem_file_path,
+                                             $cgi_home_instance_file_path,
+                                             \%slot_hash);
+
+          return 0 if !process_file_template("cgi_demo",
+                                             $cgi_demo_subsystem_file_path,
+                                             $cgi_demo_instance_file_path,
+                                             \%slot_hash);
+
+          return 0 if !process_file_template("cgi_so",
+                                             $cgi_so_subsystem_file_path,
+                                             $cgi_so_instance_file_path,
+                                             \%slot_hash);
+
+          return 0 if !process_file_template("cgi_so_enroll",
+                                             $cgi_so_subsystem_enroll_file_path,
+                                             $cgi_so_instance_enroll_file_path,
+                                             \%slot_hash);
+
+          # process each "*.cgi" file in subsystem "sow" directory
+          opendir(SUBSYSTEM_DIR, $cgi_sow_subsystem_file_path);
+          while (defined(my $entity = readdir(SUBSYSTEM_DIR))) {
+              if ($entity =~ m/.cgi$/) {
+                  # build complete "sow" subystem ".cgi" file name
+                  $cgi_sow_subsystem_cgi_file_path = "${cgi_sow_subsystem_file_path}/${entity}";
+                  # build complete "sow" instance ".cgi" file name
+                  $cgi_sow_instance_cgi_file_path = "${cgi_sow_instance_file_path}/${entity}";
+                  # process complete "sow" instance ".cgi" file name
+                  return 0 if !process_file_template("cgi_sow",
+                                                     $cgi_sow_subsystem_cgi_file_path,
+                                                     $cgi_sow_instance_cgi_file_path,
+                                                     \%slot_hash);
+              }
+          }
+          closedir(SUBSYSTEM_DIR);
+
+          # process "addAgents.ldif" template
+          return 0 if !process_file_template("addAgents_ldif",
+                                             $addAgents_ldif_subsystem_file_path,
+                                             $addAgents_ldif_instance_file_path,
+                                             \%slot_hash);
+
+          # process "addIndexes.ldif" template
+          return 0 if !process_file_template("addIndexes_ldif",
+                                             $addIndexes_ldif_subsystem_file_path,
+                                             $addIndexes_ldif_instance_file_path,
+                                             \%slot_hash);
+
+          # process "addTokens.ldif" template
+          return 0 if !process_file_template("addTokens_ldif",
+                                             $addTokens_ldif_subsystem_file_path,
+                                             $addTokens_ldif_instance_file_path,
+                                             \%slot_hash);
+
+          # process "addVLVIndexes.ldif" template
+          return 0 if !process_file_template("addVLVIndexes_ldif",
+                                             $addVLVIndexes_ldif_subsystem_file_path,
+                                             $addVLVIndexes_ldif_instance_file_path,
+                                             \%slot_hash);
+
+          # process "schemaMods.ldif" template
+          return 0 if !process_file_template("schemaMods_ldif",
+                                             $schemaMods_ldif_subsystem_file_path,
+                                             $schemaMods_ldif_instance_file_path,
+                                             \%slot_hash);
+        }
+
+
+        # process "httpd.conf" template
+        return 0 if !process_file_template("httpd_conf",
+                                           $httpd_conf_subsystem_file_path,
+                                           $httpd_conf_instance_file_path,
+                                           \%slot_hash);
+        return 0 if !set_file_props($httpd_conf_instance_file_path,
+                                    $default_file_permissions, $pki_user, $pki_group);
+
+
+        # process "nss.conf" template
+        return 0 if !process_file_template("nss_conf",
+                                           $nss_conf_subsystem_file_path,
+                                           $nss_conf_instance_file_path,
+                                           \%slot_hash);
+        return 0 if !set_file_props($nss_conf_instance_file_path,
+                                    $default_file_permissions, $pki_user, $pki_group);
+
+        # process "perl.conf" template
+        return 0 if !process_file_template("perl_conf",
+                                           $perl_conf_subsystem_file_path,
+                                           $perl_conf_instance_file_path,
+                                           \%slot_hash);
+
+        return 0 if !set_file_props($perl_conf_instance_file_path,
+                                    $default_file_permissions, $pki_user, $pki_group);
+
+
+        # process "nss_pcache" template
+        return 0 if !process_file_template("nss_pcache",
+                                           $nss_pcache_subsystem_file_path,
+                                           $nss_pcache_instance_file_path,
+                                           \%slot_hash);
+
+        return 0 if !set_permissions($nss_pcache_instance_file_path,
+                                     $default_exe_permissions);
+
+        # process "pki_apache_initscript" template
+        return 0 if !process_file_template("pki_apache_initscript",
+                                           $pki_apache_initscript_file_path,
+                                           $pki_instance_initscript_path,
+                                           \%slot_hash);
+
+        return 0 if !set_permissions($pki_instance_initscript_path,
+                                     $default_exe_permissions);
+
+
+    } else {
+        ## Process templates (CA, KRA, OCSP, TKS instances)
+        # process "index.jsp" template
+        return 0 if !process_file_template("index_jsp",
+                                           $index_jsp_subsystem_file_path,
+                                           $index_jsp_instance_file_path,
+                                           \%slot_hash);
+
+        # process "server.xml" template
+        return 0 if !process_file_template("server_xml",
+                                           $server_xml_subsystem_file_path,
+                                           $server_xml_instance_file_path,
+                                           \%slot_hash);
+
+        # process "serverCertNick.conf" template
+        return 0 if !process_file_template("servercertnick_conf",
+                                           $servercertnick_conf_subsystem_file_path,
+                                           $servercertnick_conf_instance_file_path,
+                                           \%slot_hash);
+
+        # process "tomcat6.conf" template
+        return 0 if !process_file_template("tomcat6_conf",
+                                           $tomcat6_conf_subsystem_file_path,
+                                           $tomcat6_conf_instance_file_path,
+                                           \%slot_hash);
+
+        # process "velocity.properties" template
+        return 0 if !process_file_template("velocity_prop",
+                                           $velocity_prop_subsystem_file_path,
+                                           $velocity_prop_instance_file_path,
+                                           \%slot_hash);
+
+        # process "web.xml" template
+        return 0 if !process_file_template("web_xml",
+                                           $web_xml_subsystem_file_path,
+                                           $web_xml_instance_file_path,
+                                           \%slot_hash);
+
+        # process "catalina.properties" template
+        return 0 if !process_file_template("catalina_properties",
+                                           $catalina_properties_subsystem_file_path,
+                                           $catalina_properties_instance_file_path,
+                                           \%slot_hash);
+    }
+
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub process_pki_files_and_symlinks
+{
+    emit("Processing PKI files and symbolic links for '$pki_instance_path' ...\n");
+
+    ## Populate instances (instance independent)
+
+    # create a filled in temporary "noise"
+    # file for this instance
+    my $noise = generate_random_string(1024);
+
+    return 0 if !create_file($noise_instance_file_path,
+                             $noise,
+                             $default_file_permissions, $pki_user, $pki_group);
+
+    # create a filled in empty "password.conf"
+    # password file for this instance
+    if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+        return 0 if !create_file($password_conf_instance_file_path,
+                                 "${default_security_token}:${db_password}\n",
+                                 $default_file_permissions, $pki_user, $pki_group);
+    } else {
+        return 0 if !create_file($password_conf_instance_file_path,
+                                 "${default_security_token}=${db_password}\n",
+                                 $default_file_permissions, $pki_user, $pki_group);
+    }
+
+    # create a filled in empty temporary "pfile"
+    # password file for this instance
+    return 0 if !create_file($pfile_instance_file_path,
+                             "${db_password}\n",
+                             $default_file_permissions, $pki_user, $pki_group);
+
+    ## Populate instances (RA, TPS instances)
+    if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+        # create an empty file called "pwcache.conf" for this
+        return 0 if !create_empty_file($pwcache_conf_instance_file_path,
+                                       $default_file_permissions, $pki_user, $pki_group);
+
+        # create instance symlink to subsystem "perl" subdirectory
+        return 0 if !create_symlink($perl_instance_symlink_path, $perl_subsystem_path,
+                                    $pki_user, $pki_group);
+
+        return 0 if !create_symlink($run_instance_symlink_path,
+                                    "${default_apache_pids_path}/${subsystem_type}",
+                                    $pki_user, $pki_group);
+
+    } else {
+        ## Populate instances (CA, KRA, OCSP, TKS instances)
+        # create instance "webapps/$subsystem_type/WEB-INF/lib" subdirectory
+
+        # Create symlink of pki_instance_name pointing to tomcat6 init script.
+        # This is our per instance init script, tomcat6 will use the basename
+        # to find our tomcat6 configuration file in /etc/sysconfig
+        return 0 if !create_symlink($pki_instance_initscript_path, $tomcat6_initscript_path,
+                                    $root_user, $root_group);
+
+        return 0 if !create_directory($webinf_lib_instance_path,
+                                      $default_dir_permissions, $pki_user, $pki_group);
+
+        # create instance symlink to "pki-certsrv.jar"
+        return 0 if !create_symlink($pki_certsrv_jar_symlink_path, $pki_certsrv_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "pki-cms.jar"
+        return 0 if !create_symlink($pki_cms_jar_symlink_path, $pki_cms_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "pki-cmsbundle.jar"
+        return 0 if !create_symlink($pki_cmsbundle_jar_symlink_path, $pki_cmsbundle_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "pki-cmscore.jar"
+        return 0 if !create_symlink($pki_cmscore_jar_symlink_path, $pki_cmscore_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "pki-cmsutil.jar"
+        return 0 if !create_symlink($pki_cmsutil_jar_symlink_path, $pki_cmsutil_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to either "apache-commons-collections.jar" or "jakarta-commons-collections.jar"
+        # needed by velocity
+        return 0 if !create_symlink($commons_collections_jar_symlink_path,
+                                    $commons_collections_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to either "apache-commons-lang.jar" or "jakarta-commons-lang.jar"
+        # needed by velocity
+        return 0 if !create_symlink($commons_lang_jar_symlink_path,
+                                    $commons_lang_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to "apache-commons-logging.jar or jakarta-commons-logging.jar"
+        # this is needed by tomcatjss
+        return 0 if !create_symlink($commons_logging_jar_symlink_path,
+                                    $commons_logging_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to "jss.jar"
+        return 0 if !create_symlink($jss_jar_symlink_path, $jss_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to "ldapjdk.jar"
+        return 0 if !create_symlink($ldapjdk_jar_symlink_path, $ldapjdk_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "pki-nsutil.jar"
+        return 0 if !create_symlink($pki_nsutil_jar_symlink_path, $pki_nsutil_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "osutil.jar"
+        return 0 if !create_symlink($osutil_jar_symlink_path, $osutil_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "${subsystem_type}.jar"
+        return 0 if !create_symlink($pki_subsystem_jar_symlink_path, $pki_subsystem_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "symkey.jar"
+        return 0 if !create_symlink($symkey_jar_symlink_path, $symkey_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create symlink to "tomcatjss.jar"
+        return 0 if !create_symlink($tomcatjss_jar_symlink_path, $tomcatjss_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "velocity.jar"
+        return 0 if !create_symlink($velocity_jar_symlink_path, $velocity_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "xerces.jar"
+        return 0 if !create_symlink($xerces_jar_symlink_path, $xerces_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "xml_commons_apis.jar"
+        return 0 if !create_symlink($xml_commons_apis_jar_symlink_path, $xml_commons_apis_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "xml_commons_resolver.jar"
+        return 0 if !create_symlink($xml_commons_resolver_jar_symlink_path, $xml_commons_resolver_jar_file_path,
+                                    $pki_user, $pki_group);
+
+    }
+
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub process_pki_security_databases
+{
+    my $result          = 0;
+    my $serial_number   = 0;
+    my $validity_period = 12;
+    my $time_stamp      = get_time_stamp();
+    my $subject         = "CN=$host,O=$time_stamp";
+    my $issuer_name     = "CN=$host,O=$time_stamp";
+    my $nickname        = "Server-Cert cert-$pki_instance_name";
+    my $trustargs       = "CTu,CTu,CTu";
+
+    emit("Processing PKI security databases for '$pki_instance_path' ...\n");
+
+    # now create and configure pki security databases,
+    # cert3.db, key3.db, secmod.db ...
+    if (!file_exists($default_certutil_command) && !$dry_run) {
+        emit("process_pki_security_databases():  $default_certutil_command does not exist!\n", "error");
+        return $result;
+
+    }
+
+    if (!file_exists($noise_instance_file_path) && !$dry_run) {
+        emit("process_pki_security_databases():  Can't find temp noise file!\n", "error");
+        return $result;
+    }
+
+    if (!file_exists($pfile_instance_file_path) && !$dry_run) {
+        emit("process_pki_security_databases():  Can't find temp file with password!\n", "error");
+        return $result;
+    }
+
+    certutil_create_databases($alias_instance_path,
+                               $pfile_instance_file_path);
+
+    certutil_generate_self_signed_cert($alias_instance_path,
+                                        $default_security_token,
+                                        $serial_number,
+                                        $validity_period,
+                                        $subject,
+                                        $issuer_name,
+                                        $nickname,
+                                        $trustargs,
+                                        $noise_instance_file_path,
+                                        $pfile_instance_file_path);
+
+    remove_file($noise_instance_file_path);
+
+    remove_file($pfile_instance_file_path);
+
+    set_owner_group_on_directory_contents($alias_instance_path,
+                                          $pki_user, $pki_group);
+
+    return 1;
+}
+
+
+# Return 1 if success, 0 if failure
+sub process_pki_security_modules
+{
+    my $result = 0;
+
+    emit("Processing PKI security modules for '$pki_instance_path' ...\n");
+
+    if (!file_exists($default_modutil_command) && !$dry_run) {
+        emit("process_pki_security_modules():  $default_modutil_command must be installed on system!\n", "error");
+        return $result;
+    }
+
+    emit("    Attempting to add hardware security modules to system if applicable ...\n");
+
+    while (my ($key, $value) = each(%supported_sec_modules_hash)) {
+        if (!file_exists($value)) {
+            emit("        module name: $key  lib: $value DOES NOT EXIST!\n");
+            next;
+        } else {
+            modutil_add_token($alias_instance_path, $key, $value);
+            emit("        Added module name: $key  lib: $value\n");
+        }
+    }
+
+    return 1;
+}
+
+sub process_pki_selinux_setup
+{
+    my $setype = "pki_" . $subsystem_type;
+    my $setype_p = $setype . "_port_t";
+    my $default_instance_name = "pki-" . $subsystem_type;
+    my $default_instance_root = "/var/lib";
+    my $default_log_path = "/var/log/" . $default_instance_name;
+    my $default_conf_path = "/etc/" . $default_instance_name;
+    my $status = 0;
+
+    my $conf_path;
+    my $log_path;
+    my $ftype;
+    my $java_component = 0;
+    my $semanage_cmds = "";
+    my @restorecon_cmds;
+
+    emit("configuring SELinux ...\n");
+
+    if (!$redirected_logs_path) {
+        $log_path = $logs_instance_path;
+    }
+    else {
+        $log_path =$redirected_logs_path;
+    }
+
+    if (!$redirected_conf_path) {
+        $conf_path = $conf_instance_path;
+    }
+    else {
+        $conf_path =$redirected_conf_path;
+    }
+
+    if ($subsystem_type eq $CA   ||
+        $subsystem_type eq $KRA  ||
+        $subsystem_type eq $OCSP ||
+        $subsystem_type eq $TKS) {
+        $java_component =1;
+    }
+
+    # set file contexts
+    if ($java_component) {
+        push (@restorecon_cmds, "$restorecon -F -R /usr/share/java/pki");
+    }
+    push (@restorecon_cmds, "$restorecon -F -R /usr/share/pki");
+ 
+    # set file context for $pki_instance_root/$pki_instance_name
+    if (($pki_instance_name ne $default_instance_name) || ($pki_instance_root ne $default_instance_root)) {
+        add_selinux_file_context($setype . "_var_lib_t", 
+                                 "\"${pki_instance_root}/${pki_instance_name}(/.*)?\"", 
+                                 "a", \$semanage_cmds);
+    }
+    push(@restorecon_cmds, "$restorecon -F -R $pki_instance_root/$pki_instance_name");
+
+
+    if ($java_component) {
+        # set file context for instance pid file
+        my $pidfile = $tomcat6_instance_pid_file_path;
+        if ($pki_instance_name ne $default_instance_name) {
+            add_selinux_file_context($setype . "_var_run_t",
+                $pidfile, "f", \$semanage_cmds);
+        }
+        if (-e $pidfile) {
+            push(@restorecon_cmds, "$restorecon -F $pidfile");
+        }
+
+        my $pidpath = $default_apache_pids_path;
+        if (-e $pidpath) {
+            push(@restorecon_cmds, "$restorecon -F -R $pidpath");
+        }
+    }
+
+    # set file context for $log_path
+    $log_path =~ s/\/+$//;
+    if (!$log_path) {
+        emit("Error: Cannot set selinux context $setype" . "_log_t for directory /");
+    } else {
+        if ($log_path ne $default_log_path) {
+            add_selinux_file_context($setype . "_log_t", 
+                                     "\"$log_path(/.*)?\"", "a", \$semanage_cmds);
+        }
+        push(@restorecon_cmds, "$restorecon -F -R $log_path");
+    }
+
+    # set file context for $conf_path
+    $conf_path =~ s/\/+$//;
+    if (!$conf_path) {
+        emit("Error: Cannot set selinux context $setype" . "_etc_rw_t for directory /");
+    } else {
+        if ($conf_path ne $default_conf_path) {
+            add_selinux_file_context($setype . "_etc_rw_t", 
+                                     "\"$conf_path(/.*)?\"", "a", \$semanage_cmds);
+        }
+        push(@restorecon_cmds, "$restorecon -F -R $conf_path");
+    }
+    
+    if (! $java_component) {
+        push(@restorecon_cmds, "$restorecon -F -R /usr/sbin/httpd.worker");
+    }    
+
+    # add ports
+    parse_selinux_ports();
+    if ($secure_port != -1) {
+        add_selinux_port($setype_p, $secure_port, \$semanage_cmds);
+    }
+    if ($non_clientauth_secure_port != -1) {
+        add_selinux_port($setype_p, $non_clientauth_secure_port, \$semanage_cmds);
+    }
+    if ($unsecure_port != -1) {
+        add_selinux_port($setype_p, $unsecure_port, \$semanage_cmds);
+    }
+    if ($tomcat_server_port != -1) {
+        add_selinux_port($setype_p, $tomcat_server_port, \$semanage_cmds);
+    }
+    if ($agent_secure_port != -1) {
+        add_selinux_port($setype_p, $agent_secure_port, \$semanage_cmds);
+    }
+    if ($ee_secure_port != -1) {
+        add_selinux_port($setype_p, $ee_secure_port, \$semanage_cmds);
+    }
+    if ($ee_secure_client_auth_port != -1) {
+        add_selinux_port($setype_p, $ee_secure_client_auth_port, \$semanage_cmds);
+    }
+    if ($admin_secure_port != -1) {
+        add_selinux_port($setype_p, $admin_secure_port, \$semanage_cmds);
+    }
+    if ($ajp_port != -1) {
+        add_selinux_port($setype_p, $ajp_port, \$semanage_cmds);
+    }
+
+    # now run the selinux commands in batch mode
+    if ($semanage_cmds ne "") {
+        emit("Running the semanage commands in batch mode\n", "debug");
+        if (! $dry_run) {
+            if(! run_command("$semanage -S targeted -i - " . ' << _EOF' . "\n$semanage_cmds\n" . '_EOF' . "\n")) {
+                emit("Failed executing semanage batch command \n", "error");
+            }
+        }
+    } else {
+        emit("Selinux contexts already set. No need to run semanage.\n", "debug");
+    }
+
+    #now run the restorecons
+    emit("Running restorecon commands\n", "debug");
+    foreach my $cmd (@restorecon_cmds) {
+        emit("$cmd\n", "debug");
+        if (! $dry_run) {
+            if (!run_command($cmd)) {
+                emit("Failed executing restorecon command; $cmd\n", "error"); 
+            }                          
+        }
+    }
+
+    return 1;
+}
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub install_pki_instance
+{
+    emit("Installing PKI instance ...\n");
+
+    return 0 if !create_directory($pki_instance_path,
+                                  $default_dir_permissions, $pki_user, $pki_group);
+
+    return 0 if !process_pki_directories();
+    return 0 if !process_pki_templates();
+    return 0 if !process_pki_files_and_symlinks();
+    return 0 if !process_pki_security_databases();
+    return 0 if !process_pki_security_modules();
+
+    if (($^O eq "linux") && (is_Fedora() || (is_RHEL() && (! is_RHEL4())))){
+        return 0 if !process_pki_selinux_setup();
+    }
+
+    return 1;
+}
+
+
+##############################################################
+# PKI Instance Removal Subroutines
+##############################################################
+
+
+# Return 1 if success, 0 if failure
+sub cleanup
+{
+    my $result = 0;
+
+    emit(sprintf("cleanup(%s)\n", join(", ", @_)), "debug");
+
+    emit("PKI instance creation Cleanup Utility cleaning up on error ...", "info");
+
+    $result = uninstall(\%installation_info);
+
+    return $result;
+}
+
+# Return 1 if success, 0 if failure
+sub write_install_info
+{
+    if ($dry_run) {
+        return 1;
+    } else {
+        if (!defined($pki_instance_path)) {
+            return 0;
+        }
+        my $install_info_file_path = write_install_info_to_dir($pki_instance_path,
+                                                               \%installation_info);
+        if (defined($install_info_file_path)) {
+            emit(sprintf("Installation manifest: %s", $install_info_file_path));
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+}
+
+##############################################################
+# Signal Handlers
+##############################################################
+
+sub die_handler
+{
+    my ($msg) = @_;
+
+    # If we abort write the installation manifest
+    # so cleanup can still be performed later.
+    write_install_info();
+}
+
+$SIG{'__DIE__'} = \&die_handler;
+
+##############################################################
+# Main Program
+##############################################################
+
+# no args
+# no return value
+sub main
+{
+    my $result = 0;
+    my $parse_result = 0;
+    my $command = "";
+
+    chdir("/tmp");
+
+    print(STDOUT "PKI instance creation Utility ...\n\n");
+
+    # On Linux/UNIX, insure that this script is being run as "root".
+    $result = check_for_root_UID();
+    if (!$result) {
+        usage();
+        exit 255;
+    }
+
+    # Setup platform-dependent parameters
+    setup_platform_dependent_parameters();
+
+    $parse_result = parse_arguments();
+    if (!$parse_result || $parse_result == -1) {
+        close_logfile();
+        exit 255;
+    }
+
+    exit 255 if !initialize_paths();
+
+    exit 255 if !initialize_pki_creation_values();
+
+    $result = install_pki_instance();
+    if (!$result) {
+        print(STDOUT "\n");
+
+        my $install_description = get_install_description();
+        emit(sprintf("The following was performed\n%s\n\n", $install_description));
+
+ASK_AGAIN:
+        my $confirm  = prompt("Error detected would you like to clean up ${pki_instance_path} (Y/N)? ");
+
+        if ($confirm eq "Y" || $confirm eq "y") {
+            cleanup();
+        } elsif ($confirm ne "N" && $confirm ne "n") {
+           goto ASK_AGAIN;
+        }
+
+        close_logfile();
+
+        exit 255;
+    }
+
+    print(STDOUT "\n");
+    print(STDOUT "PKI instance creation completed ...\n\n");
+
+    # Write the installation manifest.
+    write_install_info();
+
+    my $install_description = get_install_description();
+    emit(sprintf("The following was performed:\n%s\n", $install_description));
+
+    printf(STDOUT "Installation information recorded in %s.\n", get_logfile_path());
+
+    $pki_registry_initscript_command = "/sbin/service $pki_registry_initscript restart $pki_instance_name";
+
+    $command = "${pki_registry_initscript_command}";
+    run_command($command);
+
+    if ($dry_run) {
+        print STDOUT "dry run mode ENABLED, system was not modified\n";
+    } else {
+
+    # Notify user to check firewall settings . . .
+    print(STDOUT
+           "Before proceeding with the configuration, make sure \n"
+           . "the firewall settings of this machine permit proper \n"
+           . "access to this subsystem. \n\n");
+
+    # EXCEPTION:  To enable a user to easily configure their PKI subsystem,
+    #             this is the ONLY instance in which we print out the actual
+    #             value of the the one-time random PIN, as well as store this
+    #             message at the end of the initialization log.
+    if ($subsystem_type eq $CA   ||
+        $subsystem_type eq $KRA  ||
+        $subsystem_type eq $OCSP ||
+        $subsystem_type eq $TKS) {
+        if ($admin_secure_port > 0) {
+            # Port Separation:  CA, KRA, OCSP, TKS
+            print(STDOUT
+                   "Please start the configuration by accessing:\n\n"
+                 . "https://$host:$admin_secure_port/$subsystem_type/admin/"
+                 . "console/config/login?pin=$random\n\n");
+            emit("Configuration Wizard listening on\n"
+                . "https://$host:$admin_secure_port/$subsystem_type/admin/"
+                . "console/config/login?pin=$random\n",
+                  "log");
+        } else {
+            # Shared Ports:  CA, KRA, OCSP, TKS
+            print(STDOUT
+                   "Please start the configuration by accessing:\n\n"
+                 . "https://$host:$secure_port/$subsystem_type/admin/"
+                 . "console/config/login?pin=$random\n\n");
+            emit("Configuration Wizard listening on\n"
+                . "https://$host:$secure_port/$subsystem_type/admin/"
+                . "console/config/login?pin=$random\n",
+                  "log");
+        }
+    } else {
+        # Port Separation:  RA, TPS
+        print(STDOUT
+               "Please start the configuration by accessing:\n\n"
+             . "https://$host:$non_clientauth_secure_port/$subsystem_type/"
+             . "admin/console/config/login?pin=$random\n\n");
+        emit("Configuration Wizard listening on\n"
+            . "https://$host:$non_clientauth_secure_port/$subsystem_type/"
+            . "admin/console/config/login?pin=$random\n",
+              "log");
+    }
+
+    print(STDOUT
+           "After configuration, the server can be operated by the command:\n\n"
+              . "    $pki_registry_initscript_command\n\n");
+    emit("After configuration, the server can be operated by the command:\n"
+             . "${pki_registry_initscript_command}\n",
+          "log");
+    }
+
+    close_logfile();
+
+    return;
+}
+
+
+##############################################################
+# PKI Instance Creation
+##############################################################
+
+main();
+
+exit 0;
+

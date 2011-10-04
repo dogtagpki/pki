@@ -1,0 +1,364 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Display Certificate Revocation List</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<SCRIPT type="text/javascript" SRC="/ca/agent/helpfun.js"></SCRIPT>
+<CMS_TEMPLATE>
+
+</HEAD>
+
+<body bgcolor="#FFFFFF" link="#000000" vlink="#000000" alink="#000000">
+<font size=+1 face="PrimaSans BT, Verdana, sans-serif">
+Display Certificate Revocation List</font><br>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Use this form to view a certificate revocation list.<br>
+The numbers displayed in the recent changes column are
+representing newly revoked, taken off hold, and expired certificates.
+</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<FORM NAME="displayCRLForm" ACTION="displayCRL" METHOD=POST>
+
+<!-- <table border="0" cellspacing="2" cellpadding="2" width="100%"> -->
+
+<SCRIPT type="text/javascript">
+<!--
+var splitLabel = new Array("Copying delta CRL cache:",
+                           "Preparing data for delta CRL generation:",
+                           "Signing and encoding delta CRL:",
+                           "Storing delta CRL:",
+                           "Delta CRL publishing:",
+                           "Preparing data for CRL generation:",
+                           "Adding extensions:",
+                           "Signing and encoding CRL:",
+                           "Storing CRL:",
+                           "Publishing CRL:");
+var i;
+
+function write_new_window(timeSplits) {
+    var new_window = window.open('', 'TestWindow',
+        'width=400,height=410,status=no,location=no,menubar=no,toolbar=no,personalbar=no,resizable=yes,scrollbars=no');
+    new_window.focus();
+    var new_doc = new_window.document;
+    new_doc.writeln('<HTML><HEAD><TITLE>Newly Opened Window</TITLE></HEAD><BODY>\n');
+
+    var crlTime;
+    if (timeSplits != null && timeSplits.length > 0) {
+        crlTime = timeSplits.split(',');
+    } else {
+        crlTime = null;
+    }
+
+    if (crlTime != null && crlTime.length > 0) {
+        new_doc.writeln('<font size=+1 face="PrimaSans BT, Verdana, sans-serif">');
+        new_doc.writeln('CRL split times</font><br>&nbsp;');
+        new_doc.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+        new_doc.writeln('<tr>');
+        new_doc.writeln('<td width="75%" bgcolor="#e0e0e0">');
+        new_doc.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        new_doc.writeln('Operation</font></td>');
+        new_doc.writeln('<td bgcolor="#e0e0e0">');
+        new_doc.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        new_doc.writeln('Time in ms</font></td>');
+        
+        var total = 0;
+        var deltaTotal = 0;
+        var crlTotal = 0;
+        var deltaColor;
+        for (i = 0; i < splitLabel.length; i++) {
+            if (i > 0 && i < 5) {
+                deltaColor = ' bgcolor="#eeeeee"';
+                deltaTotal += parseInt(crlTime[i]);
+            } else {
+                deltaColor = '';
+                crlTotal += parseInt(crlTime[i]);
+            }
+            new_doc.writeln('<tr><td align="right"'+deltaColor+'>');
+            new_doc.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            new_doc.writeln(splitLabel[i]+'</font>');
+            new_doc.writeln('</td>');
+            new_doc.writeln('<td align="right"'+deltaColor+'>');
+            new_doc.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            if (i < crlTime.length) {
+                if (crlTime[i].charAt(0) == '-') {
+                    var d = new Date(parseInt(crlTime[i].substr(1)));
+                    new_doc.writeln((d.getMonth()+1)+'/'+d.getDate()+'/'+
+                                    d.getFullYear()+"&nbsp;"+d.getHours()+':'+
+                                    (d.getMinutes()<10?"0":"")+d.getMinutes()+':'+
+                                    (d.getSeconds()<10?"0":"")+d.getSeconds());
+                } else {
+                    new_doc.writeln(crlTime[i]);
+                }
+                total += parseInt(crlTime[i]);
+            } else {
+                new_doc.writeln('&nbsp;');
+            }
+            new_doc.writeln('</font></td></tr>');
+        }
+        new_doc.writeln('<tr><td align="right" bgcolor="#e5e5e5">');
+        new_doc.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        new_doc.writeln('Delta CRL total:</font>');
+        new_doc.writeln('</td>');
+        new_doc.writeln('<td align="right" bgcolor="#e5e5e5">');
+        new_doc.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        if (deltaTotal < 0) deltaTotal = "incomplete";
+        new_doc.writeln(deltaTotal+'</font></td></tr>');
+
+        new_doc.writeln('<tr><td align="right" bgcolor="#e5e5e5">');
+        new_doc.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        new_doc.writeln('CRL total:</font>');
+        new_doc.writeln('</td>');
+        new_doc.writeln('<td align="right" bgcolor="#e5e5e5">');
+        new_doc.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        if (crlTotal < 0) crlTotal = "incomplete";
+        new_doc.writeln(crlTotal+'</font></td></tr>');
+
+        new_doc.writeln('<tr><td align="right" bgcolor="#e5e5e5">');
+        new_doc.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        new_doc.writeln('Total:</font>');
+        new_doc.writeln('</td>');
+        new_doc.writeln('<td align="right" bgcolor="#e5e5e5">');
+        new_doc.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        if (total < 0) total = "incomplete";
+        new_doc.writeln(total+'</font></td></tr>');
+
+        new_doc.writeln('</table>');
+    } else {
+        new_doc.writeln('CRL split times are not available.');
+    }
+    new_doc.writeln('</BODY></HTML>');
+    new_doc.close();
+}
+
+var issuingPoint;
+var crlNumber;
+var deltaNumber;
+var crlSize;
+var deltaSize;
+var crlTesting;
+var recentChanges;
+var crlTimeSplits;
+
+if (result.header.crlIssuingPoints != null &&
+    result.header.crlIssuingPoints.length > 0) {
+    issuingPoint = result.header.crlIssuingPoints.split('+');
+} else {
+    issuingPoint = null;
+}
+
+if (result.header.crlNumbers != null &&
+    result.header.crlNumbers.length > 0) {
+    crlNumber = result.header.crlNumbers.split('+');
+} else {
+    crlNumber = null;
+}
+
+if (result.header.deltaNumbers != null &&
+    result.header.deltaNumbers.length > 0) {
+    deltaNumber = result.header.deltaNumbers.split('+');
+} else {
+    deltaNumber = null;
+}
+
+if (result.header.crlSizes != null &&
+    result.header.crlSizes.length > 0) {
+    crlSize = result.header.crlSizes.split('+');
+} else {
+    crlSize = null;
+}
+
+if (result.header.deltaSizes != null &&
+    result.header.deltaSizes.length > 0) {
+    deltaSize = result.header.deltaSizes.split('+');
+} else {
+    deltaSize = null;
+}
+
+if (result.header.crlTesting != null &&
+    result.header.crlTesting.length > 0) {
+    crlTesting = result.header.crlTesting.split('+');
+} else {
+    crlTesting = null;
+}
+
+if (result.header.recentChanges != null &&
+    result.header.recentChanges.length > 0) {
+    recentChanges = result.header.recentChanges.split('+');
+} else {
+    recentChanges = null;
+}
+
+if (result.header.crlSplits != null &&
+    result.header.crlSplits.length > 0) {
+    crlTimeSplits = result.header.crlSplits.split('+');
+} else {
+    crlTimeSplits = null;
+}
+
+if (issuingPoint != null && issuingPoint.length > 0) {
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+
+    document.writeln('<tr><td align="right" width="30%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('Issuing point:</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<SELECT NAME="crlIssuingPoint">');
+    for (i = 0; i < issuingPoint.length; i++) {
+        document.write('<OPTION VALUE="' + issuingPoint[i] + '"');
+        if (result.header.masterCRLIssuingPoint == issuingPoint[i])
+            document.write(' SELECTED');
+        document.writeln('>' + issuingPoint[i] + '</OPTION>');
+    }
+    document.writeln('</SELECT></td></tr>');
+
+    document.writeln('<tr><td align="right" width="30%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln(' Display type:</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<SELECT NAME="crlDisplayType">');
+    if (result.header.master_host != null && result.header.master_host.length &&
+        result.header.master_port != null && result.header.master_port.length) {
+        document.write('<OPTION VALUE="entireCRL" SELECTED>Entire CRL');
+    } else {
+        document.write('<OPTION VALUE="cachedCRL" SELECTED>Cached CRL');
+        document.write('<OPTION VALUE="entireCRL">Entire CRL');
+    }
+    document.write('<OPTION VALUE="crlHeader">CRL header');
+    document.write('<OPTION VALUE="base64Encoded">Base64 encoded');
+    if (result.header.isDeltaCRLEnabled != null &&
+        result.header.isDeltaCRLEnabled == true) {
+        document.write('<OPTION VALUE="deltaCRL">Delta CRL');
+    }
+    document.writeln('</SELECT></td></tr>');
+    document.writeln('</table><br>&nbsp;');
+
+    if (crlNumber != null && crlNumber.length == issuingPoint.length &&
+        crlSize != null && crlSize.length == issuingPoint.length &&
+        recentChanges != null && recentChanges.length == issuingPoint.length) {
+        document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+        document.writeln('<tr>');
+        document.writeln('<td align="right" bgcolor="#e5e5e5">');
+        document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Issuing point</font></td>');
+        document.writeln('<td align="right" bgcolor="#e5e5e5">');
+        document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('CRL numbers</font></td>');
+        document.writeln('<td align="right" bgcolor="#e5e5e5">');
+        document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Number of entries</font></td>');
+        document.writeln('<td align="right" bgcolor="#e5e5e5">');
+        document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Recent changes</font></td>');
+        document.writeln('</tr>');
+        for (i = 0; i < issuingPoint.length; i++) {
+            document.writeln('<tr>');
+            document.writeln('<td align="right">');
+            document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln(issuingPoint[i]+'</font>');
+            document.writeln('</td>');
+            document.writeln('<td align="right">');
+            document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            if (crlTimeSplits != null &&
+                crlTimeSplits.length == issuingPoint.length &&
+                crlTimeSplits[i] != "0,0,0,0,0,0,0,0,0,0") {
+                if (deltaSize != null && deltaSize.length > i && deltaSize[i] != '-1' &&
+                    result.header.isDeltaCRLEnabled != null && result.header.isDeltaCRLEnabled == true &&
+                    deltaNumber != null && deltaNumber.length > i) {
+                    document.write('<A HREF="#" onClick="write_new_window(\''+crlTimeSplits[i]+'\');return false">'+crlNumber[i]+', '+deltaNumber[i]+'</A>');
+                } else {
+                    document.write('<A HREF="#" onClick="write_new_window(\''+crlTimeSplits[i]+'\');return false">'+crlNumber[i]+'</A>');
+                }
+            } else {
+                document.write(crlNumber[i]);
+                if (deltaSize != null && deltaSize.length > i && deltaSize[i] != '-1' &&
+                    result.header.isDeltaCRLEnabled != null && result.header.isDeltaCRLEnabled == true &&
+                    deltaNumber != null && deltaNumber.length > i) {
+                    document.write(', '+deltaNumber[i]);
+                }
+            }
+            document.writeln('</font></td>');
+            document.writeln('<td align="right">');
+            document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            if (crlSize[i] == '-1') {
+                document.writeln('unknown');
+            } else {
+                document.write(crlSize[i]);
+                if (result.header.isDeltaCRLEnabled != null && result.header.isDeltaCRLEnabled == true &&
+                    deltaSize != null && deltaSize.length > i && deltaSize[i] != '-1') {
+                    document.write(', '+deltaSize[i]);
+                }
+            }
+            document.writeln('</font></td>');
+            document.writeln('<td align="right">');
+            if (crlTesting[i] == '1') {
+                document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif" color="gray">');
+            } else {
+                document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            }
+            if (crlNumber[i] == '0' && crlSize[i] == '-1') {
+                document.writeln('CRL is not built</font>');
+            } else {
+                document.writeln(recentChanges[i]+'</font>');
+            }
+            document.writeln('</td>');
+            document.writeln('</tr>');
+        }
+        document.writeln('</table><br>');
+    }
+} else {
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+
+                     'CRL issuing points are not available.');
+    document.writeln('</font><br><br>&nbsp;');
+}
+//-->
+</SCRIPT>
+
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=6 WIDTH="100%">
+  <tr>
+    <td ALIGN=RIGHT BGCOLOR="#E5E5E5">
+<SCRIPT type="text/javascript">
+<!--
+      if (issuingPoint != null && issuingPoint.length > 0) {
+        document.writeln('<INPUT TYPE="submit" VALUE="Display" width="72">&nbsp;');
+      }
+//-->
+</SCRIPT>
+      <INPUT TYPE="hidden" NAME="pageStart" VALUE="1">
+      <INPUT TYPE="hidden" NAME="pageSize" VALUE="50">
+      <INPUT TYPE="button" VALUE=Help width="72"
+        onClick="help('http://www.redhat.com/docs/manuals/cert-system#Viewing or Examining CRLs')">
+    </td>
+  </tr>
+</table>
+
+</FORM>
+</BODY>
+
+</HTML>

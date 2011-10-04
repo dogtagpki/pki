@@ -1,0 +1,1717 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2009 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<head>
+<link rel=stylesheet href="/style.css" type="text/css">
+
+<script language="JavaScript">
+
+//
+// initialize netkey globals
+var netkey;
+var isMSHTML;
+
+
+var keyUITable = new Array();
+var keyTypeTable = new Array();
+var curChildWindow = null;
+
+function getUIForKey(aKeyID)
+{
+    return keyUITable[aKeyID];
+
+}
+
+function getTypeForKey(aKeyID)
+{
+    return keyTypeTable[aKeyID];
+}
+
+//
+// Determine if we are running MSHTML or GECKO
+//
+if (navigator.userAgent.indexOf("MSIE") != -1) {
+  isMSHTML = true;
+} else {
+  isMSHTML = false;
+}
+
+
+//
+// Notify callback for GECKO
+//
+function jsNotify()  {}
+
+jsNotify.prototype = {
+
+  rhNotifyKeyStateChange: function(aKeyType,aKeyID,aKeyState,aData,strData)
+  {
+    OnCOOLKeyStateChange(aKeyType, aKeyID, aKeyState, aData,strData);
+  },
+
+  QueryInterface: function(iid)
+  {
+    <!--  alert("iid: " + iid); -->
+     if(!iid.equals(Components.interfaces.rhIKeyNotify) &&
+         !iid.equals(Components.interfaces.nsISupports))
+      {
+          alert("Can't find jsNotify interface");
+          throw Components.results.NS_ERROR_NO_INTERFACE;
+      }
+      return this;
+  }
+};
+
+//
+// Attach to the object.
+//
+if (!isMSHTML) {
+  // GECKO ONLY initialization
+  try {
+    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    netkey = Components.classes["@redhat.com/rhCoolKey"].getService();
+    netkey = netkey.QueryInterface(Components.interfaces.rhICoolKey);
+    gNotify = new jsNotify;
+    netkey.rhCoolKeySetNotifyCallback(gNotify);
+  } catch(e) {
+     alert("Can't get UniversalXPConnect: " + e);
+  }
+} else {
+  // MSHTML only initialization
+  netkey = external;
+}
+
+//
+// unregister our notify event
+//
+function cleanup()
+{
+  if (!isMSHTML) {
+    try {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+      netkey.rhCoolKeyUnSetNotifyCallback(gNotify);
+    } catch(e) {
+     alert("Can't get UniversalXPConnect: " + e);
+    }
+  }
+}
+
+var gScreenName = "";
+var gKeyEnrollmentType = "userKey";
+
+var gCurrentSelectedRow = null;
+
+
+var gCurKeyType = null;
+var gCurKeyID = null;
+
+////////////////////////////////////////////////////////////////
+//
+// Utility functions specific to this page.
+//
+////////////////////////////////////////////////////////////////
+
+
+// List of Error Messages to be printed out
+
+var Status_Messages = new Array(
+      
+"Operation Completed Successfully.",
+    "Server Error.",
+    "Problem communicating with the token.",
+    "Problem communicating with the token.",
+    "Problem resetting token's pin.",
+    "Internal Server Error.",
+    "Internal Server Error",
+    "Token Enrollment Error.",
+    "Problem communicating with the token.",
+    "Internal Server Error",
+    "Error communicating with the Certificate Authority, try again later.",
+    "Internal Server Error.",
+    "Error resetting the token's pin.",
+    "Internal Server Error.",
+    "Authentication Failure, Try Again.",
+    "Internal Server Error",
+    "Token is disabled, contact technical support.",
+    "Problem communicating with the token.",
+    "Internal Server Error.",
+    "Cannot upgrade token software.",
+    "Internal Server Error.",
+    "Problem communicating with the token.",
+    "Invalid token type.",
+    "Invalid token type",
+    "Cannot publish.",
+    "Cannot communicate with token database, try again later.",
+    "Token is disabled, contact techincal support.",
+    "Cannot reset pin value for the token, contact technical support.",
+    "Connection to server lost.",
+    "Cannot create entry for token in database, contact technical support.",
+    "No such token state, contact technical support.",
+    "Invalid lost token reason, contact technical support.",
+    "Token unusable due to compromise,contact technical support.",
+    "No such inactive token, contact technical support.",
+    "Cannot process more than one active token.",
+    "Internal Server Error,contact technical support.",
+    "Key Recovery has been processed.",
+    "Key Recovery failed, contact technical support.",
+    "Cannot operate on token reported lost, contact technical support.",
+    "Key archival error, contact technical support.",
+    "Problem connecting to the TKS, contact technical support.",
+    "Failed to update token database, contact technical support.",
+    "Internal certificate revocation error,contact technical support.",
+    "User does not own this token, contact technical support." 
+);    
+
+function GetAuthDataFromPopUp(aKeyType,aKeyID,aUiData)
+{
+
+   keyUITable[aKeyID] = aUiData;
+   keyTypeTable[aKeyID] = aKeyType;
+
+   //alert("GetAuthDataFromPopUp data " + aUiData);
+   var child = window.open("/GenericAuth.html",aKeyID,"height=400,width=400");
+
+   //alert("Attempted to create child window " + child);
+ 
+   curChildWindow = child; 
+
+}
+
+function COOLKeySetDataValue(aKeyType,aKeyID,name,value)
+{
+        //alert("In COOLKeySetDataValue  aKeyType " + aKeyType + " aKeyID " + aKeyID + " name " + name + " value " + value);  
+        if(netkey)
+        {
+             try {
+                if(!isMSHTML)
+                {
+                    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+                }
+
+                netkey.SetCoolKeyDataValue(aKeyType,aKeyID,name,value);
+
+
+            } catch(e) {
+                alert("Error Setting data values: " + e);
+            }
+        }
+
+}
+ 
+function COOLKeySetTokenPin(pin)
+{
+  if(!isMSHTML)
+    {
+        if(netkey)
+        {
+             try { 
+                netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+                netkey.SetCoolKeyDataValue(gCurKeyType,gCurKeyID,"TokenPin",pin);
+
+
+            } catch(e) {
+                alert("Error Setting data values: " + e);
+            }
+        }
+    }
+}
+
+function COOLKeySetUidPassword(uid,pwd)
+{
+
+  if(!isMSHTML)
+  {
+      if(netkey)
+      {
+
+          try {
+              netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+
+              netkey.SetCoolKeyDataValue(gCurKeyType,gCurKeyID,"UserId",uid);
+
+              netkey.SetCoolKeyDataValue(gCurKeyType,gCurKeyID,"Password",pwd);
+
+          } catch(e) {
+              alert("Error Setting data values: " + e);
+          }
+
+      }
+
+  }
+
+}
+      
+  
+function MyGetErrorMessage(status_code)
+{
+
+ var result = "Internal Server Error";
+
+  if(status_code < 0 && status_code >= Status_Messages.length)
+  {
+     return result;
+      
+  }   
+      
+  return Status_Messages[status_code];
+      
+}   
+
+function KeyToRowID(keyType, keyID)
+{
+  return keyType + "--" + keyID;
+}
+
+function RowIDToKeyInfo(rowID)
+{
+  return rowID.split("--");
+}
+
+function GetRowForKey(keyType, keyID)
+{
+  return document.getElementById(KeyToRowID(keyType, keyID));
+}
+
+function ReportException(msg, e)
+{
+  alert(msg + " " + e.description + "(" + e.number + ")");
+}
+
+function GetCOOLKeyStatus(keyType, keyID)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    return netkey.GetCoolKeyStatus(keyType, keyID);
+  } catch (e) {
+    ReportException("netkey.GetCOOLKeyStatus() failed!", e);
+    return 0;
+  }
+}
+
+function GetCOOLKeyPolicy(keyType, keyID)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    return netkey.GetCoolKeyPolicy(keyType, keyID);
+  } catch (e) {
+  //  ReportException("netkey.GetCOOLKeyPolicy() failed!", e);
+    return "";
+  }
+}
+
+function GetCOOLKeyRequiresAuth(keyType, keyID)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    return netkey.GetCoolKeyRequiresAuthentication(keyType, keyID);
+  } catch(e) {
+    ReportException("netkey.GetCoolKeyRequiresAuthentication() failed!", e);
+    return false;
+  }
+}
+
+function GetCOOLKeyIsAuthed(keyType, keyID)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    return netkey.GetCoolKeyIsAuthenticated(keyType, keyID);
+  } catch(e) {
+    ReportException("netkey.GetCoolKeyIsAuthenticated() failed!", e);
+    return false;
+  }
+}
+
+function GetAvailableCOOLKeys()
+{
+  try {
+    var keyArr;
+
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+      var inArray = netkey.GetAvailableCoolKeys( {} );
+      keyArr = new Array(inArray.length);
+      var i;
+
+      for (i=0; i < keyArr.length; i++) {
+	keyArr[i] = new Array( "1", inArray[i]);
+      }
+    } else {
+      keyArr = ConvertVariantArrayToJScriptArray(netkey.GetAvailableCoolKeys());
+
+      var i;
+      for (i=0; i < keyArr.length; i++)
+        keyArr[i] = ConvertVariantArrayToJScriptArray(keyArr[i]);
+    }
+    return keyArr;
+  } catch(e) {
+    ReportException("netkey.GetAvailableCoolKeys() failed!", e);
+    return [];
+  }
+}
+
+function ChallengeCOOLKey(keyType, keyID, data)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    return ConvertVariantArrayToJScriptArray(netkey.ChallengeCoolKey(keyType, keyID, data));
+  } catch(e) {
+    ReportException("netkey.ChallengeCoolKey() failed!", e);
+    return [];
+  }
+}
+
+function EnrollCOOLKey(keyType, keyID, enrollmentType, screenname, pin,screennamepwd,tokencode)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    netkey.EnrollCoolKey(keyType, keyID, enrollmentType, screenname, pin,screennamepwd,tokencode);
+  } catch(e) {
+    ReportException("netkey.EnrollCoolKey() failed!", e);
+    return false;
+  }
+
+  return true;
+}
+
+function GetCOOLKeyIsEnrolled(keyType, keyID)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    return netkey.GetCoolKeyIsEnrolled(keyType, keyID);
+  } catch(e) {
+    ReportException("netkey.GetCoolKeyIsEnrolled() failed!", e);
+    return false;
+  }
+}
+
+function ResetCOOLKeyPIN(keyType, keyID, screenname, pin,screennamepwd)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    netkey.ResetCoolKeyPIN(keyType, keyID, screenname, pin,screennamepwd);
+  } catch(e) {
+    ReportException("netkey.ResetCoolKeyPIN() failed! Make sure token is properly Enrolled.", e);
+    return false;
+  }
+  return true;
+}
+function FormatCOOLKey(keyType, keyID, type, screenname, pin,screennamepwd,tokencode)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    netkey.FormatCoolKey(keyType, keyID, type, screenname, pin,screennamepwd,tokencode);
+  } catch(e) {
+    ReportException("netkey.FormatCoolKey() failed!", e);
+    return false;
+  }
+  return true;
+}
+
+function CancelCOOLKeyOperation(keyType, keyID)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    netkey.CancelCoolKeyOperation(keyType, keyID);
+  } catch(e) {
+    ReportException("netkey.CancelCoolKeyOperation() failed!", e);
+    return false;
+  }
+  return true;
+}
+
+function BlinkCOOLKey(keyType, keyID, rate, duration)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    netkey.BlinkCoolKey(keyType, keyID, rate, duration);
+  } catch(e) {
+    ReportException("netkey.BlinkCoolKey() failed!", e);
+    return false;
+  }
+  return true;
+}
+
+function RequestServiceTicket(screenName, serviceName)
+{
+  try {
+    if (!isMSHTML) {
+      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+    }
+    netkey.RequestServiceTicket(screenName, serviceName);
+  } catch(e) {
+    ReportException("netkey..RequestServiceTicket() failed!", e);
+    return false;
+  }
+
+  return true;
+}
+
+//
+// MSHTML/GECKO compatibility functions.
+//
+function RemoveRow(table, row)
+{
+  if (isMSHTML) {
+    row.removeNode(row);
+  } else {
+    table.deleteRow(row.rowIndex);
+  }
+}
+
+function GetCell(row, index)
+{
+  var cell;
+
+  if (isMSHTML) {
+    cell = row.cells(index);
+  } else {
+    cell = row.cells[index];
+  }
+  return cell;
+}
+
+function GetNode(parent, index)
+{
+  var node;
+  if (isMSHTML) {
+    node = parent.childNodes(index);
+  } else {
+    node = parent.childNodes[index];
+  }
+  return node;
+}
+
+function InsertRow(table)
+{
+  var row;
+
+  if (isMSHTML) {
+    row = table.insertRow();
+  } else {
+    row = table.insertRow(table.rows.length);
+  }
+  return row;
+}
+
+function InsertCell(row)
+{
+  var cell;
+
+  if (isMSHTML) {
+    cell = row.insertCell();
+  } else {
+    cell = row.insertCell(row.cells.length);
+  }
+  return cell;
+}
+
+function RemoveAllChildNodes(parent)
+{
+  var numChildren = parent.childNodes.length;
+  var i;
+
+  i = numChildren;
+  while (numChildren)
+  {
+    parent.removeChild(GetNode(parent,0));
+    numChildren--;
+  }
+
+}
+
+
+function UpdateInfoForKeyID(keyType, keyID, keyStatus, reqAuth, isAuthed)
+{
+  var row = GetRowForKey(keyType, keyID);
+
+  if (!row)
+    return;
+
+  var cell = GetCell(row,1)
+  RemoveAllChildNodes(cell);
+  cell.appendChild(document.createTextNode(keyStatus));
+
+//  cell = GetCell(row,2);
+ // RemoveAllChildNodes(cell);
+ // cell.appendChild(document.createTextNode(reqAuth));
+
+ // cell = GetCell(row,3);
+ // RemoveAllChildNodes(cell);
+ // cell.appendChild(document.createTextNode(isAuthed));
+}
+
+function GetStatusForKeyID(keyType, keyID)
+{
+  var keyStatus = "BLANK";
+
+  var status;
+
+  try {
+    status = GetCOOLKeyStatus(keyType, keyID);
+  } catch(e) {
+    status = 0;
+  }
+
+  switch (status) {
+    case 0: // Unavailable
+      keyStatus = "UNAVAILABLE";
+      break;
+    case 1: // AppletNotFound
+      keyStatus = "NO APPLET";
+      break;
+    case 2: // Uninitialized
+      keyStatus = "UNINITIALIZED";
+      break;
+    case 3: // Unknown
+      keyStatus = "UNKNOWN";
+      break;
+    case 4: // Available
+    case 6: // UnblockInProgress
+    case 7: // PINResetInProgress
+    case 8: // RenewInProgress
+      keyStatus = PolicyToKeyType(GetCOOLKeyPolicy(keyType, keyID));
+      break;
+    case 5: // EnrollmentInProgress
+      keyStatus = "BUSY";
+      break;
+      break;
+    case 9: // FormatInProgress
+      keyStatus = "BUSY";
+      break;
+  }
+
+  return keyStatus;
+}
+
+function GetKeyStatusForKeyID(keyType, keyID)
+{
+  var row = GetRowForKey(keyType, keyID);
+
+  if (!row)
+    return "UNKNOWN";
+
+  var cell = GetCell(row,1);
+  return GetNode(cell,0).data;
+}
+
+function InsertCOOLKeyIntoBindingTable(keyType, keyID)
+{
+  var row = GetRowForKey(keyType, keyID);
+
+  if (!row)
+  {
+    var table = document.getElementById("BindingTable");
+    if (table)
+    {
+      var keyStatus = GetStatusForKeyID(keyType, keyID);
+      var keyReqAuth = BoolToYesNoStr(GetCOOLKeyRequiresAuth(keyType, keyID));
+      var keyIsAuthed = BoolToYesNoStr(GetCOOLKeyIsAuthed(keyType, keyID));
+
+      row = CreateTableRow(table, keyType, keyID, keyStatus, keyReqAuth, keyIsAuthed);
+    }
+
+    if (!row)
+      return null;
+  }
+
+  return row;
+}
+
+function ConvertVariantArrayToJScriptArray(varr)
+{
+  // C++ native methods, like netkey.GetAvailableCOOLKeys(), can only
+  // return variant SafeArrays, so to access the data inside, you must
+  // first convert it to a VBArray, and then call toArray() to convert
+  // it to a JScript array. Lame, but that's what it takes to
+  // use an array returned from an ActiveX component.
+
+  return new VBArray(varr).toArray();
+}
+
+function UpdateBindingTableAvailability()
+{
+  var arr = GetAvailableCOOLKeys();
+
+  if (!arr || arr.length < 1)
+    return;
+
+  var i;
+
+  for (i=0; i < arr.length; i++)
+  {
+    InsertCOOLKeyIntoBindingTable(arr[i][0], arr[i][1]);
+
+    if (!gCurrentSelectedRow)
+      SelectRowByKeyID(arr[i][0], arr[i][1]);
+  }
+}
+
+function InitializeBindingTable()
+{
+  UpdateBindingTableAvailability();
+  UpdateButtonStates();
+ // document.getElementById("snametf").value = gScreenName;
+}
+
+function KeyIsPresent(keyType, keyID)
+{
+  row = document.all.item(keyType, keyID);
+
+  if (!row)
+    return false;
+
+  return true;
+}
+
+function SetStatusMessage(str)
+{
+  var cell = document.getElementById("statusMsg");
+
+  if (!cell)
+    return;
+  RemoveAllChildNodes(cell);
+  cell.appendChild(document.createTextNode(str));
+}
+
+function UpdateButtonStates()
+{
+  if (gKeyEnrollmentType == "deviceKey")
+  {
+  //  document.getElementById("snametf").disabled = true;
+  //  document.getElementById("pintf").disabled = true;
+   // document.getElementById("reenterpintf").disabled = true;
+  //  document.getElementById("snamepwd").disabled = true;
+  }
+  else
+  {
+ //   document.getElementById("snametf").disabled = false;
+  //  document.getElementById("pintf").disabled = false;
+  //  document.getElementById("reenterpintf").disabled = false;
+  //  document.getElementById("snamepwd").disabled = false;
+  }
+
+  if (gCurrentSelectedRow)
+  {
+    var keyInfo = RowIDToKeyInfo(gCurrentSelectedRow.getAttribute("id"));
+    var keyType = keyInfo[0];
+    var keyID = keyInfo[1];
+    var keyStatus = GetKeyStatusForKeyID(keyType, keyID);
+
+    var validKey = (keyStatus == "NETKEY" || keyStatus == "HOUSEKEY");
+  //  document.getElementById("challengebtn").disabled = !validKey;
+   // document.getElementById("blinkbtn").disabled = false;
+    document.getElementById("enrollbtn").disabled = false;
+    //document.getElementById("formatbtn").disabled = false;
+//    document.getElementById("resetpinbtn").disabled = !((keyStatus == "NETKEY") && (gKeyEnrollmentType == "userKey"));
+//document.getElementById("resetpinbtn").disabled = !((gKeyEnrollmentType == "userKey"));
+  }
+  else
+  {
+    document.getElementById("enrollbtn").disabled = true;
+    //document.getElementById("resetpinbtn").disabled = true;
+    //document.getElementById("formatbtn").disabled = true;
+   // document.getElementById("challengebtn").disabled = true;
+    //document.getElementById("blinkbtn").disabled = true;
+  }
+
+  refresh();
+}
+
+function SetEnrollmentType(type)
+{
+  gKeyEnrollmentType = type;
+  UpdateButtonStates();
+}
+
+function FindRow(node)
+{
+  while (node && node.tagName != "TR")
+  {
+    node = node.parentNode;
+  }
+
+  return node;
+}
+
+function SelectRow(row)
+{
+  if (!row || gCurrentSelectedRow == row)
+    return;
+
+  if (gCurrentSelectedRow)
+    gCurrentSelectedRow.removeAttribute("style");
+
+  gCurrentSelectedRow = row;
+  gCurrentSelectedRow.style.backgroundColor="rgb(200,200,200)";
+  UpdateButtonStates();
+}
+
+function SelectRowByKeyID(keyType, keyID)
+{
+  var row = GetRowForKey(keyType, keyID);
+  SelectRow(row);
+}
+
+function DoSelectRow(event)
+{
+  var row;
+
+  if (isMSHTML) {
+    row = FindRow(window.event.srcElement);
+  } else {
+    row = FindRow(event.parentNode);
+  }
+  SelectRow(row);
+}
+
+function KeyToUIString(keyType, keyID)
+{
+  // If it's an COOLKey, format the keyID string.
+
+  if (keyType == 1 && keyID.length == 20)
+  {
+    var re = /([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})/i;
+    keyID = keyID.replace(re, "$1-$2-$3-$4-$5").toLowerCase();
+  }
+
+  return keyID;
+}
+
+
+
+function CreateTableRow(table, keyType, keyID, keyStatus, reqAuth, isAuthed)
+{
+
+  var row = InsertRow(table);
+  if (!row)
+    return null;
+
+  row.setAttribute("id", KeyToRowID(keyType, keyID));
+
+ 
+  if (isMSHTML) {
+     row.onclick = DoSelectRow;
+  }
+
+  // Create the key ID cell.
+  cell = InsertCell(row);
+  cell.appendChild(document.createTextNode(KeyToUIString(keyType, keyID)));
+
+  cell.setAttribute("onClick", "DoSelectRow(this);");
+
+  // Create the keyStatus cell.
+  cell = InsertCell(row);
+  cell.appendChild(document.createTextNode(keyStatus));
+
+  // Create the requires auth cell.
+ // cell = InsertCell(row);
+ // cell.appendChild(document.createTextNode(reqAuth));
+
+  // Create the is auth'ed cell.
+ // cell = InsertCell(row);
+  //cell.appendChild(document.createTextNode(isAuthed));
+
+  // Create the status bar cell
+  cell = InsertCell(row);
+
+  var progressMeter = document.createElement("div");
+  progressMeter.setAttribute("id", KeyToProgressBarID(keyType, keyID));
+  progressMeter.className = "ProgressMeter";
+  progressMeter.style.width = "100px";
+  progressMeter.style.height = "1.5em";
+  progressMeter.setAttribute("value", 0);
+
+  var progressBar = document.createElement("div");
+  progressBar.className = "ProgressBar";
+  progressBar.style.width = "0px";
+  progressBar.style.height = "100%";
+  progressBar.style.visibility = "hidden";
+
+  var progressBarStatus = document.createElement("div");
+  progressBarStatus.className = "ProgressBarStatus";
+  progressBarStatus.appendChild(document.createTextNode(""));
+
+  progressMeter.appendChild(progressBar);
+  progressMeter.appendChild(progressBarStatus);
+  cell.appendChild(progressMeter);
+
+  return row;
+}
+
+gAnimationMSecs = 1000/30;
+
+function SetCylonTimer(cylonID, cylonEyeID)
+{
+  setTimeout("AnimateCylonStatusBar(\"" + cylonID +
+             "\", \"" + cylonEyeID + "\");", gAnimationMSecs);
+}
+
+function AnimateCylonStatusBar(cylonID, cylonEyeID)
+{
+  var cylon = document.getElementById(cylonID);
+
+  if (!cylon)
+    return;
+
+  var active = cylon.getAttribute("cylonactive");
+
+  if (!active)
+    return;
+
+  var eye = document.getElementById(cylonEyeID);
+
+  if (!eye)
+    return;
+
+  var dir = eye.getAttribute("direction");
+  var wid = parseInt(eye.style.width);
+  var cywid = parseInt(cylon.style.width);
+  var left = parseInt(eye.style.left);
+
+  var dx = 10;
+
+  if (!dir || dir >= 0)
+  {
+    left += dx;
+
+    if (left + wid > cywid)
+    {
+      left = cywid - wid;
+      eye.setAttribute("direction", "-1");
+    }
+  }
+  else
+  {
+    left -= dx;
+
+    if (left < 0)
+    {
+      left = 0;
+      eye.setAttribute("direction", "1");
+    }
+  }
+
+  eye.style.left = left + "px";
+
+  SetCylonTimer(cylonID, cylonEyeID);
+}
+
+function StartCylonAnimation(cylonID, cylonEyeID)
+{
+  var cylon = document.getElementById(cylonID)
+
+  if (!cylon)
+    return;
+
+  var active = cylon.getAttribute("cylonactive");
+
+  if (!active)
+  {
+    cylon.setAttribute("cylonactive", "true");
+
+    var eye = document.getElementById(cylonEyeID);
+    if (eye)
+    {
+      eye.style.left = "0px";
+      eye.style.visibility = "visible";
+    }
+
+    SetCylonTimer(cylonID, cylonEyeID);
+  }
+}
+
+function StopCylonAnimation(cylonID, cylonEyeID)
+{
+  var cylon = document.getElementById(cylonID)
+
+  if (cylon)
+    cylon.removeAttribute("cylonactive");
+
+  var eye = document.getElementById(cylonEyeID);
+
+  if (eye)
+    eye.style.visibility = "hidden";
+}
+
+function GetProgressMeterValue(progMeterID)
+{
+  var progMeter = document.getElementById(progMeterID);
+
+  if (!progMeter)
+    return -1;
+
+  return parseInt(progMeter.getAttribute("value"));
+}
+
+function SetProgressMeterValue(progMeterID, value)
+{
+  var progMeter = document.getElementById(progMeterID);
+
+  if (!progMeter || value < 0)
+    return;
+
+  if (value > 100)
+    value = 100;
+
+  var progBar = progMeter.firstChild;
+
+  if (value == 0)
+  {
+    progBar.style.width = "0px";
+    progBar.style.visibility = "hidden";
+    progMeter.setAttribute("value", 0);
+    return;
+  }
+
+  progBar.style.visibility = "visible"; 
+
+  var newWidth = parseInt(progMeter.style.width) * value / 100 - 2;
+
+  progBar.style.width =  newWidth + "px";
+  progMeter.setAttribute("value", value);
+}
+
+function SetProgressMeterStatus(progMeterID, statusMsg)
+{
+  var progMeter = document.getElementById(progMeterID);
+
+  if (!progMeter)
+    return;
+
+  var progBar = progMeter.firstChild;
+
+  // If it exists, the meter status should be
+  // div that is the next sibling of the progressMeter.
+
+  var meterStatus = progBar.nextSibling;
+
+  // Just replace the data in the text node, it's much faster,
+  // and reduces flashing!
+
+  meterStatus.firstChild.replaceData(0, meterStatus.firstChild.length, statusMsg);
+}
+
+function ClearProgressBar(progMeterID)
+{
+  SetProgressMeterValue(progMeterID, 0);
+  SetProgressMeterStatus(progMeterID, "");
+}
+
+function KeyToProgressBarID(keyType, keyID)
+{
+  return "PM" + keyType + "-" + keyID;
+}
+
+////////////////////////////////////////////////////////////////
+//
+// Functions that contact the server or talk directly to
+// ASC native code.
+//
+// ASC Native Functions:
+//
+//     netkey.GetAvailableCOOLKeys()
+//
+//       - Returns an ActiveX Variant SafeArray containing the ID for each key
+//         that is currentlly plugged into the computer. Before accessing any
+//         data in this array you must convert it to a JScript Array with a
+//         call to ConvertVariantArrayToJScriptArray().
+//
+//     netkey.GetCOOLKeyIsEnrolled(keyType, keyID)
+//
+//       - Returns true if a key has been initialized, false if it hasn't.
+//         Initialized means the card has been formatted with certificates
+//         for either an COOL HouseKey or NetKey.
+//
+//     netkey.EnrollCOOLKey(keyType, keyID, enrollmentType, screenName, pin)
+//
+//       - Initiates an async connection to the RA to initialize a specific
+//         key. If you want the key to be initialized as a HouseKey, you should
+//         pass "houseKey" as the enrollmentType, and null values for both
+//         screenName and pin. For a NetKey, use "netKey" as the enrollmentType,
+//         and pass a valid screenName and pin.
+//
+//     netkey.ChallengeCOOLKey(keyType, keyID, data)
+//
+//       - Signs some data with the specified key, and returns the results
+//         in an AcviteX Variant SafeArray. Before accessing any data in
+//         this array, you must convert it to a JScript Array with a
+//         call to ConvertVariantArrayToJScriptArray(). The elements in the
+//         array are as follows:
+//
+//             array[0] --> Length of the signed challenge data in binary form.
+//             array[1] --> The signed challenge data as hex.
+//             array[0] --> Length of the nonce data in binary form.
+//             array[0] --> The nonce data as hex.
+//
+//     netkey.BlinkCOOLKey(keyType, keyID, rate, duration)
+//
+//       - Make a specific key blink at a given rate for a given duration.
+//         rate and duration are specified in milliseconds.
+//
+////////////////////////////////////////////////////////////////
+
+function GetScreenNameValue()
+{
+  var sname = document.getElementById("snametf").value;
+
+  if (! sname)
+  {
+    alert("You must provide a valid screen name!");
+    return null;
+  }
+
+  return sname;
+}
+
+function GetPINValue()
+{
+  var pinVal =  document.getElementById("pintf").value;
+  var rpinVal =  document.getElementById("reenterpintf").value;
+
+  if (! pinVal)
+  {
+    alert("You must provide a valid Token PIN!");
+    return null;
+  }
+
+  if ( pinVal != rpinVal)
+  {
+    alert("The PIN values you entered don't match!");
+    return null;
+  }
+
+  return pinVal;
+}
+
+function GetScreenNamePwd()
+{
+
+  var pwd = document.getElementById("snamepwd").value;
+
+   if(!pwd)
+   {
+       alert("You must provide a valid User Password!");
+       return null;
+   }
+   return pwd;
+}
+
+function GetTokenCode()
+{
+
+  return null;
+}
+function DoEnrollCOOLKey()
+{
+
+  if (!gCurrentSelectedRow)
+  {
+    alert("Please select a key.");
+    return;
+  }
+
+ if(!Validate())
+     return;
+
+  var keyInfo = RowIDToKeyInfo(gCurrentSelectedRow.getAttribute("id"));
+  var keyType = keyInfo[0];
+  var keyID = keyInfo[1];
+
+  var type = gKeyEnrollmentType;
+  var screenname = null;
+  var pin = null;
+
+  var screennamepwd = null;
+  var tokencode = null;
+
+  if (type == "userKey")
+  {
+    screenname =  null; //GetScreenNameValue();
+
+    pin =  GetPINValue();
+
+
+    screennamepwd = null; // GetScreenNamePwd();
+
+
+    tokencode = GetTokenCode();
+
+    SetStatusMessage("Enrolling UserKey \"" + KeyToUIString(keyType, keyID) + "\"...");
+  }
+  else
+    SetStatusMessage("Enrolling DeviceKey \"" + KeyToUIString(keyType, keyID) + "\"...");
+
+  StartCylonAnimation("cylon1", "eye1");    
+
+  if (!EnrollCOOLKey(keyType, keyID, type, screenname, pin,screennamepwd,tokencode))
+  {
+    SetStatusMessage("");
+    StopCylonAnimation("cylon1", "eye1");
+  }
+}
+
+function DoResetSelectedCOOLKeyPIN()
+{
+  if (!gCurrentSelectedRow)
+    return;
+
+  if(!Validate())
+     return;
+
+   //alert("In DoResetSelectedCOOLKeyPIN!");
+  var keyInfo = RowIDToKeyInfo(gCurrentSelectedRow.getAttribute("id"));
+  var keyType = keyInfo[0];
+  var keyID = keyInfo[1];
+
+  var screenname = null;
+  var pin = null;
+  var screennamepwd = null;
+
+  if (GetCOOLKeyIsEnrolled(keyType, keyID))
+  {
+ 
+    SetStatusMessage("Resetting PIN for \"" + keyID + "\"...");
+    StartCylonAnimation("cylon1", "eye1");
+
+    if (!ResetCOOLKeyPIN(keyType, keyID, screenname, pin,screennamepwd))
+    {
+      SetStatusMessage("");
+      StopCylonAnimation("cylon1", "eye1");
+    }
+  }
+}
+
+function DoFormatCOOLKey()
+{
+  if (!gCurrentSelectedRow)
+    return;
+
+
+  if(!Validate())
+     return;
+
+
+  var keyInfo = RowIDToKeyInfo(gCurrentSelectedRow.getAttribute("id"));
+  var keyType = keyInfo[0];
+  var keyID = keyInfo[1];
+
+  var type = gKeyEnrollmentType;
+  var screenname = null;
+  var pin = null;
+
+  var screennamepwd = null;
+  var tokencode = null;
+
+  SetStatusMessage("Formatting \"" + KeyToUIString(keyType, keyID) + "\" ...");
+  StartCylonAnimation("cylon1", "eye1");
+
+  if (!FormatCOOLKey(keyType, keyID, type, screenname, pin,screennamepwd,tokencode))
+  {
+    SetStatusMessage("");
+    StopCylonAnimation("cylon1", "eye1");
+  }
+}
+function DoCancelOperation()
+{
+
+  if (!gCurrentSelectedRow)
+    return;
+
+  var keyInfo = RowIDToKeyInfo(gCurrentSelectedRow.getAttribute("id"));
+  var keyType = keyInfo[0];
+  var keyID = keyInfo[1];
+
+  SetStatusMessage("Cancel operation for \"" + KeyToUIString(keyType, keyID) + "\" ...");
+  StartCylonAnimation("cylon1", "eye1");
+
+  CancelCOOLKeyOperation(keyType, keyID);
+
+  SetStatusMessage("");
+  StopCylonAnimation("cylon1", "eye1");
+}
+
+function DoChallengeSelectedKey()
+{
+  if (!gCurrentSelectedRow)
+    return;
+
+  var keyInfo = RowIDToKeyInfo(gCurrentSelectedRow.getAttribute("id"));
+  var keyType = keyInfo[0];
+  var keyID = keyInfo[1];
+
+  if (!keyID)
+    return;
+
+  SetStatusMessage("Generating Challenge ...");
+
+  var challengeArray = ChallengeCOOLKey(keyType, keyID, document.forms[0].challengedata.value);
+
+  if (challengeArray.length != 4)
+  {
+    alert("Challenge for key \"" + KeyToUIString(keyType, keyID) + "\" failed!");
+    SetStatusMessage("");
+    return;
+  }
+
+  alert("ChallengeCOOLKey(\""+ KeyToUIString(keyType, keyID) + "\") returned:\n\n" +
+        "challenge[0]: " + challengeArray[0] + "\n" +
+        "challenge[1]: " + challengeArray[1] + "\n" +
+        "challenge[2]: " + challengeArray[2] + "\n" +
+        "challenge[3]: " + challengeArray[3] + "\n");
+
+  SetStatusMessage("");
+}
+
+function DoBlinkCOOLKey()
+{
+  if (!gCurrentSelectedRow)
+    return;
+
+  var keyInfo = RowIDToKeyInfo(gCurrentSelectedRow.getAttribute("id"));
+  var keyType = keyInfo[0];
+  var keyID = keyInfo[1];
+
+  if (!keyID)
+    return;
+
+  SetStatusMessage("Blinking \"" + KeyToUIString(keyType, keyID) + "\" ...");
+  StartCylonAnimation("cylon1", "eye1");
+
+  BlinkCOOLKey(keyType, keyID, 400, 5000);
+
+  StopCylonAnimation("cylon1", "eye1");
+  SetStatusMessage("");
+}
+
+function OnCOOLKeyBlinkComplete(keyType,keyID)
+{
+  //StopCylonAnimation("cylon1", "eye1");
+  //SetStatusMessage(" ");
+}
+
+function DoHelp()
+{
+  if (!gCurrentSelectedRow)
+    return;
+
+  var keyInfo = RowIDToKeyInfo(gCurrentSelectedRow.getAttribute("id"));
+  var keyType = keyInfo[0];
+  var keyID = keyInfo[1];
+
+  if (!keyID)
+    return;
+
+  var policy = GetCOOLKeyPolicy(keyType, keyID);
+  var type = PolicyToKeyType(policy);
+  alert("Policy:  " + policy + "\n" + "Type:    " + type);
+}
+
+////////////////////////////////////////////////////////////////
+//
+// Functions called directly from ASC native code.
+//
+////////////////////////////////////////////////////////////////
+
+function OnCOOLKeyInserted(keyType, keyID)
+{
+  var row = InsertCOOLKeyIntoBindingTable(keyType, keyID);
+
+  if (!gCurrentSelectedRow)
+    SelectRowByKeyID(keyType, keyID);
+}
+
+
+function OnCOOLKeyRemoved(keyType, keyID)
+{
+  var row = GetRowForKey(keyType, keyID);
+  var table = document.getElementById("BindingTable");
+
+  if (row && table)
+  {
+    RemoveRow(table,row);
+
+    if (row == gCurrentSelectedRow)
+      gCurrentSelectedRow = null;
+  }
+
+  UpdateButtonStates();
+}
+
+var gKnownPolicies = [
+
+  // OID Value, precedence, name value
+
+  [ "OID.1.3.6.1.4.1.1066.1.1000.1.0.1.1", 1, "HOUSEKEY" ], // Bronze   - HouseKey
+  [ "OID.1.3.6.1.4.1.1066.1.1000.1.0.1.2", 2, "NETKEY" ],   // Silver   - Member
+  [ "OID.1.3.6.1.4.1.1066.1.1000.1.0.1.3", 3, "NETKEY" ],   // Gold     - Associate
+  [ "OID.1.3.6.1.4.1.1066.1.1000.1.0.1.4", 4, "NETKEY" ],   // Platinum - MyDoctor
+
+  // XXX: Remove the Old OIDs below, after the RA starts generating
+  //      certificates with the OIDs listed above!
+  [ "OID.1.3.6.1.4.1.1066.1.1000.2.1", 1, "HOUSEKEY" ], // Bronze   - HouseKey
+  [ "OID.1.3.6.1.4.1.1066.1.1000.2.2", 2, "NETKEY" ],   // Silver   - Member
+  [ "OID.1.3.6.1.4.1.1066.1.1000.2.3", 3, "NETKEY" ],   // Gold     - Associate
+  [ "OID.1.3.6.1.4.1.1066.1.1000.2.4", 4, "NETKEY" ]    // Platinum - MyDoctor
+];
+
+function PolicyToKeyType(policy)
+{
+   return "ENROLLED";
+}
+
+function OldPolicyToKeyType(policy)
+{
+  var i, j;
+  
+  var knownPoliciesIndex = -1;
+
+  
+  var policies;
+
+
+  if (policy.indexOf(",")== -1)
+  {
+    policies = new Array(1);
+    policies[0] = policy;
+  }
+  else
+  {
+    policies = policy.split(",");
+  }
+
+  for (j = 0; j < policies.length; j++)
+  {
+    for (i = 0; i < gKnownPolicies.length; i++)
+    {
+      if (gKnownPolicies[i][0] == policies[j])
+      {
+         if (knownPoliciesIndex < gKnownPolicies[i][1])
+           knownPoliciesIndex = i;
+      }
+    }  
+  }
+
+  if (knownPoliciesIndex == -1)
+    return "INITIALIZED";
+ 
+  return gKnownPolicies[knownPoliciesIndex][2];    
+}
+
+function BoolToYesNoStr(b)
+{
+  if (b)
+    return "YES";
+  return "NO";
+}
+
+function OnCOOLKeyEnrollmentComplete(keyType, keyID)
+{
+  var keyStatus = PolicyToKeyType(GetCOOLKeyPolicy(keyType, keyID));
+  var keyReqAuth = BoolToYesNoStr(GetCOOLKeyRequiresAuth(keyType, keyID));
+  var keyIsAuthed = BoolToYesNoStr(GetCOOLKeyIsAuthed(keyType, keyID));
+
+  UpdateInfoForKeyID(keyType, keyID, keyStatus, keyReqAuth, keyIsAuthed);
+  UpdateButtonStates();
+
+  StopCylonAnimation("cylon1", "eye1");
+  SetStatusMessage("");
+  alert("Enrollment for \"" + KeyToUIString(keyType, keyID) + "\" was successful!");
+  ClearProgressBar(KeyToProgressBarID(keyType, keyID));
+}
+
+function OnCOOLKeyPINResetComplete(keyType, keyID)
+{
+  var keyStatus = PolicyToKeyType(GetCOOLKeyPolicy(keyType, keyID));
+  var keyReqAuth = BoolToYesNoStr(GetCOOLKeyRequiresAuth(keyType, keyID));
+  var keyIsAuthed = BoolToYesNoStr(GetCOOLKeyIsAuthed(keyType, keyID));
+
+  UpdateInfoForKeyID(keyType, keyID, keyStatus, keyReqAuth, keyIsAuthed);
+  UpdateButtonStates();
+
+  StopCylonAnimation("cylon1", "eye1");
+  SetStatusMessage("");
+  alert("PIN Reset was successful!");
+  ClearProgressBar(KeyToProgressBarID(keyType, keyID));
+}
+
+function OnCOOLKeyFormatComplete(keyType, keyID)
+{
+  var keyStatus = GetStatusForKeyID(keyType, keyID);
+  var keyReqAuth = BoolToYesNoStr(GetCOOLKeyRequiresAuth(keyType, keyID));
+  var keyIsAuthed = BoolToYesNoStr(GetCOOLKeyIsAuthed(keyType, keyID));
+
+  UpdateInfoForKeyID(keyType, keyID, keyStatus, keyReqAuth, keyIsAuthed);
+
+  StopCylonAnimation("cylon1", "eye1");
+  SetStatusMessage("");
+  alert("Format of \"" + KeyToUIString(keyType, keyID)+ "\" was successful!");
+  ClearProgressBar(KeyToProgressBarID(keyType, keyID));
+}
+
+function OnCOOLKeyStateError(keyType, keyID, keyState, errorCode)
+{
+  var keyStatus = GetStatusForKeyID(keyType, keyID);
+  var keyReqAuth = BoolToYesNoStr(GetCOOLKeyRequiresAuth(keyType, keyID));
+  var keyIsAuthed = BoolToYesNoStr(GetCOOLKeyIsAuthed(keyType, keyID));
+
+  if(curChildWindow)
+  {
+      curChildWindow.close();
+      curChildWindow = null;
+
+  }
+
+  UpdateInfoForKeyID(keyType, keyID, keyStatus, keyReqAuth, keyIsAuthed);
+
+  StopCylonAnimation("cylon1", "eye1");
+  SetStatusMessage("");
+
+  var typeStr = "Error(" + errorCode + ")";
+
+  var  messageStr = " \n\n Server Response: " + MyGetErrorMessage(errorCode) ;
+
+  var keyIDStr = KeyToUIString(keyType, keyID);
+
+  if (keyState == 1004)
+    typeStr = "Enrollment of key (" + keyIDStr + ") failed. " + typeStr + messageStr ;
+  else if (keyState == 1016)
+    typeStr = "Formatting of key (" + keyIDStr + ") failed. " + typeStr + messageStr;
+  else if (keyState == 1010)
+    typeStr = "PIN Reset for key (" + keyIDStr + ") failed. " + typeStr + messageStr;
+  else if (keyState == 1020)
+    typeStr = "Operation for key (" + keyIDStr + ") canceled.";
+
+  alert(typeStr);
+  ClearProgressBar(KeyToProgressBarID(keyType, keyID));
+}
+
+function OnCOOLKeyStatusUpdate(progMeterID, statusUpdate)
+{
+  SetProgressMeterValue(progMeterID, statusUpdate);
+  SetProgressMeterStatus(progMeterID, statusUpdate + "%");
+}
+
+function Validate()
+{
+
+  var type = gKeyEnrollmentType;
+  var screenname = null;
+  var pin = null;
+
+  var screennamepwd = null;
+  var tokencode = null;
+
+  if (type == "userKey")
+  {
+//    screenname = GetScreenNameValue();
+//    if (! screenname)
+ //     return 0;
+
+    pin =  GetPINValue();
+
+    if (! pin)
+      return 0;
+
+//    screennamepwd = GetScreenNamePwd();
+
+//    if(! screennamepwd)
+ //       return 0;
+
+   }
+
+   return 1;
+}
+
+function OnCOOLKeyStateChange(keyType, keyID, keyState, data,strData)
+{
+  // alert("KeyID:    " + keyID + "\n" +
+  //       "KeyState: " + keyState + "\n" +
+  //       "Data:     " + data);
+  //alert("State Change ="+keyState);
+
+  switch(keyState)
+  {
+    case 1000: // KeyInserted
+      OnCOOLKeyInserted(keyType, keyID);
+      break;
+    case 1001: // KeyRemoved
+      OnCOOLKeyRemoved(keyType, keyID);
+      break;
+    case 1002: // EnrollmentStart
+      // OnCOOLKeyEnrollmentStart(keyType, keyID);
+      break;
+    case 1003: // EnrollmentComplete
+      OnCOOLKeyEnrollmentComplete(keyType, keyID);
+      break;
+    case 1004: // EnrollmentError
+      OnCOOLKeyStateError(keyType, keyID, keyState, data);
+      break;
+    case 1008: // PINResetStart
+      // OnCOOLKeyPINResetStart(keyType, keyID);
+      break;
+    case 1009: // PINResetComplete
+      OnCOOLKeyPINResetComplete(keyType, keyID);
+      break;
+    case 1010: // PINResetError
+      OnCOOLKeyStateError(keyType, keyID, keyState, data);
+      break;
+    case 1014: // FormatStart
+      // OnCOOLKeyFormatStart(keyType, keyID);
+      break;
+    case 1015: // FormatComplete
+      OnCOOLKeyFormatComplete(keyType, keyID);
+      break;
+    case 1016: // FormatError
+      OnCOOLKeyStateError(keyType, keyID, keyState, data);
+      break;
+    case 1017: // BlinkStatus Update?
+      //OnCOOLKeyStateError(keyType, keyID, keyState, data);
+      break;
+    case 1018: 
+      OnCOOLKeyBlinkComplete(keyType, keyID);
+      break;
+    case 1020: // OperationCancelled
+      OnCOOLKeyStateError(keyType, keyID, keyState, data);
+      break;
+    case 1021: // OperationStatusUpdate
+      OnCOOLKeyStatusUpdate(KeyToProgressBarID(keyType, keyID), data);
+      break;
+
+     case 1022: //Need Auth 
+
+
+       gCurKeyID = keyID;
+       gCurKeyType = keyType;
+
+       GetAuthDataFromPopUp(keyType,keyID,strData);
+
+       break;
+
+  }
+}
+
+function refresh()
+{
+  window.resizeBy(0,1);
+  window.resizeBy(0,-1);
+
+}
+
+</script>
+
+</head>
+<body onload="InitializeBindingTable();" onunload=cleanup()>
+<table width="100%">
+  <tr>
+    <td>
+<img src="../images/logo.gif">
+    </td>
+    <td>
+      <p class="headerText"><a href="esc.cgi?screenname=">Enterprise Security Client</a></p>
+    </td>
+  <tr>
+</table>
+  <br>
+  <table id="BindingTable" width="100%"><tbody>
+    <tr id="HeaderRow">
+      <th><p class="titleText">Key ID</p></th>
+      <th><p class="titleText">Key Status</p></th>
+<!--      <th><p class="titleText">Requires Auth</p></th>
+      <th><p class="titleText">Did Auth</p></th>
+-->
+      <th width="100"><p class="titleText">Progress</p></th>
+    </tr>
+  </tbody></table>
+  <form action="esc.cgi">
+    <input type="hidden" id="action" name="action" value="bind"> 
+    <input type="hidden" id="screenname" name="screenname" value="">
+    <input type="hidden" id="challengedata" name="challengedata" value="QVNDIHJvY2tzIHRoZSBwYXJ0eSE="> 
+    <input type="hidden" id="signedchallenge" name="signedchallenge" value="">
+    <input type="hidden" id="signedchallengelength" name="signedchallengelength" value=""> 
+    <input type="hidden" id="nonce" name="nonce" value="">
+    <input type="hidden" id="noncelength" name="noncelength" value=""> 
+    <input type="hidden" id="keytype" name="keytype" value="">
+    <input type="hidden" id="keyid" name="keyid" value="">
+    <input type="hidden" id="keylabel" name="keylabel" value=""> 
+    <table width=100%>
+      <tr> 
+        <td class="bodyText"> 
+          Select enrollment type: <input checked type="radio" id="keytype" name="keytype" value="userKey" onClick="SetEnrollmentType('userKey');">UserKey
+        </td> 
+      </tr> 
+    </table>
+    <table>
+      <tr> 
+        <td><p class="bodyText">Token PIN:</p></td>
+        <td><input type="password" id="pintf" id="pintf" name="pintf" value=""></td>
+        <td><p class="bodyText">Re-Enter PIN:</p></td>
+        <td><input type="password" id="reenterpintf" id="reenterpintf" name="reenterpintf" value=""></td>
+      </tr>
+    </table>
+    <br>
+    <table width="100%">
+      <tr>
+        <td valign="center" align="left">
+          <input type="button" id="enrollbtn" name="enrollbtn" value="Enroll" onClick="DoEnrollCOOLKey();">
+          <input type="button" id="canclebtn" name="canclebtn" value="Cancel" onClick="DoCancelOperation();">
+        </td>
+      </tr>
+    </table>
+    <table width="100%">
+      <tr>
+      <!--  <td valign="center" align="right">
+          <h5><a href="esc.cgi?">Enterprise Security  Admin Page</a></h5>
+        </td> -->
+      </tr>
+    </table>
+  </form>
+  <table width="100%">
+    <tr>
+      <td valign="center" align="left" style="width: 200px;">
+        <div id="cylon1" class="cylon" style="width: 200px; height: 10px;">
+          <div id="eye1" class="cylonEye" style="top: 0px; left: 0px; width: 28px; height: 8px; visibility: hidden;"></div>
+        </div>
+      </td>
+      <td valign="center" align="left" id="statusMsg"></td>
+    </tr>
+  </table>
+</body></html>

@@ -1,0 +1,137 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Certificate Profile
+</font><br>
+  <Font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<p>
+</font>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif"
+width="100%">
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<script language=javascript>
+
+var autoImport = 'false';
+
+if (errorCode == 0) { // processed
+  document.write('Congratulations, your request has been processed successfully ');
+  document.writeln('<P>');
+  for (var i = 0; i < requestListSet.length; i++) {
+    document.write('Your request ID is ');
+    document.write('<B>'+requestListSet[i].requestId+'</B>.');
+    document.writeln('<P>');
+  }
+  document.writeln('<b>');
+  document.writeln('Outputs');
+  document.writeln('</b>');
+  document.writeln('<P>');
+  document.writeln('<table width=100%>');
+for (var i = 0; i < outputListSet.length; i++) {
+    document.writeln('<tr valign=top>');
+    document.writeln('<td>');
+    document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">'
+);
+    document.writeln('<li>');
+    document.writeln(outputListSet[i].outputName);
+    document.writeln('</FONT>');
+    document.writeln('</td>');
+    document.writeln('<tr valign=top>');
+    document.writeln('</tr>');
+    document.writeln('<td>');
+    if (outputListSet[i].outputSyntax == 'string') {
+      document.writeln(outputListSet[i].outputVal);
+    } else if (outputListSet[i].outputSyntax == 'pretty_print') {
+      document.writeln('<pre>');
+      document.writeln(outputListSet[i].outputVal);
+      document.writeln('</pre>');
+    }
+    document.writeln('</td>');
+    document.writeln('</tr>');
+}
+   document.writeln('</table>');
+   document.writeln('<p>');
+  document.writeln('<table width=100%>');
+    document.writeln('<tr valign=top>');
+    document.writeln('<td>');
+    document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">'
+);
+    document.writeln('<li>');
+    document.writeln('Certificate Imports');
+    document.writeln('</FONT>');
+    document.writeln('</td>');
+   for (var i = 0; i < requestListSet.length; i++) {
+    document.writeln('<tr valign=top>');
+    document.writeln('<td>');
+if (autoImport == 'true') {
+    // only support one certificate import
+   var loc = "getCertFromRequest?requestId="+ requestListSet[i].requestId + "&importCert=true";
+   document.write("<iframe width='0' height='0' src='"+loc+"' </iframe>");
+} else {
+    document.writeln('<form method=post action="getCertFromRequest">');
+ if (navigator.appName == "Netscape") {
+    document.writeln('<input type=hidden name=importCert value=true>');
+ } else {
+    document.writeln('<input type=hidden name=importCert value=false>');
+ }
+    document.writeln('<input type=hidden name=requestId value=' + requestListSet[i].requestId + '>');
+    document.writeln('<input type=submit name="Import Certificate" value="Import Certificate">');
+    document.writeln('</form>');
+}
+    document.writeln('</td>');
+    document.writeln('</tr>');
+   }
+   document.writeln('</table>');
+} else if (errorCode == 1) { // not submitted
+  document.write('Sorry, your request is not submitted. The reason is "' + errorReason + '".');
+} else if (errorCode == 2) { // pending
+  document.write('Congratulations, your request has been successfully ');
+  document.write('submitted. ');
+  document.write('Your request will be processed when an authorized agent ');
+  document.writeln('verifies and validates the information in your request.');
+  document.writeln('<P>');
+  for (var i = 0; i < requestListSet.length; i++) {
+    document.write('Your request ID is ');
+    document.write('<B><a href="checkRequest?requestId=');
+    document.write(requestListSet[i].requestId);
+    document.write('">'+requestListSet[i].requestId+'</a></B>.');
+    document.writeln('<P>');
+  }
+  document.write('Your can check on the status of your request with ');
+  document.write('an authorized agent or local administrator ');
+  document.writeln('by referring to this request ID.');
+} else if (errorCode == 3) { // rejected
+  document.write('Sorry, your request has been rejected. The reason is "' + errorReason + '"');
+  document.writeln('<P>');
+  for (var i = 0; i < requestListSet.length; i++) {
+    document.write('Your request ID is ');
+    document.write('<B>'+requestListSet[i].requestId+'</B>.');
+    document.writeln('<P>');
+  }
+} else { // unknown state
+  document.write('Sorry, your request is not submitted. The error code is "' + errorReason + '".');
+}
+</script>
+</font>
+</html>

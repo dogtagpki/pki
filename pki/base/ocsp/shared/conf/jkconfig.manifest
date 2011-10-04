@@ -1,0 +1,2 @@
+Main-Class: org.apache.jk.config.WebXml2Jk
+Class-Path: tomcat-jk2.jar commons-logging.jar crimson.jar xercesImpl.jar xmlApis.jar tomcat-util.jar log4j.jar log4j-core.jar

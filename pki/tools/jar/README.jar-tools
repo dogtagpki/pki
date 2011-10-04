@@ -1,0 +1,281 @@
+Q: What does jar-query do?
+
+A: It scans a set of directories containing jars, it opens every jar
+   it finds and records the classes in that jar. It stores that
+   information and permits queries to be run against it.
+
+Q: What kind of information can jar-query give me?
+
+A: * Given a class list which jars provide it
+
+   * Given an import specification list which jars provide the
+     classes which match the specification
+
+   * List which classes appear in more than one jar
+     (e.g. multiple definitions) and which jars they appear in.
+
+   * For classes with multiple definitions determine which classes have
+     the same implementation (e.g. a copy) and which have different
+     implementations (typically different versions).
+
+   * Show the symbolic links which point to a given jar (full link
+     traversal).
+
+   * List which RPM provides a given jar.
+
+   * List closed set of which jars and RPM's are necessary to resolve
+     a set of classes (e.g. what jars/RPMs are necessary to build/run)
+
+Q: Can jar-query give me information about jars not installed on my
+   system? 
+
+A: No. If the jar isn't installed or isn't in the set of directories
+   jar-query is told to scan no information will be available for
+   those classes. This is a little bit of a chicken and egg problem,
+   you might not know you need to install a jar that contains a class
+   you need. Not much can be done about that though.
+
+Q: What does java-imports do?
+
+A: It locates a set of Java source files in one or more directories
+   and extracts the import specifications from each source file. It
+   then lists on stdout the set of unique import specifications. This
+   is useful as input to jar-query.
+
+Q: What kind of information can java-imports give me?
+
+A: * The unique import specifications across a collection of java
+     files.
+
+   * The list of java files each unique import specification appears
+     in.
+
+   * The list of java files given a set of directories and exclude
+     filters (e.g. the files it will scan)
+
+Q: How do I control which java files java-imports scans?
+
+A: There are 3 basic controls. The set of paths provided on the
+   command line. A path may be either a plain java file or a
+   directory. The -r (--recursive) argument controls whether directories
+   are recursively scanned or not. One or more exclude regular
+   expressions can be provided via the -x (--exclude) argument. The
+   regular expression is tested against each path candidate, if any of
+   the exclude regular expressions match the path is discarded.
+
+Q: Which directories does jar-query scan and can I modify that?
+
+A: By default jar-query scans the system default jar directory and the
+   system default jni directory. Running jar-query with the help
+   argument (-h) will print these out. You can add any number of
+   additional directories to scan with the -d (--dir) argument. If you
+   don't want to include the default directories you can specify the
+   -D (--clear-dirs) argument which will zero out the existing
+   directory list, then add your directories with one or more -d
+   arguments.
+
+Q: I want jar-query to ignore some jars, can I do that?
+
+A: Yes. Use the -x (--exclude) argument. It is a regular expression
+   pattern applied to a jar path name, if any of the exclude regular
+   expressions match the jar will be ignored. Multiple exclude
+   patterns may be specified.
+
+Q: How does jar-query handle symbolic links?
+
+A: It's common for a directory to have symbolic links which point jar
+   files. Typically this occurs when an unversioned name
+   (e.g. foo.jar) points to a specific jar version
+   (e.g. foo-1.2.jar). Sometimes links are established for backward
+   compatibility when jar names change.
+
+   jar-query is designed to tell you the ACTUAL jar file a class is
+   located in. Which one of the (many) links which point to it are
+   usually not of interest and would complicate the
+   reporting. Therefore jar-query never gives link names, it always
+   does a full link traversal and reports only the ACTUAL jar
+   file. However, sometimes it's useful to know how an ACTUAL jar file
+   is pointed to by various links. You can use the -L (--links)
+   argument which will dump out the link traversal information for
+   every ACTUAL jar file located.
+
+Q: How are class names matched in jar-query?
+
+A: By default the match is done as if the class is a import
+   specification with support for wildcards
+   (e.g. org.company.util.*). If the -R (--regexp) argument is
+   provided matches are done using a general purpose regular
+   expression. In the special case of interactive use class names will
+   auto-complete (via TAB) up to the next dot.
+
+Q: jar-query must build a database of class information each time it's
+   run, that's a somewhat expensive operation and the data seldom
+   changes. Can I put jar-query in a mode where after it builds it's
+   database it sits waiting for me to enter individual queries?
+
+A: Yes. Use the -I (--interactive) argument. After the database is
+   built it will prompt you on the command line for a class to
+   query. You may use TAB to auto-complete the class name. Each TAB
+   will complete up to the next dot (.) in the class path.
+
+Tutorial examples of how to use these tools:
+--------------------------------------------
+
+Let's say we have Java application and need to know which jars must be
+present to satisfy the class loading. Here is how you might tackle
+that problem. We'll use the example of pki-core. First we need to
+determine the imports used in the source code, java-imports can do
+this for us. We might do something like this:
+
+$ java-imports                       \
+  -x /test/                          \
+  -r                                 \
+  ~/src/dogtag/pki/base/setup        \
+  ~/src/dogtag/pki/base/symkey       \
+  ~/src/dogtag/pki/base/native-tools \
+  ~/src/dogtag/pki/base/util         \
+  ~/src/dogtag/pki/base/java-tools   \
+  ~/src/dogtag/pki/base/common       \
+  ~/src/dogtag/pki/base/selinux      \
+  ~/src/dogtag/pki/base/ca           \
+  ~/src/dogtag/pki/base/silent       \
+  > ~/pkicore-imports
+
+This instructs java-imports to recursively scan (-r) the set of source
+code directories comprising pki-core, but exclude any java file in a
+test directory. The result is written to ~/pkicore-imports and we'll
+show you a partial snippet below:
+
+com.netscape.certsrv.*
+com.netscape.certsrv.acls.*
+com.netscape.certsrv.apps.*
+com.netscape.certsrv.apps.CMS
+com.netscape.certsrv.authentication.*
+com.netscape.certsrv.authentication.AuthCredentials
+com.netscape.certsrv.authentication.AuthToken
+
+Now we want to know which jars and RPM's provide those classes,
+jar-query will help do this. Let's develop a strategy. As a first cut
+we could do this:
+
+$ jar-query -d /usr/share/java/pki `cat ~/pkicore-imports`
+
+This adds the pki specific jar directory to the jar search path and
+performs a query for every import statement we located earlier. Looking
+at the output we see some immediate problems, there are more than one
+jar providing some of the classes, which one do we want?
+
+If we add the -m argument that will list only classes which have
+multiple definitions and which jars they occur in.
+
+$ jar-query -m -d /usr/share/java/pki `cat ~/pkicore-imports`
+
+Some examples might be:
+
+org.w3c.dom.Document
+    /usr/share/java/libgcj-4.4.4.jar
+    /usr/share/java/xml-commons-apis-1.4.01.jar
+
+com.ibm.wsdl.util.StringUtils
+    /usr/share/java/qname-1.5.2.jar
+    /usr/share/java/wsdl4j-1.5.2.jar
+
+junit.framework.TestCase
+    /usr/share/java/junit-3.8.2.jar
+    /usr/share/java/junit4-4.6.jar
+
+O.K. so we run jar-query again and ask it to compare the class
+implementations for the duplicates using the -M argument
+
+$ jar-query -M -d /usr/share/java/pki `cat ~/pkicore-imports`
+
+For the above examples this is what it reports:
+
+comparing org.w3c.dom.Document
+        equal /usr/share/java/libgcj-4.4.4.jar /usr/share/java/xml-commons-apis-1.4.01.jar
+
+comparing com.ibm.wsdl.util.StringUtils
+        equal /usr/share/java/qname-1.5.2.jar /usr/share/java/wsdl4j-1.5.2.jar
+
+comparing junit.framework.TestCase
+    not equal /usr/share/java/junit-3.8.2.jar /usr/share/java/junit4-4.6.jar
+
+One thing to notice is that libgcj appears frequently in the duplicate
+list and is somewhat of a kitchen sink providing copies of many
+classes. We never explicitly include libgcj directly anyway. So let's
+exclude libgcj from consideration by providing this argument to
+jar-query: -x libgcj the next time.
+
+qname-1.5.2.jar and wsdl4j-1.5.2.jar both provide copies of the same
+classes, they both have the same version number, thus we can conclude
+they are synonyms for one another and we should pick which we'll use.
+
+Ah, but junit-3.8.2.jar and junit4-4.6.jar are not providing the same
+implementation of the class and we notice they have different versions
+embedded in their jar names. Thus we can conclude multiple versions of
+a jar have been installed and we must be careful to pick the jar whose
+version matches our needs.
+
+O.K. So armed with this knowledge lets try it again, we'll exclude the
+libgcj jar (-x libgcj) and ask for RPM information (-r) and summary
+information (-s):
+
+$ jar-query -s -r -d /usr/share/java/pki -x libgcj `cat ~/pkicore-imports`
+
+The summary is listed below:
+
+Summary:
+21 Unique Jar's
+     /usr/lib/jss/jss4-4.2.6.jar
+     /usr/lib/osutil/osutil-2.0.0.jar
+     /usr/lib/symkey/symkey-9.0.0.jar
+     /usr/share/java/jakarta-taglibs-core-1.1.1.jar
+     /usr/share/java/ldapbeans-4.18.jar
+     /usr/share/java/ldapfilt-4.18.jar
+     /usr/share/java/ldapjdk-4.18.jar
+     /usr/share/java/pki-console-2.0.0.jar
+     /usr/share/java/pki/certsrv-9.0.0.jar
+     /usr/share/java/pki/cms-9.0.0.jar
+     /usr/share/java/pki/cmscore-9.0.0.jar
+     /usr/share/java/pki/cmsutil-9.0.0.jar
+     /usr/share/java/pki/nsutil-9.0.0.jar
+     /usr/share/java/tomcat5-jsp-2.0-api-5.5.27.jar
+     /usr/share/java/tomcat5-servlet-2.4-api-5.5.27.jar
+     /usr/share/java/tomcat6-jsp-2.1-api-6.0.26.jar
+     /usr/share/java/tomcat6-servlet-2.5-api-6.0.26.jar
+     /usr/share/java/velocity-1.6.3.jar
+     /usr/share/java/xerces-j2-2.9.0.jar
+     /usr/share/java/xml-commons-apis-1.4.01.jar
+     /usr/share/java/xml-commons-apis-ext-1.4.01.jar
+15 Unique RPM's
+     jakarta-taglibs-standard
+     jss
+     ldapjdk
+     osutil
+     pki-common
+     pki-console
+     pki-symkey
+     pki-util
+     tomcat5-jsp-2.0-api
+     tomcat5-servlet-2.4-api
+     tomcat6-jsp-2.1-api
+     tomcat6-servlet-2.5-api
+     velocity
+     xerces-j2
+     xml-commons-apis
+
+What this is telling us is that there are 21 jars which provide all
+the classes needed to satisfy the import statements. However there may
+be some duplicates in the list. Also because of wildcard import
+statements some classes and hence jars may have been included which
+are not actually utilized in the code.
+
+Those 21 jars are provided by the 15 RPM's listed. Once again there
+may be some class duplication and/or unnecessary RPM's due to
+wildcarding. But this gives a very small manageable list to manually
+pick through and make our choices. For example, one thing we can
+immediately see is that both tomcat5-servlet-2.4-api and
+tomcat6-servlet-2.5-api appear in the list, we clearly need only one
+version and pick the one for the version of tomcat we're targeting,
+hence tomcat6-servlet-2.5-api, same applies to tomcat6-jsp-2.1-api.
+

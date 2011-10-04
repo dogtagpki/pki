@@ -1,0 +1,13 @@
+Index: base/native-tools/src/tkstool/tkstool.c
+===================================================================
+--- base/native-tools/src/tkstool/tkstool.c	(revision 2181)
++++ base/native-tools/src/tkstool/tkstool.c	(revision 2182)
+@@ -866,7 +866,7 @@
+     /* Initialize NSS */
+     /******************/
+ 
+-    rvNSSinit = NSS_Initialize( SECU_ConfigDirectory( NULL ),
++    rvNSSinit = NSS_Initialize( DBDir,
+                                 DBPrefix,
+                                 DBPrefix,
+                                 "secmod.db",

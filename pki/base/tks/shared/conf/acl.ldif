@@ -1,0 +1,30 @@
+# --- BEGIN COPYRIGHT BLOCK ---
+# Copyright (C) 2006 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+dn: cn=aclResources,{rootSuffix}
+objectClass: top
+objectClass: CertACLS
+cn: aclResources
+resourceACLS: certServer.general.configuration:read,modify,delete:allow (read) group="Administrators" || group="Auditors" || group="Token Key Service Manager Agents";allow (modify,delete) group="Administrators":Administrators, auditors, and agents are allowed to read CMS general configuration but only administrators are allowed to modify and delete
+resourceACLS: certServer.acl.configuration:read,modify:allow (read) group="Administrators" || group="Auditors" || group="Token Key Service Manager Agents";allow (modify) group="Administrators":Administrators, agents and auditors are allowed to read ACL configuration but only administrators allowed to modify
+resourceACLS: certServer.log.configuration:read,modify:allow (read) group="Administrators" || group="Auditors" || group="Token Key Service Manager Agents";allow (modify) group="Administrators":Administrators, Agents, and auditors are allowed to read the log configuration but only administrators are allowed to modify
+resourceACLS: certServer.log.configuration.fileName:read,modify:allow (read) group="Administrators" || group="Auditors" || group="Token Key Service Manager Agents";deny (modify) user=anybody:Nobody is allowed to modify a fileName parameter
+#resourceACLS: certServer.log.configuration.signedAudit.expirationTime:read,modify:allow (read) group="Administrators" || group="Auditors" || group="Token Key Service Manager Agents";deny (modify) user=anybody:Nobody is allowed to modify an expirationTime parameter
+resourceACLS: certServer.log.content.signedAudit:read:allow (read) group="Auditors":Only auditor is allowed to read the signed audit log
+resourceACLS: certServer.log.content.system:read:allow (read) group="Administrators" || group="Auditors" || group="Token Key Service Manager Agents":Administrators, auditors, and agents are allowed to read the log content
+resourceACLS: certServer.log.content.transactions:read:allow (read) group="Administrators" || group="Auditors" || group="Token Key Service Manager Agents":Administrators, auditors, and agents are allowed to read the log content
+resourceACLS: certServer.auth.configuration:read,modify:allow (read) group="Administrators" || group="Auditors" || group="Token Key Service Manager Agents";allow (modify) group="Administrators":Administrators, agents, and auditors are allowed to read authentication configuration but only administrators allowed to modify
+resourceACLS: certServer.registry.configuration:read,modify:allow (read) group="Administrators" || group="Auditors" || group="Token Key Service Manager Agents";allow (modify) group="Administrators":this acl is shared by all admin servlets
+resourceACLS: certServer.admin.certificate:import:allow (import) user="anybody":Any user may import a certificate
+resourceACLS: certServer.admin.request.enrollment:submit,read,execute:allow (submit) user="anybody":Anybody may submit an enrollment request
+resourceACLS: certServer.tks.systemstatus:read:allow (read) group="Token Key Service Manager Agents":Token Key Service Manager agents may view statistics
+resourceACLS: certServer.tks.group:read,modify:allow (modify,read) group="Administrators";allow (read) group="Token Key Service Manager Agents":Only administrators are allowed to modify groups
+resourceACLS: certServer.tks.encrypteddata:execute:allow (execute) group="Token Key Service Manager Agents":Token Key Service Manager agents may execute encrypted data information servlet
+resourceACLS: certServer.tks.keysetdata:execute:allow (execute) group="Token Key Service Manager Agents":Token Key Service Manager agents may execute key set data information servlet
+resourceACLS: certServer.tks.sessionkey:execute:allow (execute) group="Token Key Service Manager Agents":Token Key Service Manager agents may execute session key servlet
+resourceACLS: certServer.tks.randomdata:execute:allow (execute) group="Token Key Service Manager Agents":Token Key Service Manager agents may execute random data servlet
+resourceACLS: certServer.tks.registerUser:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators":Only Enterprise Administrators are allowed to register a new agent
+resourceACLS: certServer.tks.importTransportCert:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators":Only Enterprise Administrators are allowed to import transport certificate
+resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators":Only Enterprise Administrators are allowed to clone the configuration.

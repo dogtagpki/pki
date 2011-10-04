@@ -1,0 +1,224 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<style type="text/css">
+
+.floating {
+  position: absolute;
+  left: 250px;
+  top: 50px;
+  width: 600px;
+  padding: 3px;
+  border: solid;
+  border-width: 5px;
+  background: white;
+  display: none;
+  margin: 5px;
+}
+</style>
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+
+function showcert(element, event)
+{
+  var x = event.clientX;
+  var y = event.clientY;
+
+  var content = element.getAttribute("content");
+  var content_d = element.getAttribute("content_desc");
+
+  if (content == null) { return false; }
+
+  var n = element.getAttribute("n");
+
+  var editableType = element.getAttribute("editableType");
+  var desc;
+  var d;
+  var c;
+  if (editableType == "cert")
+  {
+    d = document.getElementById(n+"_editCertDiv");
+    c = document.getElementById(n+"_text");
+    desc = document.getElementById(n+"_desc_t");
+  } else if (editableType == "certchain") {
+    d = document.getElementById(n+"_editCertChainDiv");
+    c = document.getElementById(n+"_cc_text");
+    desc = document.getElementById(n+"_cc_desc_t");
+  } else {
+    d = document.getElementById(n+"_showCertDiv");
+    c = document.getElementById(n+"_pre");
+    desc = document.getElementById(n+"_desc_p");
+  }
+
+  if (desc.hasChildNodes())
+  {
+    desc.removeChild(desc.childNodes[0]);
+  }
+  var content_desc = document.createTextNode(content_d);
+  desc.appendChild(content_desc);
+    
+  if (c.hasChildNodes())
+  {
+    c.removeChild(c.childNodes[0]);
+  }
+  var content_text = document.createTextNode(content);
+  c.appendChild(content_text);
+    
+  d.style.left = x+30; // x-offset of floating div
+  assumedheight = 1000;
+
+  var offset = 20;     // extra y-offset of floating div
+  var bottom =  y + offset + assumedheight;
+  if (bottom > window.innerHeight) {
+     offset = 0 - (2*offset) - assumedheight;
+  }
+
+  d.style.top = y+ offset +document.body.scrollTop;
+
+  // unhide the window
+  d.style.display ="block";
+
+}
+
+function hide(tag)
+{
+    document.getElementById(tag+"_showCertDiv").style.display ="none";
+    document.getElementById(tag+"_editCertDiv").style.display ="none";
+    document.getElementById(tag+"_editCertChainDiv").style.display ="none";
+}
+
+</SCRIPT>
+A certificate signing request (CSR) contains a public key and is an unsigned copy of the certificate.
+<p>
+If a given CSR has been successfully signed by a CA, then the certificate will be designated below by a certificate icon labeled Certificate Generated Successfully.
+<p>
+However, if a given CSR contains an <font color="red">action required</font> label under its certificate icon, then those requests must be <i>manually</i> submitted to a CA for certificate generation.
+<p>
+Press the [Apply] button after certificates and chains are pasted in.
+<p>
+Press the [Next] button once all certificates have been generated successfully.
+<p>
+#foreach ($item in $reqscerts)
+<H2>$item.getDN()</H2>
+<table width=100%>
+<tr>
+  <td width=10%></td>
+  <td width=20%></td>
+  <td width=70%></td>
+</tr>
+
+<tr>
+  <td>&nbsp;</td>
+#if ($item.getCert() == "...paste certificate here...") 
+  <td><font color=red>action required</font><br>
+<img src="../img/no-certificate.png"/></td>
+#else
+  #if ($item.getCert() == "...certificate be generated internally...")
+<td>
+  <img src="../img/no-certificate.png"/><br>
+  certificate will be generated internally
+  </td>
+  #else
+    #if ($item.getCert() == "")
+  <td>
+<img src="../img/no-certificate.png"/><br>
+  No Certificate Generated. Please import.<br>
+  </td>
+    #else
+  <td>
+<img src="../img/certificate.png"/><br>
+  Certificate Generated Successfully
+  </td>
+    #end
+  #end
+#end
+
+<td>
+
+
+#if ($item.getCert() == "...paste certificate here...") 
+<a content="$item.getRequest()" content_desc="Copy the following Certificate Request (CSR) and paste it in the external CA enrollment page for enrollment" n="$item.getCertTag()" href="#" onclick="showcert(this,event);"> Step 1: Copy the Certificate Request (CSR) to enroll at an external CA</a><p>
+<a content="" content_desc="Copy the base64-encoded PKCS #7 certificate chain into the text box below and press 'X'" n="$item.getCertTag()" editableType="certchain" href="#" onclick="showcert(this,event);"> Step 2: Import the PKCS #7 Certificate Chain (optional if the certificate already contains the chain)</a><p>
+<a content="$item.getCert()" content_desc="Copy the resulting base64-encoded certificate (NOTE: PKCS #7 not accepted) into the text box below and press 'X'" n="$item.getCertTag()" editableType="cert" href="#" onclick="showcert(this,event);"> Step 3: Paste in the Base64-encoded Certificate after enrollment at an external CA (NOTE: this text box does not accept PKCS #7 certificate chains)</a><p>
+#else
+  #if ($item.getCert() == "...certificate be generated internally...")
+<p>
+  #else
+<a content="$item.getRequest()" content_desc="Certificate Request (CSR)" n="$item.getCertTag()" href="#" onclick="showcert(this,event);"> View Certificate Request (CSR)</a><p>
+<a content="$item.getCert()" content_desc="Certificate in Base64 encoding" n="$item.getCertTag()" href="#" onclick="showcert(this,event);"> View Certificate in Base64-Encoding</a><p>
+<a content="$item.getCertpp()" content_desc="Certificate in pretty print" n="$item.getCertTag()" href="#" onclick="showcert(this,event);"> View Certificate Pretty Print</a><p>
+  #end
+#end
+
+
+</td>
+</tr>
+</table>
+                                                                                
+<div id="$item.getCertTag()_showCertDiv" class="floating">
+<div align="right" onclick="hide('$item.getCertTag()');">X</div>
+<table id="$item.getCertTag()_stable" width="100%">
+<tr>
+<td id="$item.getCertTag()_desc_p"></td>
+</tr>
+<tr>
+<td><pre name="$item.getCertTag()" id="$item.getCertTag()_pre">$item.getCert()</pre></td>
+</tr>
+</table>
+</div>
+
+<div id="$item.getCertTag()_editCertDiv" class="floating">
+<div align="right" onclick="hide('$item.getCertTag()');">X</div>
+<table id="$item.getCertTag()_etable" width="100%">
+<tr>
+<td id="$item.getCertTag()_desc_t"></td>
+</tr>
+<tr>
+<td><textarea rows=30 cols=90 name="$item.getCertTag()" id="$item.getCertTag()_text" style="font-family: monospace;">$item.getCert()</textarea></td>
+</tr>
+</table>
+</div>
+
+<div id="$item.getCertTag()_editCertChainDiv" class="floating">
+<div align="right" onclick="hide('$item.getCertTag()');">X</div>
+<table id="$item.getCertTag()_cc_etable" width="100%">
+<tr>
+<td id="$item.getCertTag()_cc_desc_t"></td>
+</tr>
+<tr>
+<td><textarea rows=30 cols=90 name="$item.getCertTag()_cc" id="$item.getCertTag()_cc_text" style="font-family: monospace;"></textarea></td>
+</tr>
+</table>
+</div>
+
+
+#end
+
+    <p>
+
+
+    <div align="right">
+      <hr />
+      &nbsp;
+    </div>

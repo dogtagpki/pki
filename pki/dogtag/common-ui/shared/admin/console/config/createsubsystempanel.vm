@@ -1,0 +1,101 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+<h2>Subsystem Configuration</h2>
+<p>
+#if ($systemType != "tps")
+This instance can be configured as either a new $systemname subsystem or a clone of an existing $systemname. If the cloning option is chosen, please provide the URL to an existing $systemname instance.
+#else
+This instance can be configured as a new $systemname subsystem.
+#end
+<br/>
+#if ($errorString != "")
+<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<p>
+<b><input $check_newsubsystem type=radio name=choice value="newsubsystem">&nbsp;Configure this Instance as a New $systemname Subsystem </b>
+<br/>
+    <table class="details">
+      <tr>
+        <th>Subsystem Name: </th>
+        <td><input type=text size="40" name="subsystemName" value="$subsystemName"> (e.g. - $fullsystemname)</td>
+      </tr>
+      <tr>
+        <th>Subsystem HTTP EE URL (unsecure): </th>
+        <td>http://$machineName:$http_port</td>
+      </tr>
+      <tr>
+        <th>Subsystem HTTPS Agent URL (clientauth): </th>
+        <td>https://$machineName:$https_agent_port</td>
+      </tr>
+      <tr>
+        <th>Subsystem HTTPS EE URL (non-clientauth): </th>
+        <td>https://$machineName:$https_ee_port</td>
+      </tr>
+      <tr>
+        <th>Subsystem HTTPS Admin URL (non-clientauth): </th>
+        <td>https://$machineName:$https_admin_port</td>
+      </tr>
+    </table>
+<p>
+#if ($disableClone == "true")
+<b><input $check_clonesubsystem type=radio name=choice value="clonesubsystem" disabled="disabled">&nbsp;Clone an Existing $systemname Subsystem </b>
+#else
+<b><input $check_clonesubsystem type=radio name=choice value="clonesubsystem">&nbsp;Clone an Existing $systemname Subsystem </b>
+#end
+<br/>
+    <table class="details">
+      <tr>
+        <th>Subsystem Name: </th>
+#if ($disableClone == "true")
+        <td><input disabled="disabled" type=text size="40" name="subsystemName" value="$subsystemName"> (e.g. - $fullsystemname Clone 1)</td>
+#else
+        <td><input type=text size="40" name="subsystemName" value="$subsystemName"> (e.g. - $fullsystemname Clone 1)</td>
+#end
+      </tr>
+      <tr>
+        <th>Subsystem URL: </th>
+#if ($disableClone == "true")
+        <td><select name="urls" disabled="disabled">
+#else
+        <td><select name="urls">
+#end
+           #if ($urls.size() > 0) 
+           #set ($x=0)
+           #foreach ($p in $urls)
+               <option value="$x">$p</option>
+               #set ($x=$x+1)
+           #end
+           #else
+               <option selected value="none">NONE</option>
+           #end
+        </select>
+        </td>
+      </tr>
+    </table>
+<br/>

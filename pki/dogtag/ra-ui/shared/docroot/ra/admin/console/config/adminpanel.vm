@@ -1,0 +1,237 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT ID=Send_OnClick type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+#if ($import == 'true' && $clone != 'clone')
+    var email = document.forms[0].email.value;
+    var name = document.forms[0].name.value;
+    var o = '$securityDomain';
+    if (name == '') {
+        alert("Name is empty");
+        return;
+    }
+    if (email == '') {
+        alert("Email is empty");
+        return;
+    }
+    var dn = "cn=" + name + ",uid=admin,e="+email+",o="+o;
+    document.forms[0].subject.value = dn;
+    var keyGenAlg = "rsa-dual-use";
+
+    if (navigator.appName == "Netscape" &&
+      typeof(crypto.version) != "undefined") {
+
+        crmfObject = crypto.generateCRMFRequest(
+          dn, "regToken", "authenticator", null,
+          "setCRMFRequest();", 1024, null, keyGenAlg);
+    } else {
+        Send_OnClick();
+    }
+#else
+    with (document.forms[0]) {
+        submit();
+    }
+#end
+}
+
+function setCRMFRequest()
+{
+    with (document.forms[0]) {
+        cert_request.value = crmfObject.request;
+        submit();
+    }
+}
+
+</SCRIPT>
+<SCRIPT type="text/VBS">
+<!--
+
+Sub Send_OnClick
+  Dim TheForm
+  Dim szName
+  Set TheForm = Document.f
+
+
+  ' Contruct the X500 distinguished name
+  szName = "CN=NAME"
+
+  ' IE doesnt like the dn containing the O component
+
+  On Error Resume Next
+  Enroll.HashAlgorithm = "MD5"
+  Enroll.KeySpec = 1
+
+   Enroll.providerType = 1
+   Enroll.providerName = "Microsoft Base Cryptographic Provider v1.0"
+
+   ' adding 2 to "GenKeyFlags" will  enable the 'High Security'
+   ' (USER_PROTECTED) mode, which means IE will pop up a dialog
+   ' asking what level of protection the user would like to give
+   ' the key - this varies from 'none' to 'confirm password
+   ' every time the key is used'
+  Enroll.GenKeyFlags = 1        ' key PKCS12-exportable
+  szCertReq = Enroll.createPKCS10(szName, "1.3.6.1.5.5.7.3.2")
+
+  theError = Err.Number
+  On Error Goto 0
+  '
+  ' If the user has cancelled things the we simply ignore whatever
+  ' they were doing ... need to think what should be done here
+  '
+  If (szCertReq = Empty AND theError = 0) Then
+    Exit Sub
+  End If
+  If (szCertReq = Empty OR theError <> 0) Then
+    '
+    ' There was an error in the key pair generation. The error value
+    ' is found in the variable 'theError' which we snarfed above before
+    ' we did the 'On Error Goto 0' which cleared it again.
+    '
+    sz = "The error '" & Hex(theError) & "' occurred." & chr(13) & chr(10) & "The credentials could not be generated."
+    result = MsgBox(sz, 0, "Credentials Enrollment")
+    Exit Sub
+  End If
+
+  TheForm.cert_request.Value = szCertReq
+  TheForm.cert_request_type.Value = "pkcs10"
+  TheForm.subject.Value = "cn=" & TheForm.name.Value & ",uid=" & TheForm.uid.Value & ",e=" & TheForm.email.Value & ",o=" & TheForm.securitydomain.Value
+
+  TheForm.Submit
+  Exit Sub
+
+End Sub
+
+-->
+</SCRIPT>
+
+<SCRIPT type="text/VBS">
+<!--
+FindProviders
+
+Function FindProviders
+        Dim i, j
+        Dim providers()
+        i = 0
+        j = 1
+        Dim el
+        Dim temp
+        Dim first
+        Dim TheForm
+        Set TheForm = document.f
+        On Error Resume Next
+        first = 0
+
+        Do While True
+        temp = ""
+        Enroll.providerType = j
+        temp = Enroll.enumProviders(i,0)
+        If Len(temp) = 0 Then
+        If j < 1 Then
+          j = j + 1
+          i = 0
+        Else
+          Exit Do
+        End If
+        Else
+        set el = document.createElement("OPTION")
+        el.text = temp
+        el.value = j
+        If temp = "Microsoft Base Cryptographic Provider v1.0" Then
+          first = j
+        End If
+        TheForm.cryptprovider.add(el)
+        If first = 0  Then
+          first = 1
+          TheForm.cryptprovider.selectedIndex = 0
+        Else
+          TheForm.cryptprovider.selectedIndex = first
+        End If
+        i = i + 1
+        End If
+        Loop
+End Function
+
+-->
+</SCRIPT>
+The administrator is a privileged user who manages this subsystem. Please enter the following relevant information, and a certificate request will be automatically generated and submitted. An administrator's entry will be created in the internal database and an administrator's certificate will be imported into this browser automatically in the next panel.
+<br/>
+#if ($errorString != "")
+<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<br/>
+    <br/>
+                                                                                
+    <table class="details">
+      <tr>
+        <th>UID:</th>
+#if ($clone != 'clone')
+        <td><input type=text name=uid value="$admin_uid"></td>
+#else
+        <td><input type=text name=uid value="$admin_uid" disabled="disabled"></td>
+#end
+      </tr>
+      <tr>
+        <th>Name:</th>
+#if ($clone != 'clone')
+        <td><input size=35 type=text name=name value="$admin_name"></td>
+#else
+        <td><input size=35 type=text name=name value="$admin_name" disabled="disabled"></td>
+#end
+      </tr>
+      <tr>
+        <th>Email:</th>
+#if ($clone != 'clone')
+        <td><input size=35 type=text name=email value="$admin_email"></td>
+#else
+        <td><input size=35 type=text name=email value="$admin_email" disabled="disabled"></td>
+#end
+      </tr>
+      <tr>
+        <th>Password:</th>
+#if ($clone != 'clone')
+        <td><input type="password" size="40" name="__pwd" value="$admin_pwd" autocomplete="off"/></td>
+#else
+        <td><input type="password" size="40" name="__pwd" value="$admin_pwd" disabled="disabled" autocomplete="off"/></td>
+#end
+      </tr>
+      <tr>
+        <th>Password (Again):</th>
+                                                                              
+#if ($clone != 'clone')
+        <td><input type="password" size="40" name="__admin_password_again" value="$admin_pwd_again" autocomplete="off"/></td>
+#else
+        <td><input type="password" size="40" name="__admin_password_again" value="$admin_pwd_again" disabled="disabled" autocomplete="off"/></td>
+#end
+<input type="hidden" name="cert_request" value=""/>
+<input type="hidden" name="display" value=$displayStr />
+<input type="hidden" name="profileId" value="caAdminCert" />
+<input type="hidden" name="cert_request_type" value="crmf" />
+<input type="hidden" name="import" value=$import />
+<input type="hidden" name="uid" value="admin" />
+<input type="hidden" name="clone" value=$clone />
+<input type="hidden" name="securitydomain" value="$securityDomain" />
+<input type="hidden" name="subject" value="cn=x" />
+      </tr>
+    </table>
+                                                                                     <div align="right">
+      <hr />
+    </div>

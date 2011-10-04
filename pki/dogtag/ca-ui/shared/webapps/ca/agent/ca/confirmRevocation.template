@@ -1,0 +1,212 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<CMS_TEMPLATE>
+<TITLE>Certificate Revocation Confirmation</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT type="text/javascript">
+//<!--
+function validate(form)
+{
+    with (form) {
+		return true;
+	}
+}
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+    sign = "-";
+    number = -number;
+    }
+
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+    absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+function renderDateFromSecs(secs)
+{
+    if (secs == null) return "";
+    var dateTmp = new Date();
+    dateTmp.setTime(secs * 1000);
+    var year = dateTmp.getYear();
+    if (year < 100) {
+        year += 1900;
+    } else {
+        year %= 100;
+        year += 2000;
+    }
+    return (dateTmp.getMonth()+1)+"/"+dateTmp.getDate()+"/"+year;
+}
+//-->
+</SCRIPT>
+</head>
+<body bgcolor="#FFFFFF">
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Certificate Revocation Confirmation</font><br>
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Please confirm certificate revocation by selecting appropriate revocation reason(s) and submitting the form.</font><br><br>
+
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr valign="TOP">
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><b>Important:</b></font></td>
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">When making this
+      request you must use the browser environment in which you have access to your authentication certificate and key. </font></td>
+  </tr>
+</table>
+<br><br>
+
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<b>Certificate Details</b><br>
+The details of the certificate being revoked are below:
+</font>
+<br><br>
+
+<table border="0" cellspacing="2">
+  <tr valign="TOP">
+    <td><font size="-2" face="PrimaSans BT, Verdana, sans-serif">Serial Number:</font></td>
+    <td><font size="-2" face="PrimaSans BT, Verdana, sans-serif">
+<SCRIPT type="text/javascript">
+		  document.write(toHex(result.header.serialNumber));
+</SCRIPT>
+        </font></td>
+  </tr>
+  <tr valign="TOP">
+    <td><font size="-2" face="PrimaSans BT, Verdana, sans-serif">Subject Name:</font></td>
+    <td><font size="-2" face="PrimaSans BT, Verdana, sans-serif">
+<SCRIPT type="text/javascript">
+		  document.write( result.header.subjectName);
+</SCRIPT>
+        </font></td>
+  </tr>
+  <tr valign="TOP">
+    <td><font size="-2" face="PrimaSans BT, Verdana, sans-serif">Valid:</font></td>
+    <td><font size="-2" face="PrimaSans BT, Verdana, sans-serif">
+<SCRIPT type="text/javascript">
+document.write('not before: '+ renderDateFromSecs(result.header.validNotBefore) +' and not after' + renderDateFromSecs(result.header.validNotAfter));
+</SCRIPT>
+        </font></td>
+  </tr>
+</table>
+
+
+<form method="post" action="doRevoke" onSubmit="return validate(document.forms[0])">
+  <table border="0" width="100%" cellspacing="2" cellpadding="2">
+	<tr>
+      <td valign="TOP" colspan="2"><b><font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1">Select Revocation Reason<br>
+        </font></b><font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1">
+        Please select one or more reasons for revocation.</font></td>
+    </tr>
+    <tr>
+      <td>
+        <table border="0" cellspacing="0" cellpadding="0">
+		<tr>
+		  <td width="1%">
+            <input type="RADIO" checked name="revocationReason" value="0">
+		  </td>
+		  <td width="99%"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Unspecified</font></td>
+		  </tr>
+		<tr>
+		  <td width="1%">
+            <input type="RADIO" name="revocationReason" value="1">
+		  </td>
+		  <td width="99%"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key compromised</font></td>
+		  </tr>
+		<tr>
+		  <td width="1%">
+            <input type="RADIO" name="revocationReason" value="2">
+		  </td>
+		  <td width="99%"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">CA Key Compromised</font></td>
+		  </tr>
+		  </tr>
+		<tr>
+		  <td width="1%">
+            <input type="RADIO" name="revocationReason" value="3">
+		  </td>
+		  <td width="99%"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Affiliation changed</font></td>
+	    </tr>
+		<tr>
+		  <td width="1%">
+            <input type="RADIO" name="revocationReason" value="4">
+		  </td>
+		  <td width="99%"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Certificate superceded</font></td>
+	    </tr>
+		<tr>
+		  <td width="1%">
+            <input type="RADIO" name="revocationReason" value="5">
+		  </td>
+		  <td width="99%"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Cessation of operation</font></td>
+	    </tr>
+		<tr>
+		  <td width="1%">
+            <input type="RADIO" name="revocationReason" value="6">
+		  </td>
+		  <td width="99%"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Certificate is on hold</font></td>
+	    </tr>
+		<tr>
+		  <td width="1%">
+            <input type="RADIO" name="revocationReason" value="9">
+		  </td>
+		  <td width="99%"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Privilege withdrawn</font></td>
+	    </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2"><font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"><b>Additional
+        comments if any, regarding this request</b><br>
+        Please write any additional comments directed to the person who will process
+        your certificate request. </font></td>
+    </tr>
+    <tr>
+      <td> 
+        <textarea name="csrRequestorComments" rows="6" cols="39" wrap="virtual">
+</textarea>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#cccccc">
+          <tr>
+            <td>
+              <div> 
+                <input type="submit" value="Submit" name="submit" width="72">
+				<input type="hidden" name="op" value="DoRevocation">
+				<input type="hidden" name="templateType" value="RevocationSuccess">
+                <input type="reset" value="Reset" name="reset" width="72">
+                <input type="button" value="Help" 
+					onclick="help('http://www.redhat.com/docs/manuals/cert-system#Confirming a Revocation')" name="button" width="72">
+<SCRIPT type="text/javascript">
+document.write("<INPUT TYPE=hidden name=serialNumber value=\"" + 
+result.header.serialNumber +"\">");
+</SCRIPT>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  </form>
+</body>
+</html>

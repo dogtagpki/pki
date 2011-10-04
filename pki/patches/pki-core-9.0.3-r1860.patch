@@ -1,0 +1,234 @@
+Index: base/setup/pkiremove
+===================================================================
+--- base/setup/pkiremove	(revision 1859)
++++ base/setup/pkiremove	(revision 1860)
+@@ -50,7 +50,7 @@
+ # invocation directory has not been deleted!
+ my $cwd = `/bin/pwd`;
+ chomp $cwd;
+-if ($cwd eq "") {
++if (!$cwd) {
+     emit("Cannot invoke '$0' from non-existent directory!\n", "error");
+     exit 255;
+ }
+@@ -548,13 +548,13 @@
+     $pki_instance_root = normalize_path($pki_instance_root);
+ 
+     # Check for valid content of command-line arguments.
+-    if ($pki_instance_root eq "") {
++    if (!$pki_instance_root) {
+         emit("$0:  Must have value for -pki_instance_root!", "error");
+         usage();
+         exit 255;
+     }
+ 
+-    if ($pki_instance_name eq "") {
++    if (!$pki_instance_name) {
+         emit("$0:  The instance ID of the PKI instance "
+              . "to be removed is required!", "error");
+         usage();
+Index: base/setup/pkicommon.pm
+===================================================================
+--- base/setup/pkicommon.pm	(revision 1859)
++++ base/setup/pkicommon.pm	(revision 1860)
+@@ -106,7 +106,7 @@
+ # invocation directory has not been deleted!
+ my $cwd = `/bin/pwd`;
+ chomp $cwd;
+-if ($cwd eq "") {
++if (!$cwd) {
+     emit("Cannot invoke '$0' from non-existent directory!\n", "error");
+     exit 255;
+ }
+@@ -1066,7 +1066,7 @@
+     my ($name, $passwd, $uid, $gid, $quota,
+         $comment, $gcos, $dir, $shell, $expire) = getpwnam($username);
+ 
+-    if ($shell eq "") {
++    if (!$shell) {
+         $result = 1;
+     } elsif ($shell eq $sans_shell) {
+         $result = 1;
+@@ -1609,7 +1609,7 @@
+                       $default_system_libraries,
+                       $original_library_path]);
+ 
+-    if ($pwdfile eq "") {
++    if (!$pwdfile) {
+         $command = "$default_certutil_command "
+                  . "-N "
+                  . "-d $instance_path";
+@@ -1686,7 +1686,7 @@
+                       $default_system_libraries,
+                       $original_library_path]);
+ 
+-    if ($pwdfile eq "") {
++    if (!$pwdfile) {
+         $command = "$default_certutil_command "
+                  . "-R "
+                  . "-d $instance_path "
+@@ -1751,7 +1751,7 @@
+                       $default_system_libraries,
+                       $original_library_path]);
+ 
+-    if ($pwdfile eq "") {
++    if (!$pwdfile) {
+         $command = "$default_certutil_command "
+                  . "-S "
+                  . "-d $instance_path "
+@@ -1862,7 +1862,7 @@
+                       $default_system_libraries,
+                       $original_library_path]);
+ 
+-    if ($token ne "") {
++    if ($token) {
+         # Raidzilla Bug #57616 - certutil is not being consistent, nickname 
+         #                        requires token name for no reason.
+         $command = "$default_certutil_command "
+@@ -2993,13 +2993,13 @@
+ 
+     return 1 if $dry_run;
+ 
+-    if ($dir eq "" || !directory_exists($dir)) {
++    if (!$dir || !directory_exists($dir)) {
+         emit("set_owner_group_on_directory_contents(): invalid directory specified.\n",
+               "error");
+         return 0;
+     }
+ 
+-    if ($owner eq "" || $group eq "") {
++    if (!$owner || !$group) {
+         emit("set_owner_group_on_directory_contents(): directory $dir needs a user and group!\n",
+               "error");
+         return 0;
+@@ -3152,7 +3152,7 @@
+ 
+     return 1 if $dry_run;
+ 
+-    if ($symlink eq "") {
++    if (!$symlink) {
+         # symlink is NULL
+         return 1;
+     }
+@@ -3179,13 +3179,13 @@
+ 
+     return 1 if $dry_run;
+ 
+-    if ($symlink eq "" || !symlink_exists($symlink)) {
++    if (!$symlink || !symlink_exists($symlink)) {
+         emit("set_owner_group_on_symlink(): invalid symbolic link specified \"$symlink\"\n",
+               "error");
+         return 1;
+     }
+ 
+-    if ($owner eq "" || $group eq "") {
++    if (!$owner || !$group) {
+         emit("set_owner_group_on_symlink(): symbolic link \"$symlink\" needs a user and group!\n",
+               "error");
+         return 0;
+Index: base/setup/pkicreate
+===================================================================
+--- base/setup/pkicreate	(revision 1859)
++++ base/setup/pkicreate	(revision 1860)
+@@ -60,7 +60,7 @@
+ # invocation directory has not been deleted!
+ my $cwd = `/bin/pwd`;
+ chomp $cwd;
+-if ($cwd eq "") {
++if (!$cwd) {
+     emit("Cannot invoke '$0' from non-existent directory!\n", "error");
+     exit 255;
+ }
+@@ -929,7 +929,7 @@
+ 
+ 
+     ## Mandatory "-pki_instance_root=s" option
+-    if ($pki_instance_root eq "") {
++    if (!$pki_instance_root) {
+         usage();
+         emit("Must have value for -pki_instance_root!\n", "error");
+         return 0;
+@@ -981,7 +981,7 @@
+ 
+ 
+     ## Mandatory "-pki_instance_name=s" option
+-    if ($pki_instance_name eq "") {
++    if (!$pki_instance_name) {
+         usage();
+         emit("Must have value for -pki_instance_name!\n", "error");
+         return 0;
+@@ -1180,8 +1180,8 @@
+ 
+ 
+     ## Optional "-group=<groupname>" option
+-    if (defined $groupname) {
+-        if (!defined $username) {
++    if ($groupname) {
++        if (!$username) {
+             usage();
+             emit("Must ALSO specify user ownership using -user!\n",
+                   "error");
+@@ -1214,8 +1214,8 @@
+ 
+ 
+     ## Optional "-user=<username>" option
+-    if (defined $username) {
+-        if (!defined $groupname) {
++    if ($username) {
++        if (!$groupname) {
+             usage();
+             emit("Must ALSO specify group ownership using -group!\n",
+                   "error");
+@@ -1849,7 +1849,7 @@
+                                   $default_dir_permissions, $pki_user, $pki_group);
+ 
+     # Check for an optionally redirected "conf" directory path ...
+-    if ($redirected_conf_path eq "") {
++    if (!$redirected_conf_path) {
+         $noise_instance_file_path         = $conf_instance_path
+                                           . "/" . $noise_base_name;
+         $password_conf_instance_file_path = $conf_instance_path
+@@ -1953,7 +1953,7 @@
+ 
+ 
+     # Check for an optionally redirected "logs" directory path ...
+-    if ($redirected_logs_path eq "") {
++    if (!$redirected_logs_path) {
+         # create instance directory
+         return 0 if !create_directory(${logs_instance_path},
+                                       $default_dir_permissions, $pki_user, $pki_group);
+@@ -2901,14 +2901,14 @@
+ 
+     emit("configuring SELinux ...\n");
+ 
+-    if ($redirected_logs_path eq "") {
++    if (!$redirected_logs_path) {
+         $log_path = $logs_instance_path;
+     }
+     else {
+         $log_path =$redirected_logs_path;
+     }
+ 
+-    if ($redirected_conf_path eq "") {
++    if (!$redirected_conf_path) {
+         $conf_path = $conf_instance_path;
+     }
+     else {
+@@ -2960,7 +2960,7 @@
+ 
+     # set file context for $log_path
+     $log_path =~ s/\/+$//;
+-    if ($log_path eq "") {
++    if (!$log_path) {
+         emit("Error: Cannot set selinux context $setype" . "_log_t for directory /");
+     } else {
+         if ($log_path ne $default_log_path) {
+@@ -2973,7 +2973,7 @@
+ 
+     # set file context for $conf_path
+     $conf_path =~ s/\/+$//;
+-    if ($conf_path eq "") {
++    if (!$conf_path) {
+         emit("Error: Cannot set selinux context $setype" . "_etc_rw_t for directory /");
+     } else {
+         add_selinux_file_context($setype . "_etc_rw_t", 

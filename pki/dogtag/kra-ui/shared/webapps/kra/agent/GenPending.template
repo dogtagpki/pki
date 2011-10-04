@@ -1,0 +1,61 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<CMS_TEMPLATE>
+
+<TITLE>DRM Agent Request Pending</TITLE>
+
+<BODY bgcolor="white">
+
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Request Successfully Submitted
+</font>
+
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+
+<SCRIPT LANGUAGE="JavaScript">
+var authority = 'Certificate Managment System';
+if (result.fixed.authorityName != null) 
+	authority = result.fixed.authorityName;
+document.writeln('<P>');
+document.write('Congratulations, your request has been successfully ');
+document.write('submitted to the '+authority+'. ');
+document.write('Your request will be processed when an authorized agent ');
+document.writeln('verifies and validates the information in your request.');
+
+document.writeln('<P>');
+document.write('Your request ID is ');
+if (result.fixed.requestId != null) {
+    document.write('<B>'+result.fixed.requestId+'</B>.');
+	document.writeln('<P>');
+	document.write('Your can check on the status of your request with ');
+	document.write('an authorized agent or local administrator ');
+	document.writeln('by referring to this request ID.'); 
+} else {
+    document.write('<B>not provided.</B> ');
+    document.write('<P>');
+	document.writeln('Please consult your local administrator for assistance.');
+}
+</SCRIPT>
+
+</font>
+</BODY>
+</HTML>
+

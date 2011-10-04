@@ -1,0 +1,156 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<TITLE>Request a RA Certificate</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript">
+function validate(form)
+{
+  with (form) {
+	 if (pkcs10Request.value == "")
+	 {
+		alert("You must enter the base64-encoded certificate request.");
+		return false;
+	 }
+     if (csrRequestorName.value == "" || ((csrRequestorEmail.value == "") && (csrRequestorPhone.value == ""))) {
+	alert("You must supply a name and either a phone number or an email address.");
+	return false;
+     }
+  }
+  // form.submit();
+  return true;
+}
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript" SRC="../helpfun.js">
+
+</SCRIPT>
+</head>
+<body bgcolor="#FFFFFF">
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Registration Manager Enrollment (for Registration Manager Administrators) 
+</font><br>
+  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"> 
+  Use this form to submit a request for a Registration Manager's signing 
+  certificate. The Registration Manager will use this certificate to 
+  authenticate itself to the Certificate Manager.
+<p>
+  After you click the Submit button, your request will be submitted to an 
+  issuing agent for approval. The certificate will be emailed to you. 
+</font>
+<form method="post" action="/enrollment/pkcs10-server"
+onSubmit="return validate(document.forms[0])">
+  <table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr> 
+      <td colspan="2" valign="TOP"><font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"><b>PKCS #10 Request</b><br>
+	   A PKCS #10 request is generated during the installation of the 
+	   Registration Manager. <br>Paste the PKCS #10 request into this text area.
+	  </font></td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"></font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <textarea name="pkcs10Request" rows="10" cols="65" wrap="virtual">
+</textarea>
+      </td>
+    </tr>
+    <tr> 
+      <td colspan="2" valign="TOP"><b><font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1">Contact Information<br>
+        </font></b><font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1"> </font></td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Name: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="csrRequestorName" size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Email: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="csrRequestorEmail" size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Phone: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="csrRequestorPhone" size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2">&nbsp;</td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"><b>Additional Comments </b><br>
+        If you have additional comments for the person who will process your 
+		certificate request, write them here.</font></td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"></font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <textarea name="csrRequestorComments" rows="10" cols="65" wrap="virtual">
+</textarea>
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2"> 
+        <table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#cccccc" background="/ca/ee/graphics/gray90.gif">
+          <tr> 
+            <td> 
+              <div align="RIGHT">
+                <input type="submit" value="Submit" name="submit" width="72">
+				<input type="hidden" name="requestFormat" value="pkcs10">
+				<input type="hidden" name="certType" value="ra">
+				<!-- for Netscape Certificate Type Extension -->
+				<input type="HIDDEN" value="true" name="ssl_client">
+				<!-- for Key Usage Extension -->
+				<input type="HIDDEN" name="digital_signature" value=true>
+				<input type="HIDDEN" name="non_repudiation" value=true>
+                <img src="/ca/ee/graphics/spacer.gif" width="6" height="6"> 
+                <input type="reset" value="Reset" name="reset" width="72">
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  </form>
+</body>
+</html>

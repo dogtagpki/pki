@@ -1,0 +1,98 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<TITLE>User Certificate Renewal</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/helpfun.js"> </SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/cms-funcs.js"> </SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/dynamicVars.js"> </SCRIPT>
+</head>
+<body bgcolor="#FFFFFF" onload=checkClientTime()>
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">User Certificate Renewal</font><br>
+  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+  Use this form to renew your certificate automatically. 
+  <p> 
+  After you click the Submit button, a window will pop up with a list of 
+  certificates you can send to the server. Select the 
+  certificate you want to renew from this window. 
+  </font>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr valign="TOP"> 
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><b>Important:</b> 
+      </font></td>
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	Be sure to make this request on the same computer on which you plan to use 
+	your renewed certificate.
+	</font></td>
+  </tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<form method="post" action="/renewal">
+  <table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr> 
+      <td colspan="2" valign="TOP"><font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"><b>
+        </b><br>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"> 
+          </font> 
+        </div>
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2"> 
+        <table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#cccccc" background="/ca/ee/graphics/gray90.gif">
+          <tr> 
+            <td> 
+              <div align="RIGHT">
+                <input type="submit" value="Submit" name="submit" width="72">
+				<input type="hidden" name="requestFormat" value="clientAuth">
+				<input type="hidden" name="certType" value="client">
+				<input type="hidden" name="doSslAuth" value="on">
+<script lang=javascript>
+//<!--
+				if (navigator.appName == 'Netscape') {
+					document.write(
+						'<input type="hidden" name="importCert" value="off">');
+				}
+//-->
+</script>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  </form>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<title>Import Certificate</title>
+    <link rel="shortcut icon" href="/ra/admin/console/img/favicon.ico" />
+    <link rel="stylesheet" href="/css/pki-base.css" type="text/css" />
+    <META http-equiv=Content-Type content="text/html; charset=UTF-8">
+
+</head>
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+
+#include ( "header.vm" )
+
+<div id="mainNavOuter">
+<div id="mainNav">
+<div id="mainNavInner">
+
+</div><!-- end mainNavInner -->
+</div><!-- end mainNav -->
+</div><!-- end mainNavOuter -->
+                                                                                
+                                                                                
+<div id="bar">
+                                                                                
+<div id="systembar">
+<div id="systembarinner">
+                                                                                
+<div>
+  -
+</div>
+                                                                                
+                                                                                
+</div>
+</div>
+                                                                                
+</div>
+
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<a href="/ee/index.cgi">RA Services</a> : <a href="/ee/request/index.cgi">Request Status Check</a>
+<br/>
+Certificate Import
+</font><br>
+<p> 
+<p> 
+<b>Serial Number:</b>$serialno<br>
+<b>Subject DN:</b>$subject_dn<br><br>
+<b>Base64 Encoding:</b><br>
+  <pre>$output</pre>
+<b>Import Certificate (click on the following link to import):</b><br>
+<a href="importcert.cgi?id=$id">import certificate</a>
+#include ( "footer.vm" )
+
+</body>
+</html>

@@ -1,0 +1,320 @@
+Index: base/selinux/src/pki.if
+===================================================================
+--- base/selinux/src/pki.if	(revision 2127)
++++ base/selinux/src/pki.if	(revision 2128)
+@@ -3,24 +3,6 @@
+ 
+ ########################################
+ ## <summary>
+-##	Execute pki_ca server in the pki_ca domain.
+-## </summary>
+-## <param name="domain">
+-##	<summary>
+-##	The type of the process performing this action.
+-##	</summary>
+-## </param>
+-#
+-interface(`pki_ca_script_domtrans',`
+-	gen_require(`
+-		attribute pki_ca_script;
+-	')
+-
+-	init_script_domtrans_spec($1,pki_ca_script)
+-')
+-
+-########################################
+-## <summary>
+ ##	Create a set of derived types for apache
+ ##	web content.
+ ## </summary>
+@@ -51,8 +33,17 @@
+ 	domain_type($1_t)
+ 	init_daemon_domain($1_t, $1_exec_t)
+ 
+-	type $1_script_exec_t, pki_ca_script;
+-	init_script_file($1_script_exec_t)
++        type $1_script_t;
++        domain_type($1_script_t)
++        gen_require(`
++                type java_exec_t;
++                type initrc_t;
++        ')
++        domtrans_pattern($1_script_t, java_exec_t, $1_t)
++        unconfined_domain($1_script_t)
++        role system_r types $1_script_t;
++        allow $1_t java_exec_t:file entrypoint;
++        allow initrc_t $1_script_t:process transition;
+ 
+ 	type $1_etc_rw_t, pki_ca_config;
+ 	files_type($1_etc_rw_t)
+@@ -136,7 +127,6 @@
+ 	corecmd_read_bin_symlinks($1_t)
+ 	corecmd_exec_shell($1_t)
+         corecmd_search_bin($1_t)
+-        corecmd_search_sbin($1_t)
+ 
+ 	dev_list_sysfs($1_t)
+ 	dev_read_rand($1_t)
+@@ -256,24 +246,6 @@
+ 
+ ########################################
+ ## <summary>
+-##	Execute pki_kra server in the pki_kra domain.
+-## </summary>
+-## <param name="domain">
+-##	<summary>
+-##	The type of the process performing this action.
+-##	</summary>
+-## </param>
+-#
+-interface(`pki_kra_script_domtrans',`
+-	gen_require(`
+-		attribute pki_kra_script;
+-	')
+-
+-	init_script_domtrans_spec($1,pki_kra_script)
+-')
+-
+-########################################
+-## <summary>
+ ##	All of the rules required to administrate 
+ ##	an pki_kra environment
+ ## </summary>
+@@ -326,25 +298,6 @@
+ 
+ ########################################
+ ## <summary>
+-##	Execute pki_ocsp server in the pki_ocsp domain.
+-## </summary>
+-## <param name="domain">
+-##	<summary>
+-##	The type of the process performing this action.
+-##	</summary>
+-## </param>
+-#
+-interface(`pki_ocsp_script_domtrans',`
+-	gen_require(`
+-		attribute pki_ocsp_script;
+-	')
+-
+-	init_script_domtrans_spec($1,pki_ocsp_script)
+-')
+-
+-
+-########################################
+-## <summary>
+ ##	All of the rules required to administrate 
+ ##	an pki_ocsp environment
+ ## </summary>
+@@ -534,11 +487,9 @@
+         allow pki_tps_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
+ 
+         corecmd_exec_bin(pki_tps_t)
+-        corecmd_exec_sbin(pki_tps_t)
+         corecmd_exec_shell(pki_tps_t)
+         corecmd_read_bin_symlinks(pki_tps_t)
+         corecmd_search_bin(pki_tps_t)
+-        corecmd_search_sbin(pki_tps_t)
+ 
+         corenet_sendrecv_unlabeled_packets(pki_tps_t)
+         corenet_tcp_bind_all_nodes(pki_tps_t)
+@@ -556,8 +507,7 @@
+         corenet_tcp_sendrecv_all_if(pki_tps_t)
+         corenet_tcp_sendrecv_all_nodes(pki_tps_t)
+         corenet_tcp_sendrecv_all_ports(pki_tps_t)
+-        corenet_non_ipsec_sendrecv(pki_tps_t)
+-
++        corenet_all_recvfrom_unlabeled(pki_tps_t)
+ 
+         dev_read_urand(pki_tps_t)
+         files_exec_usr_files(pki_tps_t)
+@@ -606,7 +556,7 @@
+         rpm_exec(pki_tps_t)
+ 
+         # allow writing to the kernel keyring
+-        allow $pki_tps_t self:key { write read };
++        allow pki_tps_t self:key { write read };
+ 
+ ')
+ 
+@@ -722,11 +672,9 @@
+         allow pki_ra_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
+ 
+         corecmd_exec_bin(pki_ra_t)
+-        corecmd_exec_sbin(pki_ra_t)
+         corecmd_exec_shell(pki_ra_t)
+-        corecmd_read_sbin_symlinks(pki_ra_t)
++        corecmd_read_bin_symlinks(pki_ra_t)
+         corecmd_search_bin(pki_ra_t)
+-        corecmd_search_sbin(pki_ra_t)
+ 
+         corenet_sendrecv_unlabeled_packets(pki_ra_t)
+         corenet_tcp_bind_all_nodes(pki_ra_t)
+@@ -735,7 +683,7 @@
+         corenet_tcp_sendrecv_all_if(pki_ra_t)
+         corenet_tcp_sendrecv_all_nodes(pki_ra_t)
+         corenet_tcp_sendrecv_all_ports(pki_ra_t)
+-        corenet_non_ipsec_sendrecv(pki_ra_t)
++        corenet_all_recvfrom_unlabeled(pki_ra_t)
+         corenet_tcp_connect_generic_port(pki_ra_t)
+ 
+         # talk to other subsystems
+@@ -787,7 +735,7 @@
+         rpm_exec(pki_ra_t)
+ 
+         # allow writing to the kernel keyring
+-        allow $pki_ra_t self:key { write read };
++        allow pki_ra_t self:key { write read };
+ 
+ 
+ ')
+@@ -851,25 +799,6 @@
+ 
+ ########################################
+ ## <summary>
+-##	Execute pki_tks server in the pki_tks domain.
+-## </summary>
+-## <param name="domain">
+-##	<summary>
+-##	The type of the process performing this action.
+-##	</summary>
+-## </param>
+-#
+-interface(`pki_tks_script_domtrans',`
+-	gen_require(`
+-		attribute pki_tks_script;
+-	')
+-
+-	init_script_domtrans_spec($1,pki_tks_script)
+-')
+-
+-
+-########################################
+-## <summary>
+ ##	All of the rules required to administrate 
+ ##	an pki_tks environment
+ ## </summary>
+Index: base/selinux/src/pki.fc
+===================================================================
+--- base/selinux/src/pki.fc	(revision 2127)
++++ base/selinux/src/pki.fc	(revision 2128)
+@@ -1,8 +1,6 @@
+ 
+ /usr/bin/dtomcat5-pki-ca	--	gen_context(system_u:object_r:pki_ca_exec_t,s0)
+ 
+-/etc/init.d/pki-ca		--	gen_context(system_u:object_r:pki_ca_script_exec_t,s0)
+-
+ /etc/pki-ca(/.*)?			gen_context(system_u:object_r:pki_ca_etc_rw_t,s0)
+ /etc/pki-ca/tomcat5.conf  	--      gen_context(system_u:object_r:pki_ca_tomcat_exec_t,s0)
+ 
+@@ -14,8 +12,6 @@
+ 
+ /usr/bin/dtomcat5-pki-kra	--	gen_context(system_u:object_r:pki_kra_exec_t,s0)
+ 
+-/etc/init.d/pki-kra		--	gen_context(system_u:object_r:pki_kra_script_exec_t,s0)
+-
+ /etc/pki-kra(/.*)?			gen_context(system_u:object_r:pki_kra_etc_rw_t,s0)
+ /etc/pki-kra/tomcat5.conf  	--      gen_context(system_u:object_r:pki_kra_tomcat_exec_t,s0)
+ 
+@@ -27,8 +23,6 @@
+ 
+ /usr/bin/dtomcat5-pki-ocsp	--	gen_context(system_u:object_r:pki_ocsp_exec_t,s0)
+ 
+-/etc/init.d/pki-ocsp		--	gen_context(system_u:object_r:pki_ocsp_script_exec_t,s0)
+-
+ /etc/pki-ocsp(/.*)?			gen_context(system_u:object_r:pki_ocsp_etc_rw_t,s0)
+ /etc/pki-ocsp/tomcat5.conf  	--      gen_context(system_u:object_r:pki_ocsp_tomcat_exec_t,s0)
+ 
+@@ -39,7 +33,6 @@
+ /var/log/pki-ocsp(/.*)?			gen_context(system_u:object_r:pki_ocsp_log_t,s0)
+ 
+ /usr/sbin/httpd.worker  --      gen_context(system_u:object_r:pki_ra_exec_t,s0)
+-/etc/init.d/pki-ra      --      gen_context(system_u:object_r:pki_ra_script_exec_t,s0)
+ /etc/pki-ra(/.*)?               gen_context(system_u:object_r:pki_ra_etc_rw_t,s0)
+ /var/lib/pki-ra(/.*)?           gen_context(system_u:object_r:pki_ra_var_lib_t,s0)
+ /var/log/pki-ra(/.*)?           gen_context(system_u:object_r:pki_ra_log_t,s0)
+@@ -47,8 +40,6 @@
+ 
+ /usr/bin/dtomcat5-pki-tks	--	gen_context(system_u:object_r:pki_tks_exec_t,s0)
+ 
+-/etc/init.d/pki-tks		--	gen_context(system_u:object_r:pki_tks_script_exec_t,s0)
+-
+ /etc/pki-tks(/.*)?			gen_context(system_u:object_r:pki_tks_etc_rw_t,s0)
+ /etc/pki-tks/tomcat5.conf  	--      gen_context(system_u:object_r:pki_tks_tomcat_exec_t,s0)
+ 
+@@ -58,7 +49,6 @@
+ 
+ /var/log/pki-tks(/.*)?			gen_context(system_u:object_r:pki_tks_log_t,s0)
+ 
+-/etc/init.d/pki-tps     --      gen_context(system_u:object_r:pki_tps_script_exec_t,s0)
+ /etc/pki-tps(/.*)?              gen_context(system_u:object_r:pki_tps_etc_rw_t,s0)
+ /var/lib/pki-tps(/.*)?          gen_context(system_u:object_r:pki_tps_var_lib_t,s0)
+ /var/log/pki-tps(/.*)?          gen_context(system_u:object_r:pki_tps_log_t,s0)
+@@ -72,36 +62,30 @@
+ # labeling for new CA under pki-cad
+ 
+ /var/run/pki/ca(/.*)? 	        gen_context(system_u:object_r:pki_ca_var_run_t,s0)
+-/etc/init.d/pki-cad             gen_context(system_u:object_r:pki_ca_script_exec_t,s0)
+ /etc/sysconfig/pki/ca(/.*)?	gen_context(system_u:object_r:pki_ca_etc_rw_t,s0)
+ 
+ # labeling for new KRA under pki-krad
+ 
+ /var/run/pki/kra(/.*)? 	        gen_context(system_u:object_r:pki_kra_var_run_t,s0)
+-/etc/init.d/pki-krad            gen_context(system_u:object_r:pki_kra_script_exec_t,s0)
+ /etc/sysconfig/pki/kra(/.*)?	gen_context(system_u:object_r:pki_kra_etc_rw_t,s0)
+ 
+ # labeling for new OCSP under pki-ocspd
+ 
+ /var/run/pki/ocsp(/.*)?         gen_context(system_u:object_r:pki_ocsp_var_run_t,s0)
+-/etc/init.d/pki-ocspd           gen_context(system_u:object_r:pki_ocsp_script_exec_t,s0)
+ /etc/sysconfig/pki/ocsp(/.*)?	gen_context(system_u:object_r:pki_ocsp_etc_rw_t,s0)
+ 
+ # labeling for new TKS under pki-tksd
+ 
+ /var/run/pki/tks(/.*)? 	        gen_context(system_u:object_r:pki_tks_var_run_t,s0)
+-/etc/init.d/pki-tksd            gen_context(system_u:object_r:pki_tks_script_exec_t,s0)
+ /etc/sysconfig/pki/tks(/.*)?	gen_context(system_u:object_r:pki_tks_etc_rw_t,s0)
+ 
+ # labeling for new RA under pki-rad
+ 
+ /var/run/pki/ra(/.*)? 	        gen_context(system_u:object_r:pki_ra_var_run_t,s0)
+-/etc/init.d/pki-rad             gen_context(system_u:object_r:pki_ra_script_exec_t,s0)
+ /etc/sysconfig/pki/ra(/.*)?	    gen_context(system_u:object_r:pki_ra_etc_rw_t,s0)
+ 
+ # labeling for new TPS under pki-tpsd
+ 
+ /var/run/pki/tps(/.*)? 	        gen_context(system_u:object_r:pki_tps_var_run_t,s0)
+-/etc/init.d/pki-tpsd            gen_context(system_u:object_r:pki_tps_script_exec_t,s0)
+ /etc/sysconfig/pki/tps(/.*)?	gen_context(system_u:object_r:pki_tps_etc_rw_t,s0)
+ 
+Index: base/selinux/src/pki.te
+===================================================================
+--- base/selinux/src/pki.te	(revision 2127)
++++ base/selinux/src/pki.te	(revision 2128)
+@@ -1,4 +1,4 @@
+-policy_module(pki,1.0.20)
++policy_module(pki,6.2.1)
+ 
+ attribute pki_ca_config;
+ attribute pki_ca_executable;
+Index: base/common/scripts/functions
+===================================================================
+--- base/common/scripts/functions	(revision 2127)
++++ base/common/scripts/functions	(revision 2128)
+@@ -691,8 +691,16 @@
+     fi
+ 
+     # Invoke the initscript for this instance
++    case $PKI_SUBSYSTEM_TYPE in
++        ca|kra|ocsp|tks)
++            /usr/bin/runcon -t pki_${PKI_SUBSYSTEM_TYPE}_script_t $PKI_INSTANCE_INITSCRIPT start
++            rv=$?
++            ;;
++        ra|tps)
+     $PKI_INSTANCE_INITSCRIPT start
+     rv=$?
++            ;;
++    esac
+ 
+     if [ $rv -ne 0 ] ; then
+         return $rv

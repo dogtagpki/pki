@@ -1,0 +1,328 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en]C-NSCP  (WinNT; I) [Netscape]">
+   <title>Recover Keys (for Administrators)</title>
+</head>
+
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<script language="JavaScript" src="../funcs.js"></script>
+<script language="JavaScript" src="../helpfun.js"></script>
+<script language="JavaScript">
+//<!--
+function publicKeyCritInUse()
+{
+    return document.publicKeyCritForm.inUse.checked;
+}
+function publicKeyCrit()
+{
+    if (document.publicKeyCritForm.publicKeyData.value.length == 0) {
+        alert("No public key specified");
+        return null;
+    }
+    return "publicKey=x509cert#"+
+        escapeValue(document.publicKeyCritForm.publicKeyData.value);
+}
+function ownerNameCritInUse()
+{
+    return document.ownerNameCritForm.inUse.checked;
+}
+function ownerNameCrit()
+{
+    return "keyOwnerName=" + document.ownerNameCritForm.ownerName.value;
+}
+function serialNumberRangeCritInUse()
+{
+	return document.serialNumberRangeCritForm.inUse.checked;
+}
+
+function serialNumberRangeCrit()
+{
+    var crit = new Array;
+    var next = 0;
+
+    var canonicalFrom = "", canonicalTo = "";
+
+    if (document.serialNumberRangeCritForm.serialFrom.value != "") {
+        if (isHex(document.serialNumberRangeCritForm.serialFrom.value)) {
+          canonicalFrom = parseInt(stripPrefix(document.serialNumberRangeCritForm.serialFrom.value),16);
+        } else {
+          canonicalFrom = document.serialNumberRangeCritForm.serialFrom.value;
+        }
+        crit[next++] = "keySerialNumber >= " + canonicalFrom;
+    }
+    if (document.serialNumberRangeCritForm.serialTo.value != "") {
+        if (isHex(document.serialNumberRangeCritForm.serialTo.value)) {
+          canonicalTo = parseInt(stripPrefix(document.serialNumberRangeCritForm.serialTo.value),16);
+        } else {
+          canonicalTo = document.serialNumberRangeCritForm.serialTo.value;
+        }
+        crit[next++] = "keySerialNumber <= " +canonicalTo;
+    }
+
+    if (document.serialNumberRangeCritForm.serialFrom.value != "" &&
+	document.serialNumberRangeCritForm.serialTo.value != "") {
+	if (parseInt(canonicalFrom) > parseInt(canonicalTo)) {
+	    	alert("The low end of the range is larger than the high end.");
+		return null;
+	}
+    }
+
+	if (next == 0) {
+		return "keySerialNumber=*";
+	} else if (next == 1) {
+		return crit[0];
+	} else if (next == 2) {
+		return "&(" + crit[0] + ")(" + crit[1] + ")";
+	} 
+    // return crit.join("&");
+}
+function archivedByCritInUse()
+{
+    return document.archivedByCritForm.inUse.checked;
+}
+
+function archivedByCrit()
+{
+    if (document.archivedByCritForm.archivedBy.value.length == 0) {
+        alert("User id in 'issued by' filter is empty");
+        return null;
+    }
+    return "keyArchivedBy = "+ 
+		document.archivedByCritForm.archivedBy.value;
+}
+
+function doSubmit(form)
+{
+    var andFilter = new Array;
+    var critCount = 0;
+
+    if (serialNumberRangeCritInUse()) {
+	if ((andFilter[critCount++] = serialNumberRangeCrit()) == null)
+	    return;
+    }	
+    if (ownerNameCritInUse()) {
+    	if ((andFilter[critCount++] = ownerNameCrit()) == null)
+	   return;
+    }
+    if (publicKeyCritInUse()) {
+    	if ((andFilter[critCount++] = publicKeyCrit()) == null)
+	   return;
+	form.publicKeyData.value = document.publicKeyCritForm.publicKeyData.value;
+    }
+    if (archivedByCritInUse()) {
+    	if ((andFilter[critCount++] = archivedByCrit()) == null)
+	   return;
+    }
+
+    // At least one section must be selected
+    if (critCount == 0) {
+	alert("You must choose at least one section on this form.");
+	return;
+    } else if (critCount == 1) {
+    		form.queryFilter.value = "(" + andFilter[0] + ")";
+	} else if (critCount == 2) {
+    		form.queryFilter.value = "(&(" + andFilter[0] + ")(" + 
+			andFilter[1] + "))";
+	} else if (critCount == 3) {
+    		form.queryFilter.value = "(&(" + andFilter[0] + ")(" + 
+			andFilter[1] + ")(" + andFilter[2] + "))";
+	} else if (critCount == 4) {
+    		form.queryFilter.value = "(&(" + andFilter[0] + ")(" + 
+			andFilter[1] + ")(" + andFilter[2] + ")(" +
+			andFilter[3] + "))";
+	}
+
+    // form.queryFilter.value = andFilter.join("&");
+
+    form.op.value = "srchKeyForRecovery";
+
+    keyQuery = "srchKeyForRecovery?op=" + form.op.value + 
+                "&maxResults=" + form.maxResults.value +
+                "&maxCount=" + form.maxCount.value +
+                "&queryFilter=" + 
+			       produceHTTPEscapedString(form.queryFilter.value);
+   if (form.publicKeyData.value != "") {
+       keyQuery = keyQuery + "&publicKeyData="+
+               produceHTTPEscapedString(form.publicKeyData.value);
+   }
+
+    // Create two frames
+    window.location=keyQuery;
+}
+//-->
+</script>
+<body bgcolor="#FFFFFF">
+<font size=+1 face="PrimaSans BT, Verdana, sans-serif">
+Recover Keys (for Administrators)</font>
+<br><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Use this form
+to search for archived keys according to the criteria you specify. 
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+Each section
+lets you specify a key property. Select a property, then fill in any needed details in that section. You can combine search criteria to further narrow the search.
+<p>
+In the list of keys found by the search, you can click a button to recover individual keys.
+</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<b><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Owner Name</font></b>
+<form name="ownerNameCritForm">
+<input type="CHECKBOX" name="inUse">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Show
+keys belonging to a particular owner</font>
+<blockquote>
+<table>
+<tr>
+<td>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Owner Name:</font>
+</td>
+<td>
+<input type="TEXT" name="ownerName" size=36>
+</td>
+</tr>
+</table>
+</blockquote>
+</form>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<b><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Key Identifiers</font></b>
+<form name="serialNumberRangeCritForm">
+<input type="CHECKBOX" name="inUse"><font face="PrimaSans BT, Verdana, sans-serif"><font size=-1>Show
+keys that fall within a particular range of key identifiers</font></font>
+<blockquote>
+<font face="PrimaSans BT, Verdana, sans-serif"><font size=-1>Enter
+a range of key identifiers in hexadecimal form (starting with 0x, as they appear in key displays) or in decimal form.</font></font>
+<p>
+<table>
+<tr>
+<td>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Lowest
+key identifier:</font>
+</td>
+<td>
+<input TYPE="TEXT" NAME="serialFrom" SIZE=10 MAXLENGTH=99">
+</td>
+<td>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no lower limit)
+</font>
+</td>
+</tr>
+<tr>
+<td>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">Highest
+key identifier:</font>
+</td>
+<td>
+<input TYPE="TEXT" NAME="serialTo" SIZE=10 MAXLENGTH=99">
+</td>
+<td>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no upper limit)
+</font>
+</td>
+</tr>
+</table>
+</blockquote>
+</form>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<b><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Certificate</font></b>
+<form name="publicKeyCritForm">
+<input type="CHECKBOX" name="inUse"><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Show
+the key that corresponds to the following certificate</font>
+<blockquote>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Copy the certificate, then paste it into this text area.</font>
+<p>
+<textarea name="publicKeyData" rows=10 cols=64></textarea></form>
+</blockquote>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<b><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Archiver</font></b>
+<form name="archivedByCritForm">
+<input type="CHECKBOX" name="inUse"><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Show
+keys that have been archived by</font> a particular server
+<blockquote>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Enter the user ID of the Certificate or Registration Manager that submitted the archival request to the Data Recovery Manager.
+</font>
+<p>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+User ID:
+</font>
+<input TYPE="text" NAME="archivedBy" SIZE=10>
+<p>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Note: Archiver information is available only when the Certificate Manager or Registration Manager is remote from the Data Recovery Manager.
+</font>
+<p>
+</blockquote>
+</form>
+
+<br><form name="queryForm" action="srchKeyForRecovery" method=POST>
+<input type="HIDDEN" name="op" value="">
+<input type="HIDDEN" name="maxCount" VALUE="5">
+<input type="HIDDEN" name="queryFilter" VALUE="">
+<input type="HIDDEN" name="publicKeyData" VALUE="">
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif"><b>Limits</b></font>
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr>
+    <td align="right">
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;
+      Maximum results:</font>
+    </td>
+    <td>
+      <INPUT TYPE="TEXT" NAME="maxResults" VALUE=10 SIZE=5 MAXLENGTH=10>
+    </td>
+  </tr>
+  <tr>
+    <td align="right">
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;
+      Time limit (in seconds):</font>
+    </td>
+    <td>
+      <INPUT TYPE="TEXT" NAME="timeLimit" SIZE=5 MAXLENGTH=10>
+    </td>
+  </tr>
+</table>
+<br>
+<TABLE cellpadding="6" cellspacing="0" border="0" width="100%">
+<TR>
+<TD align="right" bgcolor="#eeeeee">
+<input type="button" value="Show Key" onClick='doSubmit(queryForm)'>
+<input type="button" value=Help
+onClick="help('/manual/agt_gide/kraagt.htm#1019227')">
+</TD>
+</TR>
+</TABLE>
+</form>
+</body>
+</html>

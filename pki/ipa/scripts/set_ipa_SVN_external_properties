@@ -1,0 +1,72 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2008 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+###############################################################################
+#  Since the 'svn.fedorahosted.org' repository uses a different URL prefix to #
+#  distinguish between read-only (http) and read-write (svn+ssh) check-outs,  #
+#  ALL external SVN properties that refer to this repository MUST now be      #
+#  read-only, which means that ALL changes which refer to this repository     #
+#  that need to be saved MUST be applied to the top-level directory referred  #
+#  to by each external SVN property (i.e. - 'pki/base/config' AND             #
+#  'pki/ipa/config-ext').                                                     #
+###############################################################################
+
+# Always switch into this base directory
+# prior to script execution so that all
+# of its output is written to this directory
+cd `dirname $0`
+
+# Retrieve the name of this base directory
+PKI_PWD=`pwd`
+
+# Name and location of the SVN external properties URL.
+SVN_BASE_URL="http://svn.fedorahosted.org/svn/pki/branches/IPA_v2_RHEL_6_ERRATA_BRANCH/pki/base"
+SVN_DOGTAG_URL="http://svn.fedorahosted.org/svn/pki/branches/IPA_v2_RHEL_6_ERRATA_BRANCH/pki/dogtag"
+SVN_IPA_URL="http://svn.fedorahosted.org/svn/pki/branches/IPA_v2_RHEL_6_ERRATA_BRANCH/pki/ipa"
+
+# Name and location of the "top-level" SVN external properties DB.
+SVN_EXTERNAL_PROPERTIES_DB_LOCATION="${PKI_PWD}"
+SVN_EXTERNAL_PROPERTIES_DB_NAME="ipa_svn_external_properties_db"
+SVN_EXTERNAL_PROPERTIES_DB="${SVN_EXTERNAL_PROPERTIES_DB_LOCATION}/${SVN_EXTERNAL_PROPERTIES_DB_NAME}"
+
+# Name and location of the "ca-ui" SVN external properties DB.
+CA_UI_SVN_EXTERNAL_PROPERTIES_DB_LOCATION="${PKI_PWD}"
+CA_UI_SVN_EXTERNAL_PROPERTIES_DB_NAME="ipa_ca_ui_svn_external_properties_db"
+CA_UI_SVN_EXTERNAL_PROPERTIES_DB="${CA_UI_SVN_EXTERNAL_PROPERTIES_DB_LOCATION}/${CA_UI_SVN_EXTERNAL_PROPERTIES_DB_NAME}"
+
+# Name and location of the "common-ui" SVN external properties DB.
+COMMON_UI_SVN_EXTERNAL_PROPERTIES_DB_LOCATION="${PKI_PWD}"
+COMMON_UI_SVN_EXTERNAL_PROPERTIES_DB_NAME="ipa_common_ui_svn_external_properties_db"
+COMMON_UI_SVN_EXTERNAL_PROPERTIES_DB="${COMMON_UI_SVN_EXTERNAL_PROPERTIES_DB_LOCATION}/${COMMON_UI_SVN_EXTERNAL_PROPERTIES_DB_NAME}"
+
+# Change directory to the location of the "top-level" components,
+# and execute the defined SVN external property changes.
+cd ${PKI_PWD}/..
+printf "Setting external SVN properties for 'top-level' external components . . .\n"
+svn propset svn:externals -F "${SVN_EXTERNAL_PROPERTIES_DB}" .
+svn propget svn:externals .
+svn update
+
+# Change directory to the location of the "ca-ui" component,
+# and execute the defined SVN external property changes.
+cd ca-ui
+printf "Setting external SVN properties for 'ca-ui' external components . . .\n"
+svn propset svn:externals -F "${CA_UI_SVN_EXTERNAL_PROPERTIES_DB}" .
+svn propget svn:externals .
+svn update
+cd ..
+
+# Change directory to the location of the "common-ui" component,
+# and execute the defined SVN external property changes.
+cd common-ui
+printf "Setting external SVN properties for 'common-ui' external components . . .\n"
+svn propset svn:externals -F "${COMMON_UI_SVN_EXTERNAL_PROPERTIES_DB}" .
+svn propget svn:externals .
+svn update
+cd ..
+
+exit 0;
+

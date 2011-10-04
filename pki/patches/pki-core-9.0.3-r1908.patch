@@ -1,0 +1,349 @@
+Index: base/setup/pkiremove
+===================================================================
+--- base/setup/pkiremove	(revision 1907)
++++ base/setup/pkiremove	(revision 1908)
+@@ -279,25 +279,26 @@
+ 
+ sub remove_fcontext
+ {
+-    my ($fcontext, $fname, $ftype) = @_;
+-    my $errs;
+-
++    my ($fcontext, $fname, $ftype, $cmd_ref) = @_;
+     emit(sprintf("remove_fcontext(%s)\n", join(", ", @_)), "debug");
+ 
+-    return if $dry_run;
++    my $tmp = `$semanage fcontext -l -C |grep $fcontext |grep $fname |wc -l`;
++    chomp $tmp;
++    if ($tmp eq "0" ) {
++        emit("File context $fcontext for $fname defined in policy, not deleted", "debug");
++        return 0;
++    } 
+ 
+     if ($ftype eq "f") {
+-        $errs = `$semanage fcontext -d -t $fcontext -f -- $fname 2>&1`
++        $$cmd_ref .= "fcontext -d -t $fcontext -f -- $fname\n";
+     } else {
+-        $errs = `$semanage fcontext -d -t $fcontext $fname 2>&1`
+-    }
+-    if (($? != 0)  && ($errs !~ /defined in policy, cannot be deleted/)) {
+-        emit("Failed setting selinux file context $fcontext for $fname ($errs)", "error");
++        $$cmd_ref .= "fcontext -d -t $fcontext $fname\n";
+     }
+ }
+ 
+-sub remove_selinux_fcontexts
++sub get_selinux_fcontexts
+ {
++    my ($cmd_ref) = @_;
+     my $setype                = "pki_" . $subsystem_type;
+     my $default_instance_name = "pki-" . $subsystem_type;
+     my $default_instance_root = "/var/lib";
+@@ -324,47 +325,46 @@
+         $conf_path = readlink $conf_path;
+     };
+ 
+-    print STDOUT "Removing selinux file contexts.\n";
+-
+     # For backwards compatibility, support removal of instances
+     # which use the legacy start/stop implementation
+     if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
+         # remove context for "$default_initscripts_path/$pki_instance_name"
+         if ($pki_instance_name ne $default_instance_name) {
+             remove_fcontext($setype . "_script_exec_t", 
+-                              "/etc/rc\\.d/init\\.d/$pki_instance_name", "f");
++                              "/etc/rc\\.d/init\\.d/$pki_instance_name", "f", $cmd_ref);
+         }
+     }
+ 
+     # remove context for $pki_instance_root/$pki_instance_name
+     if (($pki_instance_name ne $default_instance_name) || ($pki_instance_root ne $default_instance_root)) {
+         remove_fcontext($setype . "_var_lib_t", 
+-            "\"$pki_instance_root/$pki_instance_name(/.*)?\"", "a");
++            "\"$pki_instance_root/$pki_instance_name(/.*)?\"", "a", $cmd_ref);
+     }
+ 
+     # remove context for /var/run/$pki_instance_name.pid
+     if (($java_component) && ($pki_instance_name ne $default_instance_name)) {
+         remove_fcontext($setype . "_var_run_t", 
+-            "/var/run/$pki_instance_name\\.pid", "f");
++            "/var/run/$pki_instance_name" . '.pid', "f", $cmd_ref);
+     }
+ 
+     # remove context for $log_path
+     if ($log_path ne $default_log_path) {
+         remove_fcontext($setype . "_log_t",
+-            "\"$log_path(/.*)?\"", "a"); 
++            "\"$log_path(/.*)?\"", "a", $cmd_ref); 
+     }
+ 
+     # remove context for $conf_path
+     if ($conf_path ne $default_conf_path) {
+          remove_fcontext($setype . "_etc_rw_t",
+-             "\"$conf_path(/.*)?\"", "a");
++             "\"$conf_path(/.*)?\"", "a", $cmd_ref);
+     }
+ 
+ }
+ 
+ 
+-sub remove_selinux_ports
++sub get_selinux_ports
+ {
++    my ($cmd_ref) = @_;
+     my $status;
+     my $semanage = "/usr/sbin/semanage";
+     my $secure_port;
+@@ -411,17 +411,12 @@
+     print(STDOUT "\n");
+     foreach my $port (@ports) {
+         my $setype = "pki_" . $subsystem_type . "_port_t";
+-        my $errs;
+-        print STDOUT "Removing port $port from selinux policy.\n";
+-	next if $dry_run;
+-        $errs = `$semanage port -d -t $setype -ptcp $port 2>&1`;
+-        if ($? != 0)  {
+-            if ($errs !~ /defined in policy, cannot be deleted/) {
+-                warn "Port $port not removed from selinux policy correctly.\n";
+-                print $errs;
++        my $tmp = `$semanage port -l -C |grep $setype |grep $port | wc -l`;
++        chomp $tmp;
++        if ($tmp eq "0") {
++            emit("Port context $setype for $port defined in policy, not deleting", "debug");        
+             } else {
+-                print "Port $port not removed from selinux policy because it is defined in policy.\nThis is OK.\n";
+-            }
++            $$cmd_ref .= "port -d -t $setype -ptcp $port\n";
+         }
+     }
+ }
+@@ -459,11 +454,25 @@
+     warn "Error updating security domain: " . $@ if $@;
+ 
+     if (($^O eq "linux") && (is_Fedora() || (is_RHEL() && (! is_RHEL4())))) {
+-        eval { remove_selinux_ports(); };
+-        warn "Error removing selinux ports: " . $@ if $@; 
++        my $semanage_cmds = "";
++
++        eval { get_selinux_ports(\$semanage_cmds); };
++        warn "Error getting selinux ports: " . $@ if $@; 
+ 
+-        eval { remove_selinux_fcontexts(); };
+-        warn "Error removing selinux file contexts: " . $@ if $@;
++        eval { get_selinux_fcontexts(\$semanage_cmds); };
++        warn "Error getting selinux file contexts: " . $@ if $@;
++
++        print STDOUT "Removing selinux contexts\n";
++        if ($semanage_cmds ne "") {
++            emit("Executing selinux commands in batch mode.\n", "debug");
++            if (! $dry_run) {
++                if (! run_command("$semanage -S targeted -i - " . '<< _EOF' . "\n$semanage_cmds\n" . '_EOF' . "\n")) {
++                    emit("Error executing selinux batch commands\n", "error");
++                }
++            }
++        } else {
++            emit("No selinux contexts need to be removed.  No need to run semanage. \n");
++        } 
+     }
+ 
+     # De-register this instance with "chkconfig"
+Index: base/setup/pkicreate
+===================================================================
+--- base/setup/pkicreate	(revision 1907)
++++ base/setup/pkicreate	(revision 1908)
+@@ -2897,14 +2897,11 @@
+ 
+ sub add_selinux_port
+ {
+-    my ($setype, $seport) = @_;
++    my ($setype, $seport, $cmds_ref) = @_;
+     my $status = check_selinux_port($setype, $seport);
+ 
+     if ($status == $SELINUX_PORT_UNDEFINED) {
+-        emit("Setting selinux context $setype for $seport\n");
+-        if (!run_command("$semanage port -a -t $setype -p tcp $seport")) {
+-            emit("Failed setting selinux context $setype for $seport\n", "error");
+-        }
++        $$cmds_ref .= "port -a -t $setype -p tcp $seport\n";
+     } elsif ($status == $SELINUX_PORT_WRONGLY_DEFINED) {
+         emit("Failed setting selinux context $setype for $seport\n", "error");
+     }
+@@ -2912,26 +2909,23 @@
+ 
+ sub add_selinux_file_context
+ {
+-   my ($fcontext, $fname, $ftype) = @_;
++   my ($fcontext, $fname, $ftype, $cmds_ref) = @_;
+    my ($result);
+    
+    emit(sprintf("add_selinux_file_context(%s)\n", join(", ", @_)), "debug");
+ 
+-   return if $dry_run;
+-   
+    #check if fcontext has already been set
+-   if (`$semanage fcontext -l -n |grep $fname |grep ":$fcontext:" | wc -l` == 1) {
+-      #selinux context already defined
++   my $tmp = `$semanage fcontext -l -n |grep $fname |grep ":$fcontext:" | wc -l`;
++   chomp $tmp;
++   if ($tmp ne "0") {
++      emit("selinux fcontext for $fname already defined\n", "debug");
+       return;
+    }
+-   emit("Setting selinux file context for $fname\n");
++
+    if ($ftype eq "f") {
+-       $result = run_command("$semanage fcontext -a -t $fcontext -f -- $fname");
++       $$cmds_ref .= "fcontext -a -t $fcontext -f -- $fname\n";
+    } else {
+-       $result = run_command("$semanage fcontext -a -t $fcontext $fname");
+-   }
+-   if (!$result) {
+-       emit("Failed setting selinux file context $fcontext for $fname", "error");
++       $$cmds_ref .= "fcontext -a -t $fcontext $fname\n";
+    }
+ }
+ 
+@@ -2950,6 +2944,8 @@
+     my $log_path;
+     my $ftype;
+     my $java_component = 0;
++    my $semanage_cmds = "";
++    my @restorecon_cmds;
+ 
+     emit("configuring SELinux ...\n");
+ 
+@@ -2976,19 +2972,17 @@
+ 
+     # set file contexts
+     if ($java_component) {
+-        emit("Restorecon file context for /usr/share/java/pki\n");
+-        run_command("$restorecon -F -R /usr/share/java/pki");
++        push (@restorecon_cmds, "$restorecon -F -R /usr/share/java/pki");
+     }
+-    emit("Restorecon file context for /usr/share/pki\n");
+-    run_command("$restorecon -F -R /usr/share/pki");
++    push (@restorecon_cmds, "$restorecon -F -R /usr/share/pki");
+  
+     # set file context for $pki_instance_root/$pki_instance_name
+     if (($pki_instance_name ne $default_instance_name) || ($pki_instance_root ne $default_instance_root)) {
+         add_selinux_file_context($setype . "_var_lib_t", 
+-                                 "\"${pki_instance_root}/${pki_instance_name}(/.*)?\"", "a");
++                                 "\"${pki_instance_root}/${pki_instance_name}(/.*)?\"", 
++                                 "a", \$semanage_cmds);
+     }
+-    emit("Restorecon file context for $pki_instance_root/$pki_instance_name\n");
+-    run_command("$restorecon -F -R $pki_instance_root/$pki_instance_name");
++    push(@restorecon_cmds, "$restorecon -F -R $pki_instance_root/$pki_instance_name");
+ 
+ 
+     if ($java_component) {
+@@ -2996,17 +2990,15 @@
+         my $pidfile = $tomcat6_instance_pid_file_path;
+         if ($pki_instance_name ne $default_instance_name) {
+             add_selinux_file_context($setype . "_var_run_t",
+-                $pidfile, "f");
++                $pidfile, "f", \$semanage_cmds);
+         }
+         if (-e $pidfile) {
+-            emit("Restorecon file context for $pidfile\n");
+-            run_command("$restorecon -F $pidfile");
++            push(@restorecon_cmds, "$restorecon -F $pidfile");
+         }
+ 
+         my $pidpath = $default_apache_pids_path;
+         if (-e $pidpath) {
+-            emit("Restorecon file context for $pidpath\n");
+-            run_command("$restorecon -F -R $pidpath");
++            push(@restorecon_cmds, "$restorecon -F -R $pidpath");
+         }
+     }
+ 
+@@ -3017,10 +3009,9 @@
+     } else {
+         if ($log_path ne $default_log_path) {
+             add_selinux_file_context($setype . "_log_t", 
+-                                     "\"$log_path(/.*)?\"", "a");
++                                     "\"$log_path(/.*)?\"", "a", \$semanage_cmds);
+         }
+-        emit("Restorecon file context for $log_path\n");
+-        run_command("$restorecon -F -R $log_path");
++        push(@restorecon_cmds, "$restorecon -F -R $log_path");
+     }
+ 
+     # set file context for $conf_path
+@@ -3029,41 +3020,62 @@
+         emit("Error: Cannot set selinux context $setype" . "_etc_rw_t for directory /");
+     } else {
+         add_selinux_file_context($setype . "_etc_rw_t", 
+-                                  "\"$conf_path(/.*)?\"", "a");
+-        emit("Restorecon $conf_path\n");
+-        run_command("$restorecon -F -R $conf_path");
++                                  "\"$conf_path(/.*)?\"", "a", \$semanage_cmds);
++        push(@restorecon_cmds, "$restorecon -F -R $conf_path");
+     }
+     
+     if (! $java_component) {
+-        emit("Restorecon file context for /usr/sbin/httpd.worker \n");
+-        run_command("$restorecon -F -R /usr/sbin/httpd.worker");
++        push(@restorecon_cmds, "$restorecon -F -R /usr/sbin/httpd.worker");
+     }    
+ 
+     # add ports
+     parse_selinux_ports();
+     if ($secure_port != -1) {
+-        add_selinux_port($setype_p, $secure_port);
++        add_selinux_port($setype_p, $secure_port, \$semanage_cmds);
+     }
+     if ($non_clientauth_secure_port != -1) {
+-        add_selinux_port($setype_p, $non_clientauth_secure_port);
++        add_selinux_port($setype_p, $non_clientauth_secure_port, \$semanage_cmds);
+     }
+     if ($unsecure_port != -1) {
+-        add_selinux_port($setype_p, $unsecure_port);
++        add_selinux_port($setype_p, $unsecure_port, \$semanage_cmds);
+     }
+     if ($tomcat_server_port != -1) {
+-        add_selinux_port($setype_p, $tomcat_server_port);
++        add_selinux_port($setype_p, $tomcat_server_port, \$semanage_cmds);
+     }
+     if ($agent_secure_port != -1) {
+-        add_selinux_port($setype_p, $agent_secure_port);
++        add_selinux_port($setype_p, $agent_secure_port, \$semanage_cmds);
+     }
+     if ($ee_secure_port != -1) {
+-        add_selinux_port($setype_p, $ee_secure_port);
++        add_selinux_port($setype_p, $ee_secure_port, \$semanage_cmds);
+     }
+     if ($ee_secure_client_auth_port != -1) {
+-        add_selinux_port($setype_p, $ee_secure_client_auth_port);
++        add_selinux_port($setype_p, $ee_secure_client_auth_port, \$semanage_cmds);
+     }
+     if ($admin_secure_port != -1) {
+-        add_selinux_port($setype_p, $admin_secure_port);
++        add_selinux_port($setype_p, $admin_secure_port, \$semanage_cmds);
++    }
++
++    # now run the selinux commands in batch mode
++    if ($semanage_cmds ne "") {
++        emit("Running the semanage commands in batch mode\n", "debug");
++        if (! $dry_run) {
++            if(! run_command("$semanage -S targeted -i - " . ' << _EOF' . "\n$semanage_cmds\n" . '_EOF' . "\n")) {
++                emit("Failed executing semanage batch command \n", "error");
++            }
++        }
++    } else {
++        emit("Selinux contexts already set. No need to run semanage.\n", "debug");
++    }
++
++    #now run the restorecons
++    emit("Running restorecon commands\n", "debug");
++    foreach my $cmd (@restorecon_cmds) {
++        emit("$cmd\n", "debug");
++        if (! $dry_run) {
++            if (!run_command($cmd)) {
++                emit("Failed executing restorecon command; $cmd\n", "error"); 
++            }                          
++        }
+     }
+ 
+     return 1;

@@ -1,0 +1,499 @@
+#!/usr/bin/perl
+#
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2011 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+use strict;
+use warnings;
+
+use File::Copy;
+use Sys::Hostname;
+use Getopt::Long qw(GetOptions);
+use File::Slurp qw(read_file write_file);
+
+use lib "/usr/share/pki/scripts";
+use pkicommon;
+
+##############################################################
+# This script is used to convert an existing instance from a 
+# non-proxy port configuration to a proxy port configuration.
+#
+# Sample Invocation (for CA):
+#
+#    ./pki-setup-proxy -pki_instance_root=/var/lib
+#                      -pki_instance_name=pki-ca
+#                      -subsystem_type=ca
+#                      -ajp_redirect_port=9444
+#                      -ajp_port=9447
+#                      -proxy_secure_port=443
+#                      -proxy_unsecure_port=80
+#                      -unsecure_port=9080
+#                      -user=pkiuser
+#                      -group=pkiuser
+#                      -verbose
+#
+##############################################################
+
+##############################################################
+# Command-Line Variables
+##############################################################
+
+my $ARGS = ($#ARGV + 1);
+
+##############################################################
+# Local Variables
+##############################################################
+
+# Command-line variables (mandatory)
+my $pki_instance_root          = undef;
+my $pki_instance_name          = undef;
+my $subsystem_type             = undef;
+
+# Command-line variables (optional)
+my $ajp_port                   = -1;
+my $ajp_redirect_port          = -1;
+my $proxy_secure_port          = -1;
+my $proxy_unsecure_port        = -1;
+my $unsecure_port              = -1;
+my $pki_user  = $PKI_USER;
+my $pki_group = $PKI_GROUP;
+
+# Base subsystem directory paths
+my $pki_subsystem_conf_path          = undef;
+
+# Base instance directory paths
+my $pki_instance_path                = undef;
+my $pki_instance_conf_path           = undef;
+my $pki_instance_webxml_path         = undef;
+my $pki_instance_profile_select_path = undef;
+
+#proxy defaults
+my $PROXY_SECURE_PORT_DEFAULT   = "443";
+my $PROXY_UNSECURE_PORT_DEFAULT = "80";
+my $UNSECURE_PORT_DEFAULT       = "9080";
+my $AJP_PORT_DEFAULT            = "9447";
+my $AJP_REDIRECT_PORT_DEFAULT   = "9444";
+
+sub usage
+{
+    print STDOUT <<'EOF';
+###############################################################################
+###   USAGE:  CA, KRA, OCSP, or TKS subsystem proxy setup                   ###
+###############################################################################
+
+pki-proxy-setup \ 
+          -pki_instance_root=<pki_instance_root>    # Instance root directory
+                                                    # destination
+
+          -pki_instance_name=<pki_instance_id>      # Unique PKI subsystem
+                                                    # instance name
+
+          -subsystem_type=<subsystem_type>          # Subsystem type
+                                                    # [ca | kra | ocsp | tks]
+
+          [-ajp_port=<ajp_port>]                    # AJP port, default 9447
+
+          [-ajp_redirect_port=<ajp_redirect_port>]  # AJP redirect port, 
+                                                    # default 9444
+
+          [-proxy_secure_port=<proxy_secure_port>]  # Proxy secure port,
+                                                    # default 443
+
+          [-proxy_unsecure_port=<unsecure_port>]    # Proxy unsecure port,
+                                                    # default 80
+
+          [-unsecure_port=<unsecure_port>]          # UnSecure port,
+                                                    # default 9080
+
+          [-user=<username>]                       # User ownership,
+                                                   # default pkiuser
+
+          [-group=<groupname>]                     # Group ownership
+                                                   # default pkiuser
+
+          [-verbose]                               # Print out liberal info
+                                                   # Specify multiple times
+                                                   # to increase verbosity.
+
+          [-help]                                  # Print out this screen
+EOF
+
+}
+
+sub pki_instance_already_exists
+{
+    my ($name) = @_;
+    my $result = 0;
+    my $instance = "";
+
+    $instance = "/etc/sysconfig/pki" 
+              . "/" . $subsystem_type
+              . "/" . $name;
+
+    if (-e $instance) {
+        $result = 1;
+    }
+
+    return $result;
+}
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub parse_arguments
+{
+    my $l_proxy_secure_port    = -1;
+    my $l_proxy_unsecure_port  = -1;
+    my $l_unsecure_port        = -1;
+    my $l_ajp_port             = -1;
+    my $l_ajp_redirect_port    = -1;
+    my $show_help              =  0;
+    my $username               = undef;
+    my $groupname              = undef;
+
+    my $result = GetOptions("help"                         => \$show_help,
+                            "pki_instance_root=s"          => \$pki_instance_root,
+                            "pki_instance_name=s"          => \$pki_instance_name,
+                            "subsystem_type=s"             => \$subsystem_type,
+                            "ajp_port:i"                   => \$l_ajp_port,
+                            "ajp_redirect_port:i"          => \$l_ajp_redirect_port,
+                            "proxy_secure_port:i"          => \$l_proxy_secure_port,
+                            "proxy_unsecure_port:i"        => \$l_proxy_unsecure_port,
+                            "unsecure_port:i"              => \$l_unsecure_port,
+                            "user=s"                       => \$username,
+                            "group=s"                      => \$groupname,
+                            "verbose+"                     => \$verbose);
+
+    ## Optional "-help" option - no "mandatory" options are required
+    if ($show_help) {
+        usage();
+        return 0;
+    }
+
+    ## Mandatory "-pki_instance_root=s" option
+    if (!$pki_instance_root) {
+        usage();
+        emit("Must have value for -pki_instance_root!\n", "error");
+        return 0;
+    }
+
+    # Remove all trailing directory separators ('/')
+    $pki_instance_root =~ s/\/+$//;
+
+    ## Mandatory "-subsystem_type=s" option
+    if ($subsystem_type ne $CA   &&
+        $subsystem_type ne $KRA  &&
+        $subsystem_type ne $OCSP &&
+        $subsystem_type ne $TKS  &&
+        $subsystem_type ne $RA   &&
+        $subsystem_type ne $TPS) {
+        usage();
+        emit("Illegal  value => $subsystem_type :  for -subsystem_type!\n",
+              "error");
+        return 0;
+    }
+  
+    if ($subsystem_type eq $RA   ||
+        $subsystem_type eq $TPS) {
+        usage();
+        emit("Illegal  value => $subsystem_type :  for -subsystem_type!\n" . 
+             "Proxy configuration is not yet supported for TPS and RA subsystems",
+              "error");
+        return 0;
+    }
+
+    ## Mandatory "-pki_instance_name=s" option
+    if (!$pki_instance_name) {
+        usage();
+        emit("Must have value for -pki_instance_name!\n", "error");
+        return 0;
+    }
+
+    if (! pki_instance_already_exists($pki_instance_name)) {
+        usage();
+        emit("An instance named $pki_instance_name "
+            . "does not exist; please try again.\n", "error");
+        return 0;
+    }
+
+    $pki_instance_path  = "${pki_instance_root}/${pki_instance_name}";
+
+    # Capture installation information in a log file, always overwrite this file.
+    # When modifying an instance it's a fatal error if the logfile
+    # cannot be created.
+    my $logfile = "/var/log/${pki_instance_name}-proxy-setup.log";
+    if (!open_logfile($logfile, $default_file_permissions)) {
+        emit("can not create logfile ($logfile)", "error");
+        return 0;
+    }
+
+    printf(STDOUT "Capturing configuration information in %s\n", $logfile);
+
+    emit("Parsing setup_proxy arguments ...\n");
+    if ($verbose) {
+        emit("    verbose mode ENABLED (level=$verbose)\n");
+    }
+
+    if ($username) {
+        $pki_user = $username;
+    }
+    emit("    user   $pki_user\n");
+   
+    if ($groupname) {
+        $pki_group = $groupname;
+    }
+    emit("    group   $pki_group\n");
+
+    $proxy_secure_port = ($l_proxy_secure_port >= 0) ? $l_proxy_secure_port :
+        $PROXY_SECURE_PORT_DEFAULT;
+    emit("    proxy_secure_port   $proxy_secure_port\n");
+
+    $proxy_unsecure_port = ($l_proxy_unsecure_port >= 0) ? $l_proxy_unsecure_port :
+        $PROXY_UNSECURE_PORT_DEFAULT;
+    emit("    proxy_unsecure_port   $proxy_unsecure_port\n");
+
+    $unsecure_port = ($l_unsecure_port >= 0) ? $l_unsecure_port :
+        $UNSECURE_PORT_DEFAULT;
+    emit("    unsecure_port   $unsecure_port\n");
+
+    $ajp_port = ($l_ajp_port >= 0) ? $l_ajp_port : $AJP_PORT_DEFAULT;
+    emit("    ajp_port   $ajp_port\n");
+
+    $ajp_redirect_port = ($l_ajp_redirect_port >= 0) ? $l_ajp_redirect_port : 
+        $AJP_REDIRECT_PORT_DEFAULT;
+    emit("    ajp_redirect_port   $ajp_redirect_port\n");
+
+    return 1;
+}
+
+# no args
+# no return
+sub initialize_paths
+{
+    $pki_instance_conf_path = "${pki_instance_path}/conf";
+    $pki_subsystem_conf_path = "/usr/share/pki/${subsystem_type}/conf";
+    $pki_instance_webxml_path = "${pki_instance_path}/webapps/${subsystem_type}" . 
+                                "/WEB-INF/web.xml";
+    $pki_instance_profile_select_path = "${pki_instance_path}/webapps/" .
+                                "${subsystem_type}/ee/${subsystem_type}/" .
+                                "ProfileSelect.template";
+}
+
+# no args
+# no return
+sub update_server_xml
+{
+    my $server_xml = "${pki_instance_conf_path}/server.xml";
+
+    my $new_match = <<EOF;
+    <!-- Define an AJP 1.3 Connector on port \\[PKI_AJP_PORT\\] -->
+<!--
+    <Connector port="\\[PKI_AJP_PORT\\]" protocol="AJP/1.3" redirectPort="\\[PKI_AJP_REDIRECT_PORT\\]" />
+-->
+EOF
+    my $old_match = <<EOF;
+    <!-- Define an AJP 1.3 Connector on port 8009 -->
+<!--
+    <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+-->
+EOF
+    my $new_ajp = <<EOF;
+    <!-- Define an AJP 1.3 Connector on port $ajp_port -->
+    <Connector port="$ajp_port" protocol="AJP/1.3" redirectPort="$ajp_redirect_port" />
+EOF
+
+    my $data = read_file $server_xml;
+    $data =~ s/$old_match/$new_ajp/;
+    $data =~ s/$new_match/$new_ajp/;
+
+   # back up existing server.xml
+   copy_file($server_xml, $server_xml . ".pre-proxy.$$", 
+             $default_file_permissions, $pki_user, $pki_group);
+   write_file($server_xml, $data);
+   set_file_props($server_xml, $default_file_permissions,
+                  $pki_user, $pki_group);
+ 
+}
+
+# no args
+# no return
+sub update_proxy_conf
+{
+    my $template_file = "${pki_subsystem_conf_path}/proxy.conf";
+    my $server_file = "${pki_instance_conf_path}/proxy.conf";
+
+    #backup, just in case there already was a file
+    copy_file($server_file, $server_file . ".pre-proxy.$$", 
+              $default_file_permissions, $pki_user, $pki_group);
+
+    my $data = read_file $template_file;
+    my $host = hostname;
+    $data =~ s/\[PKI_MACHINE_NAME\]/$host/g;
+    $data =~ s/\[PKI_AJP_PORT\]/$ajp_port/g;
+
+    write_file($server_file, $data);
+    set_file_props($server_file, $default_file_permissions,
+                   $pki_user, $pki_group);
+
+}
+
+# no args
+# no return
+sub update_web_xml
+{
+    my $data = read_file $pki_instance_webxml_path;
+
+    my $commented_proxy_stanza = <<EOF; 
+<!--
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value></param-value>
+        </init-param>
+-->
+EOF
+    my $proxy_stanza = <<EOF;
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>$proxy_secure_port</param-value>
+        </init-param>
+EOF
+
+    my $commented_proxy_stanza_2 = <<EOF;
+<!--
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value></param-value>
+        </init-param>
+        <init-param>
+            <param-name>proxy_http_port</param-name>
+            <param-value></param-value>
+        </init-param>
+-->
+EOF
+    my $proxy_stanza_2 = <<EOF;
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>$proxy_secure_port</param-value>
+        </init-param>
+        <init-param>
+            <param-name>proxy_http_port</param-name>
+            <param-value>$proxy_unsecure_port</param-value>
+        </init-param>
+EOF
+
+    my $ee_filter_head = <<EOF;
+    <filter>
+        <filter-name>EERequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.EERequestFilter</filter-class>
+        <init-param>
+            <param-name>http_port</param-name>
+            <param-value>$unsecure_port</param-value>
+        </init-param>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>$proxy_secure_port</param-value>
+        </init-param>
+EOF
+
+     my $active_stanza = <<EOF;
+        <init-param>
+            <param-name>active</param-name>
+EOF
+
+    if ($data =~ /$commented_proxy_stanza/) {
+        $data =~ s/$commented_proxy_stanza/$proxy_stanza/g;
+        $data =~ s/$commented_proxy_stanza_2/$proxy_stanza_2/g;
+    } else {
+        $data =~ s/$active_stanza/${proxy_stanza}${active_stanza}/g;
+        $data =~ s/${ee_filter_head}${proxy_stanza}${active_stanza}/${ee_filter_head}${proxy_stanza_2}${active_stanza}/;
+    }
+
+    # backup old file
+    copy_file($pki_instance_webxml_path, $pki_instance_webxml_path . ".pre_proxy",
+              $default_file_permissions, $pki_user, $pki_group);
+
+    write_file($pki_instance_webxml_path, $data);
+    set_file_props($pki_instance_webxml_path, $default_file_permissions,
+                   $pki_user, $pki_group);
+}
+
+# no args
+# no return
+sub update_cs_cfg
+{
+    my $cs_cfg = "${pki_instance_conf_path}/CS.cfg";
+    my $data = read_file $cs_cfg;
+
+    $data =~ s/proxy.securePort=[\d]*\n//g;
+    $data =~ s/proxy.unsecurePort=[\d]*\n//g;
+    chomp($data);
+    $data .= "\nproxy.securePort=$proxy_secure_port" .
+             "\nproxy.unsecurePort=$proxy_unsecure_port\n";
+
+    # backup old file
+    copy_file($cs_cfg, $cs_cfg . ".pre-proxy.$$",
+              $default_file_permissions, $pki_user, $pki_group);
+
+    write_file($cs_cfg, $data); 
+    set_file_props($cs_cfg, $default_file_permissions,
+                   $pki_user, $pki_group);
+}
+
+# no args
+# no return
+sub update_profile_select_template
+{
+   my $template_file = $pki_instance_profile_select_path;
+   my $data = read_file $template_file;
+   
+   my $host = hostname;
+   $data =~ s/https:\/\/$host:\d*\/ca\/eeca/https:\/\/$host:$proxy_secure_port\/ca\/eeca/;
+
+   # backup old file
+   copy_file($template_file, $template_file . ".pre-proxy.$$",
+             $default_file_permissions, $pki_user, $pki_group);
+
+   write_file($template_file, $data);
+   set_file_props($template_file, $default_file_permissions,
+                  $pki_user, $pki_group);
+}
+
+######################################
+# Main program
+#####################################
+
+sub main
+{
+    my $parse_result = parse_arguments();
+    if (!$parse_result) {
+        close_logfile();
+        exit 255;
+    }
+
+    initialize_paths();
+    update_server_xml();
+    update_proxy_conf();
+    update_web_xml();
+    update_cs_cfg();
+    update_profile_select_template();
+    parse_selinux_ports();
+    add_selinux_port("pki_${subsystem_type}_port_t", $ajp_port);
+}
+
+main();
+exit 0;

@@ -1,0 +1,779 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<TITLE>Admin Enrollment form.</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<script LANGUAGE="JavaScript" SRC="/ca/admin/cms-funcs.js"></script>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/admin/helpfun.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/admin/dynamicVars.js"></SCRIPT>
+
+
+<SCRIPT>
+<!--
+function navMajorVersion() 
+{
+    return parseInt(navigator.appVersion.substring(0, navigator.appVersion.indexOf(".")));
+}
+
+function updateUid(f)
+{
+   if (f.uid.value != '') {
+     f.UID1.value = f.uid.value;
+   }
+   formulateDN(f, f.subject);
+}
+
+var crmfObject;
+function validate(form)
+{
+    if (!checkValidity())
+        return false;
+
+    with (form) {
+        if (uid.value == "") {
+            alert("You must supply your uid");
+            return false;
+        }
+        if (pwd.value == "") {
+			alert("You must supply your password");
+            return false;
+        }
+
+	if (isValidCSR(form) == false) {
+		//alert(' is not valid csr');
+		return false;
+	}
+
+        var keyGenAlg = "rsa-ex";
+        // var kraTranCert = "MIICDjCCAXegAwIBAgICAfMwDQYJKoZIhvcNAQEEBQAwdzELMAkGA1UEBhMCVVMxLDAqBgNVBAoTI05ldHNjYXBlIENvbW11bmljYXRpb25zIENvcnBvcmF0aW9uMREwDwYDVQQLEwhIYXJkY29yZTEnMCUGA1UEAxMeSGFyZGNvcmUgQ2VydGlmaWNhdGUgU2VydmVyIElJMB4XDTk4MTExOTIzNDIxOVoXDTk5MDUxODIzNDIxOVowLjELMAkGA1UEBhMCVVMxETAPBgNVBAoTCG5ldHNjYXBlMQwwCgYDVQQDEwNLUmEwXDANBgkqhkiG9w0BAQEFAANLADBIAkEArrbDiYUI5SCdlCKKa0bEBn1m83kX6bdhytRYNkd/HB95Bp85SRadmdJV+0O/yMxjYAtGCFrmcqEZ4sh2YSov6wIDAQABozYwNDARBglghkgBhvhCAQEEBAMCAEAwHwYDVR0jBBgwFoAUl7FtsrYCFlQMl9fjMm3LnN/u3oAwDQYJKoZIhvcNAQEEBQADgYEApvzcUsVIOstaoYSiWb4+aMVH6s1jiJlr5iVHnOKzfsYxPVdUw6uz04AT8N+1KIarMTKxHPzGAFSLicKLEv4HG4vh6llc86uzRzWpUqqVHg/eKN5A8Jyg56D4DkNr/XEJ7QdKesAp13dk5H5qvHelkSPLYYdMXNwNWPVZKgnWrWg=";
+        // var keyGenAlg = "rsa-ex";
+
+		var keylen=512;
+
+        // generate keys for cartman.
+        if (navigator.appName == "Netscape" && 
+			 typeof(crypto.version) != "undefined") {
+			certNickname.value = subject.value;
+        	crmfObject = crypto.generateCRMFRequest(
+				subject.value,
+               	"regToken", "authenticator", 
+				null,
+                "setCRMFRequest();", 
+                keylen, null, "rsa-dual-use");
+        }
+        return true;
+    }
+}
+
+function setCRMFRequest()
+{
+	with (document.forms[0]) {
+		CRMFRequest.value = crmfObject.request;
+		//alert(crmfObject.request);
+		submit();
+	}
+}
+
+//-->
+</SCRIPT>
+</head>
+
+<OBJECT
+	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
+	CODEBASE="/xenroll.dll"
+	id=Enroll    >
+</OBJECT>
+
+
+<SCRIPT LANGUAGE=VBS>
+<!--
+Function escapeDNComponent(comp)
+		escapeDNComponent = comp
+End Function
+
+Function doubleQuotes(comp)
+		doubleQuotes = False
+End Function
+
+Function formulateDN(a,b)
+		Dim dn
+		Dim TheForm
+		Set TheForm = Document.ReqForm
+
+		dn = Empty
+
+		If (TheForm.C.Value <> Empty) Then
+			If doubleQuotes(TheForm.C.Value) = True Then
+				MsgBox "Double quotes are not allowed in the Country field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "C=" & escapeDNComponent(TheForm.C.Value)
+		End If
+
+		If (TheForm.O.Value <> Empty) Then
+			If doubleQuotes(TheForm.O.Value) = True Then
+				MsgBox "Double quotes are not allowed in the Organiztion field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "O=" & escapeDNComponent(TheForm.O.Value)
+		End If
+
+		If (TheForm.OU.Value <> Empty) Then
+			If doubleQuotes(TheForm.OU.Value) = True Then
+				MsgBox "Double quotes are not allowed in the Org Unit field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "OU=" & escapeDNComponent(TheForm.OU.Value)
+		End If
+
+		If (TheForm.UID1.Value <> Empty) Then
+			If doubleQuotes(TheForm.UID1.Value) = True Then
+				MsgBox "Double quotes are not allowed in the uid field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "0.9.2342.19200300.100.1.1=" & escapeDNComponent(TheForm.UID1.Value)
+		End If
+
+		If (TheForm.CN.Value <> Empty) Then
+			If doubleQuotes(TheForm.CN.Value) = True Then
+				MsgBox "Double quotes are not allowed in the Common Name field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "CN=" & escapeDNComponent(TheForm.CN.Value)
+		End If
+
+		If (TheForm.E.Value <> Empty) Then
+			If doubleQuotes(TheForm.E.Value) = True Then
+				MsgBox "Double quotes are not allowed in the eMail field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "E=" & escapeDNComponent(TheForm.E.Value)
+		End If
+
+
+		formulateDN = dn
+End Function
+
+Sub Send_OnClick
+  Dim TheForm
+  Dim szName
+  Set TheForm = Document.ReqForm
+
+
+  ' Do a few sanity checks
+  If (TheForm.uid.Value = Empty) Then 
+    ret = MsgBox("You must supply your Directory uid for certificate enrollment", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+  If (TheForm.pwd.Value = Empty) Then
+	ret = MsgBox("You must supply your Directory password for certificate enrollment", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+
+  ' Contruct the X500 distinguished name
+  szName = formulateDN("","")
+
+  On Error Resume Next
+  Enroll.HashAlgorithm = "MD5"
+  Enroll.KeySpec = 1
+  Enroll.GenKeyFlags = 1        ' key exportable
+
+   ' Pick the provider that is selected
+   set options = TheForm.all.cryptprovider.options
+   index = options.selectedIndex
+   Enroll.providerType = options(index).value
+   Enroll.providerName = options(index).text
+
+  szCertReq = Enroll.createPKCS10(szName, "1.3.6.1.5.5.7.3.2")
+  theError = Err.Number
+  On Error Goto 0
+  '
+  ' If the user has cancelled things the we simply ignore whatever
+  ' they were doing ... need to think what should be done here
+  '
+  If (szCertReq = Empty AND theError = 0) Then
+    Exit Sub
+  End If
+
+  If (szCertReq = Empty OR theError <> 0) Then
+    '
+    ' There was an error in the key pair generation. The error value
+    ' is found in the variable 'theError' which we snarfed above before
+    ' we did the 'On Error Goto 0' which cleared it again.
+    '
+    sz = "The error '" & Hex(theError) & "' occurred." & chr(13) & chr(10) & "Your credentials could not be generated."
+    result = MsgBox(sz, 0, "Credentials Enrollment")
+    Exit Sub
+  End If
+
+  TheForm.pkcs10Request.Value = szCertReq
+  TheForm.Submit
+  Exit Sub
+
+End Sub
+-->
+</SCRIPT>
+
+<body bgcolor="#FFFFFF" onload=checkClientTime()>
+
+<script lang=javascript>
+//<!--
+	if (navigator.appName == "Netscape" && 
+		navMajorVersion() <= 3) {
+        document.writeln(
+		'<form name="ReqForm" method="post" action="adminEnroll">');
+	} else
+	if (navigator.appName == "Netscape" && 
+		typeof(crypto.version) != "undefined") {
+        document.writeln(
+		'<form name="ReqForm" method="post" action="adminEnroll">');
+	} else {
+        document.writeln(
+			'<form name="ReqForm" method="post" action="adminEnroll" '+
+			'onSubmit="return validate(document.forms[0])">');
+	}
+//-->
+</script>
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Administrator/Agent Certificate Enrollment<br>
+</font><br>
+  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"> 
+  To access the Agent Services pages and approve requests for certificates,
+  you must have a personal client SSL certificate so that Certificate
+  System can authenticate your identity. You must also
+  be designated as an agent, or privileged user.
+  <p>
+  Use this form to request this first personal certificate to be issued
+  by the system. When you submit the form, the certificate is issued
+  immediately and returned to you. The system also adds you 
+  automatically to the list of agents. You must import the new
+  certificate into your browser before you can access the Agent Services
+  pages.
+  <p>
+  <b>After you submit this form, it is automatically disabled.</b> To enroll
+  again, or to enroll other users, please see the documentation.
+  </font>
+
+<table border="0" cellspacing="0" cellpadding="2" background=/ca/admin/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr valign="TOP"> 
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	  <b>Important:</b> 
+    </font></td>
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+      Be sure to request your certificate on the same computer
+      on which you plan to use the certificate.
+	</font></td>
+  </tr>
+</table>
+
+<table border="0" cellspacing="0" cellpadding="0" background=/ca/admin/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<table border="0" width="100%" cellspacing="2" cellpadding="2">
+  <tr> 
+    <td colspan="2" valign="TOP">
+      <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+	    <b>Authentication Information</b><br>
+        Enter the user ID and password for the administrator/agent.
+    </td>
+  </tr>
+  <tr> 
+    <td align="RIGHT"> 
+      <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+      User ID:</font>
+    </td>
+    <td valign="TOP"> 
+      <input type="TEXT" name="uid" size="30" onchange="updateUid(this.form)">
+    </td>
+  </tr>
+  <tr> 
+    <td align="RIGHT"> 
+      <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+      Password:</font> 
+    </td>
+    <td valign="TOP"> 
+      <input type="PASSWORD" name="pwd" AutoComplete=off size="30">
+    </td>
+  </tr>
+
+  <tr>
+    <td VALIGN=TOP COLSPAN="2">
+      <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        <b>Subject Name</b><br>
+        Enter values for the DN components you want to have in your certificate.
+      </font>
+    </td>
+  </tr>
+
+  <tr>
+    <td align=right>
+      <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        Full name:
+      </font>
+    </td>
+    <td VALIGN=TOP>
+      <input type="HIDDEN" name="csrRequestorName">
+      <input type="TEXT" name="CN" value="CS Administrator" size="30" onchange="formulateDN(this.form, this.form.subject)">
+    </td>
+  </tr>
+
+  <tr>
+    <td ALIGN=RIGHT>
+      <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        Login name:
+      </font>
+    </td>
+    <td VALIGN=TOP>
+      <input type="TEXT" name="UID1" size="30" onchange="formulateDN(this.form, this.form.subject)">
+    </td>
+  </tr>
+
+  <tr>
+    <td ALIGN=RIGHT>
+      <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        Email address:
+      </font>
+    </td>
+    <td>
+      <input type="TEXT" name="E" size="30" onchange="formulateDN(this.form, this.form.subject)">
+    </td>
+  </tr>
+
+  <tr>
+    <td ALIGN=RIGHT>
+      <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        Organization unit:
+      </font>
+    </td>
+    <td>
+      <input type="TEXT" name="OU" size="30" onchange="formulateDN(this.form, this.form.subject)">
+    </td>
+  </tr>
+
+  <tr>
+    <td ALIGN=RIGHT>
+      <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        Organization:
+      </font>
+    </td>
+    <td>
+      <input type="TEXT" name="O" size="30" onchange="formulateDN(this.form, this.form.subject)">
+    </td>
+  </tr>
+
+  <tr>
+    <td ALIGN=RIGHT>
+      <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        Country:
+      </font>
+    </td>
+    <td>
+      <input type="TEXT" name="C" value="US" size=2 maxlength=2 onchange="formulateDN(this.form, this.form.subject)">
+    </td>
+  </tr>
+
+  <tr>
+    <td></td>
+
+    <td>
+      <!-- for Netscape Certificate Type Extension -->
+      <input type="HIDDEN" value="false" name="email">
+      <input type="HIDDEN" value="true" name="ssl_client">
+      <!-- for Key Usage Extension -->
+      <input type="HIDDEN" name="digital_signature" value=true>
+    </td>
+  </tr>
+
+<script lang=javascript>
+<!--
+function renderSelectionWithNames(name, from, to, selected, names)
+{
+    document.writeln('<SELECT NAME="'+name+'" onChange="checkValidity()">');
+    for (var i = from; i < to; i++) {
+        if (i == selected) {
+            document.writeln('<OPTION VALUE='+i+' SELECTED>'+names[i]);
+        } else {
+            document.writeln('<OPTION VALUE='+i+'>'+names[i]);
+        }
+    }
+    document.writeln('</SELECT>');
+}
+
+function renderSelection(name, from, to, selected)
+{
+    document.writeln('<SELECT NAME="'+name+'" onChange="checkValidity()">');
+    for (var i = from; i < to; i++) {
+        if (i == selected) {
+            document.writeln('<OPTION VALUE='+i+' SELECTED>'+i);
+        } else {
+            document.writeln('<OPTION VALUE='+i+'>'+i);
+        }
+    }
+    document.writeln('</SELECT>');
+}
+
+function renderValidityInfo()
+{
+    document.writeln('<tr><td valign="top" colspan="2">');
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<b>Validity</b><br>');
+    document.writeln('Set certificate validity period by selecting dates,');
+    document.writeln('for which certificate is not valid before and not valid after.');
+    document.writeln('</font></td></tr>');
+
+    var months = new Array("January", "February", "March", "April",
+                           "May", "June", "July", "August",
+                           "September", "October", "November", "December");
+
+    var startDay = new Date(serverdate);
+    var year = startDay.getFullYear();
+    var time1 = startDay.getTime();
+    var time2 = time1 + 31536000000;  // 1 Year (365 days)
+    var endDay = new Date(time2);
+
+
+    document.writeln('<tr><td align="right">'+
+                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                     'Not valid before:</font></td>');
+    document.writeln('<td valign="top">');
+
+    renderSelection("fromDay", 1, 32, startDay.getDate());
+    renderSelectionWithNames("fromMonth", 0, months.length, startDay.getMonth(), months);
+    renderSelection("fromYear", year-2, year+10, year);
+    document.writeln('&nbsp;&nbsp;');
+    renderSelection("fromHour", 0, 24, startDay.getHours());
+    renderSelection("fromMinute", 0, 60, startDay.getMinutes());
+    renderSelection("fromSecond", 0, 60, startDay.getSeconds());
+    document.writeln('</td></tr>');
+
+
+    document.writeln('<tr><td align="right">'+
+                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                     'Not valid after:</font></td>');
+    document.writeln('<td valign="top">');
+
+    renderSelection("toDay", 1, 32, endDay.getDate());
+    renderSelectionWithNames("toMonth", 0, months.length, endDay.getMonth(), months);
+    renderSelection("toYear", year-2, year+10, endDay.getFullYear());
+    document.writeln('&nbsp;&nbsp;');
+    renderSelection("toHour", 0, 24, endDay.getHours());
+    renderSelection("toMinute", 0, 60, endDay.getMinutes());
+    renderSelection("toSecond", 0, 60, endDay.getSeconds());
+    document.writeln('</td></tr>');
+
+    document.writeln('<tr><td valign="top" colspan="2">');
+    document.writeln('<input type="HIDDEN" name="notValidBefore" value="">');
+    document.writeln('<input type="HIDDEN" name="notValidAfter" value="">');
+    document.writeln('</td></tr>');
+
+    document.forms[0].notValidBefore.value = time1;
+    document.forms[0].notValidAfter.value = time2;
+}
+
+function checkValidity()
+{
+    var i;
+    var fromDate;
+    i = document.forms[0].fromDay.selectedIndex;
+    var day = document.forms[0].fromDay.options[i].value;
+    i = document.forms[0].fromMonth.selectedIndex;
+    var month = document.forms[0].fromMonth.options[i].value;
+    i = document.forms[0].fromYear.selectedIndex;
+    var year = document.forms[0].fromYear.options[i].value;
+    i = document.forms[0].fromHour.selectedIndex;
+    var hour = document.forms[0].fromHour.options[i].value;
+    i = document.forms[0].fromMinute.selectedIndex;
+    var minute = document.forms[0].fromMinute.options[i].value;
+    i = document.forms[0].fromSecond.selectedIndex;
+    var second = document.forms[0].fromSecond.options[i].value;
+
+    fromDate = new Date(year,month,day,hour,minute,second);
+    if (fromDate.getMonth() != month || fromDate.getDate() != day || year == 0) {
+        alert((++month)+"/"+day+"/"+year+" is invalid");
+        return false;
+    }
+    var fromTime = fromDate.getTime();
+
+    var toDate;
+    i = document.forms[0].toDay.selectedIndex;
+    day = document.forms[0].toDay.options[i].value;
+    i = document.forms[0].toMonth.selectedIndex;
+    month = document.forms[0].toMonth.options[i].value;
+    i = document.forms[0].toYear.selectedIndex;
+    year = document.forms[0].toYear.options[i].value;
+    i = document.forms[0].toHour.selectedIndex;
+    hour = document.forms[0].toHour.options[i].value;
+    i = document.forms[0].toMinute.selectedIndex;
+    minute = document.forms[0].toMinute.options[i].value;
+    i = document.forms[0].toSecond.selectedIndex;
+    second = document.forms[0].toSecond.options[i].value;
+
+    toDate = new Date(year,month,day,hour,minute,second);
+    if (toDate.getMonth() != month || toDate.getDate() != day || year == 0) {
+        alert((++month)+"/"+day+"/"+year+" is invalid");
+        return false;
+    }
+    var toTime = toDate.getTime();
+
+
+    if (fromTime > toTime) {
+        alert("NOT VALID AFTER date should not be earlier than NOT VALID BEFORE date.");
+        return false;
+    }
+
+    document.forms[0].notValidBefore.value = fromTime;
+    document.forms[0].notValidAfter.value = toTime;
+
+    return true;
+}
+
+renderValidityInfo();
+//-->
+</script>
+
+  <tr> 
+    <td valign="TOP" colspan="2">
+	  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+        <b>User's Key Information</b><br>
+        When your submit this form, the browser generates a private and 
+        public key. The browser retains the private key and submits the 
+        public key along with your request for a certificate. 
+        The public key becomes part of your certificate. <P>
+<script lang=javascript>
+<!--
+		if (navigator.appName == 'Netscape' && navMajorVersion() <= 3) {
+			document.writeln('Select the length of the key to generate. '+
+				'The longer the key length, the greater the strength. ');
+		} else
+		if (navigator.appName == 'Netscape' && typeof(crypto.version) == "undefined") {
+			document.writeln('Select the length of the key to generate. '+
+				'The longer the key length, the greater the strength. ');
+		}
+        if (navigator.appName == "Microsoft Internet Explorer") {
+              document.writeln(
+                  '<font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+                  document.writeln('Cryptographic Provider:');
+                  document.writeln('</font>');
+           document.writeln('<SELECT NAME=\"cryptprovider\"></SELECT>');
+                }
+//-->
+</script>
+      </font>
+    </td>
+  </tr>
+  <tr> 
+<script lang=javascript>
+<!--
+        if (navigator.appName == "Netscape") {
+			if (navMajorVersion() <= 3) {
+    			document.write('<td align="right">');
+	      		document.write('<font size="-1" '+
+		    		'face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+			    document.write('Key Length:');
+			    document.write('</font>');
+			    document.write('</td>');
+				document.write('<td>');
+                document.write('<KEYGEN name="subjectKeyGenInfo">');
+				document.write('</td>');
+			} else
+			if (typeof(crypto.version) == "undefined") {
+                //alert('not cartman');
+    			document.write('<td align="right">');
+	      		document.write('<font size="-1" '+
+		    		'face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+			    document.write('Key Length:');
+			    document.write('</font>');
+			    document.write('</td>');
+				document.write('<td>');
+                document.write('<KEYGEN name="subjectKeyGenInfo">');
+				document.write('</td>');
+        	} 
+			else {
+                //alert('cartman');
+				//document.write('<td>');
+                //document.writeln('<SELECT NAME=\"keyLength\">');
+                //document.writeln('<OPTION VALUE=512>512 bits');
+                //document.writeln('<OPTION VALUE=768>768 bits');
+                //document.writeln('<OPTION VALUE=1024>1024 bits');
+                //document.writeln('</SELECT>');
+				//document.write('</td>');
+			}
+        }
+//-->
+</script>
+
+    </td>
+  </tr>
+
+  <tr> 
+    <td valign="TOP" colspan="2"> 
+      <table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#cccccc" background=/ca/admin/graphics/gray90.gif">
+        <tr> 
+          <td> 
+            <div align="RIGHT">
+<script lang=javascript>
+<!--
+        		if (navigator.appName == "Netscape" && 
+			 		navMajorVersion() <= 3) {
+					document.writeln(
+						'<input type="submit" value="Submit" '+
+						'name="submit" width="72">');
+				} else
+        		if (navigator.appName == "Netscape" && 
+			 		typeof(crypto.version) == "undefined") {
+					document.writeln(
+						'<input type="submit" value="Submit" '+
+						'name="submit" width="72">');
+				}
+				else if (navigator.appName == "Microsoft Internet Explorer") {
+					document.writeln(
+						'<input type="submit" value="Submit" '+
+						'name="Send" width="72">');
+				}
+				else {
+					// alert('cartman');
+					document.writeln(
+						'<input type="button" value="Submit" '+
+						'name="submitbutton" '+
+						'onclick="validate(form)" width="72">');
+        		}
+//-->
+</script>
+
+            <input type="hidden" name="subject" value="" >
+			<img src=/ca/admin/graphics/spacer.gif" width="6" height="6"> 
+			<input type="reset" value="Reset" name="reset" width="72">
+			<img src=/ca/admin/graphics/spacer.gif" width="9" height="6"> 
+			<input type="button" value="Help" onclick=
+				 "help('http://www.redhat.com/docs/manuals/cert-system#Administrator/Agent Certificate Enrollment')" 
+				 name="button" width="72">
+			<input type="hidden" name="certType" value="client">
+
+<script lang=javascript>
+<!--
+				if (navigator.appName == 'Netscape') {
+					if (navMajorVersion() < 4 ||
+						typeof(crypto.version) == "undefined") {
+						document.write(
+					 	'<input type="hidden" name="importCert" value="off">');
+					} 
+					else {
+						document.write(
+					 	'<input type="hidden" name="CRMFRequest" value="">');
+						document.write(
+					 	'<input type="hidden" name="cmmfResponse" value="on">');
+						document.write(
+					 	'<input type="hidden" name="certNickname" value="">');
+					}
+				}
+				else {
+					// IE 
+					document.write(
+					 '<input type="hidden" name="pkcs10Request" value="">');
+				}
+//-->
+</script>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</form>
+<SCRIPT LANGUAGE=VBS>
+<!--
+
+FindProviders
+
+Function FindProviders
+        Dim i, j
+        Dim providers()
+        i = 0
+        j = 1
+        Dim el
+        Dim temp
+        Dim first
+        Dim TheForm
+        Set TheForm = document.ReqForm
+        On Error Resume Next
+        first = 0
+
+        Do While True
+        temp = ""
+        Enroll.providerType = j
+        temp = Enroll.enumProviders(i,0)
+        If Len(temp) = 0 Then
+        If j < 1 Then
+          j = j + 1
+          i = 0
+        Else
+          Exit Do
+        End If
+        Else
+        set el = document.createElement("OPTION")
+        el.text = temp
+        el.value = j
+        TheForm.cryptprovider.add(el)
+        If first = 0  Then
+          first = 1
+          TheForm.cryptprovider.selectedIndex = 0
+        End If
+        i = i + 1
+        End If
+        Loop
+
+End Function
+
+-->
+</SCRIPT>
+</body>
+</html>

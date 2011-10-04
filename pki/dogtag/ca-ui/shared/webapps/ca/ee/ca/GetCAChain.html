@@ -1,0 +1,107 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Get CA Chain</TITLE>
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/cms-funcs.js">
+
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/helpfun.js">
+
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript">
+</SCRIPT>
+</HEAD>
+
+
+<body bgcolor="#FFFFFF">
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Import CA Certificate Chain
+</font><br>
+
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Use this form to import the CA certificate chain into your browser (users) 
+or your server (administrators). This is a one-time operation. 
+</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/ee/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<FORM action=getCAChain method=post>
+
+<TABLE border=0 cellpadding=1 cellspacing=1>
+<tr><td>
+	<font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	Users
+	</font>
+</td></tr>
+<tr><td>
+	<input type=RADIO name="op" checked value="download">
+	<input type=hidden name="mimeType" value="application/x-x509-ca-cert">
+	<font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	Import the CA certificate chain into your browser 
+	</font>
+</td></tr>
+<tr><td>
+	<input type=RADIO name="op" value="downloadBIN">
+	<font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	Download the CA certificate chain in binary form
+	</font>
+</td></tr>
+<tr><td>
+	<input type=RADIO name="op" value="display">
+	<font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	Display the CA certificate chain in PKCS#7 for importing into a server
+	</font>
+</td></tr>
+<tr><td>
+	<input type=RADIO name="op" value="displayIND">
+	<font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	Display certificates in the CA certificate chain for importing 
+	individually into a server
+	</font>
+</td></tr>
+</table>
+
+<p>
+        <table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#cccccc" background="/ca/ee/graphics/gray90.gif">
+          <tr> 
+            <td> 
+              <div align="RIGHT">
+                <input type="submit" value="Submit" name="submit" width="72">
+
+                <img src="/ca/ee/graphics/spacer.gif" width="6" height="6"> 
+                <input type="reset" value="Reset" name="reset" width="72">
+              </div>
+            </td>
+          </tr>
+        </table>
+
+</FORM>
+
+</body>
+</html>
+

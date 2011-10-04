@@ -1,0 +1,116 @@
+# Establish PKI Variable "Slot" Substitutions
+
+PKI_FLAVOR=[PKI_FLAVOR]
+export PKI_FLAVOR
+
+PKI_SUBSYSTEM_TYPE=[PKI_SUBSYSTEM_TYPE]
+export PKI_SUBSYSTEM_TYPE
+
+PKI_USER=[PKI_USER]
+export PKI_USER
+
+PKI_GROUP=[PKI_GROUP]
+export PKI_GROUP
+
+PKI_INSTANCE_ID=[PKI_INSTANCE_ID]
+export PKI_INSTANCE_ID
+
+PKI_INSTANCE_INITSCRIPT=[PKI_INSTANCE_INITSCRIPT]
+export PKI_INSTANCE_INITSCRIPT
+
+PKI_HTTPD_CONF=[HTTPD_CONF]
+export PKI_HTTPD_CONF
+
+PKI_SERVER_ROOT=[SERVER_ROOT]
+export PKI_SERVER_ROOT
+
+PKI_SYSTEM_USER_LIBRARIES=[SYSTEM_USER_LIBRARIES]
+export PKI_SYSTEM_USER_LIBRARIES
+
+PKI_FORTITUDE_DIR=[FORTITUDE_DIR]
+export PKI_FORTITUDE_DIR
+
+PKI_NSS_CONF=[NSS_CONF]
+export PKI_NSS_CONF
+
+PKI_SERVER_NAME=[SERVER_NAME]
+export PKI_SERVER_NAME
+
+PKI_LOCK_FILE="[PKI_LOCKDIR]/${PKI_INSTANCE_ID}.pid"
+export PKI_LOCK_FILE
+
+PKI_PID_FILE="[PKI_PIDDIR]/${PKI_INSTANCE_ID}.pid"
+export PKI_PID_FILE
+
+PKI_SELINUX_TYPE="pki_tps_t"
+export PKI_SELINUX_TYPE
+
+pki_instance_configuration_file=${PKI_SERVER_ROOT}/conf/CS.cfg
+export pki_instance_configuration_file
+
+RESTART_SERVER=${PKI_SERVER_ROOT}/conf/restart_server_after_configuration
+export RESTART_SERVER
+
+########################################################################
+#   This section contains modified content of "/etc/sysconfig/httpd"   #
+########################################################################
+# Configuration file for the ${PKI_INSTANCE_ID} service.
+
+#
+# The default processing model (MPM) is the process-based
+# 'prefork' model.  A thread-based model, 'worker', is also
+# available, but does not work with some modules (such as PHP).
+# The service must be stopped before changing this variable.
+#
+PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd.worker
+export PKI_HTTPD
+
+#
+# To pass additional options (for instance, -D definitions) to the
+# httpd binary at startup, set PKI_OPTIONS here.
+#
+PKI_OPTIONS="-f ${PKI_HTTPD_CONF}"
+export PKI_OPTIONS
+
+#
+# By default, the httpd process is started in the C locale; to
+# change the locale in which the server runs, the PKI_HTTPD_LANG
+# variable can be set.
+#
+PKI_HTTPD_LANG=C
+export PKI_HTTPD_LANG
+########################################################################
+#                                                                      #
+########################################################################
+
+# This will prevent initlog from swallowing up a pass-phrase prompt if
+# mod_ssl needs a pass-phrase from the user.
+PKI_INITLOG_ARGS=""
+export PKI_INITLOG_ARGS
+
+# Set PKI_HTTPD=/usr/sbin/httpd.worker in /etc/sysconfig/httpd to use a server
+# with the thread-based "worker" MPM; BE WARNED that some modules may not
+# work correctly with a thread-based MPM; notably PHP will refuse to start.
+
+# Path to the server binary and short-form for messages.
+httpd=${PKI_HTTPD}
+export httpd
+
+pki_logs_directory=${PKI_SERVER_ROOT}/logs
+export pki_logs_directory
+
+# see if httpd is linked with the openldap libraries - we need to override
+# their use of OpenSSL
+if [ ${OS} = "Linux" ]; then
+    hasopenldap=0
+
+    /usr/bin/ldd ${httpd} 2>&1 | grep libldap- > /dev/null 2>&1 && hasopenldap=1
+
+    if [ ${hasopenldap} -eq 1 ] ; then
+        LD_PRELOAD="${PKI_SYSTEM_USER_LIBRARIES}/libssl3.so:${LD_PRELOAD}"
+        export LD_PRELOAD
+    fi
+elif [ ${OS} = "SunOS" ]; then
+    LD_PRELOAD_64="${PKI_SYSTEM_USER_LIBRARIES}/dirsec/libssl3.so:${LD_PRELOAD_64}"
+    export LD_PRELOAD_64
+fi

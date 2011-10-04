@@ -1,0 +1,11 @@
+Reply-to: $mail_to
+Subject: Request #$request_id approved
+To: $mail_to
+Content-type: text/plain\n\n
+Request #$request_id has been approved
+for
+Subject DN: $subject_dn
+
+Import certificate at:
+https://$machineName:$nonClientAuthSecurePort/ee/request/getcert.cgi?id=$request_id
+

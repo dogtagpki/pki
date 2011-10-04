@@ -1,0 +1,175 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<font size="+1" face="PrimaSans BT, Verdana, sans-serif">Approve Certificate Profile<br></font>
+<font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+Use this form to approve a certificate profile.</font>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/agent/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<p>
+<form name="ReqForm" method="post" action="profileApprove">
+<script type="text/javascript">
+document.writeln('<br>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Certificate Profile Information:</b>');
+document.writeln('</font>');
+document.writeln('<table>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('Certificate Profile Id:');
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileId);
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('Certificate Profile Name:');
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileName);
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('Description:');
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileDesc);
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('End User Certificate Profile:');
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileIsVisible);
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('Approved:');
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileIsEnable);
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('<tr>');
+document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('Approved By:');
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('<td>');
+if (profileEnableBy != 'null') {
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln(profileEnableBy);
+document.writeln('</font>');
+}
+document.writeln('</td>');
+document.writeln('</tr>');
+document.writeln('</table>');
+document.writeln('<input type=hidden name=profileId value="' + 
+  profileId + '">');
+document.writeln('<p>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Policy Information:</b>');
+document.writeln('</font>');
+document.writeln('<p>');
+for (var i = 0; i < policySetListSet.length; i++) {
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('Policy Set: ' + policySetListSet[i].setId);
+document.writeln('</font>');
+document.writeln('<p>');
+document.writeln('<table border=1 width=100%>');
+document.writeln('<tr>');
+document.writeln('<td width=10%>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>#</b>');
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('<td width=45%>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Extensions / Fields</b>');
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('<td width=45%>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('<b>Constraints</b>');
+document.writeln('</font>');
+document.writeln('</td>');
+document.writeln('</tr>');
+  for (var j = 0; j < policySetListSet[i].policySet.length; j++) {
+  document.writeln('<tr valign=top>');
+  document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln(policySetListSet[i].policySet[j].policyId);
+document.writeln('</font>');
+  document.writeln('</td>');
+  document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln(policySetListSet[i].policySet[j].defDesc);
+document.writeln('</font>');
+  document.writeln('<br>');
+  document.writeln('</td>');
+  document.writeln('<td>');
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln(policySetListSet[i].policySet[j].conDesc);
+document.writeln('</font>');
+  document.writeln('</td>');
+  document.writeln('</tr>');
+  } // for
+document.writeln('</table>');
+document.writeln('<p>');
+} // for
+document.writeln('<p>');
+document.writeln('<p>');
+if (profileIsEnable == 'true') {
+  document.writeln('<input type=submit name=Disable value="Disable">');
+} else {
+document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+  document.writeln('<input type=submit name=Approve value="Approve">');
+document.writeln('</font>');
+}
+</script>
+</html>

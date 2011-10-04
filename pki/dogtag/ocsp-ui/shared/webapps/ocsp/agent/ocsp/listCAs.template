@@ -1,0 +1,146 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>List Certificate Authorities</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="../helpfun.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+if (navigator.appName == "Microsoft Internet Explorer") {
+    document.writeln('<META HTTP-EQUIV="Pragma" CONTENT="no-cache">');
+}
+//-->
+</SCRIPT>
+</head>
+
+<CMS_TEMPLATE>
+
+<body bgcolor="#FFFFFF" link="#6666CC" vlink="#6666CC" alink="#333399">
+<font face="PrimaSans BT, Verdana, sans-serif" size="+1">
+List Certificate Authorities
+</font><br>
+<table border="0" cellspacing="0" cellpadding="0" background="/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<br>
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+    document.writeln('Server Status</font></td></tr></table>');
+
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr>');
+    document.writeln('<td align="left" width="5%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('&bull;&nbsp;Number of pending updates:' + header.stateCount);
+    document.writeln('</font></td>');
+    document.writeln('</tr>');
+
+    document.writeln('</table>');
+
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+    document.writeln('Certificate Authorities</font></td></tr></table>');
+
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+
+      for(var i = 0; i < result.recordSet.length; ++i ) {
+	    document.writeln('<tr>');
+	    document.writeln('<td align="left"><b>');
+	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+	    document.writeln(result.recordSet[i].Id);
+	    document.writeln('</font></b></td>');
+	    document.writeln('</tr>');
+	    document.writeln('<tr>');
+	    document.writeln('<td align="left" width="5%">');
+	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+	    document.writeln('&bull;&nbsp;CRL Number:' + result.recordSet[i].CRLNumber);
+	    document.writeln('</font></td>');
+	    document.writeln('</tr>');
+	    document.writeln('<tr>');
+	    document.writeln('<td align="left" width="5%">');
+	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+	    document.writeln('&bull;&nbsp;This Update:' + result.recordSet[i].ThisUpdate);
+	    document.writeln('</font></td>');
+	    document.writeln('</tr>');
+	    document.writeln('<tr>');
+	    document.writeln('<td align="left" width="5%">');
+	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln('&bull;&nbsp;Next Update:' + result.recordSet[i].NextUpdate);
+	    document.writeln('</font></td>');
+	    document.writeln('</tr>');
+	    document.writeln('<tr>');
+	    document.writeln('<td align="left" width="5%">');
+	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln('&bull;&nbsp;Number of Revoked Certificates:' + result.recordSet[i].NumRevoked);
+	    document.writeln('</font></td>');
+	    document.writeln('</tr>');
+	    document.writeln('<tr>');
+	    document.writeln('<td align="left" width="5%">');
+	    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln('&bull;&nbsp;Requests Served Since Startup:' + result.recordSet[i].ReqCount);
+	    document.writeln('</font></td>');
+	    document.writeln('</tr>');
+	    document.writeln('<tr>');
+       	    document.writeln('<td align="left" width="5%"><b>');
+            document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln('&bull;&nbsp; Remove this CA from the list -');
+            document.writeln('</font></b></td>');
+            document.writeln('</tr>');
+            document.writeln('<tr>');
+            document.writeln('<td align ="left" width="5%">');
+            document.writeln('<button  onClick="removeCertificateAuthority( ' + i  + ')" VALUE="removeca">Remove CA </button>');
+            document.writeln('</td>');
+            document.writeln('</tr>');
+            document.writeln('<tr><td><br></td></tr>');
+      }
+    document.writeln('</table>');
+    document.writeln('</td></tr></table>');
+
+    function removeCertificateAuthority(caIndex)
+    {
+        var id = result.recordSet[caIndex].Id;
+        var url = null;
+        var sure = true;
+
+        if(id)
+           url = "/ocsp/agent/ocsp/removeCA?caID="+id;
+
+        if(url) {
+           if(caIndex == 0)
+              sure = confirm("Are you sure you want to remove the initial CA?\n" + id);
+           if(sure) 
+              document.location=url;    
+        }
+    }
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>
+

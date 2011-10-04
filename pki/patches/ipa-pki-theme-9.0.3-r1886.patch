@@ -1,0 +1,25 @@
+Index: dogtag/common-ui/shared/admin/console/config/databasepanel.vm
+===================================================================
+--- dogtag/common-ui/shared/admin/console/config/databasepanel.vm	(revision 1885)
++++ dogtag/common-ui/shared/admin/console/config/databasepanel.vm	(revision 1886)
+@@ -41,6 +41,10 @@
+ <div id=details style="display: none;">
+ <p>
+ Each instance needs access to a XXXXXX Directory Server instance to store requests and records. Each PKI instance may create its own associated internal database, or may share an existing internal database. To share an existing internal database instance, a PKI instance would only need to establish a unique distinguished name (DN) using the field entitled <b>Base DN</b> and a unique database name using the field entitled <b>Database</b>. 
++#if ($clone == "clone")
++<p>
++If the replication between the masters and clones occurs on the non-SSL port, it is still possible to require the replication to be SSL encrypted by selecting <b> Use StartTLS with replication agreements</b> below.  In order for this operation to be successful, the database instances must be SSL enabled before continuing beyond this panel.
++#end
+ </div>
+ <p>
+ <i>Note: If the XXXXXX Directory Server is at a remote host, it is highly recommended that SSL should be used.</i>
+@@ -88,6 +92,9 @@
+     </table>
+         <input type="hidden" name="display" value=$displayStr />
+  
++#if ($clone == "clone") 
++      <input type="CHECKBOX" NAME="cloneStartTLS"/>Use StartTLS with replication agreements.<p>
++#end 
+ <input type="CHECKBOX" NAME="removeData">Remove the existing data from the <b>Base DN</b> shown above.<p>
+ 
+     <div align="right">

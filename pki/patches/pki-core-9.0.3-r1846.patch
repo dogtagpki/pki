@@ -1,0 +1,45 @@
+Index: base/ca/shared/conf/vlvtasks.ldif
+===================================================================
+--- base/ca/shared/conf/vlvtasks.ldif	(revision 1845)
++++ base/ca/shared/conf/vlvtasks.ldif	(revision 1846)
+@@ -2,7 +2,7 @@
+ objectclass: top
+ objectclass: extensibleObject
+ cn: index1160589769
+-ttl: 1
++ttl: 10
+ nsInstance: {database}
+ nsIndexVLVAttribute: allCerts-{instanceId}Index
+ nsIndexVLVAttribute: allExpiredCerts-{instanceId}Index
+Index: base/common/src/com/netscape/cms/servlet/csadmin/DatabasePanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/DatabasePanel.java	(revision 1845)
++++ base/common/src/com/netscape/cms/servlet/csadmin/DatabasePanel.java	(revision 1846)
+@@ -947,6 +947,7 @@
+            */
+           String wait_dn = cs.getString("preop.internaldb.wait_dn", "");
+           if (!wait_dn.equals("")) {
++            int i = 0;
+             LDAPEntry task = null;
+             boolean taskComplete = false;
+             CMS.debug("Checking wait_dn " + wait_dn);
+@@ -964,10 +965,17 @@
+                        } 
+                    } 
+                 }
+-              } catch (LDAPException e) {
++              } catch (LDAPException le) {
++                CMS.debug("Still checking wait_dn '" + wait_dn + "' (" + le.toString() + ")");
++              } catch (Exception e) {
++                CMS.debug("Still checking wait_dn '" + wait_dn + "' (" + e.toString() + ").");
+               }
+-            } while (!taskComplete);
++            } while ((!taskComplete) && (i < 20));
++            if (i < 20) {
+             CMS.debug("Done checking wait_dn " + wait_dn);
++            } else {
++              CMS.debug("Done checking wait_dn " + wait_dn + " due to timeout.");
++            }
+           }
+ 
+           conn.disconnect();

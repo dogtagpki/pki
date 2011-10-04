@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# This script may ONLY be run on Linux!
+PKI_OS=`uname`
+if [ "${PKI_OS}" != "Linux" ]; then
+    printf "The '$0' script is ONLY executable\n"
+    printf "on a 'Linux' machine!\n"
+    exit 255
+fi
+
+# For now, check for symkey (legacy package)
+rpm -qa | egrep -i pki-\|osutil\|symkey | sort | cat -n
+

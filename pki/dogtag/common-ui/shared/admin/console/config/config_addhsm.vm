@@ -1,0 +1,96 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    
+    <title>Dogtag Certificate System</title>
+<SCRIPT LANGUAGE="JavaScript">
+    function checkClose() {
+      if ('$status' == "update" && '$error' == '') {
+            window.close();
+      }
+    }
+
+</SCRIPT>
+
+    <link rel="shortcut icon" href="../img/favicon.ico" />
+    <link rel="stylesheet" href="../../../css/pki-base.css" type="text/css" />
+  </head>
+
+
+  <body onLoad="checkClose();"><div id="wrap"><div id="wrap">
+  
+<div id="mainNavOuter">
+<div id="mainNav">
+
+<div id="mainNavInner">
+
+
+</div><!-- end mainNavInner -->
+</div><!-- end mainNav -->
+</div><!-- end mainNavOuter -->
+
+
+<!-- close bar -->
+
+  <div id="content">
+    <table width="100%" cellspacing="0">
+      <tr>
+        <td class="page-content" width="100%">
+  <h1><img src="../img/icon-software.gif" />
+  Security Modules</h1>
+Keys will be generated and stored on security modules. A security module can be hardware-based or software-based. Hardware-based security modules are more secure.
+<p>
+<H2>Registering a New Security Module</H2>
+<form name=configForm action="config_addhsm" method="post">
+<p>
+If the desired security module is not listed, it is possible that this security module's PKCS #11 library was not registered with the system. Please register a new security module here.
+<table>
+<tr>
+  <td>
+Library Path: <input type=text name="modulePath" value="">
+  </td>
+</tr>
+<tr>
+  <td>
+Module Name: <input type=text name="moduleName" value="">
+  </td>
+<tr>
+</tr>
+</table>
+<p>
+<table width=100%>
+<tr bgcolor="#eeeeee">
+  <td>
+<input onclick="configForm.submit()" type=button name=config_addhsm_next value="Apply">                                                                                
+  </td>
+</tr>
+</table>
+</form>
+	</td>
+      </tr>
+    </table>
+
+  </div> <!-- close content -->
+  </div> <!-- close wrap -->
+
+  </body>
+</html>

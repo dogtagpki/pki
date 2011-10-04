@@ -1,0 +1,66 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT ID=ImportCertificate_OnClick LANGUAGE="JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+An administrator's certificate has been created and imported into this browser. This certificate is used to access the agent interface of this subsystem.
+<p>
+#if ($errorString != "")
+<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<font color="red">$info</font>
+<p>
+    <p>
+                                                                                
+    <table class="details">
+      <tr>
+<SCRIPT LANGUAGE="JavaScript">
+#if ($ca == 'true' && $import == 'true')
+if (navigator.appName == "Netscape") {
+document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/admin/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=netscape"></iframe>');
+} else {
+document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/admin/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=ie"></iframe>');
+}
+#else
+#if ($import == 'true')
+if (navigator.appName == "Netscape") {
+document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/admin/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=netscape"></iframe>');
+} else {
+document.writeln('<iframe scrolling=yes frameborder=0 height=0 width=0 src="https://$caHost:$caPort/ca/admin/ca/getBySerial?serialNumber=$serialNumber&importCert=true&browser=ie"></iframe>');
+}
+#end
+#end
+</SCRIPT>
+<input type="hidden" name="serialNumber" value=$serialNumber />
+<input type="hidden" name="caHost" value=$caHost />
+<input type="hidden" name="caPort" value=$caPort />
+<input type="hidden" name="pkcs7" value=$pkcs7 />
+
+      </tr>
+    </table>
+                                                                                     <div align="right">
+      <hr />
+    </div>

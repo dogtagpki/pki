@@ -1,0 +1,81 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2009 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel=stylesheet href="/esc/demo/style.css" type="text/css">
+
+<title>Enrollment</title>
+</head>
+<script type="text/JavaScript" src="/esc/demo/util.js">
+</script>
+<body onload="InitializeBindingTable();" onunload=cleanup()>
+
+<progressmeter id="progress-id" hidden="true" align = "center"/>
+<table width="100%" class="logobar">
+  <tr>
+    <td>
+<img alt="" src="/demo/logo.jpg">
+    </td>
+    <td>
+      <p class="headerText">Veracify Investments Smartcard Enrollment</p>
+    </td>
+  </tr>
+</table>
+  <table id="BindingTable" width="200px" align="center">
+    <tr id="HeaderRow">
+       <td></td>
+    </tr>
+  </table>
+  <p class="bodyText">You have plugged in your Veracify Investments smartcard! After answering a few easy questions, you will be able to use your smartcard to securely manage your investment portfolio.
+  </p>
+  <p class="bodyText"> 
+      Now we would like you to identify yourself as a current Veracify Investments Customer.
+   </p>  
+    <table>
+      <tr>
+        <td><p >Veracify Account Name: </p></td>
+        <td> </td>
+        <td><input type="text" id="snametf"  value=""></td>
+         <td> </td>
+        <td><p>Veracify Account Number: </p></td>
+         <td> </td>
+        <td><input type="password" id="snamepwd" value=""></td>
+      </tr>
+
+      </table>
+
+      <p class="bodyText"> Before you can use your smartcard, you will need a password to protect it.</p> 
+      <table>
+      <tr>
+        <td><p >Password:</p></td>
+        <td><input type="password" id="pintf" name="pintf" value=""></td>
+
+        <td><p >Re-Enter Password:</p></td>
+        <td><input type="password" id="reenterpintf" name="reenterpintf" value=""></td>
+    </table>
+    <br>
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <input type="button" id="enrollbtn" name="enrollbtn" value="Enroll My Veracify Smartcard" onClick="DoEnrollCOOLKey();">
+        </td>
+      </tr>
+    </table>
+</body></html>

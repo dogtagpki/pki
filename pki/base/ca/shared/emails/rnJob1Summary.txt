@@ -1,0 +1,7 @@
+Automatically generated summary report from $InstanceID
+executed at $ExecutionTime
+========================================================
+
+$SummaryItemList
+$SummaryTotalSuccess succeeded
+$SummaryTotalFailure failed

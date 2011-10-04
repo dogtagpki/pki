@@ -1,0 +1,70 @@
+Index: base/setup/pkicreate
+===================================================================
+--- base/setup/pkicreate	(revision 1863)
++++ base/setup/pkicreate	(revision 1864)
+@@ -174,6 +174,7 @@
+ my $pki_cmsbundle_jar_base_name   = "pki-cmsbundle.jar";   # CA, KRA, OCSP, TKS
+ my $pki_cmscore_jar_base_name     = "pki-cmscore.jar";     # CA, KRA, OCSP, TKS
+ my $pki_cmsutil_jar_base_name     = "pki-cmsutil.jar";     # CA, KRA, OCSP, TKS
++my $commons_collections_jar_base_name = undef;                 # CA, KRA, OCSP, TKS
+ my $commons_lang_jar_base_name    = undef;                 # CA, KRA, OCSP, TKS
+ my $commons_logging_jar_base_name = undef;                 # CA, KRA, OCSP, TKS
+ my $jss_jar_base_name             = "jss4.jar";            # CA, KRA, OCSP, TKS
+@@ -185,6 +186,8 @@
+ my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
+ my $xerces_jar_base_name          = "xerces-j2.jar";       # CA, KRA, OCSP, TKS
+ 
++my $apache_commons_collections_jar_base_name  = "apache-commons-collections.jar";
++my $jakarta_commons_collections_jar_base_name = "jakarta-commons-collections.jar";
+ my $apache_commons_logging_jar_base_name  = "apache-commons-logging.jar";
+ my $jakarta_commons_logging_jar_base_name = "jakarta-commons-logging.jar";
+ my $apache_commons_lang_jar_base_name     = "apache-commons-lang.jar";
+@@ -449,6 +452,8 @@
+ my $pki_cmscore_jar_symlink_path                 = undef;  # CA, KRA, OCSP, TKS
+ my $pki_cmsutil_jar_file_path                    = undef;  # CA, KRA, OCSP, TKS
+ my $pki_cmsutil_jar_symlink_path                 = undef;  # CA, KRA, OCSP, TKS
++my $commons_collections_jar_file_path            = undef;  # CA, KRA, OCSP, TKS
++my $commons_collections_jar_symlink_path         = undef;  # CA, KRA, OCSP, TKS
+ my $commons_lang_jar_file_path                   = undef;  # CA, KRA, OCSP, TKS
+ my $commons_lang_jar_symlink_path                = undef;  # CA, KRA, OCSP, TKS
+ my $commons_logging_jar_file_path                = undef;  # CA, KRA, OCSP, TKS
+@@ -1667,6 +1672,17 @@
+ 
+         # jakarta-commons-* has been renamed to apache-commons-* on some
+         # systems, search which one is available, preferring apache-commons
++        if (defined($commons_collections_jar_file_path = find_jar($apache_commons_collections_jar_base_name))) {
++            $commons_collections_jar_base_name = $apache_commons_collections_jar_base_name;
++        } else {
++            if (defined($commons_collections_jar_file_path = find_jar($jakarta_commons_collections_jar_base_name))) {
++            $commons_collections_jar_base_name = $jakarta_commons_collections_jar_base_name;
++            } else {
++                emit("could not find jar: $apache_commons_collections_jar_base_name or $jakarta_commons_collections_jar_base_name", "error");
++                return 0;
++            }
++        }
++
+         if (defined($commons_lang_jar_file_path = find_jar($apache_commons_lang_jar_base_name))) {
+             $commons_lang_jar_base_name = $apache_commons_lang_jar_base_name;
+         } else {
+@@ -1758,6 +1774,8 @@
+                                            . "/" . $pki_cmscore_jar_base_name;
+         $pki_cmsutil_jar_symlink_path      = $webinf_lib_instance_path
+                                            . "/" . $pki_cmsutil_jar_base_name;
++        $commons_collections_jar_symlink_path = $webinf_lib_instance_path
++                                           . "/" . $commons_collections_jar_base_name;
+         $commons_lang_jar_symlink_path     = $webinf_lib_instance_path
+                                            . "/" . $commons_lang_jar_base_name;
+         $commons_logging_jar_symlink_path  = $tomcat_instance_common_lib_path
+@@ -2668,6 +2686,12 @@
+         return 0 if !create_symlink($pki_cmsutil_jar_symlink_path, $pki_cmsutil_jar_file_path,
+                                     $pki_user, $pki_group);
+ 
++        # create symlink to either "apache-commons-collections.jar" or "jakarta-commons-collections.jar"
++        # needed by velocity
++        return 0 if !create_symlink($commons_collections_jar_symlink_path,
++                                    $commons_collections_jar_file_path,
++                                    $pki_user, $pki_group);
++
+         # create symlink to either "apache-commons-lang.jar" or "jakarta-commons-lang.jar"
+         # needed by velocity
+         return 0 if !create_symlink($commons_lang_jar_symlink_path,

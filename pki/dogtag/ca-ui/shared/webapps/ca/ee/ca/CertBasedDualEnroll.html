@@ -1,0 +1,364 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<TITLE>Certificate Based Enrollment - Directory Based User Enrollment Form</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/cms-funcs.js"> </SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/helpfun.js"> </SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/dynamicVars.js"> </SCRIPT>
+<SCRIPT>
+//<!--
+var crmfObject;
+function validate(form)
+{
+    with (form) {
+        if (uid.value == "") {
+            alert("You must supply your uid");
+            return false;
+        }
+        if (pwd.value == "") {
+            alert("You must supply your password");
+            return false;
+        }
+        submit();
+        return true;
+    }
+}
+
+
+//-->
+</SCRIPT>
+</head>
+
+<OBJECT
+	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
+	CODEBASE="/ee/xenroll.dll"
+	id=Enroll    >
+</OBJECT>
+
+
+<SCRIPT LANGUAGE=VBS>
+<!--
+Function escapeDNComponent(comp)
+		escapeDNComponent = comp
+End Function
+
+Function doubleQuotes(comp)
+		doubleQuotes = False
+End Function
+
+Function formulateDN()
+		Dim dn
+		Dim TheForm
+		Set TheForm = Document.ReqForm
+
+		dn = Empty
+
+		If (TheForm.uid.Value <> Empty) Then
+			If doubleQuotes(TheForm.uid.Value) = True Then
+				MsgBox "Double quotes are not allowed in the uid field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "0.9.2342.19200300.100.1.1=" & escapeDNComponent(TheForm.uid.Value)
+		End If
+
+		formulateDN = dn
+End Function
+
+Sub Send_OnClick
+  Dim TheForm
+  Dim szName
+  Set TheForm = Document.ReqForm
+
+
+  ' Do a few sanity checks
+  If (TheForm.uid.Value = Empty) Then 
+    ret = MsgBox("You must supply your Directory uid for certificate enrollment", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+  If (TheForm.pwd.Value = Empty) Then
+	ret = MsgBox("You must supply your Directory password for certificate enrollment", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+'  If (TheForm.SSLClient.value = Empty AND
+'      TheForm.SMIME.value = Empty AND
+'      TheForm.ObjectSigning.value = Empty) Then
+'	ret = MsgBox("You must select atleast one certificate type", 0, 
+'		"MSIE Certificate Request")
+'	Exit Sub
+'  End If
+	
+
+  ' Contruct the X500 distinguished name
+  szName = formulateDN()
+
+  On Error Resume Next
+  Enroll.HashAlgorithm = "MD5"
+  Enroll.KeySpec = 1
+  Enroll.GenKeyFlags = 1        ' key exportable
+  szCertReq = Enroll.createPKCS10(szName, "1.3.6.1.5.5.7.3.2")
+  theError = Err.Number
+  On Error Goto 0
+  '
+  ' If the user has cancelled things the we simply ignore whatever
+  ' they were doing ... need to think what should be done here
+  '
+  If (szCertReq = Empty AND theError = 0) Then
+    Exit Sub
+  End If
+
+  If (szCertReq = Empty OR theError <> 0) Then
+    '
+    ' There was an error in the key pair generation. The error value
+    ' is found in the variable 'theError' which we snarfed above before
+    ' we did the 'On Error Goto 0' which cleared it again.
+    '
+    sz = "The error '" & Hex(theError) & "' occurred." & chr(13) & chr(10) & "Your credentials could not be generated."
+    result = MsgBox(sz, 0, "Credentials Enrollment")
+    Exit Sub
+  End If
+
+  TheForm.pkcs10Request.Value = szCertReq
+  TheForm.Submit
+  Exit Sub
+
+End Sub
+-->
+</SCRIPT>
+
+<body bgcolor="#FFFFFF" onload=checkClientTime()>
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Certificate Based User Enrollment for Dual Certs - Directory Based<br>
+</font>
+  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"> 
+  Use this form to submit a request for a personal certificate.  You
+will be asked to do an SSL client authentication.  The certificate you
+use to authenticate should be the signing certificate that was
+generated together with an encryption certificate sharing the same
+subject DN.  On success, the user ID and password supplied on this
+form will be used to individualize the certificates eventually approved. 
+  If SSL client authentication is successful, the certificate you use
+for authentication is a signing-only certificate, the pairing
+encryption cert can be found, and the user ID and password are correct your certificates will be issued
+  automatically.  In general, after successful import of these dual
+certificates, you want to remove the original pair from your database.
+  </font>
+
+<table border="0" cellspacing="0" cellpadding="2" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="2">
+  <tr valign="TOP"> 
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif"> <b>
+	Important:
+	</b></font></td>
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	Be sure to request your certificate on the same computer on which you 
+	plan to use your certificate.  </font></td>
+  </tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<script lang="javascript">
+	if (navigator.appName == "Netscape" && (navMajorVersion() <= 3)) {
+		// short cut for Nav 3.x or eariler, crypto is not defined
+        	document.write(
+			'<form name="ReqForm" method="post" action="/ee/certbasedenrollment">');
+        } else
+	if ((navigator.appName == "Netscape" && 
+		 typeof(crypto.version) != "undefined")) {
+        document.write(
+			'<form name="ReqForm" method="post" action="/ee/certbasedenrollment">');
+	} else {
+        document.write(
+			'<form name="ReqForm" method="post" action="/ee/certbasedenrollment" '+
+			'onSubmit="return validate(document.forms[0])">');
+	}
+</script>
+
+  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+  <b>User's Identity</b><br>
+Enter your user ID and password for your organization's directory. This 
+information will be used to verify your identity and to obtain
+information from the directory to fill in the certificate.
+  <br>
+
+<table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr> 
+      <td width="30%" valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">User ID: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="uid" size="30">
+      </td>
+    </tr>
+</table>
+
+<table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr> 
+      <td width="30%" valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Password: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="PASSWORD" name="pwd" AutoComplete=off size="30">
+      </td>
+    </tr>
+    <tr>
+    </tr>
+</table>
+
+<table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr> 
+      <td valign="TOP"> 
+		<!-- for Netscape Certificate Type Extension -->
+		<input type="HIDDEN" name="email" value="true">
+		<input type="HIDDEN" name="ssl_client" value="true">
+                <!-- for cert-based enrollment -->
+                <input type="hidden" name="requestFormat" value="clientAuth">
+                <input type="HIDDEN" name="doSslAuth" value="on">
+                <input type="HIDDEN" name="certauthEnroll" value="on">
+                <input type="HIDDEN" name="certauthEnrollType" value="dual">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2">
+		<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+</td></tr>
+</table>
+
+
+<script>
+		if (navigator.appName == "Netscape" && 
+			(navMajorVersion() <= 3 || typeof(crypto.version) == 'undefined')) {
+//<!--
+
+		}
+//-->
+
+		//else if (navigator.appName == 'Netscape' && crypto.version == "undefined") {
+			//document.writeln('Select the length of the key to generate. '+
+			//	'The longer the key length, the greater the strength. '+
+			//	'You may want to check with your system administrator about '+
+			//	'the length of key to specify.');
+		//}
+
+        if (navigator.appName == "Netscape") {
+            document.writeln('<table border="0" width="100%" cellspacing="2" cellpadding="2">');
+			if (navMajorVersion() <= 3 || 
+				typeof(crypto.version) == "undefined") {
+				document.writeln('<td width="30%" valign=TOP>');
+				document.writeln('<div align=right>');
+				document.writeln('<font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+//				document.writeln('Key Length: ');
+				document.writeln('</font>');
+				document.writeln('</div>');
+				document.writeln('</td>');
+				document.write('<td valign=TOP>');
+//                document.write('<KEYGEN name="subjectKeyGenInfo">');
+        	} 
+			//else {
+                //alert('nsm');
+                //document.writeln('<SELECT NAME=\"keyLength\">');
+                //document.writeln('<OPTION VALUE=512>512 bits');
+                //document.writeln('<OPTION VALUE=768>768 bits');
+                //document.writeln('<OPTION VALUE=1024>1024 bits');
+                //document.writeln('</SELECT>');
+			//}
+			document.write('</td></table>');
+        }
+
+document.writeln('<table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#cccccc" background="/ca/ee/graphics/gray90.gif"> <tr> <td width=100%> <div align="RIGHT">');
+//<!--
+			if (navigator.appName == "Netscape" && navMajorVersion() <= 3) {
+				// short cut for Nav 3.x or eariler, crypto is not defined
+				document.writeln(
+					'<input type="submit" value="Submit" '+
+					'name="submit" width="72">');
+			} else if (navigator.appName == "Netscape" && 
+			 		typeof(crypto.version) == "undefined") {
+				document.writeln(
+					'<input type="submit" value="Submit" '+
+					'name="submit" width="72">');
+			}
+			else if ((navigator.appName == "Microsoft Internet Explorer") ||
+					 (navigator.appName == "")) {
+				document.writeln(
+					'<input type="submit" value="Submit" '+
+					'name="Send" width="72">');
+			}
+			else {
+				// alert('nsm');
+				document.writeln(
+					'<input type="button" value="Submit" '+
+					'name="submitbutton" '+
+					'onclick="validate(form)" width="72">');
+			}
+			document.write('<img src="/ca/ee/graphics/spacer.gif" width="6" height="6">' +
+			'<input type="reset" value="Reset" name="reset" width="72">' +
+			'<input type="hidden" name="certType" value="client">' +
+			'<input type="hidden" name="authenticator" ' +
+			  '  value="UserDirEnrollment">');
+
+				if (navigator.appName == 'Netscape') {
+					if ((navMajorVersion() > 3) && 
+						(typeof(crypto.version) != 'undefined')) {
+						//alert('cmmf response');
+//						document.write(
+//						  '<input type=hidden name=CRMFRequest value="">');
+//						document.write(
+//						  '<input type=hidden name=cmmfResponse value=true>');
+						//document.write(
+						  //'<input type=hidden name=certNickname value="">');
+					}
+					else {
+						document.write(
+						'<input type="hidden" name="importCert" value="off">');
+					}
+				}
+				else if ((navigator.appName == "Microsoft Internet Explorer")||
+						 (navigator.appName == "")) {
+					// navigator.appName == "" is for IE 3.
+					//alert('pkcs10Request');
+					document.write(
+					 '<input type="hidden" name="pkcs10Request" value="">');
+				}
+//-->
+              document.writeln('</div> </td> </tr> </table>');
+</script>
+  </form>
+</body>
+</html>

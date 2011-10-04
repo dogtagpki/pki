@@ -1,0 +1,231 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Review Certificate Revocation List</TITLE>
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/cms-funcs.js">
+
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/helpfun.js">
+
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+function checkSubmit(form)
+{
+    if (typeof(form.crlIssuingPoint) == 'undefined') {
+        alert("CRL issuing points are not available.");
+        return false;
+    }
+    if (form.op[0].checked || form.op[1].checked) {
+        if (form.certSerialNumber.value != "") {
+            form.certSerialNumber.value =
+                trim(form.certSerialNumber.value);
+        }
+        if (form.certSerialNumber.value != "") {
+            if (!isNumber(form.certSerialNumber.value,10)) {
+                if (isNumber(form.certSerialNumber.value,16)) {
+                    canonicalHex = "0x" +
+                        removeColons(stripPrefix(form.certSerialNumber.value));
+                    form.certSerialNumber.value = canonicalHex;
+                } else {
+                    alert("You must enter a valid hexadecimal "+
+                          "or decimal certificate serial number.");
+                    return false;
+                }
+            }
+        } else {
+            alert("You must enter a certificate serial number.");
+            return false;
+        }
+
+        if (isNegative(form.certSerialNumber.value)) {
+            alert("Certificate serial number can only "+
+                  "be represented by positive number.");
+            return false;
+        }
+    }
+    return true;
+}
+//-->
+</SCRIPT>
+</HEAD>
+
+<CMS_TEMPLATE>
+
+
+<body bgcolor="#FFFFFF">
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Import Certificate Revocation List
+</font><br>
+
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Use this form to check whether a particular certificate has been revoked or 
+to import the latest Certificate Revocation List. 
+</font>
+
+<table BORDER=0 CELLSPACING=2 CELLPADDING=2 WIDTH="100%" BACKGROUND="/ca/ee/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<FORM action=getCRL method=post onSubmit="return checkSubmit(this)">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+<b>Select CRL issuing point</b></font>
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+var issuingPoint;
+var i;
+
+if (result.header.crlIssuingPoints != null &&
+    result.header.crlIssuingPoints.length > 0) {
+    issuingPoint = result.header.crlIssuingPoints.split('+');
+} else {
+    issuingPoint = null;
+}
+
+document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+document.writeln('<tr><td align="right" width="20%">');
+document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('Issuing point:</font></td>');
+document.writeln('<td align="left">');
+if (issuingPoint != null && issuingPoint.length > 0) {
+    document.writeln('<SELECT NAME="crlIssuingPoint">');
+    for (i = 0; i < issuingPoint.length; i++) {
+        document.write('<OPTION VALUE="' + issuingPoint[i] + '"');
+        if (result.header.masterCRLIssuingPoint == issuingPoint[i])
+            document.write(' SELECTED');
+        document.writeln('>' + issuingPoint[i] + '</OPTION>');
+    }
+    document.writeln('</SELECT>');
+} else {
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('not available</font>');
+}
+document.writeln('</td></tr></table>');
+//-->
+</SCRIPT>
+
+<br><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+<b>Select one of these actions</b></font>
+
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr>
+    <td><input type=RADIO name="op" value="checkCRLcache" checked></td>
+    <td>
+      <font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+      Check whether the following certificate is included in CRL cache</font>
+    </td>
+  </tr>
+  <tr>
+    <td><input type=RADIO name="op" value="checkCRL"></td>
+    <td>
+      <font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+      Check whether the following certificate is listed by CRL</font>
+    </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+      Certificate serial number:&nbsp;</font>
+      <input type=text size=10 MAXLENGTH=99 name="certSerialNumber" value="">
+    </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><input type=RADIO name="op" value="importCRL"></td>
+    <td>
+      <font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+      Import the latest CRL to your browser</font>
+    </td>
+  </tr>
+  <tr>
+    <td><input type=RADIO name="op" value="importDeltaCRL"></td>
+    <td>
+      <font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+      Import the latest delta CRL to your browser</font>
+    </td>
+  </tr>
+  <tr>
+    <td><input type=RADIO name="op" value="getCRL"></td>
+    <td>
+      <font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	  Download the latest CRL in binary form</font>
+    </td>
+  </tr>
+  <tr>
+    <td><input type=RADIO name="op" value="getDeltaCRL"></td>
+    <td>
+      <font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	  Download the latest delta CRL in binary form</font>
+    </td>
+  </tr>
+  <tr>
+    <td><input type=RADIO name="op" value="displayCRL"></td>
+	<td>
+      <font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+      Display the CRL information:</font>&nbsp;&nbsp;
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+        document.writeln('<SELECT NAME="crlDisplayType">');
+        if (result.header.master_host != null && result.header.master_host.length &&
+            result.header.master_port != null && result.header.master_port.length) {
+            document.write('<OPTION VALUE="entireCRL" SELECTED>Entire CRL');
+        } else {
+            document.write('<OPTION VALUE="cachedCRL" SELECTED>Cached CRL');
+            document.write('<OPTION VALUE="entireCRL">Entire CRL');
+        }
+        document.write('<OPTION VALUE="crlHeader">CRL header');
+        document.write('<OPTION VALUE="base64Encoded">Base64 encoded');
+        if (result.header.isDeltaCRLEnabled != null &&
+            result.header.isDeltaCRLEnabled == true) {
+            document.write('<OPTION VALUE="deltaCRL">Delta CRL');
+        }
+        document.writeln('</SELECT>');
+//-->
+</SCRIPT>
+    </td>
+  </tr>
+</table>
+
+<br>
+
+<table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#E5E5E5" background="/ca/ee/graphics/gray90.gif">
+  <tr> 
+    <td ALIGN=RIGHT>
+      <input TYPE="hidden" NAME="pageStart" VALUE="1">
+      <input TYPE="hidden" NAME="pageSize" VALUE="50">
+      <input type="submit" value="Submit" name="submit" width="72">
+    </td>
+  </tr>
+</table>
+
+</FORM>
+
+</body>
+</html>
+

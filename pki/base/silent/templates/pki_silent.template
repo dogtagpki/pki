@@ -1,0 +1,1732 @@
+#!/bin/bash
+##  BEGIN COPYRIGHT BLOCK
+##  (C) 2009 Red Hat, Inc.
+##  All rights reserved.
+##  END COPYRIGHT BLOCK
+
+
+##  Always switch into this base directory
+##  prior to script execution so that all
+##  of its output is written to this directory
+
+cd `dirname $0`
+
+
+##  Disallow script to be run as the name of this template
+pki_silent_script=`basename $0`
+if	[ "${pki_silent_script}" = "pki_silent.template" ] ; then
+	printf "\n"
+	printf "Usage:  (1) Install AND configure a directory server instance.\n\n"
+	printf "        (2) Install, but do NOT configure ALL six\n"
+	printf "            'default' PKI subsystem instances.\n\n"
+	printf "        (3) Install the 'pki-silent' package.\n\n"
+	printf "        (4) Copy '$0' to a new script name\n"
+	printf "            without the '.template' extension.\n"
+	printf "            (e .g. - 'configure_default_pki_instances')\n\n"
+	printf "        (5) Fill in all MANDATORY user-defined variables\n"
+	printf "            in the new script.\n\n"
+	printf "        (6) Change any OPTIONAL user-defined variables\n"
+	printf "            in the new script as desired.\n\n"
+	printf "        (7) Become the 'root' user, and execute the new script to\n"
+	printf "            configure ALL six 'default' PKI subsystem instances.\n\n"
+	exit 255
+fi
+
+
+##
+##  This script MUST be run as root!
+##
+
+ROOTUID=0
+
+OS=`uname`
+if [ "${OS}" = "Linux" ] ; then
+	MY_EUID=`/usr/bin/id -u`
+	MY_UID=`/usr/bin/id -ur`
+	USERNAME=`/usr/bin/id -un`
+else
+	printf "ERROR:  Unsupported operating system '${OS}'!\n"
+	exit 255
+fi
+
+if	[ "${MY_UID}"  != "${ROOTUID}" ] &&
+	[ "${MY_EUID}" != "${ROOTUID}" ] ; then
+	printf "ERROR:  The '$0' script must be run as root!\n"
+	exit 255
+fi
+
+
+
+##############################################################################
+##############################################################################
+##                                                                          ##
+##  P K I   S I L E N T  -  V A R I A B L E   D E C L A R A T I O N         ##
+##                                                                          ##
+##############################################################################
+##############################################################################
+
+##############################################################################
+##  U S E R - D E F I N E D   V A R I A B L E S   ( M A N D A T O R Y )     ##
+##############################################################################
+
+##
+##  IMPORTANT:  'Escape' ALL spaces in EACH variable specified below!
+##
+##              For Example:
+##
+##                  pki_security_domain_name="My\ Security\ Domain"
+##
+
+##  PKI Silent Security Database Variables
+##  (e. g. - PKI Silent "browser" database)
+pki_silent_security_database_repository="/tmp"
+pki_silent_security_database_password=
+
+##  PKI Security Domain Variables
+##  (e. g. - Security Domain Login Panel)
+pki_security_domain_name=
+pki_security_domain_host=`hostname`
+pki_security_domain_admin_name=admin
+pki_security_domain_admin_password=
+
+##  PKI Internal LDAP Database Variables
+##  (e. g. - Database Panel)
+pki_ldap_host=localhost
+pki_ldap_port=389
+pki_bind_dn="cn=Directory\ Manager"
+pki_bind_password=
+
+##  PKI Instance-Specific Token Variables
+##  (e. g. - Module Panel)
+ca_token_name=internal
+ca_token_password=
+
+kra_token_name=internal
+kra_token_password=
+
+ocsp_token_name=internal
+ocsp_token_password=
+
+tks_token_name=internal
+tks_token_password=
+
+ra_token_name=internal
+ra_token_password=
+
+tps_token_name=internal
+tps_token_password=
+
+##  PKI Instance-Specific Backup Variables
+##  (e. g. - Backup Key and Certificates Panel)
+ca_backup_password=
+kra_backup_password=
+ocsp_backup_password=
+tks_backup_password=
+
+##  PKI Email Variables
+##
+##      For example, to specify 'pkitest@example.com':
+##
+##          pki_email_name=pkitest
+##          pki_email_company=example
+##          pki_email_domain=com
+##
+pki_email_name=
+pki_email_company=
+pki_email_domain=
+
+##  PKI Silent Admin Variables
+##  (e. g. - Import Admin Certificate into PKI Silent "browser" database)
+pki_silent_admin_user=admin
+pki_silent_admin_password=
+pki_silent_admin_email="${pki_email_name}\@${pki_email_company}\.${pki_email_domain}"
+
+
+
+##############################################################################
+##  P R E - D E F I N E D   " D E F A U L T "   V A R I A B L E S           ##
+##############################################################################
+
+##  PKI Subsystem Host (computed by default)
+pki_host=`hostname`
+
+##  PKI Subsystem Names
+ca_subsystem_name="Certificate\ Authority"
+kra_subsystem_name="Data\ Recovery\ Manager"
+ocsp_subsystem_name="OCSP\ Responder"
+tks_subsystem_name="Token\ Key\ Service"
+ra_subsystem_name="Registration\ Authority"
+tps_subsystem_name="Token\ Processing\ System"
+
+##  PKI Subsystem Instance Names
+ca_instance_name="pki-ca"
+kra_instance_name="pki-kra"
+ocsp_instance_name="pki-ocsp"
+tks_instance_name="pki-tks"
+ra_instance_name="pki-ra"
+tps_instance_name="pki-tps"
+
+##  PKI Subsystem Init Script Names
+ca_init_script="pki-cad"
+kra_init_script="pki-krad"
+ocsp_init_script="pki-ocspd"
+tks_init_script="pki-tksd"
+ra_init_script="pki-rad"
+tps_init_script="pki-tpsd"
+
+##
+##  NOTE:  Default PKI Instance Ports
+##
+##      CA, DRM, OCSP, TKS:
+##
+##          *180 - non-secure port (not role specific)
+##          *701 - non-secure Tomcat port
+##          *443 - secure EE port
+##          *444 - secure Agent port
+##          *445 - secure Admin port
+##
+##      RA, TPS:
+##
+##          *888 - non-secure port
+##          *889 - secure port (clientauth)
+##          *890 - secure port (non-clientauth)
+##
+##
+##  For Example:
+##
+##      semanage port -l | grep pki
+##
+##      pki_ca_port_t          tcp      9180, 9701, 9443, 9444, 9445
+##      pki_kra_port_t         tcp      10180, 10701, 10443, 10444, 10445
+##      pki_ocsp_port_t        tcp      11180, 11701, 11443, 11444, 11445
+##      pki_ra_port_t          tcp      12890, 12888, 12889
+##      pki_tks_port_t         tcp      13180, 13701, 13443, 13444, 13445
+##      pki_tps_port_t         tcp      7890, 7888, 7889
+##
+
+## CA ports
+ca_nonssl_port=9180
+ca_agent_port=9443
+ca_ee_port=9444
+ca_admin_port=9445
+
+## DRM ports
+kra_nonssl_port=10180
+kra_agent_port=10443
+kra_ee_port=10444
+kra_admin_port=10445
+
+## OCSP ports
+ocsp_nonssl_port=11180
+ocsp_agent_port=11443
+ocsp_ee_port=11444
+ocsp_admin_port=11445
+
+## TKS ports
+tks_nonssl_port=13180
+tks_agent_port=13443
+tks_ee_port=13444
+tks_admin_port=13445
+
+## RA ports
+ra_nonssl_port=12888
+ra_clientauth_port=12889
+ra_nonclientauth_port=12890
+
+## TPS ports
+tps_nonssl_port=7888
+tps_clientauth_port=7889
+tps_nonclientauth_port=7890
+
+
+
+##############################################################################
+##  U S E R - D E F I N E D   V A R I A B L E S   ( O P T I O N A L )       ##
+##############################################################################
+
+##  PKI Silent Log Files
+pki_silent_ca_log=/tmp/ca.log
+pki_silent_kra_log=/tmp/kra.log
+pki_silent_ocsp_log=/tmp/ocsp.log
+pki_silent_ra_log=/tmp/ra.log
+pki_silent_tks_log=/tmp/tks.log
+pki_silent_tps_log=/tmp/tps.log
+
+
+##
+## NOTE:  For comparison's sake, if the default instances were manually
+##        configured using a Firefox browser, the content of the corresponding
+##        Firefox browser's security libraries would be something similar
+##        to this:
+##
+##            Certificate Nickname                          Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##            Certificate Authority - ${pki_security_domain_name}     CT,C,C
+##            CA Administrator of Instance ${ca_instance_name}'s
+##                              ${pki_security_domain_name} ID        u,u,u
+##            KRA Administrator of Instance ${kra_instance_name}'s
+##                              ${pki_security_domain_name} ID        u,u,u
+##            OCSP Administrator of Instance ${ocsp_instance_name}'s
+##                              ${pki_security_domain_name} ID        u,u,u
+##            TKS Administrator of Instance ${tks_instance_name}'s
+##                              ${pki_security_domain_name} ID        u,u,u
+##            RA Administrator's ${pki_security_domain_name} ID       u,u,u
+##            TPS Administrator's ${pki_security_domain_name} ID      u,u,u
+##
+##        where:
+##
+##                Nickname:  "Certificate Authority - "
+##                        +  "${pki_security_domain_name}"
+##            Subject Name:  "cn=Certificate Authority,"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "CA Administrator of Instance "
+##                        +  "${ca_instance_name}'s "
+##                        +  "${pki_security_domain_name} ID"
+##            Subject Name:  "cn=CA Administrator of Instance "
+##                        +  "${ca_instance_name},"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "KRA Administrator of Instance "
+##                        +  "${kra_instance_name}'s "
+##                        +  "${pki_security_domain_name} ID"
+##            Subject Name:  "cn=KRA Administrator of Instance "
+##                        +  "${kra_instance_name},"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "OCSP Administrator of Instance "
+##                        +  "${ocsp_instance_name}'s "
+##                        +  "${pki_security_domain_name} ID"
+##            Subject Name:  "cn=OCSP Administrator of Instance "
+##                        +  "${ocsp_instance_name},"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "TKS Administrator of Instance "
+##                        +  "${tks_instance_name}'s "
+##                        +  "${pki_security_domain_name} ID"
+##            Subject Name:  "cn=TKS Administrator of Instance "
+##                        +  "${tks_instance_name},"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "RA Administrator's "
+##                        +  "${pki_security_domain_name} ID"
+##            Subject Name:  "cn=RA Administrator,"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "TPS Administrator's "
+##                        +  "${pki_security_domain_name} ID"
+##            Subject Name:  "cn=TPS Administrator,"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
+##
+
+
+##  Miscellaneous CA Variables
+##
+##  REMINDER:  'Escape' ALL spaces in EACH variable specified below!
+##
+##  NOTE:  For comparison's sake, if the default instances were manually
+##         configured using a Firefox browser, the content of the corresponding
+##         "/var/lib/${ca_instance_name}/alias/" security libraries would be
+##         something similar to this:
+##
+##             Certificate Nickname                         Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##             ocspSigningCert cert-${ca_instance_name}       u,u,u
+##             subsystemCert cert-${ca_instance_name}         u,u,u
+##             caSigningCert cert-${ca_instance_name}         CTu,Cu,Cu
+##             Server-Cert cert-${ca_instance_name}           u,u,u
+##             auditSigningCert cert-${ca_instance_name}      u,u,u
+##
+##         where:
+##
+##                 Nickname:  "caSigningCert cert-${ca_instance_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "subsystemCert cert-${ca_instance_name}"
+##             Subject Name:  "cn=CA Subsystem Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "ocspSigningCert cert-${ca_instance_name}"
+##             Subject Name:  "cn=OCSP Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Server-Cert cert-${ca_instance_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "auditSigningCert cert-${ca_instance_name}"
+##             Subject Name:  "cn=CA Audit Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##  NOTE:  The parameters for the signing and key algorithms have the following meaning:
+##         ca_key_algorithm                 - signature algorithm used to sign the CA certificate
+##         ca_signing_algorithm             - signature algorithm used by the CA and OCSP signing certs to sign objects.
+##         ca_signing_signingalgorithm      - optionally specify the algorithm used by the CA signing cert to sign objects
+##         ca_ocsp_signing_signingalgorithm - optionally specify the algorithm used by the CA ocsp signing cert to sign objects
+##
+##  NOTE:  Additional variables to specify the LDAP connection are as follows:
+##         remove_data                       - set to true/false.  Remove any existing data found under the baseDN
+##         secure_conn                       - use the ldaps port
+ca_agent_name="CA\ Administrator\ of\ Instance\ ${ca_instance_name}\'s\ ${pki_security_domain_name}\ ID"
+ca_agent_key_size=2048
+ca_agent_key_type=rsa
+ca_agent_cert_subject="cn=CA\ Administrator\ of\ Instance\ ${ca_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
+ca_base_dn="dc=${pki_host}-${ca_instance_name}"
+ca_db_name="${pki_host}-${ca_instance_name}"
+ca_key_size=2048
+ca_key_type=rsa
+ca_key_algorithm=SHA256withRSA
+ca_signing_algorithm=SHA256withRSA
+ca_signing_signingalgorithm=SHA256withRSA
+ca_ocsp_signing_signingalgorithm=SHA256withRSA
+ca_save_p12=false
+ca_sign_cert_subject_name="cn=Certificate\ Authority,o=${pki_security_domain_name}"
+ca_subsystem_cert_subject_name="cn=CA\ Subsystem\ Certificate,o=${pki_security_domain_name}"
+ca_ocsp_cert_subject_name="cn=OCSP\ Signing\ Certificate,o=${pki_security_domain_name}"
+ca_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
+ca_audit_signing_cert_subject_name="cn=CA\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
+
+##  Optional CA Variables for creating a clone CA
+##
+##  It is possible for pkisilent to create a CA that is a clone of a previously
+##  installed CA (the master CA).  To do so, the keys of the master CA must 
+##  first be backed up in a pk12 file, and this file should be copied to the  
+##  alias directory of the clone CA.  This file should have read permission for  
+##  the PKI user (pkisuer).
+##  
+##  An example file would be /var/lib/ca-clone/alias/ca-master.p12.
+##
+##  The following variables should then be uncommented and defined for the clone CA.
+##  ca_clone=true	
+##  ca_clone_p12_file=		
+##  ca_clone_p12_password=
+##  clone_uri=
+##  sd_hostname=
+##  sd_admin_port=
+##  sd_admin_name=
+##  sd_admin_password=
+##  clone_start_tls=false
+##
+##  NOTES: 
+##  1. ca_clone_p12_file must be just the filename relative to the alias directory.
+##     So in the example above, ca_clone_p12_file="ca-master.p12"
+##  2. sd_* refer to the CA where the security domain is hosted. 
+##  3. clone_uri has the following format: https://<hostname>:<EE port> fo the CA to be cloned
+##
+##  ADDITIONAL NOTES:
+##  1. The clone CA and master CA cannot share the same database instance.  A new 
+##     instance should be created for the clone CA.
+##  2. The variables ca_base_dn and ca_db_name defined above MUST be identical to the
+##     ca_base_dn and ca_db_name of the master CA. The following assignments attempt
+##     to ensure this is correct.
+##  3. clone_start_tls can be set to true if we require replication between the master and clone databases 
+##     to be encrypted using startTLS on the standard (non-ldaps) port.  The databases must 
+##     be ssl enabled first or the replication will fail.
+##
+##  ca_master_instance_name=
+##  ca_base_dn="dc=${pki_host}-${ca_master_instance_name}"
+##  ca_db_name="${pki_host}-${ca_master_instance_name}"
+         
+## Optional CA variables for creating a CA using an external CA 
+##
+## It is possible to configure a CA that has its certificates signed by an external CA. 
+## This is a two step process.  
+##
+## In the first step, pkisilent will create a CSR to be signed by the external CA
+## and write it to the file specified.  If this file is not specified, the default
+## location /tmp/ext_ca.csr is used.
+##
+## The following parameters are required:
+## ca_external=true
+## ca_ext_csr_file=
+##
+## Once the CSR is approved by the external CA, the resulting certificate and CA 
+## cert chain are copied into files on the system.
+##
+## pkisilent is then rerun for the second step, providing the cert and cert chain files as
+## parameters.  For the second step, the following parameters are then required:
+##  
+## ca_external=true
+## ca_ext_cert_file=
+## ca_ext_cert_chain_file=
+
+##  Miscellaneous DRM Variables
+##
+##  REMINDER:  'Escape' ALL spaces in EACH variable specified below!
+##
+##  NOTE:  For comparison's sake, if the default instances were manually
+##         configured using a Firefox browser, the content of the corresponding
+##         "/var/lib/${kra_instance_name}/alias/" security libraries would be
+##         something similar to this:
+##
+##             Certificate Nickname                         Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##             transportCert cert-${kra_instance_name}               u,u,u
+##             Server-Cert cert-${kra_instance_name}                 u,u,u
+##             auditSigningCert cert-${kra_instance_name}            u,u,u
+##             Certificate Authority - ${pki_security_domain_name}   CT,c,
+##             storageCert cert-${kra_instance_name}                 u,u,u
+##             subsystemCert cert-${kra_instance_name}               u,u,u
+##
+##         where:
+##
+##                 Nickname:  "transportCert cert-${kra_instance_name}"
+##             Subject Name:  "cn=DRM Transport Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Server-Cert cert-${kra_instance_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "auditSigningCert cert-${kra_instance_name}"
+##             Subject Name:  "cn=DRM Audit Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Certificate Authority - "
+##                         +  "${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "storageCert cert-${kra_instance_name}"
+##             Subject Name:  "cn=DRM Storage Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "subsystemCert cert-${kra_instance_name}"
+##             Subject Name:  "cn=DRM Subsystem Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+
+##  Optional CA Variables for creating a clone DRM
+##
+##  It is possible for pkisilent to create a DRM that is a clone of a previously
+##  installed DRM (the master DRM).  To do so, the keys of the master DRM must 
+##  first be backed up in a pk12 file, and this file should be copied to the  
+##  alias directory of the clone DRM.  This file should have read permission for  
+##  the PKI user (pkiuser).
+##  
+##  An example file would be /var/lib/drm-clone/alias/drm-master.p12.
+##
+##  The following variables should then be uncommented and defined for the clone CA.
+##  kra_clone=true       
+##  kra_clone_p12_file=          
+##  kra_clone_p12_password=
+##  kra_clone_uri=
+##  clone_start_tls=false
+##
+##  NOTES: 
+##  1. drm_clone_p12_file must be just the filename relative to the alias directory.
+##     So in the example above, drm_clone_p12_file="drm-master.p12"
+##  2. drm_clone_uri has the following format: https://<hostname>:<EE port> of the DRM to be cloned
+##  3. clone_start_tls can be set to true if we require replication between the master and clone databases 
+##     to be encrypted using startTLS on the standard (non-ldaps) port.  The databases must 
+##     be ssl enabled first or the replication will fail.
+##
+##  ADDITIONAL NOTES:
+##  1. The clone DRM and master DRM cannot share the same database instance.  A new 
+##     instance should be created for the clone DRM.
+##  2. The variables kra_base_dn and kra_db_name defined above MUST be identical to the
+##     kra_base_dn and kra_name of the master CA. The following assignments attempt
+##     to ensure this is correct.
+##
+##  kra_master_instance_name=
+##  kra_base_dn="dc=${pki_host}-${kra_master_instance_name}"
+##  kra_db_name="${pki_host}-${kra_master_instance_name}"
+
+kra_agent_name="KRA\ Administrator\ of\ Instance\ ${kra_instance_name}\'s\ ${pki_security_domain_name}\ ID"
+kra_agent_key_size=2048
+kra_agent_key_type=rsa
+kra_agent_cert_subject="cn=KRA\ Administrator\ of\ Instance\ ${kra_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
+kra_base_dn="dc=${pki_host}-${kra_instance_name}"
+kra_db_name="${pki_host}-${kra_instance_name}"
+kra_key_size=2048
+kra_key_type=rsa
+kra_transport_cert_subject_name="cn=DRM\ Transport\ Certificate,o=${pki_security_domain_name}"
+kra_subsystem_cert_subject_name="cn=DRM\ Subsystem\ Certificate,o=${pki_security_domain_name}"
+kra_storage_cert_subject_name="cn=DRM\ Storage\ Certificate,o=${pki_security_domain_name}"
+kra_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
+kra_audit_signing_cert_subject_name="cn=DRM\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
+
+
+##  Miscellaneous OCSP Variables
+##
+##  REMINDER:  'Escape' ALL spaces in EACH variable specified below!
+##
+##  NOTE:  For comparison's sake, if the default instances were manually
+##         configured using a Firefox browser, the content of the corresponding
+##         "/var/lib/${ocsp_instance_name}/alias/" security libraries would be
+##         something similar to this:
+##
+##             Certificate Nickname                         Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##             ocspSigningCert cert-${ocsp_instance_name}            CTu,Cu,Cu
+##             subsystemCert cert-${ocsp_instance_name}              u,u,u
+##             Certificate Authority - ${pki_security_domain_name}   CT,c,
+##             Server-Cert cert-${ocsp_instance_name}                u,u,u
+##             auditSigningCert cert-${ocsp_instance_name}           u,u,u
+##
+##         where:
+##
+##                 Nickname:  "ocspSigningCert cert-${ocsp_instance_name}"
+##             Subject Name:  "cn=OCSP Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "subsystemCert cert-${ocsp_instance_name}"
+##             Subject Name:  "cn=OCSP Subsystem Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Certificate Authority - "
+##                         +  "${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Server-Cert cert-${ocsp_instance_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "auditSigningCert cert-${ocsp_instance_name}"
+##             Subject Name:  "cn=OCSP Audit Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+
+ocsp_agent_name="OCSP\ Administrator\ of\ Instance\ ${ocsp_instance_name}\'s\ ${pki_security_domain_name}\ ID"
+ocsp_agent_key_size=2048
+ocsp_agent_key_type=rsa
+ocsp_agent_cert_subject="cn=OCSP\ Administrator\ of\ Instance\ ${ocsp_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
+ocsp_base_dn="dc=${pki_host}-${ocsp_instance_name}"
+ocsp_db_name="${pki_host}-${ocsp_instance_name}"
+ocsp_key_size=2048
+ocsp_key_type=rsa
+ocsp_sign_cert_subject_name="cn=OCSP\ Signing\ Certificate,o=${pki_security_domain_name}"
+ocsp_subsystem_cert_subject_name="cn=OCSP\ Subsystem\ Certificate,o=${pki_security_domain_name}"
+ocsp_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
+ocsp_audit_signing_cert_subject_name="cn=OCSP\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
+
+
+##  Miscellaneous TKS Variables
+##
+##  REMINDER:  'Escape' ALL spaces in EACH variable specified below!
+##
+##  NOTE:  For comparison's sake, if the default instances were manually
+##         configured using a Firefox browser, the content of the corresponding
+##         "/var/lib/${tks_instance_name}/alias/" security libraries would be
+##         something similar to this:
+##
+##             Certificate Nickname                         Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##             subsystemCert cert-${tks_instance_name}                  u,u,u
+##             DRM Transport Certificate - ${pki_security_domain_name}  c,c,c
+##             Certificate Authority - ${pki_security_domain_name}      CT,c,
+##             Server-Cert cert-${tks_instance_name}                    u,u,u
+##             auditSigningCert cert-${tks_instance_name}               u,u,u
+##
+##         where:
+##
+##                 Nickname:  "subsystemCert cert-${tks_instance_name}"
+##             Subject Name:  "cn=TKS Subsystem Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "DRM Transport Certificate - "
+##                         +  "${pki_security_domain_name}"
+##             Subject Name:  "cn=DRM Transport Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Certificate Authority - "
+##                         +  "${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Server-Cert cert-${tks_instance_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "auditSigningCert cert-${tks_instance_name}"
+##             Subject Name:  "cn=TKS Audit Signing Certificate,"
+##                         +  "o=${pki_security_domain_name}"
+##
+
+tks_agent_name="TKS\ Administrator\ of\ Instance\ ${tks_instance_name}\'s\ ${pki_security_domain_name}\ ID"
+tks_agent_key_size=2048
+tks_agent_key_type=rsa
+tks_agent_cert_subject="cn=TKS\ Administrator\ of\ Instance\ ${tks_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
+tks_base_dn="dc=${pki_host}-${tks_instance_name}"
+tks_db_name="${pki_host}-${tks_instance_name}"
+tks_key_size=2048
+tks_key_type=rsa
+tks_subsystem_cert_subject_name="cn=TKS\ Subsystem\ Certificate,o=${pki_security_domain_name}"
+tks_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
+tks_audit_signing_cert_subject_name="cn=TKS\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
+
+
+##  Miscellaneous RA Variables
+##
+##  REMINDER:  'Escape' ALL spaces in EACH variable specified below!
+##
+##  NOTE:  For comparison's sake, if the default instances were manually
+##         configured using a Firefox browser, the content of the corresponding
+##         "/var/lib/${ra_instance_name}/alias/" security libraries would be
+##         something similar to this:
+##
+##             Certificate Nickname                         Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##             subsystemCert cert-${ra_instance_name}         u,u,u
+##             caCert                                       CT,C,C
+##             Server-Cert cert-${ra_instance_name}           u,u,u
+##
+##         where:
+##
+##                 Nickname:  "subsystemCert cert-${ra_instance_name}"
+##             Subject Name:  "cn=RA Subsystem Certificate,"
+##                         +  "ou=${ra_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "caCert"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Server-Cert cert-${ra_instance_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "ou=${ra_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+
+ra_chosen_ca_hostname=${pki_security_domain_host}
+ra_chosen_ca_nonssl_port=${ca_nonssl_port}
+ra_chosen_ca_ssl_port=${ca_ee_port}
+ra_chosen_ca_admin_port=${ca_admin_port}
+ra_agent_name="RA\ Administrator\'s\ ${pki_security_domain_name}\ ID"
+ra_agent_key_size=2048
+ra_agent_key_type=rsa
+ra_agent_cert_subject="cn=RA\ Administrator,uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
+ra_key_size=2048
+ra_key_type=rsa
+ra_server_cert_nickname="Server-Cert\ cert-${ra_instance_name}"
+ra_server_cert_subject_name="cn=${pki_host},ou=${ra_instance_name},o=${pki_security_domain_name}"
+ra_subsystem_cert_nickname="subsystemCert\ cert-${ra_instance_name}"
+ra_subsystem_cert_subject_name="cn=RA\ Subsystem\ Certificate,ou=${ra_instance_name},o=${pki_security_domain_name}"
+
+
+##  Miscellaneous TPS Variables
+##
+##  REMINDER:  'Escape' ALL spaces in EACH variable specified below!
+##
+##  NOTE:  For comparison's sake, if the default instances were manually
+##         configured using a Firefox browser, the content of the corresponding
+##         "/var/lib/${tps_instance_name}/alias/" security libraries would be
+##         something similar to this:
+##
+##             Certificate Nickname                         Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##             subsystemCert cert-${tps_instance_name}        u,u,u
+##             caCert                                         CT,C,C
+##             Server-Cert cert-${tps_instance_name}          u,u,u
+##             auditSigningCert cert-${tps_instance_name}     u,u,u
+##
+##         where:
+##
+##                 Nickname:  "subsystemCert cert-${tps_instance_name}"
+##             Subject Name:  "cn=TPS Subsystem Certificate,"
+##                         +  "ou=${tps_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "caCert"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Server-Cert cert-${tps_instance_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "ou=${tps_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "auditSigningCert cert-${tps_instance_name}"
+##             Subject Name:  "cn=TPS Audit Signing Certificate,"
+##                         +  "ou=${tps_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+
+tps_chosen_ca_hostname=${pki_security_domain_host}
+tps_chosen_ca_nonssl_port=${ca_nonssl_port}
+tps_chosen_ca_ssl_port=${ca_ee_port}
+tps_chosen_ca_admin_port=${ca_admin_port}
+tps_chosen_tks_hostname=${pki_host}
+tps_chosen_tks_ssl_port=${tks_ee_port}
+tps_chosen_drm_hostname=${pki_host}
+tps_chosen_drm_ssl_port=${kra_ee_port}
+tps_agent_name="TPS\ Administrator\'s\ ${pki_security_domain_name}\ ID"
+tps_agent_key_size=2048
+tps_agent_key_type=rsa
+tps_agent_cert_subject="cn=TPS\ Administrator,uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
+tps_ldap_auth_host=localhost
+tps_ldap_auth_port=389
+tps_ldap_auth_base_dn="dc=${pki_email_company},dc=${pki_email_domain}"
+tps_base_dn="dc=${pki_host}-${tps_instance_name}"
+tps_db_name="${pki_host}-${tps_instance_name}"
+tps_key_size=2048
+tps_key_type=rsa
+tps_ss_keygen=true
+tps_server_cert_subject_name="cn=${pki_host},ou=${tps_instance_name},o=${pki_security_domain_name}"
+tps_server_cert_nickname="Server-Cert\ cert-${tps_instance_name}"
+tps_subsystem_cert_subject_name="cn=TPS\ Subsystem\ Certificate,ou=${tps_instance_name},o=${pki_security_domain_name}"
+tps_subsystem_cert_nickname="subsystemCert\ cert-${tps_instance_name}"
+tps_audit_signing_cert_subject_name="cn=TPS\ Audit\ Signing\ Certificate,ou=${tps_instance_name},o=${pki_security_domain_name}"
+tps_audit_signing_cert_nickname="auditSigningCert\ cert-${tps_instance_name}"
+
+
+
+##############################################################################
+##############################################################################
+##                                                                          ##
+##  P K I   S I L E N T  -  S U B S Y S T E M   C O N F I G U R A T I O N   ##
+##                                                                          ##
+##############################################################################
+##############################################################################
+
+##############################################################################
+##  P K I   S I L E N T   I N I T I A L I Z A T I O N                       ##
+##############################################################################
+
+## (1) Make certain that user has defined all MANDATORY user-defined variables!
+usage_errors=0
+usage_error_preamble="ERROR:  User MUST define a value for"
+
+if [ "${pki_silent_security_database_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_silent_security_database_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_security_domain_name}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_security_domain_name'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_security_domain_admin_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_security_domain_admin_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_bind_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_bind_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${ca_token_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'ca_token_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${kra_token_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'kra_token_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${ocsp_token_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'ocsp_token_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${tks_token_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'tks_token_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${ra_token_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'ra_token_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${tps_token_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'tps_token_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${ca_backup_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'ca_backup_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${kra_backup_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'kra_backup_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${ocsp_backup_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'ocsp_backup_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${tks_backup_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'tks_backup_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_name}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_name'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_company}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_company'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_domain}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_domain'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_silent_admin_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_silent_admin_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+
+
+## (2) Make certain that a PKI instance of the specified name EXISTS,
+##     but has NOT been previously CONFIGURED!
+existence_errors=0
+existence_error_preamble="ERROR:  No PKI Instance named"
+configuration_errors=0
+configuration_error_preamble="ERROR:  A PKI Instance named"
+configuration_error_postamble="EXISTS,\n        but has PREVIOUSLY been CONFIGURED!"
+
+if [ ! -f "/var/lib/${ca_instance_name}/conf/CS.cfg" ] ; then
+	printf "${existence_error_preamble} '${ca_instance_name}' EXISTS!\n"
+	existence_errors=`expr ${existence_errors} + 1`
+else
+	ca_configuration_check=`grep -c preop /var/lib/${ca_instance_name}/conf/CS.cfg`
+	if [ ${ca_configuration_check} -eq 0 ] ; then
+	    printf "${configuration_error_preamble} '${ca_instance_name}' "
+		printf "${configuration_error_postamble}\n"
+		configuration_errors=`expr ${configuration_errors} + 1`
+	fi
+fi
+if [ ! -f "/var/lib/${kra_instance_name}/conf/CS.cfg" ] ; then
+	printf "${existence_error_preamble} '${kra_instance_name}' EXISTS!\n"
+	existence_errors=`expr ${existence_errors} + 1`
+else
+	kra_configuration_check=`grep -c preop /var/lib/${kra_instance_name}/conf/CS.cfg`
+	if [ ${kra_configuration_check} -eq 0 ] ; then
+	    printf "${configuration_error_preamble} '${kra_instance_name}' "
+		printf "${configuration_error_postamble}\n"
+		configuration_errors=`expr ${configuration_errors} + 1`
+	fi
+fi
+if [ ! -f "/var/lib/${ocsp_instance_name}/conf/CS.cfg" ] ; then
+	printf "${existence_error_preamble} '${ocsp_instance_name}' EXISTS!\n"
+	existence_errors=`expr ${existence_errors} + 1`
+else
+	ocsp_configuration_check=`grep -c preop /var/lib/${ocsp_instance_name}/conf/CS.cfg`
+	if [ ${ocsp_configuration_check} -eq 0 ] ; then
+	    printf "${configuration_error_preamble} '${ocsp_instance_name}' "
+		printf "${configuration_error_postamble}\n"
+		configuration_errors=`expr ${configuration_errors} + 1`
+	fi
+fi
+if [ ! -f "/var/lib/${tks_instance_name}/conf/CS.cfg" ] ; then
+	printf "${existence_error_preamble} '${tks_instance_name}' EXISTS!\n"
+	existence_errors=`expr ${existence_errors} + 1`
+else
+	tks_configuration_check=`grep -c preop /var/lib/${tks_instance_name}/conf/CS.cfg`
+	if [ ${tks_configuration_check} -eq 0 ] ; then
+	    printf "${configuration_error_preamble} '${tks_instance_name}' "
+		printf "${configuration_error_postamble}\n"
+		configuration_errors=`expr ${configuration_errors} + 1`
+	fi
+fi
+if [ ! -f "/var/lib/${ra_instance_name}/conf/CS.cfg" ] ; then
+	printf "${existence_error_preamble} '${ra_instance_name}' EXISTS!\n"
+	existence_errors=`expr ${existence_errors} + 1`
+else
+	ra_configuration_check=`grep -c preop /var/lib/${ra_instance_name}/conf/CS.cfg`
+	if [ ${ra_configuration_check} -eq 0 ] ; then
+	    printf "${configuration_error_preamble} '${ra_instance_name}' "
+		printf "${configuration_error_postamble}\n"
+		configuration_errors=`expr ${configuration_errors} + 1`
+	fi
+fi
+if [ ! -f "/var/lib/${tps_instance_name}/conf/CS.cfg" ] ; then
+	printf "${existence_error_preamble} '${tps_instance_name}' EXISTS!\n"
+	existence_errors=`expr ${existence_errors} + 1`
+else
+	tps_configuration_check=`grep -c preop /var/lib/${tps_instance_name}/conf/CS.cfg`
+	if [ ${tps_configuration_check} -eq 0 ] ; then
+	    printf "${configuration_error_preamble} '${tps_instance_name}' "
+		printf "${configuration_error_postamble}\n"
+		configuration_errors=`expr ${configuration_errors} + 1`
+	fi
+fi
+
+
+if	[ ${usage_errors} -ne 0 ]     ||
+	[ ${existence_errors} -ne 0 ] ||
+	[ ${configuration_errors} -ne 0 ] ; then
+	printf "\n"
+	printf "Please correct ALL errors listed above and re-run\n"
+	printf "the '$0' script!\n\n"
+	exit 255
+fi
+
+
+## (3) Make certain that 'pkisilent' exists and is executable on this system.
+if [ ! -x "/usr/bin/pkisilent" ] ; then
+	printf "\n"
+	printf "ERROR:  Please install the 'pki-silent' package and re-run\n"
+	printf "the '$0' script!\n\n"
+	exit 255
+fi
+
+
+## (4) Check for old PKI Silent Security Databases, but DO NOT remove them!
+##     Instead, inform the user and exit this script.
+if	[ -f "${pki_silent_security_database_repository}/cert8.db" ] ||
+	[ -f "${pki_silent_security_database_repository}/key3.db" ] ||
+	[ -f "${pki_silent_security_database_repository}/secmod.db" ] ; then
+	printf "\n"
+	printf "WARNING:  At least one of the security databases\n"
+	printf "          (i. e. - 'cert8.db', 'key3.db', and/or 'secmod.db')\n"
+	printf "          required by '${pki_silent_script}' exists at the\n"
+	printf "          specified location '${pki_silent_security_database_repository}'.\n"
+	printf "\n"
+	printf "          Please MANUALLY move or erase these security database(s),\n"
+	printf "          or specify a different location before re-running this script.\n\n"
+	exit 255
+fi
+
+
+## (5) Remove ALL old PKI Silent log files
+printf "Removing old PKI Silent log files:\n"
+if [ -f ${pki_silent_ca_log} ] ; then
+	printf "    Removing old '${pki_silent_ca_log}' . . . "
+	rm ${pki_silent_ca_log}
+	printf "done.\n"
+fi
+if [ -f ${pki_silent_kra_log} ] ; then
+	printf "    Removing old '${pki_silent_kra_log}' . . . "
+	rm ${pki_silent_kra_log}
+	printf "done.\n"
+fi
+if [ -f ${pki_silent_ocsp_log} ] ; then
+	printf "    Removing old '${pki_silent_ocsp_log}' . . . "
+	rm ${pki_silent_ocsp_log}
+	printf "done.\n"
+fi
+if [ -f ${pki_silent_tks_log} ] ; then
+	printf "    Removing old '${pki_silent_tks_log}' . . . "
+	rm ${pki_silent_tks_log}
+	printf "done.\n"
+fi
+if [ -f ${pki_silent_ra_log} ] ; then
+	printf "    Removing old '${pki_silent_ra_log}' . . . "
+	rm ${pki_silent_ra_log}
+	printf "done.\n"
+fi
+if [ -f ${pki_silent_tps_log} ] ; then
+	printf "    Removing old '${pki_silent_tps_log}' . . . "
+	rm ${pki_silent_tps_log}
+	printf "done.\n"
+fi
+printf "Done.\n\n"
+
+
+
+##############################################################################
+##  C A L C U L A T E   P K I   I N S T A N C E   P I N S                   ##
+##############################################################################
+
+##  PKI Subsystem Instance PINS
+ca_preop_pin=`cat /var/lib/${ca_instance_name}/conf/CS.cfg \
+	| grep preop.pin | grep -v grep | awk -F= '{print $2}'`
+kra_preop_pin=`cat /var/lib/${kra_instance_name}/conf/CS.cfg \
+	| grep preop.pin | grep -v grep | awk -F= '{print $2}'`
+ocsp_preop_pin=`cat /var/lib/${ocsp_instance_name}/conf/CS.cfg \
+	| grep preop.pin | grep -v grep | awk -F= '{print $2}'`
+tks_preop_pin=`cat /var/lib/${tks_instance_name}/conf/CS.cfg \
+	| grep preop.pin | grep -v grep | awk -F= '{print $2}'`
+ra_preop_pin=`cat /var/lib/${ra_instance_name}/conf/CS.cfg \
+	| grep preop.pin | grep -v grep | awk -F= '{print $2}'`
+tps_preop_pin=`cat /var/lib/${tps_instance_name}/conf/CS.cfg \
+	| grep preop.pin | grep -v grep | awk -F= '{print $2}'`
+
+
+
+##############################################################################
+##  C E R T I F I C A T E   A U T H O R I T Y                               ##
+##############################################################################
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${ca_init_script} status ${ca_instance_name}':
+##
+##      ${ca_instance_name} (pid 7843) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:9180/ca/ee/ca
+##          Secure Agent Port = https://${pki_host}:9443/ca/agent/ca
+##          Secure EE Port    = https://${pki_host}:9444/ca/ee/ca
+##          Secure Admin Port = https://${pki_host}:9445/ca/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:9445/ca
+##          Tomcat Port       = 9701 (for shutdown)
+##
+##
+##          Security Domain URL:
+##          ==================================================================
+##          https://${pki_host}:9445
+##          ==================================================================
+##
+
+##  Configure CA
+printf "'${pki_silent_script}':  Configuring '${ca_instance_name}' . . .\n"
+pkisilent ConfigureCA \
+	-cs_hostname "${pki_host}" \
+	-cs_port ${ca_admin_port} \
+	-client_certdb_dir ${pki_silent_security_database_repository} \
+	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-preop_pin ${ca_preop_pin} \
+	-domain_name "${pki_security_domain_name}" \
+	-admin_user ${pki_silent_admin_user} \
+	-admin_password ${pki_silent_admin_password} \
+	-admin_email "${pki_silent_admin_email}" \
+	-agent_name ${ca_agent_name} \
+	-agent_key_size ${ca_agent_key_size} \
+	-agent_key_type ${ca_agent_key_type} \
+	-agent_cert_subject "${ca_agent_cert_subject}" \
+	-ldap_host ${pki_ldap_host} \
+	-ldap_port ${pki_ldap_port} \
+	-bind_dn "${pki_bind_dn}" \
+	-bind_password ${pki_bind_password} \
+	-base_dn "${ca_base_dn}" \
+	-db_name "${ca_db_name}" \
+	-key_size ${ca_key_size} \
+	-key_type ${ca_key_type} \
+	-key_algorithm ${ca_key_algorithm} \
+        -signing_algorithm ${ca_signing_algorithm} \
+        -signing_signingalgorithm ${ca_signing_signingalgorithm} \
+        -ocsp_signing_signingalgorithm ${ca_ocsp_signing_signingalgorithm} \
+	-save_p12 ${ca_save_p12} \
+	-subsystem_name ${ca_subsystem_name} \
+	-token_name ${ca_token_name} \
+	-token_pwd ${ca_token_password} \
+	-ca_sign_cert_subject_name "${ca_sign_cert_subject_name}" \
+	-ca_subsystem_cert_subject_name "${ca_subsystem_cert_subject_name}" \
+	-ca_ocsp_cert_subject_name "${ca_ocsp_cert_subject_name}" \
+	-ca_server_cert_subject_name "${ca_server_cert_subject_name}" \
+	-ca_audit_signing_cert_subject_name \
+	"${ca_audit_signing_cert_subject_name}" \
+	| tee ${pki_silent_ca_log}
+
+##  Restart CA
+/sbin/service ${ca_init_script} restart ${ca_instance_name}
+
+
+##############################################################################
+##  C E R T I F I C A T E   A U T H O R I T Y  (Clone)                      ##
+##############################################################################
+##
+##  Use this to create a clone CA ..
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${ca_init_script} status ${ca_instance_name}':
+##
+##      ${ca_instance_name} (pid 7843) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:9180/ca/ee/ca
+##          Secure Agent Port = https://${pki_host}:9443/ca/agent/ca
+##          Secure EE Port    = https://${pki_host}:9444/ca/ee/ca
+##          Secure Admin Port = https://${pki_host}:9445/ca/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:9445/ca
+##          Tomcat Port       = 9701 (for shutdown)
+##
+##
+##          Security Domain URL:
+##          ==================================================================
+##          https://${pki_host}:9445
+##          ==================================================================
+##
+
+##  Configure clone CA
+# printf "'${pki_silent_script}':  Configuring '${ca_instance_name}' . . .\n"
+# pkisilent ConfigureCA \
+#	-cs_hostname "${pki_host}" \
+#	-cs_port ${ca_admin_port} \
+#	-client_certdb_dir ${pki_silent_security_database_repository} \
+#	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-preop_pin ${ca_preop_pin} \
+#	-domain_name "${pki_security_domain_name}" \
+#	-admin_user ${pki_silent_admin_user} \
+#	-admin_password ${pki_silent_admin_password} \
+#	-admin_email "${pki_silent_admin_email}" \
+#	-agent_name ${ca_agent_name} \
+#	-agent_key_size ${ca_agent_key_size} \
+#	-agent_key_type ${ca_agent_key_type} \
+#	-agent_cert_subject "${ca_agent_cert_subject}" \
+#	-ldap_host ${pki_ldap_host} \
+#	-ldap_port ${pki_ldap_port} \
+#	-bind_dn "${pki_bind_dn}" \
+#	-bind_password ${pki_bind_password} \
+#	-base_dn "${ca_base_dn}" \
+#	-db_name "${ca_db_name}" \
+#	-key_size ${ca_key_size} \
+#	-key_type ${ca_key_type} \
+#	-key_algorithm ${ca_key_algorithm} \
+#	-save_p12 ${ca_save_p12} \
+#	-subsystem_name ${ca_subsystem_name} \
+#	-token_name ${ca_token_name} \
+#	-token_pwd ${ca_token_password} \
+#	-ca_sign_cert_subject_name "${ca_sign_cert_subject_name}" \
+#	-ca_subsystem_cert_subject_name "${ca_subsystem_cert_subject_name}" \
+#	-ca_ocsp_cert_subject_name "${ca_ocsp_cert_subject_name}" \
+#	-ca_server_cert_subject_name "${ca_server_cert_subject_name}" \
+#	-ca_audit_signing_cert_subject_name \
+#	"${ca_audit_signing_cert_subject_name}" \
+#       -clone ${ca_clone} \
+#       -clone_p12_file ${ca_clone_p12_file} \
+#       -clone_p12_password ${ca_clone_p12_password} \
+#       -clone_uri ${clone_uri} \
+#       -sd_hostname ${sd_hostname} \
+#       -sd_admin_port ${sd_admin_port} \
+#       -sd_admin_name ${sd_admin_name} \
+#       -sd_admin_password ${sd_admin_password} \
+#       -clone_start_tls ${clone_start_tls} \
+#	| tee ${pki_silent_ca_log}
+
+##  Restart CA
+#/sbin/service ${ca_init_script} restart ${ca_instance_name}
+
+##############################################################################
+##  C E R T I F I C A T E   A U T H O R I T Y  (External CA - step 1)       ##
+##############################################################################
+##
+##  Use this invocation for the first step in creating a CA signed by 
+##  and external CA ..
+##
+##  For example, upon completion,
+##
+##  A Certificate Request has been generated and stored in /tmp/ext_ca_csr.csr
+##  Please submit this CSR to your external CA and obtain the CA Cert and CA Cert Chain"
+
+##  Configure CA signed by external CA (step 1)
+# printf "'${pki_silent_script}':  First step in configuring '${ca_instance_name}' . . .\n"
+# pkisilent ConfigureCA \
+#	-cs_hostname "${pki_host}" \
+#	-cs_port ${ca_admin_port} \
+#	-client_certdb_dir ${pki_silent_security_database_repository} \
+#	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-preop_pin ${ca_preop_pin} \
+#	-domain_name "${pki_security_domain_name}" \
+#	-admin_user ${pki_silent_admin_user} \
+#	-admin_password ${pki_silent_admin_password} \
+#	-admin_email "${pki_silent_admin_email}" \
+#	-agent_name ${ca_agent_name} \
+#	-agent_key_size ${ca_agent_key_size} \
+#	-agent_key_type ${ca_agent_key_type} \
+#	-agent_cert_subject "${ca_agent_cert_subject}" \
+#	-ldap_host ${pki_ldap_host} \
+#	-ldap_port ${pki_ldap_port} \
+#	-bind_dn "${pki_bind_dn}" \
+#	-bind_password ${pki_bind_password} \
+#	-base_dn "${ca_base_dn}" \
+#	-db_name "${ca_db_name}" \
+#	-key_size ${ca_key_size} \
+#	-key_type ${ca_key_type} \
+#	-key_algorithm ${ca_key_algorithm} \
+#       -signing_algorithm ${ca_signing_algorithm} \
+#       -signing_signingalgorithm ${ca_signing_signingalgorithm} \
+#       -ocsp_signing_signingalgorithm ${ca_ocsp_signing_signingalgorithm} \
+#	-save_p12 ${ca_save_p12} \
+#	-subsystem_name ${ca_subsystem_name} \
+#	-token_name ${ca_token_name} \
+#	-token_pwd ${ca_token_password} \
+#	-ca_sign_cert_subject_name "${ca_sign_cert_subject_name}" \
+#	-ca_subsystem_cert_subject_name "${ca_subsystem_cert_subject_name}" \
+#	-ca_ocsp_cert_subject_name "${ca_ocsp_cert_subject_name}" \
+#	-ca_server_cert_subject_name "${ca_server_cert_subject_name}" \
+#	-ca_audit_signing_cert_subject_name \
+#	"${ca_audit_signing_cert_subject_name}" \
+#       -external ${ca_external} \
+#       -ext_csr_file  ${ca_ext_csr_file} \
+#	| tee ${pki_silent_ca_log}
+
+##  Restart CA
+#/sbin/service ${ca_init_script} restart ${ca_instance_name}
+
+##############################################################################
+##  C E R T I F I C A T E   A U T H O R I T Y  (External CA step 2)         ##
+##############################################################################
+##
+##  Use this to create a CA signed by an external CA (step 2)
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${ca_init_script} status ${ca_instance_name}':
+##
+##      ${ca_instance_name} (pid 7843) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:9180/ca/ee/ca
+##          Secure Agent Port = https://${pki_host}:9443/ca/agent/ca
+##          Secure EE Port    = https://${pki_host}:9444/ca/ee/ca
+##          Secure Admin Port = https://${pki_host}:9445/ca/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:9445/ca
+##          Tomcat Port       = 9701 (for shutdown)
+##
+##
+##          Security Domain URL:
+##          ==================================================================
+##          https://${pki_host}:9445
+##          ==================================================================
+##
+
+##  Configure an externally signed CA (step 2)
+# printf "'${pki_silent_script}':  Step 2 in configuring external signed '${ca_instance_name}' . . .\n"
+# pkisilent ConfigureCA \
+#	-cs_hostname "${pki_host}" \
+#	-cs_port ${ca_admin_port} \
+#	-client_certdb_dir ${pki_silent_security_database_repository} \
+#	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-preop_pin ${ca_preop_pin} \
+#	-domain_name "${pki_security_domain_name}" \
+#	-admin_user ${pki_silent_admin_user} \
+#	-admin_password ${pki_silent_admin_password} \
+#	-admin_email "${pki_silent_admin_email}" \
+#	-agent_name ${ca_agent_name} \
+#	-agent_key_size ${ca_agent_key_size} \
+#	-agent_key_type ${ca_agent_key_type} \
+#	-agent_cert_subject "${ca_agent_cert_subject}" \
+#	-ldap_host ${pki_ldap_host} \
+#	-ldap_port ${pki_ldap_port} \
+#	-bind_dn "${pki_bind_dn}" \
+#	-bind_password ${pki_bind_password} \
+#	-base_dn "${ca_base_dn}" \
+#	-db_name "${ca_db_name}" \
+#	-key_size ${ca_key_size} \
+#	-key_type ${ca_key_type} \
+#	-key_algorithm ${ca_key_algorithm} \
+#       -signing_algorithm ${ca_signing_algorithm} \
+#       -signing_signingalgorithm ${ca_signing_signingalgorithm} \
+#       -ocsp_signing_signingalgorithm ${ca_ocsp_signing_signingalgorithm} \
+#	-save_p12 ${ca_save_p12} \
+#	-subsystem_name ${ca_subsystem_name} \
+#	-token_name ${ca_token_name} \
+#	-token_pwd ${ca_token_password} \
+#	-ca_sign_cert_subject_name "${ca_sign_cert_subject_name}" \
+#	-ca_subsystem_cert_subject_name "${ca_subsystem_cert_subject_name}" \
+#	-ca_ocsp_cert_subject_name "${ca_ocsp_cert_subject_name}" \
+#	-ca_server_cert_subject_name "${ca_server_cert_subject_name}" \
+#	-ca_audit_signing_cert_subject_name \
+#	"${ca_audit_signing_cert_subject_name}" \
+#       -external $ca_external} \
+#       -ext_ca_cert_file ${ca_ext_cert_file} \
+#       -ext_ca_cert_chain_file ${ca_ext_cert_chain_file} \
+#	| tee ${pki_silent_ca_log}
+
+##  Restart CA
+#/sbin/service ${ca_init_script} restart ${ca_instance_name}
+
+##############################################################################
+##  D A T A   R E C O V E R Y   M A N A G E R                               ##
+##############################################################################
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${kra_init_script} status ${kra_instance_name}':
+##
+##      ${kra_instance_name} (pid 11723) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:10180/kra/ee/kra
+##          Secure Agent Port = https://${pki_host}:10443/kra/agent/kra
+##          Secure EE Port    = https://${pki_host}:10444/kra/ee/kra
+##          Secure Admin Port = https://${pki_host}:10445/kra/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:10445/kra
+##          Tomcat Port       = 10701 (for shutdown)
+##
+
+##  Configure DRM
+printf "'${pki_silent_script}':  Configuring '${kra_instance_name}' . . .\n"
+pkisilent ConfigureDRM \
+	-cs_hostname "${pki_host}" \
+	-cs_port ${kra_admin_port} \
+	-sd_hostname "${pki_security_domain_host}" \
+	-sd_ssl_port ${ca_ee_port} \
+	-sd_agent_port ${ca_agent_port} \
+	-sd_admin_port ${ca_admin_port} \
+	-sd_admin_name "${pki_security_domain_admin_name}" \
+	-sd_admin_password ${pki_security_domain_admin_password} \
+	-ca_hostname ${pki_security_domain_host} \
+	-ca_port ${ca_nonssl_port} \
+	-ca_ssl_port ${ca_ee_port} \
+	-client_certdb_dir ${pki_silent_security_database_repository} \
+	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-preop_pin ${kra_preop_pin} \
+	-domain_name "${pki_security_domain_name}" \
+	-admin_user ${pki_silent_admin_user} \
+	-admin_password ${pki_silent_admin_password} \
+	-admin_email "${pki_silent_admin_email}" \
+	-agent_name ${kra_agent_name} \
+	-ldap_host ${pki_ldap_host} \
+	-ldap_port ${pki_ldap_port} \
+	-bind_dn "${pki_bind_dn}" \
+	-bind_password ${pki_bind_password} \
+	-base_dn "${kra_base_dn}" \
+	-db_name "${kra_db_name}" \
+	-key_size ${kra_key_size} \
+	-key_type ${kra_key_type} \
+	-token_name ${kra_token_name} \
+	-token_pwd ${kra_token_password} \
+	-agent_key_size ${kra_agent_key_size} \
+	-agent_key_type ${kra_agent_key_type} \
+	-agent_cert_subject "${kra_agent_cert_subject}" \
+	-subsystem_name ${kra_subsystem_name} \
+	-backup_pwd ${kra_backup_password} \
+	-drm_transport_cert_subject_name "${kra_transport_cert_subject_name}" \
+	-drm_subsystem_cert_subject_name "${kra_subsystem_cert_subject_name}" \
+	-drm_storage_cert_subject_name "${kra_storage_cert_subject_name}" \
+	-drm_server_cert_subject_name "${kra_server_cert_subject_name}" \
+	-drm_audit_signing_cert_subject_name \
+	"${kra_audit_signing_cert_subject_name}" \
+	| tee ${pki_silent_kra_log}
+
+##  Restart drm
+/sbin/service ${kra_init_script} restart ${kra_instance_name}
+
+
+##############################################################################
+##  D A T A   R E C O V E R Y   M A N A G E R (clone)                       ##
+##############################################################################
+##
+##  Use this to configure a DRM clone.
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${kra_init_script} status ${kra_instance_name}':
+##
+##      ${kra_instance_name} (pid 11723) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:10180/kra/ee/kra
+##          Secure Agent Port = https://${pki_host}:10443/kra/agent/kra
+##          Secure EE Port    = https://${pki_host}:10444/kra/ee/kra
+##          Secure Admin Port = https://${pki_host}:10445/kra/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:10445/kra
+##          Tomcat Port       = 10701 (for shutdown)
+##
+
+##  Configure DRM
+# printf "'${pki_silent_script}':  Configuring '${kra_instance_name}' . . .\n"
+# pkisilent ConfigureDRM \
+#	-cs_hostname "${pki_host}" \
+#	-cs_port ${kra_admin_port} \
+#	-sd_hostname "${pki_security_domain_host}" \
+#	-sd_ssl_port ${ca_ee_port} \
+#	-sd_agent_port ${ca_agent_port} \
+#	-sd_admin_port ${ca_admin_port} \
+#	-sd_admin_name "${pki_security_domain_admin_name}" \
+#	-sd_admin_password ${pki_security_domain_admin_password} \
+#	-ca_hostname ${pki_security_domain_host} \
+#	-ca_port ${ca_nonssl_port} \
+#	-ca_ssl_port ${ca_ee_port} \
+#	-client_certdb_dir ${pki_silent_security_database_repository} \
+#	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-preop_pin ${kra_preop_pin} \
+#	-domain_name "${pki_security_domain_name}" \
+#	-admin_user ${pki_silent_admin_user} \
+#	-admin_password ${pki_silent_admin_password} \
+#	-admin_email "${pki_silent_admin_email}" \
+#	-agent_name ${kra_agent_name} \
+#	-ldap_host ${pki_ldap_host} \
+#	-ldap_port ${pki_ldap_port} \
+#	-bind_dn "${pki_bind_dn}" \
+#	-bind_password ${pki_bind_password} \
+#	-base_dn "${kra_base_dn}" \
+#	-db_name "${kra_db_name}" \
+#	-key_size ${kra_key_size} \
+#	-key_type ${kra_key_type} \
+#	-token_name ${kra_token_name} \
+#	-token_pwd ${kra_token_password} \
+#	-agent_key_size ${kra_agent_key_size} \
+#	-agent_key_type ${kra_agent_key_type} \
+#	-agent_cert_subject "${kra_agent_cert_subject}" \
+#	-subsystem_name ${kra_subsystem_name} \
+#	-backup_pwd ${kra_backup_password} \
+#	-drm_transport_cert_subject_name "${kra_transport_cert_subject_name}" \
+#	-drm_subsystem_cert_subject_name "${kra_subsystem_cert_subject_name}" \
+#	-drm_storage_cert_subject_name "${kra_storage_cert_subject_name}" \
+#	-drm_server_cert_subject_name "${kra_server_cert_subject_name}" \
+#	-drm_audit_signing_cert_subject_name \
+#	"${kra_audit_signing_cert_subject_name}" \
+#       -clone ${kra_clone} \
+#       -clone_p12_file ${kra_clone_p12_file} \
+#       -clone_p12_password ${kra_clone_p12_password} \
+#       -clone_uri ${kra_uri} \
+#       -clone_start_tls ${clone_start_tls} \
+#	| tee ${pki_silent_kra_log}
+
+##  Restart drm
+#/sbin/service ${kra_init_script} restart ${kra_instance_name}
+
+
+##############################################################################
+##  O N L I N E   S T A T U S   C E R T I F I C A T E   P R O T O C O L     ##
+###############################################################################
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${ocsp_init_script} status ${ocsp_instance_name}':
+##
+##      ${ocsp_instance_name} (pid 13058) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:11180/ocsp/ee/ocsp
+##          Secure Agent Port = https://${pki_host}:11443/ocsp/agent/ocsp
+##          Secure EE Port    = https://${pki_host}:11444/ocsp/ee/ocsp
+##          Secure Admin Port = https://${pki_host}:11445/ocsp/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:11445/ocsp
+##          Tomcat Port       = 11701 (for shutdown)
+##
+
+##  Configure OCSP
+printf "'${pki_silent_script}':  Configuring '${ocsp_instance_name}' . . .\n"
+pkisilent ConfigureOCSP \
+	-cs_hostname "${pki_host}" \
+	-cs_port ${ocsp_admin_port} \
+	-sd_hostname "${pki_security_domain_host}" \
+	-sd_ssl_port ${ca_ee_port} \
+	-sd_agent_port ${ca_agent_port} \
+	-sd_admin_port ${ca_admin_port} \
+	-sd_admin_name "${pki_security_domain_admin_name}" \
+	-sd_admin_password ${pki_security_domain_admin_password} \
+	-ca_hostname ${pki_security_domain_host} \
+	-ca_port ${ca_nonssl_port} \
+	-ca_ssl_port ${ca_ee_port} \
+	-client_certdb_dir ${pki_silent_security_database_repository} \
+	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-preop_pin ${ocsp_preop_pin} \
+	-domain_name "${pki_security_domain_name}" \
+	-admin_user ${pki_silent_admin_user} \
+	-admin_password ${pki_silent_admin_password} \
+	-admin_email "${pki_silent_admin_email}" \
+	-agent_name ${ocsp_agent_name} \
+	-ldap_host ${pki_ldap_host} \
+	-ldap_port ${pki_ldap_port} \
+	-bind_dn "${pki_bind_dn}" \
+	-bind_password ${pki_bind_password} \
+	-base_dn "${ocsp_base_dn}" \
+	-db_name "${ocsp_db_name}" \
+	-key_size ${ocsp_key_size} \
+	-key_type ${ocsp_key_type} \
+	-token_name ${ocsp_token_name} \
+	-token_pwd ${ocsp_token_password} \
+	-agent_key_size ${ocsp_agent_key_size} \
+	-agent_key_type ${ocsp_agent_key_type} \
+	-agent_cert_subject "${ocsp_agent_cert_subject}" \
+	-subsystem_name ${ocsp_subsystem_name} \
+	-backup_pwd ${ocsp_backup_password} \
+	-ocsp_sign_cert_subject_name "${ocsp_sign_cert_subject_name}" \
+	-ocsp_subsystem_cert_subject_name "${ocsp_subsystem_cert_subject_name}" \
+	-ocsp_server_cert_subject_name "${ocsp_server_cert_subject_name}" \
+	-ocsp_audit_signing_cert_subject_name \
+	"${ocsp_audit_signing_cert_subject_name}" \
+	| tee ${pki_silent_ocsp_log}
+
+##  Restart OCSP
+/sbin/service ${ocsp_init_script} restart ${ocsp_instance_name}
+
+
+
+##############################################################################
+##  T O K E N   K E Y   S E R V I C E                                       ##
+##############################################################################
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${tks_init_script} status ${tks_instance_name}':
+##
+##      ${tks_instance_name} (pid 14129) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:13180/tks/ee/tks
+##          Secure Agent Port = https://${pki_host}:13443/tks/agent/tks
+##          Secure EE Port    = https://${pki_host}:13444/tks/ee/tks
+##          Secure Admin Port = https://${pki_host}:13445/tks/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:13445/tks
+##          Tomcat Port       = 13701 (for shutdown)
+##
+
+##  Configure TKS
+printf "'${pki_silent_script}':  Configuring '${tks_instance_name}' . . .\n"
+pkisilent ConfigureTKS \
+	-cs_hostname "${pki_host}" \
+	-cs_port ${tks_admin_port} \
+	-sd_hostname "${pki_security_domain_host}" \
+	-sd_ssl_port ${ca_ee_port} \
+	-sd_agent_port ${ca_agent_port} \
+	-sd_admin_port ${ca_admin_port} \
+	-sd_admin_name "${pki_security_domain_admin_name}" \
+	-sd_admin_password ${pki_security_domain_admin_password} \
+	-ca_hostname ${pki_security_domain_host} \
+	-ca_port ${ca_nonssl_port} \
+	-ca_ssl_port ${ca_ee_port} \
+	-client_certdb_dir ${pki_silent_security_database_repository} \
+	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-preop_pin ${tks_preop_pin} \
+	-domain_name "${pki_security_domain_name}" \
+	-admin_user ${pki_silent_admin_user} \
+	-admin_password ${pki_silent_admin_password} \
+	-admin_email "${pki_silent_admin_email}" \
+	-agent_name ${tks_agent_name} \
+	-ldap_host ${pki_ldap_host} \
+	-ldap_port ${pki_ldap_port} \
+	-bind_dn "${pki_bind_dn}" \
+	-bind_password ${pki_bind_password} \
+	-base_dn "${tks_base_dn}" \
+	-db_name "${tks_db_name}" \
+	-key_size ${tks_key_size} \
+	-key_type ${tks_key_type} \
+	-token_name ${tks_token_name} \
+	-token_pwd ${tks_token_password} \
+	-agent_key_size ${tks_agent_key_size} \
+	-agent_key_type ${tks_agent_key_type} \
+	-agent_cert_subject "${tks_agent_cert_subject}" \
+	-subsystem_name ${tks_subsystem_name} \
+	-backup_pwd ${tks_backup_password} \
+	-tks_subsystem_cert_subject_name "${tks_subsystem_cert_subject_name}" \
+	-tks_server_cert_subject_name "${tks_server_cert_subject_name}" \
+	-tks_audit_signing_cert_subject_name \
+	"${tks_audit_signing_cert_subject_name}" \
+	| tee ${pki_silent_tks_log}
+
+## restart tks
+/sbin/service ${tks_init_script} restart ${tks_instance_name}
+
+
+
+##############################################################################
+##  R E G I S T R A T I O N   A U T H O R I T Y                             ##
+##############################################################################
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${ra_init_script} status ${ra_instance_name}':
+##
+##      ${ra_instance_name} (pid 15769) is running ...
+##
+##          Unsecure Port              = http://${pki_host}:12888
+##          Secure Clientauth Port     = https://${pki_host}:12889
+##          Secure Non-Clientauth Port = https://${pki_host}:12890
+##
+
+##  Configure RA
+printf "'${pki_silent_script}':  Configuring '${ra_instance_name}' . . .\n"
+pkisilent ConfigureRA \
+	-cs_hostname "${pki_host}" \
+	-cs_port ${ra_nonclientauth_port} \
+	-cs_clientauth_port ${ra_clientauth_port} \
+	-sd_hostname "${pki_security_domain_host}" \
+	-sd_ssl_port ${ca_ee_port} \
+	-sd_agent_port ${ca_agent_port} \
+	-sd_admin_port ${ca_admin_port} \
+	-sd_admin_name "${pki_security_domain_admin_name}" \
+	-sd_admin_password ${pki_security_domain_admin_password} \
+	-ca_hostname ${ra_chosen_ca_hostname} \
+	-ca_port ${ra_chosen_ca_nonssl_port} \
+	-ca_ssl_port ${ra_chosen_ca_ssl_port} \
+	-ca_admin_port ${ra_chosen_ca_admin_port} \
+	-client_certdb_dir ${pki_silent_security_database_repository} \
+	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-preop_pin ${ra_preop_pin} \
+	-domain_name "${pki_security_domain_name}" \
+	-admin_user ${pki_silent_admin_user} \
+	-admin_password ${pki_silent_admin_password} \
+	-admin_email "${pki_silent_admin_email}" \
+	-agent_name ${ra_agent_name} \
+	-key_size ${ra_key_size} \
+	-key_type ${ra_key_type} \
+	-token_name ${ra_token_name} \
+	-token_pwd ${ra_token_password} \
+	-agent_key_size ${ra_agent_key_size} \
+	-agent_key_type ${ra_agent_key_type} \
+	-agent_cert_subject "${ra_agent_cert_subject}" \
+	-subsystem_name ${ra_subsystem_name} \
+	-ra_server_cert_nickname "${ra_server_cert_nickname}" \
+	-ra_server_cert_subject_name "${ra_server_cert_subject_name}" \
+	-ra_subsystem_cert_nickname "${ra_subsystem_cert_nickname}" \
+	-ra_subsystem_cert_subject_name "${ra_subsystem_cert_subject_name}" \
+	| tee ${pki_silent_ra_log}
+
+##  Restart RA
+/sbin/service ${ra_init_script} restart ${ra_instance_name}
+
+
+##############################################################################
+##  T O K E N   P R O C E S S I N G   S Y S T E M                           ##
+##############################################################################
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${tps_init_script} status ${tps_instance_name}':
+##
+##
+##  ${tps_instance_name} (pid 16241) is running ...
+##
+##  Unsecure Port              = http://${pki_host}:7888/cgi-bin/so/enroll.cgi
+##                               (ESC Security Officer Enrollment)
+##  Unsecure Port              = http://${pki_host}:7888/cgi-bin/home/index.cgi
+##                               (ESC Phone Home)
+##  Secure Clientauth Port     = https://${pki_host}:7889/cgi-bin/sow/welcome.cgi
+##                               (ESC Security Officer Workstation)
+##  Secure Clientauth Port     = https://${pki_host}:7889/tus
+##                               (TPS Roles - Operator/Administrator/Agent)
+##  Secure Non-Clientauth Port = https://${pki_host}:7890/cgi-bin/so/enroll.cgi
+##                               (ESC Security Officer Enrollment)
+##  Secure Non-Clientauth Port = https://${pki_host}:7890/cgi-bin/home/index.cgi
+##                               (ESC Phone Home)
+##
+
+##  Configure TPS
+printf "'${pki_silent_script}':  Configuring '${tps_instance_name}' . . .\n"
+pkisilent ConfigureTPS \
+	-cs_hostname "${pki_host}" \
+	-cs_port ${tps_nonclientauth_port} \
+	-cs_clientauth_port ${tps_clientauth_port} \
+	-sd_hostname "${pki_security_domain_host}" \
+	-sd_ssl_port ${ca_ee_port} \
+	-sd_agent_port ${ca_agent_port} \
+	-sd_admin_port ${ca_admin_port} \
+	-sd_admin_name "${pki_security_domain_admin_name}" \
+	-sd_admin_password ${pki_security_domain_admin_password} \
+	-ca_hostname ${tps_chosen_ca_hostname} \
+	-ca_port ${tps_chosen_ca_nonssl_port} \
+	-ca_ssl_port ${tps_chosen_ca_ssl_port} \
+	-ca_admin_port ${tps_chosen_ca_admin_port} \
+	-drm_hostname ${tps_chosen_drm_hostname} \
+	-drm_ssl_port ${tps_chosen_drm_ssl_port} \
+	-ss_keygen ${tps_ss_keygen} \
+	-tks_hostname ${tps_chosen_tks_hostname} \
+	-tks_ssl_port ${tps_chosen_tks_ssl_port} \
+	-client_certdb_dir ${pki_silent_security_database_repository} \
+	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-preop_pin ${tps_preop_pin} \
+	-domain_name "${pki_security_domain_name}" \
+	-admin_user ${pki_silent_admin_user} \
+	-admin_password ${pki_silent_admin_password} \
+	-admin_email "${pki_silent_admin_email}" \
+	-agent_name ${tps_agent_name} \
+	-ldap_host ${pki_ldap_host} \
+	-ldap_port ${pki_ldap_port} \
+	-bind_dn "${pki_bind_dn}" \
+	-bind_password ${pki_bind_password} \
+	-base_dn "${tps_base_dn}" \
+	-db_name "${tps_db_name}" \
+	-key_size ${tps_key_size} \
+	-key_type ${tps_key_type} \
+	-token_name ${tps_token_name} \
+	-token_pwd ${tps_token_password} \
+	-agent_key_size ${tps_agent_key_size} \
+	-agent_key_type ${tps_agent_key_type} \
+	-agent_cert_subject "${tps_agent_cert_subject}" \
+	-subsystem_name ${tps_subsystem_name} \
+	-ldap_auth_host ${tps_ldap_auth_host} \
+	-ldap_auth_port ${tps_ldap_auth_port} \
+	-ldap_auth_base_dn ${tps_ldap_auth_base_dn} \
+	-tps_server_cert_subject_name "${tps_server_cert_subject_name}" \
+	-tps_server_cert_nickname "${tps_server_cert_nickname}" \
+	-tps_subsystem_cert_subject_name "${tps_subsystem_cert_subject_name}" \
+	-tps_subsystem_cert_nickname "${tps_subsystem_cert_nickname}" \
+	-tps_audit_signing_cert_subject_name \
+	"${tps_audit_signing_cert_subject_name}" \
+	-tps_audit_signing_cert_nickname \
+	"${tps_audit_signing_cert_nickname}" \
+	| tee ${pki_silent_tps_log}
+
+##  Restart TPS
+/sbin/service ${tps_init_script} restart ${tps_instance_name}
+
+exit 0
+

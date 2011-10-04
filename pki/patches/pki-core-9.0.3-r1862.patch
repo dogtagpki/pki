@@ -1,0 +1,25 @@
+Index: base/common/scripts/functions
+===================================================================
+--- base/common/scripts/functions	(revision 1861)
++++ base/common/scripts/functions	(revision 1862)
+@@ -694,6 +694,10 @@
+     $PKI_INSTANCE_INITSCRIPT start
+     rv=$?
+ 
++    if [ $rv -ne 0 ] ; then
++        return $rv
++    fi
++
+     # On Tomcat subsystems, make certain that the service has started
+     case $PKI_SUBSYSTEM_TYPE in
+         ca|kra|ocsp|tks)
+@@ -710,6 +714,9 @@
+                 sleep 1
+                 let count=$count+1;
+             done
++            if [ $netrv -ne 0 ] ; then
++                return 1
++            fi
+             ;;
+     esac
+ 

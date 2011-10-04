@@ -1,0 +1,268 @@
+<!-- ### BEGIN COPYRIGHT BLOCK ###
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; version 2 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+  Copyright (C) 2007 Red Hat, Inc.
+  All rights reserved.
+     ### END COPYRIGHT BLOCK ### -->
+<project name="product.xml" default="main" basedir=".">
+
+    <!-- Set up properties based upon the user's default Ant configuration -->
+    <property file=".ant.properties"/>
+    <property file="${user.home}/.ant.properties"/>
+    <property environment="env"/>
+
+
+    <!-- Check for required properties passed-in via the build scripts -->
+    <fail message="The '-Dproduct.ui.flavor.prefix=PKI UI FLAVOR' property MUST always be specified by 'ant' (even if one does not exist)!"
+          unless="product.ui.flavor.prefix"/>
+    <fail message="The '-Dproduct.prefix=PKI PREFIX' property MUST always be specified by 'ant' (even if one does not exist)!"
+          unless="product.prefix"/>
+    <fail message="The '-Dproduct=PKI BASENAME' property MUST always be specified by 'ant'!"
+          unless="product"/>
+    <fail message="The '-Dversion=PKI VERSION' property MUST always be specified by 'ant'!"
+          unless="version"/>
+
+
+    <!-- Set up optional properties passed-in via the build scripts -->
+    <property name="basedir" value=""/>
+    <property name="dirsec" value=""/>
+    <property name="init.d" value=""/>
+    <property name="target" value=""/>
+
+
+    <!-- if "product.ui.flavor.prefix" is "",                      -->
+    <!--     set "product.ui.prefix" to "";                        -->
+    <!-- otherwise,                                                -->
+    <!--     set "product.ui.prefix" to "product.ui.flavor.prefix" -->
+    <condition property="product.ui.prefix"
+               value=""
+               else="${product.ui.flavor.prefix}">
+        <equals arg1="${product.ui.flavor.prefix}"
+                arg2=""/>
+    </condition>
+
+    <!-- "product.name" is of the form "x-y-z" -->
+    <condition property="product.name"
+               value="${product.ui.prefix}-${product.prefix}-${product}">
+        <not>
+        <equals arg1="${product.ui.prefix}"
+                arg2=""/>
+        </not>
+    </condition>
+
+    <!-- "product.name" is of the form "x-y" -->
+    <condition property="product.name"
+               value="${product.prefix}-${product}">
+        <and>
+        <equals arg1="${product.ui.prefix}"
+                arg2=""/>
+        <not>
+        <equals arg1="${product.prefix}"
+                arg2=""/>
+        </not>
+        </and>
+    </condition>
+
+    <!-- "product.name" is of the form "x" -->
+    <condition property="product.name"
+               value="${product}">
+        <and>
+        <equals arg1="${product.ui.prefix}"
+                arg2=""/>
+        <equals arg1="${product.prefix}"
+                arg2=""/>
+        </and>
+    </condition>
+
+
+    <!-- Set up architecture-dependent properties -->
+    <exec executable="uname"
+          failonerror="true"
+          outputproperty="arch">
+        <arg line="-i"/>
+    </exec> 
+
+    <!-- Set up architecture-independent properties -->
+    <property name="jar.home" value="/usr/share/java"/>
+    <property name="pki-jar.home" value="${jar.home}/${product.prefix}"/>
+    <property name="jni-jar.home" value="/usr/lib/java"/>
+
+    <!-- Set up properties that control various build options -->
+    <property name="debug" value="true"/>
+    <property name="chmod.fail" value="true"/>
+    <property name="chmod.maxparallel" value="250"/>
+    <property name="deprecation" value="false"/>
+    <property name="optimize" value="true"/>
+
+
+    <!-- Set up properties related to the source tree -->
+    <property name="docs.dir" value="docs"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="src.dir" value="src"/>
+    <property name="test.dir" value="test"/>
+    <property name="etc.dir" value="${src.dir}/etc"/>
+    <property name="script.dir" value="${src.dir}/script"/>
+
+
+    <!-- Set up properties for the release area -->
+    <property name="release.root" value="."/>
+
+
+    <!-- Set up properties for the build area -->
+    <property name="build.dir" value="build"/>
+    <property name="bootstrap.dir" value="bootstrap"/>
+    <property name="build.jars" value="${build.dir}/jars"/>
+    <property name="build.classes" value="${build.dir}/classes"/>
+    <property name="build.lib" value="${build.dir}/lib"/>
+    <property name="build.javadocs" value="${build.dir}/javadocs"/>
+    <property name="build.tests" value="${build.dir}/testcases"/>
+    <property name="build.tests.javadocs" value="${build.dir}/javadocs.test/"/>
+    <property name="manifest.tmp" value="${build.dir}/optional.manifest"/>
+
+
+    <!-- Set up properties for the distribution area -->
+    <property name="dist.name" value="${product.name}-${version}"/>
+    <property name="dist.base" value="dist"/>
+    <property name="dist.base.source" value="${dist.base}/source"/>
+    <property name="dist.base.binaries" value="${dist.base}/binary"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="dist.bin" value="${dist.dir}/bin"/>
+    <property name="dist.lib" value="${dist.dir}/lib"/>
+    <property name="dist.docs" value="${dist.dir}/docs"/>
+    <property name="dist.etc" value="${dist.dir}/etc"/>
+    <property name="src.dist.name" value="${product.name}-${version}"/>
+    <property name="src.dist.dir" value="dist-src"/>
+    <property name="src.dist.src" value="${src.dist.dir}/src"/>
+    <property name="src.dist.docs" value="${src.dist.dir}/docs"/>
+    <property name="src.dist.lib" value="${src.dist.dir}/lib"/>
+
+
+    <!-- Set up properties for log messages -->
+    <property name="begin.clean.log.message"
+              value="Removing '${product.name}' component directories ..."/>
+    <property name="empty.clean.log.message"
+              value="Nothing to do!"/>
+    <property name="end.clean.log.message"
+              value="Completed removing '${product.name}' component directories."/>
+    <property name="begin.download.log.message"
+              value="Downloading '${product.name}' dependent components ..."/>
+    <property name="empty.download.log.message"
+              value="Nothing to do!"/>
+    <property name="end.download.log.message"
+              value="Completed downloading '${product.name}' dependent components."/>
+    <property name="begin.compile.java.log.message"
+              value="Compiling '${product.name}' java code from '${src.dir}' into '${build.classes}' ..."/>
+    <property name="empty.compile.java.log.message"
+              value="Nothing to do!"/>
+    <property name="end.compile.java.log.message"
+              value="Completed compiling '${product.name}' java code from '${src.dir}' into '${build.classes}'."/>
+    <property name="begin.build.jars.log.message"
+              value="Generating '${product.name}' jar files ..."/>
+    <property name="empty.build.jars.log.message"
+              value="Nothing to do!"/>
+    <property name="end.build.jars.log.message"
+              value="Completed generating '${product.name}' jar files."/>
+    <property name="begin.build.jni.headers.log.message"
+              value="Generating '${product.name}' java header files ..."/>
+    <property name="empty.build.jni.headers.log.message"
+              value="Nothing to do!"/>
+    <property name="end.build.jni.headers.log.message"
+              value="Completed generating '${product.name}' java header files."/>
+    <property name="notify.build.log.message"
+              value="Built classes, jars, and jni headers for the '${product.name}' component."/>
+    <property name="begin.compile.junit.tests.log.message"
+              value="Compiling '${product.name}' junit tests from '${test.dir}' into '${build.tests}' ..."/>
+    <property name="empty.compile.junit.tests.log.message"
+              value="Nothing to do!"/>
+    <property name="end.compile.junit.tests.log.message"
+              value="Completed compiling '${product.name}' junit tests from '${test.dir}' into '${build.tests}'."/>
+    <property name="begin.run.junit.tests.log.message"
+              value="Executing '${product.name}' tests ..."/>
+    <property name="empty.run.junit.tests.log.message"
+              value="Nothing to do!"/>
+    <property name="end.run.junit.tests.log.message"
+              value="Completed executing '${product.name}' tests."/>
+    <property name="notify.verify.log.message"
+              value="Verified the '${product.name}' component."/>
+    <property name="begin.clean.javadocs.log.message"
+              value="Removing '${product.name}' javadocs directory ..."/>
+    <property name="empty.clean.javadocs.log.message"
+              value="Nothing to do!"/>
+    <property name="end.clean.javadocs.log.message"
+              value="Completed removing '${product.name}' javadocs directory."/>
+    <property name="begin.compose.javadocs.log.message"
+              value="Composing '${product.name}' javadocs ..."/>
+    <property name="empty.compose.javadocs.log.message"
+              value="Nothing to do!"/>
+    <property name="end.compose.javadocs.log.message"
+              value="Completed composing '${product.name}' javadocs."/>
+    <property name="notify.document.log.message"
+              value="Documented '${product.name}' javadocs."/>
+    <property name="begin.distribute.binaries.log.message"
+              value="Creating '${product.name}' binary distributions ..."/>
+    <property name="begin.binary.wrappers.log.message"
+              value="    Creating '${product.name}' binary wrappers ..."/>
+    <property name="empty.binary.wrappers.log.message"
+              value="    Nothing to do!"/>
+    <property name="end.binary.wrappers.log.message"
+              value="    Completed creating '${product.name}' binary wrappers."/>
+    <property name="begin.binary.zip.log.message"
+              value="    Creating '${product.name}' binary zip files ..."/>
+    <property name="empty.binary.zip.log.message"
+              value="    Nothing to do!"/>
+    <property name="end.binary.zip.log.message"
+              value="    Completed creating '${product.name}' binary zip files."/>
+    <property name="begin.binary.tar.log.message"
+              value="    Creating '${product.name}' binary tar files ..."/>
+    <property name="empty.binary.tar.log.message"
+              value="    Nothing to do!"/>
+    <property name="end.binary.tar.log.message"
+              value="    Completed creating '${product.name}' binary tar files."/>
+    <property name="begin.binary.gtar.log.message"
+              value="    Creating '${product.name}' binary gzip files ..."/>
+    <property name="empty.binary.gtar.log.message"
+              value="    Nothing to do!"/>
+    <property name="end.binary.gtar.log.message"
+              value="    Completed creating '${product.name}' binary gzip files."/>
+    <property name="end.distribute.binaries.log.message"
+              value="Completed creating '${product.name}' binary distributions."/>
+    <property name="begin.distribute.source.log.message"
+              value="Creating '${product.name}' source distributions ..."/>
+    <property name="begin.source.zip.log.message"
+              value="    Creating '${product.name}' source zip files ..."/>
+    <property name="empty.source.zip.log.message"
+              value="    Nothing to do!"/>
+    <property name="end.source.zip.log.message"
+              value="    Completed creating '${product.name}' source zip files."/>
+    <property name="begin.source.tar.log.message"
+              value="    Creating '${product.name}' source tar files ..."/>
+    <property name="empty.source.tar.log.message"
+              value="    Nothing to do!"/>
+    <property name="end.source.tar.log.message"
+              value="    Completed creating '${product.name}' source tar files."/>
+    <property name="begin.source.gtar.log.message"
+              value="    Creating '${product.name}' source gzip files ..."/>
+    <property name="empty.source.gtar.log.message"
+              value="    Nothing to do!"/>
+    <property name="end.source.gtar.log.message"
+              value="    Completed creating '${product.name}' source gzip files."/>
+    <property name="end.distribute.source.log.message"
+              value="Completed creating '${product.name}' source distributions."/>
+    <property name="notify.distribute.log.message"
+              value="Distributed '${product.name}' distribution packages."/>
+    <property name="notify.main.log.message"
+              value="Built, verified, documented, and distributed a fresh '${product.name}' component."/>
+
+</project>
+

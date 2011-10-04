@@ -1,0 +1,75 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<CMS_TEMPLATE>
+<font size="+1" face="PrimaSans BT, Verdana, sans-serif">Manage Certificate Profiles<br></font>
+<font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+Use this form to approve a certificate profile.</font>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/agent/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<p>
+<script type="text/javascript">
+document.writeln('<table style="font-family: PrimaSans BT, Verdana, sans-serif; font-size: 75%;">');
+document.writeln('<tr style="font-weight: bold;">');
+document.writeln('<td width=40%>');
+document.writeln('Certificate Profile Name');
+document.writeln('</td>');
+document.writeln('<td width=40%>');
+document.writeln('Description');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('End User Certificate Profile');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('Approved');
+document.writeln('</td>');
+document.writeln('<td>');
+document.writeln('By');
+document.writeln('</td>');
+document.writeln('</tr>');
+for (var i = 0; i < recordSet.length; i++) {
+  document.writeln('<tr>');
+  document.writeln('<td>');
+  document.writeln('<a href="profileSelect?profileId=' + 
+    recordSet[i].profileId + '">');
+  document.writeln(recordSet[i].profileName);
+  document.writeln('</a>');
+  document.writeln('</td>');
+  document.writeln('<td>');
+  document.writeln(recordSet[i].profileDesc);
+  document.writeln('</td>');
+  document.writeln('<td>');
+  document.writeln(recordSet[i].profileIsVisible);
+  document.writeln('</td>');
+  document.writeln('<td>');
+  document.writeln(recordSet[i].profileIsEnable);
+  document.writeln('</td>');
+  document.writeln('<td>');
+  if (recordSet[i].profileEnableBy != 'null') {
+    document.writeln(recordSet[i].profileEnableBy);
+  }
+  document.writeln('</td>');
+  document.writeln('</tr>');
+} // for
+document.writeln('</table>');
+</script>
+</html>

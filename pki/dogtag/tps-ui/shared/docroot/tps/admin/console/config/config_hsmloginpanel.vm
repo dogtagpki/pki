@@ -1,0 +1,82 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<SCRIPT LANGUAGE="JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+  <h1>
+  Security Modules Login Panel</h1>
+Keys will be generated and stored on security modules. A security module can be hardware-based or software-based. Hardware-based security modules are more secure.
+<p>
+<H2>Security Token Login</H2>
+<form name=configHSMLoginForm action="config_hsmlogin" method="post">
+<p>
+The user has chosen to login to the following security module: <b>$SecToken</b>
+<p>
+#if ($status == "alreadyLoggedIn")
+	Token already logged in.
+#else
+   #if ($status == "tokenPasswordNotInitialized")
+	Token password not initialized.
+   #else
+      #if ($status == "justLoggedIn")
+          Token logged in successfully.
+      #else
+<table>
+<tr>
+  <td>
+Security Module Token Name: <b><input type=text name="uTokName" value="$SecToken"></b>
+  </td>
+</tr>
+<tr>
+  <td>
+Security Module Token Password: <input type=password name="__uPasswd" value="" autocomplete="off">
+  </td>
+<tr>
+</tr>
+</table>
+<p>
+      #end
+    #end
+#end
+
+<table width=100%>
+<tr bgcolor="#eeeeee">
+  <td>
+
+  </td>
+</tr>
+</table>
+	</td>
+      </tr>
+    </table>
+
+    <p>
+                                                                                
+    <div align="right">
+      <hr />
+      &nbsp;
+    </div>
+
+

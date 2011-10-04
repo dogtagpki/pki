@@ -1,0 +1,42 @@
+# BEGIN COPYRIGHT BLOCK
+# (C) 2008 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+This Certificate System is open-source software.
+
+Please comply with the LICENSE contained in each of
+the individual components, and the EXPORT CONTROL
+regulations defined at:
+
+    http://pki.fedoraproject.org/wiki/PKI_Download
+
+
+These directories contain the following:
+
+    README  - This file.
+
+    base/   - Contains most of the base source code
+              needed to build this project.  Note that
+              this directory does NOT contain
+              implementation specific user-interface
+              components required to build a working
+              Certificate System.
+
+    dogtag/ - Contains the scripts and user-interface
+              components necessary to build a sample
+              working "Dogtag Certificate System".
+              The scripts in this directory leverage
+              the base source code located in the
+              "base/" directory, and are known to
+              work on both 32-bit and 64-bit
+              "Fedora 8" operating systems.  Users
+              who wish to experiment with this project
+              should focus on this directory first.
+
+
+Detailed instructions for building, installing, and
+running this project are located at:
+
+    http://pki.fedoraproject.org/wiki/PKI_Main_Page
+

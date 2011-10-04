@@ -1,0 +1,234 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<style type="text/css">
+div#advance
+{
+  margin: 0px 20px 0px 20px;
+  display: none;
+}
+div#simple
+{
+  margin: 0px 20px 0px 20px;
+  display: block;
+}
+</style>
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+
+function toggleLayer(whichLayer)
+{
+  if (document.getElementById) {
+    // this is the way the standards work
+    var style2 = document.getElementById(whichLayer).style;
+    if (style2.display == "block") {
+      style2.display = "none";
+    } else {
+      style2.display = "block";
+    }
+  }
+}
+
+function toggleLayer1(whichLayer)
+{
+  if (document.getElementById) {
+    // this is the way the standards work
+    var style2 = document.getElementById(whichLayer).style;
+    if (style2.display == "block") {
+      style2.display = "none";
+    } else if (style2.display == "") {
+      style2.display = "none";
+    } else {
+      style2.display = "block";
+    }
+  }
+}
+
+function keyTypeChange()
+{
+  var form = document.forms[0];
+  var keyTypeSelect = document.forms[0].elements['keytype'];
+  for (var i = 0; i < form.length; i++) {
+    var name = form[i].name;
+    if (name.indexOf('_keytype') != -1) {
+      form.elements[name].selectedIndex = keyTypeSelect.selectedIndex;
+    }
+  }
+}
+
+function defaultChange()
+{
+  var form = document.forms[0];
+  var choiceSelect = document.forms[0].elements['choice'];
+  for (var i = 0; i < form.length; i++) {
+    var name = form[i].name;
+    if (name.indexOf('_choice') != -1) {
+      for (var j = 0; j < form.elements[name].length; j++) {
+        var c = form.elements[name];
+        c[j].checked = choiceSelect[j].checked;
+      }
+    }
+  }
+}
+
+function customChange()
+{
+  var form = document.forms[0];
+  var choiceSelect = document.forms[0].elements['choice'];
+  for (var i = 0; i < form.length; i++) {
+    var name = form[i].name;
+    if (name.indexOf('_choice') != -1) {
+      for (var j = 0; j < form.elements[name].length; j++) {
+        var c = form.elements[name];
+        c[j].checked = choiceSelect[j].checked;
+      }
+    }
+  }
+}
+
+function textChange()
+{
+  var customSize = document.forms[0].elements['custom_size'];
+  var form = document.forms[0];
+  for (var i = 0; i < form.length; i++) {
+    var name = form[i].name;
+    if (name.indexOf('_custom_size') != -1) {
+      form.elements[name].value = customSize.value;
+    }
+  }
+}
+
+</SCRIPT>
+Select the key pair type(s) and associated key pair size(s) from the pulldown menus. <a href="javascript:toggle_details();">[Details]</a>
+<SCRIPT type="text/JavaScript">
+function toggle_details()
+{
+  d = document.getElementById('details');
+  if (d.style.display == "block") {
+    d.style.display="none";
+  } else {
+    d.style.display="block";
+  }
+}
+</script>
+<div id=details style="display: none;">
+<p>
+Each key pair is comprised of a <b><i>key type</i></b> and a <b><i>key size</i></b>. Based upon the key type selected from the first pulldown menu, associated key sizes (in bits) will be selectable from the second pulldown menu.
+<p>
+Within each key pair type (but not comparable between two different key pair types), the size of the key is a measure of how secure a given system is (i.e. - the longer the key pair size, the more secure the system). Unfortunately, longer key pair sizes increase the time required to perform operations such as signing certificates.
+<p>
+</div>
+#if ($errorString != "")
+<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<p>
+<div id="simple">
+<p>
+<table width=100%>
+<tr>
+  <td align=right><a href="javascript:toggleLayer1('simple'); toggleLayer('advance');" title="Advanced">[Advanced]</a></td>
+</tr>
+</table>
+<p>
+<H2>Common Key Settings</H2>
+<p>
+<table width=100% class="details">
+      <tr>
+        <th width="30%">Key Type:</th>
+        <td><select name="keytype" onChange="keyTypeChange()"><option value=rsa>RSA</option><option value=ecc>ECC</option></select></td>
+      </tr>
+</table>
+<p>
+    <input
+#if ($select == "default")
+ checked
+#end
+ onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default key size ($default_keysize bits for RSA, $default_ecc_keysize bits for ECC)</b>.
+    <p>
+    <input
+#if ($select == "custom")
+ checked
+#end
+ onChange="customChange()" type=radio name="choice" value="custom"><b>Use the following custom key size:</b>
+                                                                                
+    <p>
+<table width=100% class="details">
+      <tr>
+        <th>Key Size:</th>
+        <td><input onChange="textChange()" type="text" size="20" name="custom_size" value="2048" /></td>
+      </tr>
+</table>
+</div>
+<p>
+<div id="advance">
+<p>
+<table width=100%>
+<tr>
+  <td align=right><a href="javascript:toggleLayer1('simple');toggleLayer('advance');" title="Simple">[Simple]</a></td>
+</tr>
+</table>
+#foreach ($item in $certs)
+<H2>Key for $item.getUserFriendlyName()</H2>
+<p>
+<table width=100% class="details">
+      <tr>
+        <th width="30%">Key Type:</th>
+        <td><select name="$item.getCertTag()_keytype"><option value=rsa>RSA</option><option value=ecc>ECC</option></select></td>
+      </tr>
+</table>
+<p>
+    <input
+#if ($item.useDefaultKey())
+ checked
+#end
+ type=radio name=$item.getCertTag()_choice value="default"><b>Use the default key size ($default_keysize bits for RSA, $default_ecc_keysize bits for ECC).
+    <p>
+    <input
+#if (!$item.useDefaultKey())
+ checked
+#end
+ type=radio name=$item.getCertTag()_choice value="custom"><b>Use the following custom key size:</b>
+                                                                                
+    <p>
+<table width=100% class="details">
+      <tr>
+        <th>Key Size:</th>
+        <td><input type="text" size="20" name=$item.getCertTag()_custom_size value="$item.getCustomKeysize()" /></td>
+      </tr>
+</table>
+#end
+</div>
+<br/>
+<br/>
+<br/>
+#if ($firsttime == 'false')
+<input type="CHECKBOX" NAME="generateKeyPair">New Keys<p>
+#end
+<p>
+    <div align="right">
+      <hr />
+<i>Note: After pressing Next, keys will be generated on the server, which will take some time to complete.  Please wait for the next panel to appear.</i>
+      &nbsp;
+    </div>

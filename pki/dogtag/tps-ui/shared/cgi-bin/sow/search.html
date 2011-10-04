@@ -1,0 +1,71 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2009 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel=stylesheet href="/esc/sow/style.css" type="text/css">
+
+<title>Security Officer</title>
+<link rel="stylesheet" href="/esc/sow/css/style.css" media="screen" type="text/css">
+</head>
+
+<body>
+
+<div id="header">
+  <div id="logo">
+      <h3>Security Officer Station</h3>
+  </div>
+</div>
+
+<div id="content">
+  <div id="maintext">
+    <div id="topmenu">
+    | <a href="/cgi-bin/sow/main.cgi">Main</a> |
+    </div>
+  <blockquote><p>Please locate the user who is requesting a new smart card.</p></blockquote>
+<form method=post action="read.cgi">
+<div style="font-size:0.8em;">
+    <table>
+      <tr>
+        <td><h3>Name: </h3></td>
+        <td> </td>
+        <td><input type="text" id="name" name="name" value="" autocomplete="off"></td>
+        <input type="hidden" id="name_hidden" name="name_ID"><!-- THE ID OF the country will be inserted into this hidden input --></td>
+         <td> </td>
+      </tr>
+
+      </table>
+</div>
+
+    <br/>
+<font color="red">$error</font>
+    <br/>
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <input type="submit" id="search" name="search" value="Continue">
+        </td>
+      </tr>
+    </table>
+</form>
+
+  </div>
+</div>
+
+</body>
+</html>

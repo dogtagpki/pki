@@ -1,0 +1,1280 @@
+Index: base/common/src/com/netscape/cms/servlet/csadmin/SavePKCS12Panel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/SavePKCS12Panel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/SavePKCS12Panel.java	(revision 2097)
+@@ -143,6 +143,7 @@
+             Context context) throws IOException {
+         context.put("title", "Save Keys and Certificates");
+         context.put("panel", "admin/console/config/savepkcs12panel.vm");
++        context.put("updateStatus", "success");
+     }
+ 
+     /**
+Index: base/common/src/com/netscape/cms/servlet/csadmin/ModulePanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/ModulePanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/ModulePanel.java	(revision 2097)
+@@ -310,9 +310,11 @@
+               config.putBoolean("preop.ModulePanel.done", true);
+ 	    }
+             config.commit(false);
++            context.put("updateStatus", "success");
+         } catch (Exception e) {
+             CMS.debug("ModulePanel: Exception caught: " + e.toString());
+             System.err.println("Exception caught: " + e.toString());
++            context.put("updateStatus", "failure");
+         }
+     }
+ 
+Index: base/common/src/com/netscape/cms/servlet/csadmin/DisplayCertChainPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/DisplayCertChainPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/DisplayCertChainPanel.java	(revision 2097)
+@@ -218,6 +218,7 @@
+                 CMS.debug("DisplayCertChainPanel Exception="+ee.toString());
+             }
+         }
++        context.put("updateStatus", "success");
+     }
+ 
+     /**
+Index: base/common/src/com/netscape/cms/servlet/csadmin/AdminPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/AdminPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/AdminPanel.java	(revision 2097)
+@@ -205,20 +205,28 @@
+         context.put("admin_pwd_again", pwd_again);
+         context.put("import", "true");
+ 
+-        if (name == null || name.equals(""))
++        if (name == null || name.equals("")) {
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Name is empty");
++        }
+ 
+-        if (email == null || email.equals(""))
++        if (email == null || email.equals("")) {
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Email is empty");
++        }
+ 
+-        if (uid == null || uid.equals(""))
++        if (uid == null || uid.equals("")) {
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Uid is empty");
++        }
+ 
+         if (!pwd.equals(pwd_again)) {
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Password and password again are not the same.");
+         }
+ 
+         if (email == null || email.length() == 0) {
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Email address is empty string.");
+         }
+     }
+@@ -266,6 +274,7 @@
+             createAdmin(request);
+         } catch (IOException e) {
+             context.put("errorString", "Failed to create administrator.");
++            context.put("updateStatus", "failure");
+             throw e;
+         }
+ 
+@@ -285,6 +294,7 @@
+                 CMS.debug("AdminPanel update: Exception: " + e.toString());
+                 context.put("errorString",
+                         "Failed to create administrator certificate.");
++                context.put("updateStatus", "failure");
+                 throw e;
+             }
+         } else {
+@@ -323,6 +333,8 @@
+             config.commit(false);
+         } catch (Exception e) {}
+     
++        context.put("updateStatus", "success");
++    
+     }
+ 
+     private void createAdmin(HttpServletRequest request) throws IOException {
+Index: base/common/src/com/netscape/cms/servlet/csadmin/BackupKeyCertPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/BackupKeyCertPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/BackupKeyCertPanel.java	(revision 2097)
+@@ -158,11 +158,13 @@
+             String pwdAgain = request.getParameter("__pwdagain");
+             if (pwd == null || pwdAgain == null || pwd.equals("") || pwdAgain.equals("")) {
+                 CMS.debug("BackupKeyCertPanel validate: Password is null");
++                context.put("updateStatus", "validate-failure");
+                 throw new IOException("PK12 password is empty.");
+             }
+ 
+             if (!pwd.equals(pwdAgain)) {
+                 CMS.debug("BackupKeyCertPanel validate: Password and password again are not the same.");
++                context.put("updateStatus", "validate-failure");
+                 throw new IOException("PK12 password is different from the PK12 password again.");
+             }
+         }
+@@ -191,6 +193,7 @@
+             config.commit(false);
+         } catch (EBaseException e) {
+         }
++        context.put("updateStatus", "success");
+     }
+ 
+     /**
+Index: base/common/src/com/netscape/cms/servlet/csadmin/ConfigHSMLoginPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/ConfigHSMLoginPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/ConfigHSMLoginPanel.java	(revision 2097)
+@@ -245,6 +245,7 @@
+             CMS.debug("ConfigHSMLoginPanel: password not found");
+             context.put("error", "no password");
+             context.put("panel", "admin/console/config/config_hsmloginpanel.vm");
++            context.put("updateStatus", "no password");
+             return;
+         } else {
+             CMS.debug("ConfigHSMLoginPanel: got password");
+@@ -266,6 +267,7 @@
+                             "ConfigHSMLoginPanel:loginToken failed for "
+                                     + uTokName);
+                     context.put("error", "tokenLoginFailed");
++                    context.put("updateStatus", "login failed");
+                     context.put("panel",
+                             "admin/console/config/config_hsmloginpanel.vm");
+                     return;
+@@ -299,6 +301,7 @@
+         context.put("panel", "admin/console/config/config_hsmloginpanel.vm");
+         context.put("status", "update");
+         context.put("error", "");
++        context.put("updateStatus", "success");
+ 
+     }
+ 
+Index: base/common/src/com/netscape/cms/servlet/csadmin/NamePanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/NamePanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/NamePanel.java	(revision 2097)
+@@ -324,6 +324,7 @@
+                 String dn = HttpInput.getDN(request, cert.getCertTag());
+ 
+                 if (dn == null || dn.length() == 0) {
++                    context.put("updateStatus", "validate-failure");
+                     throw new IOException("Empty DN for " + cert.getUserFriendlyName());
+                 }
+             }
+@@ -728,6 +729,7 @@
+         if (inputChanged(request)) {
+             mServlet.cleanUpFromPanel(mServlet.getPanelNo(request));
+         } else if (isPanelDone()) {
++            context.put("updateStatus", "success");
+             return;
+         }
+ 
+@@ -756,10 +758,12 @@
+                 }
+                 updateCloneConfig(config);
+                 CMS.debug("NamePanel: clone configuration done");
++                context.put("updateStatus", "success");
+                 return;
+             }
+         } catch (Exception e) {
+             CMS.debug("NamePanel: configCertWithTag failure - " + e);
++            context.put("updateStatus", "failure");
+             return;
+         }
+ 
+@@ -870,7 +874,11 @@
+             config.commit(false);
+         } catch (Exception e) {}
+ 
+-
++        if (!hasErr) {
++            context.put("updateStatus", "success");
++        } else {
++            context.put("updateStatus", "failure");
++        }
+         CMS.debug("NamePanel: update() done");
+     }
+ 
+Index: base/common/src/com/netscape/cms/servlet/csadmin/ImportCAChainPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/ImportCAChainPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/ImportCAChainPanel.java	(revision 2097)
+@@ -136,6 +136,7 @@
+         context.put("errorString", "");
+         context.put("title", "Import CA's Certificate Chain");
+         context.put("panel", "admin/console/config/importcachainpanel.vm");
++        context.put("updateStatus", "success");
+     }
+ 
+     /**
+Index: base/common/src/com/netscape/cms/servlet/csadmin/CreateSubsystemPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/CreateSubsystemPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/CreateSubsystemPanel.java	(revision 2097)
+@@ -195,6 +195,7 @@
+ 
+         if (select == null) {
+             CMS.debug("CreateSubsystemPanel: choice not found");
++            context.put("updateStatus", "failure");
+             throw new IOException("choice not found");
+         }
+ 
+@@ -276,6 +277,7 @@
+         } else {
+             CMS.debug("CreateSubsystemPanel: invalid choice " + select);
+             errorString = "Invalid choice";
++            context.put("updateStatus", "failure");
+             throw new IOException("invalid choice " + select);
+         }
+ 
+@@ -285,6 +287,7 @@
+         }
+ 
+         context.put("errorString", errorString);
++        context.put("updateStatus", "success");
+     }
+ 
+     /**
+Index: base/common/src/com/netscape/cms/servlet/csadmin/SecurityDomainPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/SecurityDomainPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/SecurityDomainPanel.java	(revision 2097)
+@@ -243,6 +243,7 @@
+             String name = HttpInput.getSecurityDomainName(request, "sdomainName");
+             if (name == null || name.equals("")) {
+                 initParams(request, context);
++                context.put("updateStatus", "validate-failure");
+                 throw new IOException("Missing name value for the security domain");
+             }
+         } else if (select.equals("existingdomain")) {
+@@ -251,6 +252,7 @@
+             String admin_url = HttpInput.getURL( request, "sdomainURL" );
+             if( admin_url == null || admin_url.equals("") ) {
+                 initParams( request, context );
++                context.put("updateStatus", "validate-failure");
+                 throw new IOException( "Missing SSL Admin HTTPS url value "
+                                      + "for the security domain" );
+             } else {
+@@ -268,6 +270,7 @@
+                 } catch( Exception e ) {
+                     CMS.debug( "SecurityDomainPanel: exception caught: "
+                              + e.toString() );
++                    context.put("updateStatus", "validate-failure");
+                     throw new IOException( "Illegal SSL Admin HTTPS url value "
+                                          + "for the security domain" );
+                 }
+@@ -325,6 +328,7 @@
+ 
+         if (select == null) {
+             CMS.debug("SecurityDomainPanel: choice not found");
++            context.put("updateStatus", "failure");
+             throw new IOException("choice not found");
+         }
+         IConfigStore config = CMS.getConfigStore();
+@@ -383,6 +387,7 @@
+                     admin_port = admin_u.getPort();
+                 } catch( MalformedURLException e ) {
+                     errorString = "Malformed SSL Admin HTTPS URL";
++                    context.put("updateStatus", "failure");
+                     throw new IOException( errorString );
+                 }
+ 
+@@ -402,6 +407,7 @@
+         } else {
+             CMS.debug("SecurityDomainPanel: invalid choice " + select);
+             errorString = "Invalid choice";
++            context.put("updateStatus", "failure");
+             throw new IOException("invalid choice " + select);
+         }
+ 
+@@ -418,6 +424,7 @@
+         } catch (EBaseException e) {}
+ 
+         context.put("errorString", errorString);
++        context.put("updateStatus", "success");
+     }
+ 
+     /**
+Index: base/common/src/com/netscape/cms/servlet/csadmin/ImportAdminCertPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/ImportAdminCertPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/ImportAdminCertPanel.java	(revision 2097)
+@@ -229,6 +229,7 @@
+             } catch (Exception e) {
+                 CMS.debug(
+                         "ImportAdminCertPanel update: Failed to get request id.");
++                context.put("updateStatus", "failure");
+                 throw new IOException("Failed to get request id.");
+             }
+ 
+@@ -294,12 +295,14 @@
+         } catch (LDAPException e) {
+             CMS.debug("ImportAdminCertPanel update: failed to add certificate to the internal database. Exception: "+e.toString());
+             if (e.getLDAPResultCode() != LDAPException.ATTRIBUTE_OR_VALUE_EXISTS) {
++                context.put("updateStatus", "failure");
+                 throw new IOException(e.toString());
+             }
+         } catch (Exception e) {
+             CMS.debug(
+                     "ImportAdminCertPanel update: failed to add certificate. Exception: "
+                             + e.toString());
++            context.put("updateStatus", "failure");
+             throw new IOException(e.toString());
+         }
+ 
+@@ -307,6 +310,7 @@
+         context.put("info", "");
+         context.put("title", "Import Administrator Certificate");
+         context.put("panel", "admin/console/config/importadmincertpanel.vm");
++        context.put("updateStatus", "success");
+     }
+ 
+     public boolean shouldSkip() {
+Index: base/common/src/com/netscape/cms/servlet/csadmin/DatabasePanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/DatabasePanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/DatabasePanel.java	(revision 2097)
+@@ -310,15 +310,20 @@
+                 } catch (Exception ee) {
+                 }
+             }
+-            if (masterhost.equals(realhostname) && masterport.equals(portStr))
++            if (masterhost.equals(realhostname) && masterport.equals(portStr)) {
++                context.put("updateStatus", "validate-failure");
+                 throw new IOException("Master and clone must not share the same internal database");
++            }
+ 
+-            if (!masterbasedn.equals(basedn))
++            if (!masterbasedn.equals(basedn)) {
++                context.put("updateStatus", "validate-failure");
+                 throw new IOException("Master and clone should have the same base DN");
+         }
++        }
+ 
+         if (hostname == null || hostname.length() == 0) {
+             cs.putString("preop.database.errorString", "Host is empty string");
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Host is empty string");
+         }
+ 
+@@ -329,32 +334,38 @@
+                 port = Integer.parseInt(portStr);
+             } catch (Exception e) {
+                 cs.putString("preop.database.errorString", "Port is invalid");
++                context.put("updateStatus", "validate-failure");
+                 throw new IOException("Port is invalid");
+             }
+         } else {
+             cs.putString("preop.database.errorString", "Port is empty string");
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Port is empty string");
+         }
+ 
+         if (basedn == null || basedn.length() == 0) {
+             cs.putString("preop.database.errorString", "Base DN is empty string");
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Base DN is empty string");
+         }
+ 
+         if (binddn == null || binddn.length() == 0) {
+             cs.putString("preop.database.errorString", "Bind DN is empty string");
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Bind DN is empty string");
+         }
+ 
+         if (database == null || database.length() == 0) {
+             cs.putString("preop.database.errorString",
+                     "Database is empty string");
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Database is empty string");
+         }
+ 
+         if (bindpwd == null || bindpwd.length() == 0) {
+             cs.putString("preop.database.errorString",
+                     "Bind password is empty string");
++            context.put("updateStatus", "validate-failure");
+             throw new IOException("Bind password is empty string");
+         }
+ 
+@@ -882,6 +893,7 @@
+             if (hostname1.equals(hostname2) && 
+                 portStr1.equals(portStr2) && 
+                 database1.equals(database2)) {
++                context.put("updateStatus", "success");
+                 return;
+             }
+         }
+@@ -893,11 +905,13 @@
+             populateDB(request, context, (secure.equals("on")?"true":"false"));
+         } catch (IOException e) {
+             CMS.debug("DatabasePanel update: populateDB Exception: "+e.toString());
++            context.put("updateStatus", "failure");
+             throw e;
+         } catch (Exception e) {
+             CMS.debug("DatabasePanel update: populateDB Exception: "+e.toString());
+             context.put("errorString", e.toString());
+             cs.putString("preop.database.errorString", e.toString());
++            context.put("updateStatus", "failure");
+             throw new IOException(e.toString());
+         }
+ 
+@@ -914,6 +928,7 @@
+             psStore = CMS.createFileConfigStore(passwordFile);
+         } catch (Exception e) {
+             CMS.debug("ConfigDatabaseServlet update: " + e.toString());
++            context.put("updateStatus", "failure");
+             throw new IOException( e.toString() );
+         }
+         psStore.putString("internaldb", bindpwd);
+@@ -935,6 +950,7 @@
+             CMS.debug("DatabasePanel update: " + e.toString());
+             context.put("errorString", e.toString());
+             cs.putString("preop.database.errorString", e.toString());
++            context.put("updateStatus", "failure");
+             throw new IOException(e.toString());
+         }
+ 
+@@ -1022,6 +1038,7 @@
+                             + e.toString());
+ 	  }
+ 	}
++        context.put("updateStatus", "success");
+     }
+ 
+     private void setupReplication(HttpServletRequest request,
+Index: base/common/src/com/netscape/cms/servlet/csadmin/CertRequestPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/CertRequestPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/CertRequestPanel.java	(revision 2097)
+@@ -489,8 +489,10 @@
+         } catch (Exception e) {
+         }
+ 
+-        if (isPanelDone())
++        if (isPanelDone()) {
++            context.put("updateStatus", "success");
+             return;
++        }
+ 
+         try {
+             Enumeration c = mCerts.elements();
+@@ -736,6 +738,11 @@
+             }  
+         } catch (Exception e) {
+         }
++        if (!hasErr) { 
++            context.put("updateStatus", "success");
++        } else {
++            context.put("updateStatus", "failure");
++        }
+     }
+ 
+     /**
+Index: base/common/src/com/netscape/cms/servlet/csadmin/RestoreKeyCertPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/RestoreKeyCertPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/RestoreKeyCertPanel.java	(revision 2097)
+@@ -180,6 +180,7 @@
+             s = HttpInput.getPassword(request, "__password");
+             if (s == null || s.equals("")) {
+                 CMS.debug("RestoreKeyCertPanel validate: password is empty");
++                context.put("updateStatus", "validate-failure");
+                 throw new IOException("Empty password");
+             }
+         }
+@@ -202,6 +203,7 @@
+             } catch (EBaseException e) {
+             }
+             getConfigEntriesFromMaster(request, response, context);
++            context.put("updateStatus", "success");
+             return;
+         }
+         String pwd = HttpInput.getPassword(request, "__password");
+@@ -299,6 +301,7 @@
+             
+                 importkeycert(pkeyinfo_collection, cert_collection);
+             } else {
++                context.put("updateStatus", "failure");
+                 throw new IOException("The pkcs12 file is not correct.");
+             }
+         }
+@@ -318,6 +321,7 @@
+             if (!cloneReady) {
+                 CMS.debug("RestoreKeyCertPanel update: clone does not have all the certificates.");
+                 context.put("errorString", "Make sure you have copied the certificate database over to the clone");
++                context.put("updateStatus", "failure");
+                 throw new IOException("Clone is not ready");
+             }
+         }
+@@ -329,6 +333,7 @@
+         }
+ 
+         getConfigEntriesFromMaster(request, response, context);
++        context.put("updateStatus", "success");
+     }
+ 
+     private void getConfigEntriesFromMaster(HttpServletRequest request,
+Index: base/common/src/com/netscape/cms/servlet/csadmin/SizePanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/SizePanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/SizePanel.java	(revision 2097)
+@@ -385,13 +385,16 @@
+             if (hasChanged || (val1 != null && !val1.equals(""))) {
+                 mServlet.cleanUpFromPanel(mServlet.getPanelNo(request));
+             } else if (isPanelDone()) {
++                context.put("updateStatus", "success");
+                 return;
+             }
+         } catch (IOException e) { 
+             CMS.debug("SizePanel: update() IOException caught: " + e.toString());
++            context.put("updateStatus", "failure");
+             throw e;
+         } catch (NumberFormatException e) {
+             CMS.debug("SizePanel: update() NumberFormatException caught: " + e.toString());
++            context.put("updateStatus", "failure");
+             throw e;
+         } catch (Exception e) { 
+             CMS.debug("SizePanel: update() Exception caught: " + e.toString());
+@@ -432,6 +435,7 @@
+             } catch (Exception e) {
+                 CMS.debug(e);
+                 CMS.debug("SizePanel: key generation failure: " + e.toString());
++                context.put("updateStatus", "failure");
+                 throw new IOException("key generation failure for the certificate: " + friendlyName + 
+                                       ".  See the logs for details.");
+             }
+@@ -448,6 +452,7 @@
+ 	  }
+ 	}
+         CMS.debug("SizePanel: update() done");
++        context.put("updateStatus", "success");
+ 
+     }
+ 
+Index: base/common/src/com/netscape/cms/servlet/csadmin/HierarchyPanel.java
+===================================================================
+--- base/common/src/com/netscape/cms/servlet/csadmin/HierarchyPanel.java	(revision 2096)
++++ base/common/src/com/netscape/cms/servlet/csadmin/HierarchyPanel.java	(revision 2097)
+@@ -159,8 +159,10 @@
+         IConfigStore config = CMS.getConfigStore();
+         try {
+             String cstype = config.getString("preop.subsystem.select", "");
+-            if (cstype.equals("clone"))
++            if (cstype.equals("clone")) {
++                context.put("updateStatus", "success");
+                 return;
++            }
+         } catch (Exception e) {
+         }
+ 
+@@ -168,6 +170,7 @@
+ 
+         if (select == null) {
+             CMS.debug("HierarchyPanel: choice not found");
++            context.put("updateStatus", "failure");
+             throw new IOException("choice not found");
+         }
+ 
+@@ -185,8 +188,10 @@
+         } else {
+             config.putString(PCERT_PREFIX + "signing.type", "remote");
+             CMS.debug("HierarchyPanel: invalid choice " + select);
++            context.put("updateStatus", "failure");
+             throw new IOException("invalid choice " + select);
+         }
++        context.put("updateStatus", "success");
+     }
+ 
+     /**
+Index: base/silent/src/ca/ConfigureCA.java
+===================================================================
+--- base/silent/src/ca/ConfigureCA.java	(revision 2096)
++++ base/silent/src/ca/ConfigureCA.java	(revision 2097)
+@@ -58,6 +58,8 @@
+     public static final String DEFAULT_KEY_CURVENAME = "nistp256";
+     public static final String DEFAULT_KEY_ALGORITHM_RSA = "SHA256withRSA";
+     public static final String DEFAULT_KEY_ALGORITHM_ECC = "SHA256withEC";
++    public static final String SUCCESS = "success";
++    public static final String FAILURE = "failure";
+ 
+     // define global variables
+ 
+@@ -194,25 +196,51 @@
+     public ConfigureCA() {// do nothing :)
+     }
+ 
+-    public void sleep_time() {
++    public String getStatus(HTTPResponse hr, String name) {
++        ByteArrayInputStream bais = null;
++        String status = null;
+         try {
+-            System.out.println("Sleeping for 5 secs..");
+-            Thread.sleep(5000);
++            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
++            ParseXML px = new ParseXML();
++            px.parse(bais);
++            px.prettyprintxml();
++            status = px.getvalue(name);
+         } catch (Exception e) {
+-            System.out.println("ERROR: sleep problem");
++            System.out.println("Exception in getStatus(): " + e.toString());
++        }
++        return status;
+         }
+ 
++    public boolean checkStatus(HTTPResponse hr, String name,
++                               String expected, String location) {
++        return checkStatus(hr,name, new String[] {expected}, location);
+     }
+ 
++    public boolean checkStatus(HTTPResponse hr, String name, 
++                               String[] expected, String location) {
++        String status = getStatus(hr, name);
++        if (status == null) {
++            System.out.println("Error in " + location + ": " + name + 
++                               " value is null");
++            return false;
++        } 
++        for (int i=0; i< expected.length; i++) {
++            if (status.equals(expected[i])) {
++                return true;
++            }
++        }
++        System.out.println("Error in " + location + ": " + name + 
++                           " returns " + status);
++        return false;
++     } 
++
++
+     public boolean LoginPanel() {
+         try {
+             boolean st = false;
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+ 
+             String query_string = "pin=" + pin + "&xml=true"; 
+-	
+             hr = hc.sslConnect(cs_hostname, cs_port, login_uri, query_string);
+             System.out.println("xml returned: " + hr.getHTML());
+ 
+@@ -220,7 +248,6 @@
+ 
+             // get cookie
+             String temp = hr.getCookieValue("JSESSIONID");
+-
+             if (temp != null) {
+                 int index = temp.indexOf(";");
+ 
+@@ -231,12 +258,9 @@
+             hr = null;
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
+                 "p=0&op=next&xml=true");
+-
+-            // parse xml here
+-
+-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-            px.parse(bais);
+-            px.prettyprintxml();
++            if (! checkStatus(hr, "status", "display", "LoginPanel()")) {
++                return false;
++            }
+ 
+             return st;
+         } catch (Exception e) {
+@@ -250,9 +274,6 @@
+         try {
+             boolean st = false;
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+-
+             String query_string = null;
+ 
+             // Software Token
+@@ -260,10 +281,9 @@
+                 query_string = "p=1" + "&op=next" + "&xml=true" + "&choice="
+                     + URLEncoder.encode("Internal Key Storage Token") + ""; 
+                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+-                // parse xml
+-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-                px.parse(bais);
+-                px.prettyprintxml();
++                if (! checkStatus(hr, "updateStatus", SUCCESS, "TokenChoicePanel()")) {
++                    return false;
++                }
+             } // HSM
+             else {
+                 // login to hsm first
+@@ -271,19 +291,17 @@
+                     + URLEncoder.encode(token_name) + "&__uPasswd="
+                     + URLEncoder.encode(token_pwd) + ""; 
+                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+-                // parse xml
+-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-                px.parse(bais);
+-                px.prettyprintxml();
++                if (! checkStatus(hr, "updateStatus", SUCCESS,"TokenChoicePanel()")) {
++                    return false;
++                }
+ 		
+                 // choice with token name now
+                 query_string = "p=1" + "&op=next" + "&xml=true" + "&choice="
+                     + URLEncoder.encode(token_name) + ""; 
+                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+-                // parse xml
+-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-                px.parse(bais);
+-                px.prettyprintxml();
++                if (! checkStatus(hr, "updateStatus", SUCCESS, "TokenChoicePanel()")) {
++                    return false;
++                }
+             }
+             return true;
+         } catch (Exception e) {
+@@ -296,9 +314,6 @@
+     public boolean DomainPanel() {
+         try {
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+-
+             String domain_url = "https://" + cs_hostname + ":" + cs_port;
+             String query_string = null;
+ 
+@@ -314,15 +329,9 @@
+             }
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+-
+-            // parse xml
+-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-            px.parse(bais);
+-            px.prettyprintxml();
+-
+-            String temp_sdomain = px.getvalue("sdomainName");
+-
+-            System.out.println("sdomainname=" + temp_sdomain);
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "DomainPanel()")) {
++                return false;
++            }
+ 
+             return true;
+         } catch (Exception e) {
+@@ -349,8 +358,7 @@
+         try {
+             boolean st = false;
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
++
+             String subca_url = "https://" + cs_hostname + ":" + cs_port +
+                 "/ca/admin/console/config/wizard" + "?p=5&subsystem=CA" ;
+ 
+@@ -399,8 +407,6 @@
+         try { 
+             boolean st = false;
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+             String query_string = null;
+ 
+             if (!clone) {
+@@ -415,22 +421,18 @@
+             }
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+-
+-            // parse xml
+-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-            px.parse(bais);
+-            px.prettyprintxml();
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "CreateCAPanel()")) {
++                return false;
++            }
+ 
+             if (clone) {
+ 
+                 hr = null;
+                 query_string = "p=6" + "&op=next" + "&xml=true"; 
+                 hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+-
+-                // parse xml
+-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-                px.parse(bais);
+-                px.prettyprintxml();
++                if (! checkStatus(hr, "updateStatus", SUCCESS, "CreateCAPanel(2)")) {
++                    return false;
++                }
+             }
+ 
+             return true;
+@@ -443,20 +445,16 @@
+ 
+     public boolean RestoreKeyCertPanel() {
+         try {
+-            ByteArrayInputStream bais = null;
+             HTTPResponse hr = null;
+-            ParseXML px = new ParseXML();
+ 
+             String query_string = "p=7" + "&op=next" + "&xml=true" 
+                 + "&__password=" + URLEncoder.encode(clone_p12_passwd)
+                 + "&path=" + URLEncoder.encode(clone_p12_file) + "";
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+- 
+-            // parse xml
+-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-            px.parse(bais);
+-            px.prettyprintxml();
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "RestoreKeyCertPanel()")) {
++                return false;
++            }
+             return true;
+         } catch (Exception e) {
+             System.out.println("Exception in RestoreKeyCertPanel(): " + e.toString());
+@@ -470,8 +468,6 @@
+         try { 
+             boolean st = false;
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+ 
+             String query_string = "p=8" + "&op=next" + "&xml=true" ;
+             if (external_ca.equalsIgnoreCase("true")) 
+@@ -480,22 +476,9 @@
+                 query_string += "&choice=root";  
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+-
+-            // parse xml
+-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-            px.parse(bais);
+-            px.prettyprintxml();
+-
+-            /*
+-             hr = null;
+-             hr = hc.sslConnect(cs_hostname,cs_port,
+-             wizard_uri,"p=7&op=next&xml=true");
+-
+-             // parse xml to return result
+-             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-             px.parse(bais);
+-             px.prettyprintxml();
+-             */
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "HierarchyPanel()")) {
++                return false;
++            }
+ 
+             return true;
+         } catch (Exception e) {
+@@ -510,8 +493,6 @@
+         try {
+             boolean st = false;
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+ 
+             String query_string = "p=9" + "&op=next" + "&xml=true" + "&host="
+                 + URLEncoder.encode(ldap_host) + "&port="
+@@ -526,11 +507,9 @@
+                 + (remove_data.equals("true")? "&removeData=true": "");
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+-
+-            // parse xml
+-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-            px.parse(bais);
+-            px.prettyprintxml();
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "LdapConnectionPanel()")) {
++                return false;
++            }
+ 
+             return true;
+         } catch (Exception e) {
+@@ -590,11 +569,13 @@
+             }
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "KeyPanel()")) {
++                return false;
++            }
+ 
+             // parse xml
+             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+             px.parse(bais);
+-            px.prettyprintxml();
+ 		
+             al = px.constructvaluelist("CertReqPair", "DN");
+             // get ca cert subject name
+@@ -660,11 +641,12 @@
+             } 
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "CertSubjectPanel()")) {
++                return false;
++            }
+ 
+-            // parse xml
+             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+             px.parse(bais);
+-            px.prettyprintxml();
+ 		
+             req_list = px.constructvaluelist("CertReqPair", "Request");
+             cert_list = px.constructvaluelist("CertReqPair", "Certificate");
+@@ -782,12 +764,6 @@
+         try {
+             boolean st = false;
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+-            ArrayList req_list = null;
+-            ArrayList cert_list = null;
+-            ArrayList dn_list = null;
+-            ArrayList pp_list = null;
+ 
+             String query_string = "p=12" + "&op=next" + "&xml=true" + "&subsystem="
+                 + URLEncoder.encode(ca_subsystem_cert_cert) + "&subsystem_cc="
+@@ -800,11 +776,9 @@
+                 + "&sslserver_cc=" + ""; 
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+-
+-            // parse xml
+-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-            px.parse(bais);
+-            px.prettyprintxml();
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "CertificatePanel()")) {
++                return false;
++            }
+ 		
+             return true;
+         } catch (Exception e) {
+@@ -839,12 +813,13 @@
+                 + "&sslserver_cc=" + ""; 
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+-
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "CertificatePanelExternal()")) {
++                return false;
++            }
+ 
+             // parse xml
+             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+             px.parse(bais);
+-            px.prettyprintxml();
+ 
+             req_list = px.constructvaluelist("CertReqPair", "Request");
+             cert_list = px.constructvaluelist("CertReqPair", "Certificate");
+@@ -913,8 +888,6 @@
+         try {
+             boolean st = false;
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+ 
+             if (save_p12.equalsIgnoreCase("true")) {
+                 String query_string = "p=13" + "&op=next" + "&xml=true"
+@@ -922,11 +895,9 @@
+                     + "&__pwdagain=" + URLEncoder.encode(backup_pwd); 
+ 
+                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+-
+-                // parse xml
+-                bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-                px.parse(bais);
+-                px.prettyprintxml();
++                if (! checkStatus(hr, "updateStatus", SUCCESS, "BackupPanel()")) {
++                    return false;
++                }
+ 
+                 query_string = ""; 
+ 
+@@ -984,15 +955,12 @@
+     public boolean BackupContinuePanel() {
+         try {
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
+                 "p=14&op=next&xml=true");
+-
+-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-            px.parse(bais);
+-            px.prettyprintxml();
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "BackupContinuePanel()")) {
++                return false;
++            }
+ 
+ 	    return true;
+         } catch (Exception e) {
+@@ -1005,15 +973,12 @@
+     public boolean ImportCACertPanel() {
+         try {
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
+                 "p=15&op=next&xml=true");
+-
+-            bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-            px.parse(bais);
+-            px.prettyprintxml();
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "ImportCACertPanel()")) {
++                return false;
++            }
+ 
+ 	    return true;
+         } catch (Exception e) {
+@@ -1061,11 +1026,13 @@
+                 + URLEncoder.encode(domain_name) + ""; 
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "AdminCertReqPanel()")) {
++                return false;
++            }
+ 
+             // parse xml
+             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+             px.parse(bais);
+-            px.prettyprintxml();
+ 		
+             admin_serial_number = px.getvalue("serialNumber");
+ 
+@@ -1082,8 +1049,6 @@
+         try {
+             boolean st = false;
+             HTTPResponse hr = null;
+-            ByteArrayInputStream bais = null;
+-            ParseXML px = new ParseXML();
+             String cert_to_import = null;
+ 
+             String query_string = "&serialNumber=" + admin_serial_number
+@@ -1145,11 +1110,13 @@
+                 + ""; 
+ 
+             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
++            if (! checkStatus(hr, "updateStatus", SUCCESS, "UpdateDomainPanel()")) {
++                return false;
++            }
+ 
+             // parse xml
+             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+             px.parse(bais);
+-            px.prettyprintxml();
+ 		
+             String caHost = px.getvalue("host");
+             String caPort = px.getvalue("port");
+@@ -1159,21 +1126,6 @@
+             System.out.println("caPort=" + caPort);
+             System.out.println("systemType=" + systemType);
+ 		
+-            /*
+-             query_string = "p=18" + "&op=next" + "&xml=true" +
+-             "&caHost=" + URLEncoder.encode(caHost) +
+-             "&caPort=" + URLEncoder.encode(caPort) +
+-             "&systemType=" + URLEncoder.encode(systemType) +
+-             ""; 
+-
+-             hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+-
+-             // parse xml
+-             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
+-             px.parse(bais);
+-             px.prettyprintxml();
+-             */
+-
+             return true;
+         } catch (Exception e) {
+             System.out.println("Exception in UpdateDomainPanel(): " + e.toString());
+@@ -1209,7 +1161,6 @@
+             return false;
+         }
+ 
+-        sleep_time();
+         // 2. Token Choice Panel
+         boolean disp_token = TokenChoicePanel();
+ 
+@@ -1217,7 +1168,6 @@
+             System.out.println("ERROR: ConfigureCA: TokenChoicePanel() failure");
+             return false;
+         }
+-        sleep_time();
+ 
+         // 3. domain panel
+         boolean dom_st = DomainPanel();
+@@ -1227,7 +1177,6 @@
+             return false;
+         }
+ 
+-        sleep_time();
+         // 4. display cert chain panel and security domain login
+         if (clone) {
+             boolean disp_st = DisplayCertChainPanel();
+@@ -1245,7 +1194,6 @@
+ 
+         }
+ 
+-        sleep_time();
+         // 5. display create CA panel
+         boolean disp_cert = CreateCAPanel();
+ 
+@@ -1254,7 +1202,6 @@
+             return false;
+         }
+ 
+-        sleep_time();
+         // 6. display restore key cert panel
+         if (clone) {
+             boolean restore_st = RestoreKeyCertPanel();
+@@ -1264,15 +1211,6 @@
+             }
+         }
+ 
+-        // 6. Admin user panel
+-        // boolean disp_ad = AdminUserPanel();
+-        // if(!disp_ad)
+-        // {
+-        // System.out.println("ERROR: ConfigureCA: AdminUserPanel() failure");
+-        // return false;
+-        // }
+-
+-        sleep_time();
+         // 7. hierarchy panel
+         if (! clone) {
+             boolean disp_h = HierarchyPanel();
+@@ -1283,15 +1221,6 @@
+             }
+         }
+ 
+-        // Agent Auth panel
+-        // boolean disp_ag = AgentAuthPanel();
+-        // if(!disp_ag)
+-        // {
+-        // System.out.println("ERROR: ConfigureCA: AgentAuthPanel() failure");
+-        // return false;
+-        // }
+-
+-        sleep_time();
+         // 8. ldap connection panel
+         boolean disp_ldap = LdapConnectionPanel();
+ 
+@@ -1301,8 +1230,6 @@
+             return false;
+         }
+ 
+-        sleep_time();
+-        sleep_time();
+         // 9. Key Panel
+         boolean disp_key = KeyPanel();
+ 
+@@ -1311,7 +1238,6 @@
+             return false;
+         }
+ 
+-        sleep_time();
+         // 10. Cert Subject Panel
+         boolean disp_csubj = CertSubjectPanel();
+ 
+@@ -1320,7 +1246,6 @@
+             return false;
+         }
+ 
+-        sleep_time();
+         // 11. Certificate Panel
+         boolean disp_cp;
+ 
+@@ -1349,15 +1274,6 @@
+             return false;
+         }
+ 
+-        // 12. Certificate PP Panel
+-        // boolean disp_pp = CertPPPanel();
+-        // if(!disp_pp)
+-        // {
+-        // System.out.println("ERROR: ConfigureCA: CertificatePPPanel() failure");
+-        // return false;
+-        // }
+-
+-        sleep_time();
+         // 13. Backup Panel
+         boolean disp_back = BackupPanel();
+ 
+@@ -1366,7 +1282,6 @@
+             return false;
+         }
+ 
+-        sleep_time();
+         // 14. Backup Continue Panel
+         boolean disp_back_cont = BackupContinuePanel();
+ 
+@@ -1375,7 +1290,6 @@
+             return false;
+         }
+ 
+-        sleep_time();
+ 
+         // 15. Import CA Cert panel
+         boolean disp_import_cacert = ImportCACertPanel();
+@@ -1390,7 +1304,6 @@
+             return true;
+         }
+ 
+-        sleep_time();
+ 
+         // 16. Admin Cert Req Panel
+         boolean disp_adm = AdminCertReqPanel();
+@@ -1400,7 +1313,6 @@
+             return false;
+         }
+ 
+-        sleep_time();
+         // 14. Admin Cert import Panel
+         boolean disp_im = AdminCertImportPanel();
+ 
+@@ -1410,7 +1322,6 @@
+             return false;
+         }
+ 
+-        sleep_time();
+         // 15. Update Domain Panel
+         boolean disp_ud = UpdateDomainPanel();
+ 
+Index: base/setup/pkicreate
+===================================================================
+--- base/setup/pkicreate	(revision 2096)
++++ base/setup/pkicreate	(revision 2097)
+@@ -2648,10 +2648,15 @@
+ 
+     # create a filled in empty "password.conf"
+     # password file for this instance
++    if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
+     return 0 if !create_file($password_conf_instance_file_path,
+                              "${default_security_token}:${db_password}\n",
+                              $default_file_permissions, $pki_user, $pki_group);
+-
++    } else {
++        return 0 if !create_file($password_conf_instance_file_path,
++                                 "${default_security_token}=${db_password}\n",
++                                 $default_file_permissions, $pki_user, $pki_group);
++    }
+ 
+     # create a filled in empty temporary "pfile"
+     # password file for this instance
+@@ -3019,8 +3024,10 @@
+     if (!$conf_path) {
+         emit("Error: Cannot set selinux context $setype" . "_etc_rw_t for directory /");
+     } else {
++        if ($conf_path ne $default_conf_path) {
+         add_selinux_file_context($setype . "_etc_rw_t", 
+                                   "\"$conf_path(/.*)?\"", "a", \$semanage_cmds);
++        }
+         push(@restorecon_cmds, "$restorecon -F -R $conf_path");
+     }
+     

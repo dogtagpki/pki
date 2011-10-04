@@ -1,0 +1,57 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+<H2>$wizardname</H2>
+The $fullsystemname
+ configuration wizard will guide the administrator through the process of configuring a single instance of the $fullsystemname
+ ($systemname). <a href="javascript:toggle_details();">[Details]</a>
+                                                                                
+<SCRIPT type="text/JavaScript">
+function toggle_details()
+{
+  d = document.getElementById('details');
+  if (d.style.display == "block") {
+    d.style.display="none";
+  } else {
+    d.style.display="block";
+  }
+}
+</script>
+                                                                                
+<div id=details style="display: none;">
+<p>
+A Public Key Infrastructure (PKI) system creates, manages, and revokes keys and certificates.
+<p>
+Dogtag Certificate System (DCS) $productversion &nbsp;
+is a robust PKI system consisting of numerous subsystems including a Certificate Authority (CA), a Registration Authority (RA), a Data Recovery Manager (DRM), an Online Certificate Status Protocol (OCSP) Manager, a Token Key Service (TKS), and a Token Processing System (TPS), as well as a multi-platform smartcard middleware software client called Enterprise Security Client (ESC).
+<p>
+For any subsystem to be useable, a user must use this wizard to configure an instance of this subsystem.
+#if ($systemType != "tps")
+<p>
+Additionally, this wizard may also be used to clone any existing instance to achieve scalability and high-availability.
+#end
+</div>

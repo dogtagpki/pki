@@ -1,0 +1,8 @@
+Serial number = 0x$HexSerialNumber
+SubjectDN = $SubjectDN
+Validity period = $NotBefore - $NotAfter
+Suggested Renewal http host name = $HttpHost
+Suggested Renewal http port number = $HttpPort
+Renewal notification status = $Status
+-------
+

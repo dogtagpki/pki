@@ -1,0 +1,336 @@
+Index: base/native-tools/src/tkstool/secutil.c
+===================================================================
+--- base/native-tools/src/tkstool/secutil.c	(revision 2150)
++++ base/native-tools/src/tkstool/secutil.c	(revision 2151)
+@@ -185,6 +185,7 @@
+     output = fopen(consoleName, "w");
+     if (output == NULL) {
+ 	fprintf(stderr, "Error opening output terminal for write\n");
++	fclose(input);
+ 	return NULL;
+     }
+ 
+@@ -339,6 +340,7 @@
+     output = fopen(consoleName, "w");
+     if (output == NULL) {
+ 	PR_fprintf(PR_STDERR, "Error opening output terminal for write\n");
++	fclose(input);
+ 	return NULL;
+     }
+ 
+@@ -3541,15 +3543,13 @@
+     if (rv) goto loser;
+ 
+     /* Fill out SignedData object */
+-    PORT_Memset(sd, 0, sizeof(sd));
++    PORT_Memset(sd, 0, sizeof(*sd));
+     sd->data.data = buf;
+     sd->data.len = len;
+     sd->signature.data = it.data;
+     sd->signature.len = it.len << 3;		/* convert to bit string */
+-    if (!sd->signatureAlgorithm.parameters.data) {
+         rv = SECOID_SetAlgorithmID(arena, &sd->signatureAlgorithm, algID, 0);
+         if (rv) goto loser;
+-    }
+ 
+     return rv;
+ 
+Index: base/native-tools/src/tkstool/random.c
+===================================================================
+--- base/native-tools/src/tkstool/random.c	(revision 2150)
++++ base/native-tools/src/tkstool/random.c	(revision 2151)
+@@ -67,7 +67,7 @@
+     /* Get random noise from keyboard strokes */
+     randbuf = ( char * ) PORT_Alloc( RAND_BUF_LENGTH );
+     count = 0;
+-    while( count < NUM_KEYSTROKES+1 ) {
++    while( randbuf != NULL && count < NUM_KEYSTROKES+1 ) {
+ #ifdef VMS
+         c = GENERIC_GETCHAR_NOECHO();
+ #elif XP_UNIX
+@@ -82,7 +82,7 @@
+ 
+         PK11_RandomUpdate(
+         /* data            */  randbuf,
+-        /* length in bytes */  sizeof( randbuf ) );
++        /* length in bytes */  RAND_BUF_LENGTH );
+ 
+         if( c != randbuf[0] ) {
+             randbuf[0] = c;
+@@ -103,7 +103,7 @@
+         }
+     }
+ 
+-    free( randbuf ); 
++    if (randbuf != NULL) free (randbuf); 
+ 
+     FPS "\n\n");
+     FPS "Finished.\n");
+Index: base/native-tools/src/tkstool/key.c
+===================================================================
+--- base/native-tools/src/tkstool/key.c	(revision 2150)
++++ base/native-tools/src/tkstool/key.c	(revision 2151)
+@@ -810,7 +810,9 @@
+     PRIntn       i                     = 0;
+     PRIntn       KCVLen                = KCV_LENGTH;
+     PRUint8     *KCV                   = NULL;
+-    SECItem      hexSessionKeyShare;
++    SECItem      hexSessionKeyShare    = { siBuffer,
++                                           NULL,
++                                           0 };
+     SECStatus    rvKCV                 = SECFailure;
+     SECStatus    sessionKeyShareStatus = SECFailure;
+     SECStatus    status                = SECFailure;
+Index: base/native-tools/src/setpin/setpin.c
+===================================================================
+--- base/native-tools/src/setpin/setpin.c	(revision 2150)
++++ base/native-tools/src/setpin/setpin.c	(revision 2151)
+@@ -147,7 +147,8 @@
+ 
+ void readInputFile() {
+     int more_to_read=1;
+-    char *thedn, *thepin;
++    char *thedn = NULL;
++    char *thepin = NULL;
+     int linenum=0;
+ 
+     pinHashTable = PL_NewHashTable(256, 
+@@ -168,9 +169,6 @@
+             char *n;
+             char *checkdn;
+ 
+-            thedn = NULL;
+-            thepin = NULL;
+-      
+             do {
+                 n = fgets(line,4096,input);
+                 linenum++;
+@@ -226,6 +224,14 @@
+                    fprintf(stderr," ...ignoring\n");
+                 }
+             }
++            if (thedn != NULL) {
++                free(thedn);
++                thedn = NULL;
++            }
++            if (thepin != NULL) {
++                free(thepin);
++                thepin = NULL;
++            }
+         } while (more_to_read);
+     }
+ }
+@@ -251,7 +257,7 @@
+             "then run:\n   %s optfile=<svr_root>/bin/cert/tools/setpin.conf\n", programName);
+         fprintf(stderr,"\nUsage:  %s option=value ... option=value\n\n", programName);
+ 
+-        for (i=0; i< 200; i+=2) {
++        for (i = 0; i < valid_args_len; i += 2) {
+             if (valid_args[i]) {
+                 fprintf(stderr,"%13s : %s\n",valid_args[i],valid_args[i+1]);
+             } else {
+@@ -821,15 +827,16 @@
+         if (generatedPassword == NULL || (strlen(generatedPassword) == 0)) {
+             generatedPassword = newPassword();
+         }
++        if (generatedPassword == NULL || (strlen(generatedPassword) == 0)) {
++            errcode=13;
++            exitError("Couldn't generate password.");
++        }
+ 
+         /* should we hash the password? */
+         if (o_hash) {
+ 
+             /* we hash the DN of the user and the PIN together */
+ 
+-            if (hashbuf_source) {
+-                free(hashbuf_source);
+-            }
+             if (o_debug) {
+                 fprintf(stderr,"checking salt attribute...\n");
+             }
+@@ -846,7 +853,10 @@
+ 
+             hashbuf_source =
+                 malloc(strlen(saltval) + strlen(generatedPassword) + 10);
+-      
++            if (hashbuf_source == NULL) {
++                errcode=12;
++                exitError("Couldn't allocate 'hashbuf_source'.");
++            }
+             strcpy(hashbuf_source,saltval);
+             strcat(hashbuf_source,generatedPassword);
+ 
+@@ -899,6 +909,11 @@
+             }
+       
+             pindata = hashbuf_dest;
++
++            if (hashbuf_source != NULL) {
++                free(hashbuf_source);
++                hashbuf_source = NULL;
++            }
+         } else {
+             pindata = generatedPassword;
+             pindatasize = strlen(generatedPassword);
+@@ -1177,6 +1192,7 @@
+ 
+     /* last spot is used to hold invalid chars */
+     totals = malloc(sizeof(int)*(charpoolsize+1));
++    if (totals != NULL) {
+     for (i=0;i<(charpoolsize);i++) {
+         totals[i] = 0;
+     }
+@@ -1190,6 +1206,7 @@
+ 
+     for (i=0;i<count;i++) {
+         pw = newPassword();
++            if (pw != NULL) {
+         if (o_debug) {
+             fprintf(output,"%d:%s\n",i+1,pw);
+         }
+@@ -1206,11 +1223,14 @@
+         }
+         free(pw);
+     }
++        }
+ 
+     for (i=0;i<charpoolsize;i++) {
+         fprintf(output,"%c: %10d\n",charpool[i],totals[i]);
+     }
+     fprintf(output,"invalid: %10d\n",totals[charpoolsize]);
++        free(totals);
++    }
+ }
+     
+   
+Index: base/native-tools/src/setpin/setpin_options.h
+===================================================================
+--- base/native-tools/src/setpin/setpin_options.h	(revision 2150)
++++ base/native-tools/src/setpin/setpin_options.h	(revision 2151)
+@@ -43,6 +43,7 @@
+   *o_pinmanager,*o_pinmanagerpwd,*o_schemachange;
+ 
+ extern char *valid_args[];
++extern int valid_args_len;
+ 
+ extern void setDefaultOptions();
+ extern void getOptions();
+Index: base/native-tools/src/setpin/setpin_options.c
+===================================================================
+--- base/native-tools/src/setpin/setpin_options.c	(revision 2150)
++++ base/native-tools/src/setpin/setpin_options.c	(revision 2151)
+@@ -28,6 +28,7 @@
+ 
+ extern int OPT_getValue(char *option, char **output);
+ extern void exitError(char *errstring);
++extern int errcode;
+ 
+ #define PW_DEFAULT_LENGTH 6
+ 
+@@ -65,6 +66,7 @@
+   NULL
+ };
+ 
++int valid_args_len = sizeof(valid_args)/sizeof(char *);
+ 
+ int i_length, i_minlength, i_maxlength;
+ 
+@@ -183,6 +185,10 @@
+   char *errbuf;
+ 
+   errbuf = (char *)malloc(2048);
++  if (errbuf == NULL) {
++    errcode=13;
++    exitError("Couldn't allocate 'errbuf'.");
++  }
+ 
+   if (o_nickname  && equals(o_ssl,"no")) {
+     sprintf(errbuf,"specifying nickname doesn't make sense with no SSL");
+@@ -236,7 +242,10 @@
+     }
+   }
+ 
+-  if (o_testpingen) return;
++  if (o_testpingen) {
++	free(errbuf);
++	return;
++  }
+   
+   if (!o_host || equals(o_host,"")) {
+     strcpy(errbuf,"host missing");
+@@ -254,6 +263,7 @@
+   }
+ 
+   if (o_setup != NULL) {
++	free(errbuf);
+ 	return;
+   }
+ 
+@@ -275,10 +285,13 @@
+     goto loser;
+   }
+   if (equals(o_hash,"none")) o_hash = NULL;
++  free(errbuf);
+       
+   return ;
+   
+  loser:
++  errcode=14;
++  free(errbuf);
+   exitError(errbuf);
+ 
+ }
+Index: base/native-tools/src/p7tool/p7tool.c
+===================================================================
+--- base/native-tools/src/p7tool/p7tool.c	(revision 2150)
++++ base/native-tools/src/p7tool/p7tool.c	(revision 2151)
+@@ -263,6 +263,11 @@
+             sprintf(filename, "%s%d.der", prefix, i);
+ 
+             outFile = fopen(filename, "wb");
++            if (outFile == NULL) {
++                fprintf(out, "Couldn't open '%s' file for writing\n", filename);
++                i = -1;
++                break;
++            }
+             nb = fwrite((char *) cert, 1, items[i]->len, outFile);
+             fclose(outFile);
+ 
+Index: base/native-tools/src/p7tool/secutil.c
+===================================================================
+--- base/native-tools/src/p7tool/secutil.c	(revision 2150)
++++ base/native-tools/src/p7tool/secutil.c	(revision 2151)
+@@ -186,6 +186,7 @@
+     output = fopen(consoleName, "w");
+     if (output == NULL) {
+ 	fprintf(stderr, "Error opening output terminal for write\n");
++	fclose(input);
+ 	return NULL;
+     }
+ 
+@@ -341,6 +342,7 @@
+     output = fopen(consoleName, "w");
+     if (output == NULL) {
+ 	PR_fprintf(PR_STDERR, "Error opening output terminal for write\n");
++	fclose(input);
+ 	return NULL;
+     }
+ 
+@@ -3544,15 +3546,13 @@
+     if (rv) goto loser;
+ 
+     /* Fill out SignedData object */
+-    PORT_Memset(sd, 0, sizeof(sd));
++    PORT_Memset(sd, 0, sizeof(*sd));
+     sd->data.data = buf;
+     sd->data.len = len;
+     sd->signature.data = it.data;
+     sd->signature.len = it.len << 3;		/* convert to bit string */
+-    if (!sd->signatureAlgorithm.parameters.data) {
+         rv = SECOID_SetAlgorithmID(arena, &sd->signatureAlgorithm, algID, 0);
+         if (rv) goto loser;
+-    }
+ 
+     return rv;
+ 

@@ -1,0 +1,53 @@
+# --- BEGIN COPYRIGHT BLOCK ---
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation;
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301  USA 
+# 
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+dn: uid=admin,ou=People,$TOKENDB_ROOT
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: tpsProfileId
+uid: admin
+userPassword: $TOKENDB_AGENT_PWD
+sn: TUS Administrator
+cn: TUS Administrator
+userCertificate:: $TOKENDB_AGENT_CERT
+profileID: All Profiles
+
+dn: cn=TUS Agents,ou=Groups,$TOKENDB_ROOT
+objectClass: top
+objectClass: groupOfNames
+cn: TUS Agents
+member: uid=admin,ou=People,$TOKENDB_ROOT
+description: Agents for TUS
+
+dn: cn=TUS Officers,ou=Groups,$TOKENDB_ROOT
+objectClass: top
+objectClass: groupOfNames
+cn: TUS Officers
+member: uid=admin,ou=People,$TOKENDB_ROOT
+description: Operators for TUS
+
+dn: cn=TUS Administrators,ou=Groups,$TOKENDB_ROOT
+objectClass: top
+objectClass: groupOfNames
+cn: TUS Administrators
+member: uid=admin,ou=People,$TOKENDB_ROOT
+description: Administrators for TUS

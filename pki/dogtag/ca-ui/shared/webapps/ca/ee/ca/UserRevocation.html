@@ -1,0 +1,118 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<TITLE>User Certificate Revocation Form</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript" SRC="../helpfun.js">
+</SCRIPT>
+</head>
+<body bgcolor="#FFFFFF">
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">User Certificate Revocation</font><br>
+  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+  Use this form to revoke your certificate automatically.
+<p>
+  After you click the submit button, a window will pop up with a list of 
+  certificates you can send to the server. Select the certificate you 
+  want to revoke from this window.
+</font>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr valign="TOP"> 
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><b>Important:</b> 
+      </font></td>
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	This is an irreversible operation. If you still want to continue, 
+	be sure to request revocation on the computer where the private key and 
+	certificate to be revoked are stored.
+	</font></td>
+  </tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<form method="post" action="revocation">
+  <table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr> 
+      <td colspan="2" valign="TOP"><font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"><b>
+	  Revocation Reason</b><br>
+Select a revocation reason</font></td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"> 
+          </font> 
+        </div>
+      </td>
+	  <td>
+		<font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+		<input type="radio" checked name="reasonCode" value=0>
+		Unspecified<br>
+		<input type="radio" name="reasonCode" value=1>
+		Key Compromise<br>
+		<!--input type="radio" name="reasonCode" value=2-->
+		<!-- CA Compromise<br> -->
+		<input type="radio" name="reasonCode" value=3>
+		Affiliation Changed<br>
+		<input type="radio" name="reasonCode" value=4>
+		Superseded<br>
+		<input type="radio" name="reasonCode" value=5>
+		Cessation of Operation<br>
+		<!--input type="radio" name="reasonCode" value=6-->
+		<!--Certificate Hold<br>-->
+		<!--Value 7 is not used-->
+		<!--input type="radio" name="reasonCode" value=8-->
+		<!--Remove from CRL<br>-->
+		<input type="radio" name="reasonCode" value=9>
+		Privilege Withdrawn<br>
+		<!--input type="radio" name="reasonCode" value=10-->
+		<!--AA Compromise<br>-->
+		</font>
+	  </td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2"> 
+        <table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#cccccc" background="/ca/ee/graphics/gray90.gif">
+          <tr> 
+            <td> 
+              <div align="RIGHT">
+                <input type="submit" value="Submit" name="submit" width="72">
+				<input type="hidden" name="op" value="RevocationRequest">
+				<input type="hidden" name="certType" value="client">
+				<input type="hidden" name="templateType" value="RevocationConfirmation">
+				<input type="hidden" name="doSslAuth" value="on">
+                <img src="/ca/ee/graphics/spacer.gif" width="6" height="6"> 
+                <input type="reset" value="Reset" name="reset" width="72">
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  </form>
+</body>
+</html>

@@ -1,0 +1,207 @@
+dn: cn=allKeys-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allKeys-{instanceId}
+vlvBase: ou=keyRepository,ou=kra,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(&(objectClass=top)(objectClass=keyRecord))(serialno=*))
+
+dn: cn=kraAll-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraAll-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requeststate=*)
+
+dn: cn=kraArchival-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraArchival-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requesttype=enrollment)
+
+dn: cn=kraRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraRecovery-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requesttype=recovery)
+
+dn: cn=kraCanceled-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraCanceled-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requeststate=canceled)
+
+dn: cn=kraCanceledEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraCanceledEnrollment-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=canceled)(requesttype=enrollment))
+
+dn: cn=kraCanceledRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraCanceledRecovery-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=canceled)(requesttype=recovery))
+
+dn: cn=kraRejected-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraRejected-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requeststate=rejected)
+
+dn: cn=kraRejectedEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraRejectedEnrollment-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=rejected)(requesttype=enrollment))
+
+dn: cn=kraRejectedRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraRejectedRecovery-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=rejected)(requesttype=recovery))
+
+dn: cn=kraComplete-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraComplete-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requeststate=complete)
+
+dn: cn=kraCompleteEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraCompleteEnrollment-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=complete)(requesttype=enrollment))
+
+dn: cn=kraCompleteRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: kraCompleteRecovery-{instanceId}
+vlvBase: ou=kra,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=complete)(requesttype=recovery))
+
+dn: cn=allKeys-{instanceId}Index, cn=allKeys-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allKeys-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraAll-{instanceId}Index, cn=kraAll-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraAll-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraArchival-{instanceId}Index, cn=kraArchival-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraArchival-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraRecovery-{instanceId}Index, cn=kraRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraRecovery-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraCanceled-{instanceId}Index, cn=kraCanceled-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraCanceled-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraCanceledEnrollment-{instanceId}Index, cn=kraCanceledEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraCanceledEnrollment-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraCanceledRecovery-{instanceId}Index, cn=kraCanceledRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraCanceledRecovery-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraRejected-{instanceId}Index, cn=kraRejected-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraRejected-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraRejectedEnrollment-{instanceId}Index, cn=kraRejectedEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraRejectedEnrollment-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraRejectedRecovery-{instanceId}Index, cn=kraRejectedRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraRejectedRecovery-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraComplete-{instanceId}Index, cn=kraComplete-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraComplete-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraCompleteEnrollment-{instanceId}Index, cn=kraCompleteEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraCompleteEnrollment-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=kraCompleteRecovery-{instanceId}Index, cn=kraCompleteRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: kraCompleteRecovery-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0

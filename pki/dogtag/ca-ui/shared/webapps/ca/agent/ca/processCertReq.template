@@ -1,0 +1,228 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<TITLE></TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+<CMS_TEMPLATE>
+<BODY bgcolor="white">
+<SCRIPT type="text/javascript">
+<!--
+function toHex1(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+
+    return sign + '0x' + absValue;
+}
+
+function toHex(number)
+{
+    return '0x' + number;
+}
+
+function renderFoot()
+{
+        document.writeln("");	
+		document.writeln('<FORM ACTION= 'processCertReq?seqNum='+result.header.seqNum+
+						 ' METHOD=POST>');
+        document.writeln('<INPUT TYPE="HIDDEN" NAME="seqNum" VALUE="'+result.header.seqNum +'">');
+
+        document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=6 WIDTH="100%">');
+        document.writeln('<tr><td ALIGN=RIGHT BGCOLOR="#E5E5E5">');
+        if (result.header.assignedTo == null  ||
+            result.header.assignedTo == result.header.callerName) {
+            document.writeln('<SELECT NAME="toDo">');
+            document.writeln('<OPTION VALUE="clone">Clone this request</OPTION>');
+            document.writeln('</SELECT>&nbsp;&nbsp;');
+            document.writeln('<INPUT TYPE="submit" Value="Do It" width="72">&nbsp;&nbsp;');
+            //document.writeln('<INPUT TYPE="reset" VALUE="Reset" width="72">&nbsp;&nbsp;');
+        }
+        document.writeln('<INPUT TYPE="button" VALUE="Help" width="72"');
+        document.writeln('onClick="help(\'http://www.redhat.com/docs/manuals/cert-system#1005417\')">');
+        document.writeln('</td></tr></table>');
+		document.writeln('</form>');
+}
+
+if (result.header.seqNum == null) {
+    document.writeln('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+    document.writeln('Problem Processing Your Request</font>');
+    document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif">');
+    agent/document.writeln('<tr><td>&nbsp;</td></tr></table>');
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+    document.write('<P>The Certificate Manager encountered a problem while processing your request.');
+    document.writeln('&nbsp;&nbsp;The following is a detailed message of the error that occurred.');
+    if (result.header.errors != null || result.header.errorDetails != null) {
+        document.writeln('<blockquote><B><pre>');
+        if (result.header.errors != null) document.writeln(result.header.errors);
+        if (result.header.errorDetails != null) document.writeln(result.header.errorDetails);
+        document.writeln('</pre></B></blockquote>');
+    }
+    document.write('<P>Please consult your local administrator for further assistance.');
+    document.write('&nbsp;&nbsp;The Certificate System logs may provide further information.');
+    document.writeln('</font>');
+} else {
+    document.writeln('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+    document.writeln('Request <b>' + result.header.seqNum + '</b></font>');
+    document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif">');
+    document.writeln('<tr><td>&nbsp;</td></tr></table>');
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+
+    if ((result.header.toDo == 'accept' || result.header.toDo == 'reject' ||
+         result.header.toDo == 'cancel') && result.header.status == 'pending') {
+         if (result.header.toDo == 'accept') {
+            document.writeln('<P>Request has not been accepted.');
+         }
+         if (result.header.toDo == 'reject') {
+            document.writeln('<P>Request has not been rejected.');
+         }
+         if (result.header.toDo == 'cancel') {
+            document.writeln('<P>Request has not been canceled.');
+         }
+         if (result.header.errors != null) {
+            document.writeln('<P>Additional information:');
+            document.writeln('<blockquote><B><pre>'+result.header.errors+'</pre></B></blockquote>');
+         }
+    }
+
+    if ((result.header.toDo == 'accept' || result.header.toDo == 'reject' ||
+         result.header.toDo == 'cancel') &&
+        (result.header.status == 'approved' || result.header.status == 'svc_pending')) {
+        document.writeln('<P>Request has been submitted.');
+    }
+
+    if ((result.header.toDo == 'accept' || result.header.toDo == 'reject') &&
+         result.header.status == 'rejected') {
+        document.writeln('<P>Request has been rejected.');
+        if (result.header.toDo == 'accept' && result.header.errors != null) {
+            document.writeln('<P>Additional information:');
+            document.writeln('<blockquote><B><pre>'+result.header.errors+'</pre></B></blockquote>');
+        }
+    }
+    if ((result.header.toDo == 'accept' || result.header.toDo == 'cancel') &&
+         result.header.status == 'canceled') {
+        document.writeln('<P>Request has been canceled.');
+        if (result.header.toDo == 'accept' && result.header.errors != null) {
+            document.writeln('<P>Additional information:');
+            document.writeln('<blockquote><B><pre>'+result.header.errors+'</pre></B></blockquote>');
+        }
+    }
+
+    if (result.header.toDo == 'clone') {
+		var cloneRequestLoc = '/' + result.header.authorityid + 
+						 '/processReq?seqNum='+
+						 result.header.clonedRequestId;
+		var backRequestLoc = '/' + result.header.authorityid + 
+						 '/processReq?seqNum='+
+						 result.header.seqNum;
+		document.writeln('<P>Request has been cloned as '+
+			'<a href="'+cloneRequestLoc+'">request '+
+			result.header.clonedRequestId+'</a>.');
+		document.writeln('<P>Go back to '+
+			'<a href="'+backRequestLoc+'">request '+
+			result.header.seqNum+'</a>.');
+	}
+
+	// XXX set repeat record of issued certs.
+    if (result.header.toDo == 'accept' &&
+        result.header.status == 'complete') {
+        if (result.header.requestType == 'enrollment' ||
+            result.header.requestType == 'renewal') {
+            if (result.header.serialNumber != null &&
+                result.header.authorityid != null) {
+                document.write('<P>Generated certificate(s) with serial number(s): ');
+                document.writeln('0x'+result.header.serialNumber+'&nbsp;&nbsp;&nbsp;');
+			    if (typeof(result.header.grantError) != "undefined") {
+				    document.writeln('<P>');
+				    if (result.header.grantError == 'SUCCESS') {
+					    document.writeln('User ID '+result.header.grantUID+
+						    ' has been created using this certificate with '+
+						    result.header.grantPrivilege+
+						    ' privileges.');
+				    }
+				    else {
+						var grantAccess = "trusted manager or agent";
+						if (typeof(result.header.grantPrivilege) != "undefined")
+							grantAccess = result.header.grantPrivilege;
+
+						document.writeln('However, a '+grantAccess+
+							' was not created from this request in the'+
+							' user and group database.<br>');
+						document.writeln(
+							'Error details: <b>'+result.header.grantError+'</b>');
+						document.writeln(
+							'<p>You can still create a '+grantAccess+
+							' with this certificate through the Console.');
+				    }
+			    }
+
+                document.writeln('<FORM METHOD=post ACTION="/'+ result.header.authorityid +
+                                 '/displayCertFromRequest">\n');
+                document.writeln('<INPUT TYPE=hidden NAME="requestId" VALUE="'+
+                                 result.header.seqNum +'">\n');
+                document.writeln('<INPUT TYPE=hidden NAME="op" VALUE="displayBySerial">\n');
+                document.writeln('<INPUT TYPE=hidden NAME="serialNumber" VALUE="'+
+                                 '0x'+result.header.serialNumber +'">\n');
+                document.writeln('<INPUT TYPE=submit VALUE="Show Certificate" width="72"></FORM>\n');
+/*
+                if (result.header.dirEnabled != null && result.header.dirEnabled == 'yes') {
+                    if (result.header.certsUpdated > 0) {
+                        document.writeln('<P>The certificate(s) have been successfully published.');
+                    } else {
+                        document.writeln('<P>One or more certificates could not be published.  See log files for more details.');
+                    }
+                }
+*/
+            } else {
+                document.writeln('<P>Request has been completed but no certificate has been generated.');
+                if (result.header.errors != null) {
+                    document.writeln('<P>Additional information:');
+                    document.writeln('<blockquote><B><pre>'+result.header.errors+'</pre></B></blockquote>');
+                }
+                document.write('<P>The Certificate System logs may provide further information.');
+			    document.write('<P>');
+			    renderFoot();
+            }
+        } else {
+            document.writeln('<P>Request has been completed.');
+            if (result.header.errors != null) {
+                document.writeln('<P>Additional information:');
+                document.writeln('<blockquote><B><pre>'+result.header.errors+'</pre></B></blockquote>');
+                document.write('<P>The Certificate System logs may provide further information.');
+            }
+        }
+    }
+
+    document.writeln('</font>');
+}
+//-->
+</SCRIPT>
+</BODY>
+</HTML>

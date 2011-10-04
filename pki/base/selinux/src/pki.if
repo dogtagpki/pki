@@ -1,0 +1,921 @@
+
+## <summary>policy for pki</summary>
+
+########################################
+## <summary>
+##	Create a set of derived types for apache
+##	web content.
+## </summary>
+## <param name="prefix">
+##	<summary>
+##	The prefix to be used for deriving type names.
+##	</summary>
+## </param>
+#
+template(`pki_ca_template',`
+	gen_require(`
+		attribute pki_ca_process;
+		attribute pki_ca_config, pki_ca_var_lib, pki_ca_var_run;
+		attribute pki_ca_executable, pki_ca_script, pki_ca_var_log;
+		type pki_ca_tomcat_exec_t;
+		type $1_port_t;
+                type rpm_var_lib_t;
+                type rpm_exec_t;
+		type setfiles_t;
+                type httpd_t;
+	')
+	########################################
+	#
+	# Declarations
+	#
+
+        type $1_t, pki_ca_process;
+        type $1_exec_t, pki_ca_executable;
+        domain_type($1_t)
+        init_daemon_domain($1_t, $1_exec_t)
+
+        type $1_script_t;
+        domain_type($1_script_t)
+        gen_require(`
+                type java_exec_t;
+                type initrc_t;
+        ')
+        domtrans_pattern($1_script_t, java_exec_t, $1_t)
+        unconfined_domain($1_script_t)
+        role system_r types $1_script_t;
+        allow $1_t java_exec_t:file entrypoint;
+        allow initrc_t $1_script_t:process transition;
+
+	type $1_etc_rw_t, pki_ca_config;
+	files_type($1_etc_rw_t)
+
+	type $1_var_run_t, pki_ca_var_run;
+	files_pid_file($1_var_run_t)
+
+	type $1_var_lib_t, pki_ca_var_lib;
+	files_type($1_var_lib_t)
+
+	type $1_log_t, pki_ca_var_log;
+	logging_log_file($1_log_t)
+
+	########################################
+	#
+	# $1 local policy
+	#
+
+	# Execstack/execmem caused by java app.
+	allow $1_t self:process { execstack execmem getsched setsched signal};
+	allow initrc_t self:process execstack;
+
+	## internal communication is often done using fifo and unix sockets.
+	allow $1_t self:fifo_file rw_file_perms;
+	allow $1_t self:unix_stream_socket create_stream_socket_perms;
+	allow $1_t self:tcp_socket create_stream_socket_perms;
+	allow $1_t self:process signull;
+
+	allow $1_t $1_port_t:tcp_socket {name_bind name_connect};
+
+        # use rpm to look at velocity version in dtomcat-foo
+        allow $1_t rpm_exec_t:file exec_file_perms;
+
+	corenet_all_recvfrom_unlabeled($1_t)
+	corenet_tcp_sendrecv_all_if($1_t)
+	corenet_tcp_sendrecv_all_nodes($1_t)
+	corenet_tcp_sendrecv_all_ports($1_t)
+
+	corenet_tcp_bind_all_nodes($1_t)
+	corenet_tcp_bind_ocsp_port($1_t)
+	corenet_tcp_connect_ocsp_port($1_t)
+        corenet_tcp_connect_generic_port($1_t)
+
+        # for file signing
+        corenet_tcp_connect_http_port($1_t)
+
+	# This is for /etc/$1/tomcat.conf:
+	can_exec($1_t, $1_tomcat_exec_t)
+        allow $1_t $1_tomcat_exec_t:file {getattr read};
+
+        #installation requires this for access to /var/lib/tomcat5/common/lib/jdtcore.jar 
+        rpm_read_db($1_t)
+
+	# Init script handling
+	domain_use_interactive_fds($1_t)
+
+	files_read_etc_files($1_t)
+
+	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
+	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
+	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
+
+	# start/stop using pki-cad, pki-krad, pki-ocspd, or pki-tksd
+	allow setfiles_t $1_etc_rw_t:file read;
+
+	manage_dirs_pattern($1_t, $1_var_run_t,  $1_var_run_t)
+	manage_files_pattern($1_t, $1_var_run_t,  $1_var_run_t)
+	files_pid_filetrans($1_t,$1_var_run_t, { file dir })
+
+	manage_dirs_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
+	manage_files_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
+	read_lnk_files_pattern($1_t, $1_var_lib_t, $1_var_lib_t)
+	files_var_lib_filetrans($1_t, $1_var_lib_t, { file dir } )
+        allow $1_t rpm_var_lib_t:lnk_file { read getattr };
+
+	manage_dirs_pattern($1_t, $1_log_t,  $1_log_t)
+	manage_files_pattern($1_t, $1_log_t,  $1_log_t)
+	logging_log_filetrans($1_t, $1_log_t, { file dir } )
+
+	corecmd_exec_bin($1_t)
+	corecmd_read_bin_symlinks($1_t)
+	corecmd_exec_shell($1_t)
+        corecmd_search_bin($1_t)
+
+	dev_list_sysfs($1_t)
+	dev_read_rand($1_t)
+	dev_read_urand($1_t)
+
+	# Java is looking in /tmp for some reason...:
+	files_manage_generic_tmp_dirs($1_t)
+	files_manage_generic_tmp_files($1_t)
+	files_read_usr_files($1_t)
+	files_read_usr_symlinks($1_t)
+	# These are used to read tomcat class files in /var/lib/tomcat
+	files_read_var_lib_files($1_t)
+	files_read_var_lib_symlinks($1_t)
+
+	kernel_read_network_state($1_t)
+	kernel_read_system_state($1_t)
+	kernel_search_network_state($1_t)
+	# audit2allow
+        kernel_signull_unlabeled($1_t)
+
+	auth_use_nsswitch($1_t)
+
+	init_dontaudit_write_utmp($1_t)
+
+	libs_use_ld_so($1_t)
+	libs_use_shared_libs($1_t)
+
+	miscfiles_read_localization($1_t)
+
+	ifdef(`targeted_policy',`
+		term_dontaudit_use_unallocated_ttys($1_t)
+		term_dontaudit_use_generic_ptys($1_t)
+	')
+
+        #This is broken in selinux-policy we need java_exec defined, Will add to policy
+	gen_require(`
+		type java_exec_t;
+	')
+	can_exec($1_t, java_exec_t)
+
+        # allow java subsystems to talk to the ncipher hsm
+        allow $1_t pki_common_dev_t:sock_file write;
+        allow $1_t pki_common_dev_t:dir search;
+        allow $1_t pki_common_t:dir create_dir_perms;
+        manage_files_pattern($1_t, pki_common_t, pki_common_t)
+        can_exec($1_t, pki_common_t)
+        init_stream_connect_script($1_t)
+
+        #allow java subsystems to talk to lunasa hsm
+        allow $1_t devlog_t:sock_file write;
+	allow $1_t self:unix_dgram_socket { write create connect };
+	allow $1_t syslogd_t:unix_dgram_socket sendto;
+
+       #allow sending mail
+       corenet_tcp_connect_smtp_port($1_t)
+
+       # allow rpm -q in init scripts
+       rpm_exec($1_t)
+        
+       # allow writing to the kernel keyring
+       allow $1_t self:key { write read };
+
+       #reverse proxy
+       corenet_tcp_connect_dogtag_port($1_t)
+
+')
+
+########################################
+## <summary>
+##	All of the rules required to administrate 
+##	an pki_ca environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	The role to be allowed to manage the syslog domain.
+##	</summary>
+## </param>
+## <param name="terminal">
+##	<summary>
+##	The type of the user terminal.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`pki_ca_admin',`
+	gen_require(`
+		type pki_ca_tomcat_exec_t;
+		attribute pki_ca_process;
+		attribute pki_ca_config;
+		attribute pki_ca_executable;
+		attribute pki_ca_var_lib;
+		attribute pki_ca_var_log;
+		attribute pki_ca_var_run;
+		attribute pki_ca_pidfiles;
+		attribute pki_ca_script;
+	')
+
+	allow $1 pki_ca_process:process { ptrace signal_perms };
+	ps_process_pattern($1, pki_ca_t)
+
+	# Allow pki_ca_t to restart the service
+	pki_ca_script_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 pki_ca_script system_r;
+	allow $2 system_r;
+
+	manage_all_pattern($1, pki_ca_config)
+	manage_all_pattern($1, pki_ca_var_run)
+	manage_all_pattern($1, pki_ca_var_lib)
+	manage_all_pattern($1, pki_ca_var_log)
+	manage_all_pattern($1, pki_ca_config)
+	manage_all_pattern($1, pki_ca_tomcat_exec_t)
+')
+
+########################################
+## <summary>
+##	All of the rules required to administrate 
+##	an pki_kra environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	The role to be allowed to manage the syslog domain.
+##	</summary>
+## </param>
+## <param name="terminal">
+##	<summary>
+##	The type of the user terminal.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`pki_kra_admin',`
+	gen_require(`
+		type pki_kra_tomcat_exec_t;
+		attribute pki_kra_process;
+		attribute pki_kra_config;
+		attribute pki_kra_executable;
+		attribute pki_kra_var_lib;
+		attribute pki_kra_var_log;
+		attribute pki_kra_var_run;
+		attribute pki_kra_pidfiles;
+		attribute pki_kra_script;
+	')
+
+	allow $1 pki_kra_process:process { ptrace signal_perms };
+	ps_process_pattern($1, pki_kra_t)
+
+	# Allow pki_kra_t to restart the service
+	pki_kra_script_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 pki_kra_script system_r;
+	allow $2 system_r;
+
+	manage_all_pattern($1, pki_kra_config)
+	manage_all_pattern($1, pki_kra_var_run)
+	manage_all_pattern($1, pki_kra_var_lib)
+	manage_all_pattern($1, pki_kra_var_log)
+	manage_all_pattern($1, pki_kra_config)
+	manage_all_pattern($1, pki_kra_tomcat_exec_t)
+')
+
+########################################
+## <summary>
+##	All of the rules required to administrate 
+##	an pki_ocsp environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	The role to be allowed to manage the syslog domain.
+##	</summary>
+## </param>
+## <param name="terminal">
+##	<summary>
+##	The type of the user terminal.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`pki_ocsp_admin',`
+	gen_require(`
+		type pki_ocsp_tomcat_exec_t;
+		attribute pki_ocsp_process;
+		attribute pki_ocsp_config;
+		attribute pki_ocsp_executable;
+		attribute pki_ocsp_var_lib;
+		attribute pki_ocsp_var_log;
+		attribute pki_ocsp_var_run;
+		attribute pki_ocsp_pidfiles;
+		attribute pki_ocsp_script;
+	')
+
+	allow $1 pki_ocsp_process:process { ptrace signal_perms };
+	ps_process_pattern($1, pki_ocsp_t)
+
+	# Allow pki_ocsp_t to restart the service
+	pki_ocsp_script_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 pki_ocsp_script system_r;
+	allow $2 system_r;
+
+	manage_all_pattern($1, pki_ocsp_config)
+	manage_all_pattern($1, pki_ocsp_var_run)
+	manage_all_pattern($1, pki_ocsp_var_lib)
+	manage_all_pattern($1, pki_ocsp_var_log)
+	manage_all_pattern($1, pki_ocsp_config)
+	manage_all_pattern($1, pki_ocsp_tomcat_exec_t)
+')
+
+########################################
+## <summary>
+##	Execute pki_ra server in the pki_ra domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	The type of the process performing this action.
+##	</summary>
+## </param>
+#
+interface(`pki_ra_script_domtrans',`
+	gen_require(`
+		attribute pki_ra_script;
+	')
+
+	init_script_domtrans_spec($1,pki_ra_script)
+')
+
+########################################
+## <summary>
+##	Create a set of derived types for apache
+##	web content.
+## </summary>
+## <param name="prefix">
+##	<summary>
+##	The prefix to be used for deriving type names.
+##	</summary>
+## </param>
+#
+template(`pki_tps_template',`
+	gen_require(`
+		attribute pki_tps_process;
+		attribute pki_tps_config, pki_tps_var_lib, pki_tps_var_run;
+		attribute pki_tps_executable, pki_tps_script, pki_tps_var_log;
+	')
+	########################################
+	#
+	# Declarations
+	#
+
+	type $1_t, pki_tps_process;
+	type $1_exec_t, pki_tps_executable;
+	domain_type($1_t)
+	init_daemon_domain($1_t, $1_exec_t)
+
+	type $1_script_exec_t, pki_tps_script;
+	init_script_file($1_script_exec_t)
+
+	type $1_etc_rw_t, pki_tps_config;
+	files_type($1_etc_rw_t)
+
+	type $1_var_run_t, pki_tps_var_run;
+	files_pid_file($1_var_run_t)
+
+	type $1_var_lib_t, pki_tps_var_lib;
+	files_type($1_var_lib_t)
+
+	type $1_log_t, pki_tps_var_log;
+	logging_log_file($1_log_t)
+
+	########################################
+	#
+	# $1 local policy
+	#
+
+	## internal communication is often done using fifo and unix sockets.
+	allow $1_t self:fifo_file rw_file_perms;
+	allow $1_t self:unix_stream_socket create_stream_socket_perms;
+
+	# Init script handling
+	domain_use_interactive_fds($1_t)
+
+	files_read_etc_files($1_t)
+
+	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
+	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
+	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
+
+	manage_dirs_pattern($1_t, $1_var_run_t,  $1_var_run_t)
+	manage_files_pattern($1_t, $1_var_run_t,  $1_var_run_t)
+	files_pid_filetrans($1_t,$1_var_run_t, { file dir })
+
+	manage_dirs_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
+	manage_files_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
+	read_lnk_files_pattern($1_t, $1_var_lib_t, $1_var_lib_t)
+	files_var_lib_filetrans($1_t, $1_var_lib_t, { file dir } )
+
+	manage_dirs_pattern($1_t, $1_log_t,  $1_log_t)
+	manage_files_pattern($1_t, $1_log_t,  $1_log_t)
+	logging_log_filetrans($1_t, $1_log_t, { file dir } )
+
+	init_dontaudit_write_utmp($1_t)
+
+	libs_use_ld_so($1_t)
+	libs_use_shared_libs($1_t)
+
+	miscfiles_read_localization($1_t)
+
+	ifdef(`targeted_policy',`
+		term_dontaudit_use_unallocated_ttys($1_t)
+		term_dontaudit_use_generic_ptys($1_t)
+	')
+
+	gen_require(`
+		type httpd_t;
+                type httpd_exec_t;
+                type httpd_suexec_exec_t;
+	')
+
+	#============= httpd_t ==============
+	allow httpd_t $1_var_run_t:dir search;
+	allow httpd_t $1_var_run_t:file read_file_perms;
+
+        # start up httpd in pki_tps_t mode
+        allow pki_tps_t httpd_config_t:file { read getattr execute };
+        allow pki_tps_t httpd_exec_t:file entrypoint;
+        allow pki_tps_t httpd_modules_t:lnk_file read;
+	allow pki_tps_t httpd_suexec_exec_t:file { getattr read execute };
+
+        # apache permissions
+        apache_exec_modules(pki_tps_t)
+        apache_list_modules(pki_tps_t)
+        apache_read_config(pki_tps_t)
+
+        allow pki_tps_t lib_t:file execute_no_trans;
+
+        #fowner needed for chmod
+        allow pki_tps_t self:capability { setuid sys_nice setgid dac_override fowner fsetid kill};
+        allow pki_tps_t self:process { setsched signal getsched  signull execstack execmem sigkill};
+        allow pki_tps_t self:sem all_sem_perms;
+        allow pki_tps_t self:tcp_socket create_stream_socket_perms;
+
+        # used to serve cgi web pages under /var/lib/pki-tps, formatting, enrollment
+        allow pki_tps_t pki_tps_var_lib_t:file {execute execute_no_trans};
+
+         #netlink needed?
+        allow pki_tps_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
+
+        corecmd_exec_bin(pki_tps_t)
+        corecmd_exec_shell(pki_tps_t)
+        corecmd_read_bin_symlinks(pki_tps_t)
+        corecmd_search_bin(pki_tps_t)
+
+        corenet_sendrecv_unlabeled_packets(pki_tps_t)
+        corenet_tcp_bind_all_nodes(pki_tps_t)
+        corenet_tcp_bind_pki_tps_port(pki_tps_t)
+        corenet_tcp_connect_generic_port(pki_tps_t)
+
+        # customer may run an ldap server on 389 
+        corenet_tcp_connect_ldap_port(pki_tps_t)
+
+        # connect to other subsystems
+        corenet_tcp_connect_pki_ca_port(pki_tps_t)
+        corenet_tcp_connect_pki_kra_port(pki_tps_t)
+        corenet_tcp_connect_pki_tks_port(pki_tps_t)
+        
+        corenet_tcp_sendrecv_all_if(pki_tps_t)
+        corenet_tcp_sendrecv_all_nodes(pki_tps_t)
+        corenet_tcp_sendrecv_all_ports(pki_tps_t)
+        corenet_all_recvfrom_unlabeled(pki_tps_t)
+
+        dev_read_urand(pki_tps_t)
+        files_exec_usr_files(pki_tps_t)
+        files_read_usr_symlinks(pki_tps_t)
+        files_read_usr_files(pki_tps_t)
+
+        #installation and debug uses /tmp
+        files_manage_generic_tmp_dirs(pki_tps_t)
+        files_manage_generic_tmp_files(pki_tps_t)
+
+        kernel_read_kernel_sysctls(pki_tps_t)
+        kernel_read_system_state(pki_tps_t)
+
+        # need to resolve addresses?
+        auth_use_nsswitch(pki_tps_t)
+
+        sysnet_read_config(pki_tps_t)
+
+        allow httpd_t pki_tps_etc_rw_t:dir search;
+        allow httpd_t pki_tps_etc_rw_t:file rw_file_perms;
+        allow httpd_t pki_tps_log_t:dir rw_dir_perms;
+        allow httpd_t pki_tps_log_t:file manage_file_perms;
+        allow httpd_t pki_tps_t:process { signal signull };
+        allow httpd_t pki_tps_var_lib_t:dir { getattr search };
+        allow httpd_t pki_tps_var_lib_t:lnk_file read;
+        allow httpd_t pki_tps_var_lib_t:file read_file_perms;
+
+        # why do I need to add this?
+        allow httpd_t httpd_config_t:file execute;
+        files_exec_usr_files(httpd_t)
+
+        # talk to the hsm
+        allow pki_tps_t pki_common_dev_t:sock_file write;
+        allow pki_tps_t pki_common_dev_t:dir search;
+        allow pki_tps_t pki_common_t:dir create_dir_perms;
+        manage_files_pattern(pki_tps_t, pki_common_t, pki_common_t)
+        can_exec(pki_tps_t, pki_common_t)
+        init_stream_connect_script(pki_tps_t)
+
+        #allow tps to talk to lunasa hsm
+        allow pki_tps_t devlog_t:sock_file write;
+        allow pki_tps_t self:unix_dgram_socket { write create connect };
+        allow pki_tps_t syslogd_t:unix_dgram_socket sendto;
+
+        # allow rpm -q in init scripts
+        rpm_exec(pki_tps_t)
+
+        # allow writing to the kernel keyring
+        allow pki_tps_t self:key { write read };
+
+')
+
+template(`pki_ra_template',`
+	gen_require(`
+		attribute pki_ra_process;
+		attribute pki_ra_config, pki_ra_var_lib, pki_ra_var_run;
+		attribute pki_ra_executable, pki_ra_script, pki_ra_var_log;
+	')
+	########################################
+	#
+	# Declarations
+	#
+
+	type $1_t, pki_ra_process;
+	type $1_exec_t, pki_ra_executable;
+	domain_type($1_t)
+	init_daemon_domain($1_t, $1_exec_t)
+
+	type $1_script_exec_t, pki_ra_script;
+	init_script_file($1_script_exec_t)
+
+	type $1_etc_rw_t, pki_ra_config;
+	files_type($1_etc_rw_t)
+
+	type $1_var_run_t, pki_ra_var_run;
+	files_pid_file($1_var_run_t)
+
+	type $1_var_lib_t, pki_ra_var_lib;
+	files_type($1_var_lib_t)
+
+	type $1_log_t, pki_ra_var_log;
+	logging_log_file($1_log_t)
+
+	########################################
+	#
+	# $1 local policy
+	#
+
+	## internal communication is often done using fifo and unix sockets.
+	allow $1_t self:fifo_file rw_file_perms;
+	allow $1_t self:unix_stream_socket create_stream_socket_perms;
+
+	# Init script handling
+	domain_use_interactive_fds($1_t)
+
+	files_read_etc_files($1_t)
+
+	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
+	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
+	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
+
+	manage_dirs_pattern($1_t, $1_var_run_t,  $1_var_run_t)
+	manage_files_pattern($1_t, $1_var_run_t,  $1_var_run_t)
+	files_pid_filetrans($1_t,$1_var_run_t, { file dir })
+
+	manage_dirs_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
+	manage_files_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
+	read_lnk_files_pattern($1_t, $1_var_lib_t, $1_var_lib_t)
+	files_var_lib_filetrans($1_t, $1_var_lib_t, { file dir } )
+
+	manage_dirs_pattern($1_t, $1_log_t,  $1_log_t)
+	manage_files_pattern($1_t, $1_log_t,  $1_log_t)
+	logging_log_filetrans($1_t, $1_log_t, { file dir } )
+
+	init_dontaudit_write_utmp($1_t)
+
+	libs_use_ld_so($1_t)
+	libs_use_shared_libs($1_t)
+
+	miscfiles_read_localization($1_t)
+
+	ifdef(`targeted_policy',`
+		term_dontaudit_use_unallocated_ttys($1_t)
+		term_dontaudit_use_generic_ptys($1_t)
+	')
+
+	gen_require(`
+		type httpd_t;
+                type devlog_t;
+                type syslogd_t;
+                type httpd_exec_t;
+                type httpd_suexec_exec_t;
+	')
+
+	#============= httpd_t ==============
+	allow httpd_t $1_var_run_t:dir search;
+	allow httpd_t $1_var_run_t:file read_file_perms;
+
+         # start up httpd in pki_ra_t mode
+        allow pki_ra_t httpd_config_t:file { read getattr execute };
+        allow pki_ra_t httpd_exec_t:file entrypoint;
+        allow pki_ra_t httpd_modules_t:lnk_file read;
+        allow pki_ra_t httpd_suexec_exec_t:file { getattr read execute };
+
+        #apache permissions
+        apache_read_config(pki_ra_t)
+        apache_exec_modules(pki_ra_t)
+        apache_list_modules(pki_ra_t)
+
+        allow pki_ra_t lib_t:file execute_no_trans;
+
+        allow pki_ra_t self:capability { setuid sys_nice setgid dac_override fowner fsetid};
+        allow pki_ra_t self:process { setsched getsched signal signull execstack execmem};
+        allow pki_ra_t self:sem all_sem_perms;
+        allow pki_ra_t self:tcp_socket create_stream_socket_perms;
+
+        #RA specific? talking to mysql?
+        allow pki_ra_t self:udp_socket { write read create connect };
+        allow pki_ra_t self:unix_dgram_socket { write create connect };
+
+        # netlink needed?
+        allow pki_ra_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
+
+        corecmd_exec_bin(pki_ra_t)
+        corecmd_exec_shell(pki_ra_t)
+        corecmd_read_bin_symlinks(pki_ra_t)
+        corecmd_search_bin(pki_ra_t)
+
+        corenet_sendrecv_unlabeled_packets(pki_ra_t)
+        corenet_tcp_bind_all_nodes(pki_ra_t)
+        corenet_tcp_bind_pki_ra_port(pki_ra_t)
+
+        corenet_tcp_sendrecv_all_if(pki_ra_t)
+        corenet_tcp_sendrecv_all_nodes(pki_ra_t)
+        corenet_tcp_sendrecv_all_ports(pki_ra_t)
+        corenet_all_recvfrom_unlabeled(pki_ra_t)
+        corenet_tcp_connect_generic_port(pki_ra_t)
+
+        # talk to other subsystems
+        corenet_tcp_connect_pki_ca_port(pki_ra_t)
+
+        dev_read_urand(pki_ra_t)
+        files_exec_usr_files(pki_ra_t)
+        fs_getattr_xattr_fs(pki_ra_t)
+
+        # ra writes files to /tmp
+        files_manage_generic_tmp_files(pki_ra_t)
+
+        kernel_read_kernel_sysctls(pki_ra_t)
+        kernel_read_system_state(pki_ra_t)
+
+        #send mail, sendmail writes to devlog, syslog
+        allow pki_ra_t mqueue_spool_t:file { write getattr read lock create unlink };
+        allow pki_ra_t devlog_t:sock_file write;
+        allow pki_ra_t syslogd_t:unix_dgram_socket sendto;
+        corenet_tcp_connect_smtp_port(pki_ra_t)
+        files_search_spool(pki_ra_t)
+        mta_manage_queue(pki_ra_t)
+        mta_read_config(pki_ra_t)
+        mta_sendmail_exec(pki_ra_t)
+ 
+        #resolve names?
+        auth_use_nsswitch(pki_ra_t)
+
+        sysnet_read_config(pki_ra_t)
+
+        allow httpd_t pki_ra_etc_rw_t:dir search;
+        allow httpd_t pki_ra_etc_rw_t:file rw_file_perms;
+        allow httpd_t pki_ra_log_t:dir rw_dir_perms;
+        allow httpd_t pki_ra_log_t:file manage_file_perms;
+        allow httpd_t pki_ra_t:process { signal signull };
+        allow httpd_t pki_ra_var_lib_t:dir { getattr search };
+        allow httpd_t pki_ra_var_lib_t:lnk_file read;
+        allow httpd_t pki_ra_var_lib_t:file read_file_perms;
+
+        # talk to the hsm
+        allow pki_ra_t pki_common_dev_t:sock_file write;
+        allow pki_ra_t pki_common_dev_t:dir search;
+        allow pki_ra_t pki_common_t:dir create_dir_perms;
+        manage_files_pattern(pki_ra_t, pki_common_t, pki_common_t)
+        can_exec(pki_ra_t, pki_common_t)
+        init_stream_connect_script(pki_ra_t)
+
+        # allow rpm -q in init scripts
+        rpm_exec(pki_ra_t)
+
+        # allow writing to the kernel keyring
+        allow pki_ra_t self:key { write read };
+
+
+')
+
+########################################
+## <summary>
+##	All of the rules required to administrate 
+##	an pki_ra environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+########################################
+## <summary>
+##	All of the rules required to administrate 
+##	an pki_ra environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	The role to be allowed to manage the syslog domain.
+##	</summary>
+## </param>
+## <param name="terminal">
+##	<summary>
+##	The type of the user terminal.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`pki_ra_admin',`
+	gen_require(`
+		attribute pki_ra_process;
+		attribute pki_ra_config;
+		attribute pki_ra_executable;
+		attribute pki_ra_var_lib;
+		attribute pki_ra_var_log;
+		attribute pki_ra_var_run;
+		attribute pki_ra_script;
+	')
+
+	allow $1 pki_ra_process:process { ptrace signal_perms };
+	ps_process_pattern($1, pki_ra_t)
+
+	# Allow pki_ra_t to restart the service
+	pki_ra_script_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 pki_ra_script system_r;
+	allow $2 system_r;
+
+	manage_all_pattern($1, pki_ra_config)
+	manage_all_pattern($1, pki_ra_var_run)
+	manage_all_pattern($1, pki_ra_var_lib)
+	manage_all_pattern($1, pki_ra_var_log)
+	manage_all_pattern($1, pki_ra_config)
+')
+
+########################################
+## <summary>
+##	All of the rules required to administrate 
+##	an pki_tks environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	The role to be allowed to manage the syslog domain.
+##	</summary>
+## </param>
+## <param name="terminal">
+##	<summary>
+##	The type of the user terminal.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`pki_tks_admin',`
+	gen_require(`
+		type pki_tks_tomcat_exec_t;
+		attribute pki_tks_process;
+		attribute pki_tks_config;
+		attribute pki_tks_executable;
+		attribute pki_tks_var_lib;
+		attribute pki_tks_var_log;
+		attribute pki_tks_var_run;
+		attribute pki_tks_pidfiles;
+		attribute pki_tks_script;
+	')
+
+	allow $1 pki_tks_process:process { ptrace signal_perms };
+	ps_process_pattern($1, pki_tks_t)
+
+	# Allow pki_tks_t to restart the service
+	pki_tks_script_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 pki_tks_script system_r;
+	allow $2 system_r;
+
+	manage_all_pattern($1, pki_tks_config)
+	manage_all_pattern($1, pki_tks_var_run)
+	manage_all_pattern($1, pki_tks_var_lib)
+	manage_all_pattern($1, pki_tks_var_log)
+	manage_all_pattern($1, pki_tks_config)
+	manage_all_pattern($1, pki_tks_tomcat_exec_t)
+')
+
+########################################
+## <summary>
+##	Execute pki_tps server in the pki_tps domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	The type of the process performing this action.
+##	</summary>
+## </param>
+#
+interface(`pki_tps_script_domtrans',`
+	gen_require(`
+		attribute pki_tps_script;
+	')
+
+	init_script_domtrans_spec($1,pki_tps_script)
+')
+
+
+########################################
+## <summary>
+##	All of the rules required to administrate 
+##	an pki_tps environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	The role to be allowed to manage the syslog domain.
+##	</summary>
+## </param>
+## <param name="terminal">
+##	<summary>
+##	The type of the user terminal.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`pki_tps_admin',`
+	gen_require(`
+		attribute pki_tps_process;
+		attribute pki_tps_config;
+		attribute pki_tps_executable;
+		attribute pki_tps_var_lib;
+		attribute pki_tps_var_log;
+		attribute pki_tps_var_run;
+		attribute pki_tps_script;
+	')
+
+	allow $1 pki_tps_process:process { ptrace signal_perms };
+	ps_process_pattern($1, pki_tps_t)
+
+	# Allow pki_tps_t to restart the service
+	pki_tps_script_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 pki_tps_script system_r;
+	allow $2 system_r;
+
+	manage_all_pattern($1, pki_tps_config)
+	manage_all_pattern($1, pki_tps_var_run)
+	manage_all_pattern($1, pki_tps_var_lib)
+	manage_all_pattern($1, pki_tps_var_log)
+	manage_all_pattern($1, pki_tps_config)
+')

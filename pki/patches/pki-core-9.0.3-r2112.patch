@@ -1,0 +1,13 @@
+Index: base/setup/pkicreate
+===================================================================
+--- base/setup/pkicreate	(revision 2111)
++++ base/setup/pkicreate	(revision 2112)
+@@ -2025,7 +2025,7 @@
+     ## Populate pki instance registry
+     # create pki registry for this subsystem
+     return 0 if !create_directory($pki_registry_subsystem_path,
+-                                  $default_dir_permissions, $pki_user, $pki_group);
++                                  $default_dir_permissions, $pki_user, $pki_group, 'preserve');
+ 
+ 
+     ## Populate instance directory paths (CA instances)

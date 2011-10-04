@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<CMS_TEMPLATE>
+<title>Display Key</title>
+<body bgcolor="white">
+
+<SCRIPT LANGUAGE="JavaScript">
+
+function PKCS12Password()
+{
+    if (document.forms[0].initAsyncRecovery.checked) {
+       document.forms[0].p12Password.disabled= true; 
+       document.forms[0].p12PasswordAgain.disabled= true; 
+       document.forms[0].nickname.disabled= true; 
+    } else {
+       document.forms[0].p12Password.disabled= false; 
+       document.forms[0].p12PasswordAgain.disabled= false; 
+       document.forms[0].nickname.disabled= false; 
+    }
+}
+</SCRIPT>
+<script language="JavaScript" src="../funcs.js"></script>
+<script language="JavaScript" src="../helpfun.js"></script>
+<script language="JavaScript">
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+	sign = "-";
+	number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+	absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+function renderHexNumber(number,width)
+{
+    var num = toHex(number);
+    while (num.length < width)
+        num = "0"+num;
+    return "0x"+num;
+}
+
+function renderDateFromSecs(secs)
+{
+    if (secs == null) return "";
+    var today = new Date();
+    var dateTmp = new Date();
+    dateTmp.setTime(secs * 1000);
+    var dateStr = dateTmp.toLocaleString();
+    return dateStr;
+}
+
+function renderCredentialBoxes(m)
+{
+        var str = "";
+
+        for(var i = 0; i < m; ++i) {
+                str = str + 
+			"<tr>" +
+			"<td align=right><font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">" +
+			"Agent ID #" + i + ":" +
+			"</font></td>" +
+			"<td align=left><font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">" +
+                        "<input type=text name=\"uid" + i +
+                        "\" value=\"\">" + 
+			"</font></td>" +
+			"</tr>" +
+			"<tr>" +
+			"<td align=right><font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">" +
+			"Password #" + i + ":" +
+			"</font></td>" +
+			"<td align=left><font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">" +
+                        "<input type=password name=\"pwd" + i +
+                        "\" value=\"\" AutoComplete=off >" +
+			"</font></td>" +
+			"</tr>";
+        }
+        return str;
+}
+
+if (result.header.errorDetails != null) {
+        writeError(result.header.errorDetails);
+} else {
+	document.writeln(
+        '<font face="PrimaSans BT, Verdana, sans-serif"><font size=+1>'+
+        'Key ' +
+        '<a href="' + '/kra/agent/kra/displayBySerial?' + 
+	'op=displayBySerial&serialNumber=' + result.header.serialNumber + '"' +
+        'onMouseOver=" return helpstatus(\'Click to redisplay this ' +
+        'request \')" onMouseOut="return helpstatus(\'\')">' +
+        renderHexNumber(result.header.serialNumber,8) +
+        '</a></font></font>');
+
+        document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+
+    	document.write('<form method=post ' +
+          'action="' + '/kra/agent/kra/recoverBySerial' + '">\n');
+	document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Key</font></td></tr>');
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">State:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.state + '</font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Created on:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderDateFromSecs(result.header.archivedOn) + '</font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Updated on:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderDateFromSecs(result.header.archivedOn) + '</font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Archiver:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.archivedBy + '</font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Public key:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.publicKey + '</font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Owner name:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.ownerName + '</font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key algorithm:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.keyAlgorithm + '</font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key length:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.keyLength + '</font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Async Recovery:</font></td>');
+        // initiate an asynchronous recovery or not
+	document.writeln('<td>');
+        document.write('<input type="checkbox" CHECKED onClick="PKCS12Password()" name="initAsyncRecovery" value="ON">');
+	document.writeln('</td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password disabled name="p12Password" value="" AutoComplete=off ></font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password again:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password disabled name="p12PasswordAgain" value="" AutoComplete=off ></font></td>');
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Nickname (Optional):</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=text disabled name="nickname" value=""></font></td>');
+	document.writeln('</tr>');
+
+	// certificate
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Certificate:</font></td>');
+	if (result.header.publicKeyData != null) {
+		document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><textarea name=cert rows=10 cols=56>' + result.header.publicKeyData + '</textarea></font></td>');
+	} else {
+		document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><textarea name=cert rows=10 cols=56></textarea></font></td>');
+	}
+	document.writeln('</tr>');
+
+	document.writeln('<tr>');
+	document.writeln('</tr>');
+
+	// use distributed-recovery mode or not
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif"></font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+	if (result.header.keySplitting == 'true') { 
+	  document.write('<input type="checkbox" CHECKED name="localAgents" Value="yes">');
+	} else {
+	  document.write('<input type="hidden" name="localAgents" Value="yes">');
+	}
+	document.write('</font></td>');
+	document.writeln('</tr>');
+
+	// recovery ID
+/* recoery ID does not apply to async case
+	document.writeln('<tr>');
+	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Recovery authorization reference number:</font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.recoveryID + '</font></td>');
+	document.writeln('</tr>');
+        document.writeln('<input type=hidden name="op" value="recoverBySerial">');
+*/
+
+	if (result.header.keySplitting == 'true') { 
+          document.write(renderCredentialBoxes(result.header.noOfRequiredAgents));
+        }
+
+	document.writeln('<input type=hidden name="recoveryID" VALUE="' +
+                result.header.recoveryID + '">\n');
+	document.writeln('<input type=hidden name="serialNumber" VALUE="' +
+                result.header.serialNumber + '">\n');
+	document.write('</table>');
+        document.writeln('<table cellpadding="6" cellspacing="0" border="0" width="100%">');
+        document.writeln('<tr>');
+        document.writeln('<td align="right" bgcolor="#e5e5e5">');
+        document.writeln('<input type=submit value="Recover">');
+        document.writeln("<input type=button value=\"Help\" onClick=\"help('/manual/agt_gide/kraagt.htm#KeyRecoveryForm')\">");
+        document.writeln('</td>');
+        document.writeln('</tr>');
+        document.writeln('</table>');
+        document.writeln('</form>');
+}
+</script>
+</body>
+</html>

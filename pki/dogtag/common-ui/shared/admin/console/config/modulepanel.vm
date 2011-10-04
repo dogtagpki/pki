@@ -1,0 +1,162 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+Two lists of security modules are provided below. The <b>Supported Security Modules</b> list consists of both software-based and hardware-based security modules that this PKI solution supports, while the <b>Other Security Modules</b> list consists of any other security modules found by this PKI subsystem that are not recognized as one of the supported security modules. <a href="javascript:toggle_details();">[Details]</a>
+<SCRIPT type="text/JavaScript">
+function toggle_details()
+{
+  d = document.getElementById('details');
+  if (d.style.display == "block") {
+    d.style.display="none";
+  } else {
+    d.style.display="block";
+  }
+}
+</script>
+<div id=details style="display: none;">
+<br/>
+Key pairs for this instance will be generated and stored on a device called a security module.
+<br/>
+A <b><i>key pair</i></b> consists of a public key and a private key. A <b><i>private key</i></b> is a secret entity which is never exposed to the public, will generally be protected via a security module, and is commonly referred to simply as the <b><i>key</i></b>. A <b><i>public key</i></b> is open, distributable, and while it may also be stored on a security module, it is not protected by this device. A public key, once signed by a CA, is more generally referred to as a <b><i>certificate</i></b>.
+<br/>
+<b><i>Security modules</i></b> can be either hardware-based or software-based. Although hardware-based security modules provide more security for the secret, or private portion of this key, they must be obtained from a third-party vendor and installed prior to deployment of this PKI solution. For this particular PKI implementation, a software-based FIPS 140-1 security module has been included.
+<br/>
+Before any security module solution can be used, a user must first always be authenticated to this security module via a token.  To support this, each security module consists of one or more <b><i>slots</i></b>. For hardware-based security modules, a slot often consists of one or more physical contact points to the device itself (e.g. - a card reader or USB receptacle), while for software-based security modules, these may be thought of as merely a functional entry point into the software.
+<br/>
+Finally, a <b><i>token</i></b> (often generically referred to as a <b><i>smartcard</i></b>), which contains the actual key material, interfaces with the security module via a slot. For hardware-based security modules, this may be something like a physical card containing a chip, or a USB device that can be physically inserted into a USB slot.  For software-based security modules, this can be thought of as an entry in a database. In the case of both hardware-based as well as software-based security modules, a password is the most commonly used method to complete this authentication.
+<br/>
+Since a security module may consist of slots for one or more tokens, the user must be successfully authenticated to each token of the chosen security module before this configuration can continue.
+</div>
+<br/>
+<H2>Supported Security Modules</H2>
+<table width=100%>
+<tr bgcolor="#cccccc">
+  <td width=20%><b>Module/Token</b></td>
+  <td width=10%><b>Status</b></td>
+  <td width=10%><b>Default</b></td>
+  <td width=10%><b>Operations</b></td>
+</tr>
+#foreach ($module in $sms)
+<tr bgcolor="#eeeeee">
+  <td><img alt="" src=$module.getImagePath()><br>$module.getUserFriendlyName()</td>
+  <td>
+	#if ($module.isFound())
+		Found
+	#else
+		Not Found
+	#end
+  </td>
+  <td></td>
+  <td></td>
+</tr>
+#foreach ($token in $module.getTokens())
+<tr>
+  <td>- $token.getNickName()</td>
+    <td>
+	#if ($token.isPresent() && $token.isLoggedIn())
+	   Logged In
+	#else
+       	   Not logged In
+	#end
+    </td>
+  <td>
+   #if ($token.isPresent() && $token.isLoggedIn())
+    #if ($defTok == $token.getNickName())
+      <input checked type=radio name="choice" value="$token.getNickName()">
+    #else
+      <input type=radio name="choice" value="$token.getNickName()">
+    #end
+   #end
+  </td>
+  <td>
+	#if ($token.isPresent() && !$token.isLoggedIn())
+<a href="wizard?p=$subpanelno&amp;SecToken=$token.getNickName()">Login</a>
+	#end
+</td>
+</tr>
+#end
+#end
+
+</table>
+<H2>Other Security Modules</H2>
+<h3>The security modules listed below are modules found by the server but not recognized as one of the supported modules. If the user believes that any listed modules below should have been supported, please check the "CS.cfg" configuration file to see if there is a name mismatch and adjust this accordingly.</h3>
+<table width=100%>
+<tr bgcolor="#cccccc">
+  <td width=20%><b>Module/Token</b></td>
+  <td width=10%><b>Status</b></td>
+  <td width=10%><b>Default</b></td>
+  <td width=10%><b>Operations</b></td>
+</tr>
+#foreach ($module in $oms)
+<tr bgcolor="#eeeeee">
+  <td>$module.getUserFriendlyName()</td>
+  <td>
+	#if ($module.isFound())
+		Found
+	#else
+		Not Found
+	#end
+  </td>
+  <td></td>
+  <td></td>
+</tr>
+#foreach ($token in $module.getTokens())
+<tr>
+  <td>- $token.getNickName()</td>
+    <td>
+	#if ($token.isPresent() && $token.isLoggedIn())
+	  Logged In
+	#else
+          Not logged In
+	#end
+    </td>
+  <td>
+    #if ($defTok == $token.getNickName())
+      <input checked type=radio name="choice" value="$token.getNickName()">
+    #else
+      <input type=radio name="choice" value="$token.getNickName()">
+    #end
+  </td>
+  <td>
+	#if ($token.isPresent() && !$token.isLoggedIn())
+<a href="wizard?p=$subpanelno&amp;SecToken=$token.getNickName()">Login</a>
+	#end
+</td>
+</tr>
+#end
+#end
+
+</table>
+
+
+    <br/>
+                                                                                
+    <div align="right">
+      <hr />
+      &nbsp;
+    </div>

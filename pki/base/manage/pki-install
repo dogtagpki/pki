@@ -1,0 +1,1564 @@
+#!/usr/bin/perl
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+
+##############################################################
+# This script installs one or more PKI subsystem(s).
+#
+# To execute:
+#
+#   pki-install -pki_subsystem=<pki_subsystem>       # Where PKI subsystem
+#                                                    # may be:
+#                                                    #
+#                                                    #     'all', 'ca',
+#                                                    #     'drm', 'esc',
+#                                                    #     'ocsp', 'ra',
+#                                                    #     'tks', or 'tps'
+#
+#               -pki_package_path=<package_path>     # The fully specified
+#                                                    # path to the PKI
+#                                                    # package repository
+#
+#               [-force]                             # Don't require
+#                                                    # confirmation
+#
+#
+# Installed Package Order:
+#
+#   [1] PKI Dirsec Packages
+#   [2] PKI Mozldap Packages
+#   [3] PKI Apache Packages
+#   [4] PKI Fortitude Packages
+#   [5] PKI Perl Module Packages
+#   [6] PKI Tomcat Packages
+#   [7] PKI Migration Packages
+#   [8] PKI Subsystem Packages
+#   [9] Top-Level PKI Subsystem Package(s)
+#
+##############################################################
+
+
+##############################################################
+# Perl Version
+##############################################################
+
+use strict;
+
+my $MINIMUM_PERL_VERSION = "5.006001";
+
+my $perl_version_error_message = "\nERROR:  Using Perl version $] ...\n"
+                               . "        Must use Perl version "
+                               . "$MINIMUM_PERL_VERSION or later to "
+                               . "run this script!\n\n";
+
+die "$perl_version_error_message" if $] < $MINIMUM_PERL_VERSION;
+
+
+##############################################################
+# Execution Check
+##############################################################
+
+# Check to insure that this script's original
+# invocation directory has not been deleted!
+my $cwd = `/bin/pwd`;
+chomp $cwd;
+if( "$cwd" eq "" ) {
+    print( STDERR "Cannot invoke '$0' from non-existent directory!\n" );
+    print( STDOUT "\n" );
+    exit 255;
+}
+
+
+##############################################################
+# Environment Variables
+##############################################################
+
+# untaint called subroutines
+if( ( $^O ne 'Windows_NT' ) && ( $^O ne 'MSWin32' ) ) {
+    $> = $<;   # set effective user ID to real UID
+    $) = $(;   # set effective group ID to real GID
+    $ENV{ 'PATH' } = '/bin:/usr/bin';
+    $ENV{ 'ENV' } = '' if $ENV{ 'ENV' } ne '';
+}
+
+
+##############################################################
+# Perl Modules
+##############################################################
+
+# "Getopt/Long.pm" is a part of the standard Perl library and
+# should therefore always be available
+use Getopt::Long;
+
+
+##############################################################
+# Command-Line Variables
+##############################################################
+
+my $ARGS = ( $#ARGV + 1 );
+
+my $pki_subsystem    = "";
+my $pki_package_path = "";
+my $force            = 0;
+
+
+##############################################################
+# Local Constants
+##############################################################
+
+my $ROOTUID = 0;
+
+my $MIN_ARGS = 2;
+my $MAX_ARGS = 3;
+
+my $YUM = "/usr/bin/yum";
+my $DOGTAG_WIKI = "http://pki.fedoraproject.org";
+
+
+##############################################################
+# Local Data Structures
+##############################################################
+
+# [1] PKI Dirsec Packages
+my @pki_dirsec_packages  = ();
+my @ca_dirsec_packages   = ();
+my @kra_dirsec_packages  = ();
+my @ocsp_dirsec_packages = ();
+my @ra_dirsec_packages   = ();
+my @tks_dirsec_packages  = ();
+my @tps_dirsec_packages  = ();
+
+# [2] PKI Mozldap Packages
+my @pki_mozldap6_packages = ();
+my @ca_mozldap_packages   = ();
+my @kra_mozldap_packages  = ();
+my @ocsp_mozldap_packages = ();
+my @ra_mozldap_packages   = ();
+my @tks_mozldap_packages  = ();
+my @tps_mozldap_packages  = ();
+
+# [3] PKI Apache Packages
+my @pki_apache_packages  = ();
+my @ca_apache_packages   = ();
+my @kra_apache_packages  = ();
+my @ocsp_apache_packages = ();
+my @ra_apache_packages   = ();
+my @tks_apache_packages  = ();
+my @tps_apache_packages  = ();
+
+# [4] PKI Fortitude Packages
+my @pki_fortitude_mozldap_packages = ();
+my @pki_fortitude_packages         = ();
+my @ca_fortitude_packages          = ();
+my @kra_fortitude_packages         = ();
+my @ocsp_fortitude_packages        = ();
+my @ra_fortitude_packages          = ();
+my @tks_fortitude_packages         = ();
+my @tps_fortitude_packages         = ();
+
+# [5] PKI Perl Module Packages
+my @pki_perl_module_packages  = ();
+my @ca_perl_module_packages   = ();
+my @kra_perl_module_packages  = ();
+my @ocsp_perl_module_packages = ();
+my @ra_perl_module_packages   = ();
+my @tks_perl_module_packages  = ();
+my @tps_perl_module_packages  = ();
+
+# [6] PKI Tomcat Packages
+my @pki_tomcat_packages  = ();
+my @ca_tomcat_packages   = ();
+my @kra_tomcat_packages  = ();
+my @ocsp_tomcat_packages = ();
+my @ra_tomcat_packages   = ();
+my @tks_tomcat_packages  = ();
+my @tps_tomcat_packages  = ();
+
+# [7] PKI Migration Packages
+my @pki_migration_packages  = ();
+my @ca_migration_packages   = ();
+my @kra_migration_packages  = ();
+my @ocsp_migration_packages = ();
+my @ra_migration_packages   = ();
+my @tks_migration_packages  = ();
+my @tps_migration_packages  = ();
+
+# [8] PKI Subsystem Packages
+my @pki_packages  = ();
+my @ca_packages   = ();
+my @esc_packages  = ();
+my @kra_packages  = ();
+my @ocsp_packages = ();
+my @ra_packages   = ();
+my @tks_packages  = ();
+my @tps_packages  = ();
+
+# [9] Top-Level PKI Subsystem Package(s)
+my %pki_subsystems = ();
+
+
+##############################################################
+# Local Variables
+##############################################################
+
+my $pki_architecture  = "";
+my $pki_flavor        = "";
+my $pki_package_type  = "";
+my $pki_containers    = "";
+my $presence_command  = "";
+my $presence_message  = "";
+my $install_command   = "";
+my $pki_prefix        = "";
+my $pki_suffix        = "";
+
+my @pki_package_installation_list = ();
+
+my $command = "";
+
+
+##############################################################
+# Platform-Dependent Data Initialization
+##############################################################
+
+if( $^O eq "linux" ) {
+    $pki_architecture  = `uname -i`;
+    $pki_flavor        = "pki";
+    $pki_package_type  = "rpm";
+    $pki_containers    = "RPMs";
+    $presence_command  = "rpm -q ";
+    $install_command   = "rpm -Uvh ";
+
+    chomp( $pki_architecture );
+
+    if( $pki_architecture eq "i386" ) {
+        $pki_prefix = "";
+        $pki_suffix = "";
+    } elsif( $pki_architecture eq "x86_64" ) {
+        $pki_prefix = "";
+        $pki_suffix = "";
+    } else {
+        print( STDERR
+               "\nERROR:  Unsupported architecture '$pki_architecture'!\n\n" );
+        exit 255;
+    }
+
+
+    # [1] PKI Dirsec Packages
+    @pki_dirsec_packages  = (
+        "$pki_prefix" . "dirsec-nspr" . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix" . "-tools",
+        "$pki_prefix" . "dirsec-jss"  . "$pki_suffix"
+    );
+    @ca_dirsec_packages   = ( @pki_dirsec_packages );
+    @kra_dirsec_packages  = ( @pki_dirsec_packages );
+    @ocsp_dirsec_packages = ( @pki_dirsec_packages );
+    @ra_dirsec_packages   = (
+        "$pki_prefix" . "dirsec-nspr" . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix" . "-tools"
+    );
+    @tks_dirsec_packages  = ( @pki_dirsec_packages );
+    @tps_dirsec_packages  = (
+        "$pki_prefix" . "dirsec-nspr" . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix" . "-tools"
+    );
+
+
+    # [2] PKI Mozldap Packages
+    @pki_mozldap6_packages  = (
+        "$pki_prefix" . "svrcore"  . "$pki_suffix",
+        "$pki_prefix" . "mozldap6" . "$pki_suffix",
+        "$pki_prefix" . "mozldap6" . "$pki_suffix" . "-tools"
+    );
+    @ca_mozldap_packages   = (
+        @pki_mozldap6_packages
+    );
+    @kra_mozldap_packages  = (
+        @pki_mozldap6_packages
+    );
+    @ocsp_mozldap_packages = (
+        @pki_mozldap6_packages
+    );
+    @ra_mozldap_packages   = (
+        @pki_mozldap6_packages
+    );
+    @tks_mozldap_packages  = (
+        @pki_mozldap6_packages
+    );
+    @tps_mozldap_packages  = (
+        @pki_mozldap6_packages
+    );
+
+
+    # [3] PKI Apache Packages
+    @pki_apache_packages  = ();
+    @ca_apache_packages   = ();
+    @kra_apache_packages  = ();
+    @ocsp_apache_packages = ();
+    @ra_apache_packages   = ();
+    @tks_apache_packages  = ();
+    @tps_apache_packages  = ();
+
+
+    # [4] PKI Fortitude Packages
+    @pki_fortitude_mozldap_packages  = (
+        "$pki_prefix" . "mozldap" . "$pki_suffix",
+        "$pki_prefix" . "mozldap" . "$pki_suffix" . "-tools",
+    );
+    @pki_fortitude_packages  = (
+        "$pki_prefix" . "fortitude-mod_nss"       . "$pki_suffix",
+        "$pki_prefix" . "fortitude-web"           . "$pki_suffix"
+    );
+    @ca_fortitude_packages   = ();
+    @kra_fortitude_packages  = ();
+    @ocsp_fortitude_packages = ();
+    @ra_fortitude_packages   = ( 
+        @pki_fortitude_mozldap_packages,
+        @pki_fortitude_packages
+    );
+    @tks_fortitude_packages  = ();
+    @tps_fortitude_packages  = (
+        @pki_fortitude_mozldap_packages,
+        @pki_fortitude_packages
+    );
+
+
+    # [5] PKI Perl Module Packages
+    @pki_perl_module_packages  = (
+        "$pki_prefix" . "perl-Parse-RecDescent"     . "$pki_suffix",
+        "$pki_prefix" . "perl-HTML-Tagset"          . "$pki_suffix",
+        "$pki_prefix" . "perl-HTML-Parser"          . "$pki_suffix",
+        "$pki_prefix" . "perl-URI"                  . "$pki_suffix",
+        "$pki_prefix" . "perl-libwww-perl"          . "$pki_suffix",
+        "$pki_prefix" . "perl-XML-Parser"           . "$pki_suffix",
+        "$pki_prefix" . "perl-XML-Simple"           . "$pki_suffix",
+        "$pki_prefix" . "perl-XML-NamespaceSupport" . "$pki_suffix",
+        "$pki_prefix" . "perl-XML-SAX"              . "$pki_suffix"
+    );
+    @ca_perl_module_packages   = ();
+    @kra_perl_module_packages  = ();
+    @ocsp_perl_module_packages = ();
+    @ra_perl_module_packages   = ( @pki_perl_module_packages );
+    @tks_perl_module_packages  = ();
+    @tps_perl_module_packages  = ( @pki_perl_module_packages );
+
+
+    # [6] PKI Tomcat Packages
+    @pki_tomcat_packages = (
+        "$pki_prefix" . "eclipse-ecj"                 . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-logging"     . "$pki_suffix",
+        "$pki_prefix" . "tomcat5-servlet-2.4-api"     . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-collections" . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-beanutils"   . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-digester"    . "$pki_suffix",
+        "$pki_prefix" . "oro"                         . "$pki_suffix",
+        "$pki_prefix" . "classpathx-jaf"              . "$pki_suffix",
+        "$pki_prefix" . "ldapjdk"                     . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-pool"        . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-fileupload"  . "$pki_suffix",
+        "$pki_prefix" . "xmlbeans"                    . "$pki_suffix",
+        "$pki_prefix" . "xml-commons"                 . "$pki_suffix",
+        "$pki_prefix" . "xml-commons-apis"            . "$pki_suffix",
+        "$pki_prefix" . "regexp"                      . "$pki_suffix",
+        "$pki_prefix" . "bcel"                        . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-dbcp"        . "$pki_suffix",
+        "$pki_prefix" . "tomcat5-jasper"              . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-discovery"   . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-httpclient3" . "$pki_suffix",
+        "$pki_prefix" . "jms"                         . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-launcher"    . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-el"          . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-daemon"      . "$pki_suffix",
+        "$pki_prefix" . "gnu-crypto-sasl-jdk1.4"      . "$pki_suffix",
+        "$pki_prefix" . "classpathx-mail"             . "$pki_suffix",
+        "$pki_prefix" . "xerces-j2"                   . "$pki_suffix",
+        "$pki_prefix" . "xalan-j2"                    . "$pki_suffix",
+        "$pki_prefix" . "log4j"                       . "$pki_suffix",
+        "$pki_prefix" . "xml-commons-resolver"        . "$pki_suffix",
+        "$pki_prefix" . "avalon-logkit"               . "$pki_suffix",
+        "$pki_prefix" . "avalon-framework"            . "$pki_suffix",
+        "$pki_prefix" . "jdom"                        . "$pki_suffix",
+        "$pki_prefix" . "oldjdom"                     . "$pki_suffix",
+        "$pki_prefix" . "werken.xpath"                . "$pki_suffix",
+        "$pki_prefix" . "velocity"                    . "$pki_suffix",
+        "$pki_prefix" . "ant"                         . "$pki_suffix",
+        "$pki_prefix" . "wsdl4j"                      . "$pki_suffix",
+        "$pki_prefix" . "axis"                        . "$pki_suffix",
+        "$pki_prefix" . "mx4j"                        . "$pki_suffix",
+        "$pki_prefix" . "geronimo-specs"              . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-modeler"     . "$pki_suffix",
+        "$pki_prefix" . "idm-console-framework"       . "$pki_suffix",
+        "$pki_prefix" . "fedora-idm-console"          . "$pki_suffix",
+        "$pki_prefix" . "tomcat5"                     . "$pki_suffix"
+    );
+    @ca_tomcat_packages   = ( @pki_tomcat_packages );
+    @kra_tomcat_packages  = ( @pki_tomcat_packages );
+    @ocsp_tomcat_packages = ( @pki_tomcat_packages );
+    @ra_tomcat_packages   = ();
+    @tks_tomcat_packages  = ( @pki_tomcat_packages );
+    @tps_tomcat_packages  = ();
+
+
+    # [7] PKI Migration Packages
+    @pki_migration_packages = (
+        "$pki_prefix" . "$pki_flavor-migrate" . "$pki_suffix"
+    );
+    @ca_migration_packages   = ( @pki_migration_packages );
+    @kra_migration_packages  = ( @pki_migration_packages );
+    @ocsp_migration_packages = ( @pki_migration_packages );
+    @ra_migration_packages   = ( @pki_migration_packages );
+    @tks_migration_packages  = ( @pki_migration_packages );
+    @tps_migration_packages  = ( @pki_migration_packages );
+
+
+    # [8] PKI Subsystem Packages
+    @pki_packages = (
+        "$pki_prefix" . "$pki_flavor-manage"       . "$pki_suffix",
+        "$pki_prefix" . "osutil"                   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-symkey"       . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-util"         . "$pki_suffix",
+        "$pki_prefix" . "tomcatjss"                . "$pki_suffix",
+        "*-" .          "$pki_flavor-console-ui"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-console"      . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-java-tools"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-common"       . "$pki_suffix",
+        "*-"          . "$pki_flavor-common-ui"    . "$pki_suffix",
+        "$pki_prefix" . "sqlite"                   . "$pki_suffix",
+        "$pki_prefix" . "perl-DBD-SQLite"          . "$pki_suffix",
+        "pcsc-lite",
+        "pcsc-lite-libs",
+        "pcsc-lite-doc",
+        "ifd-egate",
+        "ccid",
+        "coolkey"
+    );
+    @ca_packages   = (
+        "$pki_prefix" . "$pki_flavor-manage"       . "$pki_suffix",
+        "$pki_prefix" . "osutil"                   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-symkey"       . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-util"         . "$pki_suffix",
+        "$pki_prefix" . "tomcatjss"                . "$pki_suffix",
+        "*-" .          "$pki_flavor-console-ui"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-console"      . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-java-tools"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-common"       . "$pki_suffix",
+        "*-"          . "$pki_flavor-common-ui"    . "$pki_suffix",
+        "*-"          . "$pki_flavor-ca-ui"        . "$pki_suffix"
+    );
+    @esc_packages  = (
+        "pcsc-lite",
+        "pcsc-lite-libs",
+        "pcsc-lite-doc",
+        "ifd-egate",
+        "ccid",
+        "coolkey"
+    );
+    @kra_packages  = (
+        "$pki_prefix" . "$pki_flavor-manage"       . "$pki_suffix",
+        "$pki_prefix" . "osutil"                   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-symkey"       . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-util"         . "$pki_suffix",
+        "$pki_prefix" . "tomcatjss"                . "$pki_suffix",
+        "*-" .          "$pki_flavor-console-ui"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-console"      . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-java-tools"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-common"       . "$pki_suffix",
+        "*-"          . "$pki_flavor-common-ui"    . "$pki_suffix",
+        "*-"          . "$pki_flavor-kra-ui"       . "$pki_suffix"
+    );
+    @ocsp_packages = (
+        "$pki_prefix" . "$pki_flavor-manage"       . "$pki_suffix",
+        "$pki_prefix" . "osutil"                   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-symkey"       . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-util"         . "$pki_suffix",
+        "$pki_prefix" . "tomcatjss"                . "$pki_suffix",
+        "*-" .          "$pki_flavor-console-ui"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-console"      . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-java-tools"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-common"       . "$pki_suffix",
+        "*-"          . "$pki_flavor-common-ui"    . "$pki_suffix",
+        "*-"          . "$pki_flavor-ocsp-ui"      . "$pki_suffix"
+    );
+    @ra_packages   = (
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "sqlite"                   . "$pki_suffix",
+        "$pki_prefix" . "perl-DBD-SQLite"          . "$pki_suffix",
+        "*-"          . "$pki_flavor-ra-ui"        . "$pki_suffix"
+    );
+    @tks_packages  = (
+        "$pki_prefix" . "$pki_flavor-manage"       . "$pki_suffix",
+        "$pki_prefix" . "osutil"                   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-symkey"       . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-util"         . "$pki_suffix",
+        "$pki_prefix" . "tomcatjss"                . "$pki_suffix",
+        "*-" .          "$pki_flavor-console-ui"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-console"      . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-java-tools"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-common"       . "$pki_suffix",
+        "*-"          . "$pki_flavor-common-ui"    . "$pki_suffix",
+        "*-"          . "$pki_flavor-tks-ui"       . "$pki_suffix"
+    );
+    @tps_packages  = (
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "*-"          . "$pki_flavor-tps-ui"       . "$pki_suffix"
+    );
+
+
+    # [9] Top-Level PKI Subsystem Package(s)
+    %pki_subsystems = (
+        "ca"   => "$pki_prefix" . "$pki_flavor-ca"   . "$pki_suffix",
+        "drm"  => "$pki_prefix" . "$pki_flavor-kra"  . "$pki_suffix",
+        "esc"  => "esc",
+        "ocsp" => "$pki_prefix" . "$pki_flavor-ocsp" . "$pki_suffix",
+        "ra"   => "$pki_prefix" . "$pki_flavor-ra"   . "$pki_suffix",
+        "tks"  => "$pki_prefix" . "$pki_flavor-tks"  . "$pki_suffix",
+        "tps"  => "$pki_prefix" . "$pki_flavor-tps"  . "$pki_suffix"
+    );
+} elsif( $^O eq "solaris" ) {
+    $pki_architecture  = `uname -p`;
+    $pki_flavor        = "pki";
+    $pki_package_type  = "pkg";
+    $pki_containers    = "PKGs";
+    $presence_command  = "pkginfo | grep -c ";
+    $install_command   = "( echo \"all\"; yes ) | /usr/sbin/pkgadd -d ./";
+
+    if( ( $pki_architecture eq "sparc" ) &&
+        ( -d "/usr/lib/sparcv9/" ) ) {
+        $pki_architecture  = "sparcv9";
+    }
+
+    if( $pki_architecture eq "sparc" ) {
+        $pki_prefix = "RHAT";
+        $pki_suffix = "";
+    } elsif( $pki_architecture eq "sparcv9" ) {
+        $pki_prefix = "RHAT";
+        $pki_suffix = "x";
+    } else {
+        print( STDERR
+               "\nERROR:  Unsupported architecture '$pki_architecture'!\n\n" );
+        exit 255;
+    }
+
+
+    # [1] PKI Dirsec Packages
+    @pki_dirsec_packages  = (
+        "$pki_prefix" . "dirsec-nspr" . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix" . "-tools",
+        "$pki_prefix" . "dirsec-jss"  . "$pki_suffix"
+    );
+    @ca_dirsec_packages   = ( @pki_dirsec_packages );
+    @kra_dirsec_packages  = ( @pki_dirsec_packages );
+    @ocsp_dirsec_packages = ( @pki_dirsec_packages );
+    @ra_dirsec_packages   = (
+        "$pki_prefix" . "dirsec-nspr" . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix" . "-tools"
+    );
+    @tks_dirsec_packages  = ( @pki_dirsec_packages );
+    @tps_dirsec_packages  = (
+        "$pki_prefix" . "dirsec-nspr" . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix",
+        "$pki_prefix" . "dirsec-nss"  . "$pki_suffix" . "-tools"
+    );
+
+
+    # [2] PKI Mozldap Packages
+    @pki_mozldap6_packages  = (
+        "$pki_prefix" . "svrcore"  . "$pki_suffix",
+        "$pki_prefix" . "sasl"     . "$pki_suffix" . "-lib",
+        "$pki_prefix" . "mozldap6" . "$pki_suffix",
+        "$pki_prefix" . "mozldap6" . "$pki_suffix" . "-tools"
+    );
+    @ca_mozldap_packages   = (
+        @pki_mozldap6_packages
+    );
+    @kra_mozldap_packages  = (
+        @pki_mozldap6_packages
+    );
+    @ocsp_mozldap_packages = (
+        @pki_mozldap6_packages
+    );
+    @ra_mozldap_packages   = (
+        @pki_mozldap6_packages
+    );
+    @tks_mozldap_packages  = (
+        @pki_mozldap6_packages
+    );
+    @tps_mozldap_packages  = (
+        @pki_mozldap6_packages
+    );
+
+
+    # [3] PKI Apache Packages
+    @pki_apache_packages  = (
+        "$pki_prefix" . "perl"         . "$pki_suffix",
+        "$pki_prefix" . "apr"          . "$pki_suffix",
+        "$pki_prefix" . "pcre"         . "$pki_suffix",
+        "$pki_prefix" . "db4fortitude" . "$pki_suffix",
+        "$pki_prefix" . "db4fortitude" . "$pki_suffix" . "-utils",
+        "$pki_prefix" . "expat"        . "$pki_suffix",
+        "$pki_prefix" . "apr-util"     . "$pki_suffix",
+        "$pki_prefix" . "httpd"        . "$pki_suffix",
+        "$pki_prefix" . "mod-perl"     . "$pki_suffix"
+    );
+    @ca_apache_packages   = ();
+    @kra_apache_packages  = ();
+    @ocsp_apache_packages = ();
+    @ra_apache_packages   = ( @pki_apache_packages );
+    @tks_apache_packages  = ();
+    @tps_apache_packages  = ( @pki_apache_packages );
+
+
+    # [4] PKI Fortitude Packages
+    @pki_fortitude_mozldap_packages  = (
+        "$pki_prefix" . "mozldap" . "$pki_suffix",
+        "$pki_prefix" . "mozldap" . "$pki_suffix" . "-tools"
+    );
+    @pki_fortitude_packages  = (
+        "$pki_prefix" . "fortitude-mod-nss"       . "$pki_suffix",
+        "$pki_prefix" . "fortitude-web"           . "$pki_suffix"
+    );
+    @ca_fortitude_packages   = ();
+    @kra_fortitude_packages  = ();
+    @ocsp_fortitude_packages = ();
+    @ra_fortitude_packages   = (
+        @pki_fortitude_mozldap_packages,
+        @pki_fortitude_packages
+    );
+    @tks_fortitude_packages  = ();
+    @tps_fortitude_packages  = (
+        @pki_fortitude_mozldap_packages,
+        @pki_fortitude_packages
+    );
+
+
+    # [5] PKI Perl Module Packages
+    @pki_perl_module_packages  = (
+        "$pki_prefix" . "perl-Parse-RecDescent"     . "$pki_suffix",
+        "$pki_prefix" . "perl-HTML-Tagset"          . "$pki_suffix",
+        "$pki_prefix" . "perl-HTML-Parser"          . "$pki_suffix",
+        "$pki_prefix" . "perl-URI"                  . "$pki_suffix",
+        "$pki_prefix" . "perl-libwww-perl"          . "$pki_suffix",
+        "$pki_prefix" . "perl-XML-Parser"           . "$pki_suffix",
+        "$pki_prefix" . "perl-XML-Simple"           . "$pki_suffix",
+        "$pki_prefix" . "perl-XML-NamespaceSupport" . "$pki_suffix",
+        "$pki_prefix" . "perl-XML-SAX"              . "$pki_suffix"
+    );
+    @ca_perl_module_packages   = ();
+    @kra_perl_module_packages  = ();
+    @ocsp_perl_module_packages = ();
+    @ra_perl_module_packages   = ( @pki_perl_module_packages );
+    @tks_perl_module_packages  = ();
+    @tps_perl_module_packages  = ( @pki_perl_module_packages );
+
+
+    # [6] PKI Tomcat Packages
+    @pki_tomcat_packages = (
+        "$pki_prefix" . "jpackage-utils"              . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-logging"     . "$pki_suffix",
+        "$pki_prefix" . "tomcat5-servlet-2-4-api"     . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-collections" . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-beanutils"   . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-digester"    . "$pki_suffix",
+        "$pki_prefix" . "oro"                         . "$pki_suffix",
+        "$pki_prefix" . "classpathx-jaf"              . "$pki_suffix",
+        "$pki_prefix" . "ldapjdk"                     . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-pool"        . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-fileupload"  . "$pki_suffix",
+        "$pki_prefix" . "xmlbeans"                    . "$pki_suffix",
+        "$pki_prefix" . "xml-commons"                 . "$pki_suffix",
+        "$pki_prefix" . "xml-commons-apis"            . "$pki_suffix",
+        "$pki_prefix" . "regexp"                      . "$pki_suffix",
+        "$pki_prefix" . "bcel"                        . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-dbcp"        . "$pki_suffix",
+        "$pki_prefix" . "tomcat5-jasper"              . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-discovery"   . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-httpclient3" . "$pki_suffix",
+        "$pki_prefix" . "jms"                         . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-launcher"    . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-el"          . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-daemon"      . "$pki_suffix",
+        "$pki_prefix" . "gnu-crypto-sasl-jdk1-4"      . "$pki_suffix",
+        "$pki_prefix" . "classpathx-mail"             . "$pki_suffix",
+        "$pki_prefix" . "xerces-j2"                   . "$pki_suffix",
+        "$pki_prefix" . "xalan-j2"                    . "$pki_suffix",
+        "$pki_prefix" . "log4j"                       . "$pki_suffix",
+        "$pki_prefix" . "xml-commons-resolver"        . "$pki_suffix",
+        "$pki_prefix" . "avalon-logkit"               . "$pki_suffix",
+        "$pki_prefix" . "avalon-framework"            . "$pki_suffix",
+        "$pki_prefix" . "jdom"                        . "$pki_suffix",
+        "$pki_prefix" . "oldjdom"                     . "$pki_suffix",
+        "$pki_prefix" . "werken-xpath"                . "$pki_suffix",
+        "$pki_prefix" . "velocity"                    . "$pki_suffix",
+        "$pki_prefix" . "ant"                         . "$pki_suffix",
+        "$pki_prefix" . "wsdl4j"                      . "$pki_suffix",
+        "$pki_prefix" . "axis"                        . "$pki_suffix",
+        "$pki_prefix" . "mx4j"                        . "$pki_suffix",
+        "$pki_prefix" . "geronimo-specs"              . "$pki_suffix",
+        "$pki_prefix" . "jakarta-commons-modeler"     . "$pki_suffix",
+        "$pki_prefix" . "idm-console-framework"       . "$pki_suffix",
+        "$pki_prefix" . "fedora-idm-console"          . "$pki_suffix",
+        "$pki_prefix" . "tomcat5"                     . "$pki_suffix"
+    );
+    @ca_tomcat_packages   = ( @pki_tomcat_packages );
+    @kra_tomcat_packages  = ( @pki_tomcat_packages );
+    @ocsp_tomcat_packages = ( @pki_tomcat_packages );
+    @ra_tomcat_packages   = ();
+    @tks_tomcat_packages  = ( @pki_tomcat_packages );
+    @tps_tomcat_packages  = ();
+
+
+    # [7] PKI Migration Packages
+    @pki_migration_packages = (
+        "$pki_prefix" . "$pki_flavor-migrate" . "$pki_suffix"
+    );
+    @ca_migration_packages   = ( @pki_migration_packages );
+    @kra_migration_packages  = ( @pki_migration_packages );
+    @ocsp_migration_packages = ( @pki_migration_packages );
+    @ra_migration_packages   = ( @pki_migration_packages );
+    @tks_migration_packages  = ( @pki_migration_packages );
+    @tps_migration_packages  = ( @pki_migration_packages );
+
+
+    # [8] PKI Subsystem Packages
+    @pki_packages = (
+        "$pki_prefix" . "$pki_flavor-manage"       . "$pki_suffix",
+        "$pki_prefix" . "osutil"                   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-symkey"       . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-util"         . "$pki_suffix",
+        "$pki_prefix" . "tomcatjss"                . "$pki_suffix",
+        "*-" .          "$pki_flavor-console-ui"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-console"      . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-java-tools"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-common"       . "$pki_suffix",
+        "*-"          . "$pki_flavor-common-ui"    . "$pki_suffix",
+        "$pki_prefix" . "readline"                 . "$pki_suffix",
+        "$pki_prefix" . "ncurses"                  . "$pki_suffix",
+        "$pki_prefix" . "sqlite"                   . "$pki_suffix",
+        "$pki_prefix" . "perl-DBI"                 . "$pki_suffix",
+        "$pki_prefix" . "perl-DBD-SQLite"          . "$pki_suffix"
+    );
+    @ca_packages   = (
+        "$pki_prefix" . "$pki_flavor-manage"       . "$pki_suffix",
+        "$pki_prefix" . "osutil"                   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-symkey"       . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-util"         . "$pki_suffix",
+        "$pki_prefix" . "tomcatjss"                . "$pki_suffix",
+        "*-" .          "$pki_flavor-console-ui"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-console"      . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-java-tools"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-common"       . "$pki_suffix",
+        "*-"          . "$pki_flavor-common-ui"    . "$pki_suffix",
+        "*-"          . "$pki_flavor-ca-ui"        . "$pki_suffix"
+    );
+    @esc_packages  = ();
+    @kra_packages  = (
+        "$pki_prefix" . "$pki_flavor-manage"       . "$pki_suffix",
+        "$pki_prefix" . "osutil"                   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-symkey"       . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-util"         . "$pki_suffix",
+        "$pki_prefix" . "tomcatjss"                . "$pki_suffix",
+        "*-" .          "$pki_flavor-console-ui"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-console"      . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-java-tools"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-common"       . "$pki_suffix",
+        "*-"          . "$pki_flavor-common-ui"    . "$pki_suffix",
+        "*-"          . "$pki_flavor-kra-ui"       . "$pki_suffix"
+    );
+    @ocsp_packages = (
+        "$pki_prefix" . "$pki_flavor-manage"       . "$pki_suffix",
+        "$pki_prefix" . "osutil"                   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-symkey"       . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-util"         . "$pki_suffix",
+        "$pki_prefix" . "tomcatjss"                . "$pki_suffix",
+        "*-" .          "$pki_flavor-console-ui"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-console"      . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-java-tools"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-common"       . "$pki_suffix",
+        "*-"          . "$pki_flavor-common-ui"    . "$pki_suffix",
+        "*-"          . "$pki_flavor-ocsp-ui"      . "$pki_suffix"
+    );
+    @ra_packages   = (
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "readline"                 . "$pki_suffix",
+        "$pki_prefix" . "ncurses"                  . "$pki_suffix",
+        "$pki_prefix" . "sqlite"                   . "$pki_suffix",
+        "$pki_prefix" . "perl-DBI"                 . "$pki_suffix",
+        "$pki_prefix" . "perl-DBD-SQLite"          . "$pki_suffix",
+        "*-"          . "$pki_flavor-ra-ui"        . "$pki_suffix"
+    );
+    @tks_packages  = (
+        "$pki_prefix" . "$pki_flavor-manage"       . "$pki_suffix",
+        "$pki_prefix" . "osutil"                   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-symkey"       . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-util"         . "$pki_suffix",
+        "$pki_prefix" . "tomcatjss"                . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-console"      . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-java-tools"   . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-common"       . "$pki_suffix",
+        "*-"          . "$pki_flavor-common-ui"    . "$pki_suffix",
+        "*-"          . "$pki_flavor-tks-ui"       . "$pki_suffix"
+    );
+    @tps_packages  = (
+        "$pki_prefix" . "$pki_flavor-native-tools" . "$pki_suffix",
+        "$pki_prefix" . "$pki_flavor-setup"        . "$pki_suffix",
+        "*-"          . "$pki_flavor-tps-ui"       . "$pki_suffix"
+    );
+
+
+    # [9] Top-Level PKI Subsystem Package(s)
+    %pki_subsystems = (
+        "ca"   => "$pki_prefix" . "$pki_flavor-ca"   . "$pki_suffix",
+        "drm"  => "$pki_prefix" . "$pki_flavor-kra"  . "$pki_suffix",
+        "ocsp" => "$pki_prefix" . "$pki_flavor-ocsp" . "$pki_suffix",
+        "ra"   => "$pki_prefix" . "$pki_flavor-ra"   . "$pki_suffix",
+        "tks"  => "$pki_prefix" . "$pki_flavor-tks"  . "$pki_suffix",
+        "tps"  => "$pki_prefix" . "$pki_flavor-tps"  . "$pki_suffix"
+    );
+} else {
+    print( STDERR
+           "\nERROR:  Unsupported platform '$^O'!\n\n" );
+    exit 255;
+}
+
+
+##############################################################
+# Local Data Initialization
+##############################################################
+
+
+
+##############################################################
+# PKI Subsystem Installation Subroutines
+##############################################################
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_Windows()
+{
+    if( ( $^O eq "Windows_NT" ) || ( $^O eq "MSWin32" ) ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_Linux()
+{
+    if( $^O eq "linux" ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_Fedora()
+{
+    if( is_Linux() && (-e "/etc/fedora-release") ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_RHEL() {
+    if( (! is_Fedora()) && (-e "/etc/redhat-release") ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - true, or
+# return 0 - false
+sub is_RHEL4() {
+    if( is_RHEL() ) {
+        my $releasefd = new FileHandle;
+        if( $releasefd->open("< /etc/redhat-release")) {
+            my $line = "";
+            while( defined($line = <$releasefd>) ) {
+                if($line =~ /Nahant/i) {
+                    return 1;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub check_for_root_UID()
+{
+    my $result = 0;
+
+    # On Linux/UNIX, insure that this script is being run as "root";
+    # First check the "Real" UID, and then check the "Effective" UID.
+    if( !is_Windows() ) {
+        if( ( $< != $ROOTUID ) &&
+            ( $> != $ROOTUID ) ) {
+            print( STDERR
+                   "\nERROR:  The '$0' script must be run as root!\n\n" );
+            $result = 0;
+        } else {
+            # Success -- running script as root
+            $result = 1;
+        }
+    } else {
+        print( STDERR
+               "\nERROR:  Root UID makes no sense on Windows machines!\n\n" );
+        $result = 0;
+    }
+
+    return $result;
+}
+
+
+# no args
+# no return value
+sub usage()
+{
+    print( STDOUT
+           "USAGE:  pki-install -pki_subsystem=<pki_subsystem>      "
+         . "# Where PKI subsystem\n"
+         . "                                                         "
+         . "# may be:\n"
+         . "                                                         "
+         . "#\n"
+         . "                                                         "
+         . "#     'all', 'ca',\n"
+         . "                                                         "
+         . "#     'drm', 'esc',\n"
+         . "                                                         "
+         . "#     'ocsp', 'ra',\n"
+         . "                                                         "
+         . "#     'tks', or 'tps\n\n"
+         . "                      -pki_package_path=<package_path>   "
+         . "# The fully specified\n"
+         . "                                                         "
+         . "# path to the PKI\n"
+         . "                                                         "
+         . "# package repository\n\n"
+         . "                      [-force]                           "
+         . "# Don't require\n"
+         . "                                                         "
+         . "# confirmation\n\n\n" );
+
+    print( STDOUT
+           "           NOTE:  The keyword 'all' adds every PKI "
+         . "subsystem to\n"
+         . "                  this host (including 'esc' on Linux).\n\n" );
+
+    print( STDOUT
+           "        EXAMPLE:  pki-install -pki_subsystem=all\n"
+         . "                  -pki_package_path=/media/cdrom/Fedora/RPMS\n"
+         . "                  -force\n\n" );
+
+    return;
+}
+
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub check_for_valid_number_of_arguments()
+{
+    my $result = 1;
+
+    if( $ARGS < $MIN_ARGS ||
+        $ARGS > $MAX_ARGS ) { 
+        print( STDERR
+               "\nERROR:  Specified "
+             . $ARGS
+             . " command-line arguments!\n\n" );
+        $result = 0;
+    }
+
+    return $result;
+}
+
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub check_for_valid_path()
+{
+    my $result = 1;
+    my $total_pki_packages = 0;
+
+    # make sure that the path provided is a valid directory
+    if( ! -d $pki_package_path ) {
+        print( STDERR
+               "\nERROR:  The specified path '"
+             . $pki_package_path
+             . "' is an invalid directory!\n\n" );
+        $result = 0;
+    } else {
+        # check this directory for the presence of any packages
+        while( <$pki_package_path/*.$pki_package_type> ) {
+            $total_pki_packages++;
+        }
+
+        if( !$total_pki_packages ) {
+            print( STDERR
+                   "\nERROR:  The specified path '"
+                 . $pki_package_path
+                 . "' contains no $pki_containers!\n\n" );
+            $result = 0;
+        }
+    }
+
+    return $result;
+}
+
+
+# arg0 list to be processed
+# no return value
+sub build_pki_package_installation_list
+{
+    while( @_ ) {
+        my $package .= shift( @_ );
+
+        my $package_name = "";
+
+        # express complete package name using wildcards
+        my $wildcard_package = $package . "-[0123456789]*";
+
+        # expand this complete package name to display it without wildcards
+        my $complete_package = `cd $pki_package_path; ls $wildcard_package`;
+        chomp( $complete_package );
+
+        # remove extension from package name
+        my $package_sans_extension = substr( $complete_package,
+                                             0,
+                                             rindex( $complete_package,
+                                                     "."
+                                                   . $pki_package_type ) );
+
+        # remove architecture from remaining package name
+        my $package_sans_architecture = substr( $package_sans_extension,
+                                                0,
+                                                rindex( $package_sans_extension,
+                                                        "." ) );
+
+        # assign platform-dependent values
+        if( $^O eq "linux" ) {
+            $package_name = $package_sans_architecture;
+            $presence_message = "package $package_name is not installed\n";
+        } elsif( $^O eq "solaris" ) {
+            $package_name = $package;
+            $presence_message = "0\n";
+        }
+
+        # process this package
+        my $rv = `$presence_command $package_name`;
+        if( "$rv" eq "$presence_message" ) {
+            push( @pki_package_installation_list, $complete_package );
+        }
+    }
+
+    return;
+}
+
+
+# no args
+# no return value
+sub print_pki_package_installation_list()
+{
+    print( STDOUT "PKI Package Installation List:  " );
+    while( @pki_package_installation_list ) {
+        my $package .= shift( @pki_package_installation_list );
+        print( STDOUT " $package" );
+    }
+    print( STDOUT "\n\n" );
+
+    return;
+}
+
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub determine_installed_pki_subsystems()
+{
+    my @installed_pki_subsystems = ();
+
+    my $install_ca_subsystem    = 0;
+    my $install_esc_subsystem   = 0;
+    my $install_kra_subsystem   = 0;
+    my $install_ocsp_subsystem  = 0;
+    my $install_ra_subsystem    = 0;
+    my $install_tks_subsystem   = 0;
+    my $install_tps_subsystem   = 0;
+    my $total_pki_subsystems    = 0;
+
+    my $specified_pki_subsystem = 0;
+
+    # mark specified PKI subsystems
+    if( $pki_subsystem eq 'all' ) {
+        $specified_pki_subsystem = 1;
+    }
+
+    # always process all PKI subsystems
+    while( my ( $key, $value ) = each( %pki_subsystems ) ) {
+        # mark specified PKI subsystem
+        if( $pki_subsystem eq $key ) {
+            $specified_pki_subsystem = 1;
+        }
+
+        my $package_name = "";
+
+        # express complete package name using wildcards
+        my $wildcard_package = $value . "-[0123456789]*";
+
+        # expand this complete package name to display it without wildcards
+        my $complete_package = `cd $pki_package_path; ls $wildcard_package`;
+        chomp( $complete_package );
+
+        # remove extension from package name
+        my $package_sans_extension = substr( $complete_package,
+                                             0,
+                                             rindex( $complete_package,
+                                                     "."
+                                                   . $pki_package_type ) );
+
+        # remove architecture from remaining package name
+        my $package_sans_architecture = substr( $package_sans_extension,
+                                                0,
+                                                rindex( $package_sans_extension,
+                                                        "." ) );
+
+        # assign platform-dependent values
+        if( $^O eq "linux" ) {
+            $package_name = $package_sans_architecture;
+            $presence_message = "package $package_name is not installed\n";
+        } elsif( $^O eq "solaris" ) {
+            $package_name = $value;
+            $presence_message = "0\n";
+        }
+
+        my $rv = `$presence_command $package_name`;
+        if( $rv eq $presence_message ) {
+            # mark PKI subsystem for installation
+            if( $pki_subsystem eq $key ) {
+                if( $pki_subsystem eq 'ca' ) {
+                    $install_ca_subsystem = 1;
+                    $total_pki_subsystems++;
+                } elsif( $pki_subsystem eq 'drm' ) {
+                    $install_kra_subsystem = 1;
+                    $total_pki_subsystems++;
+                } elsif( $pki_subsystem eq 'esc' ) {
+                    $install_esc_subsystem = 1;
+                    $total_pki_subsystems++;
+                } elsif( $pki_subsystem eq 'ocsp' ) {
+                    $install_ocsp_subsystem = 1;
+                    $total_pki_subsystems++;
+                } elsif( $pki_subsystem eq 'ra' ) {
+                    $install_ra_subsystem = 1;
+                    $total_pki_subsystems++;
+                } elsif( $pki_subsystem eq 'tks' ) {
+                    $install_tks_subsystem = 1;
+                    $total_pki_subsystems++;
+                } elsif( $pki_subsystem eq 'tps' ) {
+                    $install_tps_subsystem = 1;
+                    $total_pki_subsystems++;
+                }
+
+                print( STDOUT
+                       "\nNOTIFICATION:  Attempting to add '"
+                     . $key
+                     . "' subsystem ...\n\n" );
+            }
+
+            # mark this PKI subsystem to be installed
+            push( @installed_pki_subsystems, $value );
+        }
+    }
+
+    # check to be sure that a valid PKI subsystem was specified
+    if( !$specified_pki_subsystem ) {
+        print( STDERR
+               "\nERROR:  The specified PKI subsystem '"
+             . $pki_subsystem
+             . "' is an invalid PKI subsystem!\n\n" );
+        return 0;
+    }
+
+    # mark each PKI subsystem package to be added
+    if( $pki_subsystem eq 'all' ) {
+        # mark all CA, ESC, KRA, OCSP, RA, TKS, and/or TPS
+        # packages for installation
+        build_pki_package_installation_list( @pki_dirsec_packages );
+        build_pki_package_installation_list( @pki_mozldap6_packages );
+        build_pki_package_installation_list( @pki_apache_packages );
+        build_pki_package_installation_list( @pki_fortitude_mozldap_packages );
+        build_pki_package_installation_list( @pki_fortitude_packages );
+        build_pki_package_installation_list( @pki_perl_module_packages );
+        build_pki_package_installation_list( @pki_tomcat_packages );
+        build_pki_package_installation_list( @pki_migration_packages );
+        build_pki_package_installation_list( @pki_packages );
+        build_pki_package_installation_list( @installed_pki_subsystems );
+    } elsif( $pki_subsystem eq 'ca' ) {
+        # mark all CA packages for installation
+        build_pki_package_installation_list( @ca_dirsec_packages );
+        build_pki_package_installation_list( @ca_mozldap_packages );
+        build_pki_package_installation_list( @ca_apache_packages );
+        build_pki_package_installation_list( @ca_fortitude_packages );
+        build_pki_package_installation_list( @ca_perl_module_packages );
+        build_pki_package_installation_list( @ca_tomcat_packages );
+        build_pki_package_installation_list( @ca_migration_packages );
+        build_pki_package_installation_list( @ca_packages );
+        if( $install_ca_subsystem ) {
+            # express complete package name using wildcards
+            my $wildcard_package = $pki_subsystems{$pki_subsystem}
+                                 . "-[01234567890]*";
+
+            # expand this complete package name to display it without wildcards
+            my $complete_package = `cd $pki_package_path; ls $wildcard_package`;
+            chomp( $complete_package );
+
+            push( @pki_package_installation_list, $complete_package );
+        }
+    } elsif( $pki_subsystem eq 'drm' ) {
+        # mark all KRA packages for installation
+        build_pki_package_installation_list( @kra_dirsec_packages );
+        build_pki_package_installation_list( @kra_mozldap_packages );
+        build_pki_package_installation_list( @kra_apache_packages );
+        build_pki_package_installation_list( @kra_fortitude_packages );
+        build_pki_package_installation_list( @kra_perl_module_packages );
+        build_pki_package_installation_list( @kra_tomcat_packages );
+        build_pki_package_installation_list( @kra_migration_packages );
+        build_pki_package_installation_list( @kra_packages );
+        if( $install_kra_subsystem ) {
+            # express complete package name using wildcards
+            my $wildcard_package = $pki_subsystems{$pki_subsystem}
+                                 . "-[01234567890]*";
+
+            # expand this complete package name to display it without wildcards
+            my $complete_package = `cd $pki_package_path; ls $wildcard_package`;
+            chomp( $complete_package );
+
+            push( @pki_package_installation_list, $complete_package );
+        }
+    } elsif( $pki_subsystem eq 'esc' ) {
+        # mark all ESC packages for installation
+        build_pki_package_installation_list( @esc_packages );
+        if( $install_esc_subsystem ) {
+            # express complete package name using wildcards
+            my $wildcard_package = $pki_subsystems{$pki_subsystem}
+                                 . "-[01234567890]*";
+
+            # expand this complete package name to display it without wildcards
+            my $complete_package = `cd $pki_package_path; ls $wildcard_package`;
+            chomp( $complete_package );
+
+            push( @pki_package_installation_list, $complete_package );
+        }
+    } elsif( $pki_subsystem eq 'ocsp' ) {
+        # mark all OCSP packages for installation
+        build_pki_package_installation_list( @ocsp_dirsec_packages );
+        build_pki_package_installation_list( @ocsp_mozldap_packages );
+        build_pki_package_installation_list( @ocsp_apache_packages );
+        build_pki_package_installation_list( @ocsp_fortitude_packages );
+        build_pki_package_installation_list( @ocsp_perl_module_packages );
+        build_pki_package_installation_list( @ocsp_tomcat_packages );
+        build_pki_package_installation_list( @ocsp_migration_packages );
+        build_pki_package_installation_list( @ocsp_packages );
+        if( $install_ocsp_subsystem ) {
+            # express complete package name using wildcards
+            my $wildcard_package = $pki_subsystems{$pki_subsystem}
+                                 . "-[01234567890]*";
+
+            # expand this complete package name to display it without wildcards
+            my $complete_package = `cd $pki_package_path; ls $wildcard_package`;
+            chomp( $complete_package );
+
+            push( @pki_package_installation_list, $complete_package );
+        }
+    } elsif( $pki_subsystem eq 'ra' ) {
+        # mark all RA packages for installation
+        build_pki_package_installation_list( @ra_dirsec_packages );
+        build_pki_package_installation_list( @ra_mozldap_packages );
+        build_pki_package_installation_list( @ra_apache_packages );
+        build_pki_package_installation_list( @ra_fortitude_packages );
+        build_pki_package_installation_list( @ra_perl_module_packages );
+        build_pki_package_installation_list( @ra_tomcat_packages );
+        build_pki_package_installation_list( @ra_migration_packages );
+        build_pki_package_installation_list( @ra_packages );
+        if( $install_ra_subsystem ) {
+            # express complete package name using wildcards
+            my $wildcard_package = $pki_subsystems{$pki_subsystem}
+                                 . "-[01234567890]*";
+
+            # expand this complete package name to display it without wildcards
+            my $complete_package = `cd $pki_package_path; ls $wildcard_package`;
+            chomp( $complete_package );
+
+            push( @pki_package_installation_list, $complete_package );
+        }
+    } elsif( $pki_subsystem eq 'tks' ) {
+        # mark all TKS packages for installation
+        build_pki_package_installation_list( @tks_dirsec_packages );
+        build_pki_package_installation_list( @tks_mozldap_packages );
+        build_pki_package_installation_list( @tks_apache_packages );
+        build_pki_package_installation_list( @tks_fortitude_packages );
+        build_pki_package_installation_list( @tks_perl_module_packages );
+        build_pki_package_installation_list( @tks_tomcat_packages );
+        build_pki_package_installation_list( @tks_migration_packages );
+        build_pki_package_installation_list( @tks_packages );
+        if( $install_tks_subsystem ) {
+            # express complete package name using wildcards
+            my $wildcard_package = $pki_subsystems{$pki_subsystem}
+                                 . "-[01234567890]*";
+
+            # expand this complete package name to display it without wildcards
+            my $complete_package = `cd $pki_package_path; ls $wildcard_package`;
+            chomp( $complete_package );
+
+            push( @pki_package_installation_list, $complete_package );
+        }
+    } elsif( $pki_subsystem eq 'tps' ) {
+        # mark all TPS packages for installation
+        build_pki_package_installation_list( @tps_dirsec_packages );
+        build_pki_package_installation_list( @tps_mozldap_packages );
+        build_pki_package_installation_list( @tps_apache_packages );
+        build_pki_package_installation_list( @tps_fortitude_packages );
+        build_pki_package_installation_list( @tps_perl_module_packages );
+        build_pki_package_installation_list( @tps_tomcat_packages );
+        build_pki_package_installation_list( @tps_migration_packages );
+        build_pki_package_installation_list( @tps_packages );
+        if( $install_tps_subsystem ) {
+            # express complete package name using wildcards
+            my $wildcard_package = $pki_subsystems{$pki_subsystem}
+                                 . "-[01234567890]*";
+
+            # expand this complete package name to display it without wildcards
+            my $complete_package = `cd $pki_package_path; ls $wildcard_package`;
+            chomp( $complete_package );
+
+            push( @pki_package_installation_list, $complete_package );
+        }
+    }
+
+    return 1;
+}
+
+
+# arg0 question
+# return answer
+sub prompt
+{
+    my $promptStr = $_[0];
+
+    my $answer = "";
+
+    print( STDOUT "$promptStr  " );
+
+    $| = 1;
+    $answer = <STDIN>;
+
+    chomp $answer;
+
+    print( STDOUT "\n" );
+
+    return $answer;
+}
+
+
+# no args
+# no return values
+sub install_specified_pki_subsystems()
+{
+    my $confirm = "";
+
+    if( scalar( @pki_package_installation_list ) ) {
+        if( $^O eq "linux" ) {
+            $command = "cd $pki_package_path;\n" . $install_command;
+
+            while( @pki_package_installation_list ) {
+                $command .= shift( @pki_package_installation_list );
+                $command .= " ";
+            }
+
+            # remove any trailing spaces
+            chop( $command );
+        } elsif( $^O eq "solaris" ) {
+            $command = "cd $pki_package_path;\n";
+
+            while( @pki_package_installation_list ) {
+                $command .= $install_command;
+                $command .= shift( @pki_package_installation_list );
+                $command .= ";\n";
+            }
+        }
+    } else {
+        print( STDERR
+               "\nNOTIFICATION:  No packages for the specified PKI "
+             . "subsystem(s)\n"
+             . "               could be added to this host!\n\n" );
+        return;
+    }
+
+ASK_AGAIN:
+    if( !$force ) {
+        $confirm  = prompt( "\nCONFIRMATION:  You are about to execute "
+                          . "the following commands:\n\n"
+                          . "$command\n\n"
+                          . "Are you sure (Y/N)? " );
+
+        if( $confirm eq "N" || $confirm eq "n" ) {
+           return;
+        } elsif( $confirm ne "Y" && $confirm ne "y" ) {
+           goto ASK_AGAIN;
+        }
+    }
+
+    system( "$command" );
+
+    return;
+}
+
+
+##############################################################
+# Main Program
+##############################################################
+
+# no args
+# return 1 - success, or
+# return 0 - failure
+sub main()
+{
+    my $result = 0;
+
+    # On Linux, "yum" basically renders this utility obsolete!
+    if( is_Linux ) {
+        if( is_Fedora() ) {
+            print( STDOUT
+                   "\nTHIS PROGRAM IS DEPRECATED!\n\n"
+                 . "Please use '$YUM' instead.\n\n"
+                 . "For details regarding the PKI yum repo, please see:\n\n"
+                 . "    '$DOGTAG_WIKI'\n\n" );
+            print( STDOUT
+                   "===============================================================================\n\n" );
+            usage();
+        } elsif( ( is_RHEL() ) && (! is_RHEL4() ) ) {
+            print( STDOUT
+                   "\nTHIS PROGRAM IS DEPRECATED!\n\n"
+                 . "Please use '$YUM' instead.\n\n" );
+            print( STDOUT
+                   "===============================================================================\n\n" );
+            usage();
+        } else {
+            print( STDERR
+                   "\nERROR:  Unsupported Linux distro!\n\n" );
+        }
+        exit 255;
+    }
+
+    # On Linux/UNIX, insure that this script is being run as "root".
+    $result = check_for_root_UID();
+    if( !$result ) {
+        usage();
+        exit 255;
+    }
+
+    # Parse command-line arguments.
+    GetOptions( "pki_subsystem=s"    => \$pki_subsystem,
+                "pki_package_path=s" => \$pki_package_path,
+                "force" => \$force );
+
+    # Check for valid number of command-line arguments.
+    $result = check_for_valid_number_of_arguments();
+    if( !$result ) {
+        usage();
+        exit 255;
+    }
+
+    # Check for a valid path.
+    $result = check_for_valid_path();
+    if( !$result ) {
+        usage();
+        exit 255;
+    }
+
+    # Determine which subsystem(s) are installed on this system
+    $result = determine_installed_pki_subsystems();
+    if( !$result ) {
+        usage();
+        exit 255;
+    }
+
+    # Install specified subsystem(s)
+    install_specified_pki_subsystems();
+
+    return 1;
+}
+
+
+##############################################################
+# PKI Subsystem Installation
+##############################################################
+
+main();
+
+exit 0;
+

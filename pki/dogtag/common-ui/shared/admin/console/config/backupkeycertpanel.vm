@@ -1,0 +1,57 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+<h2>Export Keys and Certificates</h2>
+<p>
+To setup a cloned subsystem, the master subsystem's keys and certificates (with the exception of the SSL server key and certificate) as well as the CA certificate chains need to be exported, and later imported into the cloned subsystem. All of these keys and certificates are stored in a single file in the PKCS #12 format which is protected by the password specified below. This export operation is performed only when the master subsystem's keys and certificates are stored in the software token.
+<p>
+If these keys and certificates are stored in a hardware token, the hardware token vendor needs to be consulted for information on how to export them.
+<p>
+For cloning, if the keys and certificates are stored in a hardware token, clones should use the same hardware token as that of the Master.
+<p>
+#if ($errorString != "")
+<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<br/>
+<b><input $dobackup type=radio name=choice value="backupkey">&nbsp;Export subsystem keys and certificates </b>
+<br/>
+    <table class="details">
+      <tr>
+        <th>Password to protect the PKCS #12 file:</th>
+
+        <td><input type="password" size="40" name="__pwd" value="$pwd" autocomplete="off" /></td>
+      </tr>
+      <tr>
+        <th>Password again:</th>
+
+        <td><input type="password" size="40" name="__pwdagain" value="$pwdagain" autocomplete="off"/></td>
+      </tr>
+    </table>
+<br/>
+<b><input $nobackup type=radio name=choice value="nobackupkey">&nbsp;Don't export subsystem keys and certificates </b>
+<br/>

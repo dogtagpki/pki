@@ -1,0 +1,177 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<CMS_TEMPLATE>
+
+<TITLE>
+CS Enroll Request Success
+</TITLE>
+
+<script language="javascript">
+
+function navMajorVersion()
+{
+    return parseInt(navigator.appVersion.substring(0, navigator.appVersion.indexOf(".")));
+}
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+
+    return sign + '0x' + '0' + absValue;
+}
+
+function displayCert(cert)
+{
+	document.writeln(
+		'<font face="PrimaSans BT, Verdana, sans-serif" size="+1">'+
+		'Certificate 0x'+ cert.serialNo+
+		'</font><br>');
+	document.writeln(
+		'<table border="0" cellspacing="0" cellpadding="0" '+
+		'background="/ca/ee/graphics/hr.gif" width="100%">'+
+		'<tr>'+
+		'<td>&nbsp;</td>'+
+		'</tr>'+
+		'</table>');
+
+	document.writeln(
+		'<table border="0" cellspacing="2" cellpadding="2" width="100%">'+
+		'<tr align="left" bgcolor="#e5e5e5"><td align="left">'+
+		'<font face="PrimaSans BT, Verdana, sans-serif" size="-1">'+
+		'Certificate contents</font></td></tr></table>'+
+		'<pre>'+
+		cert.certPrettyPrint+
+		'</pre>');
+
+	document.writeln('<p>'+
+		'<table border="0" cellspacing="2" cellpadding="2" width="100%">'+
+		'<tr align="left" bgcolor="#e5e5e5"><td align="left">'+
+		'<font face="PrimaSans BT, Verdana, sans-serif" size="-1">'+
+		'Certificate fingerprint</font></td></tr></table>'+
+		'<pre>'+
+		cert.certFingerprint+
+		'</pre>'+
+		'</font>');
+
+		document.writeln('<p>'+
+		'<table border="0" cellspacing="2" cellpadding="2" width="100%">'+
+		'<tr align="left" bgcolor="#e5e5e5"><td align="left">'+
+		'<font face="PrimaSans BT, Verdana, sans-serif" size="-1">'+
+		'Installing this certificate in a server</font></td></tr></table>'+
+		'<p>'+
+		'<font size=-1 face="PrimaSans BT, Verdana, sans-serif">'+
+		'The following format can be used to install this certificate '+
+		'into a server.'+
+		'</font>'+
+		'<p><pre>'+
+		//'-----BEGIN CERTIFICATE-----'+
+		cert.base64Cert+
+		//'-----END CERTIFICATE-----'+
+		'</pre>');
+
+}
+
+function importCertificates(numCerts, requestId)
+{
+	var grammar = 'this';
+	var plural = '';
+	if (numCerts > 1) {
+		grammar = 'these';
+		plural = 's'
+	}
+	document.writeln( '<p>'+
+		'<table border="0" cellspacing="2" cellpadding="2" width="100%">'+
+		'<tr align="left" bgcolor="#e5e5e5"><td align="left">'+
+		'<font face="PrimaSans BT, Verdana, sans-serif" size="-1">'+
+		'Importing certificate</font></td></tr></table>'+
+		'<p>'+
+		'<font size=-1 face="PrimaSans BT, Verdana, sans-serif">'+
+		'To import '+grammar+' certificate'+plural+' into your client, '+
+		'click the following button.'+
+		'</font>'+
+		'<p>');
+
+	var loc = '/getCertFromRequest?requestId='+result.header.requestId;
+	if (navigator.appName == "Netscape") {
+		if (navMajorVersion() > 3 && typeof(crypto.version) != "undefined") 
+			loc = loc+'&cmmfResponse=true';
+		else 
+			loc = loc + '&importCert=true';
+	}
+	document.writeln('<center>');
+	document.writeln('<form>\n'+
+					 '<INPUT TYPE=\"button\" VALUE=\"Import Certificate'+
+					 plural+'\"'+
+					 ' onClick=\"location.href=\''+ loc + '\'\">\n'+
+					 '</form>\n');
+	document.writeln('</center>');
+}
+</script>
+
+<!--BODY bgcolor="white"-->
+
+<body bgcolor="#FFFFFF" link="#6666CC" vlink="#6666CC" alink="#333399">
+
+
+<SCRIPT LANGUAGE="JavaScript">
+
+//document.writeln('<P>');
+//document.writeln('host  '+result.fixed.host+'<BR>');
+//document.writeln('port  '+result.fixed.port+'<BR>');
+//document.writeln('scheme  '+result.fixed.scheme+'<BR>');
+//document.writeln('authority  '+result.fixed.authorityName+'<BR>');
+
+//document.writeln('<P>');
+//document.writeln('Issued Certs: ');
+
+if (result.recordSet == null || result.recordSet.length == 0) {
+	document.writeln('<BLOCKQUOTE><B><PRE>');
+	document.writeln('No further details provided.');
+	document.writeln('Please consult your local administrator for assistance.');
+	document.writeln('</BLOCKQUOTE></B></PRE>');
+} else {
+	//document.writeln('<UL>');
+	for (var i = 0; i < result.recordSet.length; i++) {
+		if (result.recordSet[i].serialNo != null) {
+			displayCert(result.recordSet[i]);
+		}
+	}
+	//document.writeln('</UL>');
+	importCertificates(result.recordSet.length, result.header.requestId);
+
+}
+//document.writeln('</PRE></B></BLOCKQUOTE>');
+document.writeln('<P>');
+</SCRIPT>
+
+
+</BODY>
+</HTML>
+

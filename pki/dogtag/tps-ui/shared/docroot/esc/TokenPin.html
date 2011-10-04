@@ -1,0 +1,76 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2009 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<head>
+<style>
+body {
+  background-color: rgb(32%,71%,75%);
+  font-family: "Arial";
+  font-size: 8pt; }
+</style>
+
+<script language = "Javascript">
+function DoSubmitData()
+{
+    var pin = document.getElementById("tokenpin").value;
+
+    var pin_confirm = document.getElementById("tokenpincf").value;
+
+    if(!pin || !pin_confirm )
+    {
+        alert("Please Enter Valid  Token Pin and confirmation value!");
+
+        return;
+    }
+    var parent = window.opener;
+
+    if(parent)
+    {
+        parent.COOLKeySetTokenPin(pin);
+
+    }
+    window.close();
+}
+</script>
+</head>
+<body>
+<b>Please Enter Your Token Pin:</b>
+<form>
+<table>
+<TR>
+<TD align="left">
+<font size=-2>Token Pin:</font><BR>
+<INPUT input type="password" id="tokenpin"  name="tokenpin" value="" size=25><BR>
+</TD>
+</TR>
+<TR>
+<TD align="left">
+<font size=-2>Token Pin:(Confirm)</font><br>
+<INPUT type="password"  id="tokenpincf"  name="tokenpincf" value="" size=25><BR>
+</TD>
+</TR>
+<BR>
+<TR>
+<TD>
+<INPUT type ="button" id="Submit" value="Submit" onClick="DoSubmitData();"
+</TD>
+</TR>
+</table>
+</form>
+</body>
+</html>

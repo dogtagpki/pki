@@ -1,0 +1,474 @@
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( usertype-oid NAME 'usertype' DESC 'Distinguish whether the user is administrator, agent or subsystem.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( userstate-oid NAME 'userstate' DESC 'Distinguish whether the user is administrator, agent or subsystem.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( cmsuser-oid NAME 'cmsuser' DESC 'CMS User' SUP top STRUCTURAL MUST usertype MAY userstate X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( archivedBy-oid NAME 'archivedBy' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( adminMessages-oid NAME 'adminMessages' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( algorithm-oid NAME 'algorithm' DESC 'CMS defined attribute'SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( algorithmId-oid NAME 'algorithmId' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( signingAlgorithmId-oid NAME 'signingAlgorithmId' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( autoRenew-oid NAME 'autoRenew' DESC 'CMS defined attribute'SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( certStatus-oid NAME 'certStatus' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( crlName-oid NAME 'crlName' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( crlSize-oid NAME 'crlSize' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( deltaSize-oid NAME 'deltaSize' DESC 'CMS defined attribute'SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( crlNumber-oid NAME 'crlNumber' DESC 'CMS defined attribute'SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( deltaNumber-oid NAME 'deltaNumber' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( firstUnsaved-oid NAME 'firstUnsaved' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( crlCache-oid NAME 'crlCache' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( revokedCerts-oid NAME 'revokedCerts' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( unrevokedCerts-oid NAME 'unrevokedCerts' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( expiredCerts-oid NAME 'expiredCerts' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( crlExtensions-oid NAME 'crlExtensions' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dateOfArchival-oid NAME 'dateOfArchival' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dateOfRecovery-oid NAME 'dateOfRecovery' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dateOfRevocation-oid NAME 'dateOfRevocation' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dateOfCreate-oid NAME 'dateOfCreate' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dateOfModify-oid NAME 'dateOfModify' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( duration-oid NAME 'duration' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( extension-oid NAME 'extension' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( issuedBy-oid NAME 'issuedBy' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( issueInfo-oid NAME 'issueInfo' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( issuerName-oid NAME 'issuerName' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( keySize-oid NAME 'keySize' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( keyState-oid NAME 'keyState' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( metaInfo-oid NAME 'metaInfo' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( nextUpdate-oid NAME 'nextUpdate' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( notAfter-oid NAME 'notAfter' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( notBefore-oid NAME 'notBefore' DESC 'CMS defined attribute'SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( ownerName-oid NAME 'ownerName' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( password-oid NAME 'password' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( p12Expiration-oid NAME 'p12Expiration' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( proofOfArchival-oid NAME 'proofOfArchival' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( publicKeyData-oid NAME 'publicKeyData' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( publicKeyFormat-oid NAME 'publicKeyFormat' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( privateKeyData-oid NAME 'privateKeyData' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( requestId-oid NAME 'requestId' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( requestInfo-oid NAME 'requestInfo' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( requestState-oid NAME 'requestState' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( requestResult-oid NAME 'requestResult' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( requestOwner-oid NAME 'requestOwner' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( requestAgentGroup-oid NAME 'requestAgentGroup' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( requestSourceId-oid NAME 'requestSourceId' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( requestType-oid NAME 'requestType' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( requestFlag-oid NAME 'requestFlag' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( requestError-oid NAME 'requestError' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( resourceACLS-oid NAME 'resourceACLS' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( revInfo-oid NAME 'revInfo' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( revokedBy-oid NAME 'revokedBy' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( revokedOn-oid NAME 'revokedOn' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( serialno-oid NAME 'serialno' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( nextRange-oid NAME 'nextRange' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( publishingStatus-oid NAME 'publishingStatus' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( beginRange-oid NAME 'beginRange' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( endRange-oid NAME 'endRange' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( subjectName-oid NAME 'subjectName' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( sessionContext-oid NAME 'sessionContext' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( thisUpdate-oid NAME 'thisUpdate' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( transId-oid NAME 'transId' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( transStatus-oid NAME 'transStatus' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( transName-oid NAME 'transName' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( transOps-oid NAME 'transOps' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( userDN-oid NAME 'userDN' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( userMessages-oid NAME 'userMessages' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( version-oid NAME 'version' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( Clone-oid NAME 'Clone'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( DomainManager-oid NAME 'DomainManager'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( SecurePort-oid NAME 'SecurePort'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( SecureAgentPort-oid NAME 'SecureAgentPort'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( SecureAdminPort-oid NAME 'SecureAdminPort'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( SecureEEClientAuthPort-oid NAME 'SecureEEClientAuthPort'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( UnSecurePort-oid NAME 'UnSecurePort'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( SubsystemName-oid NAME 'SubsystemName'  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( cmsUserGroup-oid NAME 'cmsUserGroup' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( CertACLS-oid NAME 'CertACLS' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY resourceACLS X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( repository-oid NAME 'repository' DESC 'CMS defined class' SUP top STRUCTURAL MUST ou MAY ( serialno $ description $ nextRange $ publishingStatus ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( request-oid NAME 'request' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( requestId $ dateOfCreate $ dateOfModify $ requestState $ requestResult $ requestOwner $ requestAgentGroup $ requestSourceId $ requestType $ requestFlag $ requestError $ userMessages $ adminMessages ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( transaction-oid NAME 'transaction' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( transId $ description $ transName $ transStatus $ transOps ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( crlIssuingPointRecord-oid NAME 'crlIssuingPointRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ crlNumber $ crlSize $ thisUpdate $ nextUpdate $ deltaNumber $ deltaSize $ firstUnsaved $ certificateRevocationList $ deltaRevocationList $ crlCache $ revokedCerts $ unrevokedCerts $ expiredCerts $ cACertificate ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( certificateRecord-oid NAME 'certificateRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ certStatus $ autoRenew $ issueInfo $ metaInfo $ revInfo $ version $ duration $ notAfter $ notBefore $ algorithmId $ subjectName $ signingAlgorithmId $ userCertificate $ issuedBy $ revokedBy $ revokedOn $ extension $ publicKeyData $ issuerName ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( userDetails-oid NAME 'userDetails' DESC 'CMS defined class' SUP top STRUCTURAL MUST userDN MAY ( dateOfCreate $ dateOfModify $ password $ p12Expiration ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( keyRecord-oid NAME 'keyRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ keyState $ privateKeyData $ ownerName $ keySize $ metaInfo $ dateOfArchival $ dateOfRecovery $ algorithm $ publicKeyFormat $ publicKeyData $ archivedBy ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( pkiSecurityDomain-oid NAME 'pkiSecurityDomain' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( ou $ name ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( pkiSecurityGroup-oid NAME 'pkiSecurityGroup' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( pkiSubsystem-oid NAME 'pkiSubsystem' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ Host $ SecurePort $ SubsystemName $ Clone ) MAY ( DomainManager $ SecureAgentPort $ SecureAdminPort $SecureEEClientAuthPort $ UnSecurePort ) X-ORIGIN 'user defined' ) 
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( pkiRange-oid NAME 'pkiRange' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ beginRange $ endRange $ Host $ SecurePort ) X-ORIGIN 'user defined' ) 
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( securityDomainSessionEntry-oid NAME 'securityDomainSessionEntry' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ host $ uid $ cmsUserGroup $ dateOfCreate ) X-ORIGIN 'user defined' ) 

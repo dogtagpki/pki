@@ -1,0 +1,127 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE></TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<CMS_TEMPLATE>
+</HEAD>
+<BODY bgcolor="white">
+<SCRIPT type="text/javascript">
+//<!--
+function toHex1(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + '0x' + absValue;
+}
+
+function toHex(number)
+{
+    return '0x' + number;
+}
+
+if (result.header.unrevoked == 'yes') {
+    var s = (result.header.serialNumber.indexOf(",") > 0)? "s": "";
+    var ve = (result.header.serialNumber.indexOf(",") > 0)? "ve": "s";
+
+    document.write('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+    document.writeln('Certificate'+s+' Ha'+ve+' Been Released From Hold</font><br><br>');
+
+
+    if (result.header.error == null) {
+  	    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.writeln('Certificate'+s+' with serial number'+s+' <b>' +
+                         result.header.serialNumber +
+                         '</b> ha'+ve+' been released from hold.');
+        document.writeln('</font><br>');
+
+		document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+		if (result.header.updateCRL && result.header.updateCRL == "yes") {
+			if (result.header.updateCRLSuccess != null && 
+				result.header.updateCRLSuccess == "yes") {
+				document.writeln('The Certificate Revocation List has been successfully updated.');
+			}
+			else {
+				document.writeln('The Certificate Revocation List update Failed');
+				if (result.header.updateCRLSuccess != null) 
+					document.writeln(' with error '+
+						result.header.updateCRLError);
+				else 
+					document.writeln('. No further details provided.');
+			}
+		}
+		else {
+			document.writeln(
+				'The Certificate Revocation List will be updated '+
+				'automatically at the next scheduled update.');
+		}
+		document.writeln('</font><br>');
+/*
+        if (result.header.dirEnabled != null && result.header.dirEnabled == 'yes') {
+       	    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            if (result.header.dirUpdated == 'yes') {
+                document.write('Directory has been successfully updated.');
+            } else {
+                document.write('Directory has not been updated.  See log files for more details.');
+            }
+            document.writeln('</font><br>');
+        }
+*/
+    } else {
+  	    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.writeln('Certificate'+s+' with serial number'+s+' <b>' +
+                         result.header.serialNumber +
+                         '</b> ha'+ve+' not been released from hold..<br><br>');
+        document.writeln('Additional Information:');
+        document.writeln('</font>');
+        document.writeln('<blockquote>');
+  	    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.writeln(result.header.error);
+        document.writeln('</font>');
+        document.writeln('</blockquote>');
+    }
+} else if (result.header.unrevoked == 'pending') {
+    document.write('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+	document.writeln('Unrevocation Request Has Been Submitted</font><br><br>');
+} else {
+    document.write('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+	document.writeln('Unrevocation Request Cannot Be Completed</font><br><br>');
+    if (result.header.error != null) {
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Addition information:</font>');
+        document.writeln('<blockquote>');
+	    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.writeln(result.header.error);
+        document.writeln('</font>');
+        document.writeln('</blockquote>');
+    }
+}
+//-->
+</SCRIPT>
+</BODY>
+</HTML>
