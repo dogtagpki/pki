@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="base/ca/src"/>
+	<classpathentry kind="src" path="base/common/src"/>
+	<classpathentry kind="src" path="base/java-tools/src"/>
+	<classpathentry kind="src" path="base/kra/src"/>
+	<classpathentry kind="src" path="base/migrate/80"/>
+	<classpathentry kind="src" path="base/ocsp/src"/>
+	<classpathentry kind="src" path="base/silent/src/argparser"/>
+	<classpathentry kind="src" path="base/silent/src/ca"/>
+	<classpathentry kind="src" path="base/silent/src/common"/>
+	<classpathentry kind="src" path="base/silent/src/drm"/>
+	<classpathentry kind="src" path="base/silent/src/http"/>
+	<classpathentry kind="src" path="base/silent/src/ocsp"/>
+	<classpathentry kind="src" path="base/silent/src/ra"/>
+	<classpathentry kind="src" path="base/silent/src/subca"/>
+	<classpathentry kind="src" path="base/silent/src/tks"/>
+	<classpathentry kind="src" path="base/silent/src/tps"/>
+	<classpathentry kind="src" path="base/symkey/src"/>
+	<classpathentry kind="src" path="base/tks/src"/>
+	<classpathentry kind="src" path="base/util/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/idm-console-base.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/java/jss4.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/java/osutil.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/velocity.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/servlet.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit4.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
