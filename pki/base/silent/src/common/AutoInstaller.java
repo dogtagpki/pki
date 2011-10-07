@@ -90,9 +90,10 @@ public class AutoInstaller {
     // Create Password file 
     private boolean CreatePasswordFile() {
         String s = "internal: " + SingleSignOnPWD;
+        OutputStream f0 = null;
 
         try {
-            OutputStream f0 = new FileOutputStream(
+            f0 = new FileOutputStream(
                     serverRoot + "/" + instanceID + "/config/password.conf");
 
             f0.write(s.getBytes());
@@ -100,14 +101,21 @@ public class AutoInstaller {
             return true;
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
+            try {
+                if (f0 != null) f0.close();
+            } catch (IOException ioe) {
+                System.out.println("IO Exception: " + ioe.getMessage());
+            }
             return false;
         }
 
     }
 
     private boolean BackupConfigFile() {
+        FileInputStream f1 = null;
+        OutputStream f2 = null;
         try {
-            FileInputStream f1 = new FileInputStream(
+            f1 = new FileInputStream(
                     serverRoot + "/" + instanceID + "/config/CS.cfg");
             int size = f1.available();
             byte b[] = new byte[size];
@@ -115,7 +123,7 @@ public class AutoInstaller {
             if (f1.read(b) != b.length) {
                 return false;
             }
-            OutputStream f2 = new FileOutputStream(
+            f2 = new FileOutputStream(
                     serverRoot + "/" + instanceID + "/config/CS.cfg.org");
 
             f2.write(b);
@@ -125,6 +133,16 @@ public class AutoInstaller {
             return true;
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
+            try {
+                if (f1 != null) f1.close();
+            } catch (IOException ioe) {
+                System.out.println("IO Exception: " + ioe.getMessage());
+            }
+            try {
+                if (f2 != null) f2.close(); 
+            } catch (IOException ioe) {
+                System.out.println("IO Exception: " + ioe.getMessage());
+            }
             return false;
         }
  
@@ -557,8 +575,9 @@ public class AutoInstaller {
     // ////////////////////////////////////////////////////////
 
     private void getProperties(String filePath) throws Exception {
+        FileInputStream fis = null;
         try {
-            FileInputStream fis = new FileInputStream(filePath);
+            fis = new FileInputStream(filePath);
 
             props = new Properties();
             props.load(fis);
@@ -566,7 +585,11 @@ public class AutoInstaller {
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
         }
-
+        try {
+            if (fis != null) fis.close();
+        } catch (IOException ioe) {
+            System.out.println("IO Exception: " + ioe.getMessage());
+        }
     }
 
     private void setPropFile(String fileName) {
