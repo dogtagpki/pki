@@ -121,6 +121,7 @@ public class AutoInstaller {
             byte b[] = new byte[size];
 
             if (f1.read(b) != b.length) {
+                f1.close();
                 return false;
             }
             f2 = new FileOutputStream(
