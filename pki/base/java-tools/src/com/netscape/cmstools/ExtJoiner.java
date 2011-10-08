@@ -92,7 +92,11 @@ public class ExtJoiner {
         FileInputStream fis = new FileInputStream(fileName);
 
         byte data[] = new byte[fis.available()];
-        fis.read(data);
+        try {
+            fis.read(data);
+        } finally {
+            fis.close();
+        }
         return  com.netscape.osutil.OSUtil.AtoB(new String(data));
     }
 }
