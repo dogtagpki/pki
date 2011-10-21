@@ -20,6 +20,7 @@ package com.netscape.kra;
 
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.Arrays;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
@@ -31,6 +32,7 @@ import java.security.cert.CertificateException;
 import netscape.security.util.*;
 import netscape.security.util.BigInt;
 import netscape.security.x509.*;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.*;
 import org.mozilla.jss.pkix.cms.*;
 import org.mozilla.jss.pkix.cms.EnvelopedData;
@@ -69,7 +71,8 @@ import com.netscape.certsrv.apps.CMS;
  * in the internal database for long term storage.
  * <P>
  *
- * @author thomask
+ * @author thomask (original)
+ * @author cfu (non-RSA keys; private keys secure handling);
  * @version $Revision$, $Date$
  */
 public class EnrollmentService implements IService {

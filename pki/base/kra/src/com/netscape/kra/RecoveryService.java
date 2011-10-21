@@ -50,7 +50,9 @@ import org.mozilla.jss.asn1.*;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.pkcs12.*;
 import org.mozilla.jss.pkix.primitive.*;
-
+import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
+import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.CryptoToken;
 
 /**
  * A class represents recovery request processor. There
@@ -63,7 +65,8 @@ import org.mozilla.jss.pkix.primitive.*;
  * End Entity recovery will send RA or CA a response where
  * stores the recovered key.
  *
- * @author thomask
+ * @author thomask (original)
+ * @author cfu (non-RSA keys; private keys secure handling);
  * @version $Revision$, $Date$
  */
 public class RecoveryService implements IService {
@@ -112,6 +115,23 @@ public class RecoveryService implements IService {
      * @exception EBaseException failed to serve
      */
     public boolean serviceRequest(IRequest request) throws EBaseException {
+
+        CryptoManager cm = null;
+        IConfigStore config = null;
+        String tokName = "";
+        CryptoToken ct = null;
+        Boolean allowEncDecrypt_recovery = false;
+
+        try {
+            cm = CryptoManager.getInstance();
+            config = CMS.getConfigStore();
+            tokName = config.getString("kra.storageUnit.hardware", "internal");
+        CMS.debug("RecoveryService: tokenName="+tokName);
+            ct = cm.getTokenByName(tokName);
+            allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
+        } catch (Exception e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+        }
 
         IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
         if (statsSub != null) {
@@ -164,6 +184,13 @@ public class RecoveryService implements IService {
             }
         }
 
+        boolean isRSA = true;
+        String keyAlg = x509cert.getPublicKey().getAlgorithm();
+            if (keyAlg != null) {
+            CMS.debug("RecoveryService: publicKey alg ="+keyAlg);
+            if (!keyAlg.equals("RSA")) isRSA = false;
+        }
+
         // Unwrap the archived private key
         byte privateKeyData[] = null;
         X509Certificate transportCert =
@@ -173,28 +200,41 @@ public class RecoveryService implements IService {
             if (statsSub != null) {
               statsSub.startTiming("recover_key");
             }
-            privateKeyData = recoverKey(params, keyRecord);
+
+            PrivateKey privKey = null;
+            if (allowEncDecrypt_recovery == true) {
+                privateKeyData = recoverKey(params, keyRecord);
+            } else {
+                privKey= recoverKey(params, keyRecord, isRSA);
+            }
             if (statsSub != null) {
               statsSub.endTiming("recover_key");
             }
 
-            if (statsSub != null) {
-              statsSub.startTiming("verify_key");
-            }
-            if (verifyKeyPair(pubData, privateKeyData) == false) {
-                mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
-                throw new EKRAException(
-                        CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
-            }
-            if (statsSub != null) {
-              statsSub.endTiming("verify_key");
+            if ((isRSA == true) && (allowEncDecrypt_recovery == true)) {
+                if (statsSub != null) {
+                  statsSub.startTiming("verify_key");
+                }
+                // verifyKeyPair() is RSA-centric
+                if (verifyKeyPair(pubData, privateKeyData) == false) {
+                    mKRA.log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
+                    throw new EKRAException(
+                            CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
+                }
+                if (statsSub != null) {
+                  statsSub.endTiming("verify_key");
+                }
             }
 
             if (statsSub != null) {
               statsSub.startTiming("create_p12");
             }
-            createPFX(request, params, privateKeyData);
+            if (allowEncDecrypt_recovery == true) {
+                createPFX(request, params, privateKeyData);
+            } else {
+                createPFX(request, params, privKey, ct);
+            }
             if (statsSub != null) {
               statsSub.endTiming("create_p12");
             }
@@ -260,6 +300,9 @@ public class RecoveryService implements IService {
         return true;
     }
 
+    /*
+     * verifyKeyPair()- RSA-centric key verification
+     */
     public boolean verifyKeyPair(byte publicKeyData[],  byte privateKeyData[])
     {
       try {
@@ -299,9 +342,166 @@ public class RecoveryService implements IService {
           return false;
        }
     }
+
+    /**
+     * Recovers key. (using unwrapping/wrapping on token)
+     *         - used when allowEncDecrypt_recovery is false
+     */
+   public synchronized PrivateKey recoverKey(Hashtable request, KeyRecord keyRecord, boolean isRSA)
+        throws EBaseException {
+
+       if (!isRSA) {
+            CMS.debug("RecoverService: recoverKey: currently, non-RSA keys are not supported when allowEncDecrypt_ is false");
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "key type not supported"));
+       }
+       try {
+            if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+              Credential creds[] = (Credential[])
+                request.get(ATTR_AGENT_CREDENTIALS);
+
+              mStorageUnit.login(creds);
+            }
+
+            /* wrapped retrieve session key and private key */
+            DerValue val = new DerValue(keyRecord.getPrivateKeyData());
+            DerInputStream in = val.data;
+            DerValue dSession = in.getDerValue();
+            byte session[] = dSession.getOctetString();
+            DerValue dPri = in.getDerValue();
+            byte pri[] = dPri.getOctetString();
+
+            /* debug */
+            byte publicKeyData[] = keyRecord.getPublicKeyData();
+            PublicKey pubkey = null;
+            try {
+                pubkey = X509Key.parsePublicKey (new DerValue(publicKeyData));
+            } catch (Exception e) {
+                CMS.debug("RecoverService: after parsePublicKey:"+e.toString());
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "pubic key parsing failure"));
+            }
+            byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
+            PrivateKey privKey =
+            mStorageUnit.unwrap(
+                session,
+                keyRecord.getAlgorithm(),
+                iv,
+                pri,
+                (PublicKey) pubkey);
+
+            if (privKey == null) {
+                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "private key unwrapping failure"));
+            }
+            if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+              mStorageUnit.logout();
+            }
+            return privKey;
+        } catch (Exception e) {
+            CMS.debug("RecoverService: recoverKey() failed with allowEncDecrypt_recovery=false:"+e.toString());
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "recoverKey() failed with allowEncDecrypt_recovery=false:"+e.toString()));
+        }
+    }
+
+
+    /**
+     * Creates a PFX (PKCS12) file. (the unwrapping/wrapping way)
+     *         - used when allowEncDecrypt_recovery is false
+     *
+     * @param request CRMF recovery request
+     * @param priKey private key handle
+     * @exception EBaseException failed to create P12 file
+     */
+    public void createPFX(IRequest request, Hashtable params, 
+        PrivateKey priKey, CryptoToken ct) throws EBaseException {
+        try {
+            // create p12
+            X509Certificate x509cert =
+                request.getExtDataInCert(ATTR_USER_CERT);
+            String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
+
+            // add certificate
+            mKRA.log(ILogger.LL_INFO, "KRA adds certificate to P12");
+            SEQUENCE encSafeContents = new SEQUENCE();
+            ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
+            String nickname = request.getExtDataInString(ATTR_NICKNAME);
+
+            if (nickname == null) {
+                nickname = x509cert.getSubjectDN().toString();
+            }
+            byte localKeyId[] = createLocalKeyId(x509cert);
+            SET certAttrs = createBagAttrs(
+                    nickname, localKeyId);
+            // attributes: user friendly name, Local Key ID
+            SafeBag certBag = new SafeBag(SafeBag.CERT_BAG,
+                    new CertBag(CertBag.X509_CERT_TYPE, cert), 
+                    certAttrs);
+
+            encSafeContents.addElement(certBag);
+
+            // add key
+            mKRA.log(ILogger.LL_INFO, "KRA adds key to P12");
+            org.mozilla.jss.util.Password pass = new 	
+                org.mozilla.jss.util.Password(
+                    pwd.toCharArray());
+
+            SEQUENCE safeContents = new SEQUENCE();
+            PasswordConverter passConverter = new 
+                PasswordConverter();
+            byte salt[] = {0x01, 0x01, 0x01, 0x01};
+
+            ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
+                    PBEAlgorithm.PBE_SHA1_DES3_CBC, 	
+                    pass, salt, 1, passConverter, priKey, ct);
+
+            SET keyAttrs = createBagAttrs(
+                    x509cert.getSubjectDN().toString(), 
+                    localKeyId);
+
+            SafeBag keyBag = new SafeBag(
+                    SafeBag.PKCS8_SHROUDED_KEY_BAG, key,
+                    keyAttrs); // ??
+
+            safeContents.addElement(keyBag);
+
+            // build contents
+            AuthenticatedSafes authSafes = new 
+                AuthenticatedSafes();
+
+            authSafes.addSafeContents(
+                safeContents
+            );
+            authSafes.addSafeContents(
+                encSafeContents
+            );
+
+            //			authSafes.addEncryptedSafeContents(
+            //				authSafes.DEFAULT_KEY_GEN_ALG,
+            //				pass, null, 1,
+            //				encSafeContents);
+            PFX pfx = new PFX(authSafes);
+
+            pfx.computeMacData(pass, null, 5); // ??
+            ByteArrayOutputStream fos = new 
+                ByteArrayOutputStream();
+
+            pfx.encode(fos);
+            pass.clear();
+
+            // put final PKCS12 into volatile request
+            params.put(ATTR_PKCS12, fos.toByteArray());
+        } catch (Exception e) {
+            mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_CONSTRUCT_P12", e.toString()));
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1", e.toString()));
+        }
+
+        // update request
+        mKRA.getRequestQueue().updateRequest(request);
+    }
+
 	
     /**
      * Recovers key.
+     *         - used when allowEncDecrypt_recovery is true
      */
     public synchronized byte[] recoverKey(Hashtable request, KeyRecord keyRecord) 
         throws EBaseException {
@@ -328,6 +528,7 @@ public class RecoveryService implements IService {
 
     /**
      * Creates a PFX (PKCS12) file.
+     *         - used when allowEncDecrypt_recovery is true
      *
      * @param request CRMF recovery request
      * @param priData decrypted private key (PrivateKeyInfo)
@@ -335,12 +536,11 @@ public class RecoveryService implements IService {
      */
     public void createPFX(IRequest request, Hashtable params, 
         byte priData[]) throws EBaseException {
-        // create p12
-        X509Certificate x509cert =
-            request.getExtDataInCert(ATTR_USER_CERT);
-        String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
-
         try {
+            // create p12
+            X509Certificate x509cert =
+                request.getExtDataInCert(ATTR_USER_CERT);
+            String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
 
             // add certificate
             mKRA.log(ILogger.LL_INFO, "KRA adds certificate to P12");

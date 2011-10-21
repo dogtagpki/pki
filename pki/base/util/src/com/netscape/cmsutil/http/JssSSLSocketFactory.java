@@ -106,6 +106,13 @@ public class JssSSLSocketFactory implements ISocketFactory {
         try {
             s = new SSLSocket(host, port, null, 0, certApprovalCallback,
               clientCertCallback);
+            for (int i = 0; cipherSuites[i] != 0; ++i) {
+                try {
+                    SSLSocket.setCipherPreferenceDefault(cipherSuites[i], true);
+                } catch( SocketException e) {
+                }
+            }
+
             s.setUseClientMode(true);
             s.enableSSL2(false);
             s.enableSSL2Default(false);

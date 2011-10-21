@@ -147,6 +147,10 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
             return null;
+        } catch (Exception e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
+            Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
+            return null;
         }
     }
 
@@ -158,31 +162,27 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             CMS.debug("EncryptionUnit.wrap");
             CryptoToken token = getToken();
-            CryptoToken internalToken = getInternalToken();
 
             // (1) generate session key
             org.mozilla.jss.crypto.KeyGenerator kg = 
 		                token.getKeyGenerator(KeyGenAlgorithm.DES3);
                // internalToken.getKeyGenerator(KeyGenAlgorithm.DES3);
-            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[3];
-            usages[0] = SymmetricKey.Usage.ENCRYPT;
-            usages[1] = SymmetricKey.Usage.WRAP;
-            usages[2] = SymmetricKey.Usage.UNWRAP;
+            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[2];
+            usages[0] = SymmetricKey.Usage.WRAP;
+            usages[1] = SymmetricKey.Usage.UNWRAP;
             kg.setKeyUsages(usages);
             kg.temporaryKeys(true);
             SymmetricKey sk = kg.generate();
-	    CMS.debug("EncryptionUnit:wrap() session key generated on slot: "+token.getName());
+	        CMS.debug("EncryptionUnit:wrap() session key generated on slot: "+token.getName());
 
             // (2) wrap private key with session key
             // KeyWrapper wrapper = internalToken.getKeyWrapper(
             KeyWrapper wrapper = token.getKeyWrapper(
                     KeyWrapAlgorithm.DES3_CBC_PAD);
-	    CMS.debug("EncryptionUnit:wrap() got key wrapper");
 
             wrapper.initWrap(sk, IV);
-	    CMS.debug("EncryptionUnit:wrap() key wrapper initialized");
             byte pri[] = wrapper.wrap(priKey);
-	    CMS.debug("EncryptionUnit:wrap() privKey wrapped");
+	        CMS.debug("EncryptionUnit:wrap() privKey wrapped");
 
             // (3) wrap session with transport public
             KeyWrapper rsaWrap = token.getKeyWrapper(
@@ -190,7 +190,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             rsaWrap.initWrap(getPublicKey(), null);
             byte session[] = rsaWrap.wrap(sk);
-	    CMS.debug("EncryptionUnit:wrap() sessin key wrapped");
+	        CMS.debug("EncryptionUnit:wrap() sessin key wrapped");
 
             // use MY own structure for now:
             // SEQUENCE {
@@ -230,6 +230,10 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
             Debug.trace("EncryptionUnit::wrap " + e.toString());
             return null;
+        } catch (Exception e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            Debug.trace("EncryptionUnit::wrap " + e.toString());
+            return null;
         }
     }
 
@@ -241,13 +245,11 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     {
         try {
             CryptoToken token = getToken();
-            CryptoToken internalToken = getInternalToken();
 
             // (1) unwrap the session
-	    CMS.debug("EncryptionUnit::unwrap_sym() on slot: "+token.getName());
             PrivateKey priKey = getPrivateKey();
             String priKeyAlgo = priKey.getAlgorithm();
-	    CMS.debug("EncryptionUnit::unwrap_sym() private key algo: " + priKeyAlgo);
+	        CMS.debug("EncryptionUnit::unwrap_sym() private key algo: " + priKeyAlgo);
             KeyWrapper keyWrapper = null;
             if (priKeyAlgo.equals("EC")) {
                 keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.AES_ECB);
@@ -259,6 +261,8 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             SymmetricKey sk = keyWrapper.unwrapSymmetric(encSymmKey,
                     SymmetricKey.DES3, usage,
                     0);
+	        CMS.debug("EncryptionUnit::unwrap_sym() unwrapped on slot: "
+                +token.getName());
             return sk;
         } catch (Exception e) {
             CMS.debug("EncryptionUnit::unwrap_sym() error:" +
@@ -288,7 +292,6 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             CMS.debug("EncryptionUnit.decryptExternalPrivate");
             CryptoToken token = getToken();
-            CryptoToken internalToken = getInternalToken();
 
             // (1) unwrap the session
             KeyWrapper rsaWrap = token.getKeyWrapper(
@@ -331,6 +334,10 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::decryptExternalPrivate " + e.toString());
             return null;
+        } catch (Exception e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
+            Debug.trace("EncryptionUnit::decryptExternalPrivate " + e.toString());
+            return null;
         }
     }
 
@@ -340,13 +347,11 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
      */
     public PrivateKey unwrap(byte encSymmKey[], 
         String symmAlgOID, byte symmAlgParams[],
-        byte encValue[], PublicKey pubKey) 
+        byte encValue[], PublicKey pubKey)
         throws EBaseException {
         try {
             CryptoToken token = getToken();
-            CryptoToken internalToken = getInternalToken();
 
-            CMS.debug("EncryptionUnit.unwrap symAlgParams: " + new String(symmAlgParams));
             // (1) unwrap the session
             KeyWrapper rsaWrap = token.getKeyWrapper(
                     KeyWrapAlgorithm.RSA);
@@ -363,8 +368,18 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             wrapper.initUnwrap(sk, new IVParameterSpec(
                     symmAlgParams));
-            PrivateKey pk = wrapper.unwrapPrivate(encValue,     
-                    PrivateKey.RSA, pubKey);
+
+           PrivateKey.Type keytype = null;
+            String alg = pubKey.getAlgorithm();
+            if (alg.equals("DSA")) {
+                keytype = PrivateKey.DSA;
+            } else if (alg.equals("EC")) {
+                keytype = PrivateKey.EC;
+            } else {
+                keytype = PrivateKey.RSA;
+            }
+            PrivateKey pk = wrapper.unwrapTemporaryPrivate(encValue,
+                    keytype , pubKey);
 
             return pk;
         } catch (TokenException e) {
@@ -383,6 +398,9 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
             return null;
+        } catch (Exception e) {
+            CMS.debug("EncryptionUnit.unwrap : Exception:"+e.toString());
+            return null;
         }
     }
 
@@ -399,10 +417,9 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             byte pri[] = dPri.getOctetString();
 
             CryptoToken token = getToken();
-            CryptoToken internalToken = getInternalToken();
 
             // (1) unwrap the session
-	    CMS.debug("decryptInternalPrivate(): getting key wrapper on slot:"+ token.getName());
+	        CMS.debug("decryptInternalPrivate(): getting key wrapper on slot:"+ token.getName());
             KeyWrapper rsaWrap = token.getKeyWrapper(
                     KeyWrapAlgorithm.RSA);
 
@@ -441,6 +458,10 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
             return null;
         } catch (IOException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
+            Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
+            return null;
+        } catch (Exception e) {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
             return null;
