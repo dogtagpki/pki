@@ -198,15 +198,15 @@ public abstract class EnrollInput implements IProfileInput {
             }
             CMS.debug("POP verification begins:");
             CryptoManager cm = CryptoManager.getInstance();
-            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token",
-                   "Internal Key Storage Token");
-            CryptoToken verifyToken = cm.getTokenByName(tokenName);
-            if (tokenName.equals("Internal Key Storage Token")) {
-                //use internal token
+
+            CryptoToken verifyToken = null;
+            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
+            if (tokenName.equals("internal")) {
                 CMS.debug("POP verification using internal token");
                 certReqMsg.verify();
             } else {
                 CMS.debug("POP verification using token:"+ tokenName);
+                verifyToken = cm.getTokenByName(tokenName);
                 certReqMsg.verify(verifyToken);
             }
 

@@ -126,11 +126,21 @@ public class RecoveryService implements IService {
             cm = CryptoManager.getInstance();
             config = CMS.getConfigStore();
             tokName = config.getString("kra.storageUnit.hardware", "internal");
-        CMS.debug("RecoveryService: tokenName="+tokName);
-            ct = cm.getTokenByName(tokName);
+            if (tokName.equals("internal")) {
+                CMS.debug("RecoveryService: serviceRequest: use internal token ");
+                ct = cm.getInternalCryptoToken();
+            } else {
+                CMS.debug("RecoveryService: serviceRequest: tokenName="+tokName);
+                ct = cm.getTokenByName(tokName);
+            }
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
         } catch (Exception e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+            CMS.debug("RecoveryService exception: use internal token :"
+                 + e.toString());
+            ct = cm.getInternalCryptoToken();
+        }
+        if (ct == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR"+ "cannot get crypto token")); 
         }
 
         IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
@@ -413,6 +423,7 @@ public class RecoveryService implements IService {
      */
     public void createPFX(IRequest request, Hashtable params, 
         PrivateKey priKey, CryptoToken ct) throws EBaseException {
+        CMS.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
         try {
             // create p12
             X509Certificate x509cert =
@@ -421,6 +432,7 @@ public class RecoveryService implements IService {
 
             // add certificate
             mKRA.log(ILogger.LL_INFO, "KRA adds certificate to P12");
+            CMS.debug("RecoverService: createPFX() adds certificate to P12");
             SEQUENCE encSafeContents = new SEQUENCE();
             ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
             String nickname = request.getExtDataInString(ATTR_NICKNAME);
@@ -440,6 +452,7 @@ public class RecoveryService implements IService {
 
             // add key
             mKRA.log(ILogger.LL_INFO, "KRA adds key to P12");
+            CMS.debug("RecoverService: createPFX() adds key to P12");
             org.mozilla.jss.util.Password pass = new 	
                 org.mozilla.jss.util.Password(
                     pwd.toCharArray());
@@ -536,6 +549,7 @@ public class RecoveryService implements IService {
      */
     public void createPFX(IRequest request, Hashtable params, 
         byte priData[]) throws EBaseException {
+        CMS.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
         try {
             // create p12
             X509Certificate x509cert =

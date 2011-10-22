@@ -937,10 +937,16 @@ public abstract class EnrollProfile extends BasicProfile
             sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
             if (sigver) {
                 CMS.debug("EnrollProfile: parsePKCS10: signature verification enabled");
-                String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token",
-                   "Internal Key Storage Token");
+                String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
                 savedToken = cm.getThreadToken();
-                CryptoToken signToken = cm.getTokenByName(tokenName);
+                CryptoToken signToken = null;
+                if (tokenName.equals("internal")) {
+                    CMS.debug("EnrollProfile: parsePKCS10: use internal token");
+                    signToken = cm.getInternalCryptoToken();
+                } else {
+                    CMS.debug("EnrollProfile: parsePKCS10: tokenName="+ tokenName);
+                    signToken = cm.getTokenByName(tokenName);
+                }
                 CMS.debug("EnrollProfile: parsePKCS10 setting thread token");
                 cm.setThreadToken(signToken);
                 pkcs10 = new PKCS10(data);
@@ -1365,15 +1371,14 @@ public abstract class EnrollProfile extends BasicProfile
 
         try {
             CryptoManager cm = CryptoManager.getInstance();
-            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token",
-                   "Internal Key Storage Token");
-            CryptoToken verifyToken = cm.getTokenByName(tokenName);
-            if (tokenName.equals("Internal Key Storage Token")) {
-                //use internal token
+            CryptoToken verifyToken = null;
+            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
+            if (tokenName.equals("internal")) {
                 CMS.debug("POP verification using internal token");
                 certReqMsg.verify();
             } else {
                 CMS.debug("POP verification using token:"+ tokenName);
+                verifyToken = cm.getTokenByName(tokenName);
                 certReqMsg.verify(verifyToken);
             }
 
