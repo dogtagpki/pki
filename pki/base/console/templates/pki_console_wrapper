@@ -1,0 +1,167 @@
+#!/bin/sh
+#
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+
+# Check to insure that this script's original invocation directory
+# has not been deleted!
+CWD=`/bin/pwd > /dev/null 2>&1`
+if [ $? -ne 0 ] ; then
+    echo "Cannot invoke '$0' from non-existent directory!"
+    exit 255
+fi
+
+
+###############################################################################
+##  (1) Specify variables used by this script.                               ##
+###############################################################################
+
+PRODUCT="pki"
+
+
+###############################################################################
+##  (2) Check for valid usage of this command wrapper.                       ##
+###############################################################################
+
+usage() {
+    echo "Usage: $0 <url>"
+    echo
+    echo "     where <url> is the url to the administration port of your"
+    echo "                 Certificate Subsystem.  For example:"
+    echo
+    echo "                     https://<hostname>:9445/ca"
+    echo
+}
+                                                                                
+if [ $# -ne 1 ] ; then
+    usage
+    exit 255
+fi
+
+
+###############################################################################
+##  (3) Define helper functions.                                             ##
+###############################################################################
+
+invalid_operating_system() {
+    echo
+    echo "ERROR:  '$0' does not execute on the '$1' operating system!"
+    echo
+}
+
+invalid_architecture() {
+    echo
+    echo "ERROR:  '$0' does not execute on the '$1' architecture!"
+    echo
+}
+
+
+###############################################################################
+##  (4) Set the LD_LIBRARY_PATH environment variable to determine the        ##
+##      search order this command wrapper uses to find shared libraries.     ##
+###############################################################################
+
+OS=`uname -s`
+ARCHITECTURE=""
+
+if [ "${OS}" = "Linux" ] ; then
+    ARCHITECTURE=`uname -i`
+    JAVA="java"
+    JAVA_OPTIONS=""
+
+    if [ "${ARCHITECTURE}" = "i386" ] ; then
+        LD_LIBRARY_PATH=/usr/lib:/lib
+        LD_LIBRARY_PATH=/usr/lib/jss:${LD_LIBRARY_PATH}
+        export LD_LIBRARY_PATH
+    elif [ "${ARCHITECTURE}" = "x86_64" ] ; then
+        LD_LIBRARY_PATH=/usr/lib:/lib
+        LD_LIBRARY_PATH=/usr/lib64:/lib64:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib64/jss:${LD_LIBRARY_PATH}
+        export LD_LIBRARY_PATH
+    else
+        invalid_architecture "${ARCHITECTURE}"
+        exit 255
+    fi
+elif [ "${OS}" = "SunOS" ] ; then
+    ARCHITECTURE=`uname -p`
+    if [ "${ARCHITECTURE}" = "sparc" ] &&
+       [ -d "/usr/lib/sparcv9/" ] ; then
+        ARCHITECTURE="sparcv9"
+    fi
+    if [ "${ARCHITECTURE}" = "sparc" ] ; then
+        JAVA="/usr/jdk/instances/jdk1.5.0/jre/bin/java"
+        JAVA_OPTIONS=""
+
+        LD_LIBRARY_PATH=/usr/lib:/lib
+        LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
+        export LD_LIBRARY_PATH
+    elif [ "${ARCHITECTURE}" = "sparcv9" ] ; then
+        JAVA="/usr/jdk/instances/jdk1.5.0/jre/bin/java"
+        JAVA_OPTIONS="-d64"
+
+        LD_LIBRARY_PATH=/usr/lib:/lib
+        LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib/sparcv9:/lib/sparcv9:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib/sparcv9/dirsec:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH=/usr/lib/sparcv9/${PRODUCT}:${LD_LIBRARY_PATH}
+        export LD_LIBRARY_PATH
+    else
+        invalid_architecture "${ARCHITECTURE}"
+        exit 255
+    fi
+else
+    invalid_operating_system "${OS}"
+    exit 255
+fi
+
+
+###############################################################################
+##  (5) Set the CP environment variable to determine the search              ##
+##      order this command wrapper uses to find jar files.                   ##
+###############################################################################
+
+CP=/usr/lib/java/jss4.jar
+CP=/usr/lib/java/dirsec/jss4.jar:${CP}
+if [ "${OS}" = "Linux" ] &&
+   [ "${ARCHITECTURE}" = "x86_64" ] ; then
+    # Fedora 16+
+    CP=/usr/lib64/java/jss4.jar
+fi
+CP=/usr/share/java/ldapjdk.jar:${CP}
+CP=/usr/share/java/idm-console-nmclf.jar:${CP}
+CP=/usr/share/java/idm-console-nmclf_en.jar:${CP}
+CP=/usr/share/java/idm-console-mcc.jar:${CP}
+CP=/usr/share/java/idm-console-mcc_en.jar:${CP}
+CP=/usr/share/java/idm-console-base.jar:${CP}
+CP=/usr/share/java/389-console_en.jar:${CP}
+CP=/usr/share/java/${PRODUCT}/pki-console-theme.jar:${CP}
+CP=/usr/share/java/${PRODUCT}/pki-console.jar:${CP}
+export CP
+
+
+###############################################################################
+##  (6) Execute the java command specified by this java command wrapper      ##
+##      based upon the preset LD_LIBRARY_PATH and CP environment variables.  ##
+###############################################################################
+
+${JAVA} ${JAVA_OPTIONS} -cp ${CP} -Djava.util.prefs.systemRoot=/tmp/.java -Djava.util.prefs.userRoot=/tmp/java com.netscape.admin.certsrv.Console -s instanceID -a $1 
+exit $?
+

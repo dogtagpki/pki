@@ -1,0 +1,88 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<title>Users</title>
+    <link rel="shortcut icon" href="/ra/admin/console/img/favicon.ico" />
+    <link rel="stylesheet" href="/css/pki-base.css" type="text/css" />
+    <META http-equiv=Content-Type content="text/html; charset=UTF-8">
+
+</head>
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+
+#include ( "header.vm" )
+
+<div id="mainNavOuter">
+<div id="mainNav">
+<div id="mainNavInner">
+
+</div><!-- end mainNavInner -->
+</div><!-- end mainNav -->
+</div><!-- end mainNavOuter -->
+                                                                                
+                                                                                
+<div id="bar">
+                                                                                
+<div id="systembar">
+<div id="systembarinner">
+                                                                                
+<div>
+UID: $uid
+</div>
+                                                                                
+                                                                                
+</div>
+</div>
+                                                                                
+</div>
+
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<a href="/admin/index.cgi">Administrator Interface</a>
+</font><br>
+<p> 
+</font>
+<p>
+<center>
+<table border="1" cellspacing="1" cellpadding="1">
+<tr valign="TOP">
+  <td><b>UID</b></td>
+  <td>$userid</td>
+</tr>
+<tr valign="TOP">
+  <td><b>Name</b></td>
+  <td>$name</td>
+</tr>
+<tr valign="TOP">
+  <td><b>Email</b></td>
+  <td>$email</td>
+</tr>
+<tr valign="TOP">
+  <td><b>Certificate</b></td>
+  <td>$certificate</td>
+</tr>
+</table>
+</center>
+<p>
+<a href="delete.cgi?uid=$userid">[Delete]</a>
+<p>
+#include ( "footer.vm" )
+
+</body>
+</html>

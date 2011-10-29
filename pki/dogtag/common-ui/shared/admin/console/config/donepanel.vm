@@ -1,0 +1,64 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+<input type="hidden" name="host" value=$host />
+<input type="hidden" name="port" value=$port />
+<input type="hidden" name="systemType" value=$systemType />
+#if ($errorString != "")
+<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+#if ($systemType.equals("tks"))
+As 'root', restart the server on the command line by typing the following command:
+<br>
+$initCommand restart $instanceId
+<br>
+After performing this restart, the server should become operational. 
+#else
+#if ($externalCA.equals("true") && $systemType.equals("kra"))
+As 'root', restart the server on the command line by typing the following command:
+<br>
+$initCommand restart $instanceId
+<br>
+Startup the administration console to add the peer CA to the Trusted Manager's Group. Make sure to add the transport certificate and connector information to the peer CA. After performing this restart, the server should become operational.
+#else
+As 'root', restart the server on the command line by typing the following command:
+<br>
+$initCommand restart $instanceId
+<br>
+After performing this restart, the server should become operational.
+<br/>
+Please go to the <A href="https://$host:$port/$systemType/services"><b>services page</b></A> to access all of the available interfaces.
+<br/>
+#end
+#end
+<br/>
+To create additional instances, type "/usr/bin/pkicreate" on the command line.
+<br>
+#if ($systemType != "tps")
+To start the administration console, type "/usr/bin/pkiconsole" on the command line.
+#end

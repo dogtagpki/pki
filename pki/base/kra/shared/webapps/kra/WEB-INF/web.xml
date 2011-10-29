@@ -1,0 +1,1014 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app 
+   PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "file:///usr/share/pki/setup/web-app_2_3.dtd">
+<web-app>
+
+    <filter>
+        <filter-name>AgentRequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.AgentRequestFilter</filter-class>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_AGENT_SECURE_PORT]</param-value>
+        </init-param>
+[PKI_OPEN_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
+         </init-param>
+[PKI_CLOSE_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>active</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>AdminRequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.AdminRequestFilter</filter-class>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_ADMIN_SECURE_PORT]</param-value>
+        </init-param>
+[PKI_OPEN_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
+         </init-param>
+[PKI_CLOSE_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>active</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>EERequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.EERequestFilter</filter-class>
+        <init-param>
+            <param-name>http_port</param-name>
+            <param-value>[PKI_UNSECURE_PORT]</param-value>
+        </init-param>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_EE_SECURE_PORT]</param-value>
+        </init-param>
+[PKI_OPEN_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
+         </init-param>
+        <init-param>
+            <param-name>proxy_http_port</param-name>
+            <param-value>[PKI_PROXY_UNSECURE_PORT]</param-value>
+         </init-param>
+[PKI_CLOSE_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>active</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+
+    <servlet>
+        <servlet-name>csadmin-wizard</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.wizard.WizardServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+        <init-param>
+            <param-name>name</param-name>
+            <param-value>DRM Setup Wizard</param-value>
+        </init-param>
+        <init-param>
+            <param-name>panels</param-name>
+            <param-value>welcome=com.netscape.cms.servlet.csadmin.WelcomePanel,module=com.netscape.cms.servlet.csadmin.ModulePanel,confighsmlogin=com.netscape.cms.servlet.csadmin.ConfigHSMLoginPanel,securitydomain=com.netscape.cms.servlet.csadmin.SecurityDomainPanel,securitydomain=com.netscape.cms.servlet.csadmin.DisplayCertChainPanel,subsystem=com.netscape.cms.servlet.csadmin.CreateSubsystemPanel,restorekeys=com.netscape.cms.servlet.csadmin.RestoreKeyCertPanel,databasepanel=com.netscape.cms.servlet.csadmin.DatabasePanel,sizepanel=com.netscape.cms.servlet.csadmin.SizePanel,namepanel=com.netscape.cms.servlet.csadmin.NamePanel,certrequestpanel=com.netscape.cms.servlet.csadmin.CertRequestPanel,backupkeys=com.netscape.cms.servlet.csadmin.BackupKeyCertPanel,savepk12=com.netscape.cms.servlet.csadmin.SavePKCS12Panel,adminpanel=com.netscape.cms.servlet.csadmin.AdminPanel,importadmincertpanel=com.netscape.cms.servlet.csadmin.ImportAdminCertPanel,donepanel=com.netscape.cms.servlet.csadmin.DonePanel</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>csadmin-login</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.csadmin.LoginServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+    </servlet>
+
+
+   <servlet>
+      <servlet-name>  kraKRADisplayBySerialForRecovery  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.DisplayBySerialForRecovery  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/displayBySerialForRecovery.template </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRADisplayBySerialForRecovery </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.key </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraGetConfigEntries  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetConfigEntries </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraGetConfigEntries </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.clone.configuration.GetConfigEntries </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRAGrantRecovery  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.GrantRecovery  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/grantRecovery.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRAGrantRecovery </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.key </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRAGrantAsyncRecovery  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.GrantAsyncRecovery  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/grantAsyncRecovery.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRAGrantAsyncRecovery </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.key </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraports  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.PortsServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraports    </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false        </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> ee      </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRADisplayTransport  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.DisplayTransport  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRADisplayTransport </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.certificate.transport </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraRegisterUser  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.RegisterUser  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraRegisterUser </param-value> </init-param>
+             <init-param><param-name>  GroupName     </param-name>
+                         <param-value> Data Recovery Manager Agents </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.registerUser </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraGetTransportCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetTransportCert  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraGetTransportCert </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.getTransportCert </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRARecoverBySerial  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.RecoverBySerial  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/recoverBySerial.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRARecoverBySerial </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.key </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraDynamicVariables  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraDynamicVariables </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  dynamicVariables  </param-name>
+                         <param-value> serverdate=serverdate(),subsystemname=subsystemname(),http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl() </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraheader  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/header.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraheader   </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  template    </param-name>
+                         <param-value> /agent/header.template </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraTokenKeyRecovery  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.connector.TokenKeyRecoveryServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraTokenKeyRecovery </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.TokenKeyRecovery </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraSrchRecoverKey  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/kra/SrchRecoverKey.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/srchKeyForRecovery.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraSrchRecoverKey </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/kra/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraConnector  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.connector.ConnectorServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraConnector </param-value> </init-param>
+             <init-param><param-name>  RequestEncoder  </param-name>
+                         <param-value> com.netscape.cmscore.connector.HttpRequestEncoder </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.connector </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraSrchKey  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/kra/SrchKey.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/srchKey.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraSrchKey  </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/kra/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraListRequests  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/kra/ListRequests.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/ListRequests.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraListRequests </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/kra/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraGenerateKeyPair  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.connector.GenerateKeyPairServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraGenerateKeyPair </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.GenerateKeyPair </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraindex  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraindex    </param-value> </init-param>
+             <init-param><param-name>  template    </param-name>
+                         <param-value> index.template </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRAGetApprovalStatus  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.GetApprovalStatus  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/getApprovalStatus.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRAGetApprovalStatus </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.request.status </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRAProcessReq  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.request.ProcessReq  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  parser      </param-name>
+                         <param-value> KeyReqParser.PARSER </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/processReq.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRAProcessReq </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.request </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRAExamineRecovery  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.ExamineRecovery  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/examineRecovery.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRAExamineRecovery </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.key </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRASrchKey  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.SrchKey  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/srchKey.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRASrchKey </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.keys </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRAGetPk12  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.GetPk12  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRAGetPk12 </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.key </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRAGetAsyncPk12  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.GetAsyncPk12  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRAGetAsyncPk12 </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.key </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraGrantRecovery  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/kra/GrantRecovery.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent  </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/grantRecovery.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraGrantRecovery </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/kra/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRASrchKeyForRecovery  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.SrchKeyForRecovery  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/srchKeyForRecovery.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRASrchKeyForRecovery </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.keys </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  krakraqueryReq  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.request.QueryReq  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  parser      </param-name>
+                         <param-value> CertReqParser.NODETAIL_PARSER </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/queryReq.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> krakraqueryReq </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.requests </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraKRADisplayBySerial  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.key.DisplayBySerial  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/kra/displayBySerial.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraKRADisplayBySerial </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.kra.key </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  krapolicy  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.PolicyAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> krapolicy   </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+   </servlet>
+
+<!--
+   <servlet>
+      <servlet-name>  krajobsScheduler  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.JobsAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> krajobsScheduler </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+-->
+
+   <servlet>
+      <servlet-name>  kraauths  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.AuthAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraauths    </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  krastart  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.CMSStartServlet  </servlet-class>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  cfgPath     </param-name>
+                         <param-value> [PKI_INSTANCE_PATH]/conf/CS.cfg  </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> krastart    </param-value> </init-param>
+      <load-on-startup>  1  </load-on-startup>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraacl  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.ACLAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraacl      </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraug  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.UsrGrpAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraug       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+
+   <servlet>
+      <servlet-name>  kraserver  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.CMSAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraserver   </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  krakra  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.KRAAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> krakra      </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kralog  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.LogAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kralog      </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  services </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.MainPageServlet </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> kra          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> services </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /services.template </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraUpdateNumberRange  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateNumberRange  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraUpdateNumberRange </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.clone.configuration.UpdateNumberRange </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraDownloadPKCS12  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.DownloadPKCS12  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraDownloadPKCS12 </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.clone.configuration </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraGetTokenInfo  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetTokenInfo  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraGetTokenInfo </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+[PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
+   <filter-mapping>
+      <filter-name>  AgentRequestFilter  </filter-name>
+      <url-pattern>  /agent/*            </url-pattern>
+   </filter-mapping>
+
+   <filter-mapping>
+      <filter-name>  AdminRequestFilter  </filter-name>
+      <url-pattern>  /admin/*            </url-pattern>
+      <url-pattern>  /auths              </url-pattern>
+      <url-pattern>  /server             </url-pattern>
+      <url-pattern>  /log                </url-pattern>
+      <url-pattern>  /ug                 </url-pattern>
+      <url-pattern>  /acl                </url-pattern>
+<!--
+      <url-pattern>  /jobsScheduler      </url-pattern>
+-->
+      <url-pattern>  /kra                </url-pattern>
+   </filter-mapping>
+
+   <filter-mapping>
+      <filter-name>  EERequestFilter  </filter-name>
+      <url-pattern>  /ee/*            </url-pattern>
+   </filter-mapping>
+[PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
+
+   <servlet-mapping>
+      <servlet-name>  kraserver  </servlet-name>
+      <url-pattern>   /server  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  krakra  </servlet-name>
+      <url-pattern>   /kra  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kralog  </servlet-name>
+      <url-pattern>   /log  </url-pattern>
+   </servlet-mapping>
+
+
+   <servlet-mapping>
+      <servlet-name>  kraug  </servlet-name>
+      <url-pattern>   /ug  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  krastart  </servlet-name>
+      <url-pattern>   /start  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraacl  </servlet-name>
+      <url-pattern>   /acl  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraauths  </servlet-name>
+      <url-pattern>   /auths  </url-pattern>
+   </servlet-mapping>
+
+<!--
+   <servlet-mapping>
+      <servlet-name>  krajobsScheduler  </servlet-name>
+      <url-pattern>   /jobsScheduler  </url-pattern>
+   </servlet-mapping>
+-->
+
+   <servlet-mapping>
+      <servlet-name>  krapolicy  </servlet-name>
+      <url-pattern>   /krapolicy  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRADisplayBySerialForRecovery  </servlet-name>
+      <url-pattern>   /agent/kra/displayBySerialForRecovery  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRAGrantRecovery  </servlet-name>
+      <url-pattern>   /agent/kra/grantRecovery  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRAGrantAsyncRecovery  </servlet-name>
+      <url-pattern>   /agent/kra/grantAsyncRecovery  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraports  </servlet-name>
+      <url-pattern>   /ee/kra/ports  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRADisplayTransport  </servlet-name>
+      <url-pattern>   /agent/kra/displayTransportCert  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRARecoverBySerial  </servlet-name>
+      <url-pattern>   /agent/kra/recoverBySerial  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraDynamicVariables  </servlet-name>
+      <url-pattern>   /dynamicVars.js  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraheader  </servlet-name>
+      <url-pattern>   /agent/header  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraTokenKeyRecovery  </servlet-name>
+      <url-pattern>   /agent/kra/TokenKeyRecovery  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraSrchRecoverKey  </servlet-name>
+      <url-pattern>   /agent/kra/srchRecoverKey.html  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraConnector  </servlet-name>
+      <url-pattern>   /agent/kra/connector  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraSrchKey  </servlet-name>
+      <url-pattern>   /agent/kra/srchKey.html  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraListRequests  </servlet-name>
+      <url-pattern>   /agent/kra/listRequests.html  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraGenerateKeyPair  </servlet-name>
+      <url-pattern>   /agent/kra/GenerateKeyPair  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraindex  </servlet-name>
+      <url-pattern>   /index  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRAGetApprovalStatus  </servlet-name>
+      <url-pattern>   /agent/kra/getApprovalStatus  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRAProcessReq  </servlet-name>
+      <url-pattern>   /agent/kra/processReq  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRAExamineRecovery  </servlet-name>
+      <url-pattern>   /agent/kra/examineRecovery  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRASrchKey  </servlet-name>
+      <url-pattern>   /agent/kra/srchKey  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRAGetPk12  </servlet-name>
+      <url-pattern>   /agent/kra/getPk12  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRAGetAsyncPk12  </servlet-name>
+      <url-pattern>   /agent/kra/getAsyncPk12  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraGrantRecovery  </servlet-name>
+      <url-pattern>   /agent/kra/grantRecovery.html  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRASrchKeyForRecovery  </servlet-name>
+      <url-pattern>   /agent/kra/srchKeyForRecovery  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  krakraqueryReq  </servlet-name>
+      <url-pattern>   /agent/kra/queryReq  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraKRADisplayBySerial  </servlet-name>
+      <url-pattern>   /agent/kra/displayBySerial  </url-pattern>
+   </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>csadmin-login</servlet-name>
+        <url-pattern>/admin/console/config/login</url-pattern>
+    </servlet-mapping>
+
+
+   <servlet-mapping>
+      <servlet-name>  kraRegisterUser </servlet-name>
+      <url-pattern>   /admin/kra/registerUser  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraGetTransportCert </servlet-name>
+      <url-pattern>   /admin/kra/getTransportCert  </url-pattern>
+   </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>csadmin-wizard</servlet-name>
+        <url-pattern>/admin/console/config/wizard</url-pattern>
+    </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraGetConfigEntries  </servlet-name>
+      <url-pattern>   /admin/kra/getConfigEntries  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  services </servlet-name>
+      <url-pattern>   /services  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraUpdateNumberRange </servlet-name>
+      <url-pattern>   /ee/kra/updateNumberRange  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraDownloadPKCS12 </servlet-name>
+      <url-pattern>   /admin/console/config/savepkcs12 </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraGetTokenInfo </servlet-name>
+      <url-pattern>   /ee/kra/getTokenInfo </url-pattern>
+   </servlet-mapping>
+
+   <!-- ==================== Default Session Configuration =============== -->
+   <!-- You can set the default session timeout (in minutes) for all newly -->
+   <!-- created sessions by modifying the value below.                     -->
+   <!--                                                                    -->
+   <!-- To disable session timeouts for this instance, set a value of -1.  -->
+
+   <session-config>
+        <session-timeout>30</session-timeout>
+   </session-config>
+</web-app>
+

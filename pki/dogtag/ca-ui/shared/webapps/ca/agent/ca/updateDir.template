@@ -1,0 +1,99 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD><TITLE> Update Directory Server Results </TITLE>
+<CMS_TEMPLATE>
+</HEAD>
+<BODY bgcolor="white">
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Update Directory Server Results 
+</font>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<UL>
+<SCRIPT LANGUAUGE="JavaScript">
+if (result.header.crlPublished != null) {
+    if (result.header.crlPublished == 'Success') {
+	    document.write('<LI>The Certificate Revocation List has been published in the directory.\n');
+    } else if (result.header.crlPublished == 'Failure') {
+	    document.write('<LI>The Certificate Revocation List could not be published in the directory.\n');
+        if (result.header.crlError != null) {
+            document.write('<br>&nbsp;&nbsp;&nbsp;&nbsp;'+result.header.crlError+'\n');
+        }
+    }
+}
+
+if (result.header.caCertPublished != null) {
+    if (result.header.caCertPublished == 'Success') {
+	    document.write('<LI>The Certificate Manager certificate has been published in the directory.\n');
+    } else if (result.header.caCertPublished == 'Failure') {
+	    document.write('<LI>The Certificate Manager certificate could not be published in the directory.\n');
+        if (result.header.caCertError != null) {
+            document.write('<br>&nbsp;&nbsp;&nbsp;&nbsp;'+result.header.caCertError+'\n');
+        }
+    }
+}
+
+if (result.header.validCertsPublished != null) {
+    if (result.header.validCertsPublished == 'Success') {
+	    document.write('<LI>'+result.header.validCertsError+'\n');
+    } else if (result.header.validCertsPublished == 'No') {
+	    document.write('<LI>All valid certificates have already been published in the directory or there is no valid certificate. Nothing to update at this time.\n');
+    } else if (result.header.validCertsPublished == 'Failure') {
+	    document.write('<LI>Error publishing valid certificates in the directory. See log files for more details.\n');
+        if (result.header.validCertsError != null) {
+            document.write('<br>&nbsp;&nbsp;&nbsp;&nbsp;'+result.header.validCertsError+'\n');
+        }
+    }
+}
+
+if (result.header.expiredCertsUnpublished != null) {
+    if (result.header.expiredCertsUnpublished == 'Success') {
+	    document.write('<LI>'+result.header.expiredCertsError+'\n');
+    } else if (result.header.expiredCertsUnpublished == 'No') {
+	    document.write('<LI>All expired certificates have already been unpublished in the directory or there is no expired certificate. Nothing to update at this time.\n');
+    } else if (result.header.expiredCertsUnpublished == 'Failure') {
+	    document.write('<LI>Error unpublishing expired certificates in the directory. See log files for more details.\n');
+        if (result.header.expiredCertsError != null) {
+            document.write('<br>&nbsp;&nbsp;&nbsp;&nbsp;'+result.header.expiredCertsError+'\n');
+        }
+    }
+}
+
+if (result.header.revokedCertsUnpublished != null) {
+    if (result.header.revokedCertsUnpublished == 'Success') {
+	    document.write('<LI>'+result.header.revokedCertsError+'\n');
+    } else if (result.header.revokedCertsUnpublished == 'No') {
+	    document.write('<LI>All revoked certificates have already been unpublished in the directory or there is no revoked certificate. Nothing to update at this time.\n');
+    } else if (result.header.revokedCertsUnpublished == 'Failure') {
+	    document.write('<LI>Error unpublishing revoked certificates in the directory. See log files for more details.\n');
+        if (result.header.revokedCertsError != null) {
+            document.write('<br>&nbsp;&nbsp;&nbsp;&nbsp;'+result.header.revokedCertsError+'\n');
+        }
+    }
+}
+</SCRIPT>
+</UL>
+</font>
+</BODY>
+</HTML>

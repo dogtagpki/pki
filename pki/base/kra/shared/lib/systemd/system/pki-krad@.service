@@ -1,0 +1,13 @@
+[Unit]
+Description=PKI Key Recovery Authority Server %i
+After=pki-krad.target
+BindTo=pki-krad.target
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/pkicontrol start kra %i
+ExecStop=/usr/bin/pkicontrol stop kra %i
+
+[Install]
+WantedBy=multi-user.target
+

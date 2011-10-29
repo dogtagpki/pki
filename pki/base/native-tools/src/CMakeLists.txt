@@ -1,0 +1,5 @@
+add_subdirectory(p7tool)
+add_subdirectory(revoker)
+add_subdirectory(setpin)
+add_subdirectory(sslget)
+add_subdirectory(tkstool)

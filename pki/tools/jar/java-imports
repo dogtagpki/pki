@@ -1,0 +1,195 @@
+#!/usr/bin/python
+
+# Copyright John Dennis, jdennis@redhat.com
+
+import getopt
+import os
+import re
+import sys
+
+#-------------------------------------------------------------------------------
+
+prog_name = os.path.basename(sys.argv[0])
+
+config = {
+    'recursive'       : False,
+    'list-containing' : False,
+    'list-files'      : False,
+}
+
+block_comment_re = re.compile(r'/\*.*?\*/', re.MULTILINE | re.DOTALL)
+line_comment_re = re.compile(r'//.*$', re.MULTILINE)
+import_re = re.compile(r'^\s*\bimport\s+([^ \t\n;]+)\s*;', re.MULTILINE)
+
+exclude_patterns = []
+exclude_regexps = []
+
+#-------------------------------------------------------------------------------
+
+def filter_files(java_files):
+    filtered_files = []
+
+    for path in java_files:
+        filtered = False
+        for regexp in exclude_regexps:
+            if regexp.search(path):
+                filtered = True
+                break
+        if not filtered:
+            filtered_files.append(path)
+
+    return filtered_files
+
+def find_java_files(path):
+    java_files = []
+
+    if os.path.isfile(path):
+        if path.endswith(".java"):
+            java_files.append(path)
+    elif os.path.isdir(path):
+        if config['recursive']:
+            for dir, dirs, files in os.walk(path):
+                for file in files:
+                    if file.endswith(".java"):
+                        pathname = os.path.join(dir,file)
+                        java_files.append(pathname)
+        else:
+            print path
+            for file in os.listdir(path):
+                print file
+                if file.endswith(".java"):
+                    pathname = os.path.join(path,file)
+                    java_files.append(pathname)
+
+    return java_files
+
+def get_imports(pathname, imports):
+    # Get the text of the file
+    f = open(pathname)
+    text = f.read()
+    f.close()
+
+    # Nuke all comments
+    text = line_comment_re.sub('', text)    
+    text = block_comment_re.sub('', text)    
+
+    for match in import_re.finditer(text):
+        import_string = match.group(1)
+        import_locations = imports.setdefault(import_string, {})
+        import_locations[pathname] = None
+    
+#-------------------------------------------------------------------------------
+
+class Usage(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+def usage():
+    'Command help.'
+
+    return '''\
+
+%(prog_name)s path [path ...]
+
+-h --help               print help
+-c --list-containing    show source file where each import statement occurs
+-r --recursive          scan directory contents recursively
+-l --list-files         list the java files found
+-x --exclude            exclude from the file list any file matching this
+                        regular expression. May be specified multiple times.
+
+Examples:
+
+# Find all imports in directory ~/src/myproject/subsystem
+%(prog_name)s ~/src/myproject/subsytem
+
+# Find all imports in and below ~/src/myproject
+%(prog_name)s -r ~/src/myproject
+
+# Find all imports in and below ~/src/myproject
+# excluding any in a test directory
+%(prog_name)s -x /test/ -r ~/src/myproject
+''' % {'prog_name' : prog_name,
+      }
+
+#-------------------------------------------------------------------------------
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
+    try:
+        try:
+            opts, args = getopt.getopt(argv[1:], 'hrclx:',
+                                       ['help', 'recursive',
+                                        'list-containing',  'list-files',
+                                        'exclude='])
+        except getopt.GetoptError, err:
+            print >>sys.stderr, str(err) # will print something like 'option -a not recognized'
+            usage()
+            return 2
+
+        for o, a in opts:
+            if o in ('-h', '--help'):
+                print >>sys.stdout, usage()
+                return 0
+            elif o in ('-r', '--recursive'):
+                config['recursive'] = True
+            elif o in ('-c', '--list-containing'):
+                config['list-containing'] = True
+            elif o in ('-l', '--list-files'):
+                config['list-files'] = True
+            elif o in ('-x', '--exclude'):
+                exclude_patterns.append(a)
+            else:
+                raise Usage("command argument '%s' not handled, internal error" % o)
+    except Usage, e:
+        print >>sys.stderr, e.msg
+        print >>sys.stderr, "for help use --help"
+        return 2
+
+    for pat in exclude_patterns:
+        try:
+            regexp = re.compile(pat)
+            exclude_regexps.append(regexp)
+        except Exception, e:
+            print >>sys.stderr, "ERROR, cannot compile exclude pattern '%s' (%s)" % (pat, e)
+            return 1
+
+    java_files = []
+    for path in args:
+        java_files.extend(find_java_files(path))
+
+    java_files = filter_files(java_files)
+
+    if config['list-files']:
+        print "\n".join(java_files)
+        return 0
+
+    imports = {}
+    for java_file in java_files:
+        get_imports(java_file, imports)
+
+    import_strings = imports.keys()
+    import_strings.sort()
+
+    if not config['list-containing']:
+        print "\n".join(import_strings)
+    else:
+        for import_string in import_strings:
+            print import_string
+            locations = imports[import_string].keys()
+            locations.sort()
+            for location in locations:
+                print "    %s" % location
+
+    return 0
+#-------------------------------------------------------------------------------
+
+if __name__ == '__main__':
+    sys.exit(main())
+
+
+
+    
+

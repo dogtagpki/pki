@@ -1,0 +1,56 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2010 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+##  Always switch into this base directory
+##  prior to script execution so that all
+##  of its output is written to this directory
+
+cd `dirname $0`
+
+
+##
+##  This script MUST be run as root!
+##
+
+ROOTUID=0
+
+OS=`uname`
+if [ "${OS}" = "Linux" ] ; then
+    MY_EUID=`/usr/bin/id -u`
+    MY_UID=`/usr/bin/id -ur`
+    USERNAME=`/usr/bin/id -un`
+else
+    printf "ERROR:  Unsupported operating system '${OS}'!\n"
+    exit 255
+fi
+
+if [ "${MY_UID}"  != "${ROOTUID}" ] &&
+   [ "${MY_EUID}" != "${ROOTUID}" ] ; then
+    printf "ERROR:  The '$0' script must be run as root!\n"
+    exit 255
+fi
+
+
+
+##
+##  Define DEFAULT CA Instance
+##
+
+pkicreate -pki_instance_root=/var/lib        \
+          -pki_instance_name=pki-ca          \
+          -subsystem_type=ca                 \
+          -agent_secure_port=9443            \
+          -ee_secure_port=9444               \
+          -ee_secure_client_auth_port=9446   \
+          -admin_secure_port=9445            \
+          -unsecure_port=9180                \
+          -tomcat_server_port=9701           \
+          -user=pkiuser                      \
+          -group=pkiuser                     \
+          -redirect conf=/etc/pki-ca         \
+          -redirect logs=/var/log/pki-ca     \
+          -verbose
+

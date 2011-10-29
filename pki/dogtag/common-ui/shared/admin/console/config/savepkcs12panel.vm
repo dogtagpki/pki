@@ -1,0 +1,40 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+<h2>Save Keys and Certificates</h2>
+<br/>
+This Subsystem is attempting to return the keys and certificates in a PKCS #12 format.
+<p>
+A popup dialog box from the browser should appear, prompting the user to save these keys and certificates to a PKCS #12 file located on the local filesystem.  Follow the instructions within this dialog to save this PKCS #12 file to a safe location.
+<br/>
+#if ($errorString != "")
+<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<br/>
+<iframe scrolling=no frameborder=0 height=0 width=0 src="/$subsystemtype/admin/console/config/savepkcs12"></iframe>
+<br/>

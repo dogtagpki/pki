@@ -1,0 +1,327 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// (C) 2007 Red Hat, Inc.
+// All rights reserved.
+// --- END COPYRIGHT BLOCK ---
+package com.netscape.cms.servlet.request;
+
+
+import com.netscape.cms.servlet.common.*;
+import com.netscape.cms.servlet.base.*;
+import java.io.*;
+import java.util.*;
+import java.net.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.security.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import netscape.security.x509.*;
+import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.apps.*;
+import com.netscape.certsrv.ca.*;
+import com.netscape.certsrv.ra.*;
+import com.netscape.certsrv.authority.*;
+import com.netscape.certsrv.dbs.*;
+import com.netscape.cms.servlet.*;
+import com.netscape.certsrv.dbs.keydb.*;
+import com.netscape.certsrv.authentication.*;
+import com.netscape.certsrv.authorization.*;
+import com.netscape.certsrv.request.*;
+import com.netscape.certsrv.policy.*; 
+import com.netscape.certsrv.logging.*;
+
+
+/**
+ * Display Generic Request detail to the user.
+ *
+ * @version $Revision$, $Date$
+ */
+public class ProcessReq extends CMSServlet {
+
+    private final static String INFO = "processReq";
+    private final static String SEQNUM = "seqNum";
+    private final static String DO_ASSIGN = "doAssign";
+    private final static String TPL_FILE = "processReq.template";
+    private final static String OUT_ERROR = "errorDetails";
+    private final static String PROP_PARSER = "parser";
+
+    private IRequestQueue mQueue = null;
+    private String mFormPath = null;
+    private IReqParser mParser = null;
+    private String[] mSigningAlgorithms = null;
+
+    private static String[] DEF_SIGNING_ALGORITHMS = new String[] 
+        {"SHA1withRSA", "SHA256withRSA", "SHA512withRSA", "SHA1withDSA", "MD5withRSA", "MD2withRSA"};
+
+    /**
+     * Process request.
+     */
+    public ProcessReq() {
+        super();
+    }
+
+    /**
+     * initialize the servlet. This servlet uses the template file
+     * "processReq.template" to process the response.
+     * The initialization parameter 'parser' is read from the
+     * servlet configration, and is used to set the type of request.
+     * The value of this parameter can be:
+     * <UL><LI><B>CertReqParser.NODETAIL_PARSER</B> - Show certificate Summary
+     *  <LI><B>CertReqParser.DETAIL_PARSER</B> - Show certificate detail
+     *  <LI><B>KeyReqParser.PARSER</B> - Show key archival detail
+	 * </UL>
+     *
+     * @param sc servlet configuration, read from the web.xml file
+     */
+    public void init(ServletConfig sc) throws ServletException {
+        super.init(sc);
+        mQueue = mAuthority.getRequestQueue();
+        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+
+        String tmp = sc.getInitParameter(PROP_PARSER);
+
+        if (tmp != null) {
+            if (tmp.trim().equals("CertReqParser.NODETAIL_PARSER"))
+                mParser = CertReqParser.NODETAIL_PARSER;
+            else if (tmp.trim().equals("CertReqParser.DETAIL_PARSER"))
+                mParser = CertReqParser.DETAIL_PARSER;
+            else if (tmp.trim().equals("KeyReqParser.PARSER"))
+                mParser = KeyReqParser.PARSER;
+        }			
+
+        // override success and error templates to null - 
+        // handle templates locally.
+        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.ERROR);
+        if (mOutputTemplatePath != null) 
+            mFormPath = mOutputTemplatePath;
+    }
+
+    /**
+     * Process the HTTP request.
+     * <ul>
+     * <li>http.param seqNum
+     * <li>http.param doAssign reassign request. Value can be reassignToMe
+     *       reassignToNobody
+     * </ul>
+     *
+     * @param cmsReq the object holding the request and response information
+     */
+    public void process(CMSRequest cmsReq) throws EBaseException {
+        int seqNum = -1;
+
+        HttpServletRequest req = cmsReq.getHttpReq();
+        HttpServletResponse resp = cmsReq.getHttpResp();
+
+        IAuthToken authToken = authenticate(cmsReq);
+
+        IArgBlock header = CMS.createArgBlock();
+        IArgBlock fixed = CMS.createArgBlock();
+        CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
+
+        String doAssign = null;
+        EBaseException error = null;
+
+        CMSTemplate form = null, errorForm = null;
+        Locale[] locale = new Locale[1];
+
+        try {
+            form = getTemplate(mFormPath, req, locale);
+        } catch (IOException e) {
+            log(ILogger.LL_FAILURE, 
+                "Error getting template " + mFormPath + " Error " + e);
+            throw new ECMSGWException(
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+        }
+
+        try {
+            if (req.getParameter(SEQNUM) != null) {
+                seqNum = Integer.parseInt(req.getParameter(SEQNUM));
+            }
+            doAssign = req.getParameter(DO_ASSIGN);
+
+            if (seqNum > -1) {
+                // start authorization
+                AuthzToken authzToken = null;
+
+                try {
+                    if (doAssign == null) {
+                        authzToken = authorize(mAclMethod, authToken,
+                                    mAuthzResourceName, "read");
+                    } else if (doAssign.equals("toMe") || 
+                        doAssign.equals("reassignToMe")) {
+                        authzToken = authorize(mAclMethod, authToken,
+                                    mAuthzResourceName, "assign");
+                    } else if (doAssign.equals("reassignToNobody")) {
+                        authzToken = authorize(mAclMethod, authToken,
+                                    mAuthzResourceName, "unassign");
+                    }
+                } catch (EAuthzAccessDenied e) {
+                    log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                } catch (Exception e) {
+                    log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                }
+
+                if (authzToken == null) {
+                    cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+                    return;
+                }
+
+                process(argSet, header, seqNum, req, resp, 
+                    doAssign, locale[0]);
+            } else {
+                log(ILogger.LL_FAILURE, "Invalid sequence number " + seqNum);
+                error = new ECMSGWException(
+                  CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
+                            String.valueOf(seqNum)));
+            }
+        } catch (EBaseException e) {
+            error = e;
+        } catch (NumberFormatException e) {
+            error = new EBaseException(CMS.getUserMessage(locale[0], "CMS_BASE_INVALID_NUMBER_FORMAT"));
+        } 
+
+        try {
+            ServletOutputStream out = resp.getOutputStream();
+
+            if (error == null) {
+                String xmlOutput = req.getParameter("xml");
+                if (xmlOutput != null && xmlOutput.equals("true")) {
+                  outputXML(resp, argSet);
+                } else {
+                  String output = form.getOutput(argSet);
+                  resp.setContentType("text/html");
+                  form.renderOutput(out, argSet);
+                  cmsReq.setStatus(CMSRequest.SUCCESS);
+                }
+            } else {
+                cmsReq.setError(error);
+                cmsReq.setStatus(CMSRequest.ERROR);
+            }
+        } catch (IOException e) {
+            log(ILogger.LL_FAILURE, 
+                "Error getting servlet output stream for rendering template. " +
+                "Error " + e);
+            throw new ECMSGWException(
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+        }
+        return;
+    }
+
+    /**
+     * Sends request information to the calller. 
+     * returns whether there was an error or not.
+     */
+    private void process(CMSTemplateParams argSet, IArgBlock header,
+        int seqNum, HttpServletRequest req,
+        HttpServletResponse resp, 
+        String doAssign, Locale locale)
+        throws EBaseException {
+
+        header.addIntegerValue("seqNum", seqNum);
+
+        IRequest r = 
+            mQueue.findRequest(new RequestId(Integer.toString(seqNum)));
+
+        if (r != null) {
+            if (doAssign != null) {
+                if ((doAssign.equals("toMe"))
+                    || (doAssign.equals("reassignToMe"))) {
+                    SessionContext ctx = SessionContext.getContext();
+                    String id = (String) ctx.get(SessionContext.USER_ID);
+
+                    r.setRequestOwner(id);
+                    mQueue.updateRequest(r);
+                } else if (doAssign.equals("reassignToNobody")) {
+                    r.setRequestOwner(null);
+                    mQueue.updateRequest(r);
+                }
+            }
+
+            // add authority names to know what privileges can be requested.	
+            if (CMS.getSubsystem("kra") != null) 
+                header.addStringValue("localkra", "yes");
+            if (CMS.getSubsystem("ca") != null) 
+                header.addStringValue("localca", "yes");
+            if (CMS.getSubsystem("ra") != null) 
+                header.addStringValue("localra", "yes");
+
+                // DONT NEED TO DO THIS FOR DRM
+            if (mAuthority instanceof ICertAuthority) {
+                // Check/set signing algorithms dynamically.
+                // In RA mSigningAlgorithms could be null at startup if CA is not 
+                // up and set later when CA comes back up. 
+                // Once it's set assumed that it won't change.
+                String[] allAlgorithms = mSigningAlgorithms;
+
+                if (allAlgorithms == null) {
+                    allAlgorithms = mSigningAlgorithms = 
+                                    ((ICertAuthority) mAuthority).getCASigningAlgorithms();
+                    if (allAlgorithms == null) {
+                        CMS.debug(
+                            "ProcessReq: signing algorithms set to All algorithms");
+                        allAlgorithms = AlgorithmId.ALL_SIGNING_ALGORITHMS;
+                    } else 
+                        CMS.debug(
+                            "ProcessReq: First signing algorithms is " + allAlgorithms[0]);
+                }
+                String validAlgorithms = null;
+                StringBuffer sb = new StringBuffer();
+                for (int i = 0; i < allAlgorithms.length; i++) {
+                    if (i > 0) {
+                        sb.append("+");
+                        sb.append(allAlgorithms[i]);
+                    } else {
+                        sb.append(allAlgorithms[i]);
+                    }
+                }
+                validAlgorithms = sb.toString();
+                if (validAlgorithms != null)
+                    header.addStringValue("validAlgorithms", validAlgorithms);
+                if (mAuthority instanceof ICertificateAuthority) {
+                    String signingAlgorithm = ((ICertificateAuthority) mAuthority).getDefaultAlgorithm();
+
+                    if (signingAlgorithm != null)
+                        header.addStringValue("caSigningAlgorithm", signingAlgorithm);
+                    header.addLongValue("defaultValidityLength",
+                        ((ICertificateAuthority) mAuthority).getDefaultValidity() / 1000);
+                } else if (mAuthority instanceof IRegistrationAuthority) {
+                    header.addLongValue("defaultValidityLength",
+                        ((IRegistrationAuthority) mAuthority).getDefaultValidity() / 1000);
+                }
+                X509CertImpl caCert = ((ICertAuthority) mAuthority).getCACert();
+
+                if (caCert != null) {
+                    int caPathLen = caCert.getBasicConstraints();
+
+                    header.addIntegerValue("caPathLen", caPathLen);
+                }
+            }
+
+            mParser.fillRequestIntoArg(locale, r, argSet, header);
+        } else {
+            log(ILogger.LL_FAILURE, "Invalid sequence number " + seqNum);
+            throw new ECMSGWException(
+                  CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
+                    String.valueOf(seqNum)));
+        }
+
+        return;
+    }
+}

@@ -1,0 +1,8 @@
+Reply-to: $mail_to
+Subject: New request #$request_id has been created
+To: $mail_to
+Content-type: text/plain\n\n
+A new request has been created for you. You can access
+the request by going to
+
+https://$machineName:$securePort/agent/request/read.cgi?id=$request_id

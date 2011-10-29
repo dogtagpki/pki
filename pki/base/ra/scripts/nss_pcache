@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+#
+#
+#
+
+# Check to insure that this script's original invocation directory
+# has not been deleted!
+CWD=`/bin/pwd > /dev/null 2>&1`
+if [ $? -ne 0 ] ; then
+	echo "Cannot invoke '$0' from non-existent directory!"
+	exit 255
+fi
+
+OS=`uname -s`
+
+if [ $OS = "Linux" ]; then
+	PLATFORM=`uname -i`
+	if [ $PLATFORM = "i386" ]; then
+		# 32-bit Linux
+		LD_LIBRARY_PATH=/usr/lib/dirsec:/usr/lib:$LD_LIBRARY_PATH
+	elif [ $PLATFORM = "x86_64" ]; then
+		# 64-bit Linux
+		LD_LIBRARY_PATH=/usr/lib64/dirsec:/usr/lib64:/usr/lib:$LD_LIBRARY_PATH
+	fi 
+	export LD_LIBRARY_PATH
+elif [ $OS = "SunOS" ]; then
+	PLATFORM=`uname -p`
+	if	[ "${PLATFORM}" = "sparc" ] &&
+		[ -d "/usr/lib/sparcv9/" ] ; then
+		PLATFORM="sparcv9"
+	fi
+	if [ $PLATFORM = "sparc" ]; then
+		# 32-bit Solaris
+		LD_LIBRARY_PATH=/usr/lib/dirsec:/usr/lib:$LD_LIBRARY_PATH
+	elif [ $PLATFORM = "sparcv9" ]; then
+		# 64-bit Solaris
+		LD_LIBRARY_PATH=/usr/lib/sparcv9/dirsec:/usr/lib/sparcv9:/usr/lib/dirsec:/usr/lib:$LD_LIBRARY_PATH
+	fi 
+	export LD_LIBRARY_PATH
+fi 
+
+FORTITUDE_DIR=/usr/sbin
+if [ $OS = "SunOS" ]; then
+  FORTITUDE_DIR=/opt/fortitude/bin
+fi
+
+$FORTITUDE_DIR/nss_pcache $@

@@ -1,0 +1,8 @@
+[Unit]
+Description=PKI Online Certificate Status Protocol Server
+After=syslog.target network.target
+
+[Install]
+WantedBy=multi-user.target
+
+

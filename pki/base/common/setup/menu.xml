@@ -1,0 +1,10 @@
+  <!-- Certificate Server -->
+  <Menu>
+    <Name>CertificateServer</Name>
+    <Directory>CertServer.directory</Directory>
+    <Include>
+      <And>
+        <Category>CertServer</Category>
+      </And>
+    </Include>
+  </Menu> <!-- End Certificate Server -->

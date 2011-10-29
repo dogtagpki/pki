@@ -1,0 +1,56 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+  setURL();
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+<h2>PKI Hierarchy</h2>
+<p>
+This CA instance can be either a Self-Signed Root CA or a Subordinate CA. <a href="javascript:toggle_details();">[Details]</a>
+<SCRIPT type="text/JavaScript">
+function toggle_details()
+{
+  d = document.getElementById('details');
+  if (d.style.display == "block") {
+    d.style.display="none";
+  } else {
+    d.style.display="block";
+  }
+}
+
+</script>
+                                                                                
+<div id=details style="display: none;">
+<p>
+The PKI hierarchy establishes the trust relationships between this CA instance and the other PKI instances within this security domain. A CA can be chained under an internal CA, or alternatively, it can be chained under a public or an external CA.
+</div>
+
+<p>
+<b><input $check_root type=radio name=choice value="root">&nbsp;Make this a Self-Signed Root CA within this new PKI hierarchy. <img alt="" src="../img/rootca.gif"></b>
+<p>
+<b><input $check_join type=radio name=choice value="join">&nbsp;Make this a subordinate CA of another CA. <img alt="" src="../img/sub.gif"></b>
+
+<p>

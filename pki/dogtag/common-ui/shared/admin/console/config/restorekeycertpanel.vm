@@ -1,0 +1,54 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<SCRIPT type="text/JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+<h2>Import Keys and Certificates</h2>
+<br/>
+To setup a cloned subsystem, the master subsystem's keys and certificates (with the exception of the SSL server key and certificate) need to be imported.  For a software token, all of these keys and certificates are stored in a single file in the PKCS #12 format which is protected by the password provided during the creation of this file.  To import this PKCS #12 file, first copy the PKCS #12 file to the alias directory for the cloned subsystem.  Then enter an appropriate filename and password in the form specified below.
+<p>
+If these keys and certificates are stored in a hardware token, the hardware token vendor needs to be consulted for information on how to import them.
+<p>
+For keys and certificates stored in an external software token, please refer to the Dogtag documentation for instructions. 
+<p>
+By default, if the path is left blank, no PKCS #12 file will be imported.
+<br/>
+#if ($errorString != "")
+<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+    <table class="details">
+      <tr>
+        <th>PKCS #12 filename:</th>
+
+        <td><input type="text" size="40" name="path" value="$path"/></td>
+      </tr>
+      <tr>
+        <th>PKCS #12 Password:</th>
+
+        <td><input type="password" size="40" name="__password" value="$password" autocomplete="off"/></td>
+      </tr>
+    </table>
+<br/>

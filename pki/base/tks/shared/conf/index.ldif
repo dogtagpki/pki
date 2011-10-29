@@ -1,0 +1,182 @@
+# --- BEGIN COPYRIGHT BLOCK ---
+# Copyright (C) 2006 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+dn: cn=revokedby,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq 
+nsSystemIndex: false
+cn: revokedby
+
+dn: cn=issuedby,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: issuedby
+
+dn: cn=publicKeyData,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: publicKeyData
+
+dn: cn=description,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: description
+
+dn: cn=serialno,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: serialno
+
+dn: cn=metaInfo,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: metaInfo
+
+dn: cn=certstatus,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: certstatus
+
+dn: cn=requestid,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: requestid
+
+dn: cn=requesttype,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: requesttype
+
+dn: cn=requeststate,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: requeststate
+
+dn: cn=requestowner,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: requestowner
+
+dn: cn=notbefore,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: notbefore
+
+dn: cn=notafter,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: notafter
+
+dn: cn=duration,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: duration
+
+dn: cn=dateOfCreate,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: dateOfCreate
+
+dn: cn=revokedOn,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: revokedOn
+
+dn: cn=archivedBy,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: archivedBy
+
+dn: cn=ownername,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsIndexType: sub
+nsSystemIndex: false
+cn: ownername
+
+dn: cn=subjectname,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsIndexType: sub
+nsSystemIndex: false
+cn: subjectname
+
+dn: cn=requestsourceid,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsIndexType: sub
+nsSystemIndex: false
+cn: requestsourceid
+
+dn: cn=revInfo,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsIndexType: sub
+nsSystemIndex: false
+cn: revInfo
+
+dn: cn=extension,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsIndexType: sub
+nsSystemIndex: false
+cn: extension

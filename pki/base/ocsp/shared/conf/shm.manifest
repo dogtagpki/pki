@@ -1,0 +1,2 @@
+Main-Class: org.apache.jk.common.Shm
+Class-Path: tomcat-jk2.jar commons-logging.jar tomcat-util.jar log4j.jar log4j-core.jar

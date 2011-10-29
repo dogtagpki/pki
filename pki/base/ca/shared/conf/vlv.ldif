@@ -1,0 +1,544 @@
+dn: cn=allCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (certstatus=*)
+
+dn: cn=allExpiredCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allExpiredCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (certstatus=EXPIRED)
+
+dn: cn=allInvalidCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allInvalidCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (certstatus=INVALID)
+
+dn: cn=allInValidCertsNotBefore-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allInValidCertsNotBefore-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (certstatus=INVALID)
+
+dn: cn=allNonRevokedCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allNonRevokedCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (|(certstatus=VALID)(certstatus=INVALID)(certstatus=EXPIRED))
+
+dn: cn=allRevokedCaCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allRevokedCaCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(certStatus=REVOKED)(extension=2.5.29.19;*isCA=true*))
+
+dn: cn=allRevokedCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allRevokedCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (certstatus=REVOKED)
+
+dn: cn=allRevokedCertsNotAfter-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allRevokedCertsNotAfter-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (certstatus=REVOKED)
+
+dn: cn=allRevokedExpiredCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allRevokedExpiredCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (certstatus=REVOKED_EXPIRED)
+
+dn: cn=allRevokedOrRevokedExpiredCaCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allRevokedOrRevokedExpiredCaCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(|(certStatus=REVOKED)(certStatus=REVOKED_EXPIRED))(extension=2.5.29.19;*isCA=true*))
+
+dn: cn=allRevokedOrRevokedExpiredCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allRevokedOrRevokedExpiredCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (|(certstatus=REVOKED)(certstatus=REVOKED_EXPIRED))
+
+dn: cn=allValidCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allValidCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (certstatus=VALID)
+
+dn: cn=allValidCertsNotAfter-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allValidCertsNotAfter-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (certstatus=VALID)
+
+dn: cn=allValidOrRevokedCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allValidOrRevokedCerts-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (|(certstatus=VALID)(certstatus=REVOKED))
+
+dn: cn=caAll-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caAll-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requeststate=*)
+
+dn: cn=caCanceled-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caCanceled-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requeststate=canceled)
+
+dn: cn=caCanceledEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caCanceledEnrollment-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=canceled)(requesttype=enrollment))
+
+dn: cn=caCanceledRenewal-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caCanceledRenewal-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=canceled)(requesttype=renewal))
+
+dn: cn=caCanceledRevocation-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caCanceledRevocation-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=canceled)(requesttype=revocation))
+
+dn: cn=caComplete-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caComplete-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requeststate=complete)
+
+dn: cn=caCompleteEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caCompleteEnrollment-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=complete)(requesttype=enrollment))
+
+dn: cn=caCompleteRenewal-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caCompleteRenewal-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=complete)(requesttype=renewal))
+
+dn: cn=caCompleteRevocation-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caCompleteRevocation-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=complete)(requesttype=revocation))
+
+dn: cn=caEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caEnrollment-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requesttype=enrollment)
+
+dn: cn=caPending-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caPending-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requeststate=pending)
+
+dn: cn=caPendingEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caPendingEnrollment-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=pending)(requesttype=enrollment))
+
+dn: cn=caPendingRenewal-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caPendingRenewal-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=pending)(requesttype=renewal))
+
+dn: cn=caPendingRevocation-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caPendingRevocation-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=pending)(requesttype=revocation))
+
+dn: cn=caRejected-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caRejected-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requeststate=rejected)
+
+dn: cn=caRejectedEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caRejectedEnrollment-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=rejected)(requesttype=enrollment))
+
+dn: cn=caRejectedRenewal-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caRejectedRenewal-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=rejected)(requesttype=renewal))
+
+dn: cn=caRejectedRevocation-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caRejectedRevocation-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(requeststate=rejected)(requesttype=revocation))
+
+dn: cn=caRenewal-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caRenewal-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requesttype=renewal)
+
+dn: cn=caRevocation-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: caRevocation-{instanceId}
+vlvBase: ou=ca,ou=requests,{rootSuffix}
+vlvScope: 1
+vlvFilter: (requesttype=revocation)
+
+dn: cn=allCerts-{instanceId}Index, cn=allCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allExpiredCerts-{instanceId}Index, cn=allExpiredCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allExpiredCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allInvalidCerts-{instanceId}Index, cn=allInvalidCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allInvalidCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allInValidCertsNotBefore-{instanceId}Index, cn=allInValidCertsNotBefore-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allInValidCertsNotBefore-{instanceId}Index
+vlvSort: notBefore
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allNonRevokedCerts-{instanceId}Index, cn=allNonRevokedCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allNonRevokedCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allRevokedCaCerts-{instanceId}Index, cn=allRevokedCaCerts-{instanceId}, cn={database}, cn=ldb
+ m database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allRevokedCaCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allRevokedCerts-{instanceId}Index, cn=allRevokedCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allRevokedCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allRevokedCertsNotAfter-{instanceId}Index, cn=allRevokedCertsNotAfter-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allRevokedCertsNotAfter-{instanceId}Index
+vlvSort: notAfter
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allRevokedExpiredCerts-{instanceId}Index, cn=allRevokedExpiredCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allRevokedExpiredCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allRevokedOrRevokedExpiredCaCerts-{instanceId}Index, cn=allRevokedOrRevokedExpiredCaCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allRevokedOrRevokedExpiredCaCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allRevokedOrRevokedExpiredCerts-{instanceId}Index, cn=allRevokedOrRevokedExpiredCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allRevokedOrRevokedExpiredCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allValidCerts-{instanceId}Index, cn=allValidCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allValidCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allValidCertsNotAfter-{instanceId}Index, cn=allValidCertsNotAfter-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allValidCertsNotAfter-{instanceId}Index
+vlvSort: notAfter
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=allValidOrRevokedCerts-{instanceId}Index, cn=allValidOrRevokedCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allValidOrRevokedCerts-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caAll-{instanceId}Index, cn=caAll-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caAll-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caCanceled-{instanceId}Index, cn=caCanceled-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caCanceled-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caCanceledEnrollment-{instanceId}Index, cn=caCanceledEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caCanceledEnrollment-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caCanceledRenewal-{instanceId}Index, cn=caCanceledRenewal-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caCanceledRenewal-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caCanceledRevocation-{instanceId}Index, cn=caCanceledRevocation-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caCanceledRevocation-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caComplete-{instanceId}Index, cn=caComplete-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caComplete-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caCompleteEnrollment-{instanceId}Index, cn=caCompleteEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caCompleteEnrollment-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caCompleteRenewal-{instanceId}Index, cn=caCompleteRenewal-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caCompleteRenewal-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caCompleteRevocation-{instanceId}Index, cn=caCompleteRevocation-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caCompleteRevocation-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caEnrollment-{instanceId}Index, cn=caEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caEnrollment-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caPending-{instanceId}Index, cn=caPending-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caPending-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caPendingEnrollment-{instanceId}Index, cn=caPendingEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caPendingEnrollment-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caPendingRenewal-{instanceId}Index, cn=caPendingRenewal-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caPendingRenewal-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caPendingRevocation-{instanceId}Index, cn=caPendingRevocation-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caPendingRevocation-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caRejected-{instanceId}Index, cn=caRejected-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caRejected-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caRejectedEnrollment-{instanceId}Index, cn=caRejectedEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caRejectedEnrollment-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caRejectedRenewal-{instanceId}Index, cn=caRejectedRenewal-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caRejectedRenewal-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caRejectedRevocation-{instanceId}Index, cn=caRejectedRevocation-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caRejectedRevocation-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caRenewal-{instanceId}Index, cn=caRenewal-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caRenewal-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=caRevocation-{instanceId}Index, cn=caRevocation-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: caRevocation-{instanceId}Index
+vlvSort: requestId
+vlvEnabled: 0
+vlvUses: 0

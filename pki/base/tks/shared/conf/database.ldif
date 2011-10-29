@@ -1,0 +1,9 @@
+# --- BEGIN COPYRIGHT BLOCK ---
+# Copyright (C) 2006 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+dn: cn=config
+changetype: modify
+replace: nsslapd-maxbersize
+nsslapd-maxbersize: 209715200

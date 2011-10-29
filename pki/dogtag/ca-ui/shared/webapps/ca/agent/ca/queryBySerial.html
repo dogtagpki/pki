@@ -1,0 +1,186 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>List Certificates Within a Serial Number Range</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<script type="text/javascript" SRC="/ca/agent/funcs.js"></script>
+<script type="text/javascript" SRC="/ca/agent/helpfun.js"></script>
+
+<script type="text/javascript">
+<!--
+function doSubmit(form)
+{
+    var canonicalFrom = "", canonicalTo = "";
+
+    if ( form.serialFrom.value!= "") {
+        canonicalFrom = 
+            trim(form.serialFrom.value);
+    }
+
+    if (canonicalFrom != "") {
+        if (!isDecimalNumber(canonicalFrom)) {
+            if (isNumber(canonicalFrom, 16)) {
+                canonicalFrom = "0x" +
+                    removeColons(stripPrefix(canonicalFrom));
+            } else {
+                alert("You must specify a decimal or hexadecimal value" + 
+                    "for the low end of the serial number range.");
+                return;
+            }
+        }
+        if (isNegative(canonicalFrom)) {
+            alert("You must specify a positive value for the low " +
+                   "end of the serial number range.");
+            return;
+        }
+        form.serialFrom.value = canonicalFrom;
+    }
+
+    if ( form.serialTo.value!= "") {
+        canonicalTo = 
+            trim(form.serialTo.value);
+    }
+
+    if (canonicalTo != "") {
+        if (!isDecimalNumber(canonicalTo)) {
+            if (isNumber(canonicalTo, 16)) {
+                canonicalTo = "0x" +
+                    removeColons(stripPrefix(canonicalTo));
+            } else {
+                alert("You must specify a decimal or hexadecimal value" + 
+                    "for the high end of the serial number range.");
+                return;
+            }
+        }
+        if (isNegative(canonicalTo)) {
+            alert("You must specify a positive value for the high " +
+                   "end of the serial number range.");
+            return;
+        }
+        form.serialTo.value = canonicalTo;
+    }
+
+    /* Can't do this using parseInt*/
+    /*
+    if (form.serialFrom.value != "" && form.serialTo.value != "" ) {
+        if (parseInt(form.serialFrom.value) > parseInt(form.serialTo.value)) {
+            alert("The low end of the range is larger than the high end.");
+            return;
+        }
+    }
+    */
+
+    if (!form.skipRevoked.checked && !form.skipNonValid.checked) {
+        form.queryCertFilter.value = "(certStatus=*)";
+    } else if (form.skipRevoked.checked && form.skipNonValid.checked) {
+        form.queryCertFilter.value = "(certStatus=VALID)";
+    } else if (form.skipRevoked.checked) {
+        form.queryCertFilter.value = "(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))";
+    } else if (form.skipNonValid.checked) {
+        form.queryCertFilter.value = "(|(certStatus=VALID)(certStatus=REVOKED))";
+    }
+
+    if (form.serialFrom.value == "") {
+    	form.querySentinelDown.value = "0";
+    } else {
+    	form.querySentinelDown.value = form.serialFrom.value;
+    	form.querySentinelUp.value = form.serialFrom.value;
+    	form.direction.value = "down";
+    }
+    form.op.value = "listCerts";
+    form.submit();
+}
+//-->
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+<font size=+1 face="PrimaSans BT, Verdana, sans-serif">List Certificates</font>
+<br>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Use this form to list certificates whose serial numbers fall within a specified range.</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<form ACTION="listCerts" METHOD=POST>
+  <input TYPE="HIDDEN" NAME="op" VALUE="">
+  <input TYPE="HIDDEN" NAME="queryCertFilter" VALUE="">
+
+<p>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Enter a range of certificate serial numbers in hexadecimal form
+(starting with 0x, as in the certificate list), or in decimal form.
+</font>
+
+<p>
+<table BORDER=0 CELLSPACING=2 CELLPADDING=0>
+  <tr>
+    <td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+      Lowest serial number</font>
+	</td>
+    <td><input TYPE="TEXT" NAME="serialFrom" SIZE=10 MAXLENGTH=99></td>
+    <td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+	  (leave blank for no lower limit)</font>
+	</td>
+  </tr>
+  <tr>
+    <td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+      Highest serial number</font></font></td>
+    <td><input TYPE="TEXT" NAME="serialTo" SIZE=10 MAXLENGTH=99></td>
+    <td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+	  (leave blank for no upper limit)</font>
+	</td>
+  </tr>
+</table>
+
+<p>
+<input TYPE="CHECKBOX" NAME="skipRevoked">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Do not show certificates that have been revoked</font>
+<br>
+<input TYPE="CHECKBOX" CHECKED NAME="skipNonValid">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Do not show certificates that have expired or are not yet valid</font>
+<br>&nbsp;
+<br>&nbsp;
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=6 WIDTH="100%" BACKGROUND="/graphics/gray90.gif">
+  <tr>
+    <td ALIGN=RIGHT BGCOLOR="#E5E5E5">
+	  <input TYPE="button" VALUE="Find" width="72" onClick="doSubmit(this.form);">&nbsp;&nbsp;
+        <font size=-1 face="PrimaSans BT, Verdana, sans-serif">first</font>&nbsp;
+      <INPUT TYPE="hidden" NAME="querySentinelDown" VALUE="">
+      <INPUT TYPE="hidden" NAME="querySentinelUp" VALUE="">
+      <INPUT TYPE="hidden" NAME="direction" VALUE="begin">
+      <INPUT TYPE="TEXT" NAME="maxCount" SIZE=4 MAXLENGTH=99 VALUE="20">
+        <font size=-1 face="PrimaSans BT, Verdana, sans-serif">records</font>&nbsp;&nbsp;&nbsp;
+	  <!-- <input TYPE="button" VALUE="Help" width="72"
+	    onClick="help('http://www.redhat.com/docs/manuals/cert-system#Basic Certificate Listing')"> -->
+	</td>
+  </tr>
+</table>
+</form>
+</body>
+</html>

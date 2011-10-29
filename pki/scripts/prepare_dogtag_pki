@@ -1,0 +1,325 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2011 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+# Always switch into the base directory of this
+# shell script prior to executing it so that all
+# of its output is written to this directory
+cd `dirname $0`
+
+#
+# Usage statement
+#
+
+Usage()
+{
+    printf "\n"
+    printf "Usage:  $0 [-skip_directory_server_installation]\n\n"
+}
+
+#
+# Check for command line argument validity
+#
+skip_directory_server_installation=0
+if [ $# -gt 1 ] ; then
+    printf "ERROR:  Incorrect number of parameters!\n"
+    Usage
+    exit 255
+elif [ $# -eq 1 ] ; then
+    if [ $1 != "-skip_directory_server_installation" ] ; then
+        printf "ERROR:  Incorrect parameters usage!\n"
+        Usage
+        exit 255
+    else
+        skip_directory_server_installation=1
+    fi
+fi
+
+# Retrieve the name of this base directory
+PKI_PWD=`pwd`
+
+# Establish the name of the machine
+PKI_HOSTNAME=`hostname`
+
+# Set pre-defined variables
+ROOT_UID=0
+
+# This script may ONLY be run on Linux!
+PKI_OS=`uname`
+if [ "${PKI_OS}" != "Linux" ]; then
+    printf "The '$0' script is ONLY executable\n"
+    printf "on a 'Linux' machine!\n"
+    exit 255
+fi
+
+# For Fedora machines, compute the FEDORA_VERSION
+if [ -e /etc/fedora-release ]; then
+    FEDORA_VERSION=`rpm -qf --qf='%{VERSION}' /etc/fedora-release | tr -d [A-Z] | tr -d [a-z]`
+else
+    # For now, just give FEDORA_VERSION a bogus value if not using Fedora.
+    FEDORA_VERSION=9999
+fi
+
+# Set Linux variables
+PKI_PLATFORM="LINUX"
+RPM_EXE="/bin/rpm"
+YUM_EXE="/usr/bin/yum"
+YUM_EXE_OPTIONS="-y install"
+
+# Set sudo variables
+PKI_SUDO="/usr/bin/sudo"
+PKI_SUDOERS="/etc/sudoers"
+
+# Set user identity variables
+PKI_EUID=`/usr/bin/id -u`
+PKI_UID=`/usr/bin/id -ur`
+PKI_USERNAME=`/usr/bin/id -un`
+
+# Make sure that this script is NOT being run as root!
+if [ ${PKI_UID} -eq ${ROOT_UID} ] ||
+   [ ${PKI_EUID} -eq ${ROOT_UID} ]; then
+    printf "The '$0' script may NOT be run as root!\n"
+    exit 255
+fi
+
+# Check for the presence of the 'sudo' executable
+if [ ! -x "${PKI_SUDO}" ]; then
+    printf "The '$0' script requires the '${PKI_SUDO}' executable\n"
+    printf "to be available on '${PKI_HOSTNAME}'!\n"
+    exit 255
+fi
+
+# Check for the presence of the 'sudoers' file
+if [ ! -e "${PKI_SUDOERS}" ]; then
+    printf "The '$0' script requires the '${PKI_SUDOERS}' file\n"
+    printf "to be available on '${PKI_HOSTNAME}'!\n"
+    exit 255
+fi
+
+# Check for the presence of the required sudoers command(s)
+PKI_SUDOERS_COMMAND="(root) NOPASSWD: ALL"
+PKI_SUDOERS_LINE="${PKI_USERNAME}  NOPASSWD: ALL"
+PKI_SUDOERS_RPM_COMMAND="(root) NOPASSWD: ${RPM_EXE}"
+PKI_SUDOERS_RPM_LINE="${PKI_USERNAME}  ALL = NOPASSWD: ${RPM_EXE}"
+PKI_SUDOERS_YUM_COMMAND="(root) NOPASSWD: ${YUM_EXE}"
+PKI_SUDOERS_YUM_LINE="${PKI_USERNAME}  ALL = NOPASSWD: ${YUM_EXE}"
+printf "Checking if '${PKI_USERNAME}' has the appropriate '${PKI_SUDO}' permissions . . .\n"
+printf "[NOTE:  A password prompt may appear requiring ${PKI_USERNAME}'s password.]\n"
+# NOTE:  If 'ALL' commands are NOT sudo enabled, then at least BOTH
+#        of the 'RPM' and 'YUM' commands MUST be sudo enabled!
+`${PKI_SUDO} -l | grep "${PKI_SUDOERS_COMMAND}" > /dev/null 2>&1`
+if [ $? -ne 0 ]; then
+    sudo_commands=2
+    `${PKI_SUDO} -l | grep "${PKI_SUDOERS_RPM_COMMAND}" > /dev/null 2>&1`
+    if [ $? -ne 0 ]; then
+        sudo_commands=`expr ${sudo_commands} - 1`
+    fi
+    `${PKI_SUDO} -l | grep "${PKI_SUDOERS_YUM_COMMAND}" > /dev/null 2>&1`
+    if [ $? -ne 0 ]; then
+        sudo_commands=`expr ${sudo_commands} - 1`
+    fi
+    if [ ${sudo_commands} -ne 2 ]; then
+        printf "The '$0' script requires that the\n"
+        printf "'${PKI_SUDOERS}' file MUST contain BOTH of these lines:\n\n"
+        printf "    '${PKI_SUDOERS_RPM_LINE}'\n"
+        printf "    '${PKI_SUDOERS_YUM_LINE}'\n\n"
+        exit 255
+    fi
+fi
+
+######################################
+# Establish PKI Development Packages #
+######################################
+
+# Language Development
+GCC="gcc"
+GPLUSPLUS="gcc-c++"
+JAVA="java-1.6.0-openjdk"
+JAVAC="java-1.6.0-openjdk-devel"
+PERL="perl"
+
+# Language Development Support Utilities
+JPACKAGE_UTILS="jpackage-utils"
+PKGCONFIG="pkgconfig"
+
+# Build Utilities
+ANT="ant"
+CMAKE="cmake"
+MAKE="make"
+M4="m4"
+
+# Packaging Utilities
+RPM="rpm"
+RPM_BUILD="rpm-build"
+YUM="yum"
+YUM_UTILS="yum-utils"
+
+# Compression Utilities
+GZIP="gzip"
+TAR="tar"
+ZIP="zip"
+ZLIB="zlib"
+ZLIB="zlib-devel"
+
+# Fetching Utilities
+CURL="curl"
+WGET="wget"
+
+# Revision Control Utilities
+CVS="cvs"
+GIT="git"
+SVN="subversion"
+
+# Miscellaneous Utilities
+CHKCONFIG="chkconfig"
+INITSCRIPTS="initscripts"
+OPENSSH_CLIENTS="openssh-clients"
+#SENDMAIL="sendmail"
+
+# Create a catch-all variable for PKI Development Packages
+PKI_DEVELOPMENT_PACKAGES="${GCC} ${GPLUSPLUS} ${JAVA} ${JAVAC} ${PERL} ${JPACKAGE_UTILS} ${PKGCONFIG} ${ANT} ${CMAKE} ${MAKE} ${M4} ${RPM} ${RPM_BUILD} ${YUM} ${YUM_UTILS} ${GZIP} ${TAR} ${ZIP} ${ZLIB} ${CURL} ${WGET} ${CVS} ${GIT} ${SVN} ${CHKCONFIG} ${INITSCRIPTS} ${OPENSSH_CLIENTS} ${SENDMAIL}"
+
+
+##################################
+# Establish PKI Support Packages #
+##################################
+
+# Apache Packages
+APR="apr"
+APR_DEVEL="apr-devel"
+APR_UTIL="apr-util"
+APR_UTIL_DEVEL="apr-util-devel"
+EXPAT="expat"
+EXPAT_DEVEL="expat-devel"
+HTTPD="httpd"
+HTTPD_DEVEL="httpd-devel"
+HTTPD_TOOLS="httpd-tools"
+PCRE="pcre"
+PCRE_DEVEL="pcre-devel"
+
+# Tomcat Packages
+TOMCAT6="tomcat6"
+TOMCAT6_LIB="tomcat6-lib"
+if [ ${FEDORA_VERSION} -ge 14 ]; then
+    APACHE_COMMONS_LANG="apache-commons-daemon"
+    APACHE_COMMONS_LANG="apache-commons-lang"
+    APACHE_COMMONS_LOGGING="apache-commons-logging"
+else
+    APACHE_COMMONS_LANG="jakarta-commons-daemon"
+    APACHE_COMMONS_LANG="jakarta-commons-lang"
+    APACHE_COMMONS_LOGGING="jakarta-commons-logging"
+fi
+JAKARTA_COMMONS_COLLECTIONS="jakarta-commons-collections"
+JAKARTA_COMMONS_DBCP="jakarta-commons-dbcp"
+JAKARTA_COMMONS_POOL="jakarta-commons-pool"
+
+# Cross-Platform Packages
+NSPR="nspr"
+NSPR_DEVEL="nspr-devel"
+
+# Cryptographic Packages
+NSS="nss"
+NSS_DEVEL="nss-devel"
+NSS_TOOLS="nss-tools"
+
+# Tomcat Cryptographic Bridge Packages
+JSS="jss"
+JSS_JAVADOC="jss-javadoc"
+TOMCATJSS="tomcatjss"
+
+# Apache Cryptographic Bridge Packages
+MOD_NSS="mod_nss"
+MOD_PERL="mod_perl"
+MOD_REVOCATOR="mod_revocator"
+
+# Console Packages
+IDM_CONSOLE_FRAMEWORK="idm-console-framework"
+
+# LDAP Support Packages
+CYRUS_SASL="cyrus-sasl"
+CYRUS_SASL_DEVEL="cyrus-sasl-devel"
+LDAPJDK="ldapjdk"
+OPENLDAP="openldap"
+OPENLDAP_CLIENTS="openldap-clients"
+OPENLDAP_DEVEL="openldap-devel"
+
+# Operating System Utilities
+OSUTIL="osutil"
+
+# Perl Modules
+PERL_CRYPT_SSLEAY="perl-Crypt-SSLeay"
+PERL_DBD_SQLITE="perl-DBD-SQLite"
+PERL_DBI="perl-DBI"
+PERL_HTML_PARSER="perl-HTML-Parser"
+PERL_HTML_TAGSET="perl-HTML-Tagset"
+PERL_LIBWWW_PERL="perl-libwww-perl"
+PERL_MOZILLA_LDAP="perl-Mozilla-LDAP"
+PERL_PARSE_RECDESCENT="perl-Parse-RecDescent"
+PERL_URI="perl-URI"
+PERL_XML_NAMESPACESUPPORT="perl-XML-NamespaceSupport"
+PERL_XML_PARSER="perl-XML-Parser"
+PERL_XML_SAX="perl-XML-SAX"
+PERL_XML_SIMPLE="perl-XML-Simple"
+
+# PKI Clients
+ESC="esc"
+
+# Security Packages
+SVRCORE="svrcore"
+SVRCORE_DEVEL="svrcore-devel"
+
+# SELinux Packages
+POLICYCOREUTILS="policycoreutils"
+SELINUX_POLICY_DEVEL="selinux-policy-devel"
+SELINUX_POLICY_TARGETED="selinux-policy-targeted"
+
+# SQLite Packages
+SQLITE="sqlite"
+SQLITE_DEVEL="sqlite-devel"
+
+# Velocity Packages
+VELOCITY="velocity"
+BCEL="bcel"
+JAKARTA_ORO="jakarta-oro"
+JDOM="jdom"
+LOG4J="log4j"
+REGEXP="regexp"
+WERKEN_XPATH="werken-xpath"
+XALAN_J2="xalan-j2"
+XERCES_J2="xerces-j2"
+XML_COMMONS_APIS="xml-commons-apis"
+XML_COMMONS_RESOLVER="xml-commons-resolver"
+
+# Create a catch-all variable for PKI Support Packages
+PKI_SUPPORT_PACKAGES="${APR} ${APR_DEVEL} ${APR_UTIL} ${APR_UTIL_DEVEL} ${EXPAT} ${EXPAT_DEVEL} ${HTTPD} ${HTTPD_DEVEL} ${HTTPD_TOOLS} ${PCRE} ${PCRE_DEVEL} ${TOMCAT6} ${TOMCAT6_LIB} ${APACHE_COMMONS_LANG} ${APACHE_COMMONS_LANG} ${APACHE_COMMONS_LOGGING} ${JAKARTA_COMMONS_COLLECTIONS} ${JAKARTA_COMMONS_DBCP} ${JAKARTA_COMMONS_POOL} ${NSPR} ${NSPR_DEVEL} ${NSS} ${NSS_DEVEL} ${NSS_TOOLS} ${JSS} ${JSS_JAVADOC} ${TOMCATJSS} ${MOD_NSS} ${MOD_PERL} ${MOD_REVOCATOR} ${IDM_CONSOLE_FRAMEWORK} ${CYRUS_SASL} ${CYRUS_SASL_DEVEL} ${LDAPJDK} ${OPENLDAP} ${OPENLDAP_CLIENTS} ${OPENLDAP_DEVEL} ${OSUTIL} ${PERL_CRYPT_SSLEAY} ${PERL_DBD_SQLITE} ${PERL_DBI} ${PERL_HTML_PARSER} ${PERL_HTML_TAGSET} ${PERL_LIBWWW_PERL} ${PERL_MOZILLA_LDAP} ${PERL_PARSE_RECDESCENT} ${PERL_URI} ${PERL_XML_NAMESPACESUPPORT} ${PERL_XML_PARSER} ${PERL_XML_SAX} ${PERL_XML_SIMPLE} ${ESC} ${SVRCORE} ${SVRCORE_DEVEL} ${POLICYCOREUTILS} ${SELINUX_POLICY_DEVEL} ${SELINUX_POLICY_TARGETED} ${SQLITE} ${SQLITE_DEVEL} ${VELOCITY} ${BCEL} ${JAKARTA_ORO} ${JDOM} ${LOG4J} ${REGEXP} ${WERKEN_XPATH} ${XALAN_J2} ${XERCES_J2} ${XML_COMMONS_APIS} ${XML_COMMONS_RESOLVER}"
+
+###########################################
+# Establish PKI Installation Dependencies #
+###########################################
+
+# LDAP Packages (for non-remote use)
+LDAP="389-ds"
+LDAP_ADMIN="389-admin"
+LDAP_ADMIN_CONSOLE="389-admin-console"
+LDAP_ADMIN_CONSOLE_DOC="389-admin-console-doc"
+LDAP_ADMINUTIL="389-adminutil"
+LDAP_BASE="389-ds-base"
+LDAP_CONSOLE="389-console"
+LDAP_DS_CONSOLE="389-ds-console"
+LDAP_DS_CONSOLE_DOC="389-ds-console-doc"
+LDAP_DSGW="389-dsgw"
+
+# Create a catch-all variable for LDAP Packages
+if [ ${skip_directory_server_installation} -eq 1 ]; then
+    LDAP_PACKAGES=""
+else
+    LDAP_PACKAGES="${LDAP} ${LDAP_ADMIN} ${LDAP_ADMIN_CONSOLE} ${LDAP_ADMIN_CONSOLE_DOC} ${LDAP_ADMINUTIL} ${LDAP_BASE} ${LDAP_CONSOLE} ${LDAP_DS_CONSOLE} ${LDAP_DS_CONSOLE_DOC} ${LDAP_DSGW}"
+fi
+
+
+# Build and install PKI Development Packages, PKI Support Packages, and
+# optionally, LDAP Packages
+${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_DEVELOPMENT_PACKAGES} ${PKI_SUPPORT_PACKAGES} ${LDAP_PACKAGES}
+

@@ -1,0 +1,141 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Display CRL</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="../helpfun.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+if (navigator.appName == "Microsoft Internet Explorer") {
+    document.writeln('<META HTTP-EQUIV="Pragma" CONTENT="no-cache">');
+}
+//-->
+</SCRIPT>
+</head>
+
+<CMS_TEMPLATE>
+
+<body bgcolor="#FFFFFF" link="#6666CC" vlink="#6666CC" alink="#333399">
+<font face="PrimaSans BT, Verdana, sans-serif" size="+1">
+Statistics
+</font><br>
+<table border="0" cellspacing="0" cellpadding="0" background="/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<br>
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+    document.writeln('<table border="0" cellspacing="0" cellpadding="0" width="100%">');
+    document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+    document.writeln('Detailed Information (Start Time <b>' + header.startTime + '</b>, Current Time: <b>' + header.curTime + '</b>)</font></td><td align=right><a href="getStats?op=clear">Clear Statistics</a></td></tr></table>');
+
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr>');
+    document.writeln('<td width="40%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<b>Action</b></font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<b># of operations</b></font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<b>Time Taken (in msec)</b></font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<b>Min</b></font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<b>Max</b></font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<b>Std Dev</b></font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<b>Avg</b></font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('<b>Percentage</b></font></td>');
+    document.writeln('</tr>');
+    for (var i = 0; i <=  recordCount; i++) {
+      if (result.recordSet[i].name.charAt(0) == '-') {
+        document.writeln('<tr><td>');
+      } else {
+        document.writeln('<tr bgcolor="#cccccc"><td>');
+      }
+      document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+      document.writeln(result.recordSet[i].name + '</font></td>');
+      document.writeln('<td>');
+      document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+      document.writeln(result.recordSet[i].noOfOp+'</font></td>');
+      document.writeln('<td>');
+      document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+      document.writeln(result.recordSet[i].timeTaken+'</font></td>');
+      document.writeln('<td>');
+      document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+      if (result.recordSet[i].max == -1) {
+        document.writeln('-</font></td>');
+      } else {
+        document.writeln(result.recordSet[i].min+'</font></td>');
+      }
+      document.writeln('<td>');
+      document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+      if (result.recordSet[i].max == -1) {
+        document.writeln('-</font></td>');
+      } else {
+        document.writeln(result.recordSet[i].max+'</font></td>');
+      }
+      document.writeln('<td>');
+      document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+      if (result.recordSet[i].stddev == -1) {
+        document.writeln('-</font></td>');
+      } else {
+        document.writeln(result.recordSet[i].stddev+'</font></td>');
+      }
+      document.writeln('<td>');
+      document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+      if (result.recordSet[i].noOfOp == 0) {
+        document.writeln('-');
+      } else {
+        document.writeln(Math.round(100*(result.recordSet[i].avg))/100);
+      }
+      document.writeln('</font></td>');
+      document.writeln('<td>');
+      document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+      if (result.recordSet[i].noOfOp == 0) {
+        document.writeln('-');
+      } else {
+        document.writeln(Math.round(100*(result.recordSet[i].percentage))/100 + '%');
+      }
+      document.writeln('</font></td>');
+      document.writeln('</tr>');
+    }
+    document.writeln('</table><br>');
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>
+

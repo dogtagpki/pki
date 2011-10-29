@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD><TITLE>Monitor</TITLE>
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+</HEAD>
+<CMS_TEMPLATE>
+<BODY bgcolor="white">
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Monitor
+</font>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<SCRIPT LANGUAUGE="JavaScript">
+if (result.header.error != null) {
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+    document.writeln('CS monitor encountered the following error:'+result.header.error);
+    document.writeln('</font>');
+} else if (result.header.issuerName != null &&
+           result.header.startDate != null &&
+           result.header.interval != null &&
+           result.header.numberOfIntervals != null &&
+           result.header.totalNumberOfRequests != null &&
+           result.header.totalNumberOfCertificates != null) {
+    var timeRange = result.header.interval * result.header.numberOfIntervals;
+
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+
+    document.write('The following authority: '+result.header.issuerName+
+                   ' during <b>'+timeRange+' seconds</b>, starting from '+
+                   result.header.startDate+', processed <b>'+
+                   result.header.totalNumberOfRequests+' requests</b>');
+    if (result.header.totalNumberOfCertificates > 0)
+        document.write(' and generated <b>'+result.header.totalNumberOfCertificates+
+                       ' certificates</b>');
+    document.writeln('.<br>&nbsp;');
+    document.writeln('</font>');
+
+    if ((typeof(result.recordSet) != "undefined") && (result.recordSet.length > 0)) {
+        var addCerts = 0;
+        if (result.recordSet[0].numberOfCertificates != null)
+            addCerts = 1;
+        
+        document.writeln('<table BORDER=1 CELLSPACING=0 CELLPADDING=4 align="center">');
+        document.writeln('<tr>');
+        document.writeln('<td align="center" BGCOLOR="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.writeln('Interval number</font></td>');
+        document.writeln('<td align="center" BGCOLOR="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.writeln('Number of requests</font></td>');
+        if (addCerts == 1) {
+            document.writeln('<td align="center" BGCOLOR="#e5e5e5">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln('Number of certificates</font></td>');
+        }
+        document.writeln('</tr>');
+
+        var maxCerts = 0;
+        var maxReqs = 0;
+        for (var i = 0; i < result.recordSet.length; i++) {
+            document.writeln('<tr>');
+            document.writeln('<td align="center">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln(' '+(i+1)+' </font></td>');
+            document.writeln('<td align="center">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            if (result.recordSet[i].numberOfRequests != null &&
+                result.recordSet[i].numberOfRequests > 0 &&
+                result.recordSet[i].firstRequest != null) {
+                document.write('<a href="queryReq?seqNumFrom='+result.recordSet[i].firstRequest+
+                               '&reqType=showAll&reqState=showAll&maxCount='+
+                               result.recordSet[i].numberOfRequests+
+                               '&totalRecordCount='+result.recordSet[i].numberOfRequests+'">'+
+                               result.recordSet[i].numberOfRequests+'</a>');
+            } else if (result.recordSet[i].numberOfRequests != null) {
+                document.write(' '+result.recordSet[i].numberOfRequests);
+            } else {
+                document.write(' 0');
+            }
+            document.writeln('</font></td>');
+            if (result.recordSet[i].numberOfRequests > maxReqs)
+                maxReqs = result.recordSet[i].numberOfRequests;
+            if (addCerts == 1) {
+                document.writeln('<td align="center">');
+                document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+                if (result.recordSet[i].numberOfCertificates != null &&
+                    result.recordSet[i].numberOfCertificates > 0 &&
+                    result.recordSet[i].startTime != null &&
+                    result.recordSet[i].endTime != null) {
+                    document.write('<a href="srchCerts?queryCertFilter=(%26(requestCreateTime%3e%3d'+
+                                   result.recordSet[i].startTime+
+                                   ')(requestCreateTime%3c%3d'+
+                                   result.recordSet[i].endTime+'))&maxResults='+
+                                   (result.recordSet[i].numberOfCertificates+1)+'">'+
+                                   result.recordSet[i].numberOfCertificates+'</a>');
+                    if (result.recordSet[i].numberOfCertificates > maxCerts)
+                        maxCerts = result.recordSet[i].numberOfCertificates;
+                } else if (result.recordSet[i].numberOfCertificates != null) {
+                    document.write(' '+result.recordSet[i].numberOfCertificates);
+                } else {
+                    document.write(' 0');
+                }
+                document.writeln('</font></td>');
+            }
+            document.writeln('</tr>');
+        }
+        if (result.header.totalNumberOfRequests != null) {
+            document.writeln('<tr>');
+            document.writeln('<td align="center" BGCOLOR="#eeeeee">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln('Total</font></td>');
+            document.writeln('<td align="center" BGCOLOR="#eeeeee">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln(' '+result.header.totalNumberOfRequests+' </font></td>');
+            if (addCerts == 1) {
+                document.writeln('<td align="center" BGCOLOR="#eeeeee">');
+                document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+                if (result.header.totalNumberOfCertificates != null) {
+                    document.write(' '+result.header.totalNumberOfCertificates);
+                } else {
+                    document.write('0');
+                }
+                document.writeln('</font></td>');
+            }
+            document.writeln('</tr>');
+        }
+        if (result.recordSet.length > 0) {
+            document.writeln('<tr>');
+            document.writeln('<td align="center" BGCOLOR="#eeeeee">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln('Average</font></td>');
+            document.writeln('<td align="center" BGCOLOR="#eeeeee">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln(' '+result.header.totalNumberOfRequests+' / '+timeRange+'s = '+
+                             (result.header.totalNumberOfRequests/timeRange)+'</font></td>');
+            if (addCerts == 1) {
+                document.writeln('<td align="center" BGCOLOR="#eeeeee">');
+                document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+                document.write(' '+result.header.totalNumberOfCertificates+' / '+timeRange+'s = '+
+                             (result.header.totalNumberOfCertificates/timeRange)+'</font></td>');
+            }
+            document.writeln('</tr>');
+
+            document.writeln('<tr>');
+            document.writeln('<td align="center" BGCOLOR="#eeeeee">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln('Max</font></td>');
+            document.writeln('<td align="center" BGCOLOR="#eeeeee">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln(' '+maxReqs+' / '+result.header.interval+'s = '+
+                             (maxReqs/result.header.interval)+'</font></td>');
+            if (addCerts == 1) {
+                document.writeln('<td align="center" BGCOLOR="#eeeeee">');
+                document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+                document.write(' '+maxCerts+' / '+result.header.interval+'s = '+
+                             (maxCerts/result.header.interval)+'</font></td>');
+            }
+            document.writeln('</tr>');
+        }
+        document.writeln('</table><br>');
+
+        document.writeln('<DIV ALIGN="CENTER">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.writeln('This table presents authority activity in the time range of '+
+                         timeRange+' seconds divided into '+result.header.numberOfIntervals+
+                         ' intervals ('+result.header.interval+' seconds each).');
+        document.writeln('</font>');
+        document.writeln('</DIV>');
+    }
+} else {
+    document.writeln('Error');
+}
+
+
+</SCRIPT>
+
+
+</BODY>
+</HTML>
+

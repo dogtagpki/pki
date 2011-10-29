@@ -1,0 +1,236 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2009 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel=stylesheet href="/esc/sow/style.css" type="text/css">
+
+<title>Enrollment</title>
+<script type="text/javascript" src="/esc/sow/js/prototype.js"></script>
+<script type="text/javascript" src="/esc/sow/js/scriptaculous.js?load=effects"></script>
+<script type="text/JavaScript" src="/esc/sow/util.js"></script>
+<link rel="stylesheet" href="/esc/sow/css/style.css" media="screen" type="text/css">
+<script type="text/javascript">
+<!--
+
+function UserOnCOOLKeyStateError()
+{
+  toggleAjaxProgress('ajax-pb', 'off');
+  toggleButton('enrollbtn', 'on');
+  toggleButton('cancel', 'on');
+}
+
+function UserOnCOOLKeyFormatComplete()
+{
+  toggleAjaxProgress('ajax-pb', 'off');
+  toggleButton('enrollbtn', 'on');
+  toggleButton('cancel', 'on');
+}
+
+function updateKeyText(text)
+{
+  var f = document.getElementById('keytext');
+  new Effect.Shake(f);
+  var text = document.createTextNode(text);
+  var len= f.childNodes.length;  
+  for (i=0;i<len;i++){
+       f.removeChild(f.childNodes[0]);
+  }
+  f.appendChild(text);
+}
+
+function UserSelectRowByKeyID(keyType, keyID)
+{
+  DoCoolKeySetConfigValue("Operation-" + keyID, 
+           "https://$host:$secure_port/nk_service");
+  DoCoolKeySetConfigValue("TokenType-" + keyID, "userKey");
+  SelectRowByKeyID(keyType, keyID);
+}
+
+var officerToken = null;
+
+function UserOnDoneInitializeBindingTable()
+{
+  // display existing blank smart
+  var arr = GetAvailableCOOLKeys();
+  if (!arr || arr.length < 1)
+    return;
+  var i;
+  for (i=0; i < arr.length; i++)
+  {
+    var keyType = arr[i][0];
+    var keyID = arr[i][1];
+    var keyStatus = GetStatusForKeyID(keyType, keyID);
+    if (keyStatus == "BLANK") {
+      updateKeyText('A ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
+      UserSelectRowByKeyID(keyType, keyID);
+    } else if (keyStatus == "UNINITIALIZED") {
+      updateKeyText('An ' + keyStatus + ' smartcard "' + keyID + '" is detected!');
+      UserSelectRowByKeyID(keyType, keyID);
+    }
+
+    if(keyStatus == "ENROLLED" ) {
+        var uid =  GetCoolKeyIssuedTo(keyType,keyID);
+        if(uid)
+        {
+            isAgent = window.IsAgentOrUser(uid,"agent");
+        }
+        if(isAgent == true)
+        {
+            officerToken = keyID;
+        }
+    }
+  }
+
+  if (arr && arr.length <= 1  )
+  {
+    toggleButton('enrollbtn','off');
+  }
+}
+
+function UserOnCOOLKeyInserted(keyType, keyID)
+{
+  var arr = GetAvailableCOOLKeys();
+  var curKeyType = null;
+  var curKeyID = null;
+  var curKeyStatus = null;
+  var i = 0;
+  while(1) {
+      if (arr && arr.length <= 1  )
+      {
+          toggleButton('enrollbtn','off');
+          return;
+      }
+      if (arr && arr.length > 1 )
+      {
+          toggleButton('enrollbtn','on');
+      }
+      curKeyType = arr[i][0];
+      curKeyID = arr[i][1];
+      
+      var curKeyStatus = GetStatusForKeyID(curKeyType, curKeyID);
+      if(!(curKeyID == officerToken && curKeyStatus == "ENROLLED")) {
+          break;
+      }
+      i++; 
+  }
+
+  if (curKeyStatus == "ENROLLED" || curKeyStatus == "UNINITIALIZED") {
+      updateKeyText('An ' + curKeyStatus + ' smartcard "' + curKeyID + '" is detected!');
+  } else {
+      updateKeyText('A ' + curKeyStatus + ' smartcard "' + curKeyID + '" is detected!');
+  }
+
+  var uid = null;
+  var isAgent = null;
+  UserSelectRowByKeyID(curKeyType, curKeyID);
+
+  if(curKeyStatus == "ENROLLED")
+  {
+    uid =  GetCoolKeyIssuedTo(curKeyType,curKeyID);
+    if(uid)
+    {
+        isAgent = window.IsAgentOrUser(uid,"agent");
+    }      
+    if(isAgent == true)
+    {
+        MyAlert("You can't Format a card that belongs to another Security Officer!");
+        updateKeyText('A ' + curKeyStatus + ' smartcard "' + curKeyID + '" SECURITY OFFICER is detected!');
+        toggleButton('enrollbtn','off');
+    }
+  }
+}
+
+function UserOnCOOLKeyRemoved(keyType, keyID)
+{
+  updateKeyText('Please insert a blank smartcard now!');
+}
+
+function UserOnCOOLKeyStatusUpdate(data)
+{
+  var progress = document.getElementById("progress");
+
+  if(progress)
+      progress.innerHTML = data + "%";
+}
+
+function toggleAjaxProgress(id, i)
+{
+  var e = document.getElementById(id);
+  if (i == 'off') {
+    e.style.display = 'none';
+  } else {
+    e.style.display = 'block';
+  }
+}
+
+function toggleButton(id, i)
+{
+  var e = document.getElementById(id);
+  if (i == 'off') {
+    e.disabled = true;
+  } else {
+    e.disabled = false;
+  }
+}
+// -->
+</script>
+</head>
+
+<body onload="InitializeBindingTable();" onunload="cleanup();">
+
+<progressmeter id="progress-id" hidden="true" align = "center"/> 
+
+<div id="pb" style="display:none;">
+  <table id="BindingTable" width="200px" align="center">
+     <tr id="HeaderRow">
+     </tr>
+  </table>
+</div>
+<div id="header">
+  <div id="logo">
+      <h3>Security Officer Station</h3>
+  </div>
+</div>
+
+<div id="content">
+  <div id="maintext">
+    <div id="topmenu">
+    | <a href="/cgi-bin/sow/main.cgi">Main</a> |
+    </div>
+<br/>
+<blockquote>This will erase the phone home URL and format the user token.</blockquote>
+<h3><span id="keytext">Please insert new smartcard now!</span></h3>
+    <br/>
+    <table width="100%">
+      <tr>
+<td>
+<div id="ajax-pb" style="display:none;">
+  <img src="/esc/sow/images/indicator.gif">
+  <h2 id="progress" name="progress" value="0%" ></h2>
+</div>
+</td>
+        <td align="right">
+          <input type="button" id="enrollbtn" name="enrollbtn" value="Format" onClick="toggleButton('enrollbtn','off');toggleButton('cancel', 'off');toggleAjaxProgress('ajax-pb','on');DoFormatCOOLKey();">
+          <input type="submit" id="cancel" name="cancel" value="Cancel" onClick="javascript:location.href='/cgi-bin/sow/search.cgi';">
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+</body></html>

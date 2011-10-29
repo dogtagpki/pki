@@ -1,0 +1,180 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2010 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+##
+## Include common 'compose' functions
+##
+
+COMPOSE_PWD=`dirname $0`
+source ${COMPOSE_PWD}/compose_functions
+
+
+## Always switch into the base directory three levels
+## above this shell script prior to executing it so
+## that all of its output is written to this directory
+
+cd `dirname $0`/../..
+
+
+##
+## Retrieve the name of this base directory
+##
+
+PKI_PWD=`pwd`
+
+
+##
+## Establish the 'pki-ra' name and version information
+##
+
+PKI_RA="pki-ra"
+PKI_RA_VERSION="9.0.4"
+
+
+##
+## Establish the SOURCE files/directories of the 'pki-ra' source directory
+##
+
+PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_RA}.spec"
+PKI_COMPONENT_LIST="ra"
+
+
+##
+## Establish the TARGET files/directories of the 'pki-ra' source/spec files
+##
+
+PKI_PACKAGES="${PKI_PWD}/packages"
+PKI_RA_BUILD_DIR="${PKI_PACKAGES}/BUILD"
+PKI_RA_RPMS_DIR="${PKI_PACKAGES}/RPMS"
+PKI_RA_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"
+PKI_RA_SPECS_DIR="${PKI_PACKAGES}/SPECS"
+PKI_RA_SRPMS_DIR="${PKI_PACKAGES}/SRPMS"
+
+PKI_RA_TARBALL="${PKI_RA}-${PKI_RA_VERSION}.tar.gz"
+PKI_RA_SPEC_FILE="${PKI_RA_SPECS_DIR}/${PKI_RA}.spec"
+PKI_RA_PACKAGE_SCRIPT="${PKI_PACKAGES}/package_${PKI_RA}"
+PKI_RA_PACKAGE_COMMAND="${RPMBUILD_CMD} SPECS/${PKI_RA}.spec"
+
+PKI_RA_STAGING_DIR="${PKI_PACKAGES}/staging"
+PKI_RA_DIR="${PKI_RA_STAGING_DIR}/${PKI_RA}-${PKI_RA_VERSION}"
+PKI_RA_BASE_DIR="${PKI_RA_DIR}/base"
+
+
+##
+## Always create a top-level 'packages' directory
+##
+
+mkdir -p ${PKI_PACKAGES}
+
+
+##
+## Always create 'pki-ra' package directories
+##
+
+mkdir -p ${PKI_RA_BUILD_DIR}
+mkdir -p ${PKI_RA_RPMS_DIR}
+mkdir -p ${PKI_RA_SOURCES_DIR}
+mkdir -p ${PKI_RA_SPECS_DIR}
+mkdir -p ${PKI_RA_SRPMS_DIR}
+
+
+##
+## Always start with new 'pki-ra' package files
+##
+
+rm -rf ${PKI_RA_BUILD_DIR}/${PKI_RA}-${PKI_RA_VERSION}
+rm -f  ${PKI_RA_RPMS_DIR}/${PKI_RA}-${PKI_RA_VERSION}*.rpm
+rm -f  ${PKI_RA_SOURCES_DIR}/${PKI_RA_TARBALL}
+rm -f  ${PKI_RA_SPEC_FILE}
+rm -f  ${PKI_RA_SRPMS_DIR}/${PKI_RA}-${PKI_RA_VERSION}*.rpm
+
+
+##
+## Copy a new 'pki-ra' spec file from the
+## current contents of the PKI working repository
+##
+
+cp -p ${PKI_SPECS_FILE} ${PKI_RA_SPECS_DIR}
+
+
+if [ ${USE_PATCH_FILES} -eq 1 ] ; then
+	Retrieve_Source_Tarball_and_Patches ${PKI_SPECS_FILE} ${PKI_PATCHES_DIR} ${PKI_RA_SOURCES_DIR}
+else
+	##
+	## Always start with a new 'pki-ra' staging directory
+	##
+
+	rm -rf ${PKI_RA_STAGING_DIR}
+
+
+	##
+	## To generate the 'pki-ra' tarball, construct a staging area
+	## consisting of the 'pki-ra' source components from the
+	## current contents of the PKI working repository
+	##
+
+	mkdir -p ${PKI_RA_DIR}
+	cd ${PKI_DIR}
+	for file in "${PKI_FILE_LIST}" ;
+	do
+		cp -p ${file} ${PKI_RA_DIR}
+	done
+	find ${PKI_CMAKE_DIR}             \
+		-name .svn -prune -o          \
+		-name *.swp -prune -o         \
+		-print | cpio -pdum ${PKI_RA_DIR} > /dev/null 2>&1
+	cd - > /dev/null 2>&1
+
+	mkdir -p ${PKI_RA_BASE_DIR}
+	cd ${PKI_BASE_DIR}
+	cp -p ${PKI_BASE_MANIFEST} ${PKI_RA_BASE_DIR}
+	for component in "${PKI_COMPONENT_LIST}" ;
+	do
+		find ${component}             \
+		-name .svn -prune -o          \
+		-name *.swp -prune -o         \
+		-print | cpio -pdum ${PKI_RA_BASE_DIR} > /dev/null 2>&1
+	done
+	cd - > /dev/null 2>&1
+
+
+	##
+	## Create the 'pki-ra' tarball
+	##
+
+	mkdir -p ${PKI_RA_SOURCES_DIR}
+	cd ${PKI_RA_STAGING_DIR}
+	gtar -zcvf ${PKI_RA_TARBALL}    \
+		"${PKI_RA}-${PKI_RA_VERSION}" > /dev/null 2>&1
+	mv ${PKI_RA_TARBALL} ${PKI_RA_SOURCES_DIR}
+	cd - > /dev/null 2>&1
+
+
+	##
+	## Always remove the PKI staging area
+	##
+
+	rm -rf ${PKI_RA_STAGING_DIR}
+fi
+
+
+##
+## Always generate a fresh 'pki-ra' package script
+##
+
+rm -rf ${PKI_RA_PACKAGE_SCRIPT}
+printf "#!/bin/bash\n\n"                >  ${PKI_RA_PACKAGE_SCRIPT}
+printf "${PKI_RA_PACKAGE_COMMAND}\n\n" >> ${PKI_RA_PACKAGE_SCRIPT}
+chmod 775 ${PKI_RA_PACKAGE_SCRIPT}
+
+
+##
+## Automatically invoke RPM/SRPM creation
+##
+
+cd ${PKI_PACKAGES} ;
+bash ./package_${PKI_RA} | tee package_${PKI_RA}.log 2>&1
+

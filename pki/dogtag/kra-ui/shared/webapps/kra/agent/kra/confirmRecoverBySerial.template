@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<CMS_TEMPLATE>
+<TITLE>Recovering Key</TITLE>
+
+<HEAD>
+<BODY bgcolor="white">
+
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<script language="JavaScript" src="../funcs.js"></script>
+<script language="JavaScript" src="../helpfun.js"></script>
+<SCRIPT LANGUAGE="JavaScript">
+function renderCredentialBoxes(m)
+{
+	var str = "";
+
+	for(var i = 0; i < m; ++i) {
+		str = str + "Agent ID#" + i + 
+			":<INPUT TYPE=text NAME=\"uid" + i + 
+			"\" VALUE=\"\">" + "Password #" + i + 
+			":<INPUT TYPE=password NAME=\"pwd" + i + 
+			"\" VALUE=\"\" AutoComplete=off >\n";
+	}
+	return str;
+}
+
+function renderRecoverButton(serialNumber, noOfAgents)
+{
+    return "<FORM METHOD=post "+
+	// "onSubmit=\"return recoverKey("+serialNumber+");\" "+
+	"ACTION=\""+ "/agent/kra/recoverBySerial" +"\">\n"+
+	renderCredentialBoxes(noOfAgents) + 
+	"<INPUT TYPE=hidden NAME=\"op\" VALUE=\"recoverBySerial\">\n"+
+	"<INPUT TYPE=hidden NAME=\"serialNumber\" VALUE=\""+
+		serialNumber +"\">\n"+
+	"<h2><b>PKCS#12 Delivery:</b></h2>"+
+	"<p>"+
+	"<p><pre>"+
+	"PKCS#12 Password:<INPUT TYPE=password NAME=\"p12Password\" VALUE=\"\" AutoComplete=off >\n"+
+	"Receipient Email:<INPUT TYPE=text NAME=\"p12Delivery\" VALUE=\"\">\n"+
+	"</pre><p>"+
+	"<INPUT TYPE=hidden NAME=\"commit\" VALUE=\"yes\">"+
+	"<INPUT TYPE=submit VALUE=\"Recover\">"+
+	"</FORM>\n";
+}
+
+if (result.header.errorDetails != null) {
+        writeError(result.header.errorDetails);
+} else {
+	document.write("<h2><b>Warning:</b></h2>");
+	document.write("<p><pre>");
+	document.write("Microsoft's Internet Explorer does not support " +
+		"no-cache feature.");
+	document.write("There is a security risk where Administrator " + 
+		"can use back button to steal the recovery agents' passwords.");
+	document.write("</pre>");
+	document.write("<h2><b>Key Content:</b></h2>");
+	document.write("<p><pre>");
+	document.write(result.header.publicKey);
+	document.write("</pre><p>");
+	document.write("<h2><b>Recovery Agent Credentials:</b></h2>");
+	document.write("<p><pre>");
+	document.write(renderRecoverButton(result.header.serialNumber, 
+		result.header.noOfRequiredAgents));
+	document.write("</pre><p>");
+}
+</SCRIPT>
+<p>
+</BODY>
+</HTML>

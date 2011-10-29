@@ -1,0 +1,217 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Display CRL</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<SCRIPT type="text/javascript" SRC="../helpfun.js"></SCRIPT>
+<SCRIPT type="text/javascript">
+<!--
+if (navigator.appName == "Microsoft Internet Explorer") {
+    document.writeln('<META HTTP-EQUIV="Pragma" CONTENT="no-cache">');
+}
+//-->
+</SCRIPT>
+</head>
+
+<CMS_TEMPLATE>
+
+<body bgcolor="#FFFFFF" link="#6666CC" vlink="#6666CC" alink="#333399">
+<font face="PrimaSans BT, Verdana, sans-serif" size="+1">
+Certificate Revocation List
+</font><br>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/agent/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<br>
+
+<SCRIPT type="text/javascript">
+<!--
+if (result.header.crlNumber != null &&
+    result.header.crlSize != null &&
+    result.header.crlIssuingPoint != null) {
+
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+    document.writeln('Certificate revocation list summary</font></td></tr></table>');
+
+    document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+    document.writeln('<tr><td align="right" width="40%">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('CRL issuing point:</font></td>');
+    document.writeln('<td align="left">');
+    document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln(result.header.crlIssuingPoint+'</font></td></tr>');
+
+    if (result.header.crlDisplayType != null &&
+        result.header.crlDisplayType == "deltaCRL" &&
+        result.header.deltaCRLSize == null &&
+        result.header.error != null) {
+        document.writeln('<tr><td align="right" width="40%">');
+        document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Status:</font></td>');
+        document.writeln('<td align="left">');
+        document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln(result.header.error+'</font></td></tr>');
+    } else {
+        document.writeln('<tr><td align="right" width="40%">');
+        document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('CRL number:</font></td>');
+        document.writeln('<td align="left">');
+        document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln(result.header.crlNumber+'</font></td></tr>');
+        document.writeln('<tr><td align="right" width="40%">');
+        document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Number of CRL entries:</font></td>');
+        document.writeln('<td align="left">');
+        document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+        if (result.header.deltaCRLSize != null) {
+            document.writeln(result.header.deltaCRLSize+'</font></td></tr>');
+        } else {
+            document.writeln(result.header.crlSize+'</font></td></tr>');
+        }
+        if (result.header.crlDescription != null) {
+            document.writeln('<tr><td align="right" width="40%">');
+            document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln('CRL issuing point description:</font></td>');
+            document.writeln('<td align="left">');
+            document.writeln('<font size=-1 face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln(result.header.crlDescription+'</font></td></tr>');
+        }
+    }
+    document.writeln('</table><br>');
+
+    if (result.header.crlPrettyPrint != null) {
+        document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+        document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+        document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+        document.writeln('Certificate revocation list contents</font></td></tr></table>');
+        document.writeln('<pre>');
+        document.writeln(result.header.crlPrettyPrint);
+        document.writeln('</pre>');
+    }
+    if (result.recordSet.length > 0) {
+        document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+        document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+        document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+        document.writeln('Certificate revocation list base64 encoded</font></td></tr></table>');
+
+        document.writeln('<pre>');
+        document.writeln('-----BEGIN CERTIFICATE REVOCATION LIST-----');
+        for (var i = 0; i < result.recordSet.length; i++) {
+            document.writeln(result.recordSet[i].crlBase64Encoded);
+        }
+        document.writeln('-----END CERTIFICATE REVOCATION LIST-----');
+        document.writeln('</pre>');
+    } else if (result.header.crlBase64 != null) {
+        document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+        document.writeln('<tr align="left" bgcolor="#e5e5e5"><td align="left">');
+        document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+        document.writeln('Certificate revocation list base64 encoded</font></td></tr></table>');
+
+        document.writeln('<pre>');
+        document.writeln('-----BEGIN CERTIFICATE REVOCATION LIST-----');
+        document.writeln(result.header.crlBase64);
+        document.writeln('-----END CERTIFICATE REVOCATION LIST-----');
+        document.writeln('</pre>');
+    }
+} else {
+    document.writeln('Certificate revocation list is not found');
+    if (result.header.error != null) {
+        document.write('\nAdditional information:\n    ');
+        document.writeln(result.header.error);
+    }
+}
+
+function doNext()
+{
+    var ip = (result.header.crlIssuingPoint != null && result.header.crlIssuingPoint.length > 0)?
+             result.header.crlIssuingPoint: "MasterCRL";
+    var dt = (result.header.crlDisplayType != null && result.header.crlDisplayType.length > 0)?
+             result.header.crlDisplayType: "entireCRL";
+    var loc = location.protocol + '//' + location.hostname + ':' +
+              location.port + '/ca/agent/ca/displayCRL?crlIssuingPoint='+ip+
+              '&crlDisplayType='+dt+'&pageStart='+
+              (parseInt(result.header.pageStart)+parseInt(document.displayCRLForm.pageSize.value))+
+              '&pageSize='+parseInt(document.displayCRLForm.pageSize.value);
+    location.href = loc;
+}
+
+function doPrevious()
+{
+    var ip = (result.header.crlIssuingPoint != null && result.header.crlIssuingPoint.length > 0)?
+             result.header.crlIssuingPoint: "MasterCRL";
+    var dt = (result.header.crlDisplayType != null && result.header.crlDisplayType.length > 0)?
+             result.header.crlDisplayType: "entireCRL";
+    var loc = location.protocol + '//' + location.hostname + ':' +
+              location.port + '/ca/agent/ca/displayCRL?crlIssuingPoint='+ip+
+              '&crlDisplayType='+dt+'&pageStart='+
+              (parseInt(result.header.pageStart)-parseInt(document.displayCRLForm.pageSize.value))+
+              '&pageSize='+parseInt(document.displayCRLForm.pageSize.value);
+    location.href = loc;
+}
+
+if (result.header.crlSize != null &&
+    result.header.pageSize != null &&
+    result.header.pageStart != null &&
+    (parseInt(result.header.crlSize) > parseInt(result.header.pageSize))) {
+    document.writeln('<FORM NAME="displayCRLForm" ACTION="/ca/agent/ca/displayCRL" METHOD=POST>');
+    document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=6 WIDTH="100%">');
+    document.writeln('<tr><td ALIGN=LEFT BGCOLOR="#E5E5E5">');
+    document.writeln('<font face="PrimaSans BT, Verdana, sans-serif" size="-1">');
+    var upperLimit = 0;
+    if (parseInt(result.header.pageStart)+parseInt(result.header.pageSize)-1 >
+        parseInt(result.header.crlSize)) {
+        upperLimit = parseInt(result.header.crlSize);
+    } else {
+        upperLimit = parseInt(result.header.pageStart)+parseInt(result.header.pageSize)-1;
+    }
+    document.writeln(result.header.pageStart+'-'+upperLimit+
+                     ' of '+result.header.crlSize+' CRL entries');
+    document.writeln('</font></td>');
+    document.writeln('<td ALIGN=RIGHT BGCOLOR="#E5E5E5">');
+    var n = 0;
+    if (parseInt(result.header.pageStart) > 1) {
+        document.writeln('<INPUT TYPE="button" VALUE="Previous" width="72"'+
+                         ' onClick="doPrevious();">&nbsp;');
+        n++;
+    }
+    if (parseInt(result.header.pageStart) + parseInt(result.header.pageSize) - 1 <
+        parseInt(result.header.crlSize)) {
+        document.writeln('<INPUT TYPE="button" VALUE="Next" width="72"'+
+                         ' onClick="doNext();">&nbsp;');
+        n++;
+    }
+    if (n > 0) {
+        document.writeln('<INPUT TYPE=text SIZE=4 MAXLENGTH=8 NAME=pageSize VALUE='+
+                         result.header.pageSize+'>&nbsp;');
+    }
+
+    document.writeln('</td></tr></table>');
+    document.writeln('</FORM>');
+}
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>
+

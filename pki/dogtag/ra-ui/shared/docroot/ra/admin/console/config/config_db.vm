@@ -1,0 +1,126 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    
+    <title>Dogtag Certificate System</title>
+
+<SCRIPT LANGUAGE="JavaScript">
+    function donePanel(errorStr, displayS) {
+      if (displayS == "loaded") {
+        if (errorStr == '') {
+            window.close();
+        }
+      }
+    }
+</SCRIPT>
+
+    <link rel="shortcut icon" href="/ra/admin/console/img/favicon.ico" />
+    <link rel="stylesheet" href="/css/pki-base.css" type="text/css" />
+  </head>
+
+
+  <body onLoad="donePanel('$errorString', '$displayStr')">
+<div id="wrap">
+#include ( "admin/console/config/header.vm" )
+
+<div id="mainNavOuter">
+<div id="mainNav">
+                                                                                
+<div id="mainNavInner">
+                                                                                
+</div><!-- end mainNavInner -->
+</div><!-- end mainNav -->
+</div><!-- end mainNavOuter -->
+
+<!-- close bar -->
+
+  <div id="content">
+    <table width="100%" cellspacing="0">
+      <tr>
+        <td width="100%">
+  <h1><img src="../img/pki-icon-software.gif" />
+  Internal Database </h1>
+
+    <form name=configForm action="config_db" method="post">
+    <b>Internal Database Connection</b> <p>This option allows sharing an internal database to improve managability.<p>
+#if ($errorString != "")
+<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+    <table class="details">
+      <tr>
+        <th>Host:</th>
+                                                                                
+        <td><input type="text" length="128" size="40" name="host" value="$hostname" /></td>
+      </tr>
+                                                                                
+      <tr>
+        <th>Port:</th>
+                                                                                
+        <td><input type="text" length="64" size="40" name="port" value="$portStr" /></td>
+      </tr>       
+      <tr>
+        <th>Base DN:</th>
+        <td><input type="text" length="128" size="40" name="basedn" value="$basedn" /></td>
+      </tr>
+      <tr>
+        <th>Database:</th>
+                                                                                
+        <td><input type="text" length="128" size="40" name="database" value="$database"  /></td>
+      </tr>
+      <tr>
+        <th>Bind DN:</th>
+        <td><input type="text" length="128" size="40" name="binddn" value="$binddn" /></td>
+      </tr>
+      <tr>
+        <th>Bind Password:</th>
+                                                                                
+        <td><input type="password" length="128" size="40" name="__bindpwd" value="$bindpwd" autocomplete="off" /></td>
+      </tr>
+        <td><input type="hidden" name="display" value=$displayStr /></td>
+    </table>
+                                                                                
+    <div align="right">
+      <hr />
+      &nbsp;
+    </div>
+                                                                                
+
+<p>
+<table width=100%>
+<tr bgcolor="#eeeeee">
+  <td>
+<input onclick="configForm.submit()" type="button" name="config_db_next" value="Apply">                                                                                
+  </td>
+</tr>
+</table>
+
+    </form>
+
+	</td>
+      </tr>
+    </table>
+
+  </div> <!-- close content -->
+  </div> <!-- close wrap -->
+
+  </body>
+</html>

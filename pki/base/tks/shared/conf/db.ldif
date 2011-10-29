@@ -1,0 +1,66 @@
+# --- BEGIN COPYRIGHT BLOCK ---
+# Copyright (C) 2006 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+dn: ou=people,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+aci: (targetattr!="userPassword")(version 3.0; acl "Enable anonymous access"; allow (read, search, compare)userdn="ldap:///anyone";)
+
+dn: ou=groups,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=Token Key Service Manager Agents,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Token Key Service Manager Agents
+description: Agents for Token Key Service Manager
+
+dn: cn=Subsystem Group, ou=groups, {rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Subsystem Group
+description: Subsystem Group
+
+dn: cn=Trusted Managers,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Trusted Managers
+description: Managers trusted by this PKI instance
+
+dn: cn=Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Administrators
+description: People who manage the Certificate System
+
+dn: cn=Auditors,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Auditors
+description: People who can read the signed audits
+
+dn: cn=ClonedSubsystems,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: ClonedSubsystems
+description: People who can clone the master subsystem
+
+dn: ou=requests,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: requests
+
+dn: cn=crossCerts,{rootSuffix}
+cn: crossCerts
+sn: crossCerts
+objectClass: top
+objectClass: person
+objectClass: pkiCA
+cACertificate;binary:
+authorityRevocationList;binary:
+certificateRevocationList;binary:

@@ -1,0 +1,693 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>User Certificate Request Form</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/dynamicVars.js">
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/cms-funcs.js">
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript" SRC="/ca/ee/helpfun.js">
+</SCRIPT>
+
+
+<SCRIPT LANGUAGE="JavaScript">
+
+function setSignType(f)
+{
+   if ((f.certType.options[0].selected)) {
+     alert("You must select Signing-Type");
+     return;
+   }
+   else if (f.certType.options[1].selected)
+     f.object_signing.value = true;
+   else if (f.certType.options[2].selected)
+     f.object_signing.value = false;
+}
+
+function updateEmail(f)
+{
+   if (f.E.value != '') {
+     f.csrRequestorEmail.value = f.E.value;
+   }
+   formulateDN(f, f.subject);
+}
+
+function formDNandReload()
+{
+    formulateDN(document.forms[0], document.forms[0].subject);
+    updateEmail(document.forms[0]);
+}
+
+function validate(form)
+{
+
+	if ((form.certType.options[0].selected)) {
+	   alert("You must select Signing-Type");
+	   return false;
+	}
+
+	with (form) {
+
+        /////////////////////////////////////////////////////////////////
+        // To enable dual key feature, this page must be customized with
+        // appropriate Javascript call. For example,
+        //
+        //      crmfObject = crypto.generateCRMFRequest(
+        //              "CN=undefined",
+        //              "regToken", "authenticator",
+        //              null,
+        //              "setCRMFRequest();",
+        //              512, null, "rsa-ex",
+        //              1024, null, "rsa-sign");
+        //
+        // To enable key archival feature, this page must be customized with
+        // KRA's transport certificate. The transport certificate can be
+        // retrieved in the following ways:
+        // (1) Access "List Certificates" menu option in end-entity page
+        // (2) Access https://<host>:<agent_port>/kra/displayTransportCert
+        // (3) Use certutil command in <instance-dir>/config directory
+        //     (i.e. certutil -L -d . -n "kraTransportCert <instance-id>" -a)
+        //
+        // Once the transport certificate is obtained, the following
+        // javascript should be modified so that the transport certificate
+        // and appropriate key type are selected. For example,
+        //
+        //      var kraTransportCert = "MIICDjCCAXegAwIBAgICAfMwDQYJKoZIhvcNAQEEBQAwdzELMAkGA1UEBhMCVVMxLDAqBgNVBAoTI05ldHNjYXBlIENvbW11bmljYXRpb25zIENvcnBvcmF0aW9uMREwDwYDVQQLEwhIYXJkY29yZTEnMCUGA1UEAxMeSGFyZGNvcmUgQ2VydGlmaWNhdGUgU2VydmVyIElJMB4XDTk4MTExOTIzNDIxOVoXDTk5MDUxODIzNDIxOVowLjELMAkGA1UEBhMCVVMxETAPBgNVBAoTCG5ldHNjYXBlMQwwCgYDVQQDEwNLUmEwXDANBgkqhkiG9w0BAQEFAANLADBIAkEArrbDiYUI5SCdlCKKa0bEBn1m83kX6bdhytRYNkd/HB95Bp85SRadmdJV+0O/yMxjYAtGCFrmcqEZ4sh2YSov6wIDAQABozYwNDARBglghkgBhvhCAQEEBAMCAEAwHwYDVR0jBBgwFoAUl7FtsrYCFlQMl9fjMm3LnN/u3oAwDQYJKoZIhvcNAQEEBQADgYEApvzcUsVIOstaoYSiWb4+aMVH6s1jiJlr5iVHnOKzfsYxPVdUw6uz04AT8N+1KIarMTKxHPzGAFSLicKLEv4HG4vh6llc86uzRzWpUqqVHg/eKN5A8Jyg56D4DkNr/XEJ7QdKesAp13dk5H5qvHelkSPLYYdMXNwNWPVZKgnWrWg=";
+        //      var keyGenAlg = "rsa-ex";
+        //      crmfObject = crypto.generateCRMFRequest(
+        //              "CN=undefined",
+        //              "regToken", "authenticator",
+        //              keyTransportCert,
+        //              "setCRMFRequest();",
+        //              512, null, keyGenAlg);
+        /////////////////////////////////////////////////////////////////
+
+        // To enable key archival, replace "null" with the transport
+        // certificate without "BEBIN..." "END..", nor line breaks.
+        // change keyGenAlg to "rsa-ex"
+        var keyTransportCert = null;
+        //var keyGenAlg = "rsa-ex";
+        var keyGenAlg = "rsa-dual-use";
+        // generate keys for nsm.
+        if (navigator.appName == "Netscape" && (navMajorVersion() > 3) && 
+			 typeof(crypto.version) != "undefined") {
+			certNickname.value = subject.value;
+        	crmfObject = crypto.generateCRMFRequest(
+				subject.value,
+               	"regToken", "authenticator", 
+		keyTransportCert,
+                "setCRMFRequest();", 
+                1024, null, keyGenAlg);
+        }
+        return true;
+    }
+}
+
+function setCRMFRequest()
+{
+	with (document.forms[0]) {
+		CRMFRequest.value = crmfObject.request;
+		submit();
+	}
+}
+
+</SCRIPT>
+</head>
+
+<OBJECT
+	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
+	CODEBASE="/xenroll.dll"
+	id=Enroll    >
+</OBJECT>
+
+
+<SCRIPT LANGUAGE=VBS>
+<!--
+Function escapeDNComponent(comp)
+		escapeDNComponent = comp
+End Function
+
+Function doubleQuotes(comp)
+		doubleQuotes = False
+End Function
+
+Function formulateDN(a,b)
+		Dim dn
+		Dim TheForm
+		Set TheForm = Document.ReqForm
+
+		dn = Empty
+
+		If (TheForm.C.Value <> Empty) Then
+			If doubleQuotes(TheForm.C.Value) = True Then
+				MsgBox "Double quotes are not allowed in the Country field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "C=" & escapeDNComponent(TheForm.C.Value)
+		End If
+
+		If (TheForm.O.Value <> Empty) Then
+			If doubleQuotes(TheForm.O.Value) = True Then
+				MsgBox "Double quotes are not allowed in the Organiztion field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "O=" & escapeDNComponent(TheForm.O.Value)
+		End If
+
+		If (TheForm.OU.Value <> Empty) Then
+			If doubleQuotes(TheForm.OU.Value) = True Then
+				MsgBox "Double quotes are not allowed in the Org Unit field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "OU=" & escapeDNComponent(TheForm.OU.Value)
+		End If
+
+		If (TheForm.UID.Value <> Empty) Then
+			If doubleQuotes(TheForm.UID.Value) = True Then
+				MsgBox "Double quotes are not allowed in the uid field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "0.9.2342.19200300.100.1.1=" & escapeDNComponent(TheForm.UID.Value)
+		End If
+
+		If (TheForm.CN.Value <> Empty) Then
+			If doubleQuotes(TheForm.CN.Value) = True Then
+				MsgBox "Double quotes are not allowed in the Common Name field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "CN=" & escapeDNComponent(TheForm.CN.Value)
+		End If
+
+		If (TheForm.E.Value <> Empty) Then
+			If doubleQuotes(TheForm.E.Value) = True Then
+				MsgBox "Double quotes are not allowed in the eMail field"
+				Exit Function
+			End If
+			If (dn <> Empty) Then
+				dn = dn & ","
+			End If
+			dn = dn & "E=" & escapeDNComponent(TheForm.E.Value)
+		End If
+
+		formulateDN = dn
+End Function
+
+Sub Send_OnClick
+  Dim TheForm
+  Dim szName
+  Dim options
+  Set TheForm = Document.ReqForm
+
+
+  ' Do a few sanity checks
+  If (TheForm.CN.Value = Empty) Then 
+    ret = MsgBox("You must supply your name for the certificate", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+  If (TheForm.csrRequestorEmail.Value = Empty) AND (TheForm.csrRequestorPhone.Value = Empty) Then
+	ret = MsgBox("You must supply a phone number or email address", 0, "MSIE Certificate Request")
+	Exit Sub
+  End If
+
+  ' Contruct the X500 distinguished name
+  szName = formulateDN("","")
+
+  On Error Resume Next
+  Enroll.HashAlgorithm = "MD5"
+  Enroll.KeySpec = 1
+
+   ' Pick the provider that is selected
+   set options = TheForm.all.cryptprovider.options
+   index = options.selectedIndex
+   Enroll.providerType = options(index).value
+   Enroll.providerName = options(index).text
+
+   ' adding 2 to "GenKeyFlags" will  enable the 'High Security' 
+   ' (USER_PROTECTED) mode, which means IE will pop up a dialog
+   ' asking what level of protection you would like to give
+   ' the key - this varies from 'none' to 'confirm password
+   ' every time the key is used'
+  Enroll.GenKeyFlags = 1        ' key PKCS12-exportable
+  szCertReq = Enroll.createPKCS10(szName, "1.3.6.1.5.5.7.3.2")
+  theError = Err.Number
+  On Error Goto 0
+  '
+  ' If the user has cancelled things the we simply ignore whatever
+  ' they were doing ... need to think what should be done here
+  '
+  If (szCertReq = Empty AND theError = 0) Then
+    Exit Sub
+  End If
+
+  If (szCertReq = Empty OR theError <> 0) Then
+    '
+    ' There was an error in the key pair generation. The error value
+    ' is found in the variable 'theError' which we snarfed above before
+    ' we did the 'On Error Goto 0' which cleared it again.
+    '
+    sz = "The error '" & Hex(theError) & "' occurred." & chr(13) & chr(10) & "Your credentials could not be generated."
+    result = MsgBox(sz, 0, "Credentials Enrollment")
+    Exit Sub
+  End If
+
+  TheForm.pkcs10Request.Value = szCertReq
+  TheForm.csrRequestorName.Value = TheForm.CN.Value
+
+  ' TheForm.Submit
+  Exit Sub
+
+End Sub
+-->
+</SCRIPT>
+
+<body bgcolor="#FFFFFF" onload=checkClientTime()>
+
+<script lang=javascript>
+//<!--
+	if (navigator.appName == "Netscape" && navMajorVersion() <= 3) {
+		// shortcut for version 3.x or less, crypto is not defined
+        	document.writeln(
+			'<form name="ReqForm" method="post" action="/enrollment">');
+	} else if (navigator.appName == "Netscape" && 
+		 typeof(crypto.version) != "undefined") { 
+        document.writeln(
+			'<form name="ReqForm" method="post" action="/enrollment">');
+	} else {
+        document.writeln(
+			'<form name="ReqForm" method="post" action="/enrollment" '+
+			'onSubmit="return validate(document.forms[0])">');
+	}
+//-->
+</script>
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Manual Object Signing Enrollment
+</font><br>
+  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+  Use this form to submit a request for an object signing certificate. 
+  After you click the Submit button, your request will be submitted to an 
+  issuing agent for approval. When an issuing agent has approved your request
+  you will receive the certificate in email, along with instructions for 
+  installing it.
+  </font>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr valign="TOP"> 
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><b>Important:</b> 
+      </font></td>
+    <td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+	Be sure to request your certificate on the same computer on which you 
+	plan to use the certificate.
+	  </font></td>
+  </tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<p>
+  <table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <tr> 
+      <td colspan="2" valign="TOP">
+	  <font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+	<b>User's Identity</b><br>
+	  </font>
+	  <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+	Enter values for the fields you want to have in your certificate. 
+	Your site may require you to fill in certain fields. <br>(* = required field)</font></td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+		  * Full name: 
+		  </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="HIDDEN" name="csrRequestorName">
+        <input type="TEXT" name="CN" size="30" onchange="formulateDN(this.form, this.form.subject)">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Login name: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="UID" size="30" onchange="formulateDN(this.form, this.form.subject)">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Email address: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="E" size="30" onchange="updateEmail(this.form)">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1">Organization unit: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="OU" size="30" onchange="formulateDN(this.form, this.form.subject)">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Organization: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="O" size="30" onchange="formulateDN(this.form, this.form.subject)">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Country: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="C" value="US" size=2 maxlength=2 
+onchange="formulateDN(this.form, this.form.subject)">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+        </div>
+      </td>
+      <td valign="TOP">&nbsp; </td>
+    </tr>
+    <tr> 
+    </tr>
+
+    <tr>
+    <td colspan="2" valign="TOP">
+          <font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-seri
+f">
+          <b>
+          Select Signing Type
+          </b><br>
+      </font>
+          <font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size=
+"-1">
+        Select a signing type that the certificate will be used. </font></td>
+    </tr>
+
+    <tr>
+      <td valign="TOP">
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-se
+rif">Signing Type: </font>
+        </div>
+      </td>
+      <td valign="TOP">
+        <SELECT NAME="certType" onchange="setSignType(document.forms[0])">
+                <OPTION value="" SELECTED>Select Signing-Type
+                <OPTION value="client">Netscape Object-Signing
+                <OPTION value="codeSignClient">Microsoft Authenticode
+        </SELECT>
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="2" valign="TOP">&nbsp;</td>
+    </tr>
+
+
+    <tr> 
+      <td colspan="2" valign="TOP">
+	  <font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+	  <b>
+	  Contact Information
+	  </b><br>
+      </font>
+	  <font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1"> 
+        Enter an email address or phone number at which you can be contacted 
+        regarding this request. </font></td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Email: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="csrRequestorEmail" size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Phone: </font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <input type="TEXT" name="csrRequestorPhone" size="30">
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2">&nbsp;</td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2">
+	  <font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+	  <b>
+	  Additional Comments
+	  </b><br>
+	  </font>
+     <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+	  If you have any comments for the person who will process your certificate request, write them here.
+		</font>
+	  </td>
+    </tr>
+    <tr> 
+      <td valign="TOP"> 
+        <div align="RIGHT">
+          <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"></font> 
+        </div>
+      </td>
+      <td valign="TOP"> 
+        <textarea name="csrRequestorComments" rows="6" cols="39" wrap="virtual">
+</textarea>
+      </td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2">&nbsp;</td>
+    </tr>
+    <tr> 
+      <td valign="TOP" colspan="2">
+<script>
+		if (navigator.appName == 'Netscape' &&
+                        (navMajorVersion() <= 3 || typeof(crypto.version) == 'undefined')) {
+
+	  		document.writeln('<font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"><b>Public/Private Key Information</b><br></font>');
+     			document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">When you submit this form, the browser generates a private key and a public key. It retains the private key and submits the public key along with your request for a certificate. The public key becomes part of the certificate. <p> </font>');
+		}
+		if (navigator.appName == "Microsoft Internet Explorer") {
+	  		document.writeln('<font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"><b>Public/Private Key Information</b><br></font>');
+     			document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">When you submit this form, the browser generates a private key and a public key. It retains the private key and submits the public key along with your request for a certificate. The public key becomes part of the certificate. <p> </font>');
+		}
+</script>
+     <font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<script>
+		if (navigator.appName == 'Netscape' &&
+                        (navMajorVersion() <= 3 || typeof(crypto.version) == 'undefined')) {
+			document.writeln('Select the length of the key to generate. '+
+				'The longer the key length, the greater the strength. '+
+				'You may want to check with your system administrator about '+
+				'the length of key to specify.');
+		}
+		if (navigator.appName == "Microsoft Internet Explorer") {
+			document.writeln('The Microsoft Base Cryptographic provider offers 512-bit key encryption which is adequate for most applications today, but you may select the Enhanced option if your browser offers this choice and you require the higher encryption strength. You may want to check with your '+
+                  'system administrator about the provider to specify.');
+		}
+</script>
+		</font>
+		</td>
+    </tr>
+    <tr> 
+		<td>
+<script>
+		if (navigator.appName == 'Netscape' &&
+                        (navMajorVersion() <= 3 || typeof(crypto.version) == 'undefined')) {
+	      document.writeln(
+		  '<font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+		  document.writeln('Key Length:');
+		  document.writeln('</font>');
+		}
+	if (navigator.appName == "Microsoft Internet Explorer") {
+	      document.writeln(
+		  '<font size=-1 face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+		  document.writeln('Cryptographic Provider:');
+		  document.writeln('</font>');
+		}
+</script>
+		</td>
+		<td>
+<script>
+		//<font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+	  if (navigator.appName == 'Netscape') {
+		  if (navMajorVersion() <= 3 || 
+				typeof(crypto.version) == 'undefined') {
+			  document.write('<KEYGEN name="subjectKeyGenInfo">');
+		  }
+		  //</font>
+	  }
+	if (navigator.appName == "Microsoft Internet Explorer") {
+	   document.writeln('<SELECT NAME=\"cryptprovider\"></SELECT>');
+	}
+
+</script>
+	   </td>
+	</tr>
+</table>
+
+<script lang=javascript>
+document.write('<table border="0" width="100%" cellspacing="0" '+
+       'cellpadding="6" bgcolor="#cccccc" background="/ca/ee/graphics/gray90.gif">' +
+       '<tr> <td> <div align="RIGHT">');
+
+if (navigator.appName == "Netscape") {
+
+  if (navMajorVersion() <= 3) {
+    // shortcut for version 3.x or less, crypto is not defined
+    document.writeln(
+    '<input type="submit" value="Submit" '+
+    'name="submit" width="72">');
+    } 
+  else if (typeof(crypto.version) == "undefined") {
+    document.writeln(
+      '<input type="submit" value="Submit" '+
+      'name="submit" width="72">');
+  } else {
+    // alert('nsm');
+    document.writeln(
+      '<input type="button" value="Submit" '+
+      'name="submitbutton" '+
+      'onclick="validate(form)" width="72">');
+  
+    document.write(
+      '<input type="hidden" name=CRMFRequest value="">');
+    document.write(
+      '<input type=hidden name=cmmfResponse value=true>');
+    document.write(
+      '<input type=hidden name=certNickname value="">');
+    }
+  }
+else if (navigator.appName == "Microsoft Internet Explorer") {
+  document.writeln(
+     '<input type="submit" value="Submit" '+
+     'name="Send" width="72">');
+  document.write(
+     '<input type="hidden" name="pkcs10Request" value="">');
+}
+
+document.write(
+   '<input type="hidden" name="subject" value="">' +
+   '<input type="hidden" name="requestFormat" value="keygen">' +
+   '<input type="hidden" name="object_signing" value="true">' +
+   '<img src="/ca/ee/graphics/spacer.gif" width="6" height="6">' +
+   '<input type="reset" value="Reset" name="reset" width="72">' +
+   '</div> </td> </tr> </table>');
+</script>
+  </form>
+<SCRIPT LANGUAGE=VBS>
+<!--
+
+FindProviders
+
+Function FindProviders
+	Dim i, j
+	Dim providers()
+	i = 0
+	j = 1
+	Dim el
+	Dim temp
+	Dim first
+	Dim TheForm
+	Set TheForm = document.ReqForm
+	On Error Resume Next
+	first = 0
+
+	Do While True
+	temp = ""
+	Enroll.providerType = j
+	temp = Enroll.enumProviders(i,0)
+	If Len(temp) = 0 Then
+	If j < 1 Then 
+	  j = j + 1
+	  i = 0 
+	Else
+	  Exit Do
+	End If
+	Else
+	set el = document.createElement("OPTION")
+	el.text = temp
+	el.value = j 
+	TheForm.cryptprovider.add(el)
+	If first = 0  Then
+	  first = 1
+	  TheForm.cryptprovider.selectedIndex = 0
+	End If
+	i = i + 1
+	End If
+	Loop
+
+End Function
+
+-->
+</SCRIPT>
+</body>
+</html>

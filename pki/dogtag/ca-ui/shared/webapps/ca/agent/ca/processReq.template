@@ -1,0 +1,1407 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Display Request</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<SCRIPT type="text/javascript" SRC="/ca/agent/funcs.js"></SCRIPT>
+<SCRIPT type="text/javascript" SRC="/ca/agent/helpfun.js"></SCRIPT>
+<SCRIPT type="text/javascript" SRC="/ca/agent/dynamicVars.js"></SCRIPT>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/javascript">
+<!--
+if (header.profile == 'true') {
+  document.location="profileReview?requestId=" + header.seqNum;
+}
+var lengthOptions = new Array(0, "",
+                              86400, "1 Day",
+                              604800, "1 Week",
+                              1209600, "2 Weeks",
+                              2592000, "1 Month (30 days)",
+                              15552000, "6 Months (180 days)",
+                              31536000, "1 Year (365 days)",
+                              46656000, "18 Months (540 days)",
+                              63072000, "2 Years (730 days)");
+
+function addSpaces(str)
+{
+    var outStr = "";
+    var str0 = "";
+    var i0 = 0;
+    var i1 = 0;
+
+    while (i1 < str.length) {
+        i1 = str.indexOf(',', i0);
+        if (i1 > -1) {
+            i1++;
+            str0 += str.substring(i0, i1);
+            str0 += " ";
+            i0 = i1;
+        } else {
+            str0 += str.substring(i0, str.length);
+            i1 = str.length;
+        }
+    }
+
+    i0 = 0;
+    i1 = 0;
+    while (i1 < str0.length) {
+        i1 = str0.indexOf('+', i0);
+        if (i1 > -1) {
+            i1++;
+            outStr += str0.substring(i0, i1);
+            outStr += " ";
+            i0 = i1;
+        } else {
+            outStr += str0.substring(i0, str0.length);
+            i1 = str0.length;
+        }
+    }
+
+    return outStr;
+}
+
+function renderRequestInfo()
+{
+    document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln('Request</font></td></tr>');
+
+    document.writeln('<tr><td valign="top" align="right">'+
+                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                     'Status:</font></td>');
+    document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                     result.header.status + '</font></td></tr>');
+
+    document.writeln('<tr><td valign="top" align="right">'+
+                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                     'Type:</font></td>');
+    document.write('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+    if (result.header.requestType != null) {
+        document.write(result.header.requestType);
+    } else {
+        document.write('unknown');
+    }
+    document.writeln('</font></td></tr>');
+
+    if (result.header.status == 'pending') {
+        document.writeln('<tr><td valign="top" align="right">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Assigned to:</font></td>');
+        document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         ((result.header.assignedTo != null)? result.header.assignedTo: 'unassigned')+
+                         '&nbsp;&nbsp;&nbsp;');
+        if (result.header.assignedTo == null) {
+            document.write('<a href="processReq?doAssign=toMe&seqNum='+
+                           result.header.seqNum + '"' +
+                           'onMouseOver="return helpstatus(\'Click to assign the '+
+                           'request to yourself\')" '+
+                           'onMouseOut="return helpstatus(\'\')">'+
+                           'assign to me</a>');
+        } else if (result.header.assignedTo != result.header.callerName) {
+            document.write('<a href="processReq?doAssign=reassignToMe&seqNum=' +
+                           result.header.seqNum +  '"' + 
+                           'onMouseOver=" return helpstatus(\'Click to re-assign the '+
+                           'request to yourself\')" '+
+                           'onMouseOut="return helpstatus(\'\')">'+
+                           're-assign to me</a>');
+        } else if (result.header.assignedTo == result.header.callerName) {
+            document.write('<a href="processReq?doAssign=reassignToNobody&seqNum=' +
+                           result.header.seqNum + '"' + 
+                           'onMouseOver=" return helpstatus(\'Click to cancel request '+
+                           'assignment\')" '+
+                           'onMouseOut="return helpstatus(\'\')">'+
+                           'cancel request assignment</a>');
+        }
+        document.writeln('</font></td></tr>');
+
+//        document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+//                         ((result.header.assignedTo != null)? result.header.assignedTo: 'unassigned')+
+//                         '</font></td></tr>');
+    }
+
+    if (result.header.certType != null) {
+        document.writeln('<tr><td valign="top" align="right">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Certificate type:</font></td>');
+        document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         result.header.certType + '</font></td></tr>');
+    }
+
+    if (result.header.status == 'complete' && result.header.Result != null && 
+        result.header.Result == '2' && result.header.errors != null) {
+        document.writeln('<tr><td valign="top" align="right">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Error:</font></td>');
+        document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         result.header.errors + '</font></td></tr>');
+    }
+}
+
+function renderRequesterInfo()
+{
+    if (result.header.requestType != 'revocation' &&
+        result.header.requestType != 'unrevocation' &&
+        result.header.requestType != 'getCertificates' &&
+        (result.header.csrRequestorName != null ||
+         result.header.csrRequestorEmail != null ||
+         result.header.csrRequestorPhone != null ||
+         result.header.subject != null)) {
+
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Subject (requester)</font></td></tr>');
+
+        document.writeln('<tr><td valign="top" align="right">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Subject name:</font></td>');
+        if (result.header.status == 'pending') {
+            document.writeln('<td valign="top" colspan="2">'+
+                             '<INPUT TYPE="TEXT" NAME="subject" SIZE=40 MAXLENGTH=254 VALUE="'+
+                             ((result.header.subject != null)? result.header.subject: '') +
+                             '"></font></td></tr>');
+        } else {
+            document.writeln('<td valign="top" colspan="2">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             ((result.header.subject != null)? addSpaces(result.header.subject): '') +
+                             '</font></td></tr>');
+        }
+
+        if (result.header.csrRequestorName != null &&
+            result.header.csrRequestorName != "") {
+            document.writeln('<tr><td valign="top" align="right">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             'Name:</font></td>');
+            document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             result.header.csrRequestorName + '</font></td></tr>');
+        }
+
+        if (result.header.csrRequestorEmail != null &&
+            result.header.csrRequestorEmail != "") {
+            document.writeln('<tr><td valign="top" align="right">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             'Email:</font></td>');
+            document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             result.header.csrRequestorEmail + '</font></td></tr>');
+        }
+
+        if (result.header.csrRequestorPhone != null &&
+            result.header.csrRequestorPhone != "") {
+            document.writeln('<tr><td valign="top" align="right">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             'Phone:</font></td>');
+            document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             result.header.csrRequestorPhone + '</font></td></tr>');
+        }
+    }
+
+    if (result.header.csrRequestorComments != null &&
+        result.header.csrRequestorComments != "") {
+        document.writeln('<tr><td valign="top" align="right">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Comments:</font></td>');
+        document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         result.header.csrRequestorComments + '</font></td></tr>');
+    }
+}
+
+function renderPublicKeyInfo()
+{
+    if (result.header.requestType == 'Enrollment' ||
+		result.header.requestType == 'enrollment' ||
+        result.header.requestType == 'renewal') {
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Subject public key</font></td></tr>');
+
+        document.writeln('<tr><td valign="top" align="right">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Algorithm:</font></td>');
+        document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         result.header.subjectPublicKeyInfo + '</font></td></tr>');
+
+        document.writeln('<tr><td valign="top" align="right">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Public key:</font></td>');
+        document.writeln('<td valign="top" colspan="2"><font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         result.header.subjectPublicKey.replace(/\n/g, "<br>") + '</font></td></tr>');
+
+        //if (result.header.status == 'pending') {
+            //document.writeln('<tr><td valign="top" align="right"></td>');
+            //document.writeln('<td valign="top">'+
+                             //'<INPUT TYPE="checkbox" NAME="checkPubKeyUniqueness" VALUE="no">'+
+                             //'</td>');
+            //document.writeln('<td valign="top" align=left>'+
+                             //'<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             //'Override public key uniqueness requirement'+
+                             //'</font></td>');
+        //}
+    }
+}
+
+function renderSelectionWithNames(name, from, to, selected, names)
+{
+    document.writeln('<SELECT NAME="'+name+'" onChange="checkValidityLength()">');
+    for (var i = from; i < to; i++) {
+        if (i == selected) {
+            document.writeln('<OPTION VALUE='+i+' SELECTED>'+names[i]);
+        } else {
+            document.writeln('<OPTION VALUE='+i+'>'+names[i]);
+        }
+    }
+    document.writeln('</SELECT>');
+}
+
+function renderSelection(name, from, to, selected)
+{
+    document.writeln('<SELECT NAME="'+name+'" onChange="checkValidityLength()">');
+    for (var i = from; i < to; i++) {
+        if (i == selected) {
+            document.writeln('<OPTION VALUE='+i+' SELECTED>'+i);
+        } else {
+            document.writeln('<OPTION VALUE='+i+'>'+i);
+        }
+    }
+    document.writeln('</SELECT>');
+}
+
+function checkValidityLength()
+{
+    var i;
+    var fromDate;
+    i = document.forms[0].fromDay.selectedIndex;
+    var day = document.forms[0].fromDay.options[i].value;
+    i = document.forms[0].fromMonth.selectedIndex;
+    var month = document.forms[0].fromMonth.options[i].value;
+    i = document.forms[0].fromYear.selectedIndex;
+    var year = document.forms[0].fromYear.options[i].value;
+    i = document.forms[0].fromHour.selectedIndex;
+    var hour = document.forms[0].fromHour.options[i].value;
+    i = document.forms[0].fromMinute.selectedIndex;
+    var minute = document.forms[0].fromMinute.options[i].value;
+    i = document.forms[0].fromSecond.selectedIndex;
+    var second = document.forms[0].fromSecond.options[i].value;
+
+    fromDate = new Date(year,month,day,hour,minute,second);
+    if (fromDate.getMonth() != month || fromDate.getDate() != day || year == 0) {
+        alert((++month)+"/"+day+"/"+year+" is invalid");
+        return;
+    }
+    var fromTime = fromDate.getTime();
+
+    var toDate;
+    i = document.forms[0].toDay.selectedIndex;
+    day = document.forms[0].toDay.options[i].value;
+    i = document.forms[0].toMonth.selectedIndex;
+    month = document.forms[0].toMonth.options[i].value;
+    i = document.forms[0].toYear.selectedIndex;
+    year = document.forms[0].toYear.options[i].value;
+    i = document.forms[0].toHour.selectedIndex;
+    hour = document.forms[0].toHour.options[i].value;
+    i = document.forms[0].toMinute.selectedIndex;
+    minute = document.forms[0].toMinute.options[i].value;
+    i = document.forms[0].toSecond.selectedIndex;
+    second = document.forms[0].toSecond.options[i].value;
+
+    toDate = new Date(year,month,day,hour,minute,second);
+    if (toDate.getMonth() != month || toDate.getDate() != day || year == 0) {
+        alert((++month)+"/"+day+"/"+year+" is invalid");
+        return;
+    }
+    var toTime = toDate.getTime();
+
+    var len = (toTime - fromTime)/1000;
+
+	for (i=2; i < lengthOptions.length; i+=2) {
+		if (lengthOptions[i] == len) {
+			document.forms[0].validityLength.selectedIndex = i/2;
+            break;
+        }
+	}
+
+    if (i >= lengthOptions.length)
+        document.forms[0].validityLength.selectedIndex = 0;
+
+    if (len < 0)
+        alert("NOT VALID AFTER date should not be earlier than NOT VALID BEFORE date.");
+
+    return;
+}
+
+function updateEndDate()
+{
+    var i;
+    var fromDate;
+    i = document.forms[0].fromDay.selectedIndex;
+    var day = document.forms[0].fromDay.options[i].value;
+    i = document.forms[0].fromMonth.selectedIndex;
+    var month = document.forms[0].fromMonth.options[i].value;
+    i = document.forms[0].fromYear.selectedIndex;
+    var year = document.forms[0].fromYear.options[i].value;
+    i = document.forms[0].fromHour.selectedIndex;
+    var hour = document.forms[0].fromHour.options[i].value;
+    i = document.forms[0].fromMinute.selectedIndex;
+    var minute = document.forms[0].fromMinute.options[i].value;
+    i = document.forms[0].fromSecond.selectedIndex;
+    var second = document.forms[0].fromSecond.options[i].value;
+
+    fromDate = new Date(year,month,day,hour,minute,second);
+    if (fromDate.getMonth() != month || fromDate.getDate() != day || year == 0) {
+        alert((++month)+"/"+day+"/"+year+" is invalid");
+        return;
+    }
+    var fromTime = fromDate.getTime();
+
+    i = document.forms[0].validityLength.selectedIndex;
+    var len = document.forms[0].validityLength.options[i].value;
+    var toDate = new Date(fromTime + len*1000);
+
+    document.forms[0].toDay.selectedIndex = toDate.getDate() - 1;
+    document.forms[0].toMonth.selectedIndex = toDate.getMonth();
+    document.forms[0].toHour.selectedIndex = toDate.getHours();
+    document.forms[0].toMinute.selectedIndex = toDate.getMinutes();
+    document.forms[0].toSecond.selectedIndex = toDate.getSeconds();
+    i = document.forms[0].fromYear.options[0].value;
+    document.forms[0].toYear.selectedIndex = toDate.getFullYear() - i;
+}
+
+function getNotValidBefore()
+{
+    var i;
+    var fromDate;
+    i = document.forms[0].fromDay.selectedIndex;
+    var day = document.forms[0].fromDay.options[i].value;
+    i = document.forms[0].fromMonth.selectedIndex;
+    var month = document.forms[0].fromMonth.options[i].value;
+    i = document.forms[0].fromYear.selectedIndex;
+    var year = document.forms[0].fromYear.options[i].value;
+    i = document.forms[0].fromHour.selectedIndex;
+    var hour = document.forms[0].fromHour.options[i].value;
+    i = document.forms[0].fromMinute.selectedIndex;
+    var minute = document.forms[0].fromMinute.options[i].value;
+    i = document.forms[0].fromSecond.selectedIndex;
+    var second = document.forms[0].fromSecond.options[i].value;
+
+    fromDate = new Date(year,month,day,hour,minute,second);
+    if (fromDate.getMonth() != month || fromDate.getDate() != day || year == 0) {
+        alert((++month)+"/"+day+"/"+year+" is invalid");
+        return null;
+    }
+    return (fromDate.getTime())/1000;
+}
+
+function getNotValidAfter()
+{
+    var i;
+    var toDate;
+    i = document.forms[0].toDay.selectedIndex;
+    var day = document.forms[0].toDay.options[i].value;
+    i = document.forms[0].toMonth.selectedIndex;
+    var month = document.forms[0].toMonth.options[i].value;
+    i = document.forms[0].toYear.selectedIndex;
+    var year = document.forms[0].toYear.options[i].value;
+    i = document.forms[0].toHour.selectedIndex;
+    var hour = document.forms[0].toHour.options[i].value;
+    i = document.forms[0].toMinute.selectedIndex;
+    var minute = document.forms[0].toMinute.options[i].value;
+    i = document.forms[0].toSecond.selectedIndex;
+    var second = document.forms[0].toSecond.options[i].value;
+
+    toDate = new Date(year,month,day,hour,minute,second);
+    if (toDate.getMonth() != month || toDate.getDate() != day || year == 0) {
+        alert((++month)+"/"+day+"/"+year+" is invalid");
+        return null;
+    }
+    return (toDate.getTime())/1000;
+}
+
+function renderValidityInfo()
+{
+    if ((result.header.requestType == 'Enrollment' ||
+		 result.header.requestType == 'enrollment' ||
+         result.header.requestType == 'renewal') &&
+        result.header.status == 'pending') {
+
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Validity</font></td></tr>');
+
+
+        var months = new Array("January", "February", "March", "April",
+                               "May", "June", "July", "August",
+                               "September", "October", "November", "December");
+
+        var sel = -1;
+	    if (result.header.validityLength != null) {
+            if (result.header.validityLength == 0 &&
+                result.header.defaultValidityLength != null &&
+                result.header.defaultValidityLength > 0) {
+                result.header.validityLength = result.header.defaultValidityLength;
+            }
+		    for (i=0; i < lengthOptions.length; i+=2) {
+			    if (lengthOptions[i] == result.header.validityLength) {
+				    sel = i;
+                    break;
+                }
+		    }
+	    }
+        if (sel <= 0 && result.header.validityLength == 0) {
+            sel = 10; // 6 Months (180 days)
+            result.header.validityLength = lengthOptions[sel];
+        } else if (sel < 0 && result.header.validityLength > 0) {
+            sel = 0;
+        }
+
+        var startDay = new Date(serverdate);
+        var year = startDay.getFullYear();
+        var time = startDay.getTime();
+        time += 1000*result.header.validityLength;
+        var endDay = new Date(time);
+
+
+        document.writeln('<tr><td align="right">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Not valid before:</font></td>');
+        document.writeln('<td valign="top" colspan="2">');
+
+        renderSelection("fromDay", 1, 32, startDay.getDate());
+        renderSelectionWithNames("fromMonth", 0, months.length, startDay.getMonth(), months);
+        renderSelection("fromYear", year-2, year+10, year);
+        document.writeln('&nbsp;&nbsp;');
+        renderSelection("fromHour", 0, 24, startDay.getHours());
+        renderSelection("fromMinute", 0, 60, startDay.getMinutes());
+        renderSelection("fromSecond", 0, 60, startDay.getSeconds());
+
+        document.writeln('</td></tr>');
+
+
+        document.writeln('<tr><td align="right">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Not valid after:</font></td>');
+
+        document.writeln('<td valign="top" colspan="2">');
+
+        renderSelection("toDay", 1, 32, endDay.getDate());
+        renderSelectionWithNames("toMonth", 0, months.length, endDay.getMonth(), months);
+        renderSelection("toYear", year-2, year+10, endDay.getFullYear());
+        document.writeln('&nbsp;&nbsp;');
+        renderSelection("toHour", 0, 24, endDay.getHours());
+        renderSelection("toMinute", 0, 60, endDay.getMinutes());
+        renderSelection("toSecond", 0, 60, endDay.getSeconds());
+
+        document.writeln('</td></tr>');
+
+
+
+        document.writeln('<tr><td valign="top" align="right">'+
+                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Length of validity period:</font></td>');
+
+        document.writeln('<td valign="top" colspan="2">');
+        
+
+
+	    // Output a selection menu with the requested value selected
+	    document.writeln('<SELECT NAME="validityLength" onChange="updateEndDate()">');
+	    for (i=0; i < lengthOptions.length; i+=2) {
+            if (i == sel) {
+                document.writeln('<OPTION VALUE='+lengthOptions[i]+' SELECTED>'+lengthOptions[i+1]);
+            } else {
+                document.writeln('<OPTION VALUE='+lengthOptions[i]+'>'+lengthOptions[i+1]);
+            }
+	    }
+	    document.writeln('</SELECT>');
+
+        document.writeln('</td></tr>');
+
+
+//        document.writeln('<tr><td valign="top" align="right"></td>');
+//        document.writeln('<td valign="top">'+
+//                         '<INPUT TYPE="checkbox" NAME="checkValidityNesting" VALUE="no">'+
+//                         '</td>');
+//        document.writeln('<td valign="top" aligh=left>'+
+//                         '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+//                         'Override validity nesting requirement'+
+//                         '</font></td></tr>');
+    }
+}
+
+function renderExtensionsInfo()
+{
+    if ((result.header.requestType == 'Enrollment' ||
+		 result.header.requestType == 'enrollment' ||
+         result.header.requestType == 'renewal') &&
+        result.header.status == 'pending') {
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Extensions</font></td></tr>');
+
+		// NS Cert Type Extension
+
+		var clientcert = "";
+		var servercert = "";
+		var emailcert = "";
+		var objectsigningcert = "";
+		var cacert = "";
+		var sslcacert = "";
+		var emailcacert = "";
+		var objectsigningcacert = "";
+
+		if (result.header.ext_ssl_client != null && result.header.ext_ssl_client == "true") {
+			clientcert = "CHECKED";
+		}
+		if (result.header.ext_ssl_server != null && result.header.ext_ssl_server == "true") {
+			servercert = "CHECKED";
+		}
+		if (result.header.ext_email != null && result.header.ext_email == "true") {
+			emailcert = "CHECKED";
+		}
+		if (result.header.ext_object_signing != null && result.header.ext_object_signing == "true") {
+			objectsigningcert = "CHECKED";
+		}
+		if (result.header.ext_ssl_ca != null && result.header.ext_ssl_ca == "true") {
+			sslcacert = "CHECKED";
+		}
+		if (result.header.ext_email_ca != null && result.header.ext_email_ca == "true") {
+			emailcacert = "CHECKED";
+		}
+		if (result.header.ext_object_signing_ca != null && result.header.ext_object_signing_ca == "true") {
+			objectsigningcacert = "CHECKED";
+		}
+		if (result.header.certType == 'ca') {
+			cacert = "CHECKED";
+		}
+
+		if (result.header.certType == "ca") {
+            document.writeln('<tr><td valign="top" align="right" rowspan="7">');
+        } else {
+            document.writeln('<tr><td valign="top" align="right" rowspan="4">');
+        }
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                         'Netscape certificate type (usage):</font></td>');
+
+        document.writeln('<td valign="top">'+
+		                 '<INPUT TYPE=CHECKBOX ' + clientcert +
+                         ' NAME="certTypeSSLClient" VALUE="yes">'+
+						 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+						 ' SSL Client</font></td></tr>'); 
+		document.writeln('<tr><td valign="top">'+
+		                 '<INPUT TYPE=CHECKBOX ' + servercert +
+                         ' NAME="certTypeSSLServer" VALUE="yes">'+
+						 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+						 ' SSL Server</font></td></tr>');
+		document.writeln('<tr><td valign="top">'+
+		                 '<INPUT TYPE=CHECKBOX ' + emailcert +
+                         ' NAME="certTypeEmail" VALUE="yes">'+
+						 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+						 ' Secure Email</font></td></tr>');
+		if (result.header.certType == "client") {
+        	document.writeln(
+						 '<tr><td valign="top">'+
+		                 '<INPUT TYPE=CHECKBOX ' + objectsigningcert +
+                         ' NAME="certTypeObjSigning" VALUE="yes">'+
+						 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+						 ' Object Signing</font></td></tr>');
+		}
+
+		if (result.header.certType == "ca") {
+            document.writeln('<tr><td valign="top">'+
+                             '<INPUT TYPE=CHECKBOX ' + sslcacert +
+                             ' NAME="certTypeSSLCA" VALUE="yes">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             ' Subordinate SSL CA</font></td></tr>');
+            document.writeln('<tr><td valign="top">'+
+                             '<INPUT TYPE=CHECKBOX ' + emailcacert +
+                             ' NAME="certTypeEmailCA" VALUE="yes">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             ' Subordinate Email CA</font></td></tr>');
+            document.writeln('<tr><td valign="top">'+
+                             '<INPUT TYPE=CHECKBOX ' + objectsigningcacert +
+                             ' NAME="certTypeObjSigningCA" VALUE="yes">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             ' Subordinate Executable Object Signing CA</font></td></tr>');
+        }
+        document.writeln('<tr><td valign="top" colspan="3"></td></tr>');
+
+
+        // Basic Constraints Extension
+        if (result.header.pathLenBasicConstraints != null) {
+            document.writeln('<tr><td valign="top" align="right">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             'Basic Constraints:</font></td>');
+            document.write('<td valign="top" colspan="2">' +
+                     '<INPUT TYPE="TEXT" NAME="pathLenBasicConstraint" SIZE=8 MAXLENGTH=10');
+            if (result.header.pathLenBasicConstraints  >= 0 &&
+                result.header.caPathLen != null && (result.header.caPathLen < 0 ||
+                (result.header.caPathLen > 0 &&
+                 result.header.pathLenBasicConstraints < result.header.caPathLen))) {
+                document.writeln(' VALUE="'+ result.header.pathLenBasicConstraints + '">');
+            } else if (result.header.caPathLen != null && result.header.caPathLen > 0) {
+                document.writeln(' VALUE="'+ (result.header.caPathLen-1) + '">');
+            } else if (result.header.caPathLen != null && result.header.caPathLen == 0) {
+                document.writeln(' VALUE="0">');
+            } else {
+                document.writeln(' VALUE="">');
+            }
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             '&nbsp;Path Length Constraint</font>');
+            document.writeln('<INPUT TYPE="HIDDEN" NAME="pathLenConstraint" VALUE="">');
+            document.writeln('</td></tr>');
+        }
+        document.writeln('<tr><td valign="top" colspan="3"></td></tr>');
+
+
+        // handle Presence Server Extension
+    if (result.header.PresenceServerExtension != null) {
+        document.writeln('<tr><td valign="top" align="right">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+ 'Presence Server Extension:</font></td>');
+        document.write('<td valign="top" colspan="2">');
+        document.write('<input type=checkbox name="PSE_Enable" value=""><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Enable</font><br>');
+        document.write('<input type=checkbox name="PSE_Critical" value=""><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Critical</font><br>');
+        document.write('<input type=text name="PSE_Version" value=""><font size= "-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;Version (Integer)</font><br>');
+        document.write('<input type=text name="PSE_StreetAddress" value=""><font size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;Street Address (String)</font><br>');
+        document.write('<input type=text name="PSE_TelephoneNumber" value=""><font size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;Telephone Number (String)</font><br>');
+        document.write('<input type=text name="PSE_RFC822Name" value=""><font size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;RFC822 Name (String)</font><br>');
+        document.write('<input type=text name="PSE_IMID" value=""><font size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;IM ID (String)</font><br>');
+        document.write('<input type=text name="PSE_HostName" value=""><font size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;Host Name (String)</font><br>');
+        document.write('<input type=text name="PSE_PortNumber" value=""><font size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;Port Number (Integer)</font><br>');
+        document.write('<input type=text name="PSE_MaxUsers" value=""><font size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;Max Users (Integer)</font><br>');
+        document.write('<input type=text name="PSE_ServiceLevel" value=""><font size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;Service Level (Integer)</font><br>');
+        document.write('</td>');
+        document.writeln('<tr><td valign="top" colspan="3"></td></tr>');
+        }
+        // Other extensions
+
+        if (result.recordSet.length > 0) {
+            var nRows = 0;
+            for (var i = 0; i < result.recordSet.length; i++) {
+                if (typeof(result.recordSet[i].ext_prettyprint) == "undefined") 
+                    continue;
+                else
+                    nRows++;
+            }
+            nRows++;
+            document.writeln('<tr><td valign="top" align="right" rowspan="'+nRows+'">'+
+                '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                'Other Extensions:</font></td></tr>');
+            for (var i = 0; i < result.recordSet.length; i++) {
+                if (typeof(result.recordSet[i].ext_prettyprint) == "undefined") 
+                    continue;
+                document.writeln('<tr><td valign="top" align="left" >'+
+                    '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                    '<pre>'+ result.recordSet[i].ext_prettyprint+
+                    '</pre></font></td><td></td><td></td></tr>');
+            }
+		}
+        document.writeln('<tr><td valign="top" align="right">'+
+            '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+            'Additional Extensions:</font></td>\n<td valign="top" colspan="2">'+
+            '<textarea name="addExts" rows="5" cols="40"></textarea></td></tr>');
+    }
+}
+
+function renderSignatureInfo()
+{
+    if ((result.header.requestType == 'Enrollment' ||
+		 result.header.requestType == 'enrollment' ||
+         result.header.requestType == 'renewal') &&
+        result.header.status == 'pending' &&
+        result.header.validAlgorithms != null) {
+
+        algorithmName = result.header.validAlgorithms.split('+');
+        if (algorithmName.length > 0) {
+            document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln('Signature</font></td></tr>');
+
+            document.writeln('<tr><td align="right">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             'Algorithm:</font></td>');
+
+            document.writeln('<td valign="top" colspan="2">');
+            document.writeln('<SELECT NAME="signatureAlgorithm">');
+
+            var signingAlgorithm;
+            if (result.header.caSigningAlgorithm != null)
+                signingAlgorithm = result.header.caSigningAlgorithm;
+            else
+                signingAlgorithm = result.header.signatureAlgorithmName;
+
+            var i;
+            for (i = 0; i < algorithmName.length; i++) {
+                document.write('<OPTION VALUE="' + algorithmName[i] + '"');
+                if (signingAlgorithm == algorithmName[i])
+                    document.write(' SELECTED');
+                document.writeln('>' + algorithmName[i] + '</OPTION>');
+            }
+
+            document.writeln('</SELECT>');
+            document.writeln('</td></tr>');
+        }
+    }
+}
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+
+    return sign + absValue;
+}
+
+function renderHexNumber(number,width)
+{
+    var num = number;
+    while (num.length < width)
+        num = "0"+num;
+    return "0x"+num;
+}
+
+function renderCertificateInfo()
+{
+    if ((result.header.status == 'complete' &&
+         (result.header.requestType == 'Enrollment' ||
+		  result.header.requestType == 'enrollment' ||
+          result.header.requestType == 'renewal')) ||
+        result.header.requestType == 'getRevocationInfo') {
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        if (result.header.requestType == 'getRevocationInfo') {
+            document.writeln('Certificate</font></td></tr>');
+        } else {
+            document.writeln('Issued certificate</font></td></tr>');
+        }
+
+        if (result.header.serialNumber != null) {
+            document.writeln('<tr><td valign="top" align="right">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             'Serial number:</font></td>');
+            document.writeln('<td valign="top" colspan="2">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln('<a href="displayBySerial?serialNumber='+
+                             '0x'+result.header.serialNumber + '"' +
+                             ' onMouseOver=" return helpstatus(\'Click to display this '+
+                             'certificate \')" onMouseOut="return helpstatus(\'\')">');
+            document.write(renderHexNumber(result.header.serialNumber,8));
+			if (result.header.serialNumber2 != null) {
+		        document.writeln('</a>&nbsp;');
+			    document.writeln('<a href="displayBySerial?serialNumber='+
+                             '0x'+result.header.serialNumber2 + '"' +
+                             ' onMouseOver=" return helpstatus(\'Click to display this '+
+                             'certificate \')" onMouseOut="return helpstatus(\'\')">');
+				document.write(renderHexNumber(result.header.serialNumber2,8));
+			}
+			document.writeln('</a></font></td></tr>');			
+			
+            if (result.header.requestType == 'getRevocationInfo' &&
+                result.header.status == 'complete') {
+                document.writeln('<tr><td valign="top" align="right">'+
+                                 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                                 'Verified</font></td>');
+                document.writeln('<td valign="top" colspan="2">'+
+                                 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+                if (result.header.reason == null) {
+                    document.writeln('as not revoked');
+                } else {
+                    document.write('as revoked with the reason:&nbsp;'+
+                                    result.header.reason);
+                }
+                document.writeln('</font></td></tr>');
+            }
+        } else {
+            if (result.header.requestType == 'getRevocationInfo') {
+            document.writeln('<tr><td valign="top" align="right">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             '</font></td>');
+            document.writeln('<td valign="top" colspan="2">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+                document.writeln('');
+            } else {
+            document.writeln('<tr><td valign="top" align="right">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             'Error:</font></td>');
+            document.writeln('<td valign="top" colspan="2">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+                document.writeln('Certificate not issued');
+            }
+            document.writeln('</font></td></tr>');
+
+            if (result.header.errors != null) {
+                document.writeln('<tr><td valign="top" align="right">'+
+                                 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                                 'Additional information:</font></td>');
+                document.writeln('<td valign="top" colspan="2">'+
+                                 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                                 result.header.errors + '</font></td></tr>');
+            }
+        }
+    }
+
+    if (result.header.requestType == 'revocation' ||
+        result.header.requestType == 'unrevocation' ||
+        result.header.requestType == 'getCertificates' ||
+        result.header.requestType == 'getCAChain') {
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        if (result.recordSet.length > 0) {
+            if (result.header.requestType == 'getCAChain') {
+                document.writeln('Certificate Chain</font></td></tr>');
+            } else if (result.recordSet.length > 1) {
+                document.writeln('Certificates</font></td></tr>');
+            } else {
+                document.writeln('Certificate</font></td></tr>');
+            }
+            for (var i = 0; i < result.recordSet.length; i++) {
+                document.writeln('<tr><td valign="top" align="right">'+
+                                 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                                 'Serial number:</font></td>');
+                document.writeln('<td valign="top" colspan="2">'+
+                                 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+                if (result.header.requestType != 'getCAChain') {
+                    document.writeln('<a href="displayBySerial?serialNumber='+
+                                     '0x'+result.recordSet[i].serialNumber + '"' +
+                                     ' onMouseOver=" return helpstatus(\'Click to display this '+
+                                     'certificate \')" onMouseOut="return helpstatus(\'\')">');
+                }
+                document.writeln(renderHexNumber(result.recordSet[i].serialNumber,8) +
+                                 '</font></a></td></tr>');
+                if (result.recordSet[i].reason != null) {
+                    document.writeln('<tr><td valign="top" align="right">'+
+                                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                                     'Reason:</font></td>');
+                    document.writeln('<td valign="top" colspan="2">'+
+                                     '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+                    document.writeln(result.recordSet[i].reason +'</font></a></td></tr>');
+                }
+            }
+        } else {
+            if (result.header.requestType == 'getCAChain') {
+                document.writeln('Certificate Chain</font></td></tr>');
+            } else {
+                document.writeln('Certificates</font></td></tr>');
+            }
+            document.writeln('<tr><td valign="top" align="right">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                             'Error:</font></td>');
+            document.writeln('<td valign="top" colspan="2">'+
+                             '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln('Request contains no certificate to revoke.</font></a></td></tr>');
+        }
+    }
+}
+
+function renderFingerprints()
+{
+    if (result.header.fingerprints  != null) {
+
+        fingerprintValues = result.header.fingerprints.split('+');
+        if (fingerprintValues.length > 0) {
+            document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+            document.writeln('Fingerprints</font></td></tr>');
+
+            var i;
+	        for (i = 0; i < fingerprintValues.length; i += 2) {
+                document.writeln('<tr><td valign="top" align="right">'+
+                                 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+                                 fingerprintValues[i] + ':</font></td>');
+                document.writeln('<td valign="top" colspan="2">'+
+                                 '<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+                document.writeln(fingerprintValues[i+1] +'</font></a></td></tr>');
+            }
+        }
+    }
+}
+
+function renderPolicyInfo()
+{
+    if ((result.header.status == 'rejected' || result.header.status == 'canceled') && 
+         result.header.errors != null) {
+        document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+        document.writeln('Policy information</font></td></tr>');
+
+        document.writeln('<tr><td valign="top" align="left" colspan="3">');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif"><pre>');
+        document.writeln(result.header.errors);
+        document.writeln('</pre></font></td></tr>');
+    }
+}
+
+function renderLongStrings(value)
+{
+    var len = value.toString().length;
+    if (len > 64 && value.toString().indexOf("\n") > 0) {
+        document.writeln(value.toString().replace(/\n/g, "<br>"));
+    } else if (len > 64) {
+        for (var i = 0; i < len; i += 64) {
+            var n = len;
+            var b = "";
+            if (i+64 < len) {
+                n = i + 64;
+                b = "<br>";
+            }
+            document.writeln(value.toString().substring(i, n)+b);
+        }
+    } else {
+        document.writeln(value);
+    }
+}
+
+function renderNameAndValue(name, value)
+{
+    document.writeln('<tr><td valign="top" align="right">');
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+    document.writeln(name);
+    document.writeln('</font></td>');
+    document.writeln('<td valign="top" align="left" colspan="2">');
+    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+    renderLongStrings(value);
+    document.writeln('</font></td></tr>');
+}
+
+function renderRequestAttrs()
+{
+	document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+	document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+	document.writeln('Unauthenticated Request Attributes</font></td></tr>');
+
+	if (result.header.HTTP_PARAMS.length > 0) {
+		for (var i = 0; i < result.header.HTTP_PARAMS.length; i++) {
+			renderNameAndValue("HTTP_PARAMS."+result.header.HTTP_PARAMS[i].name+":", result.header.HTTP_PARAMS[i].value);
+		}
+	}
+	if (result.header.HTTP_HEADERS.length > 0) {
+		document.writeln("");
+		for (var j = 0; j < result.header.HTTP_HEADERS.length; j++) {
+			renderNameAndValue("HTTP_HEADERS."+result.header.HTTP_HEADERS[j].name+":", result.header.HTTP_HEADERS[j].value);
+		}
+	}
+
+	document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+	document.writeln('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+	document.writeln('Authenticate Request Attributes (from authentication, policy and other server modules)</font></td></tr>');
+	if (result.header.AUTH_TOKEN.length > 0) {
+		document.writeln("");
+		for (var k = 0; k < result.header.AUTH_TOKEN.length; k++) {
+			renderNameAndValue("AUTH_TOKEN."+result.header.AUTH_TOKEN[k].name+":", result.header.AUTH_TOKEN[k].value);
+		}
+	}
+	if (result.header.SERVER_ATTRS.length > 0) {
+		document.writeln("");
+		for (var l = 0; l < result.header.SERVER_ATTRS.length; l++) {
+			//if (result.header.SERVER_ATTRS[l].name != 'CERT_INFO')
+			renderNameAndValue(result.header.SERVER_ATTRS[l].name+":", result.header.SERVER_ATTRS[l].value);
+		}
+	}
+
+}
+
+
+function getValue(str, name)
+{
+    var i = str.indexOf(name);
+    var s = "";
+    if (i > -1) {
+        var j = str.indexOf(",", i);
+        if (j > -1) {
+            s += str.substring(i+name.length, j);
+        } else {
+            s += str.substring(i+name.length);
+        }
+        j = s.indexOf("@");
+        if (j > -1) {
+            s = s.substring(0, j);
+        }
+    }
+    return s;
+}
+
+function renderGrantPrivileges()
+{
+    if ((result.header.requestType != 'Enrollment' &&
+         result.header.requestType != 'enrollment') ||
+        result.header.status != 'pending' ||
+        (result.header.ext_ssl_client != "true" &&
+         result.header.ext_ssl_server != "true" &&
+         result.header.ext_email != "true" &&
+         result.header.ext_object_signing != null &&
+         result.header.ext_object_signing == "true"))
+        return;
+
+    var id = "";
+    if (result.header.subject != null) {
+        id = getValue(result.header.subject, "UID=");
+        if (id.length < 1)
+            id = getValue(result.header.subject, "E=");
+    }
+
+	if (result.header.certType == 'ra') {
+		if (result.header.requestTrustedManagerPrivilege != "undefined"  &&
+			result.header.requestTrustedManagerPrivilege == "true") 
+			checked = "CHECKED";
+		else
+			checked = "UNCHECKED";
+
+		document.writeln(
+			'<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+		document.writeln(
+			'<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+		document.writeln('Privileges</font></td></tr>');
+		document.writeln('<tr><td valign=top align=right></td>');
+		document.writeln('<td valign="top">'+
+			'<input type=checkbox '+checked+
+				' name="grantTrustedManagerPrivilege">'+
+			'<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+			' This certificate is for a Trusted Manager'+
+			'</font></td></tr>');
+		if (id.length < 1) id = "ra" + result.header.seqNum;
+		document.writeln('<tr>'+
+			'<td valign="top" align="right">'+
+			'<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+			'New User ID for the Trusted Manager:'+'</font></td>'+ 
+			'<td valign="top" align="left">'+
+			'<input type=text name=grantUID size=15 value="'+id+'">'+
+			'</td></tr>');
+	}
+	else if (result.header.certType == 'client') {
+		document.writeln(
+			'<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
+		document.writeln(
+			'<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
+		document.writeln('Privileges</font></td></tr>');
+		if (typeof(result.header.localca) != "undefined") {
+			document.writeln('<tr><td valign=top align=right></td>'+
+				'<td valign="top">'+
+				'<input type=checkbox name="grantCMAgentPrivilege">'+
+				'<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+				' This certificate is for a Certificate Manager agent'+
+				'</font></td></tr>');
+		}
+		if (typeof(result.header.localkra) != "undefined") {
+			document.writeln('<tr><td valign=top align=right></td>'+
+				'<td valign="top">'+
+				'<input type=checkbox name="grantDRMAgentPrivilege">'+
+				'<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+				' This certificate is for a Data Recovery Manager agent'+
+				'</font></td></tr>');
+		}
+		if (typeof(result.header.localra) != "undefined") {
+			document.writeln('<tr><td valign=top align=right></td>'+
+				'<td valign="top">'+
+				'<input type=checkbox name="grantRMAgentPrivilege">'+
+				'<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+				' This certificate is for a Registration Manager agent'+
+				'</font></td></tr>');
+		}
+		if (id.length < 1) id = "u" + result.header.seqNum;
+		document.writeln('<tr>'+
+			'<td valign="top" align="right">'+
+			'<font size="-1" face="PrimaSans BT, Verdana, sans-serif">'+
+			'New User ID for the agent:'+'</font></td>'+ 
+			'<td valign="top" align="left">'+
+			'<input type=text name="grantUID" size=30 value="'+id+'">'+
+			'</td></tr>');
+	}
+}
+
+function renderFoot()
+{
+    document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=6 WIDTH="100%">');
+    document.writeln('<tr><td ALIGN=RIGHT BGCOLOR="#E5E5E5">');
+
+    document.writeln('<SELECT NAME="toDo">');
+    if (result.header.status == 'pending' &&
+        (result.header.assignedTo == null  ||
+         result.header.assignedTo == result.header.callerName)) {
+        document.writeln('<OPTION VALUE="accept">Accept this request</OPTION>');
+        document.writeln('<OPTION VALUE="cancel">Cancel this request</OPTION>');
+        document.writeln('<OPTION VALUE="reject">Reject this request</OPTION>');
+    } else if (result.header.status == 'svc_pending') {
+        document.writeln('<OPTION VALUE="cancel">Cancel this request</OPTION>');
+    }
+    document.writeln('<OPTION VALUE="clone">Clone this request</OPTION>');
+    document.writeln('</SELECT>&nbsp;&nbsp;');
+
+    document.writeln('<INPUT TYPE="submit" Value="Do It" width="72">&nbsp;&nbsp;');
+
+    // document.writeln('<INPUT TYPE="button" VALUE="Help" width="72"');
+    // document.writeln('onClick="help(\'http://www.redhat.com/docs/manuals/cert-system#Approving Requests\')">');
+    document.writeln('</td></tr></table>');
+}
+
+
+function isblank(s)
+{
+	for (var i=0; i<s.length; i++) {
+		var c = s.charAt(i)
+		if ((c != ' ') && (c != '\n') && (c != '\t') ) return false
+	}
+	return true
+}
+
+function checkSubject()
+{
+    if (document.forms[0].subject != null &&
+        document.forms[0].subject.value != null &&
+        document.forms[0].subject.value.length > 0) {
+
+        var outStr = "";
+        var str = "";
+        var subject = document.forms[0].subject.value;
+        var i0 = subject.indexOf('=');
+        var i1 = 0;
+        var i2 = 0;
+        var i3 = 0;
+        var i4 = 0;
+
+        if (i0 > -1) i0++;
+
+        while (i0 > -1 && i1 > -1) {
+            i1 = subject.indexOf('=', i0+1);
+            if (i1 > -1) {
+                str = subject.substring(i0, i1);
+                i2 = str.indexOf(',');
+                i3 = 0;
+                while (i2 > -1 && i3 > -1) {
+                    i3 = str.indexOf(',', i2+1);
+                    if (i3 > -1 && (i2 < 1 || str.charAt(i2-1) != "\\")) {
+                        outStr += subject.substring(i4, i0+i2);
+                        outStr += "\\";
+                        i4 = i0+i2;
+                    }
+                    i2 = i3;
+                }
+                i0 = i1++;
+            } else {
+                str = subject.substring(i0, subject.length);
+                i2 = str.indexOf(',');
+                while (i2 > -1) {
+                    if (i2 < 1 || str.charAt(i2-1) != "\\") {
+                        outStr += subject.substring(i4, i0+i2);
+                        outStr += "\\";
+                        i4 = i0+i2;
+                    }
+                    i2++;
+                    i2 = str.indexOf(',', i2);
+                }
+            }
+        }
+
+        if (i4 > 0) {
+            outStr += subject.substring(i4, subject.length);
+            document.forms[0].subject.value = outStr;
+        }
+    }
+}
+
+
+function uid_check()
+{
+    if ((result.header.requestType == 'Enrollment' ||
+        result.header.requestType == 'enrollment' ||
+        result.header.requestType == 'renewal') &&
+        result.header.status == 'pending') {
+
+        var t1 = getNotValidBefore();
+        if (t1 == null) return false;
+        var t2 = getNotValidAfter();
+        if (t2 == null) return false;
+        if (t1 > t2) {
+            alert("NOT VALID AFTER date should not be earlier than NOT VALID BEFORE date.");
+            return false;
+        }
+        document.forms[0].notValidBefore.value = t1;
+        document.forms[0].notValidAfter.value = t2;
+
+        if (result.header.pathLenBasicConstraints != null) {
+            if (result.header.caPathLen != null && result.header.caPathLen == 0 &&
+                document.forms[0].toDo.selectedIndex == 0) {
+                alert("This CA is not allowed to sign subordinate CA certificate. "+
+                      "This request has to be canceled or rejected.")
+                return false
+            }
+            if (typeof(document.forms[0].pathLenBasicConstraint) != "undefined") {
+                document.forms[0].pathLenConstraint.value = 
+                    document.forms[0].pathLenBasicConstraint.value;
+                if (document.forms[0].pathLenConstraint.value != "") {
+                    if (isDecimalNumber(document.forms[0].pathLenConstraint.value)) {
+                        document.forms[0].pathLenConstraint.value =
+                            trim(document.forms[0].pathLenConstraint.value);
+                        if (result.header.caPathLen != null && result.header.caPathLen > 0 &&
+                            parseInt(document.forms[0].pathLenConstraint.value) >= result.header.caPathLen) {
+                            alert("Choose integer number from 0 to "+
+                                  (result.header.caPathLen-1)+" for Path Length Constraint")
+                            return false
+                        }
+                    } else {
+                        alert("You must provide non-negative integer number for "+
+                              "Path Length Constraint or leave it empty")
+                        return false
+                    }
+                } else {
+                    if (result.header.caPathLen != null && result.header.caPathLen > 0) {
+                        alert("Choose integer number from 0 to "+
+                              (result.header.caPathLen-1)+" for Path Length Constraint")
+                        return false
+                    } else {
+                        document.forms[0].pathLenConstraint.value = "-1";
+                    }
+                }
+            }
+        }
+
+        checkSubject();
+
+	    if ( result.header.certType == 'ra') {
+		    if (typeof(document.forms[0].grantTrustedManagerPrivilege.checked) != 
+			    "undefined" &&
+		      document.forms[0].grantTrustedManagerPrivilege.checked &&
+		      (document.forms[0].grantUID.value == "" ||
+		       document.forms[0].grantUID.value == null ||
+		       isblank(document.forms[0].grantUID.value)) ) {
+			    alert("You must provide a non-empty UID for the new trusted manager!")
+			    return false
+		    }
+	    } else if (result.header.certType == 'client') {
+		    if (typeof(result.header.localca) != "undefined") {
+			    if (
+			      typeof(document.forms[0].grantCMAgentPrivilege) != "undefined" &&
+			      document.forms[0].grantCMAgentPrivilege.checked &&
+			      (document.forms[0].grantUID.value == "" ||
+			       document.forms[0].grantUID.value == null ||
+			       isblank(document.forms[0].grantUID.value)) ) {
+				    alert("You must provide a non-empty UID for the new Certificate Manager agent!")
+				    return false
+			    } 
+		    } 
+		    if (typeof(result.header.localkra) != "undefined") {
+			    if (
+			      typeof(document.forms[0].grantDRMAgentPrivilege) != "undefined" &&
+			      document.forms[0].grantDRMAgentPrivilege.checked  &&
+			      (document.forms[0].grantUID.value == "" ||
+			       document.forms[0].grantUID.value == null ||
+			       isblank(document.forms[0].grantUID.value)) ) {
+				    alert("You must provide a non-empty UID for the new Data Recovery Manager agent!")
+				    return false
+                            }
+		    }
+		    if (typeof(result.header.localra) != "undefined") {
+              if (
+			      typeof(document.forms[0].grantRMAgentPrivilege) != "undefined" &&
+			      document.forms[0].grantRMAgentPrivilege.checked &&
+			      document.forms[0].grantRMAgentPrivilege.checked && 
+			      (document.forms[0].grantUID.value == "" ||
+			       document.forms[0].grantUID.value == null ||
+			       isblank(document.forms[0].grantUID.value)) ) {
+				    alert("You must provide a non-empty UID for the new Registration Manager agent!")
+				    return false
+			    }
+		    }
+	    }
+    }
+
+	return true
+}
+document.writeln('<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">');
+document.writeln('<font size=+1 face="PrimaSans BT, Verdana, sans-serif">');
+document.writeln('Request <a href="/ca/agent/ca/processReq?seqNum='+
+				 result.header.seqNum + '"' +
+				 'onMouseOver=" return helpstatus(\'Click to redisplay this '+
+				 'request \')" onMouseOut="return helpstatus(\'\')">'+
+				 result.header.seqNum + '</a></font>');
+
+document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif">');
+document.writeln('<tr><td>&nbsp;</td></tr></table>');
+
+document.writeln('<FORM ACTION=/ca/processCertReq METHOD=POST ' +
+'onSubmit="return uid_check()">');
+
+document.writeln('<INPUT TYPE="HIDDEN" NAME="seqNum" VALUE="' +
+                 result.header.seqNum + '">');
+
+document.writeln('<INPUT TYPE="HIDDEN" NAME="notValidBefore" VALUE="">');
+document.writeln('<INPUT TYPE="HIDDEN" NAME="notValidAfter" VALUE="">');
+
+if (result.header.csrRequestorName != null) {
+	document.writeln('<INPUT TYPE="HIDDEN" NAME="csrRequestorName" VALUE="' +
+			result.header.csrRequestorName + '">');
+}
+if (result.header.csrRequestorEmail != null) {
+	document.writeln('<INPUT TYPE="HIDDEN" NAME="csrRequestorEmail" VALUE="' +
+			result.header.csrRequestorEmail + '">');
+}
+if (result.header.csrRequestorPhone != null) {
+	document.writeln('<INPUT TYPE="HIDDEN" NAME="csrRequestorPhone" VALUE="' +
+			result.header.csrRequestorPhone + '">');
+}
+
+document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
+document.writeln('<tr align="left">'+
+                 '<td width="15%"></td>'+
+                 '<td width="1%"></td>'+
+                 '<td width="60%"></td></tr>');
+
+renderRequestInfo();
+
+renderRequesterInfo();
+
+renderPublicKeyInfo();
+
+renderValidityInfo();
+
+renderExtensionsInfo();
+
+renderSignatureInfo();
+
+renderFingerprints();
+
+renderRequestAttrs();
+
+renderGrantPrivileges();
+
+renderCertificateInfo();
+
+renderPolicyInfo();
+
+document.writeln('</table><br>&nbsp;');
+
+//renderFoot();
+
+
+document.writeln('</FORM>');
+document.writeln('</BODY>');
+
+//-->
+</SCRIPT>
+
+</HTML>

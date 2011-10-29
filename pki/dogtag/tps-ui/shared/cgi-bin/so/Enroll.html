@@ -1,0 +1,138 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2009 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel=stylesheet href="/esc/so/style.css" type="text/css">
+
+<title>Enrollment</title>
+</head>
+<script type="text/JavaScript" src="/esc/so/util.js">
+</script>
+
+<script type="text/javascript">
+<!--
+function UserSelectRowByKeyID(keyType, keyID)
+{
+  DoCoolKeySetConfigValue("Operation-" + keyID,
+           "http://$host:$port/nk_service");
+  DoCoolKeySetConfigValue("TokenType-" + keyID, "userKey");
+  SelectRowByKeyID(keyType, keyID);
+}
+
+function UserOnDoneInitializeBindingTable()
+{
+  var arr = GetAvailableCOOLKeys();
+  var i;
+  for (i=0; i < arr.length; i++)
+  {
+    var keyType = arr[i][0];
+    var keyID = arr[i][1];
+    var keyStatus = GetStatusForKeyID(keyType, keyID);
+    UserSelectRowByKeyID(keyType, keyID);
+  }
+}
+
+function UserOnCOOLKeyStateError()
+{
+  toggleAjaxProgress('ajax-pb', 'off');
+}
+
+
+function toggleAjaxProgress(id, i)
+{
+  var e = document.getElementById(id);
+  if (i == 'off') {
+    e.style.display = 'none';
+  } else {
+    e.style.display = 'block';
+  }
+}
+
+function UserOnCOOLKeyStatusUpdate(data)
+{
+  var progress = document.getElementById("progress");
+
+  if(progress)
+      progress.innerHTML = data + "%";
+}
+
+// -->
+</script>
+
+<body onload="InitializeBindingTable();" onunload=cleanup()>
+
+<progressmeter id="progress-id" hidden="true" align = "center"/>
+<table width="100%" class="logobar">
+  <tr>
+    <td>
+<!--<img alt="" src="/esc/so/images/logo.gif"> -->
+    </td>
+    <td align = "center">
+      <p class="headerText">Security Officer Enrollment</p>
+    </td>
+  </tr>
+</table>
+  <div id="pb" style="display:none;">
+  <table id="BindingTable" width="200px"align="center">
+    <tr id="HeaderRow">
+    </tr>
+  </table>
+  </div>
+  <p class="bodyText">You have plugged in your smartcard! After answering a few easy questions, you will be able to enroll the smartcard for the Security Officer user.
+  </p>
+  <p class="bodyText"> 
+      Now we would like you to identify yourself.
+   </p>  
+    <table>
+      <tr>
+        <td><p >LDAP User ID: </p></td>
+        <td> </td>
+        <td><input type="text" id="snametf"  value=""></td>
+         <td> </td>
+        <td><p>LDAP Password: </p></td>
+         <td> </td>
+        <td><input type="password" id="snamepwd" value=""></td>
+      </tr>
+
+      </table>
+
+      <p class="bodyText"> Before you can use your smartcard, you will need a password to protect it.</p> 
+      <table>
+      <tr>
+        <td><p >Password:</p></td>
+        <td><input type="password" id="pintf" name="pintf" value=""></td>
+
+        <td><p >Re-Enter Password:</p></td>
+        <td><input type="password" id="reenterpintf" name="reenterpintf" value=""></td>
+    </table>
+    <br>
+    <div id="ajax-pb" style="display:none;">
+       <img src="/esc/so/images/indicator.gif">
+       <h2 id="progress" name="progress" value="0%" ></h2>
+    </table>
+    </div>
+
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <input type="button" id="enrollbtn" name="enrollbtn" value="Enroll My Smartcard" onClick="toggleAjaxProgress('ajax-pb','on');DoEnrollCOOLKey();">
+        </td>
+      </tr>
+    </table>
+</body></html>

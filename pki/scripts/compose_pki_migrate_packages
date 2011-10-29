@@ -1,0 +1,180 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2010 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+##
+## Include common 'compose' functions
+##
+
+COMPOSE_PWD=`dirname $0`
+source ${COMPOSE_PWD}/compose_functions
+
+
+## Always switch into the base directory three levels
+## above this shell script prior to executing it so
+## that all of its output is written to this directory
+
+cd `dirname $0`/../..
+
+
+##
+## Retrieve the name of this base directory
+##
+
+PKI_PWD=`pwd`
+
+
+##
+## Establish the 'pki-migrate' name and version information
+##
+
+PKI_MIGRATE="pki-migrate"
+PKI_MIGRATE_VERSION="9.0.2"
+
+
+##
+## Establish the SOURCE files/directories of the 'pki-migrate' source directory
+##
+
+PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_MIGRATE}.spec"
+PKI_COMPONENT_LIST="migrate"
+
+
+##
+## Establish the TARGET files/directories of the 'pki-migrate' source/spec files
+##
+
+PKI_PACKAGES="${PKI_PWD}/packages"
+PKI_MIGRATE_BUILD_DIR="${PKI_PACKAGES}/BUILD"
+PKI_MIGRATE_RPMS_DIR="${PKI_PACKAGES}/RPMS"
+PKI_MIGRATE_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"
+PKI_MIGRATE_SPECS_DIR="${PKI_PACKAGES}/SPECS"
+PKI_MIGRATE_SRPMS_DIR="${PKI_PACKAGES}/SRPMS"
+
+PKI_MIGRATE_TARBALL="${PKI_MIGRATE}-${PKI_MIGRATE_VERSION}.tar.gz"
+PKI_MIGRATE_SPEC_FILE="${PKI_MIGRATE_SPECS_DIR}/${PKI_MIGRATE}.spec"
+PKI_MIGRATE_PACKAGE_SCRIPT="${PKI_PACKAGES}/package_${PKI_MIGRATE}"
+PKI_MIGRATE_PACKAGE_COMMAND="${RPMBUILD_CMD} SPECS/${PKI_MIGRATE}.spec"
+
+PKI_MIGRATE_STAGING_DIR="${PKI_PACKAGES}/staging"
+PKI_MIGRATE_DIR="${PKI_MIGRATE_STAGING_DIR}/${PKI_MIGRATE}-${PKI_MIGRATE_VERSION}"
+PKI_MIGRATE_BASE_DIR="${PKI_MIGRATE_DIR}/base"
+
+
+##
+## Always create a top-level 'packages' directory
+##
+
+mkdir -p ${PKI_PACKAGES}
+
+
+##
+## Always create 'pki-migrate' package directories
+##
+
+mkdir -p ${PKI_MIGRATE_BUILD_DIR}
+mkdir -p ${PKI_MIGRATE_RPMS_DIR}
+mkdir -p ${PKI_MIGRATE_SOURCES_DIR}
+mkdir -p ${PKI_MIGRATE_SPECS_DIR}
+mkdir -p ${PKI_MIGRATE_SRPMS_DIR}
+
+
+##
+## Always start with new 'pki-migrate' package files
+##
+
+rm -rf ${PKI_MIGRATE_BUILD_DIR}/${PKI_MIGRATE}-${PKI_MIGRATE_VERSION}
+rm -f  ${PKI_MIGRATE_RPMS_DIR}/${PKI_MIGRATE}-${PKI_MIGRATE_VERSION}*.rpm
+rm -f  ${PKI_MIGRATE_SOURCES_DIR}/${PKI_MIGRATE_TARBALL}
+rm -f  ${PKI_MIGRATE_SPEC_FILE}
+rm -f  ${PKI_MIGRATE_SRPMS_DIR}/${PKI_MIGRATE}-${PKI_MIGRATE_VERSION}*.rpm
+
+
+##
+## Copy a new 'pki-migrate' spec file from the
+## current contents of the PKI working repository
+##
+
+cp -p ${PKI_SPECS_FILE} ${PKI_MIGRATE_SPECS_DIR}
+
+
+if [ ${USE_PATCH_FILES} -eq 1 ] ; then
+	Retrieve_Source_Tarball_and_Patches ${PKI_SPECS_FILE} ${PKI_PATCHES_DIR} ${PKI_MIGRATE_SOURCES_DIR}
+else
+	##
+	## Always start with a new 'pki-migrate' staging directory
+	##
+
+	rm -rf ${PKI_MIGRATE_STAGING_DIR}
+
+
+	##
+	## To generate the 'pki-migrate' tarball, construct a staging area
+	## consisting of the 'pki-migrate' source components from the
+	## current contents of the PKI working repository
+	##
+
+	mkdir -p ${PKI_MIGRATE_DIR}
+	cd ${PKI_DIR}
+	for file in "${PKI_FILE_LIST}" ;
+	do
+		cp -p ${file} ${PKI_MIGRATE_DIR}
+	done
+	find ${PKI_CMAKE_DIR}             \
+		-name .svn -prune -o          \
+		-name *.swp -prune -o         \
+		-print | cpio -pdum ${PKI_MIGRATE_DIR} > /dev/null 2>&1
+	cd - > /dev/null 2>&1
+
+	mkdir -p ${PKI_MIGRATE_BASE_DIR}
+	cd ${PKI_BASE_DIR}
+	cp -p ${PKI_BASE_MANIFEST} ${PKI_MIGRATE_BASE_DIR}
+	for component in "${PKI_COMPONENT_LIST}" ;
+	do
+		find ${component}             \
+		-name .svn -prune -o          \
+		-name *.swp -prune -o         \
+		-print | cpio -pdum ${PKI_MIGRATE_BASE_DIR} > /dev/null 2>&1
+	done
+	cd - > /dev/null 2>&1
+
+
+	##
+	## Create the 'pki-migrate' tarball
+	##
+
+	mkdir -p ${PKI_MIGRATE_SOURCES_DIR}
+	cd ${PKI_MIGRATE_STAGING_DIR}
+	gtar -zcvf ${PKI_MIGRATE_TARBALL}    \
+		"${PKI_MIGRATE}-${PKI_MIGRATE_VERSION}" > /dev/null 2>&1
+	mv ${PKI_MIGRATE_TARBALL} ${PKI_MIGRATE_SOURCES_DIR}
+	cd - > /dev/null 2>&1
+
+
+	##
+	## Always remove the PKI staging area
+	##
+
+	rm -rf ${PKI_MIGRATE_STAGING_DIR}
+fi
+
+
+##
+## Always generate a fresh 'pki-migrate' package script
+##
+
+rm -rf ${PKI_MIGRATE_PACKAGE_SCRIPT}
+printf "#!/bin/bash\n\n"                    >  ${PKI_MIGRATE_PACKAGE_SCRIPT}
+printf "${PKI_MIGRATE_PACKAGE_COMMAND}\n\n" >> ${PKI_MIGRATE_PACKAGE_SCRIPT}
+chmod 775 ${PKI_MIGRATE_PACKAGE_SCRIPT}
+
+
+##
+## Automatically invoke RPM/SRPM creation
+##
+
+cd ${PKI_PACKAGES} ;
+bash ./package_${PKI_MIGRATE} | tee package_${PKI_MIGRATE}.log 2>&1
+

@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>List Key Service Requests</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="../funcs.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="../helpfun.js"></SCRIPT>
+<script LANGUAGE="JavaScript">
+<!--
+function doSubmit(form)
+{
+    if (form.lastEntryOnPage.value != "") {
+        if (isDecimalNumber(form.lastEntryOnPage.value) ||
+            isHexNumber(form.lastEntryOnPage.value)) {
+            form.lastEntryOnPage.value = trim(form.lastEntryOnPage.value);
+        } else {
+            alert("You must specify a hexadecimal or decimal number " +
+                  "for the starting request identifier.");
+            return;
+        }
+    }
+    form.submit();
+}
+//-->
+</script>
+</HEAD>
+
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+<font size="+1" face="PrimaSans BT, Verdana, sans-serif">List Requests<br></font>
+<font size="-1" face="PrimaSans BT, Verdana, sans-serif">
+Use this form to show a list of key service requests.</font>
+<table border="0" cellspacing="0" cellpadding="0" background="/graphics/hr.gif" width="100%">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<FORM ACTION="queryReq" METHOD=POST>
+
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr> 
+    <td valign="top" align="right">
+       <font size="-1" face="PrimaSans BT, Verdana, sans-serif">Request type:</font>
+    </td>
+    <td valign="top">
+      <SELECT NAME="reqType">
+      <OPTION SELECTED VALUE="enrollment">Show archival requests</OPTION>
+      <OPTION VALUE="recovery">Show recovery requests</OPTION>
+      <OPTION VALUE="netkeyKeygen">Show token key requests</OPTION>
+      <OPTION VALUE="showAll">Show all requests</OPTION>
+      </SELECT>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top" align="right">
+      <font size="-1" face="PrimaSans BT, Verdana, sans-serif">Request status:</font>
+    </td>
+    <td valign="top">
+      <SELECT NAME="reqState">
+      <OPTION SELECTED VALUE="showCompleted">Show completed requests</OPTION>
+      <OPTION VALUE="showPending">Show pending requests</OPTION>
+      <OPTION VALUE="showCancelled">Show canceled requests</OPTION>
+      <OPTION VALUE="showRejected">Show rejected requests</OPTION>
+      <OPTION VALUE="showAll">Show all requests</OPTION>
+      </SELECT>
+    </td>
+  </tr>
+  <tr>
+    <td  valign="top" align="right">
+      <font size="-1" face="PrimaSans BT, Verdana, sans-serif">Starting request identifier:<br>(optional)</font>
+    </td>
+    <td><INPUT TYPE="TEXT" NAME="lastEntryOnPage" SIZE=10 MAXLENGTH=99></td>
+  </tr>
+</table>
+
+<p>
+<br>
+<TABLE cellpadding="6" cellspacing="0" border="0" width="100%" BACKGROUND="/graphics/gray90.gif">
+  <TR>
+    <TD align="right" bgcolor="#e5e5e5">
+      <INPUT TYPE="button" VALUE="Find" width="72" onClick="doSubmit(this.form);">&nbsp;&nbsp;
+        <font size=-1 face="PrimaSans BT, Verdana, sans-serif">first</font>&nbsp;
+      <INPUT TYPE="hidden" NAME="direction" VALUE="first">
+      <INPUT TYPE="TEXT" NAME="maxCount" SIZE=7 MAXLENGTH=99 VALUE="20">
+        <font size=-1 face="PrimaSans BT, Verdana, sans-serif">records</font>&nbsp;&nbsp;&nbsp;
+      <!-- <INPUT TYPE="button" VALUE="Help" width="72"
+	    onClick="help('http://www.redhat.com/docs/manuals/cert-system/8.0/agent/html/DRM_Recovering_Encrypted_Data.html#DRM_Recovering_Encrypted_Data-List_Requests')"> -->
+    </TD>
+  </TR>
+</TABLE>
+ 
+</FORM>
+</BODY>
+
+</HTML>

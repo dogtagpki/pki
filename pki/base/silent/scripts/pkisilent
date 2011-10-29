@@ -1,0 +1,118 @@
+#!/usr/bin/perl
+# --- BEGIN COPYRIGHT BLOCK ---
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301  USA
+#
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+
+###############################################################################
+##  (1) Specify variables used by this script.                               ##
+###############################################################################
+
+my $PRODUCT="pki";
+my $libpath="";
+
+
+###############################################################################
+##  (2) Define helper functions.                                             ##
+###############################################################################
+
+sub invalid_architecture()
+{
+    print "\n";
+    print "ERROR:  pkisilent does not execute on this architecture\n";
+    print "ERROR:  check to make sure pki-native-tools package is installed!\n";
+    print "\n";
+}
+
+
+###############################################################################
+##  (3) Set the LD_LIBRARY_PATH environment variable                         ##
+##      (as well as the ${libpath} java property) to determine the           ##
+##      search order this command uses to find shared libraries.             ##
+###############################################################################
+
+my $ARCHITECTURE=`uname -i`;
+chop( $ARCHITECTURE );
+
+if( $ARCHITECTURE eq "i386" ) {
+    $libpath="/usr/lib";
+
+    $ENV{LD_LIBRARY_PATH} = "/usr/lib/osutil:"
+                          . "/usr/lib/jss:"
+                          . "/usr/lib:/lib";
+} elsif($ARCHITECTURE eq "x86_64") {
+    $libpath="/usr/lib64";
+
+    $ENV{LD_LIBRARY_PATH} = "/usr/lib64/osutil:"
+                          . "/usr/lib64/jss:"
+                          . "/usr/lib64:/lib64:"
+                          . "/usr/lib/osutil:"
+                          . "/usr/lib/jss:"
+                          . "/usr/lib:/lib";
+} else {
+    invalid_architecture();
+    exit(255);
+}
+
+
+###############################################################################
+##  (4) Set the CP environment variable to determine the search              ##
+##      order this command wrapper uses to find jar files.                   ##
+###############################################################################
+
+print "libpath=$libpath\n";
+
+$ENV{CLASSPATH} = "/usr/share/java/${PRODUCT}/pki-silent.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-certsrv.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-cmscore.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-nsutil.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-cmsutil.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-tools.jar:"
+                . "/usr/share/java/ldapjdk.jar:"
+                . "/usr/share/java/xerces-j2.jar:"
+                . "/usr/share/java/xml-commons-apis.jar:"
+                . "/usr/share/java/xml-commons-resolver.jar:";
+if( $ARCHITECTURE eq "x86_64" ) {
+    $ENV{CLASSPATH} = $ENV{CLASSPATH}
+                    . "/usr/lib64/java/jss4.jar:"
+                    . "/usr/lib/java/jss4.jar:"
+                    . "/usr/lib64/java/osutil.jar:"
+                    . "/usr/lib/java/osutil.jar";
+} else {
+    $ENV{CLASSPATH} = $ENV{CLASSPATH}
+                    . "/usr/lib/java/jss4.jar:"
+                    . "/usr/lib/java/osutil.jar";
+}
+
+
+###############################################################################
+##  (5) Execute the java command specified by this java command wrapper      ##
+##      based upon the preset LD_LIBRARY_PATH and CP environment variables.  ##
+###############################################################################
+
+my $output = `java -cp $ENV{CLASSPATH} @ARGV`;
+my $status = $?;
+
+print "#######################################################################\n";
+print "$output\n";
+print "#######################################################################\n";
+
+if ($status != 0) {
+  exit(255);
+} else {
+  exit(0);
+}

@@ -1,0 +1,384 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Search for Requests</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<script type="text/javascript" SRC="/ca/agent/funcs.js"></script>
+<script type="text/javascript" SRC="/ca/agent/helpfun.js"></script>
+</head>
+
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+<font size=+1 face="PrimaSans BT, Verdana, sans-serif">Search for Requests
+</font><br>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Use this form to compose queries based on properties of the request.
+</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Each section below filters the search.  Check the box at the top of the
+section if you want to use that filter in your search, then complete the fields.
+Leave a box unchecked to ignore that filter.  You can click more than one box
+to get a combination of search criteria.
+</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<b><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Request ID Range</font></b>
+<FORM NAME="requestNumberRangeCritForm">
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td colspan="3">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show requests that fall within the following range:</font>
+</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Lowest request id:</font></td>
+<td><INPUT TYPE="TEXT" NAME="requestFrom" SIZE=10 MAXLENGTH=99></td>
+<td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no lower limit)</font></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Highest request id:</font></td>
+<td><INPUT TYPE="TEXT" NAME="requestTo" SIZE=10 MAXLENGTH=99></td>
+<td><font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+(leave blank for no upper limit)</font></td>
+</tr>
+</table>
+</FORM>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Enter a range of request IDs in decimal form.
+</font>
+
+<SCRIPT type="text/javascript">
+//<!--
+function requestNumberRangeCritInUse()
+{
+    return document.requestNumberRangeCritForm.inUse.checked;
+}
+
+function requestNumberRangeCrit()
+{
+    var crit = new Array;
+    var next = 0;
+    var canonicalFrom = "", canonicalTo = "";
+
+    if (document.requestNumberRangeCritForm.requestFrom.value != "") {
+        canonicalFrom =
+            trim(document.requestNumberRangeCritForm.requestFrom.value);
+    }
+
+    if (canonicalFrom != "") {
+        if (!isDecimalNumber(canonicalFrom)) {
+            alert("You must specify a decimal value " + 
+              "for the low end of the request number range.");
+            return null;
+        }
+        if (isNegative(canonicalFrom)) {
+            alert("You must specify a positive value for the low " +
+                   "end of the request number range.");
+            return null;
+        }
+        crit[next++] = "(requestId>=" + canonicalFrom + ")";
+    }
+
+    if (document.requestNumberRangeCritForm.requestTo.value != "") {
+        canonicalTo =
+            trim(document.requestNumberRangeCritForm.requestTo.value);
+    }
+
+    if (canonicalTo != "") {
+        if (!isDecimalNumber(canonicalTo)) {
+            alert("You must specify a decimal value " + 
+              "for the high end of the request number range.");
+            return null;
+        }
+        if (isNegative(canonicalTo)) {
+            alert("You must specify a positive value for the high " +
+                   "end of the request number range.");
+            return null;
+        }
+        crit[next++] = "(requestId<=" + canonicalTo + ")";
+    }
+
+    /* Can not do this using parseInt */
+    /*
+    if (document.requestNumberRangeCritForm.requestFrom.value != "" &&
+        document.requestNumberRangeCritForm.requestTo.value != "") {
+        if (parseInt(canonicalFrom) > parseInt(canonicalTo)) {
+            alert("The low end of the range is larger than the high end.");
+            return null;
+        }
+    }
+    */
+    return nsjoin(crit,"");
+}
+//-->
+</SCRIPT>
+
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<b><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Request Type</font></b>
+<FORM NAME="typeCritForm">
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td colspan="3">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show requests that are of
+<select NAME="type">
+<option value="ENROLLMENT">enrollment
+<option value="RENEWAL">renewal
+<option value="REVOCATION">revocation
+<option value="ALL">any
+</select>
+type
+</font>
+</td>
+</tr>
+</table>
+</FORM>
+<SCRIPT type="text/javascript">
+//<!--
+function typeCritInUse()
+{
+    return document.typeCritForm.inUse.checked;
+}
+function typeRangeCrit()
+{
+      if (document.typeCritForm.type.options[document.typeCritForm.type.selectedIndex].value == "ALL")
+          return "(requesttype=*)";
+      else
+          return "(requesttype=" + document.typeCritForm.type.options[document.typeCritForm.type.selectedIndex].value + ")";
+}
+//-->
+</SCRIPT>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<b><font size=-1 face="PrimaSans BT, Verdana, sans-serif">Request Status</font></b>
+<FORM NAME="statusCritForm">
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<td><INPUT TYPE="CHECKBOX" CHECKED NAME="inUse"></td>
+<td colspan="3">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show requests that are in
+<select NAME="status">
+<option value="PENDING">pending
+<option value="CANCELED">canceled
+<option value="REJECTED">rejected
+<option value="COMPLETE">completed
+<option value="ALL">any
+</select>
+status
+</font>
+</td>
+</tr>
+</table>
+</FORM>
+<SCRIPT type="text/javascript">
+//<!--
+function statusCritInUse()
+{
+    return document.statusCritForm.inUse.checked;
+}
+function statusRangeCrit()
+{
+      if (document.statusCritForm.status.options[document.statusCritForm.status.selectedIndex].value == "ALL")
+          return "(requeststate=*)";
+      else
+          return "(requeststate=" + document.statusCritForm.status.options[document.statusCritForm.status.selectedIndex].value + ")";
+}
+//-->
+</SCRIPT>
+
+
+<br>
+<SCRIPT type="text/javascript">
+<!--
+function doSubmit(form)
+{
+    var andFilter = new Array;
+    var critCount = 0;
+
+    if (requestNumberRangeCritInUse()) {
+        if ((andFilter[critCount++] = requestNumberRangeCrit()) == null)
+            return;
+    }	
+    if (typeCritInUse()) {
+        if ((andFilter[critCount++] = typeRangeCrit()) == null)
+            return;
+    }	
+    if (statusCritInUse()) {
+        if ((andFilter[critCount++] = statusRangeCrit()) == null)
+            return;
+    }	
+
+    if (ownerCritInUse()) {
+        critCount++;
+        if (checkEmptyField() == null)
+            return;
+    }
+
+    // At least one section must be selected
+    if (critCount == 0) {
+        alert("You must choose at least one section on this form.");
+        return;
+    }
+
+    var f = nsjoin(andFilter,"");
+    if (f.length == 0) f = "(requestId=*)";
+    form.queryRequestFilter.value = "(&"+f+")";
+
+    form.op.value = "srchRequests";
+
+    form.submit();	
+}
+//-->
+</SCRIPT>
+
+
+<FORM NAME="queryForm" ACTION="searchReqs" METHOD=POST>
+<INPUT TYPE="HIDDEN" NAME="op" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="queryRequestFilter" VALUE="">
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif"><b>Request Owner</b></font>
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<td><INPUT TYPE="CHECKBOX" CHECKED NAME="inUse"></td>
+<td colspan="3">
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Show requests that belong to the user specified as below:</font>
+</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+<INPUT TYPE="RADIO" CHECKED NAME="owner" VALUE="self"> self </font>
+</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+<INPUT TYPE="RADIO" NAME="owner" VALUE="others"> uid=
+<INPUT TYPE="TEXT" NAME="uid" SIZE=10 MAXLENGTH=99></font>
+</td>
+</tr>
+</table>
+<br>
+
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif"><b>Limits</b></font>
+<table border="0" cellspacing="2" cellpadding="2">
+  <tr>
+    <td align="right">
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;
+      Maximum results:</font>
+    </td>
+    <td>
+      <INPUT TYPE="TEXT" NAME="maxResults" VALUE=10 SIZE=5 MAXLENGTH=10>
+    </td>
+  </tr>
+  <tr>
+    <td align="right">
+      <font size=-1 face="PrimaSans BT, Verdana, sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;
+      Time limit (in seconds):</font>
+    </td>
+    <td>
+      <INPUT TYPE="TEXT" NAME="timeLimit" VALUE=5 SIZE=5 MAXLENGTH=10>
+    </td>
+  </tr>
+</table>
+<br>
+
+
+
+
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=6 WIDTH="100%" BACKGROUND="/ca/agent/graphics/gray90.gif">
+  <tr>
+    <td ALIGN=RIGHT BGCOLOR="#E5E5E5">
+      <INPUT TYPE="button" VALUE="Find" width="72" onClick='doSubmit(queryForm)'>&nbsp;&nbsp;
+	</td>
+  </tr>
+</table>
+
+</form>
+<SCRIPT type="text/javascript">
+//<!--
+function ownerCritInUse()
+{
+    if (!document.queryForm.inUse.checked) {
+        document.queryForm.owner[0].value = "";
+        document.queryForm.owner[1].value = "";
+        document.queryForm.uid.value = "";
+    }
+    return document.queryForm.inUse.checked;
+}
+function checkEmptyField()
+{
+    if (document.queryForm.owner[1].checked) {
+        if (document.queryForm.uid.value.length == 0) {
+            alert("uid field cannot be empty.");
+            return null;
+        }
+    }
+
+    return "";
+}
+
+</SCRIPT>
+</body>
+</html>
+

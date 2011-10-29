@@ -1,0 +1,100 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2010 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+# Define global constants
+FOOTER="TIMING - ======== Finished Processing PKI Manifest ========"
+HEADER="TIMING - ======== Started Processing PKI Manifest ========"
+MANIFEST="manifest"
+PKI="pki"
+SCRIPTS="scripts"
+SVN=".svn"
+
+# Define global variables
+pki_date=`date +%Y%m%d%H%M%S`
+pki_dir=""
+pki_manifest=""
+
+# Define functions
+Usage()
+{
+	printf "Usage 1:  `basename ${0}`\n"
+	printf "Usage 2:  `basename ${0}` source_path manifest_file\n\n"
+    printf "          where 'Usage 1' must be explicitly executed\n"
+    printf "          from one of the following subdirectories:\n\n"
+    printf "              pki/base/scripts,\n"
+    printf "              pki/dogtag/scripts, or\n"
+    printf "              pki/redhat/scripts\n\n"
+}
+
+# Check for valid number of arguments to shell script
+if [ $# -eq 2 ] ; then
+	# Check that source path is a directory
+	if [ ! -d ${1} ] ; then
+		printf "The source path '${1}' does not exist!\n\n"
+		Usage
+		exit 255
+	fi
+
+	# Initialize variables
+	pki_dir=${1}
+	pki_manifest=${2}.${pki_date}
+elif [ $# -eq 0 ] ; then
+	# Remember current location
+	pki_pwd=`pwd`
+
+	# Check that this script is being run from an appropriate directory
+	if [ "`basename ${pki_pwd}`" != "${SCRIPTS}" ] ; then
+		printf "The '`basename ${0}`' script is NOT being executed "
+		printf "from a valid subdirectory!\n\n"
+		Usage
+		exit 255
+	fi
+
+	# Obtain the source directory related to this PKI manifest
+	pki_src_dir=`cd .. ; pwd | xargs basename ; cd ./${SCRIPTS}`
+
+	# Always switch into the base directory three levels
+	# above this shell script prior to executing it so
+	# that all of its output is written to this directory
+	cd ${pki_pwd}/../../..
+
+	# Initialize variables
+	pki_dir="${PKI}/${pki_src_dir}"
+	pki_manifest="`pwd`/${PKI}.${pki_src_dir}.${MANIFEST}.${pki_date}"
+else
+	Usage
+	exit 255
+fi
+
+# Compose alphabetical list of specified source files
+pki_now=`date`
+echo "TIMING - ======== Started Generating Source File List  ========"
+echo "${pki_now}"
+process_pki_tree=`find ${pki_dir} -name ${SVN} -prune -o -type f -print | sort`
+echo "${pki_now}"
+echo "TIMING - ======== Finished Generating Source File List ========"
+echo
+
+# Generate PKI Manifest
+pki_now=`date`
+echo "${HEADER}"
+echo "${pki_now}"
+
+printf "${HEADER}\n"    >  ${pki_manifest}
+printf "${pki_now}\n\n" >> ${pki_manifest}
+for f in "${process_pki_tree}"
+do
+	echo "Processing ${f} . . ."
+	svn info ${f}       >> ${pki_manifest}
+done
+pki_now=`date`
+printf "${pki_now}\n"   >> ${pki_manifest}
+printf "${FOOTER}\n"    >> ${pki_manifest}
+
+echo "${pki_now}"
+echo "${FOOTER}"
+echo
+

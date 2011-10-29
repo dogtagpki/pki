@@ -1,0 +1,537 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2009 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<style>
+
+body {
+background: #ffffff url(../images/bg.jpg) repeat-x;
+        font-family: arial;
+        font-size: 7pt;
+
+}
+
+h1
+{
+   text-align: left;
+
+   font-weight: bold;
+
+   font-size: 13pt;
+
+
+}
+
+
+h2 {
+
+    text-align: left;
+    font-size: 10pt; 
+
+    font-weight: lighter;
+}
+
+</style>
+<script language = "Javascript">
+
+var test_ui = "id=USER_ID&name=User ID&desc=User ID&type=string&option=option1,option2,option3&&id=USER_PWD&name=User Password&desc=User Password&type=password&option=&&id=USER_PIN&name=PIN&desc=One time PIN received via mail&type=password&option=";
+
+var theForm = null;
+var curKeyID = null;
+var curKeyType = 0; 
+
+
+var gTitle = null;
+var gDescription = null;
+
+
+
+function ConfirmPassword(password_element)
+{
+
+  if(!password_element)
+      return 0;
+
+  password_id = password_element.id;
+
+  if(!password_id)
+     return 0;
+
+  confirm_id = "RE_" + password_element.id;
+
+  var size = theForm.length;
+
+  if(theForm)
+  {
+      for(i = 0; i < size ; i++)
+      {
+         var cur_element = theForm.elements[i];
+  
+         if(cur_element.id == confirm_id)
+         {
+             if(cur_element.value != password_element.value)
+             {
+                 alert("Value " + password_element.name + " must match " + cur_element.name);
+                 return 0;
+
+             }
+             else
+             {
+                 return 1;
+             } 
+
+         } 
+
+      }
+
+  }
+
+  return 1;
+}
+
+function Validate()
+{
+    if(theForm)
+    {
+         var size = theForm.length;
+ 
+         for( i = 0; i < size ; i++)
+         {
+             var element = theForm.elements[i];
+
+             if(element.type == "text" )
+             {
+                 if(element.value == "")
+                 {
+                     alert("Please enter value for " + element.name);
+                     return 0; 
+                 }
+             }
+
+             if(element.type == "password")
+             {
+                 if(element.value == "")
+                 {
+                     alert("Please enter value for " + element.name);
+                     return 0;
+                 }
+
+                 if(!ConfirmPassword(element))
+                 {
+                     return 0;
+                 }
+
+             } 
+         } 
+   
+    }
+
+    return 1;
+}
+
+function FormSubmit()
+{
+    var result = Validate();
+
+    var thisParent = window.opener;
+
+    if(!parent)
+    {
+        alert("No parent window.");
+        window.close(); 
+        return; 
+    }
+  
+    if(!result)
+    {
+        return;
+    }
+
+    if(theForm)
+    {
+         var size = theForm.length;
+         for( i = 0; i < size ; i++)
+         {
+             var element = theForm.elements[i];
+
+             var value = element.value;
+
+             if(element.type == "text" )
+             {
+                 var id = element.id;
+                 value = element.value;
+
+                 if(thisParent)
+                 {
+                     //alert("about to set data value key " + curKeyID + " id " + id + " value " + value);
+                     thisParent.COOLKeySetDataValue(curKeyType,curKeyID,id,value);
+
+                 }
+             }
+
+             if(element.type == "password")
+             {
+                 var p_id = new String(element.id);
+
+                 if(p_id.indexOf("RE_") == -1)
+                 {                   
+                     if(thisParent)
+                     {
+                         thisParent.COOLKeySetDataValue(curKeyType,curKeyID,p_id,value); 
+                     }
+                 }
+             }
+         }
+
+     }
+   
+     window.close(); 
+}
+
+function GetUIObjectList(uiData)
+{
+    var  str = new String(uiData);
+    var splits = str.split("&&");
+
+//    alert("Get " + splits + " len " + splits.length);
+
+    var params = new Array();
+    var size = splits.length;
+
+    for(i = 0 ; i <  size ; i++)
+    {
+       params[i] = splits[i].split("&");
+    }
+
+    size = params.length;
+    var name_value_objects = new Array();
+
+    for(i = 0 ; i < size; i++)
+    {
+         var name_values = new Array();
+
+         pISize = params[i].length;
+         for(j = 0 ;  j < pISize ; j ++)
+         {
+             var pair = params[i][j].split("=");
+
+             //alert(" pair " + pair[0] + " pair1 " + pair[1]);
+
+             if(pair[0] == "option")
+             {
+                 var options = pair[1].split(",");
+             }
+
+             name_values[pair[0]] = pair[1];
+         }
+
+         name_value_objects[i] = name_values;
+    }
+
+    return name_value_objects;
+
+}
+
+function AddBRToNode(theNode)
+{
+
+   if(!theNode)
+       return;
+
+   var br = document.createElement("br");
+
+   theNode.appendChild(br);
+
+}
+
+function AddTextToNode(theNode,theText)
+{
+
+    if(!theNode || !theText)
+        return;
+
+
+    var text = document.createTextNode(theText);
+
+    theNode.appendChild(text);
+      
+
+
+
+}
+function AddTextToDocument(theText)
+{
+    if(!theText)
+         return;
+
+     var p = document.createElement("p");
+
+     if(p)
+     {
+         p.appendChild(document.createTextNode(theText));
+     } 
+
+     document.body.appendChild(p);
+}
+
+function CreateForm()
+{
+    var form = document.createElement("form");
+    document.body.appendChild(form);
+    return form;
+}
+
+function CreateTable()
+{
+  var table = document.createElement("table");
+  document.body.appendChild(table);
+  tbody = document.createElement("tbody");
+  table.appendChild(tbody);
+
+  return table;
+}
+
+function AddRowToTable(table)
+{
+    if(!table)
+        return null;
+
+    var tr = document.createElement("tr");
+    (table.tBodies[0]).appendChild(tr);
+
+    return tr; 
+}
+
+function AddColumnToRow(row)
+{
+  if(!row)
+     return null;
+
+  var td = document.createElement("td");
+  row.appendChild(td);
+
+  return td;
+}
+
+function AddTextToColumn(column,text)
+{
+   if(!column || !text)
+       return;
+
+   var text_node = document.createTextNode(text);
+   column.appendChild(text_node);
+
+   return text_node;
+}
+
+function AddInputField(type,id, name,value)
+{
+    var    field = document.createElement("input");
+   
+    if(!field)
+        return null;
+  
+    field.type =  type;   
+    field.id =id;
+    field.name =name;
+    field.value =value;
+
+    return field;
+}
+
+function ConstructUI(aKeyType,aKeyID,uiData)
+{
+
+    //alert("Construct UI data " + uiData);
+    var name_value_objects = GetUIObjectList(uiData);
+    var len = name_value_objects.length;
+
+    gTitle = document.createElement("h1");
+
+    gDescription = document.createElement("h2");
+
+
+    document.body.appendChild(gTitle);
+
+
+    document.body.appendChild(gDescription);
+
+
+    form = CreateForm(); 
+    theForm = form;
+    curKeyID = aKeyID;
+    curKeyType = aKeyType;
+
+    table = CreateTable();
+
+    form.appendChild(table);
+
+    for(i = 0 ; i < len ; i ++)
+    {
+        curParameter = name_value_objects[i];
+
+        if(curParameter)
+        {
+
+            title = curParameter["title"];
+
+
+            if(title)
+            {
+                //alert("title " + title);
+
+                AddTextToNode(gTitle,title);
+ 
+
+            }
+
+            description = curParameter["description"];
+
+            if(description)
+            {
+               AddBRToNode(document.body);
+               AddBRToNode(document.body);
+
+               AddTextToNode(gDescription,description);
+
+               AddBRToNode(document.body);
+
+            }
+
+            id   = curParameter["id"];
+            name = curParameter["name"];
+            type = curParameter["type"];
+            desc = curParameter["desc"]; 
+
+            //alert(" id " + id + " name " + name + " type " + type + " desc " + desc); 
+
+            if(id)
+            {
+               if(table)
+               {
+                   row = AddRowToTable(table);
+               }
+
+               if(row)
+               {
+                   column = AddColumnToRow(row);
+               }
+
+               if(column)
+               {
+                    AddTextToColumn(column,name);
+               }
+
+               if(type == "string" || type == "integer")
+               {
+                   field = AddInputField("text",id,name,"");
+               }
+
+               re_field = null;
+ 
+               if(type == "password")
+               {
+                   field = AddInputField("password",id,name,"");
+               }
+
+               if(type == "hidden")
+               {
+                   field = AddInputField("hidden",id,name,"");
+               } 
+
+               if(field)
+               {
+                   field_col = AddColumnToRow(row);                
+                   if(field_col)
+                   {
+                       field_col.appendChild(field);
+                   }
+               }
+
+               if(re_field)
+               {
+                 re_text = AddColumnToRow(row);
+
+                 if(re_text)
+                 {
+                     AddTextToColumn(re_text,"Confirm " + name);
+                     re_field_col = AddColumnToRow(row);
+                     if(re_field_col)
+                     {
+                         re_field_col.appendChild(re_field);
+                     }
+                   
+                 } 
+
+               }
+           }
+
+        }
+
+    }
+
+    var last_row = AddRowToTable(table);
+
+    if(last_row)
+    {
+        var button_field = AddColumnToRow(last_row);
+
+        if(button_field)
+        {
+           var button = AddInputField("button","Submit","Submit","Submit");
+            button.onclick = FormSubmit;
+            button_field.appendChild(button);
+
+        }
+
+    } 
+}
+
+function UiLoad()
+{
+
+
+   var thisParent = window.opener;
+
+
+   if(!thisParent)
+   {
+        alert("Auth dialog has no parent!");
+        return;
+   }
+
+   var keyID =  this.name;
+
+   var ui = thisParent.getUIForKey(keyID); 
+
+   var type = thisParent.getTypeForKey(keyID);
+
+   //alert("UiLoad " + ui);
+
+   if(ui)
+   {
+       ConstructUI(type,keyID,ui);
+   }
+}
+
+</script>
+</head>
+<body onload = "UiLoad()"> 
+</body>
+</html>

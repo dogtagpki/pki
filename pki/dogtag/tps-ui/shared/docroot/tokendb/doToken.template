@@ -1,0 +1,360 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+<link rel="shortcut icon" href="/tps/admin/console/img/favicon.ico" />
+<HEAD>
+<TITLE>TPS</Title>
+</HEAD>
+
+<table border="0" width="100%" cellspacing="0" cellpadding="0" bgcolor="#000080">
+  <tr>
+    <td>
+      <table border="0" cellspacing="12" cellpadding="0">
+        <tr>
+          <td><img src="/tps/admin/console/img/logo_header.gif"></td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Dogtag<sup><font color="#999999" size="-2">&reg;</font></sup> TPS Services</b></font></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<p>
+
+<BODY>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/JavaScript">
+<!--
+var uri0 = "";
+if (typeof(uriBase) == "undefined") {
+    uri0 += "/tus";
+} else {
+    uri0 += uriBase;
+}
+
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri0+"\">Main Menu</a> : Agent Operations : Token Details</font>\n");
+document.write("<table width=\"100%\"><tr><td align=\"right\">" +
+                "<b>UID:</b>" +
+                userid + "</td></tr></table>\n");
+document.write("<HR NOSHADE SIZE=1>\n");
+
+function breakLines(str) {
+	str = str.replace('#', '<br>');	
+	return str;
+}
+
+function trim(str) {
+    var i, k, newString;
+
+    for (i = 0; i < str.length; i++) {
+        if (str.charAt(i) != ' ' )
+            break;
+    }
+    for (k = str.length - 1; k >= i; k--) {
+        if (str.charAt(k) != ' ' ) {
+            k++;
+            break;
+        }
+    }
+
+    if (k > i)
+        newString = str.substring(i, k);
+    else
+        newString = null;
+
+    return  newString;
+}
+
+function checkDate(str) {
+    var newString;
+
+    if (str.length == 15 && str.charAt(14) == 'Z') {
+        newString = str.substring(0, 4);
+        newString += '/';
+        newString += str.substring(4, 6);
+        newString += '/';
+        newString += str.substring(6, 8);
+        newString += ' ';
+        newString += str.substring(8, 10);
+        newString += ':';
+        newString += str.substring(10, 12);
+        newString += ':';
+        newString += str.substring(12, 14);
+    } else {
+        newString = str;
+    }
+
+    return newString;
+}
+
+function doSave(form) {
+    if (form.uid.value.length > 0) {
+        var trimmedList = "";
+        var uids = form.uid.value.split(',');
+
+        for (var i=0; i < uids.length; i++) {
+            if (i > 0) trimmedList += ",";
+            trimmedList += trim(uids[i]);
+        }
+        form.uid.value = trimmedList;
+    }
+    if (form.status.value.length > 0) {
+        form.status.value = trim(form.status.value);
+    }
+
+    if (form.status.value == "") {
+        alert("Enter token status");
+    } else {
+        var uri = "";
+        if (typeof(uriBase) == "undefined") {
+            uri += "/tus";
+        } else {
+            uri += uriBase;
+        }
+        uri += "?op=save&tid="+results[0].cn;
+
+        if (results[0].tokenUserID != form.uid.value) {
+            uri += "&uid=" + form.uid.value;
+        }
+        if (results[0].tokenStatus != form.status.value) {
+            uri += "&s=" + form.status.value;
+        }
+        uri += "&m=" + results[0].modified;
+        location.href = uri;
+    }
+}
+
+function doCancel() {
+    var uri = "";
+    if (typeof(uriBase) == "undefined") {
+        uri += "/tus";
+    } else {
+        uri += uriBase;
+    }
+    location.href = uri;
+}
+
+
+function check_transition(state, tlist) {
+    for (var i=0; i < tlist.length; i++) {
+        if (state == tlist[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+if (rc == "0") {
+    document.write("<b>The operation has been successful.</b>");
+    document.write("<p>\n");
+} else if (typeof(results) == "undefined" || results.length == 0) {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Token Not Found</font>\n");
+} else if (results.length > 1) {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Found too many tokens to edit</font>\n");
+} else {
+    document.write("<BR>");
+
+    document.write("<p>\n");
+    document.write("<b>Token Information:</b>");
+    document.write("<p>\n");
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Token:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].cn+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "User ID:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].tokenUserID+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Status:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].tokenStatus+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Reason:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].tokenReason+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Policy:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].tokenPolicy+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Token Type:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].tokenType+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("</table>\n");
+    document.write("<p>\n");
+    document.write("<b>System Information:</b>");
+    document.write("<p>\n");
+
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Key Info:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].keyInfo+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Applet ID:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   results[0].tokenAppletID+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Creation Date:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   checkDate(results[0].dateOfCreate)+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("<tr>\n");
+    document.write("<td ALIGN=LEFT width=30% bgcolor=#e5e5e5>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Modification Date:&nbsp;</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   checkDate(results[0].dateOfModify)+"</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    document.write("</table>\n");
+    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
+
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
+    document.write("<tr>\n");
+    document.write("<td width=60%>\n");
+    var transitions = allowed_transitions.split(",");
+    if (allowed_transitions != "") {
+        document.write("<form method='get' action='tus'><select name=\"question\">");
+
+        if (check_transition(1, transitions)) {
+            document.write("<option value=\"1\" >This token has been physically damaged.</option>");
+        } else {
+            document.write("<option value=\"1\" disabled=true >This token has been physically damaged.</option>");
+        }
+        if (check_transition(2, transitions)) {
+            document.write("<option value=\"2\">This token has been permanently lost.</option>");
+        } else {
+            document.write("<option value=\"2\" disabled=true >This token has been permanently lost.</option>");
+        }
+        if (check_transition(3, transitions)) {
+            document.write("<option value=\"3\" >This token has been temporarily lost.</option>");
+        } else {
+            document.write("<option value=\"3\" disabled=true >This token has been temporarily lost.</option>");
+        }
+        if (check_transition(4, transitions)) {
+            document.write("<option value=\"4\" >This temporarily lost token has been found.</option>");
+        } else {
+            document.write("<option value=\"4\" disabled=true >This temporarily lost token has been found.</option>");
+        }
+        if (check_transition(5, transitions)) {
+            document.write("<option value=\"5\" >This temporarily lost token cannot be found (becomes permanently lost).</option>");
+        } else {
+            document.write("<option value=\"5\" disabled=true >This temporarily lost token cannot be found (becomes permanently lost).</option>");
+        }
+        if (check_transition(6, transitions)) {
+            document.write("<option value=\"6\" >This token has been terminated.</option>");
+        } else {
+            document.write("<option value=\"6\" disabled=true >This token has been terminated.</option>");
+        }
+        document.write("</select><input type=hidden name=op value=do_token><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Go\"></form>");
+    }
+    document.write("</td>\n");
+    document.write("<td width=10%>\n");
+    document.write("<form method='get' action='tus'><input type=hidden name=op value=view_certificate_all><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Certificates\"></form>");
+    document.write("</td>\n");
+    document.write("<td width=10%>\n");
+    document.write("<form method='get' action='tus'><input type=hidden name=op value=view_activity_all><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Show Activities\"></form>");
+    document.write("</td>\n");
+    document.write("<td width=10%>\n");
+    document.write("<form method='get' action='tus'><input type=hidden name=op value=edit><input type=hidden name=tid value=" + results[0].cn + "><input TYPE=submit VALUE=\"Edit\"></form>");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+    document.write("</table>\n");
+
+}
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>

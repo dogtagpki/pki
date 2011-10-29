@@ -1,0 +1,450 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Request Queue</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<style type="text/css">
+
+.floating {
+  position: absolute;
+  left: 300px;
+  top: 50px;
+  width: 400px;
+  padding: 3px;
+  border: solid;
+  border-width: 2px;
+  background: white;
+  display: none;
+  margin: 5px;
+}
+
+
+table#t td {
+  font-size: 0.8em;
+  padding: 0px;
+  margin: 0px;
+}
+
+DIV.subject  A:link {text-decoration: none;}     
+DIV.subject  A:visited {text-decoration: none;}     
+DIV.subject  A:hover {text-decoration: underline;}
+
+.h {
+  background-color: #eeeeee;
+  font-color: #606060;
+  font-weight: bold;
+}
+
+</STYLE>
+</head>
+
+<body bgcolor="#FFFFFF" link="#000000" vlink="#000000" alink="#000000">
+<font size=+1 face="PrimaSans BT, Verdana, sans-serif">Request Queue</font>
+<br>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/javascript">
+//<!--
+
+function toHex(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + absValue;
+}
+
+function renderHexNumber(number,width)
+{
+    var num = toHex(number);
+    while (num.length < width)
+        num = "0"+num;
+    return "0x"+num;
+}
+
+function renderDateFromSecs(secs)
+{
+    if (secs == null) return "";
+    var dateTmp = new Date();
+    dateTmp.setTime(secs * 1000);
+    var year = dateTmp.getYear();
+    if (year < 100) {
+        year += 1900;
+    } else {
+        year %= 100;
+        year += 2000;
+    }
+    return (dateTmp.getMonth()+1)+"/"+dateTmp.getDate()+"/"+year+" ;"+
+            (dateTmp.getHours()<10?" ;":"")+
+            dateTmp.getHours()+":"+(dateTmp.getMinutes()<10?"0":"")+
+            dateTmp.getMinutes()+":"+(dateTmp.getSeconds()<10?"0":"")+
+            dateTmp.getSeconds();
+}
+
+function stateCodeToColor(code)
+{
+    if (code == "waiting")
+        return "darkgreen";
+    else if (code == "cancelled" || code == "rejected")
+        return "red";
+    else if (code == "complete")
+        return "black";
+    else 
+        return "magenta";
+}
+
+function addSpaces(str)
+{
+    var outStr = "";
+    var str0 = "";
+    var i0 = 0;
+    var i1 = 0;
+
+    while (i1 < str.length) {
+        i1 = str.indexOf(',', i0);
+        if (i1 > -1) {
+            i1++;
+            str0 += str.substring(i0, i1);
+            str0 += " ";
+            i0 = i1;
+        } else {
+            str0 += str.substring(i0, str.length);
+            i1 = str.length;
+        }
+    }
+
+    i0 = 0;
+    i1 = 0;
+    while (i1 < str0.length) {
+        i1 = str0.indexOf('+', i0);
+        if (i1 > -1) {
+            i1++;
+            outStr += str0.substring(i0, i1);
+            outStr += " ";
+            i0 = i1;
+        } else {
+            outStr += str0.substring(i0, str0.length);
+            i1 = str0.length;
+        }
+    }
+
+    return outStr;
+}
+
+function addEscapes(str)
+{
+    var outStr = str.replace(/</g, "&lt;");
+    outStr = outStr.replace(/>/g, "&gt;");
+    return outStr;
+}
+
+function renderDetailsButtonForProfile(serialNumber)
+{
+        return '<form method=post '+
+                'action="'+
+                'profileReview' +'">\n'+
+                '<input type=hidden name="requestId" value="'+
+                serialNumber +
+                '">\n'+
+                '<input type=submit value="Details"></form>\n';
+}
+
+function renderDetailsButton(serialNumber)
+{
+        return '<form method=post '+
+                'action="'+
+                '/ca/agent/ca/processReq' +'">\n'+
+                '<input type=hidden name="seqNum" value="'+
+                serialNumber +
+                '">\n'+
+                '<input type=submit value="Details"></form>\n';
+}
+
+function setNode(table,desc,content,style)
+{
+  var row = table.insertRow(-1);
+  if (style)  {
+    row.className = style;
+  }
+  var cell1 = row.insertCell(-1);
+  var desc_text = document.createTextNode(desc);
+  cell1.appendChild(desc_text); 
+  var cell2 = row.insertCell(-1);
+  var content_text = document.createTextNode(content);
+  cell2.appendChild(content_text);
+}
+
+function mouseover(element,event)
+{
+  var x = event.clientX;
+  var y = event.clientY;
+
+  var index= element.getAttribute("index");
+  if (index == null) { return false; }
+  var req = recordSet[index];
+
+  element.parentNode.parentNode.parentNode.style.backgroundColor = "#EEEEFF";
+
+  var v;
+  var e = document.getElementById("reqMetaDatadiv");
+
+  var t = document.getElementById("t");
+
+  // delete all the rows in the table
+  var i=0;
+  while (i < t.rows.length) {
+    t.deleteRow(0);
+  }
+
+  setNode(t,"Request details for request #", req.seqNum,"h");
+  setNode(t,"Request Type:",req.requestType);
+  setNode(t,"Submitted On:", renderDateFromSecs(req.createdOn));
+  setNode(t,"Updated On:", renderDateFromSecs(req.updatedOn));
+  setNode(t,"Updated By:", req.updatedBy);
+  assumedheight = 120;
+  e.style.left = x+30 + 'px'; // x-offset of floating div
+
+  var offset = 20;     // extra y-offset of floating div
+  var bottom =  y + offset + assumedheight;
+  if (bottom > window.innerHeight) {
+     offset = 0 - (2*offset) - assumedheight;
+  }
+
+  e.style.top = y+ offset + window.pageYOffset+ document.body.scrollTop + 'px';
+
+  // unhide the window
+  e.style.display ="block";
+
+
+}
+
+function mouseout(element)
+{
+//	window.setTimeout("hide",1);
+  var index= element.getAttribute("index");
+     element.parentNode.parentNode.parentNode.style.backgroundColor = "#FFFFFF";
+
+        hide();
+}
+
+function hide()
+{
+	document.getElementById("reqMetaDatadiv").style.display ="none";
+}
+
+
+function displayRequest(i, req)
+{
+    // request table items
+
+    var url= "";
+    if (req.profile != null && req.profile == 'true') {
+	// profile
+        url = "profileReview?requestId=";
+    } else {
+	// policy
+        url = "/ca/agent/ca/processReq?seqNum=";
+    }
+
+    var link = "<a index='"+i+"' href='"+url+ req.seqNum + "'" +
+ 	" onmouseover='mouseover(this,event);' "+
+           "onmouseout='mouseout(this);'>";
+
+    // request number
+    document.write("<tr><td align=right>"+
+        "<font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">"+
+	link + req.seqNum +"</a></font></td>\n");
+
+    //State
+    document.write("<td>"+
+        "<font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\" color=\""+
+        stateCodeToColor(req.status) +"\">"+req.status);
+    if (req.status == "complete" && req.Result != null && req.Result != "1") {
+        document.write("d with error");
+    }
+    document.write("</font></td>\n");
+
+    // Assigned to
+    document.write("<td><font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\""+
+                   (req.assignedTo == null? " color=\"magenta\"": "")+ ">\n"+
+                   ((req.status != "pending")? "":
+                       (req.assignedTo == null? "unassigned":req.assignedTo))+
+                   "</font></td>");
+
+    //Subject
+    if (req.subject != null) {
+        document.write("<TD colspan=2>\n"+
+            "<div class='subject'><font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">\n"+
+	    link+
+            addSpaces(addEscapes(req.subject)) + "</a></font></div></td></tr>\n");
+    } else {
+        document.write("<TD></TD><TD></TD></tr>\n");
+    }
+
+//    document.write("</table>\n");
+}
+
+function displayRequestList()
+{
+    document.write("<font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">\n");
+    if (result.header.error != null) {
+        document.write(result.header.error + "</font>\n");
+    } else if (result.recordSet.length == 0) {
+        document.write("No Matching Request Records Found</font>\n");
+    } else {
+        document.write("Total Number of Records Found : " +
+            result.header.totalRecordCount + "</font></br>\n");
+//            result.header.totalRecordCount + "</font></br>&nbsp;\n");
+
+	document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=6 WIDTH='100%'>\n"+
+		"<tr align=center><td>\n");
+	displayNextForm();
+
+        document.write(
+            "<table border=\"0\" width=\"100%\" cellspacing=\"2\" cellpadding=\"2\">\n"+
+            "<tr><td width=10%>&nbsp;</td>"+
+                "<td width=10%>&nbsp;</td>"+
+                "<td width=20%>&nbsp;</td>"+
+                "<td width=60%>&nbsp;</td>"+
+                "</tr>\n");
+
+    document.write(
+//        "<table border=\"0\" width=\"100%\" cellspacing=\"2\" cellpadding=\"2\">\n"+
+//        "<tr><td width=5%>&nbsp;</td><td width=25%>&nbsp;</td><td width=25%>&nbsp;</td>\n"+
+//        "<td width=25%>&nbsp;</td><td width=20%>&nbsp;</td></tr>\n"+
+        "<TR BGCOLOR=\"#E5E5E5\">\n"+
+        "<TD align=right width=10%>\n"+
+        "<font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">\n"+
+        "#</font></TD>\n"+
+        "<TD width=10%>\n"+
+        "<font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">\n"+
+        "Status</font></TD>\n"+
+        "<TD width=20%>\n"+
+        "<font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">\n"+
+        "Assigned to</font></TD>\n"+
+        "<TD width=60%>\n"+
+        "<font size=-1 face=\"PrimaSans BT, Verdana, sans-serif\">\n"+
+        "Subject</font></TD></TR>\n"
+    );
+
+	    for(var i = 0; i < result.recordSet.length; ++i ) {
+		    displayRequest(i, result.recordSet[i]);
+	    }
+	    document.write("</table>");
+	    displayNextForm();
+}
+}
+
+function renderHidden(name,value)
+{
+	return 	"<INPUT TYPE='hidden' NAME='"+ name +"' VALUE=''>\n";
+}
+
+
+function doNext(element)
+{
+	var form = element.form;
+        form.action = "queryReq";
+	form.op.value = result.header.op;
+
+	form.direction.value = element.name;
+	form.firstEntryOnPage.value = result.header.firstEntryOnPage;
+	form.lastEntryOnPage.value = result.header.lastEntryOnPage;
+	form.totalRecordCount.value = result.header.totalRecordCount;
+
+	form.submit();
+}
+
+function displayNextForm()
+{
+if (typeof(result.fixed.maxCount) != "undefined") {
+var seqNum=parseInt(result.recordSet[result.recordSet.length-1].seqNum) + 1;
+//alert("in displayNextForm seqNum="+seqNum);
+	document.write(
+//"<div align=center> \n"+
+"<FORM NAME='nextForm' METHOD='POST' ACTION=''>\n"+ renderHidden("op"));
+
+var disabled = "";
+//(result.header.seqNumFromDown== null) ? "disabled='true'" : "";
+
+document.write(
+"<button NAME='begin' onClick='doNext(this)' VALUE='|<<' width='72'>|&lt;&lt;</button>\n"+
+"<button NAME='previous' onClick='doNext(this)' VALUE='<' width='72'>&lt;</button>\n"+
+"<INPUT TYPE='hidden' NAME='totalRecordCount' VALUE='"+
+result.header.totalRecordCount+ "'>\n"+
+"<INPUT TYPE='hidden' NAME='op' VALUE='"+ "queryReq"+ "'>\n"+
+"<INPUT TYPE='hidden' NAME='querySentinelDown' VALUE='"+
+  result.header.querySentinelDown+ "'>\n"+
+"<INPUT TYPE='hidden' NAME='querySentinelUp' VALUE='"+
+  result.header.querySentinelUp+ "'>\n"+
+
+"<INPUT TYPE='hidden' NAME='firstEntryOnPage' VALUE='"+ 
+  result.header.querySentinelUp +"'>\n"+
+"<INPUT TYPE='hidden' NAME='lastEntryOnPage' VALUE='"+ 
+  result.header.querySentinelDown +"'>\n"+
+"<INPUT TYPE='hidden' NAME='direction' VALUE='"+
+  result.header.direction+ "'>\n");
+
+    if (result.fixed.reqType != null)
+        document.write("<INPUT TYPE='hidden' NAME='reqType' VALUE='" + result.fixed.reqType + "'>\n");
+
+    if (result.fixed.reqState != null)
+        document.write("<INPUT TYPE='hidden' NAME='reqState' VALUE='" + result.fixed.reqState + "'>\n");
+
+    document.write("<INPUT TYPE=\"hidden\" NAME=\"totalRecordCount\" VALUE=\"" + 
+        result.header.totalRecordCount + "\">\n");
+
+    document.write("<INPUT style='padding-left: 2px;' TYPE=text SIZE=16 NAME=maxCount VALUE='"+
+result.fixed.maxCount+ "'>\n"+
+"<button "+disabled+" NAME='next' onClick='doNext(this)' VALUE='>' width='72'>&gt;</button>\n"+
+"<button "+disabled+" NAME='end' onClick='doNext(this)' VALUE='>>|' width='72'>&gt;&gt;|</button>\n"+
+"</FORM>\n");
+}
+}
+
+
+displayRequestList();
+
+//-->
+</SCRIPT>
+
+<div id="reqMetaDatadiv" class="floating">
+<table id="t" width="100%">
+<tr><td/></tr>
+</table>
+</div>
+</BODY>
+</HTML>

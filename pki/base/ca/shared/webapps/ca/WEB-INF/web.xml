@@ -1,0 +1,2480 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app 
+   PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "file:///usr/share/pki/setup/web-app_2_3.dtd">
+<web-app>
+
+    <filter>
+        <filter-name>AgentRequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.AgentRequestFilter</filter-class>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_AGENT_SECURE_PORT]</param-value>
+        </init-param>
+[PKI_OPEN_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
+        </init-param>
+[PKI_CLOSE_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>active</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>AdminRequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.AdminRequestFilter</filter-class>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_ADMIN_SECURE_PORT]</param-value>
+        </init-param>
+[PKI_OPEN_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
+        </init-param>
+[PKI_CLOSE_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>active</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>EERequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.EERequestFilter</filter-class>
+        <init-param>
+            <param-name>http_port</param-name>
+            <param-value>[PKI_UNSECURE_PORT]</param-value>
+        </init-param>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_EE_SECURE_PORT]</param-value>
+        </init-param>
+[PKI_OPEN_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
+        </init-param>
+        <init-param>
+            <param-name>proxy_http_port</param-name>
+            <param-value>[PKI_PROXY_UNSECURE_PORT]</param-value>
+        </init-param>
+[PKI_CLOSE_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>active</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>EEClientAuthRequestFilter</filter-name>
+        <filter-class>com.netscape.cms.servlet.filter.EEClientAuthRequestFilter</filter-class>
+        <init-param>
+            <param-name>https_port</param-name>
+            <param-value>[PKI_EE_SECURE_CLIENT_AUTH_PORT]</param-value>
+        </init-param>
+[PKI_OPEN_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>proxy_port</param-name>
+            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
+        </init-param>
+[PKI_CLOSE_ENABLE_PROXY_COMMENT]
+        <init-param>
+            <param-name>active</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+
+    <servlet>
+        <servlet-name>csadmin-wizard</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.wizard.WizardServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+        <init-param>
+            <param-name>name</param-name>
+            <param-value>CA Setup Wizard</param-value>
+        </init-param>
+        <init-param>
+            <param-name>panels</param-name>
+            <param-value>welcome=com.netscape.cms.servlet.csadmin.WelcomePanel,module=com.netscape.cms.servlet.csadmin.ModulePanel,confighsmlogin=com.netscape.cms.servlet.csadmin.ConfigHSMLoginPanel,securitydomain=com.netscape.cms.servlet.csadmin.SecurityDomainPanel,securitydomain=com.netscape.cms.servlet.csadmin.DisplayCertChainPanel,subsystem=com.netscape.cms.servlet.csadmin.CreateSubsystemPanel,clone=com.netscape.cms.servlet.csadmin.DisplayCertChainPanel,restorekeys=com.netscape.cms.servlet.csadmin.RestoreKeyCertPanel,cahierarchy=com.netscape.cms.servlet.csadmin.HierarchyPanel,database=com.netscape.cms.servlet.csadmin.DatabasePanel,size=com.netscape.cms.servlet.csadmin.SizePanel,subjectname=com.netscape.cms.servlet.csadmin.NamePanel,certrequest=com.netscape.cms.servlet.csadmin.CertRequestPanel,backupkeys=com.netscape.cms.servlet.csadmin.BackupKeyCertPanel,savepk12=com.netscape.cms.servlet.csadmin.SavePKCS12Panel,importcachain=com.netscape.cms.servlet.csadmin.ImportCAChainPanel,admin=com.netscape.cms.servlet.csadmin.AdminPanel,importadmincert=com.netscape.cms.servlet.csadmin.ImportAdminCertPanel,done=com.netscape.cms.servlet.csadmin.DonePanel</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>csadmin-login</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.csadmin.LoginServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+    </servlet>
+
+   <servlet>
+      <servlet-name>  services </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.MainPageServlet </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> services </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /services.template </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caacl  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.ACLAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caacl       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caug  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.UsrGrpAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caug        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caserver  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.CMSAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caserver    </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  capolicy  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.PolicyAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> capolicy    </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  calog  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.LogAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> calog       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetAdminCertBySerial  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetBySerial  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetAdminCertBySerial </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.admin.certificate </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caUpdateConnector  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateConnector  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caUpdateConnector </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.connectorInfo </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caRegisterUser  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.RegisterUser  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caRegisterUser </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  GroupName    </param-name>
+                         <param-value> Certificate Manager Agents </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.registerUser </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caRegisterRaUser  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.RegisterUser  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caRegisterRaUser </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  GroupName    </param-name>
+                         <param-value> Registration Manager Agents </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.registerUser </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetDomainXML  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetDomainXML </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caUpdateDomainXML  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caUpdateDomainXML </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.securitydomain.domainxml </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caUpdateNumberRange  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateNumberRange  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caUpdateNumberRange </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.clone.configuration.UpdateNumberRange </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caUpdateOCSPConfig  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateOCSPConfig  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caUpdateOCSPConfig </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.admin.ocsp </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDownloadPKCS12  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.DownloadPKCS12  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDownloadPKCS12 </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.clone.configuration </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetCertChain  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetCertChain  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetCertChain </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetCertChainAdmin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetCertChain  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetCertChainAdmin </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetStatus  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetStatus  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetStatus </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetConfigEntries  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetConfigEntries </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetConfigEntries </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.clone.configuration.GetConfigEntries </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caca  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.CAAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caca        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caregistry  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.RegistryAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caregistry  </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caauths  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.AuthAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caauths     </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  castart  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.CMSStartServlet  </servlet-class>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  cfgPath     </param-name>
+                         <param-value> [PKI_INSTANCE_PATH]/conf/CS.cfg </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> castart     </param-value> </init-param>
+      <load-on-startup>  1  </load-on-startup>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caprofile  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.ProfileAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caprofile   </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  cajobsScheduler  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.JobsAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> cajobsScheduler </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caadminEnroll  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /admin/ca/EnrollSuccess.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caadminEnroll </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.admin.request.enrollment </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> passwdUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  capublisher  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.admin.PublisherAdminServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> capublisher </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetOCSPInfo  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.ocsp.GetOCSPInfo  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent          </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/getOCSPInfo.template </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetOCSPInfo </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.ocsp </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caUpdateDir  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.UpdateDir  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/updateDir.template </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caUpdateDir </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.directory </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetCertFromRequest-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetCertFromRequest  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetCertFromRequest </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificate </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  importCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetBySerial-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetBySerial  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /ca/ImportCert.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetBySerial </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificate </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSelect-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSelectServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSelect </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ca/ProfileSelect.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.profile </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caindex  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caindex     </param-value> </init-param>
+             <init-param><param-name>  template    </param-name>
+                         <param-value> index.template </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caStats </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.GetStats </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ca/getStats.template </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> stats </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.systemstatus </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caMonitor  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.Monitor  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ca/monitor.template </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caMonitor   </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.systemstatus </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caReasonToRevoke  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.ReasonToRevoke  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/reasonToRevoke.template </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caReasonToRevoke </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificates </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caListRequests  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/ca/ListRequests.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caListRequests </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/ca/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  casearchReqs  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.request.SearchReqs  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  parser      </param-name>
+                         <param-value> CertReqParser.NODETAIL_PARSER </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/queryReq.template  </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> casearchReqs </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.requests </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  timeLimits  </param-name>
+                         <param-value> 10 </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileApprove  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileApproveServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileApprove </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ca/ProfileApprove.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.profile </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caUpdateDirectory  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/ca/UpdateDir.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caUpdateDirectory </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileReview  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileReviewServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileReview </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ca/ProfileReview.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.request.profile </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caConnector  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.connector.ConnectorServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caConnector </param-value> </init-param>
+             <init-param><param-name>  RequestEncoder  </param-name>
+                         <param-value> com.netscape.cmscore.connector.HttpRequestEncoder </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.connector </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caSrchCerts-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.SrchCerts  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/srchCert.template  </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caSrchCerts </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificates </param-value> </init-param>
+             <init-param><param-name>  timeLimits  </param-name>
+                         <param-value> 15 </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caheader  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caheader    </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  template    </param-name>
+                         <param-value> /agent/header.template </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+   </servlet>
+
+
+   <servlet>
+      <servlet-name>  caDisplayCertFromRequest-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetCertFromRequest  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDisplayCertFromRequest </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificate </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  importCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caListCerts-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.ListCerts  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/queryCert.template  </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caListCerts </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificates </param-value> </init-param>
+             <init-param><param-name>  maxResults  </param-name>
+                         <param-value> 1000 </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caqueryReq  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.request.QueryReq  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  parser      </param-name>
+                         <param-value> CertReqParser.NODETAIL_PARSER </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/queryReq.template  </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caqueryReq  </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.requests </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  maxResults  </param-name>
+                         <param-value> 1000 </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProcessReq  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.request.ProcessReq  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  parser      </param-name>
+                         <param-value> CertReqParser.DETAIL_PARSER </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProcessReq </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/processReq.template  </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.request.enrollment </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caports  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.PortsServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caports     </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false        </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> ee      </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caSrchCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/ca/SrchCert.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caSrchCert  </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileList-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileListServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileList </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ca/ProfileList.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.profiles </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDisplayBySerial-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.DisplayBySerial  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/displayBySerial.template </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDisplayBySerial </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificate </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caSrchRevokeCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/ca/SrchRevokeCert.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caSrchRevokeCert </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDoUnrevoke  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.DoUnrevoke  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/unrevocationResult.template  </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDoUnrevoke </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificate </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDoRevoke-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.DoRevoke  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/revocationResult.template  </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDoRevoke  </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificates </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileProcess  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileProcessServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileProcess </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /agent/ca/ProfileProcess.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.request.profile </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProcessCertReq  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.request.ProcessCertReq  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProcessCertReq </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.request.enrollment </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  cabulkissuance  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
+             <init-param><param-name>  rejectedTemplate  </param-name>
+                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
+             <init-param><param-name>  svcpendingTemplate  </param-name>
+                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.request.enrollment </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> cabulkissuance </param-value> </init-param>
+             <init-param><param-name>  errorTemplate  </param-name>
+                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
+             <init-param><param-name>  unexpectedErrorTemplate  </param-name>
+                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
+             <init-param><param-name>  pendingTemplate  </param-name>
+                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caQueryBySerial  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  htmlPath    </param-name>
+                         <param-value> /agent/ca/queryBySerial.html </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caQueryBySerial </param-value> </init-param>
+             <init-param><param-name>  unauthorizedTemplate  </param-name>
+                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  camasterCAUpdateCRL  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.UpdateCRL  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/updateCRL.template </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> camasterCAUpdateCRL </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.crl </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  camasterCADisplayCRL  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.DisplayCRL  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /agent/ca/displayCRL.template  </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> camasterCADisplayCRL </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.crl </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  camasterCAGetInfo  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetInfo  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> agent      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> camasterCAGetInfo </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.crl </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSubmit  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface  </param-name>
+                         <param-value> ee      </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmit </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caRenewal  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.RenewalServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /ca/RenewalSuccess.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caRenewal   </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificate </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> sslClientCertAuthMgr </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetCertFromRequest  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetCertFromRequest  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /ee/ca/ImportCert.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetCertFromRequest </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificate </param-value> </init-param>
+             <init-param><param-name>  importCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetCRL  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetCRL  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /ee/ca/displayCRL.template  </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetCRL    </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.crl </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetBySerial  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetBySerial  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /ee/ca/ImportCert.template </param-value> </init-param>
+             <init-param><param-name>  importCertTemplate  </param-name>
+                         <param-value> /ee/ca/ImportAdminCert.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name> 
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetBySerial </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificate </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetAdminBySerial  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetBySerial  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /admin/ca/ImportCert.template </param-value> </init-param>
+             <init-param><param-name>  importCertTemplate  </param-name>
+                         <param-value> /admin/ca/ImportAdminCert.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name> 
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin       </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetAdminBySerial </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.admin.certificate </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin       </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  cacertbasedenrollment  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /ca/EnrollSuccess.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name> 
+                         <param-value> cacertbasedenrollment </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.request.enrollment </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSelect  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSelectServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSelect </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSelect.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caenrollment  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /ca/EnrollSuccess.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caenrollment </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.request.enrollment </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caCheckRequest  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.request.CheckRequest  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name> 
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /ee/ca/requestStatus.template  </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caCheckRequest </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.requestStatus </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caOCSP  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.ocsp.OCSPServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caOCSP      </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.request.ocsp </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDoRevoke1  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.DoRevokeTPS  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /ee/ca/revocationResult.template</param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDoRevoke1 </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificates </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caSrchCerts  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.SrchCerts  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /ee/ca/srchCert.template  </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caSrchCerts </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificates </param-value> </init-param>
+             <init-param><param-name>  timeLimits  </param-name>
+                         <param-value> 10 </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDynamicVariables  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDynamicVariables </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  dynamicVariables  </param-name>
+                         <param-value> serverdate=serverdate(),subsystemname=subsystemname(),http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl() </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDynamicVariables-agent  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDynamicVariables </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  dynamicVariables  </param-name>
+                         <param-value> serverdate=serverdate(),subsystemname=subsystemname(),http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl() </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent       </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDynamicVariables-admin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDynamicVariables </param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  dynamicVariables  </param-name>
+                         <param-value> serverdate=serverdate(),subsystemname=subsystemname(),http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl() </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin       </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSubmitCMCSimple  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  cert_request_type  </param-name>
+                         <param-value> pkcs10      </param-value> </init-param>
+             <init-param><param-name>  profileId   </param-name>
+                         <param-value> caSimpleCMCUserCert </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  outputFormat  </param-name>
+                         <param-value> cmc         </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitCMCSimple </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDisplayCertFromRequest  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetCertFromRequest  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /ee/ca/displayCertFromRequest.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDisplayCertFromRequest </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificate </param-value> </init-param>
+             <init-param><param-name>  importCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caListCerts  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.ListCerts  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /ee/ca/queryCert.template   </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caListCerts </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificates </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  maxResults  </param-name>
+                         <param-value> 1000 </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSubmitSSLClient  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitSSLClient </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetCAChain  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetCAChain  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /ee/ca/displayCaCert.template  </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetCAChain </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certchain </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSubmitCMCFull  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  cert_request_type  </param-name>
+                         <param-value> cmc         </param-value> </init-param>
+             <init-param><param-name>  profileId   </param-name>
+                         <param-value> caFullCMCUserCert </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitCMCFull </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileList  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileListServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileList </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileList.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profiles </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caCMCRevReq  </servlet-name> 
+      <servlet-class> com.netscape.cms.servlet.cert.CMCRevReqServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /ee/ca/revocationResult.template </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caCMCRevReq </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> CMCAuth     </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificates </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDoUnrevoke1  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.DoUnrevokeTPS  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDoUnrevoke1 </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ca.certificate </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDisplayBySerial  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.DisplayBySerial  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath   </param-name>
+                         <param-value> /ee/ca/displayBySerial.template </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDisplayBySerial </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificate </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caRevocation  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.RevocationServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true        </param-value> </init-param>
+             <init-param><param-name>  successTemplate  </param-name>
+                         <param-value> /ee/ca/reasonToRevoke.template </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name> 
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caRevocation </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.request.revocation </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> sslClientCertAuthMgr </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetInfo  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.GetInfo  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name> 
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetInfo   </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.crl </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetSubsystemCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetSubsystemCert  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetSubsystemCert   </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificate </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caDoRevoke  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.DoRevoke  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  templatePath </param-name>
+                         <param-value> /ee/ca/revocationResult.template </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caDoRevoke  </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificates </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caSecurityDomainLogin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.SecurityDomainLogin  </servlet-class>
+            <init-param> <param-name>properties</param-name>
+                         <param-value>/WEB-INF/velocity.properties</param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caSecurityDomainLogin  </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificates </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetCookie  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetCookie  </servlet-class>
+            <init-param> <param-name>properties</param-name>
+                         <param-value>/WEB-INF/velocity.properties</param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetCookie  </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> passwdUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /admin/ca/sendCookie.template </param-value> </init-param>
+             <init-param><param-name>  errorTemplatePath  </param-name>
+                         <param-value> /admin/ca/securitydomainlogin.template </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caTokenAuthenticate  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.TokenAuthenticate  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caTokenAuthenticate  </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caGetTokenInfo  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetTokenInfo  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caGetTokenInfo </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProxyProfileSubmit  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.ProxyServlet  </servlet-class>
+             <init-param><param-name>  destServlet  </param-name>
+                         <param-value> /ee/ca/profileSubmit       </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProxyBulkIssuance  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.ProxyServlet  </servlet-class>
+             <init-param><param-name>  destServlet  </param-name>
+                         <param-value> /agent/ca/bulkissuance       </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caSCEP  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.scep.CRSEnrollment  </servlet-class>
+             <init-param><param-name>  authority  </param-name>
+                         <param-value> ca       </param-value> </init-param>
+             <init-param><param-name>  profileId  </param-name>
+                         <param-value> caRouterCert </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caRASCEP  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.scep.CRSEnrollment  </servlet-class>
+             <init-param><param-name>  authority  </param-name>
+                         <param-value> ca       </param-value> </init-param>
+             <init-param><param-name>  profileId  </param-name>
+                         <param-value> caRARouterCert </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProxyDoRevoke  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.base.ProxyServlet  </servlet-class>
+             <init-param><param-name>  destServlet  </param-name>
+                         <param-value> /agent/ca/doRevoke       </param-value> </init-param>
+   </servlet>
+
+[PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
+   <filter-mapping>
+      <filter-name>   AgentRequestFilter          </filter-name>
+      <url-pattern>   /agent/*                    </url-pattern>
+      <url-pattern>   /ca/getCertFromRequest      </url-pattern>
+      <url-pattern>   /ca/getBySerial             </url-pattern>
+      <url-pattern>   /ca/connector               </url-pattern>
+      <url-pattern>   /ca/displayCertFromRequest  </url-pattern>
+      <url-pattern>   /doRevoke                   </url-pattern>
+   </filter-mapping>
+
+   <filter-mapping>
+      <filter-name>   AdminRequestFilter          </filter-name>
+      <url-pattern>   /admin/*                    </url-pattern>
+      <url-pattern>   /auths                      </url-pattern>
+      <url-pattern>   /acl                        </url-pattern>
+      <url-pattern>   /server                     </url-pattern>
+      <url-pattern>   /caadmin                    </url-pattern>
+      <url-pattern>   /caprofile                  </url-pattern>
+      <url-pattern>   /jobsScheduler              </url-pattern>
+      <url-pattern>   /capublisher                </url-pattern>
+      <url-pattern>   /log                        </url-pattern>
+      <url-pattern>   /ug                         </url-pattern>
+   </filter-mapping>
+
+   <filter-mapping> 
+      <filter-name>  EEClientAuthRequestFilter    </filter-name>
+      <url-pattern>  /eeca/*                        </url-pattern>
+   </filter-mapping>
+
+   <filter-mapping>
+      <filter-name>  EERequestFilter              </filter-name>
+      <url-pattern>  /ee/*                        </url-pattern>
+      <url-pattern>  /renewal                     </url-pattern>
+      <url-pattern>  /certbasedenrollment         </url-pattern>
+      <url-pattern>  /ocsp                        </url-pattern>
+      <url-pattern>  /enrollment                  </url-pattern>
+      <url-pattern>  /profileSubmit               </url-pattern>
+      <url-pattern>  /cgi-bin/pkiclient.exe       </url-pattern>
+   </filter-mapping>
+[PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
+
+   <servlet-mapping>
+      <servlet-name>  caacl  </servlet-name>
+      <url-pattern>   /acl  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caug  </servlet-name>
+      <url-pattern>   /ug  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caserver  </servlet-name>
+      <url-pattern>   /server  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  capolicy  </servlet-name>
+      <url-pattern>   /capolicy  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  calog  </servlet-name>
+      <url-pattern>   /log  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetAdminCertBySerial  </servlet-name>
+      <url-pattern>   /ca/getAdminCertBySerial  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetConfigEntries  </servlet-name>
+      <url-pattern>   /admin/ca/getConfigEntries  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetDomainXML </servlet-name>
+      <url-pattern>   /admin/ca/getDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caUpdateDomainXML </servlet-name>
+      <url-pattern>   /agent/ca/updateDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>     
+      <servlet-name>  caUpdateNumberRange </servlet-name>
+      <url-pattern>   /ee/ca/updateNumberRange  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caDownloadPKCS12 </servlet-name>
+      <url-pattern>   /admin/console/config/savepkcs12 </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetCertChain  </servlet-name>
+      <url-pattern>   /ee/ca/getCertChain  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetCertChainAdmin  </servlet-name>
+      <url-pattern>   /admin/ca/getCertChain  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetStatus  </servlet-name>
+      <url-pattern>   /admin/ca/getStatus  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caca  </servlet-name>
+      <url-pattern>   /caadmin  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caregistry  </servlet-name>
+      <url-pattern>   /registry  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caauths  </servlet-name>
+      <url-pattern>   /auths  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  castart  </servlet-name>
+      <url-pattern>   /start  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caprofile  </servlet-name>
+      <url-pattern>   /caprofile  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caDynamicVariables  </servlet-name>
+      <url-pattern>   /ee/dynamicVars.js  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caDynamicVariables-agent  </servlet-name>
+      <url-pattern>   /agent/dynamicVars.js  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caDynamicVariables-admin  </servlet-name>
+      <url-pattern>   /admin/dynamicVars.js  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  cajobsScheduler  </servlet-name>
+      <url-pattern>   /jobsScheduler  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caadminEnroll  </servlet-name>
+      <url-pattern>   /admin/ca/adminEnroll  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  capublisher  </servlet-name>
+      <url-pattern>   /capublisher  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetOCSPInfo  </servlet-name>
+      <url-pattern>   /agent/ca/getOCSPInfo  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caUpdateDir  </servlet-name>
+      <url-pattern>   /agent/ca/updateDir  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetCertFromRequest-agent  </servlet-name>
+      <url-pattern>   /ca/getCertFromRequest  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetBySerial-agent  </servlet-name>
+      <url-pattern>   /ca/getBySerial  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caProfileSelect-agent  </servlet-name>
+      <url-pattern>   /agent/ca/profileSelect  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caindex  </servlet-name>
+      <url-pattern>   /index  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caMonitor  </servlet-name>
+      <url-pattern>   /agent/ca/monitor  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caReasonToRevoke  </servlet-name>
+      <url-pattern>   /agent/ca/reasonToRevoke  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caListRequests  </servlet-name>
+      <url-pattern>   /agent/ca/listRequests.html  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  casearchReqs  </servlet-name>
+      <url-pattern>   /agent/ca/searchReqs  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caProfileApprove  </servlet-name>
+      <url-pattern>   /agent/ca/profileApprove  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caUpdateDirectory  </servlet-name>
+      <url-pattern>   /agent/ca/updateDir.html  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caProfileReview  </servlet-name>
+      <url-pattern>   /agent/ca/profileReview  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caConnector  </servlet-name>
+      <url-pattern>   /ca/connector  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caSrchCerts-agent  </servlet-name>
+      <url-pattern>   /agent/ca/srchCerts  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caheader  </servlet-name>
+      <url-pattern>   /agent/header  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caDisplayCertFromRequest-agent  </servlet-name>
+      <url-pattern>   /ca/displayCertFromRequest  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caListCerts-agent  </servlet-name>
+      <url-pattern>   /agent/ca/listCerts  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caqueryReq  </servlet-name>
+      <url-pattern>   /agent/ca/queryReq  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProcessReq  </servlet-name>
+      <url-pattern>   /agent/ca/processReq  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caports  </servlet-name>
+      <url-pattern>   /ee/ca/ports  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caSrchCert  </servlet-name>
+      <url-pattern>   /agent/ca/srchCert.html  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileList-agent  </servlet-name>
+      <url-pattern>   /agent/ca/profileList  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caDisplayBySerial-agent  </servlet-name>
+      <url-pattern>   /agent/ca/displayBySerial  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caSrchRevokeCert  </servlet-name>
+      <url-pattern>   /agent/ca/srchRevokeCert.html  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caDoUnrevoke  </servlet-name>
+      <url-pattern>   /agent/ca/doUnrevoke  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caDoRevoke-agent  </servlet-name>
+      <url-pattern>   /agent/ca/doRevoke  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileProcess  </servlet-name>
+      <url-pattern>   /agent/ca/profileProcess  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProcessCertReq  </servlet-name>
+      <url-pattern>   /agent/ca/processCertReq  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  cabulkissuance  </servlet-name>
+      <url-pattern>   /agent/ca/bulkissuance  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caQueryBySerial  </servlet-name>
+      <url-pattern>   /agent/ca/queryBySerial.html  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  camasterCAUpdateCRL  </servlet-name>
+      <url-pattern>   /agent/ca/updateCRL  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  camasterCADisplayCRL  </servlet-name>
+      <url-pattern>   /agent/ca/displayCRL  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  camasterCAGetInfo  </servlet-name>
+      <url-pattern>   /agent/ca/getInfo  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caProfileSubmit  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmit  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caRenewal  </servlet-name>
+      <url-pattern>   /renewal  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetCertFromRequest  </servlet-name>
+      <url-pattern>   /ee/ca/getCertFromRequest  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetCRL  </servlet-name>
+      <url-pattern>   /ee/ca/getCRL  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetBySerial  </servlet-name>
+      <url-pattern>   /ee/ca/getBySerial  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetAdminBySerial  </servlet-name>
+      <url-pattern>   /admin/ca/getBySerial  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  cacertbasedenrollment  </servlet-name>
+      <url-pattern>   /certbasedenrollment  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caProfileSelect  </servlet-name>
+      <url-pattern>   /ee/ca/profileSelect  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caenrollment  </servlet-name>
+      <url-pattern>   /enrollment  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caCheckRequest  </servlet-name>
+      <url-pattern>   /ee/ca/checkRequest  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caOCSP  </servlet-name>
+      <url-pattern>   /ocsp  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caDoRevoke1  </servlet-name>
+      <url-pattern>   /ee/subsystem/ca/doRevoke  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caStats </servlet-name>
+      <url-pattern>   /agent/ca/getStats </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caSrchCerts  </servlet-name>
+      <url-pattern>   /ee/ca/srchCerts  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitCMCSimple  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitCMCSimple  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caDisplayCertFromRequest  </servlet-name>
+      <url-pattern>   /ee/ca/displayCertFromRequest  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caListCerts  </servlet-name>
+      <url-pattern>   /ee/ca/listCerts  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitSSLClient  </servlet-name>
+      <url-pattern>   /eeca/ca/profileSubmitSSLClient  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetCertFromRequest  </servlet-name>
+      <url-pattern>   /eeca/ca/getCertFromRequest  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitSSLClient  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitSSLClient  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caGetCAChain  </servlet-name>
+      <url-pattern>   /ee/ca/getCAChain  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitCMCFull  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitCMCFull  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileList  </servlet-name>
+      <url-pattern>   /ee/ca/profileList  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caCMCRevReq  </servlet-name>
+      <url-pattern>   /ee/ca/CMCRevReq  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caDoUnrevoke1  </servlet-name>
+      <url-pattern>   /ee/subsystem/ca/doUnrevoke  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caDisplayBySerial  </servlet-name>
+      <url-pattern>   /ee/ca/displayBySerial  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caRevocation  </servlet-name>
+      <url-pattern>   /ee/ca/revocation  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetInfo  </servlet-name>
+      <url-pattern>   /ee/ca/getInfo  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caDoRevoke  </servlet-name>
+      <url-pattern>   /ee/ca/doRevoke  </url-pattern>
+   </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>csadmin-login</servlet-name>
+        <url-pattern>/admin/console/config/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>csadmin-wizard</servlet-name>
+        <url-pattern>/admin/console/config/wizard</url-pattern>
+    </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caUpdateConnector </servlet-name>
+      <url-pattern>   /admin/ca/updateConnector  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caRegisterUser </servlet-name>
+      <url-pattern>   /admin/ca/registerUser  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caRegisterRaUser </servlet-name>
+      <url-pattern>   /admin/ca/registerRaUser  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  services </servlet-name>
+      <url-pattern>   /services  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetSubsystemCert </servlet-name>
+      <url-pattern>   /admin/ca/getSubsystemCert  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caSecurityDomainLogin </servlet-name>
+      <url-pattern>   /admin/ca/securityDomainLogin  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetCookie </servlet-name>
+      <url-pattern>   /admin/ca/getCookie  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caTokenAuthenticate </servlet-name>
+      <url-pattern>   /ee/ca/tokenAuthenticate  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caGetTokenInfo </servlet-name>
+      <url-pattern>   /ee/ca/getTokenInfo </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caUpdateOCSPConfig </servlet-name>
+      <url-pattern>   /ee/ca/updateOCSPConfig </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caProxyProfileSubmit </servlet-name>
+      <url-pattern>   /profileSubmit </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caProxyBulkIssuance </servlet-name>
+      <url-pattern>   /agent/bulkissuance </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caProxyDoRevoke </servlet-name>
+      <url-pattern>   /doRevoke </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caSCEP </servlet-name>
+      <url-pattern>   /cgi-bin/pkiclient.exe </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caRASCEP </servlet-name>
+      <url-pattern>   /ee/ca/pkiclient </url-pattern>
+   </servlet-mapping>
+
+   <!-- ==================== Default Session Configuration =============== -->
+   <!-- You can set the default session timeout (in minutes) for all newly -->
+   <!-- created sessions by modifying the value below.                     -->
+   <!--                                                                    -->
+   <!-- To disable session timeouts for this instance, set a value of -1.  -->
+
+   <session-config>
+        <session-timeout>30</session-timeout>
+   </session-config>
+</web-app>
+

@@ -1,0 +1,78 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Update Certificate Revocation List</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<SCRIPT type="text/javascript" SRC="/ca/agent/helpfun.js"></SCRIPT>
+ </HEAD>
+
+<body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
+<font size=+1 face="PrimaSans BT, Verdana, sans-serif">
+Update Certificate Revocation List</font><br>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+In most cases, the certificate revocation list (CRL) is updated automatically.
+In a few situations, however, you may want to update the CRL manually.
+Use this form to update the CRL manually.
+</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<FORM ACTION="updateCRL" METHOD=POST>
+
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Signature algorithm:</font>
+<SELECT NAME="signatureAlgorithm">
+SHA1withRSA+MD5withRSA+MD2withRSA
+<OPTION VALUE="SHA1withRSA">SHA1withRSA</OPTION>
+<OPTION VALUE="MD5withRSA">MD5withRSA</OPTION>
+<OPTION VALUE="SHA1withDSA">SHA1withDSA</OPTION>
+</SELECT>
+
+<br>&nbsp;<br>&nbsp;
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=6 WIDTH="100%">
+  <tr>
+    <td ALIGN=RIGHT BGCOLOR="#E5E5E5">
+      <input TYPE="HIDDEN" NAME="crlIssuingPoint" VALUE="MasterCRL">
+      <INPUT TYPE="submit" VALUE="Update" width="72">&nbsp;
+<SCRIPT type="text/javascript">
+<!--
+    var loc = location.protocol + '//' + location.hostname + ':' +
+              location.port + '/agent/ca/displayCRL?crlIssuingPoint=MasterCRL';
+    document.writeln('<INPUT TYPE=\"button\" VALUE=\"Display\"  width=\"72\"'+
+                     ' onClick=\"location.href=\''+ loc + '\'\">&nbsp;');
+//-->
+</SCRIPT>
+      <!-- <INPUT TYPE="button" VALUE=Help width="72"
+        onClick="help('http://www.redhat.com/docs/manuals/cert-system#1008945')"> -->
+	</td>
+  </tr>
+</table>
+
+</FORM>
+</BODY>
+
+</HTML>

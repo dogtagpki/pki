@@ -1,0 +1,513 @@
+#!/bin/bash
+##  BEGIN COPYRIGHT BLOCK
+##  (C) 2009 Red Hat, Inc.
+##  All rights reserved.
+##  END COPYRIGHT BLOCK
+
+
+##  Always switch into this base directory
+##  prior to script execution so that all
+##  of its output is written to this directory
+
+cd `dirname $0`
+
+
+##  Disallow script to be run as the name of this template
+subca_silent_script=`basename $0`
+if	[ "${subca_silent_script}" = "subca_silent.template" ] ; then
+	printf "\n"
+	printf "Usage:  (1) Install AND configure a directory server instance.\n\n"
+	printf "        (2) Install AND configure a Root CA subsystem instance\n"
+	printf "            that is its own security domain.\n\n"
+	printf "        (3) Use 'pkicreate' to install a second CA subsystem\n"
+	printf "            instance (this will become a Subordinate CA).\n"
+	printf "            [Do NOT configure this CA subsystem instance!]\n\n"
+	printf "        (4) Install the 'pki-silent' package.\n\n"
+	printf "        (5) Copy '$0' to a new script name\n"
+	printf "            without the '.template' extension.\n"
+	printf "            (e .g. - 'configure_subca_instance')\n\n"
+	printf "        (6) Fill in all MANDATORY user-defined variables\n"
+	printf "            in the new script.\n\n"
+	printf "        (7) Change any OPTIONAL user-defined variables\n"
+	printf "            in the new script as desired.\n\n"
+	printf "        (8) Become the 'root' user, and execute the new script to\n"
+	printf "            configure a Subordinate CA subsystem instance.\n\n"
+	exit 255
+fi
+
+
+##
+##  This script MUST be run as root!
+##
+
+ROOTUID=0
+
+OS=`uname`
+if [ "${OS}" = "Linux" ] ; then
+	MY_EUID=`/usr/bin/id -u`
+	MY_UID=`/usr/bin/id -ur`
+	USERNAME=`/usr/bin/id -un`
+else
+	printf "ERROR:  Unsupported operating system '${OS}'!\n"
+	exit 255
+fi
+
+if	[ "${MY_UID}"  != "${ROOTUID}" ] &&
+	[ "${MY_EUID}" != "${ROOTUID}" ] ; then
+	printf "ERROR:  The '$0' script must be run as root!\n"
+	exit 255
+fi
+
+
+
+##############################################################################
+##############################################################################
+##                                                                          ##
+##  P K I   S I L E N T  -  V A R I A B L E   D E C L A R A T I O N         ##
+##                                                                          ##
+##############################################################################
+##############################################################################
+
+##############################################################################
+##  U S E R - D E F I N E D   V A R I A B L E S   ( M A N D A T O R Y )     ##
+##############################################################################
+
+##
+##  IMPORTANT:  'Escape' ALL spaces in EACH variable specified below!
+##
+##              For Example:
+##
+##                  pki_security_domain_name="My\ Security\ Domain"
+##
+
+##  PKI Silent Security Database Variables
+##  (e. g. - PKI Silent "browser" database)
+pki_silent_security_database_repository="/tmp"
+pki_silent_security_database_password=
+
+##  PKI Security Domain Variables
+##  (e. g. - Security Domain Login Panel)
+pki_security_domain_name=
+pki_security_domain_host=`hostname`
+pki_security_domain_admin_name=admin
+pki_security_domain_admin_password=
+
+##  PKI Internal LDAP Database Variables
+##  (e. g. - Database Panel)
+pki_ldap_host=localhost
+pki_ldap_port=389
+pki_bind_dn="cn=Directory\ Manager"
+pki_bind_password=
+
+##  PKI Instance-Specific Token Variables
+##  (e. g. - Module Panel)
+subca_token_name=internal
+subca_token_password=
+
+##  PKI Instance-Specific Backup Variables
+##  (e. g. - Backup Key and Certificates Panel)
+subca_backup_password=
+
+##  PKI Email Variables
+##
+##      For example, to specify 'pkitest@example.com':
+##
+##          pki_email_name=pkitest
+##          pki_email_company=example
+##          pki_email_domain=com
+##
+pki_email_name=
+pki_email_company=
+pki_email_domain=
+
+##  PKI Silent Admin Variables
+##  (e. g. - Import Admin Certificate into PKI Silent "browser" database)
+pki_silent_admin_user=admin
+pki_silent_admin_password=
+pki_silent_admin_email="${pki_email_name}\@${pki_email_company}\.${pki_email_domain}"
+
+
+
+##############################################################################
+##  P R E - D E F I N E D   " D E F A U L T "   V A R I A B L E S           ##
+##############################################################################
+
+##  PKI Subsystem Host (computed by default)
+pki_host=`hostname`
+
+##  PKI Subsystem Names
+ca_subsystem_name="Certificate\ Authority"
+
+##  PKI Subsystem Instance Names
+subca_instance_name="pki-subca"
+
+##  PKI Subsystem Init Script Names
+subca_init_script="pki-cad"
+
+##
+##  NOTE:  Default PKI Instance Ports
+##
+##      CA:
+##
+##          *180 - non-secure port (not role specific)
+##          *701 - non-secure Tomcat port
+##          *443 - secure EE port
+##          *444 - secure Agent port
+##          *445 - secure Admin port
+##
+##
+##  For Example:
+##
+##      semanage port -l | grep pki
+##
+##      pki_ca_port_t          tcp      9180, 9701, 9443, 9444, 9445
+##      pki_subca_port_t       tcp      9580, 9801, 9543, 9544, 9545
+##
+
+## CA ports
+ca_nonssl_port=9180
+ca_agent_port=9443
+ca_ee_port=9444
+ca_admin_port=9445
+
+## Subordinate CA ports
+subca_nonssl_port=9580
+subca_agent_port=9543
+subca_ee_port=9544
+subca_admin_port=9545
+
+
+
+##############################################################################
+##  U S E R - D E F I N E D   V A R I A B L E S   ( O P T I O N A L )       ##
+##############################################################################
+
+##  PKI Silent Log Files
+pki_silent_subca_log=/tmp/subca.log
+
+
+##
+## NOTE:  For comparison's sake, if the default instances were manually
+##        configured using a Firefox browser, the content of the corresponding
+##        Firefox browser's security libraries would be something similar
+##        to this:
+##
+##            Certificate Nickname                          Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##            Certificate Authority 2 - ${pki_security_domain_name}   ,,   
+##            CA Administrator of Instance ${subca_instance_name}'s
+##                              ${pki_security_domain_name} ID        u,u,u
+##            ${pki_host}                                             P,,
+##            Certificate Authority - ${pki_security_domain_name}     CT,C,C
+##
+##        where:
+##
+##                Nickname:  "Certificate Authority 2 - "
+##                        +  "${pki_security_domain_name}"
+##            Subject Name:  "cn=Certificate Authority 2,"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "CA Administrator of Instance "
+##                        +  "${subca_instance_name}'s "
+##                        +  "${pki_security_domain_name} ID"
+##            Subject Name:  "cn=CA Administrator of Instance "
+##                        +  "${subca_instance_name},"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "${pki_host}"
+##            Subject Name:  "cn=${pki_host},"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "Certificate Authority - "
+##                        +  "${pki_security_domain_name}"
+##            Subject Name:  "cn=Certificate Authority,"
+##                        +  "o=${pki_security_domain_name}"
+##
+
+
+##  Miscellaneous CA Variables
+##
+##  REMINDER:  'Escape' ALL spaces in EACH variable specified below!
+##
+##  NOTE:  For comparison's sake, if the default instances were manually
+##         configured using a Firefox browser, the content of the corresponding
+##         "/var/lib/${subca_instance_name}/alias/" security libraries would be
+##         something similar to this:
+##
+##             Certificate Nickname                         Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##             caSigningCert cert-${subca_instance_name}             CTu,Cu,Cu
+##             Server-Cert cert-${subca_instance_name}               u,u,u
+##             Certificate Authority - ${pki_security_domain_name}   CT,c,
+##             ocspSigningCert cert-${subca_instance_name}           u,u,u
+##             auditSigningCert cert-${subca_instance_name}          u,u,u
+##             subsystemCert cert-${subca_instance_name}             u,u,u
+##
+##         where:
+##
+##                 Nickname:  "caSigningCert cert-${subca_instance_name}"
+##             Subject Name:  "cn=Certificate Authority 2,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Server-Cert cert-${subca_instance_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Certificate Authority - "
+##                         +  "${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "ocspSigningCert cert-${subca_instance_name}"
+##             Subject Name:  "cn=OCSP Signing Certificate 2,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "auditSigningCert cert-${subca_instance_name}"
+##             Subject Name:  "cn=CA Audit Signing Certificate 2,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "subsystemCert cert-${subca_instance_name}"
+##             Subject Name:  "cn=CA Subsystem Certificate 2,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##  NOTE:  The parameters for the signing algorithms have the following meaning:
+##         subca_signing_algorithm             - signature algorithm used by the CA and OCSP signing certs to sign objects.
+##         subca_signing_signingalgorithm      - optionally specify the algorithm used by the CA signing cert to sign objects
+##         subca_ocsp_signing_signingalgorithm - optionally specify the algorithm used by the CA ocsp signing cert to sign objects
+##
+
+subca_agent_name="CA\ Administrator\ of\ Instance\ ${subca_instance_name}\'s\ ${pki_security_domain_name}\ ID"
+subca_agent_key_size=2048
+subca_agent_key_type=rsa
+subca_agent_cert_subject="cn=CA\ Administrator\ of\ Instance\ ${subca_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
+subca_base_dn="dc=${pki_host}-${subca_instance_name}"
+subca_db_name="${pki_host}-${subca_instance_name}"
+subca_key_size=2048
+subca_key_type=rsa
+subca_signing_algorithm=SHA256withRSA
+subca_signing_signingalgorithm=SHA256withRSA
+subca_ocsp_signing_signingalgorithm=SHA256withRSA
+subca_sign_cert_subject_name="cn=Certificate\ Authority\ 2,o=${pki_security_domain_name}"
+subca_subsystem_cert_subject_name="cn=CA\ Subsystem\ Certificate\ 2,o=${pki_security_domain_name}"
+subca_ocsp_cert_subject_name="cn=OCSP\ Signing\ Certificate\ 2,o=${pki_security_domain_name}"
+subca_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
+subca_audit_signing_cert_subject_name="cn=CA\ Audit\ Signing\ Certificate\ 2,o=${pki_security_domain_name}"
+
+
+
+##############################################################################
+##############################################################################
+##                                                                          ##
+##  P K I   S I L E N T  -  S U B S Y S T E M   C O N F I G U R A T I O N   ##
+##                                                                          ##
+##############################################################################
+##############################################################################
+
+##############################################################################
+##  P K I   S I L E N T   I N I T I A L I Z A T I O N                       ##
+##############################################################################
+
+## (1) Make certain that user has defined all MANDATORY user-defined variables!
+usage_errors=0
+usage_error_preamble="ERROR:  User MUST define a value for"
+
+if [ "${pki_silent_security_database_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_silent_security_database_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_security_domain_name}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_security_domain_name'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_security_domain_admin_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_security_domain_admin_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_bind_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_bind_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${subca_token_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'subca_token_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${subca_backup_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'subca_backup_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_name}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_name'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_company}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_company'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_domain}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_domain'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_silent_admin_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_silent_admin_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+
+
+## (2) Make certain that a PKI instance of the specified name EXISTS,
+##     but has NOT been previously CONFIGURED!
+existence_errors=0
+existence_error_preamble="ERROR:  No PKI Instance named"
+configuration_errors=0
+configuration_error_preamble="ERROR:  A PKI Instance named"
+configuration_error_postamble="EXISTS,\n        but has PREVIOUSLY been CONFIGURED!"
+
+if [ ! -f "/var/lib/${subca_instance_name}/conf/CS.cfg" ] ; then
+	printf "${existence_error_preamble} '${subca_instance_name}' EXISTS!\n"
+	existence_errors=`expr ${existence_errors} + 1`
+else
+	subca_configuration_check=`grep -c preop /var/lib/${subca_instance_name}/conf/CS.cfg`
+	if [ ${subca_configuration_check} -eq 0 ] ; then
+	    printf "${configuration_error_preamble} '${subca_instance_name}' "
+		printf "${configuration_error_postamble}\n"
+		configuration_errors=`expr ${configuration_errors} + 1`
+	fi
+fi
+
+
+if	[ ${usage_errors} -ne 0 ]     ||
+	[ ${existence_errors} -ne 0 ] ||
+	[ ${configuration_errors} -ne 0 ] ; then
+	printf "\n"
+	printf "Please correct ALL errors listed above and re-run\n"
+	printf "the '$0' script!\n\n"
+	exit 255
+fi
+
+
+## (3) Make certain that 'pkisilent' exists and is executable on this system.
+if [ ! -x "/usr/bin/pkisilent" ] ; then
+	printf "\n"
+	printf "ERROR:  Please install the 'pki-silent' package and re-run\n"
+	printf "the '$0' script!\n\n"
+	exit 255
+fi
+
+
+## (4) Check for old PKI Silent Security Databases, but DO NOT remove them!
+##     Instead, inform the user and exit this script.
+if	[ -f "${pki_silent_security_database_repository}/cert8.db" ] ||
+	[ -f "${pki_silent_security_database_repository}/key3.db" ] ||
+	[ -f "${pki_silent_security_database_repository}/secmod.db" ] ; then
+	printf "\n"
+	printf "WARNING:  At least one of the security databases\n"
+	printf "          (i. e. - 'cert8.db', 'key3.db', and/or 'secmod.db')\n"
+	printf "          required by '${subca_silent_script}' exists at the\n"
+	printf "          specified location '${pki_silent_security_database_repository}'.\n"
+	printf "\n"
+	printf "          Please MANUALLY move or erase these security database(s),\n"
+	printf "          or specify a different location before re-running this script.\n\n"
+	exit 255
+fi
+
+
+## (5) Remove ALL old PKI Silent log files
+printf "Removing old PKI Silent log files:\n"
+if [ -f ${pki_silent_subca_log} ] ; then
+	printf "    Removing old '${pki_silent_subca_log}' . . . "
+	rm ${pki_silent_subca_log}
+	printf "done.\n"
+fi
+printf "Done.\n\n"
+
+
+
+##############################################################################
+##  C A L C U L A T E   P K I   I N S T A N C E   P I N S                   ##
+##############################################################################
+
+##  PKI Subsystem Instance PINS
+subca_preop_pin=`cat /var/lib/${subca_instance_name}/conf/CS.cfg \
+	| grep preop.pin | grep -v grep | awk -F= '{print $2}'`
+
+
+
+##############################################################################
+##  C E R T I F I C A T E   A U T H O R I T Y                               ##
+##############################################################################
+##
+##  For example, upon completion,
+##  execute '/sbin/service ${subca_init_script} status ${subca_instance_name}':
+##
+##      ${subca_instance_name} (pid 7843) is running ...
+##
+##          Unsecure Port     = http://${pki_host}:9180/ca/ee/ca
+##          Secure Agent Port = https://${pki_host}:9443/ca/agent/ca
+##          Secure EE Port    = https://${pki_host}:9444/ca/ee/ca
+##          Secure Admin Port = https://${pki_host}:9445/ca/services
+##          PKI Console Port  = pkiconsole https://${pki_host}:9445/ca
+##          Tomcat Port       = 9701 (for shutdown)
+##
+##
+##          Security Domain URL:
+##          ==================================================================
+##          https://${pki_host}:9445
+##          ==================================================================
+##
+
+##  Configure Subordinate CA
+printf "'${subca_silent_script}':  Configuring '${subca_instance_name}' . . .\n"
+pkisilent ConfigureSubCA \
+	-cs_hostname "${pki_host}" \
+	-cs_port ${subca_admin_port} \
+	-sd_hostname "${pki_security_domain_host}" \
+	-sd_ssl_port ${ca_ee_port} \
+	-sd_agent_port ${ca_agent_port} \
+	-sd_admin_port ${ca_admin_port} \
+	-sd_admin_name "${pki_security_domain_admin_name}" \
+	-sd_admin_password ${pki_security_domain_admin_password} \
+	-ca_hostname ${pki_security_domain_host} \
+	-ca_port ${ca_nonssl_port} \
+	-ca_ssl_port ${ca_ee_port} \
+	-client_certdb_dir ${pki_silent_security_database_repository} \
+	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-preop_pin ${subca_preop_pin} \
+	-domain_name "${pki_security_domain_name}" \
+	-admin_user ${pki_silent_admin_user} \
+	-admin_email "${pki_silent_admin_email}" \
+	-admin_password ${pki_silent_admin_password} \
+	-agent_name ${subca_agent_name} \
+	-ldap_host ${pki_ldap_host} \
+	-ldap_port ${pki_ldap_port} \
+	-bind_dn "${pki_bind_dn}" \
+	-bind_password ${pki_bind_password} \
+	-base_dn "${subca_base_dn}" \
+	-db_name "${subca_db_name}" \
+	-key_size ${subca_key_size} \
+	-key_type ${subca_key_type} \
+        -signing_algorithm ${subca_signing_algorithm} \
+        -signing_signingalgorithm ${subca_signing_signingalgorithm} \
+        -ocsp_signing_signingalgorithm ${subca_ocsp_signing_signingalgorithm} \
+	-token_name ${subca_token_name} \
+	-token_pwd ${subca_token_password} \
+	-agent_key_size ${subca_agent_key_size} \
+	-agent_key_type ${subca_agent_key_type} \
+	-agent_cert_subject "${subca_agent_cert_subject}" \
+	-backup_pwd ${subca_backup_password} \
+	-subsystem_name "${ca_subsystem_name}" \
+	-subca_sign_cert_subject_name "${subca_sign_cert_subject_name}" \
+	-subca_subsystem_cert_subject_name "${subca_subsystem_cert_subject_name}" \
+	-subca_ocsp_cert_subject_name "${subca_ocsp_cert_subject_name}" \
+	-subca_server_cert_subject_name "${subca_server_cert_subject_name}" \
+	-subca_audit_signing_cert_subject_name \
+	"${subca_audit_signing_cert_subject_name}" \
+	| tee ${pki_silent_subca_log}
+
+##  Restart Subordinate CA
+/sbin/service ${subca_init_script} restart ${subca_instance_name}
+
+exit 0
+

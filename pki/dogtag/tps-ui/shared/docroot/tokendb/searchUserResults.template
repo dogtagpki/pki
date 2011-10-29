@@ -1,0 +1,190 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+<link rel="shortcut icon" href="/tps/admin/console/img/favicon.ico" />
+<HEAD>
+<TITLE>TPS</Title>
+</HEAD>
+
+<table border="0" width="100%" cellspacing="0" cellpadding="0" bgcolor="#000080">
+  <tr>
+    <td>
+      <table border="0" cellspacing="12" cellpadding="0">
+        <tr>
+          <td><img src="/tps/admin/console/img/logo_header.gif"></td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Dogtag<sup><font color="#999999" size="-2">&reg;</font></sup> TPS Services</b></font></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<p>
+
+<BODY>
+
+<CMS_TEMPLATE>
+
+<SCRIPT type="text/JavaScript">
+<!--
+function checkDate(str) {
+    var newString;
+
+    if (str.length == 15 && str.charAt(14) == 'Z') {
+        newString = str.substring(0, 4);
+        newString += '/';
+        newString += str.substring(4, 6);
+        newString += '/';
+        newString += str.substring(6, 8);
+        newString += ' ';
+        newString += str.substring(8, 10);
+        newString += ':';
+        newString += str.substring(10, 12);
+        newString += ':';
+        newString += str.substring(12, 14);
+    } else {
+        newString = str;
+    }
+
+    return newString;
+}
+
+var uri = "";
+if (typeof(uriBase) == "undefined") {
+    uri += "/tus";
+} else {
+    uri += uriBase;
+}
+
+document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"+1\">"+
+               "<a href=\""+uri+"\">Main Menu</a> : Administrator Operations : Search Results</font>\n");
+document.write("<table width=\"100%\"><tr><td align=\"right\">" +
+		"<b>UID:</b>" +
+                userid + "</td></tr></table>\n");
+document.write("<HR NOSHADE SIZE=1>\n");
+
+uri += "?op=edit_user&uid=";
+
+if (typeof(results) == "undefined" || results.length == 0) {
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "User Not Found</font>\n");
+} else {
+    document.write("<BR>");
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0 width=100%>\n");
+    document.write("<tr bgcolor=#e5e5e5>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "User ID</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Name</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Date Created</font>\n");
+    document.write("</td>\n");
+    document.write("<td>\n");
+    document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                   "Date Modified</font>\n");
+    document.write("</td>\n");
+    document.write("</tr>\n");
+
+    for (var i = 0; i < results.length; i++) {
+        document.write("<tr>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                       "<a href=\""+uri+results[i].uid+"\">"+
+                        results[i].uid+"</a></font>\n");
+        document.write("</td>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                        results[i].cn+"</font>\n");
+        document.write("</td>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                        checkDate(results[i].createTimeStamp)+"</font>\n");
+        document.write("</td>\n");
+        document.write("<td>\n");
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-1\">"+
+                        checkDate(results[i].modifyTimeStamp)+"</font>\n");
+        document.write("</td>\n");
+        document.write("</tr>\n");
+    }
+    document.write("</table>\n");
+
+    document.write("<DIV ALIGN=LEFT>\n");
+    document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=0>\n");
+    document.write("<tr>\n");
+    if ((typeof(start_entry_val) != "undefined") && (start_entry_val > 1) &&
+        (typeof(num_entries_per_page) != "undefined") &&
+        (typeof(my_query) != "undefined")) {
+
+        var new_start = start_entry_val - num_entries_per_page;
+        if (new_start < 0) new_start = 0;
+        var query = my_query.replace(/&*start_entry_val=\d*/,"");
+        var query_array = query.split("&");
+        document.write("<td> <form name=prev_entries method=get >");
+        for (var i=0; i< query_array.length ; i++) {
+            var a = query_array[i].split("=");
+            document.write("<input TYPE=hidden name=" + a[0] + " VALUE=" + a[1] + ">");
+        }
+        document.write("<input TYPE=hidden name=start_entry_val VALUE=" + new_start + ">");
+        document.write("<input TYPE=submit VALUE=\"\<\"></form><td>\n");
+    }
+
+    if ((typeof(has_more_entries) != "undefined") && (has_more_entries == 1) &&
+        (typeof(num_entries_per_page) != "undefined") &&
+        (typeof(my_query) != "undefined")) {
+
+        var new_start = start_entry_val + num_entries_per_page;
+        var query = my_query.replace(/&*start_entry_val=\d*/,"");
+        var query_array = query.split("&");
+        document.write("<td> <form method=get name=next_entries >");
+        for (var i=0; i< query_array.length ; i++) {
+            var a = query_array[i].split("=");
+            document.write("<input TYPE=hidden name=" + a[0] + " VALUE=" + a[1] + ">");
+        }
+        document.write("<input TYPE=hidden name=start_entry_val VALUE=" + new_start + ">");
+        document.write("<input TYPE=submit VALUE=\"\>\"></form><td>\n");
+    }
+    document.write("</tr>\n");
+    document.write("</table>\n");
+    document.write("</div>\n");
+
+    document.write("<BR>\n<HR NOSHADE SIZE=1>\n");
+    if (typeof(results) != "undefined" && results.length > 0) {
+        document.write("<font face=\"PrimaSans BT, Verdana, sans-serif\" size=\"-2\">");
+        if (typeof(results) != "undefined" || results.length == 0) {
+            if (typeof(limited) != "undefined" && typeof(total) != "undefined") {
+                document.write("<br>" + limited + " of " + total + " Search Results Returned\n");
+            } else if (typeof(total) != "undefined") {
+                document.write("<br>Total Search Results Returned: " + total + "\n");
+            }
+        }
+        document.write("</font>");
+    }
+}
+
+//-->
+</SCRIPT>
+
+</BODY>
+</HTML>

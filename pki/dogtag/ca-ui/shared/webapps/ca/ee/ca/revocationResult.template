@@ -1,0 +1,190 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE></TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<CMS_TEMPLATE>
+<BODY bgcolor="white">
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+function toHex1(number)
+{
+    var absValue = "", sign = "";
+    var digits = "0123456789abcdef";
+    if (number < 0) {
+        sign = "-";
+        number = -number;
+    }
+    
+    for(; number >= 16 ; number = Math.floor(number/16)) {
+        absValue = digits.charAt(number % 16) + absValue;
+    }
+    absValue = digits.charAt(number % 16) + absValue;
+    return sign + '0x' + absValue;
+}
+
+function toHex(number)
+{
+    return '0x' + number;
+}
+
+if (result.header.revoked == 'yes') {
+    document.write('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+    document.writeln('Certificate Revocation Has Been Completed</font><br><br>');
+    if (result.recordSet.length == 0 && result.header.totalRecordCount > 0) {
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.write('All requested certificates were already revoked.');
+        document.writeln('</font><br>');
+    } else if (result.recordSet.length == 1) {
+        if (result.recordSet[0].error == null) {
+  	        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln('Certificate with serial number <b>' +
+                             toHex(result.recordSet[0].serialNumber) +
+                             '</b> has been revoked.');
+            document.writeln('</font><br>');
+
+            document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            if (result.header.updateCRL && result.header.updateCRL == "yes") {
+                if (result.header.updateCRLSuccess != null &&
+                    result.header.updateCRLSuccess == "yes") {
+                    document.writeln('The Certificate Revocation List has been successfully updated.');
+                } else {
+                    document.writeln('The Certificate Revocation List update Failed');
+                    if (result.header.updateCRLSuccess != null)
+                        document.writeln(' with error '+ result.header.updateCRLError);
+                    else
+                        document.writeln('. No further details provided.');
+                }
+            } else {
+                document.writeln(
+                    'The Certificate Revocation List will be updated '+
+                    'automatically at the next scheduled update.');
+            }
+            document.writeln('</font><br>');
+/*
+            if (result.header.dirEnabled != null && result.header.dirEnabled == 'yes') {
+       	        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+                if (result.header.certsUpdated > 0) {
+                    document.write('Directory has been successfully updated.');
+                } else {
+                    document.write('Directory has not been updated.  See log files for more details.');
+                }
+                document.writeln('</font><br>');
+            }
+*/
+        } else {
+  	        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln('Certificate with serial number <b>' +
+                             toHex(result.recordSet[0].serialNumber) +
+                             '</b> is not revoked.<br><br>');
+            document.writeln('Additional Information:');
+            document.writeln('</font>');
+            document.writeln('<blockquote>');
+  	        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            document.writeln(result.recordSet[0].error);
+            document.writeln('</font>');
+            document.writeln('</blockquote>');
+        }
+    } else if (result.recordSet.length > 1) {
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.write('The following certificates were processed to complete revocation request:');
+        document.writeln('</font>');
+
+        document.writeln('<blockquote>');
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        var revokedCerts = 0;
+        for(var i = 0; i < result.recordSet.length; i++) {
+            if (result.recordSet[i].error == null) {
+                revokedCerts++;
+                document.writeln(toHex(result.recordSet[i].serialNumber) + ' - revoked<BR>\n');
+            } else {
+                document.write(toHex(result.recordSet[i].serialNumber) + ' - failed');
+                if (result.recordSet[i].error != null)
+                    document.write(': ' + result.recordSet[i].error);
+                document.writeln('<BR>\n');
+            }
+        }
+        document.writeln('</font>');
+        document.write('</blockquote>');
+
+        if (revokedCerts > 0 && result.header.dirEnabled != null && result.header.dirEnabled == 'yes') {
+       	    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+            if (result.header.updateCRL && result.header.updateCRL == "yes") {
+                if (result.header.updateCRLSuccess != null &&
+                    result.header.updateCRLSuccess == "yes") {
+                    document.writeln('The Certificate Revocation List has been successfully updated.');
+                } else {
+                    document.writeln('The Certificate Revocation List update Failed');
+                    if (result.header.updateCRLSuccess != null)
+                        document.writeln(' with error '+
+                                         result.header.updateCRLError);
+                    else
+                        document.writeln('. No further details provided.');
+                }
+            } else {
+                document.writeln(
+                    'The Certificate Revocation List will be updated '+
+                    'automatically at the next scheduled update.');
+            }
+            document.writeln('<br>');
+/*
+            if (result.header.certsUpdated > 0) {
+                if (result.header.certsUpdated == result.header.certsToUpdate) {
+                    document.write('Directory has been successfully updated.');
+                } else {
+                    document.write('Directory has been partially updated.  See log files for more details.');
+                }
+            } else {
+                document.write('Directory has not been updated.  See log files for more details.');
+            }
+*/
+            document.writeln('</font><br>');
+        }
+    }
+} else if (result.header.revoked == 'pending') {
+    document.write('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+	document.writeln('Revocation Request Has Been Submitted</font><br><br>');
+} else if (result.header.revoked == 'rejected') {
+    document.write('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+    document.writeln('Certificate Revocation Has Been Rejected</font><br><br>');
+    if (result.header.error != null) {
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Additional information:</font>');
+        document.writeln('<blockquote>');
+	    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.writeln(result.header.error);
+        document.writeln('</font>');
+        document.writeln('</blockquote>');
+    }
+} else {
+    document.write('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+	document.writeln('Revocation Request Cannot Be Completed</font><br><br>');
+    if (result.header.error != null) {
+        document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">Additional information:</font>');
+        document.writeln('<blockquote>');
+	    document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
+        document.writeln(result.header.error);
+        document.writeln('</font>');
+        document.writeln('</blockquote>');
+    }
+}
+//-->
+</SCRIPT>
+</BODY>
+</HTML>
