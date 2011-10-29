@@ -172,26 +172,28 @@ fi
 %else
 %post
 # Attempt to update ALL old "KRA" instances to "systemd"
-for inst in `ls /etc/sysconfig/pki/kra`; do
-    if [ ! -e "/etc/systemd/system/pki-krad.target.wants/pki-krad@${inst}.service" ]; then
-        ln -s "/lib/systemd/system/pki-krad@.service" \
-              "/etc/systemd/system/pki-krad.target.wants/pki-krad@${inst}.service"
-        [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
-        ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
+if [ -d /etc/sysconfig/pki/kra ]; then
+    for inst in `ls /etc/sysconfig/pki/kra`; do
+        if [ ! -e "/etc/systemd/system/pki-krad.target.wants/pki-krad@${inst}.service" ]; then
+            ln -s "/lib/systemd/system/pki-krad@.service" \
+                  "/etc/systemd/system/pki-krad.target.wants/pki-krad@${inst}.service"
+            [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
+            ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
 
-        if [ -e /var/run/${inst}.pid ]; then
-            kill -9 `cat /var/run/${inst}.pid` || :
-            rm -f /var/run/${inst}.pid
-            echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> \
-                 /var/lib/${inst}/conf/CS.cfg || :
-            /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-            /bin/systemctl restart pki-krad@${inst}.service || :
-        else 
-            echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> \
-                 /var/lib/${inst}/conf/CS.cfg || :
+            if [ -e /var/run/${inst}.pid ]; then
+                kill -9 `cat /var/run/${inst}.pid` || :
+                rm -f /var/run/${inst}.pid
+                echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+                /bin/systemctl restart pki-krad@${inst}.service || :
+            else 
+                echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+            fi
         fi
-    fi
-done
+    done
+fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
  
 %preun 

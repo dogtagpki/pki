@@ -180,26 +180,28 @@ fi
 %else 
 %post 
 # Attempt to update ALL old "OCSP" instances to "systemd"
-for inst in `ls /etc/sysconfig/pki/ocsp`; do
-    if [ ! -e "/etc/systemd/system/pki-ocspd.target.wants/pki-ocspd@${inst}.service" ]; then
-        ln -s "/lib/systemd/system/pki-ocspd@.service" \
-              "/etc/systemd/system/pki-ocspd.target.wants/pki-ocspd@${inst}.service"
-        [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
-        ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
+if [ -d /etc/sysconfig/pki/ocsp ]; then
+    for inst in `ls /etc/sysconfig/pki/ocsp`; do
+        if [ ! -e "/etc/systemd/system/pki-ocspd.target.wants/pki-ocspd@${inst}.service" ]; then
+            ln -s "/lib/systemd/system/pki-ocspd@.service" \
+                  "/etc/systemd/system/pki-ocspd.target.wants/pki-ocspd@${inst}.service"
+            [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
+            ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
 
-        if [ -e /var/run/${inst}.pid ]; then
-            kill -9 `cat /var/run/${inst}.pid` || :
-            rm -f /var/run/${inst}.pid
-            echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> \
-                 /var/lib/${inst}/conf/CS.cfg || :
-            /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-            /bin/systemctl restart pki-ocspd@${inst}.service || :
-        else 
-            echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> \
-                 /var/lib/${inst}/conf/CS.cfg || :
+            if [ -e /var/run/${inst}.pid ]; then
+                kill -9 `cat /var/run/${inst}.pid` || :
+                rm -f /var/run/${inst}.pid
+                echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+                /bin/systemctl restart pki-ocspd@${inst}.service || :
+            else 
+                echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+            fi
         fi
-    fi
-done
+    done
+fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
  
 %preun 
