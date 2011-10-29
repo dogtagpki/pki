@@ -1,5 +1,5 @@
 Name:             pki-kra
-Version:          9.0.8
+Version:          9.0.9
 Release:          1%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
@@ -238,6 +238,14 @@ fi
 
 
 %changelog
+* Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.9-1
+- Bugzilla Bug #737122 - DRM: during archiving and recovering,
+  wrapping unwrapping keys should be done in the token (cfu)
+- Bugzilla Bug #744797 - KRA key recovery (retrieve pkcs#12) fails after
+  the in-place upgrade( CS 8.0->8.1) (cfu)
+- Bugzilla Bug #749945 - Installation error reported during CA, DRM,
+  OCSP, and TKS package installation . . . (mharmsen)
+
 * Thu Sep 22 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-1
 - Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . . (mharmsen)
 - Bugzilla Bug #699809 - Convert CS to use systemd (alee)

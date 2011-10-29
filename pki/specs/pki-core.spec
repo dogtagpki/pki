@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.15
+Version:          9.0.16
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -721,6 +721,28 @@ fi
 
 
 %changelog
+* Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.16-1
+- 'pki-setup'
+- 'pki-symkey'
+- 'pki-native-tools'
+- 'pki-util'
+-      Bugzilla Bug #737122 - DRM: during archiving and recovering,
+       wrapping unwrapping keys should be done in the token (cfu)
+- 'pki-java-tools'
+- 'pki-common'
+-      Bugzilla Bug #744797 - KRA key recovery (retrieve pkcs#12) fails after
+       the in-place upgrade( CS 8.0->8.1) (cfu)
+- 'pki-selinux'
+- 'pki-ca'
+-      Bugzilla Bug #746367 - Typo in the profile name. (jmagne)
+-      Bugzilla Bug #737122 - DRM: during archiving and recovering,
+       wrapping unwrapping keys should be done in the token (cfu)
+-      Bugzilla Bug #749927 - Java class conflicts using Java 7 in Fedora 17
+       (rawhide) . . . (mharmsen)
+-      Bugzilla Bug #749945 - Installation error reported during CA, DRM,
+       OCSP, and TKS package installation . . . (mharmsen)
+- 'pki-silent'
+
 * Thu Sep 22 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.15-1
 - Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . . (mharmsen)
 - Bugzilla Bug #699809 - Convert CS to use systemd (alee)

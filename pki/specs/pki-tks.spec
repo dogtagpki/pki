@@ -1,5 +1,5 @@
 Name:             pki-tks
-Version:          9.0.7
+Version:          9.0.8
 Release:          1%{?dist}
 Summary:          Certificate System - Token Key Service
 URL:              http://pki.fedoraproject.org/
@@ -238,6 +238,10 @@ fi
 
 
 %changelog
+* Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-1
+- Bugzilla Bug #749945 - Installation error reported during CA, DRM,
+  OCSP, and TKS package installation . . .
+
 * Thu Sep 22 2011 Jack Magne <jmagne@redhat.com> 9.0.7-1
 - Bugzilla Bug #730146 - SSL handshake picks non-FIPS ciphers in FIPS mode (cfu)
 - Bugzilla Bug #730162 - TPS/TKS token enrollment failure in FIPS mode

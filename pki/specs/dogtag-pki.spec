@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          9.0.0
-Release:          7%{?dist}
+Release:          8%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -10,6 +10,20 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
 # Establish MINIMUM package versions based upon platform
+%if 0%{?fedora} >= 17
+%define dogtag_pki_theme_version   9.0.9
+%define esc_version                1.1.0
+%define jss_version                4.2.6-21
+%define osutil_version             2.0.2
+%define pki_core_version           9.0.16
+%define pki_kra_version            9.0.9
+%define pki_ocsp_version           9.0.8
+%define pki_ra_version             9.0.4
+%define pki_tks_version            9.0.8
+%define pki_tps_version            9.0.7
+%define pki_console_version        9.0.5
+%define tomcatjss_version          6.0.2
+%else
 %if 0%{?fedora} >= 16
 %define dogtag_pki_theme_version   9.0.9
 %define esc_version                1.1.0
@@ -50,6 +64,7 @@ BuildArch:        noarch
 %define pki_tps_version            9.0.0
 %define pki_console_version        9.0.0
 %define tomcatjss_version          2.0.0
+%endif
 %endif
 %endif
 
@@ -179,6 +194,12 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-1
+- Bugzilla Bug #749927 - Java class conflicts using Java 7 in Fedora 17
+  (rawhide) . . .
+- Bugzilla Bug #749945 - Installation error reported during CA, DRM,
+  OCSP, and TKS package installation . . .
+
 * Thu Sep 22 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.7-1
 - Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . . (mharmsen)
 - Bugzilla Bug #699809 - Convert CS to use systemd (alee)

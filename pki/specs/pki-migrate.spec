@@ -1,5 +1,5 @@
 Name:             pki-migrate
-Version:          9.0.1
+Version:          9.0.2
 Release:          1%{?dist}
 Summary:          Red Hat Certificate System - PKI Migration Scripts
 URL:              http://pki.fedoraproject.org/
@@ -68,6 +68,12 @@ cd build
 
 
 %changelog
+* Fri Oct 28 2011 Andrew Wnuk <awnuk@redhat.com> 9.0.2-1
+- Bugzilla Bug #737216 - unnecessary empty lines in "cert-info" attributes
+  created in 7.1->8.0 migration
+- Bugzilla Bug #737217 - Migration tool is not using proper "ext-data" array
+  format.
+
 * Thu Jul 14 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.1-1
 - Bugzilla Bug #669226 - Remove Legacy Build System
 
