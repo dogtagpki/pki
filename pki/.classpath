@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="base/ca/src"/>
+	<classpathentry kind="src" path="base/common/test"/>
 	<classpathentry kind="src" path="base/common/src"/>
 	<classpathentry kind="src" path="base/java-tools/src"/>
 	<classpathentry kind="src" path="base/kra/src"/>
