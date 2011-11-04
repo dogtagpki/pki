@@ -1,22 +1,22 @@
 package com.netscape.cmscore.dbs;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.cmscore.request.DBDynAttrMapperDefaultStub;
-import com.netscape.cmscore.request.RequestRecord;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 import com.netscape.cmscore.test.TestHelper;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPAttribute;
-
-import java.util.Enumeration;
-import java.util.Collections;
-import java.util.Arrays;
 
 public class DBRegistryTest extends CMSBaseTestCase {
 

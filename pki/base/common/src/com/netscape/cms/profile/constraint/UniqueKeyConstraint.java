@@ -18,23 +18,29 @@
 package com.netscape.cms.profile.constraint;
 
 
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.cms.profile.common.*;
-import com.netscape.cms.profile.def.*;
+import java.util.Enumeration;
+import java.util.Locale;
 
-import netscape.security.x509.*;
-//import netscape.security.provider.*;
-import netscape.security.util.*;
-import java.math.BigInteger;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertRecordList;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.def.NoDefault;
 
 /**
  * This constraint is to check for publickey uniqueness.

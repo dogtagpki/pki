@@ -16,34 +16,21 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import java.util.*;
-import java.net.*;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Hashtable;
 
-import com.netscape.cmsutil.ocsp.*;
-import com.netscape.cmsutil.ocsp.Request;
-
-import org.mozilla.jss.*;
-import org.mozilla.jss.pkcs12.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.ssl.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.CertDatabaseException;
-import sun.misc.*;
-import java.lang.Exception;
-
-import org.mozilla.jss.pkcs11.*;
-import org.mozilla.jss.pkcs11.PK11Token;
-
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-import netscape.security.x509.X500Name;
-
-import com.netscape.cmsutil.ocsp.*;
-import com.netscape.cmsutil.ocsp.Request;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.pkcs12.AuthenticatedSafes;
+import org.mozilla.jss.pkcs12.PFX;
 
 import com.netscape.osutil.OSUtil;
 

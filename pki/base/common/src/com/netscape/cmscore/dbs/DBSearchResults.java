@@ -18,12 +18,15 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.util.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Enumeration;
+
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.dbs.IDBRegistry;
+import com.netscape.certsrv.dbs.IDBSearchResults;
+import com.netscape.certsrv.logging.ILogger;
  
 
 /**

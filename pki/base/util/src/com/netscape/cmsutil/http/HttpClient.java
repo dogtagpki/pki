@@ -17,10 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.http;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.io.*;
-import com.netscape.cmsutil.net.*;
-import org.mozilla.jss.ssl.*;
+
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+
+import com.netscape.cmsutil.net.ISocketFactory;
 
 /**
  * basic http client.

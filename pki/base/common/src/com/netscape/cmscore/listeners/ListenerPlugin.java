@@ -18,9 +18,6 @@
 package com.netscape.cmscore.listeners;
 
 
-import com.netscape.certsrv.base.*;
-import java.util.*;
-import java.lang.*;
 
 
 /**

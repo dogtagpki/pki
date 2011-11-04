@@ -1,23 +1,23 @@
 package com.netscape.cmscore.request;
 
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Vector;
+
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.base.IAttrSet;
-import com.netscape.certsrv.authentication.IAuthToken;
-
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Hashtable;
-import java.util.Vector;
-import java.math.BigInteger;
-
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
 
 /**
  * Default testing stub for the IRequest interface.

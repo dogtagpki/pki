@@ -18,10 +18,10 @@
 package com.netscape.certsrv.policy;
 
 
-import java.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.request.PolicyResult;
+import java.util.Enumeration;
+
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
 
 
 /**

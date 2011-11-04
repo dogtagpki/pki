@@ -18,16 +18,18 @@
 package com.netscape.cmscore.notification;
 
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.notification.*;
-import com.netscape.certsrv.apps.*;
-import java.security.*;
-import java.security.cert.*;
 import java.io.IOException;
-import netscape.security.x509.*;
-import com.netscape.certsrv.common.*;
+import java.security.cert.X509Certificate;
+
+import netscape.security.x509.X500Name;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.notification.ENotificationException;
+import com.netscape.certsrv.notification.IEmailResolver;
+import com.netscape.certsrv.notification.IEmailResolverKeys;
+import com.netscape.certsrv.request.IRequest;
 
 
 /**

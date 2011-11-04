@@ -18,23 +18,14 @@
 package com.netscape.certsrv.ca;
 
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.math.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.certsrv.connector.*;
-import com.netscape.certsrv.publish.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.dbs.crldb.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.request.IRequest;
 
 
 /**

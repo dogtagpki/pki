@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.client.connection;
 
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 /**
  * Interface for all connection factory. Primarily act as

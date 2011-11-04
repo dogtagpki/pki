@@ -16,9 +16,15 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
-import java.security.cert.*;
-import netscape.security.pkcs.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.security.cert.X509Certificate;
+
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
 
 public class CertificateChain implements Serializable
 {

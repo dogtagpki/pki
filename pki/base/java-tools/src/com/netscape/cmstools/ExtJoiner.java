@@ -18,10 +18,11 @@
 package com.netscape.cmstools;
 
 
-import java.io.*;
-import java.net.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 
 /**

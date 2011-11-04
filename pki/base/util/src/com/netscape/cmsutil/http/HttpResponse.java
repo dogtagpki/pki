@@ -18,9 +18,9 @@
 package com.netscape.cmsutil.http;
 
 
-import java.io.*;
-import java.util.Hashtable;
-import java.util.Enumeration;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 
 /**

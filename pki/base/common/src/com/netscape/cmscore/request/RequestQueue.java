@@ -19,33 +19,28 @@ package com.netscape.cmscore.request;
 
 
 import java.math.BigInteger;
-
 import java.util.Date;
 import java.util.Enumeration;
 
-import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.IDBSearchResults;
-import com.netscape.certsrv.dbs.IDBVirtualList;
-import com.netscape.certsrv.dbs.IDBSSession;
-import com.netscape.certsrv.dbs.IDBSubsystem;
-import com.netscape.cmscore.dbs.DBSubsystem;
-
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.request.ldap.*;
+import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSearchResults;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.dbs.repository.IRepository;
+import com.netscape.certsrv.request.INotify;
+import com.netscape.certsrv.request.IPolicy;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestList;
+import com.netscape.certsrv.request.IRequestRecord;
+import com.netscape.certsrv.request.IRequestVirtualList;
+import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestRecord;
-import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.INotify;
-import com.netscape.certsrv.request.IService;
-import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestVirtualList;
-import com.netscape.cmscore.request.ARequestQueue;
-import com.netscape.certsrv.dbs.repository.IRepository;
-
+import com.netscape.certsrv.request.ldap.IRequestMod;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.util.Debug;
 
 

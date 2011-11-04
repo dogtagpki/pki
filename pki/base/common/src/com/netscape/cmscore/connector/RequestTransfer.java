@@ -18,11 +18,11 @@
 package com.netscape.cmscore.connector;
 
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Vector;
 
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.apps.*;
-
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.authentication.ChallengePhraseAuthentication;
 
 

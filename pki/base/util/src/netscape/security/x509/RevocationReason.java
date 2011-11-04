@@ -17,13 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.util.Enumeration;
-
-import netscape.security.util.*;
 
 /**
  * Represent the enumerated type used in CRLReason Extension of CRL entry.

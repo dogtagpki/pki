@@ -18,9 +18,9 @@
 package com.netscape.cmscore.registry;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.registry.*;
+import java.util.Locale;
+
+import com.netscape.certsrv.registry.IPluginInfo;
 
 
 /**

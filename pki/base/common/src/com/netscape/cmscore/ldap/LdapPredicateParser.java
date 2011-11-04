@@ -18,13 +18,16 @@
 package com.netscape.cmscore.ldap;
 
 
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IAttrSet;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.publish.ILdapExpression;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

@@ -18,9 +18,12 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
+import java.util.Hashtable;
+
+import com.netscape.certsrv.base.AttributeNameHelper;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.IFilterConverter;
 
 
 /**

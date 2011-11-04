@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.request.*;
 
 /**
  * This interface represents a profile context which

@@ -17,14 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.security.cert.*;
 import java.io.InputStream;
+import java.security.cert.CRL;
+import java.security.cert.CRLException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactorySpi;
 import java.util.Collection;
-import java.security.Provider;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import netscape.security.x509.X509CertImpl;
+
 import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509ExtensionException;
 
 public class X509CertificateFactory  extends CertificateFactorySpi {

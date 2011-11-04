@@ -18,11 +18,6 @@
 package com.netscape.cmscore.logging;
 
 
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.logging.*;
-
-import com.netscape.cmscore.util.*;
 
 
 /**

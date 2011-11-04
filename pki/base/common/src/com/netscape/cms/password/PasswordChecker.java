@@ -18,10 +18,10 @@
 package com.netscape.cms.password;
 
 
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.password.*;
-import com.netscape.certsrv.apps.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.password.EPasswordCheckException;
+import com.netscape.certsrv.password.IConfigPasswordCheck;
+import com.netscape.certsrv.password.IPasswordCheck;
 
 
 /**

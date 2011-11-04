@@ -17,14 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs.repository;
 
-import java.util.*;
-import java.io.*;
-import java.math.*;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.dbs.*;
+import java.math.BigInteger;
+
+import com.netscape.certsrv.dbs.IDBObj;
 
 /**
  * An interface represents a generic repository record. 

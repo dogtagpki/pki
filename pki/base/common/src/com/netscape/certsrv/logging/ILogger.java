@@ -18,8 +18,7 @@
 package com.netscape.certsrv.logging;
 
 
-import java.util.*;
-import com.netscape.certsrv.common.*;
+import java.util.Properties;
 
 
 /**

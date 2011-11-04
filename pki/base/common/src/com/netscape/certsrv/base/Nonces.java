@@ -17,8 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-import java.util.*;
 import java.security.cert.X509Certificate;
+import java.util.Hashtable;
+import java.util.Vector;
 
 
 /**

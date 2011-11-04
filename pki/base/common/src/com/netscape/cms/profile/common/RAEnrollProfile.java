@@ -18,28 +18,22 @@
 package com.netscape.cms.profile.common;
 
 
-import java.security.cert.*;
-import java.math.*;
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.connector.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.ra.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Enumeration;
 
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
+import netscape.security.x509.X500Name;
 
-import java.security.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkix.crmf.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.ra.IRAService;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.RequestStatus;
 
 
 /**

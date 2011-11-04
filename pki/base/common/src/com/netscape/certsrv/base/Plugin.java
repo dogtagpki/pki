@@ -18,9 +18,6 @@
 package com.netscape.certsrv.base;
 
 
-import com.netscape.certsrv.base.*;
-import java.util.*;
-import java.lang.*;
 
 
 /**

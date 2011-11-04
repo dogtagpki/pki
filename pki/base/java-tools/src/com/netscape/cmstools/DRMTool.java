@@ -17,24 +17,53 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-import java.io.*;
-import java.lang.*;
-import java.math.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.cert.CertificateException;
-import java.security.*;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Vector;
 import java.util.regex.PatternSyntaxException;
-import java.util.*;
+
 import netscape.security.provider.RSAPublicKey;
-import netscape.security.util.*;
-import netscape.security.x509.*;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.X509CertImpl;
+
+import org.mozilla.jss.CertDatabaseException;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.KeyDatabaseException;
+import org.mozilla.jss.crypto.AlreadyInitializedException;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.InvalidKeyFormatException;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.*;
+import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.TokenCertificate;
+import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.util.Password;
-import org.mozilla.jss.*;
 
 /**
  * The DRMTool class is a utility program designed to operate on an LDIF file

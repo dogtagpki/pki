@@ -18,18 +18,6 @@
 package com.netscape.cms.policy.constraints;
 
 
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.cms.policy.APolicyRule;
 
 
 /**

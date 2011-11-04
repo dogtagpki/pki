@@ -17,9 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.crypto;
 
-import org.mozilla.jss.crypto.*;
+import java.util.Vector;
 
-import java.util.*;
+import org.mozilla.jss.crypto.CryptoToken;
 
 public class Module {
     // Common Name is the name given when module is added

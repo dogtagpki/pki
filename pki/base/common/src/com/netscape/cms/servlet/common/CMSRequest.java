@@ -18,18 +18,20 @@
 package com.netscape.cms.servlet.common;
 
 
-import java.util.Vector;
 import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletConfig;
 
-import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.apps.*;
+import com.netscape.certsrv.request.RequestStatus;
 
 /**
  * This represents a user request.

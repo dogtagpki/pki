@@ -18,15 +18,25 @@
 package com.netscape.cmscore.cert;
 
 
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import netscape.security.x509.*;
-import netscape.security.extensions.*;
-import netscape.security.util.ObjectIdentifier;
 import java.security.cert.CertificateException;
-import com.netscape.cmscore.util.*;
+import java.util.Enumeration;
+
+import netscape.security.extensions.CertificateRenewalWindowExtension;
+import netscape.security.extensions.CertificateScopeOfUseExtension;
+import netscape.security.extensions.NSCertTypeExtension;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.DeltaCRLIndicatorExtension;
+import netscape.security.x509.FreshestCRLExtension;
+import netscape.security.x509.HoldInstructionExtension;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.IssuingDistributionPointExtension;
+import netscape.security.x509.OIDMap;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

@@ -17,18 +17,25 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.pkcs;
 
-import java.io.*;
-import java.util.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
-import java.security.*;
+import java.security.cert.X509Certificate;
+import java.util.Vector;
 
-import netscape.security.util.*;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * PKCS7 as defined in RSA Laboratories PKCS7 Technical Note. Profile

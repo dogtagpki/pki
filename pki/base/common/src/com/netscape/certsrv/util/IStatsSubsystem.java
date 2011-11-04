@@ -18,8 +18,9 @@
 package com.netscape.certsrv.util;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
+import java.util.Date;
+
+import com.netscape.certsrv.base.ISubsystem;
 
 
 /**

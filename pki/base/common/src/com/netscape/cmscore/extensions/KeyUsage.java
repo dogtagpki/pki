@@ -20,21 +20,21 @@ package com.netscape.cmscore.extensions;
 
 import java.io.IOException;
 
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.Extension;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.PKIXExtensions;
+
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.extensions.EExtensionsException;
+import com.netscape.certsrv.extensions.ICMSExtension;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.extensions.*;
-
-import netscape.security.x509.Extension;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.util.DerOutputStream;
-
-import com.netscape.cmscore.util.*;
+import com.netscape.cmscore.util.Debug;
 
 
 public class KeyUsage implements ICMSExtension {

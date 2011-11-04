@@ -1,10 +1,10 @@
 package com.netscape.cmscore.request;
 
+import java.util.Date;
+
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
-
-import java.util.Date;
 
 /**
  * Default testing stub for the IRequest interface.

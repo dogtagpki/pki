@@ -17,28 +17,30 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.security.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.StringTokenizer;
 
-import org.mozilla.jss.*;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.ssl.*;
-import org.mozilla.jss.pkix.primitive.*;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.CertDatabaseException;
-import org.mozilla.jss.pkcs11.*;
-import org.mozilla.jss.pkcs11.PK11Token;
-
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-import netscape.security.x509.X500Name;
-
-import com.netscape.cmsutil.ocsp.*;
-import com.netscape.cmsutil.ocsp.Request;
+import org.mozilla.jss.crypto.CryptoStore;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
+import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
+import org.mozilla.jss.ssl.SSLSocket;
+import org.mozilla.jss.util.Password;
 
 
 /**

@@ -18,33 +18,25 @@
 package com.netscape.cmscore.authentication;
 
 
-import netscape.ldap.*;
-import java.util.*;
-import java.lang.Class;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.cmscore.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.policy.*;
+import java.security.cert.X509Certificate;
 
-import com.netscape.cmscore.ldapconn.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.certsrv.ra.*;
-import com.netscape.cmscore.request.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.cmscore.usrgrp.*;
+import netscape.security.x509.X509CertImpl;
 
-import com.netscape.cmscore.util.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.EInvalidCredentials;
+import com.netscape.certsrv.authentication.EMissingCredential;
+import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.usrgrp.Certificates;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
+import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
+import com.netscape.cmscore.usrgrp.User;
 
 
 /**

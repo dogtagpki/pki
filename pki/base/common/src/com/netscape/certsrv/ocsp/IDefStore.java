@@ -18,14 +18,14 @@
 package com.netscape.certsrv.ocsp;
 
 
-import java.util.*;
-import java.math.*;
-import java.security.cert.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.cmsutil.ocsp.*;
+import java.math.BigInteger;
+import java.security.cert.X509CRL;
+import java.util.Date;
+import java.util.Enumeration;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 
 
 /**

@@ -18,13 +18,18 @@
 package com.netscape.certsrv.security;
 
 
-import java.util.*;
-import java.security.*;
-import java.math.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import org.mozilla.jss.crypto.*;
-import netscape.security.x509.*;
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.util.Properties;
+
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateExtensions;
+
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
 
 /**
  * This class represents a container for storaging

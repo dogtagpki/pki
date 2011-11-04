@@ -18,26 +18,26 @@
 package com.netscape.cms.servlet.admin;
 
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.math.*;
-import java.security.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.registry.*;
+import java.io.IOException;
+import java.util.Enumeration;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.profile.*;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.profile.IPolicyConstraint;
+import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.certsrv.property.IConfigTemplate;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.registry.IPluginInfo;
+import com.netscape.certsrv.registry.IPluginRegistry;
 
 /**
  * This implements the administration servlet for registry subsystem.

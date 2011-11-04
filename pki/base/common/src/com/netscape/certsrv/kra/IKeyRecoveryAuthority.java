@@ -18,21 +18,25 @@
 package com.netscape.certsrv.kra;
 
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
-import java.security.*;
-import java.math.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.keydb.*;
-import com.netscape.certsrv.dbs.replicadb.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.security.*;
-import org.mozilla.jss.crypto.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import netscape.security.x509.X500Name;
+
+import org.mozilla.jss.crypto.CryptoToken;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
+import com.netscape.certsrv.policy.IPolicyProcessor;
+import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.security.Credential;
+import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.certsrv.security.ITransportKeyUnit;
 
 
 /**

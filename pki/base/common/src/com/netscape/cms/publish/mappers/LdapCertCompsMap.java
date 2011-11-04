@@ -18,19 +18,21 @@
 package com.netscape.cms.publish.mappers;
 
 
-import netscape.ldap.*;
-import java.io.*;
-import java.util.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
+import java.security.cert.CRLException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.Vector;
+
+import netscape.ldap.LDAPConnection;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.*;
 
 
 /** 

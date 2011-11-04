@@ -18,17 +18,17 @@
 package com.netscape.cmscore.extensions;
 
 
-import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.Hashtable;
 
-import netscape.security.x509.Extension;
 import netscape.security.util.ObjectIdentifier;
 
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.extensions.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.extensions.EExtensionsException;
+import com.netscape.certsrv.extensions.ICMSExtension;
 
 
 /** 

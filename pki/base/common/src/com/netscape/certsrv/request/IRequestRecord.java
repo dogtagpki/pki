@@ -19,9 +19,9 @@ package com.netscape.certsrv.request;
 
 
 import java.util.Enumeration;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.request.RequestId;
 
 
 /**

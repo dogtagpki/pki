@@ -18,11 +18,10 @@
 package com.netscape.certsrv.policy;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.lang.reflect.*;
-import com.netscape.certsrv.base.*;
+import java.util.Locale;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.MessageFormatter;
 
 
 /**

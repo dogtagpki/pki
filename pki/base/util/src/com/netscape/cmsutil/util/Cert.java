@@ -18,17 +18,18 @@
 package com.netscape.cmsutil.util;
 
 
-import netscape.security.pkcs.PKCS7;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
-//import sun.misc.BASE64Decoder;
-import com.netscape.osutil.OSUtil;
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+
+import netscape.security.pkcs.PKCS7;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+
+import com.netscape.osutil.OSUtil;
 
 public class Cert {
 

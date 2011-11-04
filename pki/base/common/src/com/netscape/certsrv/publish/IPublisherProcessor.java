@@ -18,24 +18,19 @@
 package com.netscape.certsrv.publish;
 
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.math.*;
-import java.security.*;
+import java.math.BigInteger;
+import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
-import netscape.ldap.*;
-import java.security.cert.*;
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.dbs.certdb.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import netscape.security.x509.X509CRLImpl;
+
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.ldap.*;
 
 
 /**

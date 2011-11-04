@@ -18,14 +18,12 @@
 package com.netscape.certsrv.usrgrp;
 
 
-import java.util.*;
-import java.lang.*;
-import netscape.ldap.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+
+import netscape.ldap.LDAPException;
+
+import com.netscape.certsrv.base.ISubsystem;
 
 
 /**

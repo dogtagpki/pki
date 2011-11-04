@@ -18,7 +18,7 @@
 package com.netscape.certsrv.policy;
 
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 
 /**

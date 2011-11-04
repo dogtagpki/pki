@@ -18,9 +18,12 @@
 package com.netscape.cms.servlet.common;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authentication.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
 
 
 /**

@@ -18,44 +18,52 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.util.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.cmsutil.crypto.*;
-import com.netscape.cmsutil.http.*;
-import com.netscape.certsrv.template.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.ca.*;
-import java.io.*;
-import java.util.*;
-import java.security.*;
-import java.security.cert.*;
-import java.net.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import netscape.ldap.*;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
-import netscape.security.x509.*;
-import com.netscape.cmsutil.xml.*;
-import org.xml.sax.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkix.crmf.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.URLEncoder;
+import java.security.cert.X509Certificate;
 
-import com.netscape.cms.servlet.wizard.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.dbs.certdb.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.ldap.LDAPException;
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
+
+import org.apache.velocity.context.Context;
+import org.mozilla.jss.asn1.SEQUENCE;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.property.PropertySet;
+import com.netscape.certsrv.usrgrp.IGroup;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.certsrv.util.HttpInput;
+import com.netscape.cms.servlet.wizard.WizardServlet;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.http.HttpClient;
+import com.netscape.cmsutil.http.HttpRequest;
+import com.netscape.cmsutil.http.HttpResponse;
+import com.netscape.cmsutil.http.JssSSLSocketFactory;
+import com.netscape.cmsutil.xml.XMLObject;
 
 public class AdminPanel extends WizardPanelBase {
 

@@ -18,22 +18,27 @@
 package com.netscape.cms.servlet.common;
 
 
-import java.io.*;
-import java.util.*;
-
+import java.io.File;
+import java.io.IOException;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Locale;
+import java.util.StringTokenizer;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletOutputStream;
-
-import java.security.cert.X509Certificate;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authentication.*;
-
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthSubsystem;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
 
 

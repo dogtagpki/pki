@@ -18,10 +18,10 @@
 package com.netscape.cmscore.authentication;
 
 
-import java.util.*;
 import java.math.BigInteger;
+import java.util.Date;
 
-import com.netscape.certsrv.apps.*;
+import com.netscape.certsrv.apps.CMS;
 
 
 /** 

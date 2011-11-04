@@ -18,8 +18,6 @@
 package com.netscape.certsrv.publish;
 
 
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.*;
 
 
 /**

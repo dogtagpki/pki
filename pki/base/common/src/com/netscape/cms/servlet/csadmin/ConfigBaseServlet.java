@@ -18,15 +18,15 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import javax.servlet.http.*;
+import java.util.Enumeration;
 
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.apps.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.velocity.Template;
+import org.apache.velocity.context.Context;
+
+import com.netscape.certsrv.apps.CMS;
 
 
 public abstract class ConfigBaseServlet extends BaseServlet {

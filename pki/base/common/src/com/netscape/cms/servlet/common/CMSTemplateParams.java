@@ -20,9 +20,8 @@ package com.netscape.cms.servlet.common;
 
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.Locale;
 
-import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.base.IArgBlock;
 
 
 /**

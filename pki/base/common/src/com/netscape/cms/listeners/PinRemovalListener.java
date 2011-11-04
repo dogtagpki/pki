@@ -18,25 +18,26 @@
 package com.netscape.cms.listeners;
 
 
-import java.io.File;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.listeners.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.listeners.*;
-import com.netscape.certsrv.notification.*;
-import java.security.*;
-import java.security.cert.*;
-import java.io.IOException;
-import java.util.*;
-import netscape.security.x509.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.common.*;
-import java.text.DateFormat;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Hashtable;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.ICertAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestId;
 
 
 /**

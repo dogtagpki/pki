@@ -17,41 +17,34 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-import java.util.Date;
-import java.util.StringTokenizer;
-import java.net.URL;
-import java.net.URLConnection;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.io.PrintStream;
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
-
-import java.net.URLEncoder;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.security.KeyPair;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import org.mozilla.jss.util.Password;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.pkcs10.*;
-import org.mozilla.jss.crypto.KeyPairGenerator;
-import org.mozilla.jss.crypto.KeyPairAlgorithm;
-//import netscape.security.provider.RSAPublicKey;
-import netscape.security.pkcs.PKCS10;
-//import java.security.Signature;
-import netscape.security.x509.X500Name;
-import netscape.security.util.BigInt;
-import netscape.security.x509.X500Signer;
-import java.io.ByteArrayOutputStream;
 
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkix.crmf.*;
-import com.netscape.cmsutil.util.*;
+import netscape.security.x509.X500Name;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.PrintableString;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGenerator;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.pkcs10.CertificationRequest;
+import org.mozilla.jss.pkcs10.CertificationRequestInfo;
+import org.mozilla.jss.pkix.primitive.AVA;
+import org.mozilla.jss.pkix.primitive.Attribute;
+import org.mozilla.jss.pkix.primitive.Name;
+import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
+import org.mozilla.jss.util.Password;
+
+import com.netscape.cmsutil.util.HMACDigest;
 
 
 /**

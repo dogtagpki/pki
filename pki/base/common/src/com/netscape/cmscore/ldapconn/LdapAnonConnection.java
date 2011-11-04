@@ -18,8 +18,10 @@
 package com.netscape.cmscore.ldapconn;
 
 
-import netscape.ldap.*;
-import com.netscape.certsrv.ldap.*;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSocketFactory;
+import netscape.ldap.LDAPv2;
 
 
 /**

@@ -18,13 +18,25 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.util.*;
-import netscape.ldap.*;
-import netscape.ldap.controls.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Arrays;
+import java.util.Vector;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPControl;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPSortKey;
+import netscape.ldap.controls.LDAPSortControl;
+import netscape.ldap.controls.LDAPVirtualListControl;
+import netscape.ldap.controls.LDAPVirtualListResponse;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBRegistry;
+import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.IElementProcessor;
+import com.netscape.certsrv.logging.ILogger;
 
 
 /**

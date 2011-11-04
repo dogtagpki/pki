@@ -17,22 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigInteger;
-import java.security.InvalidKeyException;
-import java.security.ProviderException;
 import java.security.AlgorithmParameters;
+import java.security.InvalidKeyException;
+import java.security.interfaces.DSAParams;
 import java.security.spec.DSAParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
-import java.security.interfaces.DSAParams;
 
-import netscape.security.x509.X509Key;
-import netscape.security.x509.AlgIdDSA;
 import netscape.security.util.BigInt;
-import netscape.security.util.DerValue;
 import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.AlgIdDSA;
+import netscape.security.x509.X509Key;
 
 /**
  * An X.509 public key for the Digital Signature Algorithm.

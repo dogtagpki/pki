@@ -18,8 +18,9 @@
 package com.netscape.certsrv.dbs;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
+import java.util.Enumeration;
+
+import com.netscape.certsrv.base.IAttrSet;
 
 
 /**

@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-import com.netscape.certsrv.request.*;
+import com.netscape.certsrv.request.IRequest;
 
 /**
  * This interface represents an enrollment profile.

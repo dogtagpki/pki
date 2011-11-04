@@ -18,8 +18,10 @@
 package com.netscape.certsrv.logging;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
+import java.util.ListResourceBundle;
+import java.util.ResourceBundle;
+
+import com.netscape.certsrv.base.BaseResources;
 
 
 /**

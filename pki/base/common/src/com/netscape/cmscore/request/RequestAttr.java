@@ -18,11 +18,11 @@
 package com.netscape.cmscore.request;
 
 
+import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.request.ldap.*;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.ldap.IRequestMod;
 
 
 /**

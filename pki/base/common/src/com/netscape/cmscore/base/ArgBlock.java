@@ -18,13 +18,21 @@
 package com.netscape.cmscore.base;
 
 
-import java.util.*;
-import java.io.*;
-import netscape.security.pkcs.*;
-import java.security.*;
+import java.io.IOException;
 import java.math.BigInteger;
-import com.netscape.certsrv.base.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+
+import netscape.security.pkcs.PKCS10;
+
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.KeyGenInfo;
 
 
 /**

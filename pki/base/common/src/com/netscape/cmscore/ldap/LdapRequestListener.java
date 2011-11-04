@@ -18,25 +18,29 @@
 package com.netscape.cmscore.ldap;
 
 
+import java.math.BigInteger;
+import java.security.cert.Certificate;
 import java.util.Hashtable;
-import java.util.Enumeration;
-import java.math.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.publish.*;
-import java.security.cert.*;
-import java.io.IOException;
-import netscape.security.x509.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.cmscore.util.*;
+
+import netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.publish.IPublisherProcessor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.dbs.CertRecord;
 
 
 public class LdapRequestListener implements IRequestListener {

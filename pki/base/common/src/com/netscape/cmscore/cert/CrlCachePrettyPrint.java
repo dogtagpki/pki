@@ -18,15 +18,21 @@
 package com.netscape.cmscore.cert;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ca.*;
+import java.text.DateFormat;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TimeZone;
 
-import com.netscape.certsrv.apps.*;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.Extension;
+import netscape.security.x509.RevokedCertImpl;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.ICRLPrettyPrint;
+import com.netscape.certsrv.ca.ICRLIssuingPoint;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 
 /**
  * This class will display the certificate content in predefined

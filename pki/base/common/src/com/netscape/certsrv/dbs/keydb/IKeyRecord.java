@@ -18,9 +18,10 @@
 package com.netscape.certsrv.dbs.keydb;
 
 
-import java.util.*;
-import java.math.*;
-import com.netscape.certsrv.base.*;
+import java.math.BigInteger;
+import java.util.Date;
+
+import com.netscape.certsrv.base.EBaseException;
 
 
 /**

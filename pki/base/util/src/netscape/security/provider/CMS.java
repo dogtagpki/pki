@@ -17,9 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.io.*;
-import java.util.*;
-import java.security.*;
+import java.security.AccessController;
+import java.security.Provider;
 /**
  * The CMS Security Provider.
  */

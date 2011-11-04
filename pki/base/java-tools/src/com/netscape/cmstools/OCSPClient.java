@@ -17,27 +17,44 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.security.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
+import java.security.MessageDigest;
 
-import org.mozilla.jss.*;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.CertDatabaseException;
-import org.mozilla.jss.pkcs11.*;
-import org.mozilla.jss.pkcs11.PK11Token;
-
+import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
-import netscape.security.x509.X500Name;
 
-import com.netscape.cmsutil.ocsp.*;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.NULL;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+
+import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
+import com.netscape.cmsutil.ocsp.CertID;
+import com.netscape.cmsutil.ocsp.CertStatus;
+import com.netscape.cmsutil.ocsp.GoodInfo;
+import com.netscape.cmsutil.ocsp.OCSPRequest;
+import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
 import com.netscape.cmsutil.ocsp.Request;
+import com.netscape.cmsutil.ocsp.ResponseBytes;
+import com.netscape.cmsutil.ocsp.ResponseData;
+import com.netscape.cmsutil.ocsp.RevokedInfo;
+import com.netscape.cmsutil.ocsp.SingleResponse;
+import com.netscape.cmsutil.ocsp.TBSRequest;
+import com.netscape.cmsutil.ocsp.UnknownInfo;
 
 
 /**

@@ -18,16 +18,20 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.util.*;
-import netscape.ldap.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cmscore.cert.*;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.IDBObj;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.cert.CertUtils;
  
 
 /**

@@ -18,12 +18,17 @@
 package netscape.security.util;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import java.security.*;
+import java.text.DateFormat;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TimeZone;
+
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.Extension;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CRLImpl;
 
 
 /**

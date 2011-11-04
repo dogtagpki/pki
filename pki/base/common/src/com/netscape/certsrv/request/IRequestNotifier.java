@@ -18,8 +18,7 @@
 package com.netscape.certsrv.request;
 
 
-import java.util.*;
-import com.netscape.certsrv.request.*;
+import java.util.Enumeration;
 
 
 /**

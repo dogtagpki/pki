@@ -18,17 +18,24 @@
 package com.netscape.cms.authorization;
 
 
-import java.util.*;
-import java.lang.Class;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.authentication.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import com.netscape.certsrv.acls.ACL;
+import com.netscape.certsrv.acls.ACLEntry;
+import com.netscape.certsrv.acls.EACLsException;
+import com.netscape.certsrv.acls.IACL;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
-import com.netscape.certsrv.acls.*;
-import com.netscape.certsrv.evaluators.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cmsutil.util.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmsutil.util.Utils;
 
 
 /**

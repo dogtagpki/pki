@@ -18,9 +18,8 @@
 package com.netscape.certsrv.logging;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
+import java.util.Locale;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MessageFormatter;
 

@@ -17,23 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.pkcs;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.io.IOException;
-import java.security.cert.CertificateException;
-import java.security.NoSuchAlgorithmException;
+import java.io.PrintStream;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.PublicKey;
+import java.security.cert.CertificateException;
 
-
-import netscape.security.util.*;	// DER
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.X509Key;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X500Signer;
-import netscape.security.x509.X500Signer;
+import netscape.security.x509.X509Key;
 
 /**
  * PKCS #10 certificate requests are created and sent to Certificate

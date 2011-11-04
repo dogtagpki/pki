@@ -18,11 +18,15 @@
 package com.netscape.cmscore.connector;
 
 
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.connector.*;
-import com.netscape.cmscore.util.Debug;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
 
-import java.io.*;
+import com.netscape.certsrv.connector.IRequestEncoder;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

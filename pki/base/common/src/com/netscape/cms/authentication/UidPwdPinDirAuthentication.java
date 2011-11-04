@@ -19,38 +19,39 @@ package com.netscape.cms.authentication;
 
 
 // ldap java sdk
-import netscape.ldap.*;
-import java.util.*;
-
-// cert server imports.
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.LdapResources;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.request.*;
-
-// cert server x509 imports
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.CertificateSubjectName;
-import java.security.cert.CertificateException;
-import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
-
-// java sdk imports.
-import java.util.Hashtable;
-import java.util.Vector;
+import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
-import java.io.IOException;
-import java.io.*;
+import java.util.Locale;
+import java.util.Vector;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.authentication.EInvalidCredentials;
+import com.netscape.certsrv.authentication.EMissingCredential;
+import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileAuthenticator;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
 
 
 /**

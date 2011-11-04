@@ -16,25 +16,27 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import java.io.*;
-import java.net.*;
-import java.nio.*;
-import java.util.*;
-import java.net.URLEncoder;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.URLDecoder;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
-//import sun.misc.BASE64Encoder;
-//import sun.misc.BASE64Decoder;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
+import org.mozilla.jss.ssl.SSLSocket;
+import org.mozilla.jss.ssl.TestCertApprovalCallback;
+import org.mozilla.jss.ssl.TestClientCertificateSelectionCallback;
+
 import com.netscape.osutil.OSUtil;
-
-
-import org.mozilla.jss.*;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.ssl.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.CertDatabaseException;
-import org.mozilla.jss.pkcs11.*;
-import org.mozilla.jss.pkcs11.PK11Token;
 
 
 public class HTTPClient implements SSLCertificateApprovalCallback

@@ -18,18 +18,22 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.util.*;
-import java.io.*;
-import java.math.*;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.certsrv.dbs.certdb.*;
+import java.math.BigInteger;
+
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.dbs.keydb.*;
-import com.netscape.certsrv.dbs.replicadb.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBObj;
+import com.netscape.certsrv.dbs.IDBRegistry;
+import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.Modification;
+import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
+import com.netscape.certsrv.dbs.repository.IRepository;
+import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 
 /**
  * A class represents a generic repository. It maintains unique 

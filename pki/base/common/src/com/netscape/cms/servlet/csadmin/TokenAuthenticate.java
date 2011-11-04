@@ -17,21 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.net.*;
-import org.w3c.dom.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.logging.*;
+import java.io.IOException;
+import java.util.Locale;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.w3c.dom.Node;
+
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.cms.servlet.*;
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
-import com.netscape.cmsutil.xml.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISecurityDomainSessionTable;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.base.UserInfo;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmsutil.xml.XMLObject;
 
 public class TokenAuthenticate extends CMSServlet {
 

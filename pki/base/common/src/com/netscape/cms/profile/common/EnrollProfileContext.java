@@ -18,10 +18,7 @@
 package com.netscape.cms.profile.common;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.profile.*;
+import com.netscape.certsrv.profile.IProfileContext;
 
 
 /**

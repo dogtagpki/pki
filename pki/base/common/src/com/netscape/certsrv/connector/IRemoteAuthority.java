@@ -18,7 +18,6 @@
 package com.netscape.certsrv.connector;
 
 
-import com.netscape.certsrv.base.*;
 
 
 /**

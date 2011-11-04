@@ -17,14 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.util;
 
-import netscape.ldap.*;
-import java.io.*;
-import java.net.*;
-import javax.servlet.http.*;
-import javax.servlet.*;
-import java.util.*;
-import java.math.*;
-import java.util.regex.*;
+import java.io.IOException;
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+
+import netscape.ldap.LDAPDN;
 
 public class HttpInput
 {

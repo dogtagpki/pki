@@ -18,17 +18,24 @@
 package com.netscape.certsrv.security;
 
 
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.CryptoManager.*;
-import java.io.*;
-import java.security.*;
-import java.util.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.cert.CertificateException;
+import java.util.Locale;
+
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.X509CertImpl;
+
+import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.PQGParams;
+import org.mozilla.jss.crypto.TokenException;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.common.NameValuePairs;
 
 
 /**

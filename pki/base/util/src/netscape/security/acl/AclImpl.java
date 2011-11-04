@@ -17,10 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.acl;
 
-import java.io.*;
-import java.util.*;
 import java.security.Principal;
-import java.security.acl.*;
+import java.security.acl.Acl;
+import java.security.acl.AclEntry;
+import java.security.acl.Group;
+import java.security.acl.NotOwnerException;
+import java.security.acl.Permission;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * An Access Control List (ACL) is encapsulated by this class.

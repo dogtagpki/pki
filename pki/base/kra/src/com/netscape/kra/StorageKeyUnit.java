@@ -18,32 +18,49 @@
 package com.netscape.kra;
 
 
-import org.mozilla.jss.util.Password;
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.security.*;
-import java.net.*;
-import java.security.*;
-import java.security.cert.*;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.crypto.TokenCertificate;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.cmscore.util.*;
-//import com.netscape.cmscore.kra.*;
-import com.netscape.certsrv.dbs.keydb.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.certsrv.kra.*;
+import java.io.CharConversionException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.BadPaddingException;
+import org.mozilla.jss.crypto.Cipher;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IllegalBlockSizeException;
+import org.mozilla.jss.crypto.KeyGenerator;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.PBEAlgorithm;
+import org.mozilla.jss.crypto.PBEKeyGenParams;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.*;
-import org.mozilla.jss.asn1.INTEGER;
-import org.mozilla.jss.util.*;
+import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.TokenCertificate;
+import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.util.Password;
-import org.mozilla.jss.crypto.*;
-import com.netscape.cmscore.cert.*;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.kra.EKRAException;
+import com.netscape.certsrv.kra.IJoinShares;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.kra.IShare;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.security.Credential;
+import com.netscape.certsrv.security.IStorageKeyUnit;
 
 
 /**

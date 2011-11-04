@@ -17,23 +17,48 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-import java.io.*;
-import java.util.*;
-import java.security.cert.CertificateException;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.pattern.*;
-import com.netscape.certsrv.apps.*;
+import netscape.security.extensions.KerberosName;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.DNSName;
+import netscape.security.x509.EDIPartyName;
+import netscape.security.x509.Extension;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.GeneralNameInterface;
+import netscape.security.x509.IPAddressName;
+import netscape.security.x509.OIDName;
+import netscape.security.x509.OtherName;
+import netscape.security.x509.RFC822Name;
+import netscape.security.x509.URIName;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertInfo;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IAttrSet;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IPrettyPrintFormat;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.pattern.Pattern;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ICertInfoPolicyDefault;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import netscape.security.extensions.*;
 
 
 /**

@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 
 
-import java.net.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 
 public class HTTPResponse

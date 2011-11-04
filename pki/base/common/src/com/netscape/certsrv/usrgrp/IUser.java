@@ -18,10 +18,9 @@
 package com.netscape.certsrv.usrgrp;
 
 
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
+import java.security.cert.X509Certificate;
+
+import com.netscape.certsrv.base.IAttrSet;
 
 
 /**

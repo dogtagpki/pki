@@ -18,17 +18,6 @@
 package com.netscape.cms.profile.def;
 
 
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
-
-import com.netscape.cms.profile.common.EnrollProfile;
-import netscape.security.x509.*;
 
 
 /**

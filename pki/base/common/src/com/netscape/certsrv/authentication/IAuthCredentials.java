@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authentication;
 
-import com.netscape.certsrv.base.*;
-import java.util.*;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.IAttrSet;
 
 /**
  * An interface represents authentication credentials:

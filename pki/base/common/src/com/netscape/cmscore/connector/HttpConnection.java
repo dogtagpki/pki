@@ -18,16 +18,20 @@
 package com.netscape.cmscore.connector;
 
 
-import com.netscape.cmsutil.http.*;
-import com.netscape.cmsutil.net.*;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.connector.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.base.*;
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.connector.IHttpConnection;
+import com.netscape.certsrv.connector.IPKIMessage;
+import com.netscape.certsrv.connector.IRemoteAuthority;
+import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.cmscore.util.Debug;
-import com.netscape.certsrv.apps.*;
-import java.io.*;
-import java.util.*;
+import com.netscape.cmsutil.http.HttpClient;
+import com.netscape.cmsutil.http.HttpRequest;
+import com.netscape.cmsutil.http.HttpResponse;
+import com.netscape.cmsutil.net.ISocketFactory;
 
 
 public class HttpConnection implements IHttpConnection {

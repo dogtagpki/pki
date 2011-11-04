@@ -18,26 +18,20 @@
 package com.netscape.cms.profile.output;
 
 
-import java.security.cert.*;
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ca.*;
+import java.util.Locale;
 
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
+import netscape.security.x509.X509CertImpl;
 
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.crmf.*;
-import org.mozilla.jss.pkix.cmmf.*;
-import org.mozilla.jss.pkix.primitive.*;
-
-import com.netscape.cms.profile.common.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileContext;
+import com.netscape.certsrv.profile.IProfileOutput;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.common.EnrollProfile;
 
 
 /**

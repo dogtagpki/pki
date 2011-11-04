@@ -18,10 +18,11 @@
 package com.netscape.certsrv.authorization;
 
 
-import java.util.Hashtable;
 import java.util.Date;
 import java.util.Enumeration;
-import com.netscape.certsrv.base.*;
+import java.util.Hashtable;
+
+import com.netscape.certsrv.base.IAttrSet;
 
 
 /**

@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
 
 /**
  * This class will display the certificate content in predefined

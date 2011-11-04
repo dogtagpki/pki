@@ -18,18 +18,28 @@
 package com.netscape.cms.profile.def;
 
 //ldap java sdk
-import netscape.ldap.*;
-import com.netscape.certsrv.ldap.*;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.StringTokenizer;
 
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertInfo;
 
-import netscape.security.x509.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
 
 /**
  * This class implements an enrollment default policy

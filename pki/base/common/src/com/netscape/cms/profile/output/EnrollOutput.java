@@ -18,11 +18,18 @@
 package com.netscape.cms.profile.output;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Vector;
+
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileContext;
+import com.netscape.certsrv.profile.IProfileOutput;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
 
 
 /**

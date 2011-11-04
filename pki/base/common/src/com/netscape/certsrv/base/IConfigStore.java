@@ -18,8 +18,8 @@
 package com.netscape.certsrv.base;
 
 
-import java.util.Enumeration;
 import java.math.BigInteger;
+import java.util.Enumeration;
 
 
 /**

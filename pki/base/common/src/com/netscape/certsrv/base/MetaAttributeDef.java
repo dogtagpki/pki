@@ -20,6 +20,7 @@ package com.netscape.certsrv.base;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+
 import netscape.security.util.ObjectIdentifier;
 
 

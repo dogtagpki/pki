@@ -18,9 +18,11 @@
 package com.netscape.certsrv.publish;
 
 
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ldap.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IPluginImpl;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ldap.ELdapException;
 
 
 /** 

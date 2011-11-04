@@ -18,27 +18,24 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import org.mozilla.jss.crypto.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.util.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.cmsutil.crypto.*;
-import java.net.*;
-import java.io.*;
-import java.util.*;
-import com.netscape.cmsutil.xml.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import java.io.IOException;
+import java.net.URL;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import com.netscape.cms.servlet.wizard.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.velocity.context.Context;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.property.PropertySet;
+import com.netscape.certsrv.util.HttpInput;
+import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class CreateSubsystemPanel extends WizardPanelBase {
 

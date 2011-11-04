@@ -17,13 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import java.io.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Enumeration;
 
-import netscape.security.util.*;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 /**
  * This class defines the X509Key attribute for the Certificate.

@@ -17,38 +17,57 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-import java.io.*;
-import java.util.Date;
-import java.util.StringTokenizer;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.BufferedReader;
-
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import org.mozilla.jss.util.Password;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.KeyPairGenerator;
-import org.mozilla.jss.crypto.KeyPairAlgorithm;
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.pkcs.PKCS10;
-//import java.security.Signature;
-import netscape.security.x509.X500Name;
-import netscape.security.util.BigInt;
-import netscape.security.x509.X500Signer;
-import java.io.ByteArrayOutputStream;
+import java.util.Date;
 
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkix.crmf.*;
-import com.netscape.cmsutil.util.*;
+import netscape.security.x509.X500Name;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.BIT_STRING;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.PrintableString;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyGenerator;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGenerator;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
+import org.mozilla.jss.crypto.Signature;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkix.crmf.CertReqMsg;
+import org.mozilla.jss.pkix.crmf.CertRequest;
+import org.mozilla.jss.pkix.crmf.CertTemplate;
+import org.mozilla.jss.pkix.crmf.EncryptedKey;
+import org.mozilla.jss.pkix.crmf.EncryptedValue;
+import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
+import org.mozilla.jss.pkix.crmf.POPOSigningKey;
+import org.mozilla.jss.pkix.crmf.ProofOfPossession;
+import org.mozilla.jss.pkix.primitive.AVA;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+import org.mozilla.jss.pkix.primitive.Name;
+import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
+import org.mozilla.jss.util.Password;
+
+import com.netscape.cmsutil.util.HMACDigest;
 
 
 /**

@@ -18,56 +18,51 @@
 package com.netscape.kra;
 
 
-import com.netscape.cmscore.util.Debug;
-import java.util.StringTokenizer;
-import java.util.Vector;
-import java.io.IOException;
 import java.io.ByteArrayInputStream;
-
-import java.math.BigInteger;
-import java.security.*;
-import java.security.KeyPair;
-import java.security.cert.CertificateException;
-import netscape.security.util.*;
-import netscape.security.util.BigInt;
-import netscape.security.pkcs.*;
-import netscape.security.x509.*;
-import netscape.security.provider.RSAPublicKey;
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.crypto.KeyPairGenerator;
-import org.mozilla.jss.pkix.crmf.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkix.primitive.AVA;
-import org.mozilla.jss.pkcs11.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.cmscore.crmf.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.cmscore.cert.*;
-//import com.netscape.cmscore.ca.*;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.dbs.keydb.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.apps.CMS;
-
-//for b64 encoding
-import org.mozilla.jss.util.Base64OutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
-import java.io.*;
+import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
+import netscape.security.provider.RSAPublicKey;
+
+import org.mozilla.jss.crypto.Cipher;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGenerator;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
+import org.mozilla.jss.crypto.PQGParamGenException;
+import org.mozilla.jss.crypto.PQGParams;
+import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.pkcs11.PK11SymKey;
+import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
+import org.mozilla.jss.util.Base64OutputStream;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.util.Debug;
 
 /**
  * A class representing keygen/archival request procesor for requests

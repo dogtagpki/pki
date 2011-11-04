@@ -20,8 +20,12 @@ package com.netscape.cms.servlet.profile;
 
 import java.util.Enumeration;
 import java.util.Locale;
-import javax.servlet.*;
-import javax.servlet.http.*;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;

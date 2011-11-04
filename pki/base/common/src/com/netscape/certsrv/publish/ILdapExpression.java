@@ -18,9 +18,9 @@
 package com.netscape.certsrv.publish;
 
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.ldap.*;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.request.IRequest;
 
 
 /**

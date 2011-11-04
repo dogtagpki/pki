@@ -18,15 +18,22 @@
 package com.netscape.cmscore.cert;
 
 
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AVAValueConverter;
+import netscape.security.x509.DirStrConverter;
+import netscape.security.x509.X500NameAttrMap;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

@@ -18,17 +18,13 @@
 package com.netscape.certsrv.dbs.crldb;
 
 
-import java.math.*;
-import java.util.*;
-import java.io.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.repository.*;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.ModificationSet;
 
 
 /**

@@ -18,35 +18,47 @@
 package com.netscape.cmscore.ldap;
 
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.math.*;
-import java.security.*;
+import java.math.BigInteger;
+import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.security.cert.*;
-import netscape.ldap.*;
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
-import com.netscape.cmscore.util.*;
-import com.netscape.cmscore.cert.*;
-import com.netscape.cmscore.dbs.*;
+import netscape.ldap.LDAPConnection;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.ICertAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.Modification;
+import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ILdapConnModule;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.publish.ILdapExpression;
+import com.netscape.certsrv.publish.ILdapMapper;
+import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.certsrv.publish.ILdapRule;
+import com.netscape.certsrv.publish.IPublisherProcessor;
+import com.netscape.certsrv.publish.IXcertPublisherProcessor;
+import com.netscape.certsrv.publish.LdapCertMapResult;
+import com.netscape.certsrv.publish.MapperPlugin;
+import com.netscape.certsrv.publish.MapperProxy;
+import com.netscape.certsrv.publish.PublisherPlugin;
+import com.netscape.certsrv.publish.PublisherProxy;
+import com.netscape.certsrv.publish.RulePlugin;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestNotifier;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.util.Debug;
 
 

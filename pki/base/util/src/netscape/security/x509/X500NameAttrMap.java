@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import java.io.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 import netscape.security.util.ObjectIdentifier;
 

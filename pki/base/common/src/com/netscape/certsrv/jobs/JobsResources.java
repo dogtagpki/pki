@@ -18,7 +18,7 @@
 package com.netscape.certsrv.jobs;
 
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 
 /**

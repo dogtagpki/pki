@@ -18,14 +18,9 @@
 package com.netscape.certsrv.dbs.certdb;
 
 
-import java.util.*;
-import java.io.*;
-import java.math.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
-import com.netscape.certsrv.base.*;
+import java.util.Date;
+
+import netscape.security.x509.CRLExtensions;
 
 
 /**

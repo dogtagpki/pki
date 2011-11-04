@@ -19,7 +19,7 @@ package com.netscape.certsrv.ca;
 
 
 import netscape.security.x509.Extension;
-import netscape.security.x509.CRLExtensions;
+
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 

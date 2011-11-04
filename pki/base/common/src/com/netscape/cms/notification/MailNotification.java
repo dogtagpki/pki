@@ -18,19 +18,17 @@
 package com.netscape.cms.notification;
 
 
-import java.util.*;
-import java.io.*;
-import java.lang.String;
-import netscape.net.smtp.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.notification.*;
-import com.netscape.certsrv.apps.*;
-import netscape.security.x509.*;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Vector;
+
+import netscape.net.smtp.SmtpClient;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.notification.ENotificationException;
+import com.netscape.certsrv.notification.IMailNotification;
 
 
 /**

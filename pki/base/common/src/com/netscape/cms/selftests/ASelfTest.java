@@ -25,11 +25,17 @@ package com.netscape.cms.selftests;
 // import statements //
 ///////////////////////
 
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.selftests.*;
-import java.util.*;
+import java.util.Locale;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
+import com.netscape.certsrv.selftests.EInvalidSelfTestException;
+import com.netscape.certsrv.selftests.EMissingSelfTestException;
+import com.netscape.certsrv.selftests.ESelfTestException;
+import com.netscape.certsrv.selftests.ISelfTest;
+import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 
 
 //////////////////////

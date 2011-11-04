@@ -18,7 +18,9 @@
 package com.netscape.cms.authentication;
 
 import java.math.BigInteger;
+
 import org.mozilla.jss.pkix.cmc.PKIData;
+
 import com.netscape.certsrv.authentication.ISharedToken;
 
 public class SharedSecret implements ISharedToken {

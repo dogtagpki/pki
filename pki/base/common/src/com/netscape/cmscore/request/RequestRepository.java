@@ -17,17 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-import java.util.*;
-import java.io.*;
-import java.math.*;
+import java.math.BigInteger;
+import java.util.Enumeration;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSubsystem;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cmscore.dbs.*;
+import com.netscape.certsrv.dbs.Modification;
+import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.cmscore.dbs.Repository;
+import com.netscape.cmscore.dbs.RepositoryRecord;
 
 
 /**

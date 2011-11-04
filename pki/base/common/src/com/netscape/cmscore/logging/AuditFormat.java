@@ -18,7 +18,7 @@
 package com.netscape.cmscore.logging;
 
 
-import com.netscape.certsrv.logging.*;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 
 

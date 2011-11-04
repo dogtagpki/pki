@@ -17,33 +17,35 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
-import java.security.Principal;
-import java.security.PublicKey;
-import java.security.PrivateKey;
-import java.security.Security;
-import java.security.Signature;
-import java.security.NoSuchAlgorithmException;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.security.SignatureException;
+import java.security.cert.CRLException;
 import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
-import java.security.cert.CRLException;
-import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
 
-import netscape.security.util.*;
+import netscape.security.util.ArraySet;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
 
 /**
  * <p>

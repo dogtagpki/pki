@@ -19,8 +19,6 @@ package netscape.security.x509;
 
 import java.io.IOException;
 
-import netscape.security.util.*;
-
 /**
  * Abstract class that converts a Ldap DN String to an X500Name, RDN or AVA 
  * and vice versa, except the string is a java string in unicode.

@@ -18,7 +18,7 @@
 package com.netscape.cms.servlet.admin;
 
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 
 /**

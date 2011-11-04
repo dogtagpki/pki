@@ -18,12 +18,15 @@
 package com.netscape.cmscore.policy;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.policy.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.request.IRequest;
+import java.util.Enumeration;
+import java.util.Vector;
+
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.policy.EPolicyException;
+import com.netscape.certsrv.policy.IExpression;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.util.AssertionException;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

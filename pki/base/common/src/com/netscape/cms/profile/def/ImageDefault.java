@@ -18,17 +18,18 @@
 package com.netscape.cms.profile.def;
 
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cms.profile.common.*;
+import java.util.Locale;
 
-import netscape.security.x509.*;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
 
 
 /**

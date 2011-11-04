@@ -18,11 +18,16 @@
 package com.netscape.cmscore.ldapconn;
 
 
-import netscape.ldap.*;
-import java.util.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ldap.*;
+import java.util.Properties;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPRebind;
+import netscape.ldap.LDAPRebindAuth;
+import netscape.ldap.LDAPSocketFactory;
+import netscape.ldap.LDAPv2;
+
+import com.netscape.certsrv.apps.CMS;
 
 
 /**

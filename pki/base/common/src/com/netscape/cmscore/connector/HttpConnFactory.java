@@ -18,17 +18,15 @@
 package com.netscape.cmscore.connector;
 
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.connector.*;
-import com.netscape.cmscore.connector.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.cmsutil.http.*;
-import com.netscape.cmsutil.net.*;
-import com.netscape.certsrv.authority.*;
-import java.util.*;
-import java.io.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.connector.IHttpConnection;
+import com.netscape.certsrv.connector.IRemoteAuthority;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmsutil.http.JssSSLSocketFactory;
+import com.netscape.cmsutil.net.ISocketFactory;
 
 
 /**

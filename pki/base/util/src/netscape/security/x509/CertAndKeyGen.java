@@ -18,13 +18,21 @@
 package netscape.security.x509;
 
 import java.io.IOException;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
-import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 
-import netscape.security.util.BigInt;
 import netscape.security.pkcs.PKCS10;
 
 

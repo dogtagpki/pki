@@ -18,24 +18,30 @@
 package com.netscape.cmscore.authentication;
 
 
-import netscape.ldap.*;
+import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
-import java.util.*;
-import java.lang.Class;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.apps.*;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
-import com.netscape.cmscore.util.*;
-import com.netscape.cmscore.ldap.*;
-import com.netscape.cmscore.ldapconn.*;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.cmscore.usrgrp.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.EInvalidCredentials;
+import com.netscape.certsrv.authentication.EMissingCredential;
+import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

@@ -20,10 +20,11 @@ package com.netscape.certsrv.kra;
 
 import java.math.BigInteger;
 import java.util.Hashtable;
-import java.security.cert.X509Certificate;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.security.*;
+
 import netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.security.Credential;
 
 
 /**

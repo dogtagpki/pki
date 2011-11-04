@@ -17,17 +17,30 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.updater;
 
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.cms.profile.common.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.request.*;
-import netscape.security.x509.*;
-import netscape.ldap.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Vector;
+
+import netscape.ldap.LDAPException;
+import netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileUpdater;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.certsrv.usrgrp.IGroup;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.profile.common.EnrollProfile;
 
 /**
  * This updater class will create the new user to the subsystem group and

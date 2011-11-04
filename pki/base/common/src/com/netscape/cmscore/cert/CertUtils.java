@@ -18,27 +18,50 @@
 package com.netscape.cmscore.cert;
 
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.extensions.*;
-import netscape.security.util.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.osutil.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.logging.ILogger;
-
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import netscape.security.pkcs.*;
-import java.net.SocketException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509CRL;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.StringTokenizer;
 
-import javax.servlet.http.HttpServletRequest;
+import netscape.security.extensions.NSCertTypeExtension;
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSerialNumber;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.osutil.OSUtil;
 
 /**
  * Utility class with assorted methods to check for 

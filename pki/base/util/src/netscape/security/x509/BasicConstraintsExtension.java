@@ -23,7 +23,9 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.Enumeration;
 
-import netscape.security.util.*;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 /**
  * This class represents the Basic Constraints Extension.

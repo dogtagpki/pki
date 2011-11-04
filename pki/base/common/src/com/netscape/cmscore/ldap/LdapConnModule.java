@@ -18,27 +18,21 @@
 package com.netscape.cmscore.ldap;
 
 
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.math.BigInteger;
+import netscape.ldap.LDAPConnection;
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.authority.*;
-import java.security.*;
-import java.security.cert.*;
-import java.io.IOException;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.*;
-
-import com.netscape.cmscore.ldapconn.*;
-import com.netscape.cmscore.util.Debug;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
+import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.ldap.ILdapConnInfo;
+import com.netscape.certsrv.ldap.ILdapConnModule;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.LdapConnInfo;
 
 
 public class LdapConnModule implements ILdapConnModule {

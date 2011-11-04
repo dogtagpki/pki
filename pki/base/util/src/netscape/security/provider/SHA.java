@@ -17,7 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.security.*;
+import java.security.DigestException;
+import java.security.MessageDigestSpi;
 
 /**
  * This class implements the Secure Hash Algorithm (SHA) developed by

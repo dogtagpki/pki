@@ -18,18 +18,13 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.util.*;
-import java.io.*;
-import java.math.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.certdb.*;
+import java.io.Serializable;
+import java.util.Date;
 
-import com.netscape.cmscore.dbs.*;
-import com.netscape.cmscore.util.*;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+
+import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 
 
 /**

@@ -18,22 +18,31 @@
 package com.netscape.cmscore.security;
 
 
-import org.mozilla.jss.SecretDecoderRing.KeyManager;
-import org.mozilla.jss.SecretDecoderRing.Encryptor;
-import org.mozilla.jss.SecretDecoderRing.Decryptor;
-import org.mozilla.jss.crypto.TokenException;
-import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.*;
-import org.mozilla.jss.util.Password;
-import org.mozilla.jss.util.Base64OutputStream;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import com.netscape.cmscore.base.*;
-import com.netscape.certsrv.base.EBaseException;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.SecretDecoderRing.Decryptor;
+import org.mozilla.jss.SecretDecoderRing.Encryptor;
+import org.mozilla.jss.SecretDecoderRing.KeyManager;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.util.Base64OutputStream;
+import org.mozilla.jss.util.Password;
+
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmsutil.util.Utils;
 

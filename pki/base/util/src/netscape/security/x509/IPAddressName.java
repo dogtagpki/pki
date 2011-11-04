@@ -17,11 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.StringTokenizer;
-import java.lang.Integer;
 
-import netscape.security.util.*;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 /**
  * This class implements the IPAddressName as required by the GeneralNames

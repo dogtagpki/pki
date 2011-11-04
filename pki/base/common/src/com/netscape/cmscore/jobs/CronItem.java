@@ -18,11 +18,12 @@
 package com.netscape.cmscore.jobs;
 
 
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import java.util.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.logging.ILogger;
 
 
 /**

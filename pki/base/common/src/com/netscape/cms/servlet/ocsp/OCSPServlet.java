@@ -18,40 +18,33 @@
 package com.netscape.cms.servlet.ocsp;
 
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
-
-import java.util.*;
-import java.security.*;
-import java.util.Vector;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.IOException;
+import java.io.OutputStream;
+
 import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
 
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.asn1.INTEGER;
-import org.mozilla.jss.pkix.cert.Certificate;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
-import org.mozilla.jss.asn1.BIT_STRING;
+import org.mozilla.jss.asn1.ASN1Util;
 
-import netscape.security.x509.*;
-import java.security.cert.*;
-import com.netscape.certsrv.util.*;
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.ocsp.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.cmsutil.ocsp.*;
-import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.ocsp.IOCSPService;
+import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
+import com.netscape.cmsutil.ocsp.OCSPRequest;
+import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.ResponseBytes;
+import com.netscape.cmsutil.ocsp.ResponseData;
+import com.netscape.cmsutil.ocsp.SingleResponse;
+import com.netscape.cmsutil.ocsp.TBSRequest;
 
 
 /**

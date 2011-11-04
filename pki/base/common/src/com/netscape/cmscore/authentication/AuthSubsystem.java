@@ -18,13 +18,27 @@
 package com.netscape.cmscore.authentication;
 
 
-import java.util.*;
-import java.lang.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cmscore.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthManagerProxy;
+import com.netscape.certsrv.authentication.AuthMgrPlugin;
+import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.authentication.EAuthMgrNotFound;
+import com.netscape.certsrv.authentication.EAuthMgrPluginNotFound;
+import com.netscape.certsrv.authentication.EInvalidCredentials;
+import com.netscape.certsrv.authentication.EMissingCredential;
+import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthSubsystem;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

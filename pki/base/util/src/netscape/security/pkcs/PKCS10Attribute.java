@@ -17,20 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.pkcs;
 
-import java.io.OutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.security.cert.CertificateException;
 
-import netscape.security.util.*;
-import netscape.security.x509.CertAttrSet;
-import netscape.security.x509.OIDMap;
-import netscape.security.x509.Extension;
+import netscape.security.util.DerEncoder;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.ACertAttrSet;
+import netscape.security.x509.CertAttrSet;
 import netscape.security.x509.Extensions;
+import netscape.security.x509.OIDMap;
 
 
 /**

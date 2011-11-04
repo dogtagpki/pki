@@ -18,49 +18,29 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.logging.*;
+import java.io.IOException;
+import java.util.Locale;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.mozilla.jss.CryptoManager;
+import org.w3c.dom.Node;
+
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.cms.servlet.*;
-import com.netscape.cmsutil.xml.*;
-import org.w3c.dom.*;
-import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.dom.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import com.netscape.certsrv.connector.*;
-import com.netscape.certsrv.ca.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.PrivateKey.Type;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.pkcs12.*;
-import org.mozilla.jss.pkcs11.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkix.primitive.Attribute;
-import java.security.interfaces.*;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.base.UserInfo;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * This servlet imports DRM's transport certificate into TKS.

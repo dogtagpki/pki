@@ -18,11 +18,13 @@
 package com.netscape.certsrv.policy;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.request.PolicyResult;
+import java.util.Vector;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
 
 
 /**

@@ -18,8 +18,8 @@
 package com.netscape.cmscore.policy;
 
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.policy.*;
+import com.netscape.certsrv.policy.EPolicyException;
+import com.netscape.certsrv.policy.IExpression;
 import com.netscape.certsrv.request.IRequest;
 
 

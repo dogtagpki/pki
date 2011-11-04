@@ -18,28 +18,33 @@
 package com.netscape.cms.servlet.profile;
 
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Locale;
 
-import java.util.*;
-import java.io.*;
-import java.security.cert.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.util.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.certsrv.authentication.AuthCredentials;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.template.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.logging.*;
-
-import netscape.security.x509.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.template.ArgList;
+import com.netscape.certsrv.template.ArgSet;
+import com.netscape.certsrv.template.ArgString;
+import com.netscape.certsrv.template.IArgValue;
+import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.base.UserInfo;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.Utils;
 
 
 /**

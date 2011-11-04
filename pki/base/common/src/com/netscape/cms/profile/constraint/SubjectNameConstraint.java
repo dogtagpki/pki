@@ -18,17 +18,25 @@
 package com.netscape.cms.profile.constraint;
 
 
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cms.profile.common.*;
-import com.netscape.cms.profile.def.*;
+import java.io.IOException;
+import java.util.Locale;
 
-import netscape.security.x509.*;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cms.profile.def.SubjectNameDefault;
+import com.netscape.cms.profile.def.UserSubjectNameDefault;
 
 
 /**

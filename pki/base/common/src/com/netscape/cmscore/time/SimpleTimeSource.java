@@ -18,8 +18,9 @@
 package com.netscape.cmscore.time;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
+import java.util.Date;
+
+import com.netscape.certsrv.base.ITimeSource;
 
 
 public class SimpleTimeSource implements ITimeSource {

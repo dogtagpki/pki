@@ -17,9 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import java.util.Vector;
 import java.io.IOException;
-import netscape.security.util.*;
+import java.util.Vector;
+
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 
 /**

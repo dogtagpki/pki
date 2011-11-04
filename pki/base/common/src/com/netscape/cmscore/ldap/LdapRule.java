@@ -18,13 +18,17 @@
 package com.netscape.cmscore.ldap;
 
 
-import java.util.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.*;
-import com.netscape.cmscore.util.*;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Vector;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.publish.ILdapExpression;
+import com.netscape.certsrv.publish.ILdapRule;
+import com.netscape.certsrv.publish.IPublisherProcessor;
+import com.netscape.cmscore.util.Debug;
 
 
 /** 

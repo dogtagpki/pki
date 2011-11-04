@@ -17,20 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.util.*;
-import java.lang.*;
-import java.security.Key;
-import java.security.PublicKey;
-import java.security.PrivateKey;
-import java.security.KeyFactorySpi;
 import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyFactorySpi;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.interfaces.DSAParams;
-import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.DSAPrivateKeySpec;
-import java.security.spec.KeySpec;
+import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 /**
  * This class implements the DSA key factory of the Sun provider.

@@ -19,7 +19,8 @@ package netscape.security.x509;
 
 import java.io.IOException;
 
-import netscape.security.util.*;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 /**
  * This class implements the DNSName as required by the GeneralNames

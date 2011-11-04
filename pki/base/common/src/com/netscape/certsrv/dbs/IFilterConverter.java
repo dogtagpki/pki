@@ -18,9 +18,6 @@
 package com.netscape.certsrv.dbs;
 
 
-import java.util.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
 
 
 /**

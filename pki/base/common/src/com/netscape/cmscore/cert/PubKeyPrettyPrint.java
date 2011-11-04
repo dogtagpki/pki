@@ -18,15 +18,7 @@
 package com.netscape.cmscore.cert;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.security.cert.*;
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import netscape.security.provider.RSAPublicKey;
-import com.netscape.cmscore.util.*;
-import java.security.*;
+import java.security.PublicKey;
 
 
 /**

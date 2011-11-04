@@ -25,7 +25,7 @@ package com.netscape.cmscore.selftests;
 // import statements //
 ///////////////////////
 
-import java.util.*;
+import java.util.StringTokenizer;
 
 
 //////////////////////

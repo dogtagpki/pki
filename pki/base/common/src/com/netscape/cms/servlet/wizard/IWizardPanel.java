@@ -17,15 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.wizard;
 
-import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import java.io.IOException;
 
-import java.io.*;
-import com.netscape.certsrv.property.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.velocity.context.Context;
+
+import com.netscape.certsrv.property.PropertySet;
 
 public interface IWizardPanel {
 

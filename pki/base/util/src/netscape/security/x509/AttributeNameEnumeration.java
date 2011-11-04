@@ -18,7 +18,6 @@
 package netscape.security.x509;
 
 import java.util.Vector;
-import java.util.Enumeration;
 
 /**
  * <p>This class provides the Enumeration implementation used

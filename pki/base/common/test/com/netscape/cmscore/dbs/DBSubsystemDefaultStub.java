@@ -1,5 +1,9 @@
 package com.netscape.cmscore.dbs;
 
+import java.math.BigInteger;
+
+import netscape.ldap.LDAPConnection;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -7,9 +11,6 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSubsystem;
-import netscape.ldap.LDAPConnection;
-
-import java.math.BigInteger;
 
 /**
  * A default stub ojbect for tests to extend.

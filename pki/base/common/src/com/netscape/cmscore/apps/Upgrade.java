@@ -18,16 +18,11 @@
 package com.netscape.cmscore.apps;
 
 
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.cmscore.util.*;
-import org.mozilla.jss.util.Password;
-import org.mozilla.jss.util.PasswordCallback;
-import org.mozilla.jss.util.PasswordCallbackInfo;
-import org.mozilla.jss.util.ConsolePasswordCallback;
 import java.io.File;
-import java.lang.*;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.util.OsSubsystem;
 
 
 public final class Upgrade {

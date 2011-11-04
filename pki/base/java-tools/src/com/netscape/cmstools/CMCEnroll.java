@@ -18,34 +18,54 @@
 package com.netscape.cmstools;
 
 
-import org.mozilla.jss.pkix.cmc.*;
-import org.mozilla.jss.pkix.cms.*;
-import org.mozilla.jss.pkix.cert.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkcs10.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.crypto.DigestAlgorithm;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.util.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.util.Date;
 
-import org.mozilla.jss.*;
-
-import netscape.security.util.*;
-import netscape.security.x509.*;
 import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
 
-import java.security.*;
-import java.security.cert.CertificateException;
-import java.math.*;
-import java.security.Principal;
-import java.lang.*;
-import java.lang.reflect.*;
-import java.io.*;
-import java.util.*;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.ANY;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.crypto.CryptoStore;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkcs10.CertificationRequest;
+import org.mozilla.jss.pkix.cmc.PKIData;
+import org.mozilla.jss.pkix.cmc.TaggedAttribute;
+import org.mozilla.jss.pkix.cmc.TaggedCertificationRequest;
+import org.mozilla.jss.pkix.cmc.TaggedRequest;
+import org.mozilla.jss.pkix.cms.ContentInfo;
+import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
+import org.mozilla.jss.pkix.cms.IssuerAndSerialNumber;
+import org.mozilla.jss.pkix.cms.SignedData;
+import org.mozilla.jss.pkix.cms.SignerIdentifier;
+import org.mozilla.jss.pkix.cms.SignerInfo;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+import org.mozilla.jss.pkix.primitive.Name;
+import org.mozilla.jss.util.Password;
 
 
 

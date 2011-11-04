@@ -18,14 +18,14 @@
 package com.netscape.cmscore.usrgrp;
 
 
-import java.util.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.apps.*;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.certsrv.usrgrp.IUsrGrp;
 
 
 /**

@@ -18,23 +18,31 @@
 package com.netscape.cms.profile.constraint;
 
 
-import java.util.*;
-import java.io.*;
-import java.security.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.cms.profile.common.*;
-import com.netscape.cms.profile.def.*;
-
-import netscape.security.x509.*;
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.provider.DSAPublicKey;
-import java.security.interfaces.DSAParams;
 import java.math.BigInteger;
+import java.security.interfaces.DSAParams;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Vector;
+
+import netscape.security.provider.DSAPublicKey;
+import netscape.security.provider.RSAPublicKey;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cms.profile.def.UserKeyDefault;
 
 
 /**

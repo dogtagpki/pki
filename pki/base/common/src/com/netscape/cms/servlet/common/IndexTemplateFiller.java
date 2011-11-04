@@ -18,18 +18,13 @@
 package com.netscape.cms.servlet.common;
 
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Locale;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.ISubsystem;
 
 
 /**

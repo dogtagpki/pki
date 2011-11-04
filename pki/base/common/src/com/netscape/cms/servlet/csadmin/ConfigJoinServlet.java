@@ -18,27 +18,17 @@
 package com.netscape.cms.servlet.csadmin;
 
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
-import javax.servlet.http.*;
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.cmsutil.crypto.*;
-
-import netscape.security.pkcs.*;
-import netscape.security.x509.*;
-
-import java.util.*;
-import java.io.*;
-
-import java.security.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.crypto.KeyPairGenerator;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 
 public class ConfigJoinServlet extends ConfigBaseServlet {

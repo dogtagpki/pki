@@ -21,7 +21,6 @@ package com.netscape.cms.authentication;
 // java sdk imports.
 import java.util.Hashtable;
 import java.util.Vector;
-import java.io.IOException;
 
 
 /**

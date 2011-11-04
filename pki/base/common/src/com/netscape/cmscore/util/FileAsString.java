@@ -18,8 +18,10 @@
 package com.netscape.cmscore.util;
 
 
-import java.io.*;
-import java.lang.StringBuffer;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 
 public class FileAsString {

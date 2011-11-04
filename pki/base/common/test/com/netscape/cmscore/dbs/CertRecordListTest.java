@@ -17,7 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IElementProcessor;

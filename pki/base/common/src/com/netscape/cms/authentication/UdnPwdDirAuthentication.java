@@ -19,28 +19,19 @@ package com.netscape.cms.authentication;
 
 
 // ldap java sdk
-import netscape.ldap.*;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
 
-// cert server imports.
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.EInvalidCredentials;
+import com.netscape.certsrv.authentication.EMissingCredential;
+import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.LdapResources;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.apps.*;
-
-// cert server x509 imports
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.CertificateSubjectName;
-import java.security.cert.CertificateException;
-
-// java sdk imports.
-import java.util.Hashtable;
-import java.util.Vector;
-import java.io.IOException;
 
 
 /**

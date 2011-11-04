@@ -18,23 +18,37 @@
 package com.netscape.cmscore.authentication;
 
 
-import java.util.*;
 import java.math.BigInteger;
-import java.security.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.cmscore.base.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.authentication.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Vector;
 
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.ra.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.cmscore.util.*;
+import netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.authentication.EAuthUserError;
+import com.netscape.certsrv.authentication.EInvalidCredentials;
+import com.netscape.certsrv.authentication.EMissingCredential;
+import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.cmscore.base.SubsystemRegistry;
+import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

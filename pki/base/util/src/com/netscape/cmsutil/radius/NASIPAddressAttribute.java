@@ -18,11 +18,8 @@
 package com.netscape.cmsutil.radius;
 
 
-import java.util.*;
-import java.math.*;
-import java.security.*;
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
+import java.net.InetAddress;
 
 
 public class NASIPAddressAttribute extends Attribute {

@@ -18,14 +18,17 @@
 package com.netscape.cmscore.usrgrp;
 
 
-import netscape.ldap.*;
-import java.util.*;
-import java.security.*;
-import java.security.cert.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.usrgrp.*;
+import java.security.cert.X509Certificate;
+
+import netscape.ldap.LDAPException;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.usrgrp.Certificates;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
+import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.usrgrp.IUser;
 
 
 /**

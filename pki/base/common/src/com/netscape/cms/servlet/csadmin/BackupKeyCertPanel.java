@@ -18,37 +18,56 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import org.mozilla.jss.util.Password;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.util.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.property.*;
-import java.io.*;
-import java.net.URL;
-import com.netscape.certsrv.base.*;
-import java.util.*;
-import java.security.*;
-import java.security.cert.*;
-import java.security.KeyPair;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
-import netscape.security.x509.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.pkcs12.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.crypto.PrivateKey;
-import com.netscape.cmsutil.crypto.*;
+import java.io.ByteArrayOutputStream;
+import java.io.CharConversionException;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateEncodingException;
+import java.util.StringTokenizer;
 
-import com.netscape.cms.servlet.wizard.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.velocity.context.Context;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.ASN1Value;
+import org.mozilla.jss.asn1.BMPString;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.crypto.Cipher;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyGenerator;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
+import org.mozilla.jss.crypto.PBEAlgorithm;
+import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkcs12.AuthenticatedSafes;
+import org.mozilla.jss.pkcs12.CertBag;
+import org.mozilla.jss.pkcs12.PFX;
+import org.mozilla.jss.pkcs12.PasswordConverter;
+import org.mozilla.jss.pkcs12.SafeBag;
+import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
+import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
+import org.mozilla.jss.util.Password;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.property.PropertySet;
+import com.netscape.certsrv.util.HttpInput;
+import com.netscape.cms.servlet.wizard.WizardServlet;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class BackupKeyCertPanel extends WizardPanelBase {
 

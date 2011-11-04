@@ -17,9 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.password;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
-import java.io.*;
-import java.util.*;
 
 public class PlainPasswordWriter implements IPasswordWriter{
     private static final String PASSWORD_WRITER_HEADER = "";

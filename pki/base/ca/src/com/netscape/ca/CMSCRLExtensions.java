@@ -19,35 +19,42 @@ package com.netscape.ca;
 
 
 import java.io.IOException;
-import java.util.*;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.CRLExtensions;
+import java.security.cert.CertificateException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import netscape.security.extensions.AuthInfoAccessExtension;
 import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.IssuerAlternativeNameExtension;
+import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.CRLNumberExtension;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.IssuingDistributionPointExtension;
 import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.DeltaCRLIndicatorExtension;
+import netscape.security.x509.Extension;
+import netscape.security.x509.FreshestCRLExtension;
 import netscape.security.x509.HoldInstructionExtension;
 import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.CertificateIssuerExtension;
-import netscape.security.x509.FreshestCRLExtension;
+import netscape.security.x509.IssuerAlternativeNameExtension;
+import netscape.security.x509.IssuingDistributionPointExtension;
 import netscape.security.x509.OIDMap;
-import netscape.security.extensions.AuthInfoAccessExtension;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.cmscore.base.SubsystemRegistry;
+import netscape.security.x509.PKIXExtensions;
+
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ca.ICMSCRLExtension;
+import com.netscape.certsrv.ca.ICMSCRLExtensions;
+import com.netscape.certsrv.ca.ICRLIssuingPoint;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePair;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ca.*;
-import java.security.cert.CertificateException;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
+import com.netscape.cmscore.base.SubsystemRegistry;
 
 
 public class CMSCRLExtensions implements ICMSCRLExtensions {

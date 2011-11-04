@@ -17,21 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.pkcs;
 
-import java.io.*;
-import java.util.Properties;
-import java.math.*;
-import java.security.Key;
-import java.security.PrivateKey;
-import java.security.KeyFactory;
-import java.security.Security;
-import java.security.Provider;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Provider;
+import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Properties;
 
-import netscape.security.x509.*;
-import netscape.security.util.*;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.AlgorithmId;
 
 /**
  * Holds a PKCS#8 key, for example a private key

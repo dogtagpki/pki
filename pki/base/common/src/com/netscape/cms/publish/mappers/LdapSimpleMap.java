@@ -18,19 +18,32 @@
 package com.netscape.cms.publish.mappers;
 
 
-import netscape.ldap.*;
-import java.io.*;
-import java.util.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
+import java.io.IOException;
+import java.security.cert.X509Certificate;
+import java.util.Locale;
+import java.util.Vector;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ELdapServerDownException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.*;
 
 
 /** 

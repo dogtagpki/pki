@@ -18,13 +18,16 @@
 package com.netscape.certsrv.logging;
 
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.logging.*;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.servlet.ServletException;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.common.NameValuePairs;
 
 
 /**

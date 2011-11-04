@@ -16,9 +16,6 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
 
 
 public class Certificate_Record {

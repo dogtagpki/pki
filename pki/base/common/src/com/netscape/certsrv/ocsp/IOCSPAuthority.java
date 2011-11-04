@@ -18,29 +18,17 @@
 package com.netscape.certsrv.ocsp;
 
 
-import java.util.*;
-import java.security.*;
-import java.util.Vector;
-import java.io.*;
-import java.io.InputStream;
-import java.io.IOException;
+import netscape.security.x509.X500Name;
 
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.asn1.INTEGER;
-import org.mozilla.jss.pkix.cert.Certificate;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
-import org.mozilla.jss.asn1.BIT_STRING;
 
-import netscape.security.x509.*;
-
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.logging.*;
-
-import com.netscape.cmsutil.ocsp.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
+import com.netscape.cmsutil.ocsp.ResponderID;
+import com.netscape.cmsutil.ocsp.ResponseData;
 
 
 /**

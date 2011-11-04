@@ -18,22 +18,22 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.math.*;
-import java.util.*;
-import java.io.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.certsrv.dbs.repository.*;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Vector;
 
-import com.netscape.cmscore.dbs.*;
-import com.netscape.cmscore.util.*;
-
-import com.netscape.certsrv.apps.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBRegistry;
+import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSearchResults;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.Modification;
+import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 
 /**
  * A class represents a CRL repository. It stores all the 

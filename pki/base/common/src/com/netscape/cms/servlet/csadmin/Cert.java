@@ -18,8 +18,6 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import java.util.StringTokenizer;
-import java.util.Vector;
 
 
 public class Cert {

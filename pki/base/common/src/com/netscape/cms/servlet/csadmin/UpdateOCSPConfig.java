@@ -17,31 +17,28 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-import javax.servlet.*;
-import java.security.cert.*;
-import javax.servlet.http.*;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.logging.*;
+import java.io.IOException;
+import java.util.Locale;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.w3c.dom.Node;
+
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.cms.servlet.*;
-import com.netscape.cmsutil.xml.*;
-import org.w3c.dom.*;
-import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.dom.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.base.UserInfo;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.xml.XMLObject;
 
 
 public class UpdateOCSPConfig extends CMSServlet {

@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-import sun.io.*;
+import sun.io.ByteToCharConverter;
+import sun.io.ConversionBufferFullException;
+import sun.io.UnknownCharacterException;
 
 /**
  * Converts bytes in ASN.1 UniversalString character set to unicode

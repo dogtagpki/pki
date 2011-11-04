@@ -18,13 +18,15 @@
 package com.netscape.cmscore.jobs;
 
 
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.jobs.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Calendar;
+import java.util.Enumeration;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import java.util.*;
-import java.lang.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.jobs.IJobCron;
+import com.netscape.certsrv.logging.ILogger;
 
 
 /**

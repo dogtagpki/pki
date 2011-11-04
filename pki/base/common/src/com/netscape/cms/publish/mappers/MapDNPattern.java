@@ -18,19 +18,18 @@
 package com.netscape.cms.publish.mappers;
 
 
-import com.netscape.certsrv.logging.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import netscape.ldap.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.StringReader;
+import java.util.Vector;
+
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.X500Name;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.*;
 
 
 /**

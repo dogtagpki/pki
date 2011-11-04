@@ -18,13 +18,15 @@
 package com.netscape.cms.servlet.common;
 
 
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.authorization.*;
+import java.util.StringTokenizer;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 
 
 /**

@@ -19,20 +19,34 @@
 package com.netscape.cms.profile.def;
 
 
-import java.io.*;
-import java.security.cert.*;
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import netscape.security.x509.*;
-import netscape.security.extensions.*;
-import netscape.security.util.*;
-import com.netscape.cms.profile.common.*;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CPSuri;
+import netscape.security.x509.CertificatePoliciesExtension;
+import netscape.security.x509.CertificatePolicyId;
+import netscape.security.x509.CertificatePolicyInfo;
+import netscape.security.x509.DisplayText;
+import netscape.security.x509.NoticeReference;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.PolicyQualifiers;
+import netscape.security.x509.Qualifier;
+import netscape.security.x509.UserNotice;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
 
 /**
  * This class implements an enrollment default policy

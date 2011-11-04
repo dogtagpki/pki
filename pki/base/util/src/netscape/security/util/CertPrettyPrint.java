@@ -18,16 +18,25 @@
 package netscape.security.util;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
+import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
-import java.security.MessageDigest;
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkcs7.*;
+import java.text.DateFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.TimeZone;
+
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extension;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.pkcs7.ContentInfo;
+import org.mozilla.jss.pkcs7.SignedData;
 
 
 /**

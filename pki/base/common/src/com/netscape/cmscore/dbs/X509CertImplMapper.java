@@ -18,20 +18,30 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.io.*;
-import java.util.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import netscape.security.extensions.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Vector;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.security.extensions.NSCertTypeExtension;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.Extension;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.cmscore.cert.*;
-import com.netscape.cmscore.util.Debug;
+import com.netscape.certsrv.base.AttributeNameHelper;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.IDBObj;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
 
 
 /**

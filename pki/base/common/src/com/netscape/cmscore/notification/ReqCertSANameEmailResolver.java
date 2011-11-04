@@ -18,19 +18,31 @@
 package com.netscape.cmscore.notification;
 
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.notification.*;
-import java.util.Enumeration;
-import java.security.*;
-import java.security.cert.*;
 import java.io.IOException;
-import netscape.security.x509.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.ca.*;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.GeneralNameInterface;
+import netscape.security.x509.GeneralNames;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.SubjectAlternativeNameExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.notification.ENotificationException;
+import com.netscape.certsrv.notification.IEmailResolver;
+import com.netscape.certsrv.notification.IEmailResolverKeys;
+import com.netscape.certsrv.request.IRequest;
 
 
 /**

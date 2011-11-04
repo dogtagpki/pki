@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.password;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.util.Enumeration;
 
 public interface IPasswordStore {
     public void init(String pwdPath) throws IOException;

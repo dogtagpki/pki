@@ -18,11 +18,6 @@
 package com.netscape.certsrv.jobs;
 
 
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
-
-import java.util.*;
-import java.lang.*;
 
 
 /**

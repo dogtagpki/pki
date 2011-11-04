@@ -18,43 +18,39 @@
 package com.netscape.kra;
 
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
-import java.math.*;
-import java.security.*;
-import java.security.cert.*;
-import java.security.KeyPair;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
-import netscape.security.x509.*;
-import netscape.security.x509.X500Name;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.security.SecureRandom;
+import java.util.Hashtable;
 
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
- 
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.certsrv.dbs.keydb.*;
-import com.netscape.cmscore.cert.*;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.cmsutil.util.*;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerValue;
 
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.crypto.PBEAlgorithm;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkcs11.*;
+import org.mozilla.jss.crypto.Cipher;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.pkcs11.PK11SymKey;
+import org.mozilla.jss.util.Base64OutputStream;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.kra.EKRAException;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmsutil.util.Cert;
 
 
 /**

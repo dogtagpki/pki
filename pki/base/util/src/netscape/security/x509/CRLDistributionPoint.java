@@ -17,10 +17,25 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import org.mozilla.jss.asn1.*;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import netscape.security.util.BitArray;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+
+import org.mozilla.jss.asn1.ANY;
+import org.mozilla.jss.asn1.ASN1Template;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.ASN1Value;
+import org.mozilla.jss.asn1.BIT_STRING;
+import org.mozilla.jss.asn1.EXPLICIT;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.Tag;
 
 /**
  * <pre>

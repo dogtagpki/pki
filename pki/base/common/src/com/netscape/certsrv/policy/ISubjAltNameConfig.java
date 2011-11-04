@@ -18,9 +18,6 @@
 package com.netscape.certsrv.policy;
 
 
-import java.util.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
 
 
 /** 

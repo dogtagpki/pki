@@ -17,18 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.Serializable;
 import java.security.InvalidKeyException;
-import java.security.ProviderException;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.util.BigInt;
 
-import netscape.security.x509.X509Key;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.util.DerValue;
+import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.X509Key;
 
 /**
  * An X.509 public key for the RSA Algorithm.

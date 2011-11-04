@@ -1,11 +1,11 @@
 package com.netscape.cmscore.dbs;
 
-import com.netscape.certsrv.request.IRequestRecord;
-import com.netscape.certsrv.request.RequestId;
+import java.util.Enumeration;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
-
-import java.util.Enumeration;
+import com.netscape.certsrv.request.IRequestRecord;
+import com.netscape.certsrv.request.RequestId;
 
 /**
  * Default stub for RequestRecord tests.

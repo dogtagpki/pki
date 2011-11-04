@@ -18,12 +18,8 @@
 package com.netscape.certsrv.acls;
 
 
-import java.util.*;
-import java.lang.Object;
-import java.security.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.acls.*;
-import com.netscape.certsrv.logging.*;
+import java.util.Enumeration;
+import java.util.Vector;
 
 
 /**

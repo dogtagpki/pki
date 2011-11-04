@@ -1,11 +1,15 @@
 package com.netscape.cmscore.dbs;
 
-import com.netscape.certsrv.dbs.*;
+import netscape.ldap.LDAPSearchResults;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.base.IConfigStore;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPSearchResults;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBObj;
+import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSearchResults;
+import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.ModificationSet;
 
 /**
  * A default stub ojbect for tests to extend.

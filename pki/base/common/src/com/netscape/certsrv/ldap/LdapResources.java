@@ -18,7 +18,7 @@
 package com.netscape.certsrv.ldap;
 
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 
 /**

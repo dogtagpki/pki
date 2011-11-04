@@ -18,12 +18,25 @@
 package com.netscape.cmstools;
 
 
-import java.io.*;
-import java.util.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.security.cert.CRLException;
+import java.security.cert.CertificateException;
+import java.util.Locale;
+
+import netscape.security.util.CrlPrettyPrint;
+import netscape.security.x509.DeltaCRLIndicatorExtension;
+import netscape.security.x509.HoldInstructionExtension;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.IssuingDistributionPointExtension;
+import netscape.security.x509.OIDMap;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509ExtensionException;
 
 
 /**

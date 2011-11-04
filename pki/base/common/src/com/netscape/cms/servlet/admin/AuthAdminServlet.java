@@ -18,25 +18,33 @@
 package com.netscape.cms.servlet.admin;
 
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.math.*;
-import java.security.*;
-import java.security.cert.X509Certificate;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.usrgrp.*;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Locale;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthManagerProxy;
+import com.netscape.certsrv.authentication.AuthMgrPlugin;
+import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.authentication.EAuthMgrNotFound;
+import com.netscape.certsrv.authentication.EAuthMgrPluginNotFound;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthSubsystem;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.ldap.ILdapAuthInfo;
+import com.netscape.certsrv.logging.ILogger;
 
 
 /**

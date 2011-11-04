@@ -18,7 +18,7 @@
 package com.netscape.cmscore.base;
 
 
-import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.base.ISourceConfigStore;
 
 
 /**

@@ -18,8 +18,10 @@
 package com.netscape.certsrv.pattern;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
+import java.util.Enumeration;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IAttrSet;
 
 
 /**

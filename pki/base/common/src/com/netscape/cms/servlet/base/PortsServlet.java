@@ -18,25 +18,19 @@
 package com.netscape.cms.servlet.base;
 
 
-import com.netscape.cms.servlet.common.*;
-import java.net.*;
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.cmsutil.xml.*;
-import com.netscape.cmsutil.http.*;
-import org.xml.sax.*;
-import org.w3c.dom.*;
+import java.io.IOException;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.w3c.dom.Node;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * This servlet returns port information.

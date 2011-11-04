@@ -22,12 +22,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateParsingException;
-import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Properties;
 
-import netscape.security.util.*;
+import netscape.security.util.ObjectIdentifier;
 
 /**
  * This class defines the mapping from OID & name to classes and vice

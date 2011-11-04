@@ -17,23 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.util.Hashtable;
 import java.math.BigInteger;
-import java.security.AlgorithmParameters;
 import java.security.AlgorithmParameterGenerator;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.ProviderException;
 import java.security.SecureRandom;
 import java.security.interfaces.DSAParams;
 import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.DSAParameterSpec;
+import java.security.spec.InvalidParameterSpecException;
+import java.util.Hashtable;
 
 import netscape.security.x509.AlgIdDSA;
 

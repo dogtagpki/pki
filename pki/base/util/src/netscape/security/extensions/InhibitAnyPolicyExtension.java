@@ -18,13 +18,20 @@
 package netscape.security.extensions;
 
 
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import java.security.cert.CertificateException;
-import java.util.*;
-import java.io.*;
-import java.math.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.security.cert.CertificateException;
+import java.util.Enumeration;
+
+import netscape.security.util.BigInt;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CertAttrSet;
+import netscape.security.x509.Extension;
+import netscape.security.x509.OIDMap;
 
 /**
  *  RFC3280:

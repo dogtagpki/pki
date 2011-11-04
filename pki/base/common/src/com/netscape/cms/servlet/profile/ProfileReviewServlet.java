@@ -18,23 +18,41 @@
 package com.netscape.cms.servlet.profile;
 
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Random;
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.template.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.cms.servlet.common.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.Nonces;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IPolicyConstraint;
+import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileInput;
+import com.netscape.certsrv.profile.IProfileOutput;
+import com.netscape.certsrv.profile.IProfilePolicy;
+import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.template.ArgList;
+import com.netscape.certsrv.template.ArgSet;
+import com.netscape.cms.servlet.common.CMSRequest;
 
 
 /**

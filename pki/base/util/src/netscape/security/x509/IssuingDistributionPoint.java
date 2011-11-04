@@ -17,9 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import org.mozilla.jss.asn1.*;
-import netscape.security.util.*;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import netscape.security.util.BitArray;
+import netscape.security.util.DerOutputStream;
+
+import org.mozilla.jss.asn1.ANY;
+import org.mozilla.jss.asn1.ASN1Value;
+import org.mozilla.jss.asn1.BOOLEAN;
+import org.mozilla.jss.asn1.EXPLICIT;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.Tag;
 
 /**
  * <pre>

@@ -18,31 +18,45 @@
 package com.netscape.cms.servlet.admin;
 
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.math.*;
-import java.security.cert.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import netscape.ldap.*;
-import netscape.security.pkcs.*;
-import netscape.security.x509.*;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.StringTokenizer;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.ldap.LDAPException;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.x509.X509CertImpl;
+
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
-import com.netscape.cmsutil.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.password.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.cms.servlet.base.*;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ICertPrettyPrint;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.logging.AuditFormat;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.password.IPasswordCheck;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
+import com.netscape.certsrv.usrgrp.IGroup;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmsutil.util.Cert;
 
 
 /**

@@ -17,72 +17,87 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.common.AuthCredentials;
-import com.netscape.cmsutil.xml.*;
-import com.netscape.certsrv.base.SessionContext;
-import java.io.*;
-import java.util.*;
-import java.util.Locale;
-import java.util.Enumeration;
-import java.util.Vector;
-import java.util.Hashtable;
-import java.util.StringTokenizer;
-import java.util.Date;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.math.BigInteger;
-
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Random;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletException;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
-import netscape.security.util.DerValue;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CertImpl;
 
 import org.mozilla.jss.ssl.SSLSocket;
-import org.mozilla.jss.ssl.SSLSecurityStatus;
-import org.w3c.dom.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.ra.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.certsrv.ocsp.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.authorization.*;
+import org.w3c.dom.Node;
 
-import com.netscape.certsrv.authentication.*;
-
-import com.netscape.certsrv.dbs.certdb.*;
-
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.apps.ICommandQueue;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.authority.ICertAuthority;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
-
-import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.MessageDigest;
-import java.net.SocketException;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.usrgrp.IGroup;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.cms.servlet.common.AuthCredentials;
+import com.netscape.cms.servlet.common.CMSFileLoader;
+import com.netscape.cms.servlet.common.CMSGateway;
+import com.netscape.cms.servlet.common.CMSLoadTemplate;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cms.servlet.common.GenErrorTemplateFiller;
+import com.netscape.cms.servlet.common.GenPendingTemplateFiller;
+import com.netscape.cms.servlet.common.GenRejectedTemplateFiller;
+import com.netscape.cms.servlet.common.GenSuccessTemplateFiller;
+import com.netscape.cms.servlet.common.GenSvcPendingTemplateFiller;
+import com.netscape.cms.servlet.common.GenUnexpectedErrorTemplateFiller;
+import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cms.servlet.common.Utils;
+import com.netscape.cmsutil.xml.XMLObject;
 
 
 /**

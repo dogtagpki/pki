@@ -18,52 +18,72 @@
 package com.netscape.cms.servlet.cert;
 
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
-
-import java.util.*;
-import java.io.*;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Vector;
 
-
-import netscape.security.x509.*;
-import netscape.security.util.ObjectIdentifier;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.mozilla.jss.asn1.SEQUENCE;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extension;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
 import org.mozilla.jss.asn1.INTEGER;
-import org.mozilla.jss.pkix.crmf.CertTemplate;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
-import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
+import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.primitive.Name;
-import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthSubsystem;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.KeyGenInfo;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertRecordList;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.AuditFormat;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
-
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.cms.authentication.*;
-
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.AuditFormat;
-
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import java.math.*;
+import com.netscape.cms.authentication.HashAuthentication;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 
 
 /**

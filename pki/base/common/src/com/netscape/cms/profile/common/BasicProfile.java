@@ -18,17 +18,36 @@
 package com.netscape.cms.profile.common;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.registry.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.logging.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthSubsystem;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.IPolicyConstraint;
+import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileAuthenticator;
+import com.netscape.certsrv.profile.IProfileContext;
+import com.netscape.certsrv.profile.IProfileInput;
+import com.netscape.certsrv.profile.IProfileOutput;
+import com.netscape.certsrv.profile.IProfilePolicy;
+import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.profile.IProfileUpdater;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.registry.IPluginInfo;
+import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestStatus;
 
 
 /**

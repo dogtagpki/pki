@@ -18,13 +18,6 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.util.*;
-import java.io.*;
-import java.math.*;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
 
 
 /**

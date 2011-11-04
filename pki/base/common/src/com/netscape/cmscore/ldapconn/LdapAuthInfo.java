@@ -19,17 +19,15 @@ package com.netscape.cmscore.ldapconn;
 
 
 import java.util.Hashtable;
+
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
-import org.mozilla.jss.util.Password;
-import org.mozilla.jss.util.PasswordCallback;
-import org.mozilla.jss.util.PasswordCallbackInfo;
-import org.mozilla.jss.util.ConsolePasswordCallback;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.cmscore.base.*;
-import com.netscape.cmsutil.password.*;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ldap.ILdapAuthInfo;
+import com.netscape.cmsutil.password.IPasswordStore;
 
 
 /**

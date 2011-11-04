@@ -18,8 +18,10 @@
 package com.netscape.certsrv.ldap;
 
 
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
+import netscape.ldap.LDAPConnection;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 
 
 /**

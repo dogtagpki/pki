@@ -23,9 +23,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.logging.ILogger;
 
 
 /**

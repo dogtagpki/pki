@@ -18,22 +18,20 @@
 package com.netscape.certsrv.ca;
 
 
-import java.util.*;
-import java.math.*;
-import java.io.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.request.IRequest;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.Set;
+import java.util.Vector;
+
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CRLImpl;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.dbs.IElementProcessor;
 
 
 /**

@@ -18,38 +18,39 @@
 package com.netscape.cmscore.request;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.NotSerializableException;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
 import java.math.BigInteger;
-
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Vector;
 import java.util.Hashtable;
-
+import java.util.Vector;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 
 import com.netscape.certsrv.base.EBaseException;
-
-import com.netscape.certsrv.dbs.*;
-import com.netscape.cmscore.dbs.StringMapper;
-import com.netscape.cmscore.dbs.DateMapper;
-import com.netscape.cmscore.dbs.BigIntegerMapper;
-
-import com.netscape.certsrv.request.ldap.*;
-import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.IDBDynAttrMapper;
+import com.netscape.certsrv.dbs.IDBObj;
+import com.netscape.certsrv.dbs.IDBRegistry;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.Modification;
+import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestRecord;
-
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.certsrv.request.ldap.IRequestMod;
+import com.netscape.cmscore.dbs.BigIntegerMapper;
+import com.netscape.cmscore.dbs.DateMapper;
+import com.netscape.cmscore.dbs.StringMapper;
 import com.netscape.cmscore.util.Debug;
 
 

@@ -18,22 +18,34 @@
 package com.netscape.cmscore.cert;
 
 
-import netscape.ldap.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import java.security.cert.*;
-import netscape.security.util.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.cert.*;
-import com.netscape.certsrv.publish.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.cmscore.ldapconn.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.publish.IPublisherProcessor;
+import com.netscape.certsrv.publish.IXcertPublisherProcessor;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 
 /**

@@ -19,8 +19,8 @@ package netscape.security.util;
 
 import sun.io.CharToByteConverter;
 import sun.io.ConversionBufferFullException;
-import sun.io.UnknownCharacterException;
 import sun.io.MalformedInputException;
+import sun.io.UnknownCharacterException;
 
 /**
  * Converts a string of ASN.1 PrintableString characters to PrintableString 

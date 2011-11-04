@@ -1,11 +1,12 @@
 package com.netscape.cmscore.request;
 
+import java.util.Enumeration;
+
+import netscape.ldap.LDAPAttributeSet;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBDynAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import netscape.ldap.LDAPAttributeSet;
-
-import java.util.Enumeration;
 
 /**
  * Default testing stub for the IRequest interface.

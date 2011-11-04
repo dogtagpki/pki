@@ -18,8 +18,7 @@
 package com.netscape.certsrv.kra;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.base.EBaseException;
 
 
 /**

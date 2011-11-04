@@ -18,33 +18,21 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
-import org.apache.velocity.app.Velocity;
+import java.io.IOException;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.velocity.context.Context;
-import javax.servlet.*;
-import javax.servlet.http.*;
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import java.io.*;
-import java.net.URL;
-import com.netscape.cmsutil.crypto.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.util.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.base.*;
-
-import java.util.*;
-import java.security.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.crypto.KeyPairGenerator;
-
-import netscape.security.x509.*;
-import com.netscape.cms.servlet.wizard.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.property.PropertySet;
+import com.netscape.certsrv.util.HttpInput;
+import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class HierarchyPanel extends WizardPanelBase {
 

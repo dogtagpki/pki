@@ -18,18 +18,22 @@
 package com.netscape.cmscore.jobs;
 
 
-import java.util.*;
-import java.io.*;
-import java.lang.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.jobs.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import netscape.security.x509.*;
+import java.util.Calendar;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.jobs.EJobsException;
+import com.netscape.certsrv.jobs.IJob;
+import com.netscape.certsrv.jobs.IJobCron;
+import com.netscape.certsrv.jobs.IJobsScheduler;
+import com.netscape.certsrv.jobs.JobPlugin;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

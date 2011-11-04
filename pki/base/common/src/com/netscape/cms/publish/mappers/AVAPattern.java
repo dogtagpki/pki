@@ -26,24 +26,27 @@ package com.netscape.cms.publish.mappers;
 ///////////////////////
 
 /* cert server imports */
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.logging.*;
+import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.StringReader;
+import java.util.Enumeration;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import netscape.ldap.LDAPDN;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.Extension;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.GeneralNames;
+import netscape.security.x509.LdapV3DNStrConverter;
+import netscape.security.x509.OIDMap;
+import netscape.security.x509.SubjectAlternativeNameExtension;
+import netscape.security.x509.X500Name;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.publish.ECompSyntaxErr;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.*;
-
-/* LDAP imports */
-import netscape.ldap.*;
-
-/* security imports */
-import netscape.security.util.*;
-import netscape.security.x509.*;
-
-/* java sdk imports */
-import java.io.*;
-import java.security.*;
-import java.util.*;
 
 
 //////////////////////

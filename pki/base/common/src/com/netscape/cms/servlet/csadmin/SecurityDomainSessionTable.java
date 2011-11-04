@@ -17,9 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.base.*;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 
 /**
  * This object stores the values for IP, uid and group based on the cookie id.

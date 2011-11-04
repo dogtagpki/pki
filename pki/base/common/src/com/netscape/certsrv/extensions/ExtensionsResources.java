@@ -18,7 +18,7 @@
 package com.netscape.certsrv.extensions;
 
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 
 /**

@@ -18,30 +18,15 @@
 package com.netscape.cms.profile.common;
 
 
-import java.security.cert.*;
-import java.math.*;
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.connector.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.logging.*;
-
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
-
-import java.security.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkix.crmf.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.profile.IPolicyConstraint;
+import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.certsrv.profile.IProfileEx;
+import com.netscape.certsrv.profile.IProfileInput;
+import com.netscape.certsrv.profile.IProfileOutput;
+import com.netscape.certsrv.profile.IProfilePolicy;
 
 
 /**

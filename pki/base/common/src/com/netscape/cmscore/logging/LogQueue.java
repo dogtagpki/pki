@@ -18,12 +18,12 @@
 package com.netscape.cmscore.logging;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.MessageFormat;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.CMS;
+import java.util.Vector;
+
+import com.netscape.certsrv.logging.ELogException;
+import com.netscape.certsrv.logging.ILogEvent;
+import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.ILogQueue;
 
 
 /**

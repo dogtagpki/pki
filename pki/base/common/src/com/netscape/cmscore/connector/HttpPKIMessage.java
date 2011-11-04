@@ -18,12 +18,19 @@
 package com.netscape.cmscore.connector;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.connector.IHttpPKIMessage;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.connector.*;
-import com.netscape.certsrv.apps.*;
 import com.netscape.cmscore.util.Debug;
-import java.util.*;
-import java.io.*;
 
 
 /**

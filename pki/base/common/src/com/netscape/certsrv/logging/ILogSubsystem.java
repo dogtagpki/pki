@@ -18,11 +18,10 @@
 package com.netscape.certsrv.logging;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.MessageFormat;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import com.netscape.certsrv.base.ISubsystem;
 
 
 /**

@@ -18,35 +18,79 @@
 package com.netscape.cms.servlet.common;
 
 
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.cmc.*;
-import org.mozilla.jss.pkix.cmmf.*;
-import org.mozilla.jss.pkix.primitive.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-import javax.servlet.http.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.base.SessionContext;
-import org.mozilla.jss.pkix.cms.*;
-import org.mozilla.jss.pkix.cert.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.security.*;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.util.Date;
+import java.util.Hashtable;
+
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.ANY;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.ENUMERATED;
+import org.mozilla.jss.asn1.GeneralizedTime;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.asn1.UTF8String;
+import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.pkcs11.PK11PubKey;
+import org.mozilla.jss.pkix.cert.Certificate;
+import org.mozilla.jss.pkix.cmc.CMCCertId;
+import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.GetCert;
+import org.mozilla.jss.pkix.cmc.OtherInfo;
+import org.mozilla.jss.pkix.cmc.OtherMsg;
+import org.mozilla.jss.pkix.cmc.PendInfo;
+import org.mozilla.jss.pkix.cmc.ResponseBody;
+import org.mozilla.jss.pkix.cmc.TaggedAttribute;
+import org.mozilla.jss.pkix.cmmf.RevRequest;
+import org.mozilla.jss.pkix.cms.ContentInfo;
+import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
+import org.mozilla.jss.pkix.cms.IssuerAndSerialNumber;
+import org.mozilla.jss.pkix.cms.SignedData;
+import org.mozilla.jss.pkix.cms.SignerIdentifier;
+import org.mozilla.jss.pkix.cms.SignerInfo;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+import org.mozilla.jss.pkix.primitive.Name;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.ISharedToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.AuditFormat;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestStatus;
 
 /**
  * Utility CMCOutputTemplate

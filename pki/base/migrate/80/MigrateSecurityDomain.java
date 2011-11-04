@@ -16,14 +16,23 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import com.netscape.cmsutil.xml.*;
-import com.netscape.cmscore.base.*;
-import com.netscape.cmscore.ldapconn.*;
-import com.netscape.cmsutil.ldap.*;
-import netscape.ldap.*;
-import java.io.*; 
-import java.util.*;
-import org.w3c.dom.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Vector;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.ldapconn.LdapJssSSLSocketFactory;
+import com.netscape.cmsutil.ldap.LDAPUtil;
+import com.netscape.cmsutil.xml.XMLObject;
 
 public class MigrateSecurityDomain {
 

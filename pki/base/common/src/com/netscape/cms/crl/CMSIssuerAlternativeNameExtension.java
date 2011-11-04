@@ -18,33 +18,34 @@
 package com.netscape.cms.crl;
 
 
-import java.io.*;
-import java.util.*;
-import java.math.BigInteger;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.URIName;
-import netscape.security.x509.OIDName;
-import netscape.security.x509.DNSName;
-import netscape.security.x509.RFC822Name;
-import netscape.security.x509.EDIPartyName;
-import netscape.security.x509.IPAddressName;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.IssuerAlternativeNameExtension;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Locale;
+
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
+import netscape.security.x509.DNSName;
+import netscape.security.x509.EDIPartyName;
+import netscape.security.x509.Extension;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.GeneralNames;
+import netscape.security.x509.IPAddressName;
+import netscape.security.x509.IssuerAlternativeNameExtension;
+import netscape.security.x509.OIDName;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.RFC822Name;
+import netscape.security.x509.URIName;
+import netscape.security.x509.X500Name;
+
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ca.ICMSCRLExtension;
+import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
+import com.netscape.certsrv.logging.ILogger;
 
 
 /**

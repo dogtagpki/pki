@@ -26,59 +26,72 @@ package com.netscape.cms.authentication;
 ///////////////////////
 
 /* cert server imports */
-import com.netscape.cms.authentication.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.base.IConfigStore;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.PublicKey;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Vector;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.pkcs10.CertificationRequest;
+import org.mozilla.jss.pkcs11.PK11PubKey;
+import org.mozilla.jss.pkix.cert.Certificate;
+import org.mozilla.jss.pkix.cert.CertificateInfo;
+import org.mozilla.jss.pkix.cmc.PKIData;
+import org.mozilla.jss.pkix.cmc.TaggedAttribute;
+import org.mozilla.jss.pkix.cmc.TaggedCertificationRequest;
+import org.mozilla.jss.pkix.cmc.TaggedRequest;
+import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
+import org.mozilla.jss.pkix.cms.IssuerAndSerialNumber;
+import org.mozilla.jss.pkix.cms.SignedData;
+import org.mozilla.jss.pkix.cms.SignerIdentifier;
+import org.mozilla.jss.pkix.crmf.CertReqMsg;
+import org.mozilla.jss.pkix.crmf.CertRequest;
+import org.mozilla.jss.pkix.crmf.CertTemplate;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+import org.mozilla.jss.pkix.primitive.Name;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.EInvalidCredentials;
+import com.netscape.certsrv.authentication.EMissingCredential;
+import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthSubsystem;
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
-
-import com.netscape.cmsutil.util.*;
-import netscape.security.x509.*;
-
-/* java sdk imports */
-import java.io.*;
-import java.util.*;
-import java.util.Properties;
-import java.util.Vector;
-import com.netscape.certsrv.apps.*;
-import java.util.Hashtable;
-import java.security.MessageDigest;
-import java.security.PublicKey;
-
-import org.mozilla.jss.asn1.SET;
-import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.asn1.INTEGER;
-import org.mozilla.jss.asn1.OCTET_STRING;
-import org.mozilla.jss.pkix.crmf.CertTemplate;
-import org.mozilla.jss.pkix.crmf.CertReqMsg;
-import org.mozilla.jss.pkix.crmf.CertRequest;
-import org.mozilla.jss.pkix.crmf.ChallengeResponseException;
-import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
-import org.mozilla.jss.pkix.primitive.Name;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
-import org.mozilla.jss.asn1.InvalidBERException;
-import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
-import org.mozilla.jss.asn1.ANY;
-import org.mozilla.jss.pkix.cms.*;
-import org.mozilla.jss.pkix.cmc.*;
-import org.mozilla.jss.pkcs10.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.pkix.cert.Certificate;
-import org.mozilla.jss.pkix.cert.CertificateInfo;
-import org.mozilla.jss.asn1.ASN1Util;
-import org.mozilla.jss.pkcs11.*;
-
-import com.netscape.certsrv.usrgrp.*;
-
-import netscape.security.pkcs.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import java.math.BigInteger;
-import org.mozilla.jss.CryptoManager;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileAuthenticator;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmsutil.util.Utils;
 
 //import com.netscape.cmscore.util.*;
 //////////////////////

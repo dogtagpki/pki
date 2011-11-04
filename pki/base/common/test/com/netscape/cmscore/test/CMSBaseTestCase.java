@@ -1,5 +1,10 @@
 package com.netscape.cmscore.test;
 
+import java.security.cert.CertificateException;
+
+import junit.framework.TestCase;
+import netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.app.CMSEngineDefaultStub;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.dbs.EDBException;
@@ -11,10 +16,6 @@ import com.netscape.cmscore.dbs.DBRegistryDefaultStub;
 import com.netscape.cmscore.dbs.DBSSessionDefaultStub;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystemDefaultStub;
-import junit.framework.TestCase;
-import netscape.security.x509.X509CertImpl;
-
-import java.security.cert.CertificateException;
 
 /**
  * The base class for all CMS unit tests.  This sets up some basic stubs

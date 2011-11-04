@@ -17,30 +17,33 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authentication;
 
-import java.io.*;
-import java.util.*;
-import java.lang.Class;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.policy.*;
-import com.netscape.cmsutil.http.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.ra.*;
-import com.netscape.certsrv.kra.*;
-import javax.servlet.http.HttpServletRequest;
-import com.netscape.cmsutil.xml.*;
-import org.w3c.dom.*;
+import java.io.ByteArrayInputStream;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.EInvalidCredentials;
+import com.netscape.certsrv.authentication.EMissingCredential;
+import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileAuthenticator;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.cmsutil.http.HttpClient;
+import com.netscape.cmsutil.http.HttpRequest;
+import com.netscape.cmsutil.http.HttpResponse;
+import com.netscape.cmsutil.http.JssSSLSocketFactory;
+import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * Token authentication.  

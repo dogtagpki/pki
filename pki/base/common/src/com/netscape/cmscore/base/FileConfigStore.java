@@ -18,10 +18,19 @@
 package com.netscape.cmscore.base;
 
 
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.base.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Vector;
+
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmsutil.util.Utils;
 
 

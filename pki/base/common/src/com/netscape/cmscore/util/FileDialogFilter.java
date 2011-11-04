@@ -18,7 +18,8 @@
 package com.netscape.cmscore.util;
 
 
-import java.io.*;
+import java.io.File;
+import java.io.FilenameFilter;
 
 
 /**

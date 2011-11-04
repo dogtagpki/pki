@@ -1,10 +1,11 @@
 package com.netscape.certsrv.request;
 
-import com.netscape.cmscore.test.CMSBaseTestCase;
+import java.util.Vector;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import java.util.Vector;
+import com.netscape.cmscore.test.CMSBaseTestCase;
 
 public class AgentApprovalsTest extends CMSBaseTestCase {
 

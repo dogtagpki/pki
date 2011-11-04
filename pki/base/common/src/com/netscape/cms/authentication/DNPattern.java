@@ -18,13 +18,15 @@
 package com.netscape.cms.authentication;
 
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.publish.*;
-import netscape.ldap.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.StringReader;
+import java.util.Vector;
+
+import netscape.ldap.LDAPEntry;
+
+import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.base.EBaseException;
 
 
 /**

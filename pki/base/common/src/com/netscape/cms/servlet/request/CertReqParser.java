@@ -18,23 +18,48 @@
 package com.netscape.cms.servlet.request;
 
 
-import com.netscape.cms.servlet.common.*;
-
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.math.BigInteger;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.lang.reflect.Array;
-import netscape.security.x509.*;
-import netscape.security.extensions.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Vector;
 
-import com.netscape.certsrv.request.*;
+import netscape.security.extensions.NSCertTypeExtension;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.IPrettyPrintFormat;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cms.servlet.common.RawJS;
 
 
 /**

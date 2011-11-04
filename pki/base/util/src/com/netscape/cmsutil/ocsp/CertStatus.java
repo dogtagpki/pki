@@ -17,10 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.ocsp;
 
-import java.io.*;
-import org.mozilla.jss.pkix.primitive.Name;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.cert.Extension;
+import org.mozilla.jss.asn1.ASN1Value;
 
 /**
  * RFC 2560:

@@ -18,25 +18,16 @@
 package com.netscape.cmscore.security;
 
 
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import java.util.*;
-import java.io.*;
-import java.math.*;
-import java.security.PrivateKey;
-import java.security.InvalidKeyException;
-import java.security.SignatureException;
-import java.security.cert.*;
-import java.security.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import org.mozilla.jss.crypto.Signature;
-import org.mozilla.jss.crypto.TokenException;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.CryptoManager.*;
-import org.mozilla.jss.*;
+import java.io.IOException;
+import java.security.KeyPair;
+
+import netscape.security.x509.KeyUsageExtension;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.security.KeyCertData;
 
 
 /**

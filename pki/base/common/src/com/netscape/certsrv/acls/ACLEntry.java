@@ -18,10 +18,9 @@
 package com.netscape.certsrv.acls;
 
 
-import java.util.*;
-import java.security.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.acls.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
 
 
 /**

@@ -18,19 +18,36 @@
 package com.netscape.cms.policy.extensions;
 
 
-import java.util.*;
-import java.io.*;
-import java.security.cert.*;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CPSuri;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificatePoliciesExtension;
+import netscape.security.x509.CertificatePolicyId;
+import netscape.security.x509.CertificatePolicyInfo;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.DisplayText;
+import netscape.security.x509.NoticeReference;
+import netscape.security.x509.PolicyQualifierInfo;
+import netscape.security.x509.PolicyQualifiers;
+import netscape.security.x509.UserNotice;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.policy.IEnrollmentPolicy;
+import com.netscape.certsrv.policy.IPolicyProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.logging.ILogger;
-import netscape.security.x509.*;
-import netscape.security.x509.PolicyQualifierInfo;
-import netscape.security.util.*;
 import com.netscape.cms.policy.APolicyRule;
 
 

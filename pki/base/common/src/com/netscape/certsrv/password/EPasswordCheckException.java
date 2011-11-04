@@ -17,9 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.password;
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.PasswordResources;
 
 /**
  * A class represents a password checker exception.

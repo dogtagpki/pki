@@ -18,17 +18,26 @@
 package com.netscape.cms.policy.extensions;
 
 
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.policy.*;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.util.Locale;
+import java.util.Vector;
+
+import netscape.security.extensions.ExtendedKeyUsageExtension;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.apps.*;
-import netscape.security.x509.*;
-import netscape.security.extensions.*;
-import netscape.security.util.*;
-import java.security.cert.*;
-import java.io.*;
-import java.util.*;
+import com.netscape.certsrv.policy.IEnrollmentPolicy;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
 

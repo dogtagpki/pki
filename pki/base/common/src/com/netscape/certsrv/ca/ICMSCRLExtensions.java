@@ -18,8 +18,8 @@
 package com.netscape.certsrv.ca;
 
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.NameValuePairs;
 
 
 /**

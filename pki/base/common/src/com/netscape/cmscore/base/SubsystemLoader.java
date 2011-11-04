@@ -18,9 +18,12 @@
 package com.netscape.cmscore.base;
 
 
+import java.util.Vector;
+
 import com.netscape.certsrv.apps.CMS;
-import java.util.*;
-import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
 
 
 /**

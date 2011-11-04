@@ -18,15 +18,24 @@
 package com.netscape.cmstools;
 
 
-import java.io.*;
-import java.util.*;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.util.Base64InputStream;
-import java.security.*;
-import java.security.interfaces.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
 import netscape.security.x509.X509CertImpl;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.X509Certificate;
 
 /**
  * Tool for verifying signed audit logs

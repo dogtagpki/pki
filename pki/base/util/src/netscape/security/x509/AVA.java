@@ -20,12 +20,13 @@ package netscape.security.x509;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
-import sun.io.ByteToCharConverter;
 
-import netscape.security.util.*;
+import netscape.security.util.DerEncoder;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import sun.io.ByteToCharConverter;
 
 
 /**

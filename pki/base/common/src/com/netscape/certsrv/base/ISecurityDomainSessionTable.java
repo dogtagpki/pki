@@ -17,10 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.BaseResources;
+import java.util.Enumeration;
 
 
 /**

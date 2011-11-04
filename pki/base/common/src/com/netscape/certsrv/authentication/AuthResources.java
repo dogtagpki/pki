@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authentication;
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 /**
  * A class represents a resource bundle for the authentication component.

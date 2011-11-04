@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.Signer;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * This class provides a binding between a Signature object and an

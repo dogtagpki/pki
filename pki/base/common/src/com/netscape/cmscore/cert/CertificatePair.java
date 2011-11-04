@@ -18,12 +18,20 @@
 package com.netscape.cmscore.cert;
 
 
-import java.io.*;
-import java.security.cert.*;
-import org.mozilla.jss.asn1.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ca.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import org.mozilla.jss.asn1.ANY;
+import org.mozilla.jss.asn1.ASN1Value;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.Tag;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 
 

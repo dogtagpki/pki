@@ -25,13 +25,29 @@ package com.netscape.cmscore.selftests;
 // import statements //
 ///////////////////////
 
-import java.io.*;
-import java.util.*;
-import java.text.MessageFormat;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.selftests.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.ListIterator;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ELogException;
+import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
+import com.netscape.certsrv.selftests.EInvalidSelfTestException;
+import com.netscape.certsrv.selftests.EMissingSelfTestException;
+import com.netscape.certsrv.selftests.ESelfTestException;
+import com.netscape.certsrv.selftests.ISelfTest;
+import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 
 
 //////////////////////

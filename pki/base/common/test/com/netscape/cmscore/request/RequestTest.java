@@ -1,34 +1,32 @@
 package com.netscape.cmscore.request;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import java.util.Hashtable;
-import java.util.Vector;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.cert.CRLException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.cert.CRLException;
-import java.math.BigInteger;
-import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
-import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.base.EBaseException;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.app.CMSEngineDefaultStub;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.usrgrp.Certificates;
-import com.netscape.cmscore.test.TestHelper;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.test.CMSBaseTestCase;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.X500Name;
+import com.netscape.cmscore.test.TestHelper;
 
 public class RequestTest extends CMSBaseTestCase {
 

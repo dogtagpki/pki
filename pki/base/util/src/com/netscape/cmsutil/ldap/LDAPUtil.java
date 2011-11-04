@@ -17,9 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.ldap;
 
-import netscape.ldap.*;
-import netscape.ldap.util.*;
-import java.io.*;
+import java.io.IOException;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.util.LDIF;
+import netscape.ldap.util.LDIFAttributeContent;
+import netscape.ldap.util.LDIFContent;
+import netscape.ldap.util.LDIFModifyContent;
+import netscape.ldap.util.LDIFRecord;
 
 public class LDAPUtil {
     public static void importLDIF(LDAPConnection conn, String filename) throws IOException {

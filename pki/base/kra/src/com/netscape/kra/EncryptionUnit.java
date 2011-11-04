@@ -18,28 +18,35 @@
 package com.netscape.kra;
 
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
-import java.security.*;
-import java.security.cert.*;
-import java.security.cert.X509Certificate;
-import netscape.security.x509.*;
-//import netscape.security.provider.*;
-import netscape.security.util.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.cmscore.util.Debug;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.certsrv.security.*;
-//import com.netscape.cmscore.kra.*;
-import com.netscape.cmscore.cert.*;
-import com.netscape.certsrv.apps.CMS;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.*;
+import java.io.CharConversionException;
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+
+import org.mozilla.jss.crypto.BadPaddingException;
+import org.mozilla.jss.crypto.Cipher;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.IllegalBlockSizeException;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.TokenException;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.security.IEncryptionUnit;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

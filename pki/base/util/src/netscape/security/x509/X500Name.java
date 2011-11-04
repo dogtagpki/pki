@@ -17,14 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import java.io.StringReader;
 import java.io.IOException;
-import java.io.StringBufferInputStream;
 import java.security.Principal;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.security.util.*;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
 
 
 /**

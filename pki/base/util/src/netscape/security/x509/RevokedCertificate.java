@@ -18,10 +18,9 @@
 package netscape.security.x509;
 
 import java.math.BigInteger;
+import java.security.cert.X509CRL;
+import java.security.cert.X509CRLEntry;
 import java.util.Date;
-import java.util.Set;
-
-import java.security.cert.*;
 
 /**
  * <p>Abstract class for a revoked certificate in a CRL (Certificate 

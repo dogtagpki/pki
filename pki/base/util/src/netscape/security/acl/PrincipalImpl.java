@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.acl;
 
-import java.security.*;
+import java.security.Principal;
 
 /**
  * This class implements the principal interface.

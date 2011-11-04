@@ -18,40 +18,40 @@
 package com.netscape.cmstools;
 
 
-import org.mozilla.jss.pkix.cmc.*;
-import org.mozilla.jss.pkix.cms.*;
-import org.mozilla.jss.pkix.cert.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkcs10.*;
-import org.mozilla.jss.pkcs11.*;
-import org.mozilla.jss.pkcs12.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.pkix.crmf.*;
-import org.mozilla.jss.pkix.cmmf.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.security.MessageDigest;
+
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.ASN1Value;
+import org.mozilla.jss.asn1.BMPString;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.crypto.Cipher;
+import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyGenerator;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
+import org.mozilla.jss.crypto.PBEAlgorithm;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.util.*;
-
-import org.mozilla.jss.*;
-
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import netscape.security.pkcs.PKCS10;
-
-import java.security.*;
-import java.security.cert.CertificateException;
-import java.math.*;
-import java.security.Principal;
-import java.lang.*;
-import java.lang.reflect.*;
-import java.io.*;
-import java.util.*;
-
-import com.netscape.cmsutil.util.*;
+import org.mozilla.jss.pkcs12.AuthenticatedSafes;
+import org.mozilla.jss.pkcs12.CertBag;
+import org.mozilla.jss.pkcs12.PFX;
+import org.mozilla.jss.pkcs12.PasswordConverter;
+import org.mozilla.jss.pkcs12.SafeBag;
+import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
+import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
+import org.mozilla.jss.util.Password;
 
 
 /**

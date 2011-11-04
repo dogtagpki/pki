@@ -19,8 +19,8 @@ package netscape.security.util;
 
 import sun.io.ByteToCharConverter;
 import sun.io.ConversionBufferFullException;
-import sun.io.UnknownCharacterException;
 import sun.io.MalformedInputException;
+import sun.io.UnknownCharacterException;
 
 /**
  * Converts bytes in ASN.1 Printable String character set to unicode 

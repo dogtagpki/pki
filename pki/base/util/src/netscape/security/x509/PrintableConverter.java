@@ -17,10 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import java.io.*;
-import sun.io.CharToByteConverter;
+import java.io.IOException;
 
-import netscape.security.util.*;
+import netscape.security.util.ASN1CharStrConvMap;
+import netscape.security.util.DerValue;
+import sun.io.CharToByteConverter;
 
 /**
  * A AVAValueConverter that converts a Printable String attribute to a DerValue 

@@ -18,26 +18,52 @@
 package com.netscape.cms.servlet.profile;
 
 
-import java.util.*;
-import java.security.cert.*;
-import java.io.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.cert.CertificateEncodingException;
+import java.util.Enumeration;
+import java.util.Locale;
 
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.template.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.cms.servlet.common.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.security.x509.X509CertImpl;
+
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.asn1.UTF8String;
+import org.mozilla.jss.pkix.cmc.LraPopWitness;
+import org.mozilla.jss.pkix.cmc.OtherInfo;
+import org.mozilla.jss.pkix.cmc.TaggedAttribute;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.EDeferException;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileAuthenticator;
+import com.netscape.certsrv.profile.IProfileContext;
+import com.netscape.certsrv.profile.IProfileInput;
+import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.request.INotify;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.AuthCredentials;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.cmc.*;
-
-import netscape.security.x509.*;
+import com.netscape.cms.servlet.common.CMCOutputTemplate;
+import com.netscape.cms.servlet.common.CMSRequest;
 
 
 /**

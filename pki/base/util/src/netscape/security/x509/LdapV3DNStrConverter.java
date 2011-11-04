@@ -17,10 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.util.Vector;
+
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
 import sun.io.ByteToCharConverter;
-import netscape.security.util.*;
 
 /**
  * A converter that converts Ldap v3 DN strings as specified in

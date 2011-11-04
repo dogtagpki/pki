@@ -18,9 +18,9 @@
 package com.netscape.cms.profile.common;
 
 
-import java.util.*;
+import java.util.Hashtable;
 
-import com.netscape.certsrv.profile.*;
+import com.netscape.certsrv.profile.IProfileContext;
 
 
 /**

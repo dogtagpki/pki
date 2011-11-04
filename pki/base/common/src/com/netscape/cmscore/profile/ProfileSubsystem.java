@@ -18,12 +18,21 @@
 package com.netscape.cmscore.profile;
 
 
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.registry.*;
-import com.netscape.certsrv.profile.*;
+import java.io.File;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.registry.IPluginInfo;
+import com.netscape.certsrv.registry.IPluginRegistry;
 
 
 public class ProfileSubsystem implements IProfileSubsystem {

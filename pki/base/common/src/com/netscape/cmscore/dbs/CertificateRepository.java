@@ -19,25 +19,41 @@ package com.netscape.cmscore.dbs;
 
 
 import java.math.BigInteger;
-import java.util.*;
-import java.io.*;
-import java.security.*;
-import java.security.cert.*;
 import java.security.cert.Certificate;
-import netscape.security.x509.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ca.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
-import com.netscape.cmscore.dbs.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.cmscore.cert.*;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.ICRLIssuingPoint;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBRegistry;
+import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.Modification;
+import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertRecordList;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
+import com.netscape.certsrv.dbs.repository.IRepository;
+import com.netscape.certsrv.logging.ILogger;
 
 
 /**

@@ -21,11 +21,15 @@ package netscape.security.extensions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
-
 import java.security.cert.CertificateException;
-import netscape.security.x509.*;
-import netscape.security.util.*;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CertAttrSet;
+import netscape.security.x509.Extension;
 
 /**
  * NSCertTypeExtension

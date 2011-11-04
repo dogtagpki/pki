@@ -18,33 +18,49 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import org.apache.velocity.context.Context;
-import javax.servlet.http.*;
-import javax.servlet.*;
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.cms.servlet.wizard.*;
-import com.netscape.cms.servlet.base.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.ssl.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.util.Base64OutputStream;
-import org.mozilla.jss.pkcs11.*;
-import netscape.security.x509.*;
-import com.netscape.cmsutil.xml.*;
-import com.netscape.cmsutil.http.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
-import java.security.cert.*;
-import java.security.*;
-import netscape.ldap.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.URLEncoder;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import com.netscape.cmsutil.crypto.*;
-import com.netscape.cms.servlet.wizard.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+
+import org.apache.velocity.context.Context;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoStore;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.pkcs11.PK11Store;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.property.PropertySet;
+import com.netscape.cms.servlet.base.UserInfo;
+import com.netscape.cms.servlet.wizard.IWizardPanel;
+import com.netscape.cms.servlet.wizard.WizardServlet;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.http.HttpClient;
+import com.netscape.cmsutil.http.HttpRequest;
+import com.netscape.cmsutil.http.HttpResponse;
+import com.netscape.cmsutil.http.JssSSLSocketFactory;
+import com.netscape.cmsutil.xml.XMLObject;
 
 public class WizardPanelBase implements IWizardPanel {
     public static String PCERT_PREFIX = "preop.cert.";

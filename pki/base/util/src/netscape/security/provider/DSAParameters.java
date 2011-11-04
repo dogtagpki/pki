@@ -17,17 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.AlgorithmParametersSpi;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.DSAParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 
-import netscape.security.util.DerValue;
-import netscape.security.util.DerOutputStream;
 import netscape.security.util.BigInt;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 /**
  * This class implements the parameter set used by the

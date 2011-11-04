@@ -19,9 +19,8 @@ package com.netscape.certsrv.request.ldap;
 
 import java.util.Date;
 
-import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestStatus;
 
 /**
  * This interface defines how to update request record.

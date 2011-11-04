@@ -18,17 +18,8 @@
 package com.netscape.certsrv.notification;
 
 
-import java.util.*;
-import java.io.*;
-import java.lang.String;
-import netscape.net.smtp.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.notification.*;
-import netscape.security.x509.*;
+import java.io.IOException;
+import java.util.Vector;
 
 
 /**

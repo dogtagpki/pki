@@ -18,10 +18,12 @@
 package com.netscape.certsrv.base;
 
 
-import java.lang.*;
 import java.io.IOException;
-import netscape.security.util.*;
-import netscape.security.x509.*;
+
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.X509Key;
 
 
 /**

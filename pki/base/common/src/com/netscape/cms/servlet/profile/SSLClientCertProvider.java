@@ -17,11 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import netscape.security.x509.*;
-import java.security.cert.*;
-import com.netscape.certsrv.authentication.*;
+import java.security.cert.X509Certificate;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.netscape.certsrv.authentication.ISSLClientCertProvider;
 
 public class SSLClientCertProvider implements ISSLClientCertProvider {
     private HttpServletRequest mRequest = null;

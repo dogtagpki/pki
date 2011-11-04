@@ -17,37 +17,40 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.tks;
 
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.pkcs11.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import sun.misc.*;
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.math.*;
-import java.security.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import netscape.security.x509.*;
-import java.net.URLEncoder;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.password.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.certsrv.usrgrp.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkcs11.PK11SymKey;
+
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.cms.servlet.base.*;
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cmsutil.util.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.certsrv.tks.*;
-import com.netscape.symkey.*;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IPrettyPrintFormat;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.security.Credential;
+import com.netscape.certsrv.tks.ITKSAuthority;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.symkey.SessionKey;
 
 
 

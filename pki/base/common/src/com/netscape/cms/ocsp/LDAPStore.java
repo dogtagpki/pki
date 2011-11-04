@@ -18,30 +18,58 @@
 package com.netscape.cms.ocsp;
 
 
-import netscape.ldap.*;
-import java.math.*;
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.ocsp.*;
-import com.netscape.certsrv.dbs.crldb.*;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.cert.X509CRL;
+import java.security.cert.X509CRLEntry;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Vector;
 
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.certsrv.util.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.certsrv.dbs.crldb.ICRLRepository;
-import com.netscape.cmsutil.ocsp.*;
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.primitive.*;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.GeneralizedTime;
+import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.pkix.cert.Extension;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.ocsp.IDefStore;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
+import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
+import com.netscape.cmsutil.ocsp.CertID;
+import com.netscape.cmsutil.ocsp.CertStatus;
+import com.netscape.cmsutil.ocsp.GoodInfo;
+import com.netscape.cmsutil.ocsp.OCSPRequest;
+import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
+import com.netscape.cmsutil.ocsp.ResponderID;
+import com.netscape.cmsutil.ocsp.ResponseBytes;
+import com.netscape.cmsutil.ocsp.ResponseData;
+import com.netscape.cmsutil.ocsp.RevokedInfo;
+import com.netscape.cmsutil.ocsp.SingleResponse;
+import com.netscape.cmsutil.ocsp.TBSRequest;
+import com.netscape.cmsutil.ocsp.UnknownInfo;
 
 
 /**

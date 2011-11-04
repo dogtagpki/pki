@@ -19,12 +19,8 @@ package com.netscape.certsrv.authority;
 
 
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.*;
-import netscape.security.x509.*;
-
-import java.io.*;
 
 
 /**

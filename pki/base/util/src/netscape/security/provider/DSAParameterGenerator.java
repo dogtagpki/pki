@@ -21,13 +21,13 @@ import java.math.BigInteger;
 import java.security.AlgorithmParameterGeneratorSpi;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.InvalidParameterException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.DSAParameterSpec;
+import java.security.spec.InvalidParameterSpecException;
 
 /*
  * This class generates parameters for the DSA algorithm. It uses a default

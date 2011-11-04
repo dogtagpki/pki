@@ -18,9 +18,9 @@
 package com.netscape.cmscore.authentication;
 
 
-import java.util.*;
 import java.math.BigInteger;
-import netscape.security.x509.*;
+
+import netscape.security.x509.X509CertImpl;
 
 
 /** 

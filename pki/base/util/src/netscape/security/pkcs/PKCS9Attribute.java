@@ -19,15 +19,16 @@ package netscape.security.pkcs;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Hashtable;
+
 import netscape.security.util.DerEncoder;
-import netscape.security.util.DerValue;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.CertificateExtensions;
-import java.security.cert.CertificateException;
 
 /**
  * Class supporting any PKCS9 attribute except

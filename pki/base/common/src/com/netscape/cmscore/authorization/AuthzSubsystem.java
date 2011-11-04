@@ -18,14 +18,25 @@
 package com.netscape.cmscore.authorization;
 
 
-import java.util.*;
-import java.lang.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cmscore.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzManagerProxy;
+import com.netscape.certsrv.authorization.AuthzMgrPlugin;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzException;
+import com.netscape.certsrv.authorization.EAuthzMgrNotFound;
+import com.netscape.certsrv.authorization.EAuthzMgrPluginNotFound;
+import com.netscape.certsrv.authorization.IAuthzManager;
+import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

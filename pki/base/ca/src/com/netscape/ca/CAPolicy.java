@@ -18,14 +18,18 @@
 package com.netscape.ca;
 
 
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ca.*;
-
-import com.netscape.cmscore.policy.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.policy.IPolicyProcessor;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.request.IPolicy;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.policy.GenericPolicyProcessor;
 import com.netscape.cmscore.util.Debug;
 
 

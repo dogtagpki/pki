@@ -20,10 +20,10 @@ package netscape.security.x509;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.util.Enumeration;
 
-import netscape.security.util.*;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 /**
  * Represent the CRLReason Extension of CRL entry.

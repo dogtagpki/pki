@@ -17,19 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.wizard;
 
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
-import javax.servlet.http.*;
-import javax.servlet.*;
+import org.apache.velocity.servlet.VelocityServlet;
 
-import java.io.*;
-import java.util.*;
-
-import com.netscape.cmsutil.crypto.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cms.servlet.csadmin.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.cms.servlet.csadmin.Cert;
+import com.netscape.cmsutil.crypto.Module;
 
 /**
  * wizard?p=[panel number]&op=usage    <= usage in xml

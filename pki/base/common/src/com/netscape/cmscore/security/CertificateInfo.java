@@ -18,24 +18,46 @@
 package com.netscape.cmscore.security;
 
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.security.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.CryptoManager.*;
-import org.mozilla.jss.crypto.Signature;
+import java.util.Date;
+
+import netscape.security.util.DerInputStream;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.AuthorityKeyIdentifierExtension;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSerialNumber;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.crypto.PQGParamGenException;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.security.KeyCertData;
 
 
 /**

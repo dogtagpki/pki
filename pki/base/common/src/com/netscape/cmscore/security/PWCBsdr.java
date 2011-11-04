@@ -18,20 +18,17 @@
 package com.netscape.cmscore.security;
 
 
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.crypto.SecretDecoderRing;
-import org.mozilla.jss.crypto.TokenException;
-import java.io.*;
-import java.lang.*;
-import java.util.Hashtable;
-import java.util.StringTokenizer;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
 import org.mozilla.jss.util.PasswordCallbackInfo;
-import com.netscape.cmscore.base.*;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.base.JDialogPasswordCallback;
 
 
 /* 

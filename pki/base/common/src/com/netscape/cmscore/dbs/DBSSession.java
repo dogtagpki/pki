@@ -18,13 +18,34 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.util.*;
-import netscape.ldap.*;
-import netscape.ldap.controls.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Enumeration;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+import netscape.ldap.controls.LDAPPersistSearchControl;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.EDBNotAvailException;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.IDBObj;
+import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSearchResults;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.Modification;
+import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.logging.ILogger;
 
 
 /**

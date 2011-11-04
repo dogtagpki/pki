@@ -21,7 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 
-import netscape.security.util.*;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 /**
  * This class defines the SerialNumber class used by certificates.

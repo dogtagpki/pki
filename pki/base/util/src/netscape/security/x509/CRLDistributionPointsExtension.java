@@ -17,14 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import java.io.*;
-import org.mozilla.jss.asn1.*;
-import java.security.cert.*;
-import java.util.Vector;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
+
+import netscape.security.util.BitArray;
+import netscape.security.util.DerOutputStream;
+
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.SEQUENCE;
 
 /**
  * An extension that tells applications where to find the CRL for

@@ -20,22 +20,21 @@ package com.netscape.certsrv.request;
 
 //import java.io.Serializable;
 
-import com.netscape.certsrv.authentication.AuthToken;
-import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IAttrSet;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
+
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.IAttrSet;
 
 
 /**

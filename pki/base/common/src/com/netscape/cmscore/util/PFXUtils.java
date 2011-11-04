@@ -18,20 +18,27 @@
 package com.netscape.cmscore.util;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
+import java.io.ByteArrayOutputStream;
+import java.security.MessageDigest;
+import java.security.cert.X509Certificate;
 
-import java.security.*;
-import java.security.cert.*;
-
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.*;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.ASN1Value;
+import org.mozilla.jss.asn1.BMPString;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.PBEAlgorithm;
-import org.mozilla.jss.pkcs12.*;
-import org.mozilla.jss.pkix.primitive.*;
+import org.mozilla.jss.pkcs12.AuthenticatedSafes;
+import org.mozilla.jss.pkcs12.CertBag;
+import org.mozilla.jss.pkcs12.PFX;
+import org.mozilla.jss.pkcs12.PasswordConverter;
+import org.mozilla.jss.pkcs12.SafeBag;
+import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
+import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
+
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.base.EBaseException;
 
 
 public class PFXUtils {

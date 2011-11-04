@@ -18,21 +18,29 @@
 package com.netscape.cms.policy;
 
 
-import java.util.*;
-import java.text.*;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.policy.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.Vector;
+
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.policy.EPolicyException;
+import com.netscape.certsrv.policy.IExpression;
+import com.netscape.certsrv.policy.IPolicyRule;
+import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.certsrv.request.AgentApprovals;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import netscape.security.x509.*;
-import java.security.*;
-import java.security.cert.*;
 
 
 /**

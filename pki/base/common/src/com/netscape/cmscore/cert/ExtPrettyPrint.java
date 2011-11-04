@@ -18,17 +18,9 @@
 package com.netscape.cmscore.cert;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.math.BigInteger;
-import netscape.security.util.*;
-import netscape.security.extensions.*;
-import netscape.security.x509.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.base.*;
-import java.security.*;
-import netscape.security.x509.CRLDistributionPointsExtension.Reason;
+import netscape.security.x509.Extension;
+
+import com.netscape.certsrv.base.IExtPrettyPrint;
 
 
 /**

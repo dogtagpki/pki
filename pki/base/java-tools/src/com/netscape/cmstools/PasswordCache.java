@@ -18,18 +18,29 @@
 package com.netscape.cmstools;
 
 
-import java.lang.*;
-import java.lang.reflect.*;
-import java.io.*;
-import java.util.*;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.SecretDecoderRing.KeyManager;
-import org.mozilla.jss.SecretDecoderRing.Encryptor;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.SecretDecoderRing.Decryptor;
+import org.mozilla.jss.SecretDecoderRing.Encryptor;
+import org.mozilla.jss.SecretDecoderRing.KeyManager;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.util.Base64OutputStream;
+import org.mozilla.jss.util.Password;
 
 /**
  * Tool for interacting with the PWcache 

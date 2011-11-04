@@ -18,11 +18,15 @@
 package com.netscape.certsrv.authorization;
 
 
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.acls.*;
-import com.netscape.certsrv.evaluators.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import com.netscape.certsrv.acls.EACLsException;
+import com.netscape.certsrv.acls.IACL;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.evaluators.IAccessEvaluator;
 
 
 /**

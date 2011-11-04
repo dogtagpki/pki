@@ -17,8 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.util.*;
-import java.security.*;
+import java.security.Certificate;
+import java.security.IdentityScope;
+import java.security.InvalidParameterException;
+import java.security.KeyException;
+import java.security.KeyManagementException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.Signer;
 
 /**
  * SunSecurity signer.

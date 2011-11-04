@@ -1,25 +1,23 @@
 package com.netscape.certsrv.authentication;
 
-import com.netscape.cmscore.test.CMSBaseTestCase;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import netscape.security.util.DerOutputStream;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.app.CMSEngineDefaultStub;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.usrgrp.Certificates;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import java.math.BigInteger;
-import java.util.Hashtable;
-import java.util.Date;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.io.IOException;
-
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.util.DerValue;
-import netscape.security.util.DerOutputStream;
+import com.netscape.cmscore.test.CMSBaseTestCase;
 
 public class AuthTokenTest extends CMSBaseTestCase {
 

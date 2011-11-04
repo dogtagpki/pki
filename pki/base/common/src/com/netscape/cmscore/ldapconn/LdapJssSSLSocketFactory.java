@@ -18,13 +18,19 @@
 package com.netscape.cmscore.ldapconn;
 
 
-import java.net.*;
-import java.io.*;
-import netscape.ldap.*;
-import org.mozilla.jss.ssl.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ldap.*;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSSLSocketFactoryExt;
+
+import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
+import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
+import org.mozilla.jss.ssl.SSLSocket;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.logging.ILogger;
 
 
 /**

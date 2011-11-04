@@ -18,10 +18,19 @@
 package com.netscape.cmstools;
 
 
-import java.io.*;
-import java.net.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
+import java.io.ByteArrayOutputStream;
+import java.net.InetAddress;
+
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.DNSName;
+import netscape.security.x509.GeneralNameInterface;
+import netscape.security.x509.GeneralNames;
+import netscape.security.x509.IPAddressName;
+import netscape.security.x509.OIDName;
+import netscape.security.x509.RFC822Name;
+import netscape.security.x509.SubjectAlternativeNameExtension;
+import netscape.security.x509.URIName;
+import netscape.security.x509.X500Name;
 
 
 /**

@@ -18,8 +18,10 @@
 package com.netscape.certsrv.jobs;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
+import java.util.Hashtable;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ISubsystem;
 
 
 /**

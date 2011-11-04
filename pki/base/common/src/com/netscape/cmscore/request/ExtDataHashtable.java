@@ -1,6 +1,9 @@
 package com.netscape.cmscore.request;
 
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Subclass of Hashtable returned by IRequest.getExtDataInHashtable.  Its

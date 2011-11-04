@@ -18,36 +18,42 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-import javax.servlet.*;
-import java.security.cert.*;
-import javax.servlet.http.*;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.logging.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Vector;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.cms.servlet.*;
-import com.netscape.cmsutil.xml.*;
-import org.w3c.dom.*;
-import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.dom.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.base.UserInfo;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.xml.XMLObject;
 
 
 public class UpdateDomainXML extends CMSServlet {

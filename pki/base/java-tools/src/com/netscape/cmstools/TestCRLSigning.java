@@ -17,38 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-import java.io.*;
-import java.net.*;
-import java.math.*;
-import java.util.*;
-import java.security.*;
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.util.Date;
+import java.util.Hashtable;
 
-import org.mozilla.jss.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkix.crmf.*;
-import org.mozilla.jss.pkcs7.ContentInfo;
-import org.mozilla.jss.pkcs7.*;
-import org.mozilla.jss.pkcs11.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.crypto.KeyPairGenerator;
-import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.Signature;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.util.Base64OutputStream;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.pkix.primitive.*;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
+
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.CertDatabaseException;
-import org.mozilla.jss.pkcs11.*;
-import org.mozilla.jss.pkcs11.PK11Token;
-
-import netscape.security.x509.*;
-
-import com.netscape.cmsutil.ocsp.*;
-import com.netscape.cmsutil.ocsp.Request;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGenerator;
+import org.mozilla.jss.util.Password;
 
 /**
  * Tool used to test out signing a CRL

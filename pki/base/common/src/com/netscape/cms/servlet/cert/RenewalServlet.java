@@ -18,40 +18,43 @@
 package com.netscape.cms.servlet.cert;
 
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
-
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-
-import java.util.Vector;
-import java.util.Enumeration;
-import java.util.Date;
 import java.io.IOException;
 import java.math.BigInteger;
-
-import java.security.cert.X509Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Vector;
 
-import netscape.security.x509.*;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
+import netscape.security.extensions.CertInfo;
+import netscape.security.x509.CertificateSerialNumber;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.IAuthSubsystem;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.logging.AuditFormat;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
-
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
-
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-
-import com.netscape.certsrv.ca.*;
-
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.AuditFormat;
-import netscape.security.extensions.*;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 
 /**
  * Certificate Renewal

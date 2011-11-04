@@ -18,15 +18,65 @@
 package netscape.security.util;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
 import java.math.BigInteger;
-import netscape.security.util.*;
-import netscape.security.extensions.*;
-import netscape.security.x509.*;
-import java.security.*;
+import java.text.DateFormat;
+import java.util.Enumeration;
+import java.util.ResourceBundle;
+import java.util.Vector;
+
+import netscape.security.extensions.AccessDescription;
+import netscape.security.extensions.AuthInfoAccessExtension;
+import netscape.security.extensions.CertificateScopeEntry;
+import netscape.security.extensions.CertificateScopeOfUseExtension;
+import netscape.security.extensions.ExtendedKeyUsageExtension;
+import netscape.security.extensions.InhibitAnyPolicyExtension;
+import netscape.security.extensions.NSCertTypeExtension;
+import netscape.security.extensions.OCSPNoCheckExtension;
+import netscape.security.extensions.PresenceServerExtension;
+import netscape.security.extensions.SubjectInfoAccessExtension;
+import netscape.security.x509.Attribute;
+import netscape.security.x509.AuthorityKeyIdentifierExtension;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CPSuri;
+import netscape.security.x509.CRLDistributionPoint;
+import netscape.security.x509.CRLDistributionPointsExtension;
 import netscape.security.x509.CRLDistributionPointsExtension.Reason;
+import netscape.security.x509.CRLNumberExtension;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.CertificateIssuerExtension;
+import netscape.security.x509.CertificatePoliciesExtension;
+import netscape.security.x509.CertificatePolicyInfo;
+import netscape.security.x509.CertificatePolicyMap;
+import netscape.security.x509.DeltaCRLIndicatorExtension;
+import netscape.security.x509.DisplayText;
+import netscape.security.x509.Extension;
+import netscape.security.x509.FreshestCRLExtension;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.GeneralNameInterface;
+import netscape.security.x509.GeneralNames;
+import netscape.security.x509.HoldInstructionExtension;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.IssuerAlternativeNameExtension;
+import netscape.security.x509.IssuingDistributionPoint;
+import netscape.security.x509.IssuingDistributionPointExtension;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.NSCCommentExtension;
+import netscape.security.x509.NameConstraintsExtension;
+import netscape.security.x509.NoticeReference;
+import netscape.security.x509.OIDMap;
+import netscape.security.x509.PolicyConstraintsExtension;
+import netscape.security.x509.PolicyMappingsExtension;
+import netscape.security.x509.PolicyQualifierInfo;
+import netscape.security.x509.PolicyQualifiers;
+import netscape.security.x509.PrivateKeyUsageExtension;
+import netscape.security.x509.Qualifier;
+import netscape.security.x509.RDN;
+import netscape.security.x509.SerialNumber;
+import netscape.security.x509.SubjectAlternativeNameExtension;
+import netscape.security.x509.SubjectDirAttributesExtension;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.UserNotice;
 
 
 /**

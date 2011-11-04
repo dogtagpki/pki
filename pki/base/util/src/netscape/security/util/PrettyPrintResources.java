@@ -18,9 +18,10 @@
 package netscape.security.util;
 
 
-import java.util.*;
-import netscape.security.x509.*;
-import netscape.security.extensions.*;
+import java.util.ListResourceBundle;
+
+import netscape.security.extensions.NSCertTypeExtension;
+import netscape.security.x509.KeyUsageExtension;
 
 
 /**

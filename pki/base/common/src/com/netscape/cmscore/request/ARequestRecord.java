@@ -18,8 +18,8 @@
 package com.netscape.cmscore.request;
 
 
-import java.util.Hashtable;
 import java.util.Date;
+import java.util.Hashtable;
 
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;

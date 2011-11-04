@@ -17,10 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.net;
 
-import java.lang.StringIndexOutOfBoundsException;
-import java.io.*;
+import java.io.IOException;
 import java.util.Vector;
-import netscape.net.NetworkClient;
 
 /**
  * This class implements that basic intefaces of transfer protocols.

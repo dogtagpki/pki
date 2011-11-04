@@ -18,17 +18,21 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.security.cert.*;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.apps.*;
+import java.math.BigInteger;
+import java.security.cert.Certificate;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBObj;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 
 
 /**

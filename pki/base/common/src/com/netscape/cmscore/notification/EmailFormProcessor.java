@@ -18,11 +18,14 @@
 package com.netscape.cmscore.notification;
 
 
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.notification.*;
-import java.util.*;
-import java.lang.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.notification.IEmailFormProcessor;
 
 
 /**

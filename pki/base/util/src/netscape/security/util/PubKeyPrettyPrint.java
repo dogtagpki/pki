@@ -18,14 +18,12 @@
 package netscape.security.util;
 
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.security.cert.*;
-import netscape.security.util.*;
-import netscape.security.x509.*;
+import java.security.PublicKey;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 import netscape.security.provider.RSAPublicKey;
-import java.security.*;
+import netscape.security.x509.X509Key;
 
 
 /**

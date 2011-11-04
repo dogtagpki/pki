@@ -17,9 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.io.*;
-import java.util.*;
-import java.security.*;
+import java.security.Provider;
 
 /**
  * The SUN Security Provider.

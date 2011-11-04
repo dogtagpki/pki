@@ -1,13 +1,14 @@
 package com.netscape.cmscore.request;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import com.netscape.cmscore.test.CMSBaseTestCase;
-import com.netscape.certsrv.base.EBaseException;
-
-import java.util.Enumeration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.test.CMSBaseTestCase;
 
 public class RequestQueueTest extends CMSBaseTestCase {
     RequestStub request;

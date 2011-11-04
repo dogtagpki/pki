@@ -18,34 +18,40 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import com.netscape.cmsutil.xml.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.certsrv.ocsp.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.*;
-import com.netscape.cmsutil.password.*;
-import netscape.security.x509.*;
-import netscape.ldap.*;
-import java.net.*;
-import java.io.*;
-import java.math.*;
-import java.security.cert.*;
-import org.w3c.dom.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.security.cert.X509Certificate;
+import java.util.StringTokenizer;
 
-import com.netscape.cms.servlet.wizard.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.security.x509.X509CertImpl;
+
+import org.apache.velocity.context.Context;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.ocsp.IDefStore;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
+import com.netscape.certsrv.property.PropertySet;
+import com.netscape.certsrv.usrgrp.IGroup;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.servlet.wizard.WizardServlet;
+import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
 
 public class DonePanel extends WizardPanelBase {
 

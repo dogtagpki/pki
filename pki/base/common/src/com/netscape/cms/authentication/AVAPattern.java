@@ -18,15 +18,23 @@
 package com.netscape.cms.authentication;
 
 
-import java.util.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.apps.*;
-import java.io.*;
-import java.security.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import netscape.ldap.*;
+import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.StringReader;
+import java.util.Enumeration;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AVA;
+import netscape.security.x509.LdapV3DNStrConverter;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.authentication.ECompSyntaxErr;
 
 
 /**

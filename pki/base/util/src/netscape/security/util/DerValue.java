@@ -17,13 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-import java.io.*;
-import java.util.*;
-
-import sun.io.ByteToCharConverter;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import netscape.security.x509.AVAValueConverter;
 import netscape.security.x509.GenericValueConverter;
+import sun.io.ByteToCharConverter;
 
 /**
  * Represents a single DER-encoded value.  DER encoding rules are a subset

@@ -25,7 +25,7 @@ package com.netscape.certsrv.selftests;
 // import statements //
 ///////////////////////
 
-import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.base.EBaseException;
 
 
 //////////////////////

@@ -18,9 +18,9 @@
 package com.netscape.certsrv.profile;
 
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.request.*;
+import java.util.Enumeration;
+
+import com.netscape.certsrv.base.ISubsystem;
 
 
 /**

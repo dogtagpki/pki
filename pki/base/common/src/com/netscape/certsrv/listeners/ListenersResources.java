@@ -18,7 +18,7 @@
 package com.netscape.certsrv.listeners;
 
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 /**
  * A class represents a resource bundle for the 

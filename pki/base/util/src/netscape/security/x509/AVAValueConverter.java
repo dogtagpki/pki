@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import java.io.*;
+import java.io.IOException;
 
 import netscape.security.util.DerValue;
 

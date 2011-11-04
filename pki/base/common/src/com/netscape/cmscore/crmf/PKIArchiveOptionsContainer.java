@@ -18,7 +18,7 @@
 package com.netscape.cmscore.crmf;
 
 
-import org.mozilla.jss.pkix.crmf.*;
+import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 
 
 public class PKIArchiveOptionsContainer {

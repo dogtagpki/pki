@@ -18,11 +18,13 @@
 package com.netscape.certsrv.dbs.certdb;
 
 
-import java.util.Date;
 import java.math.BigInteger;
-import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.base.MetaInfo;
+import java.util.Date;
+
 import netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.dbs.IDBObj;
 
 
 /**

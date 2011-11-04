@@ -18,13 +18,7 @@
 package com.netscape.certsrv.connector;
 
 
-import com.netscape.cmsutil.http.*;
-import com.netscape.cmsutil.net.*;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.connector.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.base.*;
-import java.io.*;
+import com.netscape.certsrv.base.EBaseException;
 
 
 /**

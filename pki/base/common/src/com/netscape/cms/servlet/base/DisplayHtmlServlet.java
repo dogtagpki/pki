@@ -18,16 +18,20 @@
 package com.netscape.cms.servlet.base;
 
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.request.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.cms.servlet.common.*;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.ECMSGWException;
 
 
 /**

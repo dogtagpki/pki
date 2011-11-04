@@ -18,13 +18,17 @@
 package com.netscape.kra;
 
 
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.cmscore.policy.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.policy.IPolicyProcessor;
+import com.netscape.certsrv.request.IPolicy;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.policy.GenericPolicyProcessor;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

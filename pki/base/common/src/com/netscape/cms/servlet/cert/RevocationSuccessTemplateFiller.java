@@ -18,20 +18,18 @@
 package com.netscape.cms.servlet.cert;
 
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
- 
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
 import netscape.security.x509.RevokedCertImpl;
 
-import org.mozilla.jss.ssl.SSLSocket;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.cms.servlet.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 
 
 /**

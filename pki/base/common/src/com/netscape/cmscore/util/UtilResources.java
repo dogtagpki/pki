@@ -18,7 +18,7 @@
 package com.netscape.cmscore.util;
 
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 
 /**

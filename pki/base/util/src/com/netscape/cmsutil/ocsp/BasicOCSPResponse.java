@@ -17,13 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.ocsp;
 
-import java.io.*;
-import org.mozilla.jss.asn1.*;
-import java.security.Signer;
-import org.mozilla.jss.asn1.OCTET_STRING;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.mozilla.jss.asn1.ASN1Template;
+import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BIT_STRING;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+import org.mozilla.jss.asn1.EXPLICIT;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.Tag;
 import org.mozilla.jss.pkix.cert.Certificate;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 /**
  * RFC 2560:

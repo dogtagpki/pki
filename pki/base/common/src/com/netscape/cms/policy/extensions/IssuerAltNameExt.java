@@ -18,27 +18,27 @@
 package com.netscape.cms.policy.extensions;
 
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
-import java.security.cert.*;
-import com.netscape.certsrv.apps.*;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.util.Locale;
+import java.util.Vector;
+
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.IssuerAlternativeNameExtension;
+import netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.policy.IEnrollmentPolicy;
+import com.netscape.certsrv.policy.IGeneralNamesConfig;
+import com.netscape.certsrv.policy.IPolicyProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.logging.ILogger;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.ra.*;
-import com.netscape.certsrv.ca.*;
-import java.util.StringTokenizer;
-import netscape.security.util.DerValue;
-import java.util.Enumeration;
 import com.netscape.cms.policy.APolicyRule;
 
 

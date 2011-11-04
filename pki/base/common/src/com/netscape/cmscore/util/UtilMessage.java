@@ -18,8 +18,9 @@
 package com.netscape.cmscore.util;
 
 
-import com.netscape.certsrv.base.MessageFormatter;
 import java.util.Locale;
+
+import com.netscape.certsrv.base.MessageFormatter;
 
 
 /**

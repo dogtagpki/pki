@@ -18,8 +18,12 @@
 package netscape.security.provider;
 
 import java.io.Serializable;
-import java.util.Enumeration;
-import java.security.*;
+import java.security.Certificate;
+import java.security.Identity;
+import java.security.IdentityScope;
+import java.security.InvalidParameterException;
+import java.security.KeyManagementException;
+import java.security.PublicKey;
 
 /**
  * An identity.

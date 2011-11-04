@@ -19,7 +19,9 @@ package netscape.security.x509;
 
 import java.io.IOException;
 
-import netscape.security.util.*;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
 
 /**
  * This class implements the OIDName as required by the GeneralNames

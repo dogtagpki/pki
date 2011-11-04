@@ -17,16 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.extensions;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.*;
-import java.util.*;
+import java.io.Serializable;
 
-import java.security.cert.CertificateException;
-import netscape.security.x509.*;
-import netscape.security.util.*;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.GeneralName;
 
 
 public class AccessDescription implements Serializable {

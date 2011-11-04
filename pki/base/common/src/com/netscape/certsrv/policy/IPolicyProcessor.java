@@ -18,9 +18,12 @@
 package com.netscape.certsrv.policy;
 
 
-import java.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ISubsystem;
 
 
 /**

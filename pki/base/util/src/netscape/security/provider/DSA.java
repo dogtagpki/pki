@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.provider;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -26,20 +26,19 @@ import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.interfaces.*;
+import java.security.interfaces.DSAParams;
 import java.security.spec.DSAParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 
 import netscape.security.util.BigInt;
-import netscape.security.util.DerValue;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
-import netscape.security.x509.AlgIdDSA;
+import netscape.security.util.DerValue;
 
 /**
  * The Digital Signature Standard (using the Digital Signature

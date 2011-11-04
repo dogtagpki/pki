@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.common;
 
 
-import com.netscape.certsrv.logging.*;
 
 
 /**

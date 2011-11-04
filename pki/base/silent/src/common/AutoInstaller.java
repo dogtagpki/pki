@@ -16,9 +16,14 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Properties;
 
 
 /**

@@ -18,15 +18,16 @@
 package com.netscape.certsrv.request;
 
 
-import java.util.*;
-import java.math.*;
+import java.math.BigInteger;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 
 /**

@@ -18,34 +18,27 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import org.xml.sax.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.template.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.cmsutil.xml.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import netscape.ldap.*;
-import com.netscape.cmsutil.http.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.asn1.*;
-import netscape.security.util.*;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Locale;
+import java.util.Vector;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.security.util.CertPrettyPrint;
 import netscape.security.x509.X509CertImpl;
 
-import com.netscape.cmsutil.crypto.*;
-import com.netscape.cms.servlet.wizard.*;
+import org.apache.velocity.context.Context;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.property.PropertySet;
+import com.netscape.cms.servlet.wizard.WizardServlet;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class DisplayCertChainPanel extends WizardPanelBase {
 

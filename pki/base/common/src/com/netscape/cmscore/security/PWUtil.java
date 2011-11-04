@@ -18,11 +18,11 @@
 package com.netscape.cmscore.security;
 
 
-import java.lang.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
-import org.mozilla.jss.util.PasswordCallbackInfo;
 
 
 public class

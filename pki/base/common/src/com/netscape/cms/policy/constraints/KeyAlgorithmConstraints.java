@@ -18,14 +18,23 @@
 package com.netscape.cms.policy.constraints;
 
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.policy.EPolicyException;
+import com.netscape.certsrv.policy.IEnrollmentPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.common.*;
-import netscape.security.x509.*;
 import com.netscape.cms.policy.APolicyRule;
 
 

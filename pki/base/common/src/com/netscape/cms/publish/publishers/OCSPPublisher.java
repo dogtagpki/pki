@@ -18,20 +18,29 @@
 package com.netscape.cms.publish.publishers;
 
 
-import java.net.*;
-import java.math.*;
-import java.io.*;
-import java.security.cert.*;
-import java.util.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
-import org.mozilla.jss.ssl.*;
-import org.mozilla.jss.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.publish.*;
-import com.netscape.cmsutil.http.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.net.URLEncoder;
+import java.security.cert.CRLException;
+import java.security.cert.X509CRL;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import netscape.ldap.LDAPConnection;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cmsutil.http.HttpRequest;
+import com.netscape.cmsutil.http.JssSSLSocketFactory;
 
 
 /** 

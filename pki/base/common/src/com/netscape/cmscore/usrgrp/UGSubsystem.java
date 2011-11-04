@@ -18,22 +18,40 @@
 package com.netscape.cmscore.usrgrp;
 
 
-import java.util.*;
-import java.lang.*;
-import netscape.ldap.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.usrgrp.*;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+import java.util.Vector;
 
-import com.netscape.cmscore.ldapconn.*;
-import com.netscape.cmscore.ldap.*;
-import com.netscape.cmscore.util.*;
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+import netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.logging.AuditFormat;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
+import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.certsrv.usrgrp.IGroup;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.certsrv.usrgrp.IUsrGrp;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.util.Debug;
 
 
 /**

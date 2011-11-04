@@ -18,38 +18,45 @@
 package com.netscape.cms.servlet.cert;
 
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
- 
-import java.util.Locale;
-import java.math.BigInteger;
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
-import java.io.StringReader;
 import java.io.BufferedReader;
-
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateEncodingException;
-import java.security.NoSuchAlgorithmException;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.dbs.keydb.*;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.pkix.cmmf.CertOrEncCert;
+import org.mozilla.jss.pkix.cmmf.CertRepContent;
+import org.mozilla.jss.pkix.cmmf.CertResponse;
+import org.mozilla.jss.pkix.cmmf.CertifiedKeyPair;
+import org.mozilla.jss.pkix.cmmf.PKIStatusInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.authority.ICertAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.request.IRequest;
-
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.cmmf.*;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 
 
 /**

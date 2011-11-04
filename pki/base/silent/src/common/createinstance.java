@@ -16,8 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import java.net.*;
-import java.io.*;
+import java.net.URLEncoder;
 
 
 public class createinstance {

@@ -18,19 +18,36 @@
 package com.netscape.cmsutil.scep;
 
 
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkcs7.*;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.CharConversionException;
+import java.io.IOException;
+import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Hashtable;
-import org.mozilla.jss.pkcs7.ContentInfo;
-//import org.mozilla.jss.util.Assert;
-import org.mozilla.jss.pkix.primitive.*;
-//import org.mozilla.jss.pkix.primitive.Attribute;
+
+import org.mozilla.jss.asn1.ANY;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.NULL;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.PrintableString;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkcs7.Attribute;
-import org.mozilla.jss.crypto.*;
-import java.security.PublicKey;
-import org.mozilla.jss.pkix.cert.*;
+import org.mozilla.jss.pkcs7.ContentInfo;
+import org.mozilla.jss.pkcs7.EncryptedContentInfo;
+import org.mozilla.jss.pkcs7.EnvelopedData;
+import org.mozilla.jss.pkcs7.IssuerAndSerialNumber;
+import org.mozilla.jss.pkcs7.RecipientInfo;
+import org.mozilla.jss.pkcs7.SignedData;
+import org.mozilla.jss.pkcs7.SignerInfo;
+import org.mozilla.jss.pkix.cert.Certificate;
+import org.mozilla.jss.pkix.cert.CertificateInfo;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 
 public class CRSPKIMessage {

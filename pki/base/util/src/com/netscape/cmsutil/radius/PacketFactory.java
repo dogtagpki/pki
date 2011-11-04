@@ -18,11 +18,7 @@
 package com.netscape.cmsutil.radius;
 
 
-import java.util.*;
-import java.math.*;
-import java.security.*;
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
 
 
 public class PacketFactory {

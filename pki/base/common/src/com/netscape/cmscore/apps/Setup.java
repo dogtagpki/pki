@@ -18,12 +18,8 @@
 package com.netscape.cmscore.apps;
 
 
-import java.io.File;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.base.EBaseException;
-import netscape.ldap.*;
-import java.io.*;
+import com.netscape.certsrv.base.IConfigStore;
 
 
 /**

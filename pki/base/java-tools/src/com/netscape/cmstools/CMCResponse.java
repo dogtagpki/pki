@@ -17,35 +17,28 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-import org.mozilla.jss.pkix.cmc.*;
-import org.mozilla.jss.pkix.cms.*;
-import org.mozilla.jss.pkix.cert.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkcs10.*;
-import org.mozilla.jss.pkcs11.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.pkix.crmf.*;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.crypto.DigestAlgorithm;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import netscape.security.pkcs.PKCS10;
+import netscape.security.util.CertPrettyPrint;
+import netscape.security.x509.X509CertImpl;
 
-import java.security.cert.CertificateException;
-import java.math.*;
-import java.security.Principal;
-import java.lang.*;
-import java.lang.reflect.*;
-import java.io.*;
-import java.util.*;
-import java.text.*;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.pkix.cert.Certificate;
+import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.OtherInfo;
+import org.mozilla.jss.pkix.cmc.PendInfo;
+import org.mozilla.jss.pkix.cmc.ResponseBody;
+import org.mozilla.jss.pkix.cmc.TaggedAttribute;
+import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
 
 /**
  * Tool for parsing a CMC response

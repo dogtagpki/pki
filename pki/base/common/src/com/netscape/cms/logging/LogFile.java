@@ -18,29 +18,66 @@
 package com.netscape.cms.logging;
 
 
-import java.lang.*;
-import java.io.*;
-import java.io.File.*;
-import java.util.*;
-import java.text.*;
-import java.security.*;
-import java.security.Security;
-import java.security.spec.*;
-import java.security.interfaces.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.cmsutil.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.Provider;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.interfaces.DSAPrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.servlet.ServletException;
+
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.util.Base64OutputStream;
-import java.io.CharConversionException;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ConsoleError;
+import com.netscape.certsrv.logging.ELogException;
+import com.netscape.certsrv.logging.ILogEvent;
+import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.certsrv.logging.SystemEvent;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * A log event listener which write logs to log files

@@ -18,9 +18,9 @@
 package com.netscape.certsrv.usrgrp;
 
 
-import java.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
+import java.util.Enumeration;
+
+import com.netscape.certsrv.base.IAttrSet;
 
 
 /**

@@ -17,12 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import netscape.ldap.*;
-import com.netscape.cmsutil.password.*;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISecurityDomainSessionTable;
+import com.netscape.cmsutil.password.IPasswordStore;
 
 /**
  * This object stores the values for IP, uid and group based on the cookie id in LDAP.

@@ -16,8 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.password;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
 public interface IPasswordWriter {
     public void init(String pwdPath)

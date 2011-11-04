@@ -18,11 +18,7 @@
 package com.netscape.certsrv.logging;
 
 
-import java.util.*;
-import java.lang.*;
-
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.logging.*;
+import com.netscape.certsrv.base.Plugin;
 
 
 /**

@@ -18,25 +18,37 @@
 package netscape.security.x509;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.io.OutputStream;
 import java.io.ObjectOutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.math.BigInteger;
-import java.security.cert.*;
-import java.security.*;
-import java.security.PublicKey;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Principal;
 import java.security.PrivateKey;
-import java.util.Collections;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Set;
 
-import netscape.security.util.*;
+import netscape.security.util.ArraySet;
 import netscape.security.util.BigInt;
+import netscape.security.util.DerEncoder;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
 
 /**
  * The X509CertImpl class represents an X.509 certificate. These certificates

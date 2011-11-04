@@ -18,35 +18,11 @@
 package com.netscape.cmstools;
 
 
-import org.mozilla.jss.pkix.cmc.*;
-import org.mozilla.jss.pkix.cms.*;
-import org.mozilla.jss.pkix.cert.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkcs10.*;
-import org.mozilla.jss.crypto.*;
+import java.util.Enumeration;
+
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.crypto.DigestAlgorithm;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.pkcs11.*;
-
-import org.mozilla.jss.*;
-
-import netscape.security.util.*;
-import netscape.security.x509.*;
-import netscape.security.pkcs.PKCS10;
-
-import java.security.*;
-import java.security.cert.CertificateException;
-import java.math.*;
-import java.security.Principal;
-import java.lang.*;
-import java.lang.reflect.*;
-import java.io.*;
-import java.util.*;
+import org.mozilla.jss.pkcs11.PK11Module;
 
 
 

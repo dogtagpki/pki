@@ -18,11 +18,12 @@
 package com.netscape.certsrv.publish;
 
 
-import netscape.ldap.*;
-import java.util.*;
-import java.security.cert.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ldap.*;
+import java.security.cert.X509Certificate;
+import java.util.Vector;
+
+import netscape.ldap.LDAPConnection;
+
+import com.netscape.certsrv.ldap.ELdapException;
 
 
 /** 

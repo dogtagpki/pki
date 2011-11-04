@@ -20,11 +20,11 @@ package com.netscape.cms.servlet.common;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.Hashtable;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 
 
 /**

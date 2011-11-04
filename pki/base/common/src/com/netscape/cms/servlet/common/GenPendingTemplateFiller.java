@@ -18,27 +18,46 @@
 package com.netscape.cms.servlet.common;
 
 
-import java.util.Locale;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.ra.*;
+import java.util.Locale;
+
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.OtherInfo;
+import org.mozilla.jss.pkix.cmc.PendInfo;
+import org.mozilla.jss.pkix.cmc.ResponseBody;
+import org.mozilla.jss.pkix.cmc.TaggedAttribute;
+import org.mozilla.jss.pkix.cms.ContentInfo;
+import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
+import org.mozilla.jss.pkix.cms.IssuerAndSerialNumber;
+import org.mozilla.jss.pkix.cms.SignedData;
+import org.mozilla.jss.pkix.cms.SignerIdentifier;
+import org.mozilla.jss.pkix.cms.SignerInfo;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+import org.mozilla.jss.pkix.primitive.Name;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
-import netscape.security.x509.*;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.crypto.DigestAlgorithm;
-import org.mozilla.jss.pkix.cmc.*;
-import org.mozilla.jss.pkix.cms.*;
-import org.mozilla.jss.pkix.cert.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.asn1.*;
-import java.io.*;
-import java.security.*;
 
 
 /**

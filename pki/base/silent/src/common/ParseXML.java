@@ -16,13 +16,19 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import org.w3c.dom.*;
-import org.apache.xml.serialize.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 
-import javax.xml.parsers.*;
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 
 public class ParseXML {

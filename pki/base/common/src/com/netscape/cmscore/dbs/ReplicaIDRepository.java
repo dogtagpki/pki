@@ -20,10 +20,11 @@ package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
 
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.replicadb.*;
-import com.netscape.certsrv.base.*;
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 
 /**
  * A class represents a replica repository. It

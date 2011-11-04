@@ -18,10 +18,11 @@
 package com.netscape.certsrv.policy;
 
 
-import java.util.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.certsrv.base.*;
+import java.util.Vector;
+
+import netscape.security.x509.GeneralName;
+
+import com.netscape.certsrv.base.EBaseException;
 
 
 /** 

@@ -17,10 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.net;
 
-import java.net.Socket;
 import java.io.IOException;
+import java.net.Socket;
 import java.net.UnknownHostException;
-import org.mozilla.jss.ssl.*;
+
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 
 public interface ISocketFactory 
 {

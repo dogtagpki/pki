@@ -18,8 +18,8 @@
 package com.netscape.certsrv.connector;
 
 
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.base.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.request.IRequest;
 
 
 /**

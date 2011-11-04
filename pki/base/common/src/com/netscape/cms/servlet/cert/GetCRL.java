@@ -18,34 +18,35 @@
 package com.netscape.cms.servlet.cert;
 
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-import javax.servlet.*;
-import java.security.cert.*;
-import javax.servlet.http.*;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import netscape.security.pkcs.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.policy.*;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.authority.*;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.cert.CRLException;
+import java.util.Locale;
 
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.cms.servlet.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.security.x509.X509CRLImpl;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.ICRLPrettyPrint;
+import com.netscape.certsrv.ca.ICRLIssuingPoint;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cms.servlet.common.ECMSGWException;
 
 
 /**

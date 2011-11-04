@@ -18,22 +18,7 @@
 package com.netscape.cms.request;
 
 
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.math.BigInteger;
-
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.Vector;
-import java.util.Hashtable;
-
-import com.netscape.certsrv.base.EBaseException;
 
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestScheduler;

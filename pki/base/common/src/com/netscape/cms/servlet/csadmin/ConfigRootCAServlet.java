@@ -18,17 +18,19 @@
 package com.netscape.cms.servlet.csadmin;
 
 
+import java.util.Vector;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
-import javax.servlet.http.*;
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.profile.*;
-
-import java.util.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.CertInfoProfile;
 
 
 public class ConfigRootCAServlet extends ConfigBaseServlet {

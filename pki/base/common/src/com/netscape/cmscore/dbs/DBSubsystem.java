@@ -18,24 +18,40 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.math.*;
-import java.io.*;
-import java.util.*;
-import netscape.ldap.*;
-import netscape.ldap.util.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.keydb.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cmscore.base.*;
-import com.netscape.cmscore.ldapconn.*;
-import com.netscape.cmscore.cert.*;
+import java.math.BigInteger;
+import java.util.Hashtable;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSchema;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPObjectClassSchema;
+import netscape.ldap.LDAPSchema;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv3;
+import netscape.security.x509.CertificateValidity;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.EDBNotAvailException;
+import com.netscape.certsrv.dbs.IDBRegistry;
+import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ELdapServerDownException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.LdapConnInfo;
 
 
 /**

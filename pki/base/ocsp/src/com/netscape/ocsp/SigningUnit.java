@@ -18,25 +18,36 @@
 package com.netscape.ocsp;
 
 
-import java.io.*;
-import java.security.SignatureException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.InvalidKeyException;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.security.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.crypto.Signature;
-import com.netscape.cmscore.security.JssSubsystem;
+import java.security.SignatureException;
 
-import com.netscape.cmsutil.util.*;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.Signature;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.util.IncorrectPasswordException;
+import org.mozilla.jss.util.PasswordCallback;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmsutil.util.Cert;
 
 /**
  * OCSP signing unit based on JSS.

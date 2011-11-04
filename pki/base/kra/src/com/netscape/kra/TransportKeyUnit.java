@@ -17,27 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
-import org.mozilla.jss.crypto.Signature;
+import java.security.PublicKey;
 
-import java.util.*;
-import com.netscape.certsrv.security.*;
-import java.io.*;
-import java.net.*;
-import java.security.*;
-import java.security.cert.*;
-import java.security.cert.X509Certificate;
-import com.netscape.cmscore.cert.*;
-import netscape.security.x509.*;
-//import netscape.security.provider.*;
-import netscape.security.util.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.certsrv.apps.CMS;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.*;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.Signature;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.TokenException;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmsutil.util.Cert;
 
 

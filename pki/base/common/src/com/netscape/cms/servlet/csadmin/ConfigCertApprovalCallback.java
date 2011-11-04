@@ -17,10 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.util.*;
-import com.netscape.certsrv.apps.CMS;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.ssl.*;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 
 public class ConfigCertApprovalCallback 

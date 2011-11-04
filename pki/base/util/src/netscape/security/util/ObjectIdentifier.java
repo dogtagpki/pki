@@ -17,7 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.StringTokenizer;
 
 

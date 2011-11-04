@@ -18,16 +18,36 @@
 package com.netscape.cmscore.policy;
 
 
-import java.util.*;
-import java.io.*;
-import java.util.Vector;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.policy.*;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.DNSName;
+import netscape.security.x509.EDIPartyName;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.GeneralNameInterface;
+import netscape.security.x509.GeneralNames;
+import netscape.security.x509.IPAddressName;
+import netscape.security.x509.InvalidIPAddressException;
+import netscape.security.x509.OIDName;
+import netscape.security.x509.RFC822Name;
+import netscape.security.x509.URIName;
+import netscape.security.x509.X500Name;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.policy.IGeneralNameAsConstraintsConfig;
+import com.netscape.certsrv.policy.IGeneralNameConfig;
+import com.netscape.certsrv.policy.IGeneralNameUtil;
+import com.netscape.certsrv.policy.IGeneralNamesAsConstraintsConfig;
+import com.netscape.certsrv.policy.IGeneralNamesConfig;
+import com.netscape.certsrv.policy.ISubjAltNameConfig;
 import com.netscape.cmscore.util.Debug;
 
 

@@ -18,10 +18,12 @@
 package com.netscape.cmstools;
 
 
-import java.io.*;
 import java.util.Vector;
-import netscape.security.x509.*;
-import netscape.security.util.*;
+
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.Extension;
 
 
 /**

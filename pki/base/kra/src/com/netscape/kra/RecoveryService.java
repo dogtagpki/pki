@@ -18,41 +18,57 @@
 package com.netscape.kra;
 
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
-import java.math.*;
-import java.security.*;
-import java.security.cert.*;
-import java.security.KeyPair;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
-import netscape.security.x509.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.util.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.base.*;
- 
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.certsrv.dbs.keydb.*;
-import com.netscape.cmscore.cert.*;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.authentication.*;
+import java.io.ByteArrayOutputStream;
+import java.io.CharConversionException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.Hashtable;
+
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.crypto.PBEAlgorithm;
-import org.mozilla.jss.pkcs12.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
-import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.ASN1Value;
+import org.mozilla.jss.asn1.BMPString;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.PBEAlgorithm;
+import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.pkcs12.AuthenticatedSafes;
+import org.mozilla.jss.pkcs12.CertBag;
+import org.mozilla.jss.pkcs12.PFX;
+import org.mozilla.jss.pkcs12.PasswordConverter;
+import org.mozilla.jss.pkcs12.SafeBag;
+import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
+import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.kra.EKRAException;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditFormat;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.security.Credential;
+import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.util.Debug;
 
 /**
  * A class represents recovery request processor. There

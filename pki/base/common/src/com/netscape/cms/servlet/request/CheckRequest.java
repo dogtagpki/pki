@@ -18,44 +18,68 @@
 package com.netscape.cms.servlet.request;
 
 
-import com.netscape.cms.servlet.common.*;
-import com.netscape.cms.servlet.base.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+import java.util.Locale;
+import java.util.StringTokenizer;
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.math.*;
-import java.security.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.cms.servlet.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.ra.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.authorization.*;
-
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.pkcs.*;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
-import org.mozilla.jss.pkix.cmc.*;
-import org.mozilla.jss.pkix.cms.*;
-import org.mozilla.jss.pkix.cert.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.asn1.*;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.PKIData;
+import org.mozilla.jss.pkix.cmc.ResponseBody;
+import org.mozilla.jss.pkix.cmc.TaggedAttribute;
+import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
+import org.mozilla.jss.pkix.cms.IssuerAndSerialNumber;
+import org.mozilla.jss.pkix.cms.SignedData;
+import org.mozilla.jss.pkix.cms.SignerIdentifier;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+import org.mozilla.jss.pkix.primitive.Name;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authority.ICertAuthority;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cms.servlet.common.ECMSGWException;
 
 
 /**

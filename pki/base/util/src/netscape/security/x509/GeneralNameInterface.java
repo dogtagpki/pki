@@ -19,7 +19,7 @@ package netscape.security.x509;
 
 import java.io.IOException;
 
-import netscape.security.util.*;
+import netscape.security.util.DerOutputStream;
 
 /**
  * This interface specifies the abstract methods which have to be

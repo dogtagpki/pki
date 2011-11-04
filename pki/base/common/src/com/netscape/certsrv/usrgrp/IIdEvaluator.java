@@ -18,9 +18,6 @@
 package com.netscape.certsrv.usrgrp;
 
 
-import java.util.*;
-import java.security.*;
-import com.netscape.certsrv.base.*;
 
 
 /**

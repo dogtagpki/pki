@@ -18,9 +18,8 @@
 package com.netscape.kra;
 
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.kra.*;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.request.ARequestNotifier;
 
 
 /**

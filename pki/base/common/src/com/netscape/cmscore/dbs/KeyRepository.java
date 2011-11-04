@@ -18,20 +18,27 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.math.*;
-import java.io.*;
-import java.util.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.keydb.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.cmscore.dbs.*;
+import java.math.BigInteger;
+import java.security.PublicKey;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import netscape.security.x509.X500Name;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBRegistry;
+import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSearchResults;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.Modification;
+import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.dbs.keydb.IKeyRecord;
+import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
+import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.repository.IRepository;
 
 
 /**

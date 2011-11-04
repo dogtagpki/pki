@@ -18,16 +18,12 @@
 package com.netscape.cms.evaluators;
 
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.acls.*;
-import com.netscape.certsrv.evaluators.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.cmsutil.util.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmsutil.util.Utils;
 
 
 /**

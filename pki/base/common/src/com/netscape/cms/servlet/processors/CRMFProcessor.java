@@ -18,39 +18,43 @@
 package com.netscape.cms.servlet.processors;
 
 
-import com.netscape.cms.servlet.base.*;
-import com.netscape.cms.servlet.common.*;
-
-import java.io.*;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.cert.CertificateException;
 
-
-import netscape.security.x509.*;
 import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
-import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.INTEGER;
-import org.mozilla.jss.pkix.crmf.CertTemplate;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
-import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
+import org.mozilla.jss.pkix.crmf.CertTemplate;
+import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.Name;
-import org.mozilla.jss.asn1.InvalidBERException;
-import org.mozilla.jss.pkix.crmf.*;
+import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
-import com.netscape.certsrv.apps.*;
-
-import com.netscape.certsrv.request.IRequest;
-
-import com.netscape.certsrv.authentication.*;
-
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.ILogger;
-
-import com.netscape.certsrv.base.*;
-
-import com.netscape.cms.servlet.processors.PKIProcessor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.ECMSGWException;
 
 
 /**

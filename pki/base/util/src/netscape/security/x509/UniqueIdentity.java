@@ -18,9 +18,11 @@
 package netscape.security.x509;
 
 import java.io.IOException;
-import java.math.BigInteger;
 
-import netscape.security.util.*;
+import netscape.security.util.BitArray;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 /**
  * This class defines the UniqueIdentity class used by certificates.

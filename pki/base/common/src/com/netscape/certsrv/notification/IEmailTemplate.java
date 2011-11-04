@@ -18,12 +18,6 @@
 package com.netscape.certsrv.notification;
 
 
-import java.lang.*;
-import java.io.*;
-import java.util.*;
-
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.notification.*;
 
 
 /**

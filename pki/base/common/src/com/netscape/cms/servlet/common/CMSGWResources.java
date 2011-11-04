@@ -18,7 +18,7 @@
 package com.netscape.cms.servlet.common;
 
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 
 /**

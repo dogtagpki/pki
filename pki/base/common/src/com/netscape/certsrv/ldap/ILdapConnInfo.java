@@ -18,10 +18,8 @@
 package com.netscape.certsrv.ldap;
 
 
-import netscape.ldap.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.ldap.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 
 
 /**

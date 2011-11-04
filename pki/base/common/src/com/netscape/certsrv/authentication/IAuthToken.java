@@ -17,15 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authentication;
 
-import java.util.Hashtable;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
-import java.math.BigInteger;
 
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.usrgrp.Certificates;
-import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.usrgrp.Certificates;
 
 /**
  * AuthToken interface.

@@ -18,16 +18,23 @@
 package com.netscape.cmscore.dbs;
 
 
-import java.math.*;
-import java.io.*;
-import java.util.*;
-import netscape.ldap.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.Extension;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.RevocationReason;
+
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.cmscore.dbs.*;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.util.Debug;
 
 

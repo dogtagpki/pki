@@ -17,17 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-import java.util.*;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
-import sun.io.ByteToCharConverter;
+import java.io.Serializable;
+import java.util.Enumeration;
+import java.util.Vector;
 
-import java.io.*;
-import netscape.security.util.*;
+import netscape.security.util.DerEncoder;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
 
 /**
  * An attribute, as identified by some attribute ID, has some particular values.  

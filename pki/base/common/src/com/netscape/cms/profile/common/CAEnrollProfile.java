@@ -18,29 +18,28 @@
 package com.netscape.cms.profile.common;
 
 
-import java.security.cert.*;
-import java.math.*;
-import java.util.*;
-import java.io.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.connector.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.logging.*;
+import java.util.Enumeration;
 
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
-import java.security.*;
-import org.mozilla.jss.asn1.*;
-import org.mozilla.jss.pkix.primitive.*;
-import org.mozilla.jss.pkix.crmf.*;
+import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.ICAService;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.logging.AuditFormat;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.IProfileUpdater;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestStatus;
 
 
 /**

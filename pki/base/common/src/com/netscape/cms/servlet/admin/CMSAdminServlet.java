@@ -18,42 +18,69 @@
 package com.netscape.cms.servlet.admin;
 
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.math.*;
-import java.security.*;
-import java.security.cert.CertificateEncodingException;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import org.mozilla.jss.CryptoManager.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.certsrv.selftests.*;
-import com.netscape.certsrv.ca.*;
-import com.netscape.certsrv.kra.*;
-import com.netscape.certsrv.ra.*;
-import com.netscape.certsrv.ocsp.*;
-import com.netscape.certsrv.tks.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
-import com.netscape.cmsutil.util.*;
-import com.netscape.cms.servlet.common.CMSGateway;
-import org.mozilla.jss.util.Password;
-import org.mozilla.jss.util.PasswordCallback;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.net.ServerSocket;
+import java.security.KeyPair;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.StringTokenizer;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.PQGParams;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.util.ConsolePasswordCallback;
-import org.mozilla.jss.util.IncorrectPasswordException;
-import com.netscape.symkey.*;
+import org.mozilla.jss.util.PasswordCallback;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.certsrv.security.ICryptoSubsystem;
+import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.security.KeyCertData;
+import com.netscape.certsrv.selftests.EMissingSelfTestException;
+import com.netscape.certsrv.selftests.ESelfTestException;
+import com.netscape.certsrv.selftests.ISelfTest;
+import com.netscape.certsrv.selftests.ISelfTestSubsystem;
+import com.netscape.certsrv.tks.ITKSAuthority;
+import com.netscape.cmsutil.util.Cert;
+import com.netscape.symkey.SessionKey;
 
 /**
  * A class representings an administration servlet. This

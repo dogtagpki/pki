@@ -32,7 +32,6 @@ import netscape.security.x509.KeyUsageExtension;
 import netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;

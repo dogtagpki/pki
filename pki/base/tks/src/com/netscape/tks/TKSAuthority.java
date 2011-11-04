@@ -17,39 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.tks;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.math.*;
-import java.security.*;
-import java.security.cert.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
-import com.netscape.cmscore.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authority.*;
-import com.netscape.certsrv.logging.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.dbs.repository.*;
-import com.netscape.certsrv.dbs.certdb.*;
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.cmscore.dbs.*;
-import com.netscape.certsrv.dbs.crldb.ICRLRepository;
-
-
-import org.mozilla.jss.pkix.primitive.*;
-import com.netscape.cmscore.util.Debug;
-import org.mozilla.jss.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.asn1.*;
-import com.netscape.certsrv.ldap.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.security.*;
-import com.netscape.certsrv.policy.*;
-
-import com.netscape.certsrv.dbs.crldb.*;
-import com.netscape.certsrv.apps.*;
-import java.security.cert.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.IRequestQueue;
 
 public class TKSAuthority implements IAuthority, ISubsystem {
 	protected ILogger mLogger = CMS.getLogger();

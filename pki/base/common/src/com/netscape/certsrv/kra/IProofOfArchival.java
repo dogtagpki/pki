@@ -18,14 +18,8 @@
 package com.netscape.certsrv.kra;
 
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.security.*;
-import netscape.security.util.*;
-import netscape.security.pkcs.*;
-import netscape.security.x509.*;
-import com.netscape.certsrv.base.*;
+import java.math.BigInteger;
+import java.util.Date;
 
 
 /**

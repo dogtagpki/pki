@@ -16,24 +16,23 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Enumeration;
+import java.util.Vector;
 
-import org.mozilla.jss.*;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.ssl.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.CertDatabaseException;
-import org.mozilla.jss.pkcs11.*;
+import org.mozilla.jss.crypto.AlreadyInitializedException;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11Token;
-
-import sun.misc.*;
-import java.lang.Exception;
-import java.security.*;
-import java.net.URLEncoder;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
+import org.mozilla.jss.ssl.SSLSocket;
+import org.mozilla.jss.util.Password;
 
 
 /**

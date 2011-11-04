@@ -18,7 +18,7 @@
 package com.netscape.ocsp;
 
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 
 /**

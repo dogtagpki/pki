@@ -18,27 +18,48 @@
 package com.netscape.cms.servlet.csadmin;
 
 
-import org.apache.velocity.Template;
-import org.apache.velocity.servlet.VelocityServlet;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import netscape.ldap.*;
-import com.netscape.certsrv.apps.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.dbs.*;
-import com.netscape.certsrv.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.authorization.*;
-import com.netscape.certsrv.authentication.*;
-import com.netscape.certsrv.usrgrp.*;
-import com.netscape.certsrv.ca.*;
-import java.io.*;
-import java.util.*;
-import com.netscape.cmsutil.ldap.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Enumeration;
+import java.util.Random;
+import java.util.StringTokenizer;
 
-import com.netscape.cms.servlet.wizard.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv3;
+
+import org.apache.velocity.context.Context;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthSubsystem;
+import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.property.PropertySet;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.util.HttpInput;
+import com.netscape.cms.servlet.wizard.WizardServlet;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 public class DatabasePanel extends WizardPanelBase {
 
