@@ -79,9 +79,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
 
             try {
                 x500name = new X500Name(value);
-                {
-                    CMS.debug("AuthTokenSubjectNameDefault: setValue x500name=" + x500name.toString());
-                }
+                CMS.debug("AuthTokenSubjectNameDefault: setValue x500name=" + x500name.toString());
             } catch (IOException e) {
                 CMS.debug("AuthTokenSubjectNameDefault: setValue " + 
                     e.toString());

@@ -156,39 +156,37 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
 
         password = new Password(tokPwd.toCharArray());
 
-        {
-            try {
-                if (token.passwordIsInitialized()) {
-                    CMS.debug(
-                            "ConfigHSMLoginPanel: loginToken():token password is initialized");
-                    if (!token.isLoggedIn()) {
-                        CMS.debug(
-                                "ConfigHSMLoginPanel: loginToken():Token is not logged in, try it");
-                        token.login(password);
-                        context.put("status", "justLoggedIn");
-                    } else {
-                        CMS.debug(
-                                "ConfigHSMLoginPanel:Token has already logged on");
-                        context.put("status", "alreadyLoggedIn");
-                    }
-                } else {
-                    CMS.debug(
-                            "ConfigHSMLoginPanel: loginToken():Token password not initialized");
-                    context.put("status", "tokenPasswordNotInitialized");
-                    rv = false;
-                }
-		
-            } catch (IncorrectPasswordException e) {
-                context.put("status", "incorrectPassword");
-                context.put("errorString", e.toString());
-                CMS.debug("ConfigHSMLoginPanel: loginToken():" + e.toString());
-                rv = false;
-            } catch (Exception e) {
-                CMS.debug("ConfigHSMLoginPanel: loginToken():" + e.toString());
-                context.put("errorString", e.toString());
-                rv = false;
-            }
-        }
+        try {
+		    if (token.passwordIsInitialized()) {
+		        CMS.debug(
+		                "ConfigHSMLoginPanel: loginToken():token password is initialized");
+		        if (!token.isLoggedIn()) {
+		            CMS.debug(
+		                    "ConfigHSMLoginPanel: loginToken():Token is not logged in, try it");
+		            token.login(password);
+		            context.put("status", "justLoggedIn");
+		        } else {
+		            CMS.debug(
+		                    "ConfigHSMLoginPanel:Token has already logged on");
+		            context.put("status", "alreadyLoggedIn");
+		        }
+		    } else {
+		        CMS.debug(
+		                "ConfigHSMLoginPanel: loginToken():Token password not initialized");
+		        context.put("status", "tokenPasswordNotInitialized");
+		        rv = false;
+		    }
+
+		} catch (IncorrectPasswordException e) {
+		    context.put("status", "incorrectPassword");
+		    context.put("errorString", e.toString());
+		    CMS.debug("ConfigHSMLoginPanel: loginToken():" + e.toString());
+		    rv = false;
+		} catch (Exception e) {
+		    CMS.debug("ConfigHSMLoginPanel: loginToken():" + e.toString());
+		    context.put("errorString", e.toString());
+		    rv = false;
+		}
         return rv;
     }
 

@@ -429,11 +429,9 @@ ldapInit();
                        request.setExtData(mLdapStringAttrs[i], escapeValueRfc1779(sla[0], false).toString());
                }
             }
-            {
-                CMS.debug("pattern = "+pattern);
-                sbjname = mapPattern(request, pattern);
-                CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): subject name mapping done");
-            }
+            CMS.debug("pattern = "+pattern);
+			sbjname = mapPattern(request, pattern);
+			CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): subject name mapping done");
             CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): attributes set in request");
 
         } catch (Exception e) {

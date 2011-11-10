@@ -85,11 +85,9 @@ public class MainPageServlet extends CMSServlet {
         try {
             ServletOutputStream out = response.getOutputStream();
 
-            {
-                cmsReq.setStatus(CMSRequest.SUCCESS);
-                response.setContentType("text/html");
-                form.renderOutput(out, argSet);
-            }
+            cmsReq.setStatus(CMSRequest.SUCCESS);
+			response.setContentType("text/html");
+			form.renderOutput(out, argSet);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
                 CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));

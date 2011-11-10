@@ -1688,9 +1688,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             }
         }
 
-        {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
+        return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
     }
 
     /**

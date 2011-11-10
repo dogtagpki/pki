@@ -124,16 +124,14 @@ public class CloneRedirect extends CMSServlet {
         try {
             ServletOutputStream out = resp.getOutputStream();
 
-            {
-                String xmlOutput = req.getParameter("xml");
-                if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
-                } else {
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
-                }
-            }
+            String xmlOutput = req.getParameter("xml");
+			if (xmlOutput != null && xmlOutput.equals("true")) {
+			  outputXML(resp, argSet);
+			} else {
+			  resp.setContentType("text/html");
+			  form.renderOutput(out, argSet);
+			  cmsReq.setStatus(CMSRequest.SUCCESS);
+			}
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, 
                 CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));

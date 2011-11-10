@@ -906,10 +906,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                     // find from internaldb if it's ca. (ra does not have that.)
                     // find from internaldb usrgrp info
                     
-                    {
-                        // find from certDB
-                        si.verify(digest, id);
-                    }
+                    // find from certDB
+					si.verify(digest, id);
                     
                 } // 
             }

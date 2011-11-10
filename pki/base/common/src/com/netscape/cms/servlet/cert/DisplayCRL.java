@@ -149,16 +149,14 @@ public class DisplayCRL extends CMSServlet {
         try {
             ServletOutputStream out = resp.getOutputStream();
 
-            {
-                String xmlOutput = req.getParameter("xml");
-                if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
-                } else {
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
-                }
-            }
+            String xmlOutput = req.getParameter("xml");
+			if (xmlOutput != null && xmlOutput.equals("true")) {
+			  outputXML(resp, argSet);
+			} else {
+			  resp.setContentType("text/html");
+			  form.renderOutput(out, argSet);
+			  cmsReq.setStatus(CMSRequest.SUCCESS);
+			}
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, 
                 CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", e.toString()));

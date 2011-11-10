@@ -774,15 +774,13 @@ public class EnrollmentService implements IService {
             }
         }
 
-        {
-            key = key.trim();
+        key = key.trim();
 
-            if (key.equals("")) {
-                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            } else {
-                return key;
-            }
-        }
+		if (key.equals("")) {
+		    return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+		} else {
+		    return key;
+		}
     }
     /**
      * Signed Audit Log Subject ID

@@ -196,16 +196,14 @@ public class CheckCertServlet extends CMSServlet {
             ServletOutputStream out = resp.getOutputStream();
             String error = null;
 
-            {
-                String xmlOutput = req.getParameter("xml");
-                if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
-                } else {
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
-                }
-            }
+            String xmlOutput = req.getParameter("xml");
+			if (xmlOutput != null && xmlOutput.equals("true")) {
+			  outputXML(resp, argSet);
+			} else {
+			  resp.setContentType("text/html");
+			  form.renderOutput(out, argSet);
+			  cmsReq.setStatus(CMSRequest.SUCCESS);
+			}
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
                 CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
