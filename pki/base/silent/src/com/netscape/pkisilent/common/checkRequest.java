@@ -153,10 +153,6 @@ public class checkRequest extends TestClient {
         return reqStatus;
     }
 
-    private long getElapsedTime() {
-        return elapsedTime;
-    }
-
     /**
      * returns the  hex serial number of the certificate 
      **/
@@ -239,17 +235,7 @@ public class checkRequest extends TestClient {
         return false;
     }
 
-    private boolean checkRequest_load() {
-
-        type = 1;
-        buildquery();
-        if (debug) {
-            System.out.println(query);
-        }
-        setStatusString("Congratulations, your certificate has been issued");
-        return(Send());
-
-    }
+    
 
     // Private functions 
 

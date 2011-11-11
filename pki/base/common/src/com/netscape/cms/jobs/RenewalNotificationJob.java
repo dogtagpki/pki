@@ -488,30 +488,6 @@ public class RenewalNotificationJob
         }
     }
 
-    private String makeLDAPDateString(Date date) {
-		
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-
-        String ldfYear = "" + Integer.toString(calendar.get(Calendar.YEAR) - 1900);
-		
-        String ldfMonth = getPadded(calendar.get(Calendar.MONTH));
-        String ldfDate = getPadded(calendar.get(Calendar.DAY_OF_MONTH));
-        String ldfHours = getPadded(calendar.get(Calendar.HOUR));
-        String ldfMinutes = getPadded(calendar.get(Calendar.MINUTE));
-        String ldfSeconds = getPadded(calendar.get(Calendar.SECOND));
-		
-        return ldfYear + ldfMonth + ldfDate + ldfHours + ldfMinutes + ldfSeconds + "Z";
-    }
-	
-    private String getPadded(int i) {
-        if (i < 10) {
-            return "0" + Integer.toString(i);
-        } else {
-            return  "" + Integer.toString(i);
-        }
-    }
-    
     /**
      * get instance id.
      * @return a String identifier
