@@ -882,7 +882,7 @@ protected IProfileSubsystem     mProfileSubsystem = null;
             CMS.debug(e);
 		  	throw new ServletException("Could not decode the request.");
 		  }
-		  crsResp.setMessageType(crsResp.mType_CertRep);
+		  crsResp.setMessageType(CRSPKIMessage.mType_CertRep);
                 
           // Create a new crypto context for doing all the crypto operations
           cx = new CryptoContext();
@@ -925,7 +925,7 @@ protected IProfileSubsystem     mProfileSubsystem = null;
           }
 
           // now run appropriate code, depending on message type
-          if (mt.equals(req.mType_PKCSReq)) {
+          if (mt.equals(CRSPKIMessage.mType_PKCSReq)) {
               CMS.debug("Processing PKCSReq");
               try {
                 // Check if there is an existing request. If this returns non-null,
@@ -949,7 +949,7 @@ protected IProfileSubsystem     mProfileSubsystem = null;
                   throw new ServletException("Couldn't handle CEP request (PKCSReq) - "+e.getMessage());
               }
           }
-          else if (mt.equals(req.mType_GetCertInitial)) {
+          else if (mt.equals(CRSPKIMessage.mType_GetCertInitial)) {
               CMS.debug("Processing GetCertInitial");
               cert = handleGetCertInitial(req,crsResp);
           } else {
@@ -962,7 +962,7 @@ protected IProfileSubsystem     mProfileSubsystem = null;
       catch (CRSInvalidSignatureException e) {
           CMS.debug("handlePKIMessage exception " + e);
           CMS.debug(e);
-          crsResp.setFailInfo(crsResp.mFailInfo_badMessageCheck);
+          crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badMessageCheck);
       }
       catch (Exception e) {
           CMS.debug("handlePKIMessage exception " + e);
@@ -1064,8 +1064,8 @@ protected IProfileSubsystem     mProfileSubsystem = null;
       }
 
 	  if (foundRequest == null) {
-	  	resp.setFailInfo(resp.mFailInfo_badCertId);
-	  	resp.setPKIStatus(resp.mStatus_FAILURE);
+	  	resp.setFailInfo(CRSPKIMessage.mFailInfo_badCertId);
+	  	resp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
 		return null;
 	  }
 
@@ -1203,8 +1203,8 @@ private void getDetailFromRequest(CRSPKIMessage req, CRSPKIMessage crsResp)
              PKCS10 p10 = (PKCS10)req.getP10();
 
              if (p10 == null) {
-			     crsResp.setFailInfo(crsResp.mFailInfo_badMessageCheck);
-		  	     crsResp.setPKIStatus(crsResp.mStatus_FAILURE);
+			     crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badMessageCheck);
+		  	     crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
 			     throw new CRSFailureException("Failed to decode pkcs10 from CEP request");
 		      }
                 
@@ -1389,8 +1389,8 @@ private void getDetailFromRequest(CRSPKIMessage req, CRSPKIMessage crsResp)
 
 			  req.put(CERTINFO, certInfo);
       } catch (Exception e) {
-	     crsResp.setFailInfo(crsResp.mFailInfo_badMessageCheck);
-	     crsResp.setPKIStatus(crsResp.mStatus_FAILURE);
+	     crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badMessageCheck);
+	     crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
 	     return ;
 	  }   // NEED TO FIX
   }
@@ -1532,8 +1532,8 @@ private void getDetailFromRequest(CRSPKIMessage req, CRSPKIMessage crsResp)
 			else {
                 CMS.debug("duplicated transaction id");
 		  		log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ENROLL_FAIL_DUP_TRANS_ID"));	  
-		  		crsResp.setFailInfo(crsResp.mFailInfo_badRequest);
-		  		crsResp.setPKIStatus(crsResp.mStatus_FAILURE);
+		  		crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badRequest);
+		  		crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
 		  		return null;
 			}
 		}
@@ -1544,8 +1544,8 @@ private void getDetailFromRequest(CRSPKIMessage req, CRSPKIMessage crsResp)
 	   if (authFailed) {
           CMS.debug("authentication failed");
 		  log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_AUTH"));	  
-		  crsResp.setFailInfo(crsResp.mFailInfo_badIdentity);
-		  crsResp.setPKIStatus(crsResp.mStatus_FAILURE);
+		  crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badIdentity);
+		  crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
 
 
           // perform audit log
@@ -1576,14 +1576,14 @@ private void getDetailFromRequest(CRSPKIMessage req, CRSPKIMessage crsResp)
         CMS.debug("failed to decrypt the request " + e);
 		log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_DECRYPT_PKCS10",
 			e.getMessage()));	  
-		crsResp.setFailInfo(crsResp.mFailInfo_badMessageCheck);
-		crsResp.setPKIStatus(crsResp.mStatus_FAILURE);
+		crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badMessageCheck);
+		crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
 	} catch (EBaseException e) {
         CMS.debug("operation failure - " + e);
 		log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERNOLL_FAIL_NO_NEW_REQUEST_POSTED",
 			e.getMessage()));	  
-		crsResp.setFailInfo(crsResp.mFailInfo_internalCAError);
-		crsResp.setPKIStatus(crsResp.mStatus_FAILURE);
+		crsResp.setFailInfo(CRSPKIMessage.mFailInfo_internalCAError);
+		crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
 	}
 	return null;
   }
@@ -1743,7 +1743,7 @@ throws EBaseException {
                  
      rq.processRequest(pkiReq);
 
-     crsResp.setPKIStatus(crsResp.mStatus_SUCCESS);
+     crsResp.setPKIStatus(CRSPKIMessage.mStatus_SUCCESS);
 
      mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                             AuditFormat.LEVEL,
@@ -1807,7 +1807,7 @@ throws EBaseException {
           } else {
             CMS.debug("CRSEnrollment: Found certificate");
           }
-          crsResp.setPKIStatus(crsResp.mStatus_SUCCESS);
+          crsResp.setPKIStatus(CRSPKIMessage.mStatus_SUCCESS);
           return cert;
         }
 
@@ -1827,22 +1827,22 @@ throws EBaseException {
                     return null;
                 }
                 issuedCert = issuedCertBuf[0];
-                crsResp.setPKIStatus(crsResp.mStatus_SUCCESS);
+                crsResp.setPKIStatus(CRSPKIMessage.mStatus_SUCCESS);
                             
             }
             else {  // status is not 'success' - there must've been a problem
                             
-                crsResp.setPKIStatus(crsResp.mStatus_FAILURE);
-                crsResp.setFailInfo(crsResp.mFailInfo_badAlg);
+                crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
+                crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badAlg);
             }
         }
         else if (status.equals(RequestStatus.REJECTED_STRING) ||
                  status.equals(RequestStatus.CANCELED_STRING)) {
-                crsResp.setPKIStatus(crsResp.mStatus_FAILURE);
-                crsResp.setFailInfo(crsResp.mFailInfo_badRequest);
+                crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
+                crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badRequest);
             }
         else  {   // not complete
-            crsResp.setPKIStatus(crsResp.mStatus_PENDING);
+            crsResp.setPKIStatus(CRSPKIMessage.mStatus_PENDING);
         }
 
         return issuedCert;

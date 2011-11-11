@@ -148,7 +148,7 @@ public class ConfigureRA
 		if(temp!=null)
 		{
 			int index = temp.indexOf(";");
-			hc.j_session_id = temp.substring(0,index);
+			HTTPClient.j_session_id = temp.substring(0,index);
 			st = true;
 		}
 
@@ -882,7 +882,7 @@ public class ConfigureRA
 
 		// and then match the arguments
 		String [] unmatched = null;
-		unmatched = parser.matchAllArgs (args,0,parser.EXIT_ON_UNMATCHED);
+		unmatched = parser.matchAllArgs (args,0,ArgParser.EXIT_ON_UNMATCHED);
 
 		if(unmatched!=null)
 		{

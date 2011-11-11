@@ -661,10 +661,8 @@ public class CryptoUtil {
                 CertificateSubjectName(new X500Name(subjname)));
         info.set(X509CertInfo.VALIDITY, new
                 CertificateValidity(notBefore, notAfter));
-        AlgorithmId sigAlgId = new AlgorithmId();
-
         info.set(X509CertInfo.ALGORITHM_ID, new
-                CertificateAlgorithmId(sigAlgId.get(alg)));
+                CertificateAlgorithmId(AlgorithmId.get(alg)));
         info.set(X509CertInfo.KEY, new CertificateX509Key(x509key));
         info.set(X509CertInfo.EXTENSIONS, new CertificateExtensions());
         return info;

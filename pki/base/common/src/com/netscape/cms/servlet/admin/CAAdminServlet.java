@@ -259,8 +259,8 @@ public class CAAdminServlet extends AdminServlet {
         
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mCA.PROP_NOTIFY_SUBSTORE);
-        IConfigStore rc = nc.getSubStore(mCA.PROP_CERT_REVOKED_SUBSTORE);
+            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
+        IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE);
         
         getNotificationCompConfig(req, resp, rc);
     }
@@ -271,8 +271,8 @@ public class CAAdminServlet extends AdminServlet {
         
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mCA.PROP_NOTIFY_SUBSTORE);
-        IConfigStore rc = nc.getSubStore(mCA.PROP_CERT_ISSUED_SUBSTORE);
+            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
+        IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE);
         
         getNotificationCompConfig(req, resp, rc);
     }
@@ -288,9 +288,9 @@ public class CAAdminServlet extends AdminServlet {
 
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mCA.PROP_NOTIFY_SUBSTORE);
+            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore riq = nc.getSubStore(mCA.PROP_REQ_IN_Q_SUBSTORE);
+        IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
         Enumeration e = req.getParameterNames();
 
@@ -321,9 +321,9 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mCA.PROP_NOTIFY_SUBSTORE);
+            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore riq = nc.getSubStore(mCA.PROP_REQ_IN_Q_SUBSTORE);
+        IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
         //set rest of the parameters
         Enumeration e = req.getParameterNames();
@@ -433,9 +433,9 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mCA.PROP_NOTIFY_SUBSTORE);
+            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore rc = nc.getSubStore(mCA.PROP_CERT_REVOKED_SUBSTORE);  
+        IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE);  
 
         setNotificationCompConfig(req, resp, rc, mCA.getCertRevokedListener());
     }            
@@ -445,9 +445,9 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mCA.PROP_NOTIFY_SUBSTORE);
+            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore rc = nc.getSubStore(mCA.PROP_CERT_ISSUED_SUBSTORE);
+        IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE);
 
         setNotificationCompConfig(req, resp, rc, mCA.getCertIssuedListener());
 
@@ -586,7 +586,7 @@ public class CAAdminServlet extends AdminServlet {
             }
 
             IConfigStore crlSubStore =
-                mCA.getConfigStore().getSubStore(mCA.PROP_CRL_SUBSTORE);
+                mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
             Enumeration crlNames = crlSubStore.getSubStoreNames();
 
             while (crlNames.hasMoreElements()) {
@@ -741,7 +741,7 @@ public class CAAdminServlet extends AdminServlet {
             }
 
             IConfigStore crlSubStore =
-                mCA.getConfigStore().getSubStore(mCA.PROP_CRL_SUBSTORE);
+                mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
             boolean done = false;
             Enumeration crlNames = crlSubStore.getSubStoreNames();
 
@@ -859,7 +859,7 @@ public class CAAdminServlet extends AdminServlet {
 
             if (id != null && id.length() > 0) {
                 IConfigStore crlSubStore =
-                    mCA.getConfigStore().getSubStore(mCA.PROP_CRL_SUBSTORE);
+                    mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
                 boolean done = false;
                 Enumeration crlNames = crlSubStore.getSubStoreNames();
 
@@ -1007,10 +1007,10 @@ public class CAAdminServlet extends AdminServlet {
 
             IConfigStore config = mCA.getConfigStore();
             IConfigStore crlsSubStore =
-                config.getSubStore(mCA.PROP_CRL_SUBSTORE);
+                config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
             IConfigStore crlSubStore = crlsSubStore.getSubStore(ipId);
             IConfigStore crlExtsSubStore =
-                crlSubStore.getSubStore(mCA.PROP_CRLEXT_SUBSTORE);
+                crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
 
             String id = req.getParameter(Constants.RS_ID);
 
@@ -1099,13 +1099,13 @@ public class CAAdminServlet extends AdminServlet {
         String id = req.getParameter(Constants.PR_ID);
 
         if (id == null || id.length() <= 0) {
-            id = mCA.PROP_MASTER_CRL;
+            id = ICertificateAuthority.PROP_MASTER_CRL;
         }
 
         IConfigStore config = mCA.getConfigStore();
-        IConfigStore crlsSubStore = config.getSubStore(mCA.PROP_CRL_SUBSTORE);
+        IConfigStore crlsSubStore = config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
         IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
-        IConfigStore crlExtsSubStore = crlSubStore.getSubStore(mCA.PROP_CRLEXT_SUBSTORE);
+        IConfigStore crlExtsSubStore = crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
 
         if (crlExtsSubStore != null) {
             Enumeration enumExts = crlExtsSubStore.getSubStoreNames();
@@ -1216,13 +1216,13 @@ public class CAAdminServlet extends AdminServlet {
 
             if (id == null || id.length() <= 0 ||
                 id.equals(Constants.RS_ID_CONFIG)) {
-                id = mCA.PROP_MASTER_CRL;
+                id = ICertificateAuthority.PROP_MASTER_CRL;
             }
             ICRLIssuingPoint ip = mCA.getCRLIssuingPoint(id);
 
             //Save New Settings to the config file
             IConfigStore config = mCA.getConfigStore();
-            IConfigStore crlsSubStore = config.getSubStore(mCA.PROP_CRL_SUBSTORE);
+            IConfigStore crlsSubStore = config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
             IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
 
             //set reset of the parameters
@@ -1310,10 +1310,10 @@ public class CAAdminServlet extends AdminServlet {
 
         if (id == null || id.length() <= 0 ||
             id.equals(Constants.RS_ID_CONFIG)) {
-            id = mCA.PROP_MASTER_CRL;
+            id = ICertificateAuthority.PROP_MASTER_CRL;
         }
         IConfigStore crlsSubStore =
-            mCA.getConfigStore().getSubStore(mCA.PROP_CRL_SUBSTORE);
+            mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
         IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
 
         Enumeration e = req.getParameterNames();
@@ -1479,7 +1479,7 @@ public class CAAdminServlet extends AdminServlet {
 
         IConfigStore caConfig = mCA.getConfigStore();
 
-        value = caConfig.getString(mCA.PROP_ENABLE_PAST_CATIME, "false");
+        value = caConfig.getString(ICertificateAuthority.PROP_ENABLE_PAST_CATIME, "false");
         params.add(Constants.PR_VALIDITY, value);
 
         getSigningAlgConfig(params);

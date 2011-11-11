@@ -325,7 +325,7 @@ public class UpdateCRL extends CMSServlet {
             }
         }
         if (crlIssuingPointId == null) {
-            crlIssuingPointId = mCA.PROP_MASTER_CRL;
+            crlIssuingPointId = ICertificateAuthority.PROP_MASTER_CRL;
         }
 
         ICRLIssuingPoint crlIssuingPoint = 

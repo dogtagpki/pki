@@ -652,7 +652,7 @@ class CertRecProcessor implements IElementProcessor {
                 numFailCounted = true;
                 if (mJob.mSummary == true)
                     mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                        mJob.STATUS_FAILURE);
+                        AJobBase.STATUS_FAILURE);
                 mJob.log(ILogger.LL_FAILURE,					
                     CMS.getLogMessage("JOBS_GET_CERT_ERROR",
                         cr.getCertificate().getSerialNumber().toString(16)));
@@ -693,13 +693,13 @@ class CertRecProcessor implements IElementProcessor {
                 cr);
 						
             mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                mJob.STATUS_SUCCESS);
+                AJobBase.STATUS_SUCCESS);
 						
             mIC.mNumSuccessful++;
 						
         } catch (Exception e) {
             CMS.debug("RenewalNotificationJob Exception: "+e.toString());
-            mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS, mJob.STATUS_FAILURE);
+            mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS, AJobBase.STATUS_FAILURE);
             mJob.log(ILogger.LL_FAILURE, e.toString(), ILogger.L_MULTILINE);
             if (numFailCounted == false) {
                 mIC.mNumFail++;

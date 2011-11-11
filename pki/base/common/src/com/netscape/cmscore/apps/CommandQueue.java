@@ -62,7 +62,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
         mShuttingDown = true;
         while (mCommandQueue.isEmpty() == false) {
             try {
-                Thread.currentThread().sleep(5 * 1000);
+				Thread.sleep(5 * 1000);
                 //gcProcess();
             } catch (Exception e) {
 

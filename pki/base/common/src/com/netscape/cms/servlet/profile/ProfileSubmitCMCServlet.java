@@ -809,7 +809,7 @@ profile, IRequest req) {
                    error_codes);
            }
         } finally {
-            context.releaseContext();
+            SessionContext.releaseContext();
         }
     }
 

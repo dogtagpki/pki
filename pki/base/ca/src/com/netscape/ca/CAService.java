@@ -1422,7 +1422,7 @@ class serviceRenewal implements IServant {
 
                 if (metaInfo != null) {
                     String renewed = (String)
-                        metaInfo.get(certRecord.META_RENEWED_CERT);
+                        metaInfo.get(ICertRecord.META_RENEWED_CERT);
 
                     if (renewed != null) {
                         BigInteger serial = new BigInteger(renewed);
@@ -1891,7 +1891,7 @@ class serviceGetCRL implements IServant {
         throws EBaseException {
         try {
             ICRLIssuingPointRecord crlRec = 
-                (ICRLIssuingPointRecord) mCA.getCRLRepository().readCRLIssuingPointRecord(mCA.PROP_MASTER_CRL);
+                (ICRLIssuingPointRecord) mCA.getCRLRepository().readCRLIssuingPointRecord(ICertificateAuthority.PROP_MASTER_CRL);
             X509CRLImpl crl = new X509CRLImpl(crlRec.getCRL());
 
             request.setExtData(IRequest.CRL, crl.getEncoded());
@@ -1900,14 +1900,14 @@ class serviceGetCRL implements IServant {
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOT_FOUND", e.toString()));
         } catch (CRLException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_GETCRL_INST_CRL", mCA.PROP_MASTER_CRL));
+            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_GETCRL_INST_CRL", ICertificateAuthority.PROP_MASTER_CRL));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOGOOD", mCA.PROP_MASTER_CRL));
+                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOGOOD", ICertificateAuthority.PROP_MASTER_CRL));
         } catch (X509ExtensionException e) {
             mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_GETCRL_NO_ISSUING_REC"));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_EXT_NOGOOD",
-                    mCA.PROP_MASTER_CRL));
+                    ICertificateAuthority.PROP_MASTER_CRL));
         }
         return true;
     }

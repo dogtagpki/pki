@@ -303,9 +303,9 @@ CMS.debug("*** formFile = "+formFile);
 
                         if (recentChanges.length() > 0)
                             recentChanges += "+";
-                        if (ip.isCRLUpdateInProgress() == ip.CRL_PUBLISHING_STARTED) {
+                        if (ip.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_PUBLISHING_STARTED) {
                             recentChanges += "Publishing CRL #" + ip.getCRLNumber();
-                        } else if (ip.isCRLUpdateInProgress() == ip.CRL_UPDATE_STARTED) {
+                        } else if (ip.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_STARTED) {
                             recentChanges += "Creating CRL #" + ip.getNextCRLNumber();
                         } else {  // ip.CRL_UPDATE_DONE
                             recentChanges += ip.getNumberOfRecentlyRevokedCerts() + ", " +
@@ -345,8 +345,8 @@ CMS.debug("*** formFile = "+formFile);
             header.addStringValue("master_host", masterHost);
             header.addStringValue("master_port", masterPort);
 
-            header.addStringValue("masterCRLIssuingPoint", mCA.PROP_MASTER_CRL);
-            ICRLIssuingPoint ip0 = mCA.getCRLIssuingPoint(mCA.PROP_MASTER_CRL);
+            header.addStringValue("masterCRLIssuingPoint", ICertificateAuthority.PROP_MASTER_CRL);
+            ICRLIssuingPoint ip0 = mCA.getCRLIssuingPoint(ICertificateAuthority.PROP_MASTER_CRL);
 
             if (ip0 != null) {
                 header.addStringValue("defaultAlgorithm", ip0.getSigningAlgorithm());

@@ -130,10 +130,10 @@ public class HTTPClient implements SSLCertificateApprovalCallback
 	{
 		try
 		{
-			socket.enableSSL3Default(true);
+			SSLSocket.enableSSL3Default(true);
 			socket.enableSSL3(true);
 			socket.enableSSL2(false);
-			socket.enableSSL2Default(false);
+			SSLSocket.enableSSL2Default(false);
             socket.enableV2CompatibleHello(false);
 		}
 		catch(Exception e)
@@ -1296,7 +1296,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback
 
 		// and then match the arguments
 		String [] unmatched = null;
-		unmatched = parser.matchAllArgs (args,0,parser.EXIT_ON_UNMATCHED);
+		unmatched = parser.matchAllArgs (args,0,ArgParser.EXIT_ON_UNMATCHED);
 
 		if(unmatched!=null)
 		{

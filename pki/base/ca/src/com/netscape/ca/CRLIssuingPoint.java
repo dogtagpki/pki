@@ -449,8 +449,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         mConfigStore = config;
 
-        IConfigStore crlSubStore = mCA.getConfigStore().getSubStore(mCA.PROP_CRL_SUBSTORE);
-        mPageSize = crlSubStore.getInteger(mCA.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
+        IConfigStore crlSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+        mPageSize = crlSubStore.getInteger(ICertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
         CMS.debug("CRL Page Size: "+ mPageSize);
 
         mCountMod = config.getInteger("countMod",0);
@@ -1154,10 +1154,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         if(onlyContainsCACerts != mCACertsOnly) {
                             IConfigStore config = mCA.getConfigStore();
                             IConfigStore crlsSubStore =
-                               config.getSubStore(mCA.PROP_CRL_SUBSTORE);
+                               config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
                             IConfigStore crlSubStore = crlsSubStore.getSubStore(mId);
                             IConfigStore crlExtsSubStore =
-                                crlSubStore.getSubStore(mCA.PROP_CRLEXT_SUBSTORE);
+                                crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
                             crlExtsSubStore = crlExtsSubStore.getSubStore(IssuingDistributionPointExtension.NAME);
 
                             if(crlExtsSubStore != null) {

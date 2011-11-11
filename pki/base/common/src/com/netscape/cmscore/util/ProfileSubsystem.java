@@ -212,7 +212,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
                 updateGeneralPanel();
                 updateThreadPanel();
                 // update every second
-                mMonitoring.sleep(1000);
+                Thread.sleep(1000);
             } catch (Exception e) {
             }
         }
@@ -294,8 +294,11 @@ class ThreadTableEvent extends MouseAdapter {
                         continue;
                     PrintStream err = System.err; 
 
-                    System.setErr(new PrintStream(outArray)); 
-                    threads[i].dumpStack();  // not working, print only current thread
+                    System.setErr(new PrintStream(outArray));
+                  //TODO remove.  This was being called on the array object
+                    //But you can only dump stack on the current thread
+                    Thread.dumpStack();  
+                    
                     System.setErr(err); 
                 }
 

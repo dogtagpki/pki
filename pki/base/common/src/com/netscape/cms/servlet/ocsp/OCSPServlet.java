@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -122,9 +123,8 @@ public class OCSPServlet extends CMSServlet {
         CMS.debug("Servlet Path=" + httpReq.getServletPath());
         CMS.debug("RequestURI=" + httpReq.getRequestURI());
         String pathInfo =  httpReq.getPathInfo();
-        java.net.URLDecoder urldecoder = new java.net.URLDecoder();
         if (pathInfo != null && pathInfo.indexOf('%') != -1) {
-          pathInfo = urldecoder.decode(pathInfo);
+          pathInfo = URLDecoder.decode(pathInfo);
         }
         CMS.debug("PathInfo=" + pathInfo);
 

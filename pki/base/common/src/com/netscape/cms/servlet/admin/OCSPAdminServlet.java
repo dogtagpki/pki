@@ -422,8 +422,8 @@ public class OCSPAdminServlet extends AdminServlet {
         throws ServletException, IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         IConfigStore config = mOCSP.getConfigStore();
-        String defStore = config.getString(mOCSP.PROP_DEF_STORE_ID);
-        IConfigStore SubStore = config.getSubStore(mOCSP.PROP_STORE);
+        String defStore = config.getString(IOCSPAuthority.PROP_DEF_STORE_ID);
+        IConfigStore SubStore = config.getSubStore(IOCSPAuthority.PROP_STORE);
         Enumeration enumStores = SubStore.getSubStoreNames();
 
         while (enumStores.hasMoreElements()) {

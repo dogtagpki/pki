@@ -673,8 +673,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * Retrieves the log on/off.
      */
     public String getOn() {
-        String logStatus = null;
-        return logStatus.valueOf( mOn );
+        return String.valueOf( mOn );
     }
 
     /**
@@ -1399,7 +1398,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         Vector v = new Vector();
 
         try {
-            String logStatus = null;
 
             if (mType == null) {
                 v.addElement(PROP_TYPE + "=");
@@ -1407,7 +1405,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 v.addElement(PROP_TYPE + "=" +
                     mConfig.getString(PROP_TYPE));
             }
-            v.addElement(PROP_ON + "=" + logStatus.valueOf( mOn ) );
+            v.addElement(PROP_ON + "=" + String.valueOf( mOn ) );
             if (mLevel == 0)
                 v.addElement(PROP_LEVEL + "=" + ILogger.LL_DEBUG_STRING);
             else if (mLevel == 1)
@@ -1433,10 +1431,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             v.addElement(PROP_FLUSH_INTERVAL + "=" + mFlushInterval / 1000);
 
             if( (mType != null) && mType.equals( ILogger.PROP_SIGNED_AUDIT ) ) {
-                String logSigning = null;
-
                 v.addElement( PROP_SIGNED_AUDIT_LOG_SIGNING + "="
-                            + logSigning.valueOf( mLogSigning ) );
+                            + String.valueOf( mLogSigning ) );
 
                 if( mSAuditCertNickName == null ) {
                     v.addElement( PROP_SIGNED_AUDIT_CERT_NICKNAME + "=" );

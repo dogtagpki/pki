@@ -68,12 +68,12 @@ public class JDialogPasswordCallback implements PasswordCallback {
     }
 
     private void resetGBC(GridBagConstraints gbc) {
-        gbc.gridx = gbc.RELATIVE;
-        gbc.gridy = gbc.RELATIVE;
+        gbc.gridx = GridBagConstraints.RELATIVE;
+        gbc.gridy = GridBagConstraints.RELATIVE;
         gbc.gridwidth = 1;
         gbc.gridheight = 1;
-        gbc.fill = gbc.HORIZONTAL;
-        gbc.anchor = gbc.CENTER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.ipadx = 0;
         gbc.ipady = 0;
         gbc.weightx = 0.0;
@@ -115,8 +115,8 @@ public class JDialogPasswordCallback implements PasswordCallback {
 
             warning.setForeground(Color.red);
             resetGBC(c);
-            c.anchor = c.NORTHWEST;
-            c.gridwidth = c.REMAINDER;
+            c.anchor = GridBagConstraints.NORTHWEST;
+            c.gridwidth = GridBagConstraints.REMAINDER;
             // Setting this to NULL causes nasty Exception stack traces
             // to be printed, although the program still seems to work
             //warning.setHighlighter(null);
@@ -131,8 +131,8 @@ public class JDialogPasswordCallback implements PasswordCallback {
         // to be printed, although the program still seems to work
         //label.setHighlighter(null);
         resetGBC(c);
-        c.anchor = c.NORTHWEST;
-        c.gridwidth = c.REMAINDER;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.gridwidth = GridBagConstraints.REMAINDER;
         contentPane.add(label, c);
 
         ///////////////////////////////////////////////////
@@ -163,10 +163,10 @@ public class JDialogPasswordCallback implements PasswordCallback {
         pwField.setEchoChar('*');
         pwField.addActionListener(getPasswordListener);
         resetGBC(c);
-        c.anchor = c.CENTER;
-        c.fill = c.NONE;
+        c.anchor = GridBagConstraints.CENTER;
+        c.fill = GridBagConstraints.NONE;
         c.insets = new Insets(16, 0, 0, 0);
-        c.gridwidth = c.REMAINDER;
+        c.gridwidth = GridBagConstraints.REMAINDER;
         //c.gridy++;
         contentPane.add(pwField, c);
 
@@ -180,9 +180,9 @@ public class JDialogPasswordCallback implements PasswordCallback {
 
         ok.addActionListener(getPasswordListener);
         resetGBC(c);
-        c.fill = c.NONE;
-        c.anchor = c.CENTER;
-        c.gridheight = c.REMAINDER;
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridheight = GridBagConstraints.REMAINDER;
         c.insets = new Insets(10, 0, 0, 4);
         buttonPanel.add(ok, c);
 
@@ -196,18 +196,18 @@ public class JDialogPasswordCallback implements PasswordCallback {
 
         cancel.addActionListener(buttonListener);
         resetGBC(c);
-        c.fill = c.NONE;
-        c.anchor = c.CENTER;
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.CENTER;
         c.insets = new Insets(10, 4, 0, 0);
-        c.gridheight = c.REMAINDER;
-        c.gridwidth = c.REMAINDER;
+        c.gridheight = GridBagConstraints.REMAINDER;
+        c.gridwidth = GridBagConstraints.REMAINDER;
         buttonPanel.add(cancel, c);
 
         resetGBC(c);
-        c.fill = c.NONE;
-        c.anchor = c.CENTER;
-        c.gridwidth = c.REMAINDER;
-        c.gridheight = c.REMAINDER;
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.gridheight = GridBagConstraints.REMAINDER;
         c.insets = new Insets(0, 0, 0, 0);
         contentPane.add(buttonPanel, c);
 

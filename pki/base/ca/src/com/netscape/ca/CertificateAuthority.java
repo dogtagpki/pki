@@ -491,7 +491,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * check if the ca is a clone.
      */
     public boolean isClone() {
-        if (mService.mCLAConnector != null)
+        if (CAService.mCLAConnector != null)
             return true;
         else
             return false;

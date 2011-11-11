@@ -405,7 +405,7 @@ public static class Template implements ASN1Template {
                 try {
                     DerValue dv = new DerValue(distPoint.getEncoded());
                     //toFile("encodedFullName", distPoint.getEncoded());
-                    dv.resetTag(dv.tag_Sequence);
+                    dv.resetTag(DerValue.tag_Sequence);
                     cdp.setFullName( new GeneralNames(dv) );
                 } catch(GeneralNamesException e) {
                     throw new InvalidBERException( "fullName: " + e.toString());
@@ -435,7 +435,7 @@ public static class Template implements ASN1Template {
          :     }
          :   }
                      */
-                    dv.resetTag(dv.tag_Set);
+                    dv.resetTag(DerValue.tag_Set);
                     cdp.setRelativeName( new RDN(dv) );
                 } catch(IOException e) {
                     throw new InvalidBERException( "relativeName " +
@@ -464,7 +464,7 @@ public static class Template implements ASN1Template {
             }
             try {
                 DerValue dv = new DerValue( issuer.getEncoded() );
-                dv.resetTag(dv.tag_Sequence);
+                dv.resetTag(DerValue.tag_Sequence);
                 cdp.setCRLIssuer( new GeneralNames(dv) );
             } catch(GeneralNamesException e) {
                 throw new InvalidBERException( "cRLIssuer " + e.toString() );

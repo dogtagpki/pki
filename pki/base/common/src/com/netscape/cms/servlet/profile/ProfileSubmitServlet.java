@@ -1457,7 +1457,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             }
             throw eAudit1;
         } finally {
-            context.releaseContext();
+            SessionContext.releaseContext();
         }
         if (statsSub != null) {
           statsSub.endTiming("enrollment");

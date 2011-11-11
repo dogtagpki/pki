@@ -60,7 +60,7 @@ public class PKCS8Key implements PrivateKey {
     protected byte[] encodedKey;
 
     /* The version for this key */
-    public static final BigInteger version = BigInteger.valueOf(0);
+    public static final BigInteger VERSION = BigInteger.valueOf(0);
     
     /**
      * Default constructor.  The key constructed must have its key
@@ -104,9 +104,9 @@ public class PKCS8Key implements PrivateKey {
 	    throw new IOException ("corrupt private key");
 
 	BigInteger parsedVersion = in.data.getInteger().toBigInteger();
-	if (!version.equals(parsedVersion)) {
+	if (!VERSION.equals(parsedVersion)) {
 	    throw new IOException("version mismatch: (supported: " + 
-				  version + ", parsed: " + 
+				  VERSION + ", parsed: " + 
 				  parsedVersion);
 	}
 
@@ -324,9 +324,9 @@ public class PKCS8Key implements PrivateKey {
 
 
 	    BigInteger version = val.data.getInteger().toBigInteger();
-	    if (!version.equals(this.version)) {
+	    if (!version.equals(PKCS8Key.VERSION)) {
 		throw new IOException("version mismatch: (supported: " + 
-				      this.version + ", parsed: " + 
+				      PKCS8Key.VERSION + ", parsed: " + 
 				      version);
 	    }
 	    algid = AlgorithmId.parse (val.data.getDerValue ());
@@ -389,7 +389,7 @@ public class PKCS8Key implements PrivateKey {
     static void encode(DerOutputStream out, AlgorithmId algid, byte[] key)
 	throws IOException {
 	    DerOutputStream tmp = new DerOutputStream();
-	    tmp.putInteger(new BigInt(version.toByteArray()));
+	    tmp.putInteger(new BigInt(VERSION.toByteArray()));
 	    algid.encode(tmp);
 	    tmp.putOctetString(key);
 	    out.write(DerValue.tag_Sequence, tmp);

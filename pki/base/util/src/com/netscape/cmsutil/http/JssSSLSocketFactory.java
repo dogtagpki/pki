@@ -121,7 +121,8 @@ public class JssSSLSocketFactory implements ISocketFactory {
 
             s.setUseClientMode(true);
             s.enableSSL2(false);
-            s.enableSSL2Default(false);
+            //TODO  Do we rally want to set the default each time?
+            SSLSocket.enableSSL2Default(false);
             s.enableV2CompatibleHello(false);
 
             SSLHandshakeCompletedListener listener = null;

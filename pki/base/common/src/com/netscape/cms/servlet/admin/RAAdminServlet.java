@@ -215,9 +215,9 @@ public class RAAdminServlet extends AdminServlet {
 
         IConfigStore config = mRA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mRA.PROP_NOTIFY_SUBSTORE);
+            config.getSubStore(IRegistrationAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore rc = nc.getSubStore(mRA.PROP_CERT_ISSUED_SUBSTORE);
+        IConfigStore rc = nc.getSubStore(IRegistrationAuthority.PROP_CERT_ISSUED_SUBSTORE);
 
         getNotificationCompConfig(req, resp, rc);
 
@@ -229,9 +229,9 @@ public class RAAdminServlet extends AdminServlet {
 
         IConfigStore config = mRA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mRA.PROP_NOTIFY_SUBSTORE);
+            config.getSubStore(IRegistrationAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore rc = nc.getSubStore(mRA.PROP_CERT_REVOKED_SUBSTORE);
+        IConfigStore rc = nc.getSubStore(IRegistrationAuthority.PROP_CERT_REVOKED_SUBSTORE);
 
         getNotificationCompConfig(req, resp, rc);
 
@@ -248,9 +248,9 @@ public class RAAdminServlet extends AdminServlet {
 
         IConfigStore config = mRA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mRA.PROP_NOTIFY_SUBSTORE);
+            config.getSubStore(IRegistrationAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore riq = nc.getSubStore(mRA.PROP_REQ_IN_Q_SUBSTORE);
+        IConfigStore riq = nc.getSubStore(IRegistrationAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
         Enumeration e = req.getParameterNames();
 
@@ -282,9 +282,9 @@ public class RAAdminServlet extends AdminServlet {
             IOException, EBaseException {
         IConfigStore config = mRA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mRA.PROP_NOTIFY_SUBSTORE);
+            config.getSubStore(IRegistrationAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore riq = nc.getSubStore(mRA.PROP_REQ_IN_Q_SUBSTORE);
+        IConfigStore riq = nc.getSubStore(IRegistrationAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
         //set rest of the parameters
         Enumeration e = req.getParameterNames();
@@ -359,9 +359,9 @@ public class RAAdminServlet extends AdminServlet {
             IOException, EBaseException {
         IConfigStore config = mRA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mRA.PROP_NOTIFY_SUBSTORE);
+            config.getSubStore(IRegistrationAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore rc = nc.getSubStore(mRA.PROP_CERT_ISSUED_SUBSTORE);
+        IConfigStore rc = nc.getSubStore(IRegistrationAuthority.PROP_CERT_ISSUED_SUBSTORE);
 
         setNotificationCompConfig(req, resp, rc, mRA.getCertIssuedListener());
  
@@ -372,9 +372,9 @@ public class RAAdminServlet extends AdminServlet {
             IOException, EBaseException {
         IConfigStore config = mRA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(mRA.PROP_NOTIFY_SUBSTORE);
+            config.getSubStore(IRegistrationAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore rc = nc.getSubStore(mRA.PROP_CERT_REVOKED_SUBSTORE);
+        IConfigStore rc = nc.getSubStore(IRegistrationAuthority.PROP_CERT_REVOKED_SUBSTORE);
 
         setNotificationCompConfig(req, resp, rc, mRA.getCertRevokedListener());
     }

@@ -238,7 +238,7 @@ public class RecoverBySerial extends CMSServlet {
             header.addStringValue(OUT_ERROR,
                 CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
         } finally {
-            ctx.releaseContext();
+            SessionContext.releaseContext();
         }
 
         // return status page

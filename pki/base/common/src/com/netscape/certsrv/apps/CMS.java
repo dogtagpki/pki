@@ -1563,8 +1563,8 @@ public final class CMS {
 
             cms = new CMS(engine);
             IConfigStore mainConfig = createFileConfigStore(path);
-            cms.init(null, mainConfig);
-            cms.startup();
+            CMS.init(null, mainConfig);
+            CMS.startup();
 
         } catch (EBaseException e) { // catch everything here purposely
             CMS.debug("CMS:Caught EBaseException");

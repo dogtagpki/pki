@@ -338,7 +338,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
          * is it the right month?
          */
         Vector moy =
-            jcron.getItem(jcron.CRON_MONTH_OF_YEAR).getElements();
+            jcron.getItem(JobCron.CRON_MONTH_OF_YEAR).getElements();
 		
         int cronMoy = jcron.MOY_cal2cron(now);
 
@@ -350,8 +350,8 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         /**
          * is it the right date?
          */
-        Vector dow = jcron.getItem(jcron.CRON_DAY_OF_WEEK).getElements();
-        Vector dom = jcron.getItem(jcron.CRON_DAY_OF_MONTH).getElements();
+        Vector dow = jcron.getItem(JobCron.CRON_DAY_OF_WEEK).getElements();
+        Vector dom = jcron.getItem(JobCron.CRON_DAY_OF_MONTH).getElements();
 
         // can't be both empty
         if ((dow.isEmpty()) && dom.isEmpty()) {
@@ -369,7 +369,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         /**
          * is it the right hour?
          */
-        Vector hour = jcron.getItem(jcron.CRON_HOUR).getElements();
+        Vector hour = jcron.getItem(JobCron.CRON_HOUR).getElements();
 
         if (jcron.isElement(now.get(Calendar.HOUR_OF_DAY), hour) == false) {
             return false;
@@ -379,7 +379,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         /**
          * is it the right minute?
          */
-        Vector minute = jcron.getItem(jcron.CRON_MINUTE).getElements();
+        Vector minute = jcron.getItem(JobCron.CRON_MINUTE).getElements();
 
         if (jcron.isElement(now.get(Calendar.MINUTE), minute) == false) {
             return false;

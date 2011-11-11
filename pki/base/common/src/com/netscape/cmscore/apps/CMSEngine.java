@@ -1644,7 +1644,7 @@ public class CMSEngine implements ICMSEngine {
         while (t1.isAlive() && ((timeOut - startTime) < (60 * 1000))) //wait for 1 minute
         {
             try {
-                Thread.currentThread().sleep(5000); // sleep for 5 sec
+				Thread.sleep(5000); // sleep for 5 sec
             }catch (java.lang.InterruptedException e) {
             }
             timeOut = time.getTime();

@@ -393,14 +393,14 @@ public class IssuingDistributionPointExtension extends Extension
         generalNames = new GeneralNames();
         generalNames.addElement(dn);
         idp.setFullName(generalNames);
-        idpExt.set(idpExt.ISSUING_DISTRIBUTION_POINT, idp);
+        idpExt.set(IssuingDistributionPointExtension.ISSUING_DISTRIBUTION_POINT, idp);
 
         // DN + reason
         BitArray ba = new BitArray(5, new byte[] {(byte)0x28} );
         idp = new IssuingDistributionPoint();
         idp.setFullName(generalNames);
         idp.setOnlySomeReasons(ba);
-        idpExt.set(idpExt.ISSUING_DISTRIBUTION_POINT, idp);
+        idpExt.set(IssuingDistributionPointExtension.ISSUING_DISTRIBUTION_POINT, idp);
         
 
         // relative DN + reason + crlIssuer
@@ -411,7 +411,7 @@ public class IssuingDistributionPointExtension extends Extension
         idp.setOnlyContainsCACerts(true);
         idp.setOnlyContainsUserCerts(true);
         idp.setIndirectCRL(true);
-        idpExt.set(idpExt.ISSUING_DISTRIBUTION_POINT, idp);
+        idpExt.set(IssuingDistributionPointExtension.ISSUING_DISTRIBUTION_POINT, idp);
 
         idpExt.setCritical(false);
         idpExt.encode(bos);

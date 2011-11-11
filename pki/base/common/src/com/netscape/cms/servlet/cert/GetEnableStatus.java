@@ -145,7 +145,7 @@ public class GetEnableStatus extends CMSServlet {
         IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
-        long timeout = mgr.DEFAULT_TIMEOUT / 1000;
+        long timeout = HashAuthentication.DEFAULT_TIMEOUT / 1000;
 
         header.addStringValue("timeout", "" + timeout);
         header.addStringValue("reqHost", reqHost);
