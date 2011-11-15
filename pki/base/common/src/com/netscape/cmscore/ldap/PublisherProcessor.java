@@ -1361,10 +1361,11 @@ public class PublisherProcessor implements
 
             try {
                 if (dirdn instanceof Vector) {
-                    Vector<?> dirdnVector = (Vector<?>)dirdn;
+                	@SuppressWarnings("unchecked")
+					Vector<String> dirdnVector = (Vector<String>)dirdn;
                     int n = dirdnVector.size();
                     for (int i = 0; i < n; i++) {
-                        publisher.publish(conn, (String)dirdnVector.elementAt(i), cert);
+                        publisher.publish(conn, dirdnVector.elementAt(i), cert);
                     }
                 } else if (dirdn instanceof String || 
                            publisher instanceof com.netscape.cms.publish.publishers.FileBasedPublisher) {

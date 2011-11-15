@@ -357,6 +357,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 mCRLExtensionClassNames.put(extName, extClass);
 
                 try {
+                    @SuppressWarnings("unchecked")
                     Class<ICMSCRLExtension> crlExtClass = (Class<ICMSCRLExtension>) Class.forName(extClass);
 
                     if (crlExtClass != null) {
@@ -446,6 +447,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             String name =  mCRLExtensionClassNames.get(extName);
 
             try {
+                @SuppressWarnings("unchecked")
                 Class<ICMSCRLExtension > extClass = (Class<ICMSCRLExtension>) Class.forName(name);
 
                 if (extClass != null) {
