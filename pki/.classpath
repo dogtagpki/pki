@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="base/ca/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ca/src"/>
 	<classpathentry kind="src" path="base/common/test"/>
 	<classpathentry kind="src" path="base/common/src"/>
-	<classpathentry kind="src" path="base/java-tools/src"/>
-	<classpathentry kind="src" path="base/kra/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/java-tools/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/kra/src"/>
 	<classpathentry kind="src" path="base/migrate/80"/>
-	<classpathentry kind="src" path="base/ocsp/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ocsp/src"/>
 	<classpathentry kind="src" path="base/silent/src/argparser"/>
 	<classpathentry kind="src" path="base/silent/src/ca"/>
 	<classpathentry kind="src" path="base/silent/src/common"/>
@@ -17,9 +17,9 @@
 	<classpathentry kind="src" path="base/silent/src/subca"/>
 	<classpathentry kind="src" path="base/silent/src/tks"/>
 	<classpathentry kind="src" path="base/silent/src/tps"/>
-	<classpathentry kind="src" path="base/symkey/src"/>
-	<classpathentry kind="src" path="base/tks/src"/>
-	<classpathentry kind="src" path="base/util/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/symkey/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/tks/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-base.jar"/>
