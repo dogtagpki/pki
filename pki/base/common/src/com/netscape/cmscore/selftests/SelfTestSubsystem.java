@@ -952,17 +952,6 @@ public class SelfTestSubsystem
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
-        } catch (ESelfTestException eAudit2) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
-                        ILogger.SYSTEM_UID,
-                        ILogger.FAILURE);
-
-            audit(auditMessage);
-
-            // rethrow the specific exception to be handled later
-            throw eAudit2;
         }
     }
 

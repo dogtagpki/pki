@@ -1719,9 +1719,6 @@ CMS.debug("*** removing this interna cert");
         } catch (IOException e) { 
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
-        } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
     }
 

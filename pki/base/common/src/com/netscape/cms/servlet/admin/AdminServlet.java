@@ -540,35 +540,6 @@ public class AdminServlet extends HttpServlet {
                 }
 
                 throw new IOException("authentication failed");
-            } catch (EBaseException e) {
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_ERROR",
-                        e.toString()));
-
-                if (authType.equals("sslclientauth")) {
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_AUTH_FAIL,
-                                ILogger.UNIDENTIFIED,
-                                ILogger.FAILURE,
-                                CERTUSERDB,
-                                auditUID);
-
-                    audit(auditMessage);
-                } else {
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_AUTH_FAIL,
-                                ILogger.UNIDENTIFIED,
-                                ILogger.FAILURE,
-                                PASSWDUSERDB,
-                                auditUID);
-
-                    audit(auditMessage);
-                }
-
-                throw new IOException("authentication failed");
             }
 
             // build locale based on the client language

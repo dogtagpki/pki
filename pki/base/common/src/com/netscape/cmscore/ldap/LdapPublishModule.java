@@ -726,11 +726,6 @@ class HandleRevocation implements IRequestListener {
                 mModule.log(ILogger.LL_FAILURE, 
 			CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
                     cert.getSerialNumber().toString(16), e.getMessage()));
-            } catch (EBaseException e) {
-                error = true;
-                mModule.log(ILogger.LL_FAILURE, 
-			CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_FIND",
-                    cert.getSerialNumber().toString(16), e.getMessage()));
             }
         }
         r.setExtData("ldapPublishStatus", results);
@@ -793,11 +788,6 @@ class HandleUnrevocation implements IRequestListener {
                 error = true;
                 mModule.log(ILogger.LL_FAILURE, 
 			CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
-                    certs[i].getSerialNumber().toString(16), e.getMessage()));
-            } catch (EBaseException e) {
-                error = true;
-                mModule.log(ILogger.LL_FAILURE, 
-			CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_FIND",
                     certs[i].getSerialNumber().toString(16), e.getMessage()));
             }
         }

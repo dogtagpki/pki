@@ -317,10 +317,6 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
         } catch (CertificateEncodingException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
-        } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
-            throw new ELdapException(
-                    CMS.getUserMessage("CMS_LDAP_DECODING_CERT_FAILED", e.toString()));
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_LDAP_DN_STRING_FAILED", e.toString()));
