@@ -113,8 +113,8 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         return "LdapCertSubjMap";
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("certSubjNameAttr=" + mCertSubjNameAttr);
         v.addElement("searchBase=");
@@ -137,8 +137,8 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         return params;
     }
 	
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         if (mCertSubjNameAttr == null) {
             v.addElement("certSubjNameAttr=");
@@ -263,9 +263,9 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         return map(conn, obj);
     }
 
-    public Vector mapAll(LDAPConnection conn, Object obj)
+    public Vector<String> mapAll(LDAPConnection conn, Object obj)
         throws ELdapException {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         if (conn == null)
             return null;
@@ -315,7 +315,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         return v;
     }
 
-    public Vector mapAll(LDAPConnection conn, IRequest req, Object obj)
+    public Vector<String> mapAll(LDAPConnection conn, IRequest req, Object obj)
         throws ELdapException {
         return mapAll(conn, obj);
     }

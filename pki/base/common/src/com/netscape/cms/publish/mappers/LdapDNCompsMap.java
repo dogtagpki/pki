@@ -142,8 +142,8 @@ public class LdapDNCompsMap
         return s;
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("baseDN=");
         v.addElement("dnComps=");
@@ -151,8 +151,8 @@ public class LdapDNCompsMap
         return v;
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         try {
             if (mBaseDN == null) {
@@ -307,7 +307,7 @@ public class LdapDNCompsMap
      */
     public String[] formDNandFilter(X500Name subjName)
         throws ELdapException {
-        Vector dnRdns = new Vector();
+        Vector<RDN> dnRdns = new Vector<RDN>();
         SearchFilter filter = new SearchFilter();
         X500NameAttrMap attrMap = X500NameAttrMap.getDefault();
         String dnStr = null, filterStr = null;
@@ -316,7 +316,7 @@ public class LdapDNCompsMap
 
         try {
             // get the base DN & filter.
-            for (Enumeration n = subjName.getRDNs(); n.hasMoreElements();) {
+            for (Enumeration<RDN> n = subjName.getRDNs(); n.hasMoreElements();) {
                 RDN rdn = (RDN) n.nextElement();
                 // NOTE assumes one AVA per RDN.
                 AVA ava = rdn.getAssertion()[0];
@@ -389,12 +389,9 @@ public class LdapDNCompsMap
      * class for forming search filters for ldap searching from 
      * name=value components. components are anded.
      */
-    public static class SearchFilter extends Vector {
-        /**
-         *
-         */
-        private static final long serialVersionUID = 4210302171279891828L;
 
+    public static class SearchFilter extends Vector<Object> {
+        private static final long serialVersionUID = 4210302171279891828L;
         public String toFilterString() {
             StringBuffer buf = new StringBuffer();
 

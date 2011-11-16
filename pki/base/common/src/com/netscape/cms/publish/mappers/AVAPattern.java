@@ -37,6 +37,7 @@ import netscape.ldap.LDAPDN;
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
+import netscape.security.x509.GeneralNameInterface;
 import netscape.security.x509.GeneralNames;
 import netscape.security.x509.LdapV3DNStrConverter;
 import netscape.security.x509.OIDMap;
@@ -459,7 +460,7 @@ class AVAPattern {
 
                                 int j = 0;
 
-                                for (Enumeration n =
+                                for (Enumeration<GeneralNameInterface> n =
                                         subjectNames.elements();
                                     n.hasMoreElements();) {
 
@@ -561,7 +562,7 @@ class AVAPattern {
             return new String[] { rdn };
         }
 
-        Vector avas = new Vector();
+        Vector<String> avas = new Vector<String>();
 
         StringTokenizer token = new StringTokenizer(rdn, "+");
 

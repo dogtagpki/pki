@@ -84,14 +84,14 @@ public class LdapCertCompsMap
         return "LdapCertCompsMap";
     }
 
-    public Vector getDefaultParams() {
-        Vector v = super.getDefaultParams();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = super.getDefaultParams();
 
         return v;
     }
 
-    public Vector getInstanceParams() {
-        Vector v = super.getInstanceParams();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = super.getInstanceParams();
 
         return v;
     }

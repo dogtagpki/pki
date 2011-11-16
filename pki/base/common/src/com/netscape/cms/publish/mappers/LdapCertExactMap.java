@@ -90,14 +90,14 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
         return "LdapCertExactMap";
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         return v;
     }
 	
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         return v;
     }

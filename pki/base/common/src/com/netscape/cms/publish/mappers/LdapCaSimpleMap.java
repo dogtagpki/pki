@@ -348,16 +348,16 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         return "LdapCaSimpleMap";
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement(PROP_DNPATTERN + "=");
         v.addElement(PROP_CREATECA + "=true");
         return v;
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         try {
             if (mDnPattern == null) {
