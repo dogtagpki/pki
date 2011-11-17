@@ -38,7 +38,7 @@ import java.util.ResourceBundle;
  */
 public class MessageFormatter {
 
-    private static final Class[] toStringSignature = { Locale.class };
+    private static final Class<?>[] toStringSignature = { Locale.class };
 
     /**
      * Retrieves the localized string.

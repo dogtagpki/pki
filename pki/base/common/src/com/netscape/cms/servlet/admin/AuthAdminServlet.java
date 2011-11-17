@@ -369,7 +369,8 @@ public class AuthAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void addAuthMgrPlugin(HttpServletRequest req, 
+    
+	private synchronized void addAuthMgrPlugin(HttpServletRequest req, 
         HttpServletResponse resp, String scope)
         throws ServletException, IOException, EBaseException {
 
@@ -454,10 +455,13 @@ public class AuthAdminServlet extends AdminServlet {
                 destStore.getSubStore(scope);
 
             // Does the class exist?
-            Class newImpl = null;
+            
+            Class<IAuthManager> newImpl = null;
 
             try {
-                newImpl = Class.forName(classPath);
+                @SuppressWarnings("unchecked")
+                Class<IAuthManager> tmpImpl = (Class<IAuthManager>) Class.forName(classPath);
+                newImpl = tmpImpl;
             } catch (ClassNotFoundException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -901,7 +905,7 @@ public class AuthAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        Enumeration e = mAuths.getPlugins().keys();
+        Enumeration<String> e = mAuths.getPlugins().keys();
 
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
@@ -922,7 +926,7 @@ public class AuthAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        for (Enumeration e = mAuths.getInstances().keys();
+        for (Enumeration<?> e = mAuths.getInstances().keys();
             e.hasMoreElements();) {
             String name = (String) e.nextElement();
             AuthManagerProxy proxy = (AuthManagerProxy) mAuths.getInstances().get(name);
@@ -1018,7 +1022,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // first check if any instances from this auth manager
             // DON'T remove auth manager if any instance
-            for (Enumeration e = mAuths.getInstances().keys();
+            for (Enumeration<?> e = mAuths.getInstances().keys();
                 e.hasMoreElements();) {
                 IAuthManager authMgr = (IAuthManager) mAuths.get((String) e.nextElement());
 
@@ -1689,7 +1693,7 @@ public class AuthAdminServlet extends AdminServlet {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
-        Enumeration keys = saveParams.getNames();
+        Enumeration<String> keys = saveParams.getNames();
 
         while (keys.hasMoreElements()) {
             String key = (String) keys.nextElement();

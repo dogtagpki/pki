@@ -78,7 +78,8 @@ public class AgentPolicy extends APolicyRule
             IConfigStore substore = config.getSubStore("params");
 
             try {
-                Class c = Class.forName(className);
+                @SuppressWarnings("unchecked")
+				Class<APolicyRule> c = (Class<APolicyRule>) Class.forName(className);
 
                 Object o = c.newInstance();
 
@@ -146,7 +147,7 @@ public class AgentPolicy extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return null;
     }
 
@@ -155,7 +156,7 @@ public class AgentPolicy extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return null;
     }
 

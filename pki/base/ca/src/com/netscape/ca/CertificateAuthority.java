@@ -209,7 +209,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     private ResponderID mResponderIDByName = null;
     private ResponderID mResponderIDByHash = null;
 
-    protected Hashtable mListenerPlugins = null;
+    protected Hashtable<String, ListenerPlugin> mListenerPlugins = null;
 
     /**
      * Internal constants
@@ -355,10 +355,10 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
             if (publisherClass != null) {
                 try {
-                    Class pc = Class.forName(publisherClass);
+                    @SuppressWarnings("unchecked")
+					Class<ICRLPublisher> pc = (Class<ICRLPublisher>) Class.forName(publisherClass);
 
-                    mCRLPublisher = (ICRLPublisher)
-                            pc.newInstance();
+                    mCRLPublisher = pc.newInstance();
                     mCRLPublisher.init(this, cpStore);
                 } catch (ClassNotFoundException ee) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
@@ -457,7 +457,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         return mPNotify.getListener(name);
     }
 
-    public Enumeration getRequestListenerNames() {
+    public Enumeration<String> getRequestListenerNames() {
         return mNotify.getListenerNames();
     }
 
@@ -522,7 +522,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * <P>
      */
     public void shutdown() {
-        Enumeration enums = mCRLIssuePoints.elements();
+        Enumeration<CRLIssuingPoint> enums = mCRLIssuePoints.elements();
         while (enums.hasMoreElements()) {
             CRLIssuingPoint point = (CRLIssuingPoint)enums.nextElement();
             point.shutdown();
@@ -668,7 +668,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * <P>
      * @return security service
      */
-    public Enumeration getCRLIssuingPoints() {
+    public Enumeration<CRLIssuingPoint> getCRLIssuingPoints() {
         return mCRLIssuePoints.elements();
     }
 
@@ -679,7 +679,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Adds CRL issuing point with the given identifier and description.
      */
-    public boolean addCRLIssuingPoint(IConfigStore crlSubStore, String id,
+    @SuppressWarnings("unchecked")
+	public boolean addCRLIssuingPoint(IConfigStore crlSubStore, String id,
                                       boolean enable, String description) {
         crlSubStore.makeSubStore(id);
         IConfigStore c = crlSubStore.getSubStore(id);
@@ -801,12 +802,12 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             c.putString("extension.FreshestCRL.pointName0", "");
 
             String issuingPointClassName = null;
-            Class issuingPointClass = null;
+            Class<CRLIssuingPoint> issuingPointClass = null;
             CRLIssuingPoint issuingPoint = null;
 
             try {
                 issuingPointClassName = c.getString(PROP_CLASS);
-                issuingPointClass = Class.forName(issuingPointClassName);
+                issuingPointClass = (Class<CRLIssuingPoint>)Class.forName(issuingPointClassName);
                 issuingPoint = (CRLIssuingPoint) issuingPointClass.newInstance();
                 issuingPoint.init(this, id, c);
                 mCRLIssuePoints.put(id, issuingPoint);
@@ -1476,14 +1477,14 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         IConfigStore implc = null;
         IConfigStore instc = null;
 
-        mListenerPlugins = new Hashtable();
+        mListenerPlugins = new Hashtable<String, ListenerPlugin>();
         try {
             // Get list of listener implementations
             lc = mConfig.getSubStore(PROP_LISTENER_SUBSTORE);
             if (lc != null) {
 
                 implc = lc.getSubStore(PROP_IMPL);
-                Enumeration names = implc.getSubStoreNames();
+                Enumeration<String> names = implc.getSubStoreNames();
 
                 while (names.hasMoreElements()) {
                     String id = (String) names.nextElement();
@@ -1498,7 +1499,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 }
 
                 instc = lc.getSubStore(PROP_INSTANCE);
-                Enumeration instances = instc.getSubStoreNames();
+                Enumeration<String> instances = instc.getSubStoreNames();
 
                 while (instances.hasMoreElements()) {
                     String id = (String) instances.nextElement();
@@ -1661,7 +1662,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * initialize CRL 
      */
-    private void initCRL()
+    @SuppressWarnings("unchecked")
+	private void initCRL()
         throws EBaseException {
         IConfigStore crlConfig = mConfig.getSubStore(PROP_CRL_SUBSTORE);
 
@@ -1687,14 +1689,14 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 "initializing crl issue point " + issuePointId);
             IConfigStore issuePointConfig = null;
             String issuePointClassName = null;
-            Class issuePointClass = null;
+            Class<CRLIssuingPoint> issuePointClass = null;
             CRLIssuingPoint issuePoint = null;
 
             try {
                 issuePointConfig = crlConfig.getSubStore(issuePointId);
                 issuePointClassName = issuePointConfig.getString(PROP_CLASS);
-                issuePointClass = Class.forName(issuePointClassName);
-                issuePoint = (CRLIssuingPoint) issuePointClass.newInstance();
+                issuePointClass = (Class<CRLIssuingPoint>) Class.forName(issuePointClassName);
+                issuePoint = issuePointClass.newInstance();
                 issuePoint.init(this, issuePointId, issuePointConfig);
                 mCRLIssuePoints.put(issuePointId, issuePoint);
                 if (mMasterCRLIssuePoint == null && 
@@ -1803,7 +1805,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
             // (3) look into database to check the
             //     certificate's status
-            Vector singleResponses = new Vector();
+            Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
             if (statsSub != null) {
               statsSub.startTiming("lookup");
             }

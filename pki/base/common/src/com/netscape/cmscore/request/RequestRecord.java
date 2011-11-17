@@ -631,7 +631,7 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
                 attrName.toLowerCase().startsWith(extAttrPrefix);
     }
 
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
 

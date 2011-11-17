@@ -42,7 +42,7 @@ public interface ISourceConfigStore extends Serializable {
      * @param name The property name
      * @return property value
      */
-    public Object get(String name);
+    public String get(String name);
 
     /**
      * Retrieves a property.
@@ -51,7 +51,7 @@ public interface ISourceConfigStore extends Serializable {
      * @param name The property name
      * @param value The property value
      */
-    public void put(String name, Object value);
+    public String put(String name, String value);
 
     /**
      * Returns an enumeration of the config store's keys.
@@ -61,7 +61,7 @@ public interface ISourceConfigStore extends Serializable {
      * @see java.util.Hashtable#elements
      * @see java.util.Enumeration
      */
-    public Enumeration keys();
+    public Enumeration<String> keys();
 
     /**
      * Reads a config store from an input stream. 

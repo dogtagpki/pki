@@ -32,7 +32,7 @@ import java.util.Hashtable;
  *
  * @version $Revision$, $Date$
  */
-public class SessionContext extends Hashtable implements IAuthInfo {
+public class SessionContext extends Hashtable<Object,Object> {
 
     /**
      *
@@ -84,7 +84,7 @@ public class SessionContext extends Hashtable implements IAuthInfo {
      */
     public static final String IPADDRESS = "ipAddress";
 
-    private static Hashtable mContexts = new Hashtable();
+    private static Hashtable<Thread, SessionContext> mContexts = new Hashtable<Thread, SessionContext>();
 
     /**
      * Constructs a session context.

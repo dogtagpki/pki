@@ -169,10 +169,10 @@ public class LDAPSecurityDomainSessionTable
     }
 
 
-    public Enumeration getSessionIds() {
+    public Enumeration<String> getSessionIds() {
         IConfigStore cs = CMS.getConfigStore();
         LDAPConnection conn = null;
-        Vector ret = new Vector();
+        Vector<String> ret = new Vector<String>();
 
         try {
             String basedn = cs.getString("internaldb.basedn");

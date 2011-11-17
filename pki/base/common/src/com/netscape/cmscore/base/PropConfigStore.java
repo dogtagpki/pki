@@ -125,7 +125,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property name
      * @return property value
      */
-    public Object get(String name) {
+    public String get(String name) {
         return mSource.get(getFullName(name));
     }
 
@@ -150,8 +150,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property name
      * @param value property value
      */
-    public void put(String name, Object value) {
-        mSource.put(getFullName(name), value);
+    public String put(String name, String value) {
+        return mSource.put(getFullName(name), value);
     }
 
     /**

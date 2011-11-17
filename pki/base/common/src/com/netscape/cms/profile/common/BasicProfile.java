@@ -83,19 +83,19 @@ public abstract class BasicProfile implements IProfile {
     protected IConfigStore mConfig = null;
     protected IPluginRegistry mRegistry = null;
 
-    protected Vector mInputNames = new Vector();
-    protected Hashtable mInputs = new Hashtable();
-    protected Vector mInputIds = new Vector();
-    protected Hashtable mOutputs = new Hashtable();
-    protected Vector mOutputIds = new Vector();
-    protected Hashtable mUpdaters = new Hashtable();
-    protected Vector mUpdaterIds = new Vector();
+    protected Vector<String> mInputNames = new Vector<String>();
+    protected Hashtable<String, IProfileInput> mInputs = new Hashtable<String, IProfileInput>();
+    protected Vector<String> mInputIds = new Vector<String>();
+    protected Hashtable<String, IProfileOutput> mOutputs = new Hashtable<String, IProfileOutput>();
+    protected Vector<String> mOutputIds = new Vector<String>();
+    protected Hashtable<String, IProfileUpdater> mUpdaters = new Hashtable<String, IProfileUpdater>();
+    protected Vector<String> mUpdaterIds = new Vector<String>();
     protected IProfileAuthenticator mAuthenticator = null;
     protected String mAuthInstanceId = null;
     protected String mId = null;
     protected String mAuthzAcl = "";
 
-    protected Hashtable mPolicySet = new Hashtable();
+    protected Hashtable<String, Vector<ProfilePolicy>> mPolicySet = new Hashtable<String, Vector<ProfilePolicy>>();
 
     protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
@@ -343,11 +343,11 @@ public abstract class BasicProfile implements IProfile {
         return mConfig;
     }
 
-    public Enumeration getInputNames() {
+    public Enumeration<String> getInputNames() {
         return mInputNames.elements();
     }
 
-    public Enumeration getProfileUpdaterIds() {
+    public Enumeration<String> getProfileUpdaterIds() {
         return mUpdaterIds.elements(); // ordered list
     }
 
@@ -355,7 +355,7 @@ public abstract class BasicProfile implements IProfile {
         return (IProfileUpdater) mUpdaters.get(name);
     }
 
-    public Enumeration getProfileOutputIds() {
+    public Enumeration<String> getProfileOutputIds() {
         return mOutputIds.elements(); // ordered list
     }
 
@@ -363,7 +363,7 @@ public abstract class BasicProfile implements IProfile {
         return (IProfileOutput) mOutputs.get(name);
     }
 
-    public Enumeration getProfileInputIds() {
+    public Enumeration<String> getProfileInputIds() {
         return mInputIds.elements(); // ordered list
     }
 
@@ -388,13 +388,13 @@ public abstract class BasicProfile implements IProfile {
         String value) throws EProfileException {
     }
 
-    public Enumeration getProfilePolicySetIds() {
+    public Enumeration<String> getProfilePolicySetIds() {
         return mPolicySet.keys();
     }
 
     public void deleteProfilePolicy(String setId, String policyId) 
         throws EProfileException {
-        Vector policies = (Vector) mPolicySet.get(setId);
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null) {
             return;
@@ -621,7 +621,7 @@ public abstract class BasicProfile implements IProfile {
                 outputInfo.getName(Locale.getDefault()));
             outputStore.putString(prefix + "class_id", outputId);
 
-            Enumeration enum1 = nvps.getNames();
+            Enumeration<String> enum1 = nvps.getNames();
 
             while (enum1.hasMoreElements()) {
                 String name = (String) enum1.nextElement();
@@ -724,7 +724,7 @@ public abstract class BasicProfile implements IProfile {
                 inputInfo.getName(Locale.getDefault()));
             inputStore.putString(prefix + "class_id", inputId);
             
-            Enumeration enum1 = nvps.getNames();
+            Enumeration<String> enum1 = nvps.getNames();
 
             while (enum1.hasMoreElements()) {
                 String name = (String) enum1.nextElement();
@@ -772,16 +772,16 @@ public abstract class BasicProfile implements IProfile {
         // String constraintClassId : if of the constraint plugin ex: basicConstraintsExtConstraintImpl
         // boolean createConfig : true : being called from the console. false: being called from server startup code
 
-        Vector policies = (Vector) mPolicySet.get(setId);
+        Vector<ProfilePolicy> policies =  mPolicySet.get(setId);
 
         IConfigStore policyStore = mConfig.getSubStore("policyset." + setId);
         if (policies == null) {
-            policies = new Vector();
+            policies = new Vector<ProfilePolicy>();
             mPolicySet.put(setId, policies);
             if (createConfig) {	
                 // re-create policyset.list
                 StringBuffer setlist =new StringBuffer();
-                Enumeration keys = mPolicySet.keys();
+                Enumeration<String> keys = mPolicySet.keys();
 
                 while (keys.hasMoreElements()) {
                     String k = (String) keys.nextElement();
@@ -990,7 +990,7 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public IProfilePolicy getProfilePolicy(String setId, String id) {
-        Vector policies = (Vector) mPolicySet.get(setId);
+        Vector<ProfilePolicy> policies =  mPolicySet.get(setId);
 
         if (policies == null)
             return null;
@@ -1057,7 +1057,7 @@ public abstract class BasicProfile implements IProfile {
 
     public void populateInput(IProfileContext ctx, IRequest request)
         throws EProfileException {
-        Enumeration ids = getProfileInputIds();
+        Enumeration<String> ids = getProfileInputIds();
 
         while (ids.hasMoreElements()) {
             String id = (String) ids.nextElement();
@@ -1067,8 +1067,8 @@ public abstract class BasicProfile implements IProfile {
         }
     }
 
-    public Vector getPolicies(String setId) {
-        Vector policies = (Vector) mPolicySet.get(setId);
+    public Vector<ProfilePolicy> getPolicies(String setId) {
+        Vector<ProfilePolicy> policies =  mPolicySet.get(setId);
 
         return policies;
     }
@@ -1080,7 +1080,7 @@ public abstract class BasicProfile implements IProfile {
     public void populate(IRequest request)
         throws EProfileException {
         String setId = getPolicySetId(request);
-        Vector policies = getPolicies(setId);
+        Vector<ProfilePolicy> policies = getPolicies(setId);
         CMS.debug("BasicProfile: populate() policy setid ="+ setId);
 
         for (int i = 0; i < policies.size(); i++) {
@@ -1099,7 +1099,7 @@ public abstract class BasicProfile implements IProfile {
         throws ERejectException {
         String setId = getPolicySetId(request);
         CMS.debug("BasicProfile: validate start on setId="+ setId);
-        Vector policies = getPolicies(setId);
+        Vector<ProfilePolicy> policies = getPolicies(setId);
 
         for (int i = 0; i < policies.size(); i++) {
             ProfilePolicy policy = (ProfilePolicy)
@@ -1112,21 +1112,21 @@ public abstract class BasicProfile implements IProfile {
         CMS.debug("BasicProfile: validate end");
     }
 
-    public Enumeration getProfilePolicies(String setId) {
-        Vector policies = (Vector) mPolicySet.get(setId);
+    public Enumeration<ProfilePolicy> getProfilePolicies(String setId) {
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null)
             return null;
         return policies.elements();
     }
 
-    public Enumeration getProfilePolicyIds(String setId) {
-        Vector policies = (Vector) mPolicySet.get(setId);
+    public Enumeration<String> getProfilePolicyIds(String setId) {
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null)
             return null;
 
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         for (int i = 0; i < policies.size(); i++) {
             ProfilePolicy policy = (ProfilePolicy)

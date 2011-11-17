@@ -254,7 +254,7 @@ public class ACLAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration res = mAuthzMgr.getACLs();
+        Enumeration<ACL> res = mAuthzMgr.getACLs();
 
         while (res.hasMoreElements()) {
             ACL acl = (ACL) res.nextElement();
@@ -291,16 +291,16 @@ public class ACLAdminServlet extends AdminServlet {
         IACL acl = mAuthzMgr.getACL(resourceId);
 
         if (acl != null) {
-            Enumeration en = acl.rights();
+            Enumeration<String> rightsEnum = acl.rights();
 
             StringBuffer rights = new StringBuffer();
 
-            if (en.hasMoreElements()) {
-                while (en.hasMoreElements()) {
+			if (rightsEnum.hasMoreElements()) {
+                while (rightsEnum.hasMoreElements()) {
                     if (rights.length() != 0) {
                         rights.append(",");
                     }
-                    String right = (String) en.nextElement();
+                    String right = rightsEnum.nextElement();
 
                     rights.append(right);
                 }
@@ -308,15 +308,16 @@ public class ACLAdminServlet extends AdminServlet {
 
             params.add(Constants.PR_ACL_OPS, rights.toString());
 
-            en = acl.entries();
+            Enumeration<ACLEntry> aclEntryEnum;
+            aclEntryEnum = acl.entries();
             String acis = "";
 
-            if (en.hasMoreElements()) {
-                while (en.hasMoreElements()) {
+            if (aclEntryEnum.hasMoreElements()) {
+                while (aclEntryEnum.hasMoreElements()) {
                     if (acis != "") {
                         acis += ";";
                     }
-                    ACLEntry aclEntry = (ACLEntry) en.nextElement();
+                    ACLEntry aclEntry = (ACLEntry) aclEntryEnum.nextElement();
                     String aci = aclEntry.getACLEntryString();
 
                     acis += aci;
@@ -466,10 +467,10 @@ public class ACLAdminServlet extends AdminServlet {
         HttpServletResponse resp) throws ServletException, IOException,
             EBaseException {
         NameValuePairs params = new NameValuePairs();
-        Enumeration res = mAuthzMgr.aclEvaluatorElements();
+        Enumeration<IAccessEvaluator> res = mAuthzMgr.aclEvaluatorElements();
 
         while (res.hasMoreElements()) {
-            IAccessEvaluator evaluator = (IAccessEvaluator) res.nextElement();
+            IAccessEvaluator evaluator =  res.nextElement();
 
             // params.add(evaluator.getType(), evaluator.getDescription());
             params.add(evaluator.getType(), evaluator.getClass().getName());
@@ -482,10 +483,10 @@ public class ACLAdminServlet extends AdminServlet {
         HttpServletResponse resp) throws ServletException, IOException,
             EBaseException {
         NameValuePairs params = new NameValuePairs();
-        Enumeration res = mAuthzMgr.aclEvaluatorElements();
+        Enumeration<IAccessEvaluator> res = mAuthzMgr.aclEvaluatorElements();
 
         while (res.hasMoreElements()) {
-            IAccessEvaluator evaluator = (IAccessEvaluator) res.nextElement();
+            IAccessEvaluator evaluator =  res.nextElement();
             String[] operators = evaluator.getSupportedOperators();
             StringBuffer str = new StringBuffer();
 
@@ -564,7 +565,7 @@ public class ACLAdminServlet extends AdminServlet {
                 destStore.getSubStore(ScopeDef.SC_ACL_IMPLS);
 
             // Does the class exist?
-            Class newImpl = null;
+            Class<?> newImpl = null;
 
             try {
                 newImpl = Class.forName(classPath);
@@ -787,7 +788,7 @@ public class ACLAdminServlet extends AdminServlet {
             }
 
             // does the evaluator exist?
-            Hashtable mEvaluators = mAuthzMgr.getAccessEvaluators();
+            Hashtable<String, IAccessEvaluator> mEvaluators = mAuthzMgr.getAccessEvaluators();
 
             if (mEvaluators.containsKey(id) == false) {
                 log(ILogger.LL_FAILURE, "evaluator attempted to be removed not found");

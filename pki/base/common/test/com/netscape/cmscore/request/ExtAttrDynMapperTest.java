@@ -1,5 +1,6 @@
 package com.netscape.cmscore.request;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -55,8 +56,8 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
     }
 
     public void testGetSupportedLdapAttributesNames() {
-        Enumeration attrs = mapper.getSupportedLDAPAttributeNames();
-        ArrayList attrsList = new ArrayList();
+        Enumeration<String> attrs = mapper.getSupportedLDAPAttributeNames();
+        ArrayList<String> attrsList = new ArrayList<String>();
         while (attrs.hasMoreElements()) {
             attrsList.add(attrs.nextElement());
         }
@@ -117,7 +118,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         LDAPAttributeSet attrs = new LDAPAttributeSet();
 
         // test with a key-value entry.
-        Hashtable extAttrsHash = new Hashtable();
+        Hashtable<String, Serializable> extAttrsHash = new Hashtable<String, Serializable>();
         extAttrsHash.put("foo;", "bar");
 
         mapper.mapObjectToLDAPAttributeSet(null, null, extAttrsHash, attrs);
@@ -130,7 +131,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
         // test with a sub-hash.
         // this is used by vector/arrays and hashtables
-        Hashtable extAttrsValueHash = new Hashtable();
+        Hashtable<String, String> extAttrsValueHash = new Hashtable<String, String>();
         extAttrsValueHash.put("Baz", "Val1");
         extAttrsValueHash.put("bi;m", "val2");
 
@@ -182,7 +183,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
                 requestRecord);
 
         assertEquals(1, requestRecord.setCallCounter);
-        Hashtable extData = (Hashtable)requestRecord.extAttrData.get(
+        Hashtable<?, ?> extData = (Hashtable<?, ?>)requestRecord.extAttrData.get(
                 IRequestRecord.ATTR_EXT_DATA);
         assertNotNull(extData);
 
@@ -214,12 +215,12 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
                 requestRecord);
 
         assertEquals(1, requestRecord.setCallCounter);
-        extData = (Hashtable)requestRecord.extAttrData.get(
+        extData = (Hashtable<?, ?>)requestRecord.extAttrData.get(
                 IRequestRecord.ATTR_EXT_DATA);
         assertNotNull(extData);
 
         assertTrue(extData.containsKey("o;key1"));
-        Hashtable okey1Data = (Hashtable)extData.get("o;key1");
+        Hashtable<?, ?> okey1Data = (Hashtable<?, ?>)extData.get("o;key1");
         assertEquals(3, okey1Data.keySet().size());
         assertTrue(okey1Data.containsKey("i;key11"));
         assertEquals("val11", (String)okey1Data.get("i;key11"));
@@ -229,7 +230,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         assertEquals("val13", (String)okey1Data.get("ikey13"));
 
         assertTrue(extData.containsKey("okey2"));
-        Hashtable okey2Data = (Hashtable)extData.get("okey2");
+        Hashtable<?, ?> okey2Data = (Hashtable<?, ?>)extData.get("okey2");
         assertEquals(2, okey2Data.keySet().size());
         assertTrue(okey2Data.containsKey("ikey21"));
         assertEquals("val21", (String)okey2Data.get("ikey21"));
@@ -261,11 +262,8 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
 
     class RequestRecordStub extends RequestRecordDefaultStub {
-        /**
-         *
-         */
         private static final long serialVersionUID = 4106967075497999274L;
-        Hashtable extAttrData = new Hashtable();
+        Hashtable<String, Object> extAttrData = new Hashtable<String, Object>();
         int setCallCounter = 0;
 
 

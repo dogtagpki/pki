@@ -30,17 +30,17 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 public class SecurityDomainSessionTable 
   implements ISecurityDomainSessionTable {
 
-    private Hashtable m_sessions;
+    private Hashtable<String, Vector<Comparable<?>>> m_sessions;
     private long m_timeToLive;
 
     public SecurityDomainSessionTable(long timeToLive) {
-        m_sessions = new Hashtable();
+        m_sessions = new Hashtable<String, Vector<Comparable<?>>>();
         m_timeToLive = timeToLive;
     }
 
     public int addEntry(String sessionId, String ip, 
       String uid, String group) {
-        Vector v = new Vector();
+        Vector<Comparable<?>> v = new Vector<Comparable<?>>();
         v.addElement(ip);
         v.addElement(uid);
         v.addElement(group);
@@ -60,33 +60,33 @@ public class SecurityDomainSessionTable
         return m_sessions.containsKey(sessionId);
     }
 
-    public Enumeration getSessionIds() {
+    public Enumeration<String> getSessionIds() {
         return m_sessions.keys();
     }
 
     public String getIP(String sessionId) {
-        Vector v = (Vector)m_sessions.get(sessionId);
+        Vector<Comparable<?>> v = m_sessions.get(sessionId);
         if (v != null)
             return (String)v.elementAt(0);
         return null;
     }
 
     public String getUID(String sessionId) {
-        Vector v = (Vector)m_sessions.get(sessionId);
+        Vector<Comparable<?>> v = m_sessions.get(sessionId);
         if (v != null)
             return (String)v.elementAt(1);
         return null;
     }
 
     public String getGroup(String sessionId) {
-        Vector v = (Vector)m_sessions.get(sessionId);
+        Vector<Comparable<?>> v = m_sessions.get(sessionId);
         if (v != null)
             return (String)v.elementAt(2);
         return null;
     }
 
     public long getBeginTime(String sessionId) {
-        Vector v = (Vector)m_sessions.get(sessionId);
+        Vector<Comparable<?>> v = m_sessions.get(sessionId);
         if (v != null) { 
             Long n = (Long)v.elementAt(3);
             if (n != null)

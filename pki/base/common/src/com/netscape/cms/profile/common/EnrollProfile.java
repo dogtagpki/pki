@@ -28,7 +28,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -281,7 +280,7 @@ public abstract class EnrollProfile extends BasicProfile
         int seq_no = seq.intValue(); // start from 0
 
         int count = 0;
-        Enumeration setIds = getProfilePolicySetIds();
+        Enumeration<String> setIds = getProfilePolicySetIds();
 
         while (setIds.hasMoreElements()) {
             String setId = (String) setIds.nextElement();
@@ -369,7 +368,6 @@ public abstract class EnrollProfile extends BasicProfile
         }
         CMS.debug("EnrollProfile: Start parseCMC(): " + certreq);
 
-        Hashtable t1 = new Hashtable();
         TaggedRequest msgs[] = null;
 
         String creq = normalizeCertReq(certreq);

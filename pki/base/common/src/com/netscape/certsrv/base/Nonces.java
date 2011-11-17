@@ -28,25 +28,21 @@ import java.util.Vector;
  *
  * @version $Revision$, $Date$
  */
-public class Nonces implements IAuthInfo {
+public class Nonces  {
 
-    private Hashtable mNonces = new Hashtable();
-    private Vector mNonceList = new Vector();
+    private Hashtable<Long, X509Certificate> mNonces = new Hashtable<Long, X509Certificate>();
+    private Vector<Long> mNonceList = new Vector<Long>();
     private int mNonceLimit;
 
     /**
      * Constructs nonces.
      */
     public Nonces() {
-        mNonceLimit = 100;
-        Vector mNonceList = new Vector();
-        Hashtable mNonces = new Hashtable();
+        this(100);
     }
 
     public Nonces(int limit) {
         mNonceLimit = limit;
-        Vector mNonceList = new Vector();
-        Hashtable mNonces = new Hashtable();
     }
 
     public long addNonce(long nonce, X509Certificate cert) {

@@ -39,7 +39,7 @@ public class MetaInfo implements IAttrSet {
     public static final String REQUEST_ID = "requestId";
     public static final String IN_LDAP_PUBLISH_DIR = "inLdapPublishDir";
 
-    private Hashtable content = new Hashtable();
+    private Hashtable<String, Object> content = new Hashtable<String, Object>();
 
     /**	
      * Constructs a meta information.
@@ -59,7 +59,7 @@ public class MetaInfo implements IAttrSet {
 
         sb.append("[\n");
         sb.append("  Meta information:\n");
-        Enumeration enum1 = content.keys();
+        Enumeration<String> enum1 = content.keys();
 
         while (enum1.hasMoreElements()) {
             String key = (String) enum1.nextElement();
@@ -111,7 +111,7 @@ public class MetaInfo implements IAttrSet {
      * 
      * @return an enumeration of the attribute names.
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return content.keys();
     }
 }

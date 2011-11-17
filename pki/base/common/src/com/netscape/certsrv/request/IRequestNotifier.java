@@ -62,7 +62,7 @@ public interface IRequestNotifier extends INotify {
      *
      * @return enumeration of listener names
      */
-    public Enumeration getListenerNames();
+    public Enumeration<String>  getListenerNames();
 
     /**
      * Gets listener from the list of registered listeners.
@@ -77,7 +77,7 @@ public interface IRequestNotifier extends INotify {
      *
      * @return enumeration of listeners
      */
-    public Enumeration getListeners();
+    public Enumeration<IRequestListener>  getListeners();
 
     /**
      * Gets request from publishing queue.

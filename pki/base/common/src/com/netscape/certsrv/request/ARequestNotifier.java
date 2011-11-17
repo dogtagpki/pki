@@ -37,9 +37,9 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
  * @version $Revision$, $Date$
  */
 public class ARequestNotifier implements IRequestNotifier {
-    private Hashtable mListeners = new Hashtable();
-    private Vector mNotifierThreads = new Vector();
-    private Vector mRequests = new Vector();
+    private Hashtable<String, IRequestListener> mListeners = new Hashtable<String, IRequestListener>();
+    private Vector<Thread> mNotifierThreads = new Vector<Thread>();
+    private Vector<String> mRequests = new Vector<String>();
     private int mMaxRequests = 100;
     private boolean mSearchForRequests = false;
     private int mMaxThreads = 1;
@@ -141,7 +141,7 @@ public class ARequestNotifier implements IRequestNotifier {
      *
      * @return enumeration of listener names
      */
-    public Enumeration getListenerNames() {
+    public Enumeration<String> getListenerNames() {
         return mListeners.keys();
     }
 
@@ -169,7 +169,7 @@ public class ARequestNotifier implements IRequestNotifier {
      *
      * @return enumeration of listeners
      */
-    public Enumeration getListeners() {
+    public Enumeration<IRequestListener> getListeners() {
         return mListeners.elements();
     }
 
@@ -327,7 +327,7 @@ public class ARequestNotifier implements IRequestNotifier {
         if (mIsPublishingQueueEnabled) {
             addToNotify(r);
         } else if (mMaxThreads == 0) {
-            Enumeration listeners = mListeners.elements();
+            Enumeration<IRequestListener> listeners = mListeners.elements();
             if (listeners != null && r != null) {
                 while (listeners.hasMoreElements()) {
                     IRequestListener l = (IRequestListener) listeners.nextElement();
@@ -485,7 +485,7 @@ public class ARequestNotifier implements IRequestNotifier {
  */
 class RunListeners implements Runnable {
     IRequest mRequest = null;
-    Enumeration mListeners = null;
+    Enumeration<IRequestListener> mListeners = null;
     IRequestNotifier mRequestNotifier = null;
 
     /**
@@ -494,7 +494,7 @@ class RunListeners implements Runnable {
      * @param r request
      * @param listeners list of listeners
      */
-    public RunListeners(IRequest r, Enumeration listeners) {
+    public RunListeners(IRequest r, Enumeration<IRequestListener> listeners) {
         mRequest = r;
         mListeners = listeners;
     }

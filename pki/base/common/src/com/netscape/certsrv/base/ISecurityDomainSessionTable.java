@@ -35,5 +35,5 @@ public interface ISecurityDomainSessionTable {
     public long getBeginTime(String sessionId);
     public int getSize();
     public long getTimeToLive();
-    public Enumeration getSessionIds();
+    public Enumeration<String> getSessionIds();
 }

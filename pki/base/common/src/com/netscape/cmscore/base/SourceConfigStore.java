@@ -43,7 +43,7 @@ public class SourceConfigStore extends SimpleProperties implements ISourceConfig
      * @param name property name
      * @return property value
      */
-    public Object get(String name) {
+    public String get(String name) {
         return super.get(name); // from Properties->Hashtable
     }
 
@@ -53,8 +53,9 @@ public class SourceConfigStore extends SimpleProperties implements ISourceConfig
      *
      * @param name property name
      * @param value property value
+     * @return 
      */
-    public void put(String name, Object value) {
-        super.put(name, value); // from Properties->Hashtable
+    public String put(String name, String value) {
+        return super.put(name, value); // from Properties->Hashtable
     }
 }

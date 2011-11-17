@@ -67,8 +67,8 @@ public class ASN1CharStrConvMap
     {
 	Byte tagObj = Byte.valueOf(tag);
 	CharToByteConverter cbc = null;
-	Class cbcClass;
-	cbcClass = (Class)tag2CBC.get(tagObj);
+	Class<CharToByteConverter> cbcClass;
+	cbcClass = (Class<CharToByteConverter>)tag2CBC.get(tagObj);
 	if (cbcClass == null)
 	    return null;
 	cbc = (CharToByteConverter)cbcClass.newInstance();
@@ -94,7 +94,7 @@ public class ASN1CharStrConvMap
     {
 	Byte tagObj = Byte.valueOf(tag);
 	ByteToCharConverter bcc = null;
-	Class bccClass = (Class)tag2BCC.get(tagObj);
+	Class<ByteToCharConverter> bccClass = tag2BCC.get(tagObj);
 	if (bccClass == null)
 	    return null;
 	bcc = (ByteToCharConverter)bccClass.newInstance();
@@ -110,14 +110,15 @@ public class ASN1CharStrConvMap
      * @param cbc	A CharToByteConverter for the tag.
      * @param bcc	A ByteToCharConverter for the tag.
      */
-    public void addEntry(byte tag, Class cbc, Class bcc)
+	@SuppressWarnings("unchecked")
+	public void addEntry(byte tag, Class<?> cbc, Class<?> bcc)
     {
-	Class current_cbc;
-	Class current_bcc;
+	Class<CharToByteConverter> current_cbc;
+	Class<ByteToCharConverter> current_bcc;
 	Byte tagByte = Byte.valueOf(tag);
 
-	current_cbc = (Class)tag2CBC.get(tagByte);
-	current_bcc = (Class)tag2BCC.get(tagByte);
+	current_cbc = (Class<CharToByteConverter>)tag2CBC.get(tagByte);
+	current_bcc = (Class<ByteToCharConverter>)tag2BCC.get(tagByte);
 	if (current_cbc != null || current_bcc != null)
 	{
 	    if (current_cbc != cbc || current_bcc != bcc)
@@ -134,15 +135,15 @@ public class ASN1CharStrConvMap
 	    throw new IllegalArgumentException(
 		"arguments not a CharToByteConverter or ByteToCharConverter");
 	}
-	tag2CBC.put(tagByte, cbc);
-	tag2BCC.put(tagByte, bcc);
+	tag2CBC.put(tagByte, (Class<CharToByteConverter>) cbc);
+	tag2BCC.put(tagByte, (Class<ByteToCharConverter>) bcc);
     }
 
     /**
      * Get and enumeration of all tags in the map.
      * @return 	An Enumeration of DER tags in the map as Bytes.
      */
-    public Enumeration getTags()
+    public Enumeration<Byte> getTags()
     {
 	return tag2CBC.keys();
     }
@@ -172,8 +173,8 @@ public class ASN1CharStrConvMap
 
     // private methods and variables.
 
-    private Hashtable tag2CBC = new Hashtable();
-    private Hashtable tag2BCC = new Hashtable();
+    private Hashtable<Byte, Class<CharToByteConverter>> tag2CBC = new Hashtable<Byte, Class<CharToByteConverter>>();
+    private Hashtable<Byte, Class<ByteToCharConverter>> tag2BCC = new Hashtable<Byte, Class<ByteToCharConverter>>();
 
     private static ASN1CharStrConvMap defaultMap;
 
@@ -183,7 +184,7 @@ public class ASN1CharStrConvMap
     static {
 	defaultMap = new ASN1CharStrConvMap();
 	defaultMap.addEntry(DerValue.tag_PrintableString,
-	    	CharToBytePrintable.class, ByteToCharPrintable.class);
+	    	(Class<?>)CharToBytePrintable.class, (Class<?>)ByteToCharPrintable.class);
 	defaultMap.addEntry(DerValue.tag_VisibleString,
 	    	CharToBytePrintable.class, ByteToCharPrintable.class);
 	defaultMap.addEntry(DerValue.tag_IA5String,

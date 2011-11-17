@@ -32,11 +32,11 @@ import java.util.Vector;
  */
 public class NameValuePairs {
 
-    private Vector mPairs = new Vector();
+    private Vector<NameValuePair> mPairs = new Vector<NameValuePair>();
 
     // an index to speed up searching
     // The key is the name.  The element is the NameValuePair.
-    private Hashtable index = new Hashtable();
+    private Hashtable<String, NameValuePair> index = new Hashtable<String, NameValuePair>();
 
     /**
      * Constructs name value pairs.
@@ -122,8 +122,8 @@ public class NameValuePairs {
      *
      * @return a list of names
      */
-    public Enumeration getNames() {
-        Vector v = new Vector();
+    public Enumeration<String> getNames() {
+        Vector<String> v = new Vector<String>();
         int size = mPairs.size(); 
 
         for (int i = 0; i < size; i++) { 
@@ -183,7 +183,7 @@ public class NameValuePairs {
      *
      * @return name value objects
      */
-    public Enumeration elements() {
+    public Enumeration<NameValuePair> elements() {
         return mPairs.elements();
     }
 }    
