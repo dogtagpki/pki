@@ -29,12 +29,12 @@ import java.util.StringTokenizer;
  * @version $Revision$, $Date$
  */
 public class ACLEntry implements IACLEntry, java.io.Serializable {
-
     /**
-     *
-     */
+    *
+    */
     private static final long serialVersionUID = 422656406529200393L;
-    protected Hashtable mPerms = new Hashtable();
+
+    protected Hashtable<String, String> mPerms = new Hashtable<String, String>();
     protected String mExpressions = null;
     protected boolean mNegative = false;
     protected String mACLEntryString = null;
@@ -103,7 +103,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      * this entry.
      * @return a list of permissions for this ACL entry
      */
-    public Enumeration permissions() {
+    public Enumeration<String> permissions() {
         return mPerms.elements();
     }
 
@@ -216,7 +216,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
         } else {
             entry += "allow (";
         }
-        Enumeration e = permissions();
+        Enumeration<String> e = permissions();
 
         for (; e.hasMoreElements();) {
             String p = (String) e.nextElement();

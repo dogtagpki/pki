@@ -48,13 +48,13 @@ public interface IACL {
      * Returns a list of access rights of the current ACL.
      * @return a list of access rights
      */
-    public Enumeration rights(); 
+    public Enumeration<String> rights(); 
 
     /**
      * Returns a list of entries of the current ACL.
      * @return a list of entries
      */
-    public Enumeration entries();
+    public Enumeration<ACLEntry> entries();
 
     /**
      * Verifies if permission is granted.

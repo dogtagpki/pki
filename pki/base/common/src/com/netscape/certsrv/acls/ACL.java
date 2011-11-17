@@ -38,11 +38,12 @@ import java.util.Vector;
 public class ACL implements IACL, java.io.Serializable {
 
     /**
-     *
-     */
+    *
+    */
     private static final long serialVersionUID = -1867465948611161868L;
-    protected Vector mEntries = new Vector(); // ACL entries
-    protected Vector mRights = null; // possible rights entries
+
+    protected Vector<ACLEntry> mEntries = new Vector<ACLEntry>(); // ACL entries
+    protected Vector<String> mRights = null; // possible rights entries
     protected String mResourceACLs = null; // exact resourceACLs string on ldap server
     protected String mName = null; // resource name
     protected String mDescription = null; // resource description
@@ -66,12 +67,12 @@ public class ACL implements IACL, java.io.Serializable {
      *                     Allow administrators to read and modify log 
      *                     configuration"
      */
-    public ACL(String name, Vector rights, String resourceACLs) {
+    public ACL(String name, Vector<String> rights, String resourceACLs) {
         setName(name);
         if (rights != null) {
             mRights = rights;
         } else {
-            mRights = new Vector();
+            mRights = new Vector<String>();
         }
         mResourceACLs = resourceACLs;
 
@@ -133,7 +134,7 @@ public class ACL implements IACL, java.io.Serializable {
      * Returns ACL entries.
      * @return enumeration for the <code>ACLEntry</code> vector
      */
-    public Enumeration entries() {
+    public Enumeration<ACLEntry> entries() {
         return mEntries.elements();
     }
 
@@ -145,7 +146,7 @@ public class ACL implements IACL, java.io.Serializable {
      */
     public String toString() {
         String entries = "";
-        Enumeration e = entries();
+        Enumeration<ACLEntry> e = entries();
 
         for (; e.hasMoreElements();) {
             ACLEntry entry = (ACLEntry) e.nextElement();
@@ -178,7 +179,7 @@ public class ACL implements IACL, java.io.Serializable {
      * Returns rights entries.
      * @return enumeration of rights defined for this ACL
      */
-    public Enumeration rights() {
+    public Enumeration<String> rights() {
         return mRights.elements();
     }
 }
