@@ -99,7 +99,7 @@ public interface IAuthzSubsystem extends ISubsystem {
      * authorization component.
      * @return a list of authorization managers
      */
-    public Enumeration getAuthzManagers();
+    public Enumeration<IAuthzManager> getAuthzManagers();
 
     /**
      * Initialize authz info - usually used for BasicAclAuthz
@@ -114,7 +114,7 @@ public interface IAuthzSubsystem extends ISubsystem {
      * Gets an enumeration of authorization manager plugins.
      * @return list of authorization manager plugins
      */
-    public Enumeration getAuthzManagerPlugins();
+    public Enumeration<AuthzMgrPlugin>  getAuthzManagerPlugins();
 
     /**
      * Gets a single authorization manager plugin implementation
@@ -134,13 +134,13 @@ public interface IAuthzSubsystem extends ISubsystem {
      * Get a hashtable containing all authentication plugins.
      * @return all authentication plugins.
      */
-    public Hashtable getPlugins();
+    public Hashtable<String, AuthzMgrPlugin> getPlugins();
 
     /**
      * Get a hashtable containing all authentication instances.
      * @return all authentication instances.
      */
-    public Hashtable getInstances();
+    public Hashtable<String, AuthzManagerProxy> getInstances();
 
     /**
      * Get an authorization manager interface for the given name.

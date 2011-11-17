@@ -72,17 +72,17 @@ public abstract class AAclAuthz {
 
     private IConfigStore mConfig = null;
 
-    private Hashtable mACLs = new Hashtable();
-    private Hashtable mEvaluators = new Hashtable();
+    private Hashtable<String, ACL> mACLs = new Hashtable<String, ACL>();
+    private Hashtable<String, IAccessEvaluator> mEvaluators = new Hashtable<String, IAccessEvaluator>();
     private ILogger mLogger = null;
 
     /* Vector of extendedPluginInfo strings */
-    protected static Vector mExtendedPluginInfo = null;
+    protected static Vector<String> mExtendedPluginInfo = null;
 
     protected static String[] mConfigParams = null;
 
     static {
-        mExtendedPluginInfo = new Vector();
+        mExtendedPluginInfo = new Vector<String>();
     }
 
     /**
@@ -108,7 +108,7 @@ public abstract class AAclAuthz {
         IConfigStore i = evalConfig.getSubStore(PROP_IMPL);
 
         IAccessEvaluator evaluator = null;
-        Enumeration mImpls = i.getSubStoreNames();
+        Enumeration<String> mImpls = i.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
             String type = (String) mImpls.nextElement();
@@ -181,11 +181,11 @@ public abstract class AAclAuthz {
         return (ACL) mACLs.get(target);
     }
 	
-    protected Enumeration getTargetNames() {
+    protected Enumeration<String> getTargetNames() {
         return mACLs.keys();
     }
 
-    public Enumeration getACLs() {
+    public Enumeration<ACL> getACLs() {
         return mACLs.elements();
     }
 
@@ -343,7 +343,7 @@ public abstract class AAclAuthz {
             return false; 
         }
 
-        Enumeration e = acl.entries();
+        Enumeration<ACLEntry> e = acl.entries();
 
         if ((e == null) || (e.hasMoreElements() == false)) {
             // no acis for node, pass down to next node
@@ -391,7 +391,7 @@ public abstract class AAclAuthz {
 
         CMS.debug("evaluating expressions: " + s);
 
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<Object>();
 
         while (s.length() > 0) {
             int orIndex = s.indexOf("||");
@@ -503,10 +503,10 @@ public abstract class AAclAuthz {
         String perm) 
         throws EACLsException {
  
-        Vector nodev = getNodes(name);
-        Enumeration nodes = nodev.elements();
+        Vector<String> nodev = getNodes(name);
+        Enumeration<String> nodes = nodev.elements();
         String order = getOrder();
-        Enumeration entries = null;
+        Enumeration<ACLEntry> entries = null;
 
         if (order.equals("deny")) 
             entries = getDenyEntries(nodes, perm);
@@ -567,11 +567,11 @@ public abstract class AAclAuthz {
         }
     }
 
-    protected Enumeration getAllowEntries(Enumeration nodes, String operation) {
+    protected Enumeration<ACLEntry> getAllowEntries(Enumeration<String> nodes, String operation) {
         String name = "";
         ACL acl = null;
-        Enumeration e = null;
-        Vector v = new Vector();
+        Enumeration<ACLEntry> e = null;
+        Vector<ACLEntry> v = new Vector<ACLEntry>();
 
         while (nodes.hasMoreElements()) {
             name = (String) nodes.nextElement();
@@ -592,11 +592,11 @@ public abstract class AAclAuthz {
         return v.elements();
     }
 
-    protected Enumeration getDenyEntries(Enumeration nodes, String operation) {
+    protected Enumeration<ACLEntry> getDenyEntries(Enumeration<String> nodes, String operation) {
         String name = "";
         ACL acl = null;
-        Enumeration e = null;
-        Vector v = new Vector();
+        Enumeration<ACLEntry> e = null;
+        Vector<ACLEntry> v = new Vector<ACLEntry>();
 
         while (nodes.hasMoreElements()) {
             name = (String) nodes.nextElement();
@@ -605,7 +605,7 @@ public abstract class AAclAuthz {
                 continue;
             e = acl.entries();
             while (e.hasMoreElements()) {
-                ACLEntry entry = (ACLEntry) e.nextElement();
+                ACLEntry entry = e.nextElement();
 
                 if (entry.isNegative() && 
                     entry.containPermission(operation)) {
@@ -628,7 +628,7 @@ public abstract class AAclAuthz {
         // XXX - could use some optimization ... later
         CMS.debug("evaluating expressions: " + s);
 
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<Object>();
 
         while (s.length() > 0) {
             int orIndex = s.indexOf("||");
@@ -688,9 +688,9 @@ public abstract class AAclAuthz {
         return left;
     }
 
-    public Vector getNodes(String resourceID) {
-        Enumeration parents = getTargetNames();
-        Vector v = new Vector();
+    public Vector<String> getNodes(String resourceID) {
+        Enumeration<String> parents = getTargetNames();
+        Vector<String> v = new Vector<String>();
 
         if (resourceID != null && !resourceID.equals("")) {
             v.addElement(resourceID);
@@ -808,7 +808,7 @@ public abstract class AAclAuthz {
      * gets an enumeration of resources
      * @return an enumeration of resources contained in the ACL table
      */
-    public Enumeration aclResElements() {
+    public Enumeration<ACL> aclResElements() {
         return (mACLs.elements());
     }
 
@@ -816,7 +816,7 @@ public abstract class AAclAuthz {
      * gets an enumeration of access evaluators
      * @return an enumeraton of access evaluators
      */
-    public Enumeration aclEvaluatorElements() {
+    public Enumeration<IAccessEvaluator> aclEvaluatorElements() {
         return (mEvaluators.elements());
     }
 
@@ -824,7 +824,7 @@ public abstract class AAclAuthz {
      * gets the access evaluators
      * @return handle to the access evaluators table
      */
-    public Hashtable getAccessEvaluators() {
+    public Hashtable<String, IAccessEvaluator> getAccessEvaluators() {
         return mEvaluators;
     }
 

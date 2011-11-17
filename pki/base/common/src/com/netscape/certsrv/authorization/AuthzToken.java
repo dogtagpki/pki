@@ -35,12 +35,8 @@ import com.netscape.certsrv.base.IAttrSet;
  * @version $Revision$, $Date$
  */
 public class AuthzToken implements IAttrSet {
-    /**
-     *
-     */
     private static final long serialVersionUID = 4716145610877112054L;
-
-    private Hashtable mAttrs = null;
+    private Hashtable<String, Object> mAttrs = null;
 
     /**
      * Plugin name of the authorization manager that created the 
@@ -90,7 +86,7 @@ public class AuthzToken implements IAttrSet {
      * @param authzMgr The authorization manager that created this Token.
      */
     public AuthzToken(IAuthzManager authzMgr) {
-        mAttrs = new Hashtable();
+        mAttrs = new Hashtable<String, Object>();
         mAttrs.put(TOKEN_AUTHZMGR_INST_NAME, authzMgr.getName()); 
         mAttrs.put(TOKEN_AUTHZMGR_IMPL_NAME, authzMgr.getImplName()); 
         mAttrs.put(TOKEN_AUTHZTIME, new Date());
@@ -127,7 +123,7 @@ public class AuthzToken implements IAttrSet {
      * Enumerate all attribute names in the AuthzToken.
      * @return Enumeration of all attribute names in this AuthzToken.
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return (mAttrs.keys());
     }
 
@@ -135,7 +131,7 @@ public class AuthzToken implements IAttrSet {
      * Enumerate all attribute values in the AuthzToken.
      * @return Enumeration of all attribute names in this AuthzToken.
      */
-    public Enumeration getVals() {
+    public Enumeration<Object> getVals() {
         return (mAttrs.elements());
     }
 

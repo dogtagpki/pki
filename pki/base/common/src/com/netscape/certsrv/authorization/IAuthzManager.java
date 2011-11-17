@@ -21,6 +21,7 @@ package com.netscape.certsrv.authorization;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -131,7 +132,7 @@ public interface IAuthzManager {
      * Get ACL entries
      * @return enumeration of ACL entries.
      */
-    public Enumeration getACLs();
+    public Enumeration<ACL> getACLs();
 
     /**
      * Get individual ACL entry for the given name of entry.
@@ -155,7 +156,7 @@ public interface IAuthzManager {
      * Get all registered evaluators.
      * @return All registered evaluators.
      */
-    public Enumeration aclEvaluatorElements();
+    public Enumeration<IAccessEvaluator> aclEvaluatorElements();
 
     /**
      * Register new evaluator
@@ -168,6 +169,6 @@ public interface IAuthzManager {
      * Return a table of evaluators
      * @return A table of evaluators
      */
-    public Hashtable getAccessEvaluators();
+    public Hashtable<String, IAccessEvaluator>  getAccessEvaluators();
 }
 

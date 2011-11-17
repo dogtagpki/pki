@@ -164,10 +164,11 @@ public class DirAclAuthz extends AAclAuthz
                 LDAPEntry entry = (LDAPEntry) res.nextElement();
                 LDAPAttribute aclRes = entry.getAttribute("resourceACLS");
 
-                Enumeration en = aclRes.getStringValues();
+                @SuppressWarnings("unchecked")
+				Enumeration<String> en = (Enumeration<String> )aclRes.getStringValues();
 
                 for (; en != null && en.hasMoreElements();) {
-                    addACLs((String) en.nextElement());
+                    addACLs(en.nextElement());
                 }
             } else {
                 log(ILogger.LL_INFO, "ldap search found no cn=aclResources");
@@ -295,7 +296,7 @@ public class DirAclAuthz extends AAclAuthz
             LDAPAttribute attrs = new LDAPAttribute("resourceACLS");
             LDAPModificationSet mod = new LDAPModificationSet();
 
-            Enumeration en = aclResElements();
+            Enumeration<ACL> en = aclResElements();
 
             if (en.hasMoreElements() == true) {
                 while (en.hasMoreElements()) {

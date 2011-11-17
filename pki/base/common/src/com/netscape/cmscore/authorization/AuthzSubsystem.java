@@ -49,8 +49,8 @@ import com.netscape.cmscore.util.Debug;
 public class AuthzSubsystem implements IAuthzSubsystem {
     public static final String ID = "authz";
 
-    public Hashtable mAuthzMgrPlugins = new Hashtable();
-    public Hashtable mAuthzMgrInsts = new Hashtable();
+    public Hashtable<String, AuthzMgrPlugin> mAuthzMgrPlugins = new Hashtable<String, AuthzMgrPlugin>();
+    public Hashtable<String, AuthzManagerProxy> mAuthzMgrInsts = new Hashtable<String, AuthzManagerProxy>();
     private String mId = "authz";
     private IConfigStore mConfig = null;
 
@@ -85,7 +85,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             // get authz manager plugins.
 
             IConfigStore c = config.getSubStore(PROP_IMPL);
-            Enumeration mImpls = c.getSubStoreNames();
+            Enumeration<String> mImpls = c.getSubStoreNames();
 
             while (mImpls.hasMoreElements()) {
                 String id = (String) mImpls.nextElement();
@@ -102,7 +102,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             // get authz manager instances.
 
             c = config.getSubStore(PROP_INSTANCE);
-            Enumeration instances = c.getSubStoreNames();
+            Enumeration<String> instances = c.getSubStoreNames();
 
             while (instances.hasMoreElements()) {
                 String insName = (String) instances.nextElement();
@@ -333,9 +333,9 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     /**
      * Enumerate all authorization manager instances.
      */
-    public Enumeration getAuthzManagers() {
-        Vector inst = new Vector();
-        Enumeration e = mAuthzMgrInsts.keys();
+    public Enumeration<IAuthzManager> getAuthzManagers() {
+        Vector<IAuthzManager> inst = new Vector<IAuthzManager>();
+        Enumeration<String> e = mAuthzMgrInsts.keys();
 
         while (e.hasMoreElements()) {
             IAuthzManager p = get((String) e.nextElement());
@@ -350,7 +350,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     /**
      * Enumerate all registered authorization manager plugins.
      */
-    public Enumeration getAuthzManagerPlugins() {
+    public Enumeration<AuthzMgrPlugin> getAuthzManagerPlugins() {
         return (mAuthzMgrPlugins.elements());
     }
 
@@ -412,7 +412,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * <P>
      */
     public void shutdown() {
-        for (Enumeration e = mAuthzMgrInsts.keys();
+        for (Enumeration<String> e = mAuthzMgrInsts.keys();
             e.hasMoreElements();) {
 
             IAuthzManager mgr = (IAuthzManager) get((String) e.nextElement());
@@ -430,11 +430,11 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         mAuthzMgrInsts = null;
     }
 
-    public Hashtable getPlugins() {
+    public Hashtable<String, AuthzMgrPlugin> getPlugins() {
         return mAuthzMgrPlugins;
     }
 
-    public Hashtable getInstances() {
+    public Hashtable<String, AuthzManagerProxy> getInstances() {
         return mAuthzMgrInsts;
     }
 
