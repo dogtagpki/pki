@@ -20,7 +20,10 @@ package com.netscape.cmscore.apps;
 
 import java.util.Hashtable;
 
+import javax.servlet.Servlet;
+
 import com.netscape.certsrv.apps.ICommandQueue;
+import com.netscape.cms.servlet.common.CMSRequest;
 
 
 /*---------------------------------------------------------------
@@ -32,7 +35,7 @@ import com.netscape.certsrv.apps.ICommandQueue;
  */
 public class CommandQueue implements Runnable, ICommandQueue {
 
-    public static Hashtable mCommandQueue = new Hashtable(); 
+    public static Hashtable<CMSRequest, Servlet> mCommandQueue = new Hashtable<CMSRequest, Servlet>(); 
     public static boolean mShuttingDown = false;
 
     /*-----------------------------------------------------------
@@ -70,7 +73,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
         }
     } // run
 
-    public boolean registerProcess(Object currentRequest, Object currentServlet) {
+    public boolean registerProcess(CMSRequest currentRequest, Servlet currentServlet) {
         if (mShuttingDown == false) {
             if ((currentServlet instanceof com.netscape.cms.servlet.base.CMSStartServlet) == false)
                 mCommandQueue.put(currentRequest, currentServlet);

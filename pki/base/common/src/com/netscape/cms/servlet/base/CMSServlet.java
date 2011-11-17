@@ -239,14 +239,14 @@ public abstract class CMSServlet extends HttpServlet {
 
     protected boolean mRenderResult = true;
     protected String mFinalErrorMsg = FINAL_ERROR_MSG;
-    protected Hashtable mTemplates = new Hashtable();
+    protected Hashtable<Integer, CMSLoadTemplate> mTemplates = new Hashtable<Integer, CMSLoadTemplate>();
 
     protected ServletConfig mServletConfig = null;
     protected ServletContext mServletContext = null;
     private   CMSFileLoader mFileLoader = null;
 
-    protected Vector mDontSaveHttpParams = new Vector();
-    protected Vector mSaveHttpHeaders = new Vector();
+    protected Vector<String> mDontSaveHttpParams = new Vector<String>();
+    protected Vector<String> mSaveHttpHeaders = new Vector<String>();
 
     protected String mId = null;
     protected IConfigStore mConfig = null;
@@ -286,9 +286,9 @@ public abstract class CMSServlet extends HttpServlet {
     public CMSServlet() {
     }
 
-    public static Hashtable toHashtable(HttpServletRequest req) {
-        Hashtable httpReqHash = new Hashtable();
-        Enumeration names = req.getParameterNames();
+    public static Hashtable<String, String> toHashtable(HttpServletRequest req) {
+        Hashtable<String, String> httpReqHash = new Hashtable<String, String>();
+        Enumeration<?> names = req.getParameterNames();
 
         while (names.hasMoreElements()) {
             String name = (String) names.nextElement();
@@ -355,7 +355,7 @@ public abstract class CMSServlet extends HttpServlet {
                 mFinalErrorMsg = eMsg;
 
                 // get any configured templates.
-            Enumeration templs = mTemplates.elements();
+            Enumeration<CMSLoadTemplate> templs = mTemplates.elements();
 
             while (templs.hasMoreElements()) {
                 CMSLoadTemplate templ = (CMSLoadTemplate) templs.nextElement();
@@ -419,7 +419,7 @@ public abstract class CMSServlet extends HttpServlet {
     public void outputHttpParameters(HttpServletRequest httpReq)
     {
 	CMS.debug("CMSServlet:service() uri = " + httpReq.getRequestURI());
-        Enumeration paramNames = httpReq.getParameterNames();
+        Enumeration<?> paramNames = httpReq.getParameterNames();
         while (paramNames.hasMoreElements()) {
             String pn = (String)paramNames.nextElement();
             // added this facility so that password can be hidden,
@@ -511,7 +511,7 @@ public abstract class CMSServlet extends HttpServlet {
         ICommandQueue iCommandQueue = CMS.getCommandQueue();
 
         try {
-            if (iCommandQueue.registerProcess((Object) cmsRequest, (Object) this) == false) {
+            if (iCommandQueue.registerProcess(cmsRequest, this) == false) {
                 cmsRequest.setStatus(CMSRequest.ERROR);
                 renderResult(cmsRequest);
                 SessionContext.releaseContext();
@@ -604,7 +604,7 @@ public abstract class CMSServlet extends HttpServlet {
         Node argBlockContainer = xmlObj.createContainer(parent, argBlockName);
 
         if (argBlock != null) {
-            Enumeration names = argBlock.getElements();
+            Enumeration<String> names = argBlock.getElements();
             while (names.hasMoreElements()) {
                 String name = (String) names.nextElement();
                 String val = argBlock.get(name).toString();
@@ -624,7 +624,7 @@ public abstract class CMSServlet extends HttpServlet {
             outputArgBlockAsXML(xmlObj, root, "header", params.getHeader());
             outputArgBlockAsXML(xmlObj, root, "fixed",  params.getFixed());
 
-            Enumeration records = params.queryRecords();
+            Enumeration<IArgBlock> records = params.queryRecords();
             Node recordsNode = xmlObj.createContainer(root, "records");
             if (records != null) {
                 while (records.hasMoreElements()) {
@@ -1023,11 +1023,11 @@ public abstract class CMSServlet extends HttpServlet {
     protected void saveHttpHeaders(
         HttpServletRequest httpReq, IRequest req)
         throws EBaseException {
-        Hashtable headers = new Hashtable();
-        Enumeration hdrs = mSaveHttpHeaders.elements();
+        Hashtable<String, String> headers = new Hashtable<String, String>();
+        Enumeration<String> hdrs = mSaveHttpHeaders.elements();
 
         while (hdrs.hasMoreElements()) {
-            String hdr = (String) hdrs.nextElement();
+            String hdr = hdrs.nextElement();
             String val = httpReq.getHeader(hdr);
 
             if (val != null) {
@@ -1042,17 +1042,17 @@ public abstract class CMSServlet extends HttpServlet {
      */
     protected void saveHttpParams(
         IArgBlock httpParams, IRequest req) {
-        Hashtable saveParams = new Hashtable();
+        Hashtable<String, Object> saveParams = new Hashtable<String, Object>();
 
-        Enumeration names = httpParams.elements();
+        Enumeration<String> names = httpParams.elements();
 
         while (names.hasMoreElements()) {
             String name = (String) names.nextElement();
-            Enumeration params = mDontSaveHttpParams.elements();
+            Enumeration<String> params = mDontSaveHttpParams.elements();
             boolean dosave = true;
 
             while (params.hasMoreElements()) {
-                String param = (String) params.nextElement();
+                String param = params.nextElement();
 
                 if (name.equalsIgnoreCase(param)) {
                     dosave = false;

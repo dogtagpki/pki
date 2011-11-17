@@ -408,7 +408,7 @@ public class CMSEngine implements ICMSEngine {
         }
 
         ACL acl = null;
-        Vector rights = null;
+        Vector<String> rights = null;
         int idx1 = resACLs.indexOf(":");
 
         if (idx1 <= 0) {
@@ -446,7 +446,7 @@ public class CMSEngine implements ICMSEngine {
             }
 
             if (rightsString != null) {
-                rights = new Vector();
+                rights = new Vector<String>();
                 StringTokenizer rtok = new StringTokenizer(rightsString, ",");
 
                 while (rtok.hasMoreTokens()) {
@@ -645,11 +645,11 @@ public class CMSEngine implements ICMSEngine {
         return new ArgBlock();
     }
 
-    public IArgBlock createArgBlock(Hashtable httpReq) {
+    public IArgBlock createArgBlock(Hashtable<String, String> httpReq) {
         return new ArgBlock(httpReq);
     }
 
-    public IArgBlock createArgBlock(String realm, Hashtable httpReq) {
+    public IArgBlock createArgBlock(String realm, Hashtable<String, String> httpReq) {
         return new ArgBlock(realm, httpReq);
     }
 
@@ -827,11 +827,11 @@ public class CMSEngine implements ICMSEngine {
         return new HttpRequestEncoder();
     }
 
-    public Enumeration getSubsystemNames() {
+    public Enumeration<String> getSubsystemNames() {
         return mSSReg.keys();
     }
 
-    public Enumeration getSubsystems() {
+    public Enumeration<ISubsystem> getSubsystems() {
         return mSSReg.elements();
     }
 
@@ -859,7 +859,7 @@ public class CMSEngine implements ICMSEngine {
         IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
 
         // count number of dyn loaded subsystems. 
-        Enumeration ssnames = ssconfig.getSubStoreNames();
+        Enumeration<String> ssnames = ssconfig.getSubStoreNames();
         int nsubsystems = 0;
 
         for (nsubsystems = 0; ssnames.hasMoreElements(); nsubsystems++)
@@ -1310,12 +1310,12 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public  void getSubjAltNameConfigDefaultParams(String name,
-        Vector params) {
+        Vector<String> params) {
         GeneralNameUtil.SubjAltNameGN.getDefaultParams(name, params);
     }
 
     public  void getSubjAltNameConfigExtendedPluginInfo(String name,
-        Vector params) {
+        Vector<String> params) {
         GeneralNameUtil.SubjAltNameGN.getExtendedPluginInfo(name, params);
     }
 
@@ -1333,22 +1333,22 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public  void getGeneralNameConfigDefaultParams(String name,
-        boolean isValueConfigured, Vector params) {
+        boolean isValueConfigured, Vector<String> params) {
         GeneralNameUtil.GeneralNameConfig.getDefaultParams(name, isValueConfigured, params);
     }
 
     public  void getGeneralNamesConfigDefaultParams(String name,
-        boolean isValueConfigured, Vector params) {
+        boolean isValueConfigured, Vector<String> params) {
         GeneralNameUtil.GeneralNamesConfig.getDefaultParams(name, isValueConfigured, params);
     }
 
     public  void getGeneralNameConfigExtendedPluginInfo(String name,
-        boolean isValueConfigured, Vector info) {
+        boolean isValueConfigured, Vector<String> info) {
         GeneralNameUtil.GeneralNameConfig.getExtendedPluginInfo(name, isValueConfigured, info);
     }
 
     public  void getGeneralNamesConfigExtendedPluginInfo(String name,
-        boolean isValueConfigured, Vector info) {
+        boolean isValueConfigured, Vector<String> info) {
         GeneralNameUtil.GeneralNamesConfig.getExtendedPluginInfo(name, isValueConfigured, info);
     }
 
@@ -1514,7 +1514,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void terminateRequests() {
-        java.util.Enumeration e = CommandQueue.mCommandQueue.keys();
+        Enumeration e = CommandQueue.mCommandQueue.keys();
         
         while (e.hasMoreElements()) {
             Object thisRequest = e.nextElement();

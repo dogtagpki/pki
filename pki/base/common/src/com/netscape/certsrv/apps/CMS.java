@@ -468,7 +468,7 @@ public final class CMS {
      *
      * @return a list of string-based subsystem names
      */
-    public static Enumeration getSubsystemNames() {
+    public static Enumeration<String> getSubsystemNames() {
         return _engine.getSubsystemNames();
     }
 
@@ -481,7 +481,7 @@ public final class CMS {
      *
      * @return a list of ISubsystem-based subsystems
      */
-    public static Enumeration getSubsystems() {
+    public static Enumeration<ISubsystem> getSubsystems() {
         return _engine.getSubsystems();
     }
 
@@ -1042,7 +1042,7 @@ public final class CMS {
      * @param params configuration parameters
      */
     public static void getSubjAltNameConfigDefaultParams(String name, 
-        Vector params) {
+        Vector<String> params) {
         _engine.getSubjAltNameConfigDefaultParams(name, params);
     }
 
@@ -1053,7 +1053,7 @@ public final class CMS {
      * @param params configuration parameters
      */
     public static void getSubjAltNameConfigExtendedPluginInfo(String name, 
-        Vector params) {
+        Vector<String> params) {
         _engine.getSubjAltNameConfigExtendedPluginInfo(name, params);
     }
 
@@ -1079,7 +1079,7 @@ public final class CMS {
      * @exception EBaseException failed to create subject alt name configuration
      */
     public static void getGeneralNameConfigDefaultParams(String name,
-        boolean isValueConfigured, Vector params) {
+        boolean isValueConfigured, Vector<String> params) {
         _engine.getGeneralNameConfigDefaultParams(name,
             isValueConfigured, params);
     }
@@ -1093,7 +1093,7 @@ public final class CMS {
      * @exception EBaseException failed to create subject alt name configuration
      */
     public static void getGeneralNamesConfigDefaultParams(String name,
-        boolean isValueConfigured, Vector params) {
+        boolean isValueConfigured, Vector<String> params) {
         _engine.getGeneralNamesConfigDefaultParams(name,
             isValueConfigured, params);
     }
@@ -1107,7 +1107,7 @@ public final class CMS {
      * @exception EBaseException failed to create subject alt name configuration
      */
     public static void getGeneralNameConfigExtendedPluginInfo(String name,
-        boolean isValueConfigured, Vector info) {
+        boolean isValueConfigured, Vector<String> info) {
         _engine.getGeneralNameConfigExtendedPluginInfo(name,
             isValueConfigured, info);
     }
@@ -1121,7 +1121,7 @@ public final class CMS {
      * @exception EBaseException failed to create subject alt name configuration
      */
     public static void getGeneralNamesConfigExtendedPluginInfo(String name,
-        boolean isValueConfigured, Vector info) {
+        boolean isValueConfigured, Vector<String> info) {
         _engine.getGeneralNamesConfigExtendedPluginInfo(name,
             isValueConfigured, info);
     }
@@ -1594,11 +1594,11 @@ public final class CMS {
         return _engine.createArgBlock();
     }
 
-    public static IArgBlock createArgBlock(String realm, Hashtable httpReq) {
+    public static IArgBlock createArgBlock(String realm, Hashtable<String, String> httpReq) {
         return _engine.createArgBlock(realm, httpReq);
     }
 
-    public static IArgBlock createArgBlock(Hashtable httpReq) {
+    public static IArgBlock createArgBlock(Hashtable<String, String> httpReq) {
         return _engine.createArgBlock(httpReq);
     }
 

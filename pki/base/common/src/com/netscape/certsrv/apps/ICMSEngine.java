@@ -158,14 +158,14 @@ public interface ICMSEngine extends ISubsystem {
      *
      * @return a list of string-based subsystem names
      */
-    public Enumeration getSubsystemNames();
+    public Enumeration<String> getSubsystemNames();
 
     /**
      * Returns all the registered subsystems.
      *
      * @return a list of ISubsystem-based subsystems
      */
-    public Enumeration getSubsystems();
+    public Enumeration<ISubsystem> getSubsystems();
 
     /**
      * Retrieves the registered subsytem with the given name.
@@ -890,7 +890,7 @@ public interface ICMSEngine extends ISubsystem {
      * @exception EBaseException failed to create subject alt name configuration
      */
     public  void getGeneralNameConfigDefaultParams(String name,
-        boolean isValueConfigured, Vector params);
+        boolean isValueConfigured, Vector<String> params);
 
     /**
      * Retrieves default general names configuration.
@@ -901,7 +901,7 @@ public interface ICMSEngine extends ISubsystem {
      * @exception EBaseException failed to create subject alt name configuration
      */
     public  void getGeneralNamesConfigDefaultParams(String name,
-        boolean isValueConfigured, Vector params);
+        boolean isValueConfigured, Vector<String> params);
 
     /**
      * Retrieves extended plugin info for general name configuration.
@@ -912,7 +912,7 @@ public interface ICMSEngine extends ISubsystem {
      * @exception EBaseException failed to create subject alt name configuration
      */
     public  void getGeneralNameConfigExtendedPluginInfo(String name,
-        boolean isValueConfigured, Vector info);
+        boolean isValueConfigured, Vector<String> info);
 
     /**
      * Retrieves extended plugin info for general name configuration.
@@ -923,7 +923,7 @@ public interface ICMSEngine extends ISubsystem {
      * @exception EBaseException failed to create subject alt name configuration
      */
     public  void getGeneralNamesConfigExtendedPluginInfo(String name,
-        boolean isValueConfigured, Vector info);
+        boolean isValueConfigured, Vector<String> info);
 
     /**
      * Created general names configuration.
@@ -968,7 +968,7 @@ public interface ICMSEngine extends ISubsystem {
      * @param name configuration name
      * @param params configuration parameters
      */
-    public  void getSubjAltNameConfigDefaultParams(String name, Vector params);
+    public  void getSubjAltNameConfigDefaultParams(String name, Vector<String> params);
 
     /**
      * Get extended plugin info for subject alt name configuration.
@@ -976,7 +976,7 @@ public interface ICMSEngine extends ISubsystem {
      * @param name configuration name
      * @param params configuration parameters
      */
-    public  void getSubjAltNameConfigExtendedPluginInfo(String name, Vector params);
+    public  void getSubjAltNameConfigExtendedPluginInfo(String name, Vector<String> params);
 
     /**
      * Creates subject alt name configuration.
@@ -1064,12 +1064,12 @@ public interface ICMSEngine extends ISubsystem {
     /**
      * Creates argument block.
      */
-    public IArgBlock createArgBlock(String realm, Hashtable httpReq);
+    public IArgBlock createArgBlock(String realm, Hashtable<String, String> httpReq);
 
     /**
      * Creates argument block.
      */
-    public IArgBlock createArgBlock(Hashtable httpReq);
+    public IArgBlock createArgBlock(Hashtable<String, String> httpReq);
 
     /**
      * Checks against the local certificate repository to see 

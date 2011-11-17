@@ -17,6 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.apps;
 
+import javax.servlet.Servlet;
+
+import com.netscape.cms.servlet.common.CMSRequest;
+
 
 
 
@@ -34,7 +38,7 @@ public interface ICommandQueue {
      * @param currentRequest request object
      * @param currentServlet servlet that serves the request object
      */
-    public boolean registerProcess(Object currentRequest, Object currentServlet);
+    public boolean registerProcess(CMSRequest currentRequest, Servlet currentServlet);
     /**
      * UnRegisters a thread from the command queue.
      *

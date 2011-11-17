@@ -22,11 +22,7 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.ISubsystem;
 
-
-public class SubsystemRegistry extends Hashtable {
-    /**
-     *
-     */
+public class SubsystemRegistry extends Hashtable<String, ISubsystem> {
     private static final long serialVersionUID = 7801949114531559118L;
     private static SubsystemRegistry mInstance = null;
 
@@ -42,7 +38,7 @@ public class SubsystemRegistry extends Hashtable {
     }
 
     public ISubsystem get(String key) {
-        return (ISubsystem) super.get(key);
+        return  super.get(key);
     }
 
 }

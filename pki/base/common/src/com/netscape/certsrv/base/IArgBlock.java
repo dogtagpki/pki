@@ -212,7 +212,7 @@ public interface IArgBlock extends Serializable {
      *
      * @return a list of string-based keys
      */
-    public Enumeration elements();
+    public Enumeration<String> elements();
 
     /**
      * Adds long-type arguments to this block.
@@ -279,5 +279,5 @@ public interface IArgBlock extends Serializable {
      *
      * @return a list of string-based keys
      */
-    public Enumeration getElements();
+    public Enumeration<String> getElements();
 }

@@ -338,7 +338,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
          * adds params to default 
          */
         public static void getDefaultParams(
-            String name, boolean isValueConfigured, Vector params) {
+            String name, boolean isValueConfigured, Vector<String> params) {
             String nameDot = "";
 
             if (name != null) 
@@ -354,7 +354,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
         /**
          * Get instance params.
          */
-        public void getInstanceParams(Vector params) {
+        public void getInstanceParams(Vector<String> params) {
             params.addElement(
                 PROP_NUM_GENERALNAMES + '=' + mGenNameConfigs.length);
             for (int i = 0; i < mGenNameConfigs.length; i++) {
@@ -366,7 +366,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
          * Get extended plugin info.
          */
         public static void getExtendedPluginInfo(
-            String name, boolean isValueConfigured, Vector info) {
+            String name, boolean isValueConfigured, Vector<String> info) {
             String nameDot = "";
 
             if (name != null && name.length() > 0)
@@ -485,9 +485,9 @@ public class GeneralNameUtil implements IGeneralNameUtil {
          * either a Vector of strings, string array or just a string.
          * Returned Vector can be null if value is not of expected type.
          */
-        public Vector formGeneralNames(Object value) 
+        public Vector<GeneralName> formGeneralNames(Object value) 
             throws EBaseException {
-            Vector gns = new Vector();
+            Vector<GeneralName> gns = new Vector<GeneralName>();
             GeneralName gn = null;
 
             if (value instanceof String) {
@@ -507,9 +507,9 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                     }
                 }
             } else if (value instanceof Vector) {
-                Vector vals = (Vector) value;
+                Vector<?> vals = (Vector<?>) value;
 
-                for (Enumeration n = vals.elements(); n.hasMoreElements();) {
+                for (Enumeration<?> n = vals.elements(); n.hasMoreElements();) {
                     Object val = n.nextElement();
 
                     if (val != null && (val instanceof String) &&
@@ -553,7 +553,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
          */
 
         public static void getDefaultParams(
-            String name, boolean isValueConfigured, Vector params) {
+            String name, boolean isValueConfigured, Vector<String> params) {
             String nameDot = "";
 
             if (name != null)
@@ -567,7 +567,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
         /**
          * Get instance params 
          */
-        public void getInstanceParams(Vector params) {
+        public void getInstanceParams(Vector<String> params) {
             String value = (mValue == null) ? "" : mValue;
             String choice = (mGenNameChoice == null) ? "" : mGenNameChoice;
 
@@ -580,7 +580,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
          * Get extended plugin info
          */
         public static void getExtendedPluginInfo(
-            String name, boolean isValueConfigured, Vector info) {
+            String name, boolean isValueConfigured, Vector<String> info) {
             String nameDot = "";
 
             if (name != null && name.length() > 0) 
@@ -666,12 +666,12 @@ public class GeneralNameUtil implements IGeneralNameUtil {
             return mAttr;
         }
 
-        public void getInstanceParams(Vector params) {
+        public void getInstanceParams(Vector<String> params) {
             params.addElement(mNameDot + PROP_REQUEST_ATTR + "=" + mRequestAttr);
             super.getInstanceParams(params);
         }
 
-        public static void getDefaultParams(String name, Vector params) {
+        public static void getDefaultParams(String name, Vector<String> params) {
             String nameDot = "";
 
             if (name != null && name.length() > 0)
@@ -680,7 +680,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
             GeneralNameUtil.GeneralNameConfig.getDefaultParams(name, false, params);
         }
 
-        public static void getExtendedPluginInfo(String name, Vector params) {
+        public static void getExtendedPluginInfo(String name, Vector<String> params) {
             String nameDot = "";
 
             if (name != null && name.length() > 0)

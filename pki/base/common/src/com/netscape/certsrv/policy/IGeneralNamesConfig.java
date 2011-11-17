@@ -49,5 +49,5 @@ public interface IGeneralNamesConfig {
      *
      * @param params instance parameters
      */
-    public void getInstanceParams(Vector params);
+    public void getInstanceParams(Vector<String> params);
 }

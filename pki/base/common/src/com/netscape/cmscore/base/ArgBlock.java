@@ -64,7 +64,7 @@ public class ArgBlock implements IArgBlock {
     public static final String 
         CERT_RENEWAL_TRAILER = "-----END RENEWAL CERTIFICATE REQUEST-----";
 
-    private Hashtable mArgs = new Hashtable();
+    private Hashtable<String, Object> mArgs = new Hashtable<String, Object>();
 
 	private String mType = "unspecified-argblock";
 
@@ -75,7 +75,7 @@ public class ArgBlock implements IArgBlock {
      * Constructs an argument block with the given hashtable values.
      * @param realm the type of argblock - used for debugging the values
      */
-    public ArgBlock(String realm, Hashtable httpReq) {
+    public ArgBlock(String realm, Hashtable<String, String> httpReq) {
 		mType = realm;
 		populate(httpReq);
 	}
@@ -85,18 +85,18 @@ public class ArgBlock implements IArgBlock {
      *
      * @param httpReq hashtable keys and values
      */
-    public ArgBlock(Hashtable httpReq) {
+    public ArgBlock(Hashtable<String, String> httpReq) {
 		populate(httpReq);
 	}
 
-	private void populate(Hashtable httpReq) {
+	private void populate(Hashtable<String, String> httpReq) {
         // Add all parameters from the request
-        Enumeration e = httpReq.keys();
+        Enumeration<String> e = httpReq.keys();
 
         if (e != null) {
             while (e.hasMoreElements()) {
-                String name = (String) e.nextElement();
-                String value = (String) httpReq.get(name);
+                String name = e.nextElement();
+                String value = httpReq.get(name);
 
                 addStringValue(name, value);
             }
@@ -555,7 +555,7 @@ public class ArgBlock implements IArgBlock {
      *
      * @return a list of string-based keys
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return mArgs.keys();
     }
 
@@ -564,7 +564,7 @@ public class ArgBlock implements IArgBlock {
      *
      * @return a list of string-based keys
      */
-    public Enumeration elements() {
+    public Enumeration<String> elements() {
         return mArgs.keys();
     }
 
