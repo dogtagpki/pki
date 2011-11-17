@@ -52,8 +52,8 @@ import com.netscape.cmscore.util.Debug;
 public class AuthSubsystem implements IAuthSubsystem {
     public static final String ID = "auths";
 
-    public Hashtable mAuthMgrPlugins = new Hashtable();
-    public Hashtable mAuthMgrInsts = new Hashtable();
+    public Hashtable<String, AuthMgrPlugin> mAuthMgrPlugins = new Hashtable<String, AuthMgrPlugin>();
+    public Hashtable<String, AuthManagerProxy> mAuthMgrInsts = new Hashtable<String, AuthManagerProxy>();
     private String mId = "auths";
     private IConfigStore mConfig = null;
 
@@ -123,7 +123,7 @@ public class AuthSubsystem implements IAuthSubsystem {
             // get auth manager plugins.
 
             IConfigStore c = config.getSubStore(PROP_IMPL);
-            Enumeration mImpls = c.getSubStoreNames();
+            Enumeration<String> mImpls = c.getSubStoreNames();
 
             while (mImpls.hasMoreElements()) {
                 String id = (String) mImpls.nextElement();
@@ -192,7 +192,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
             // get auth manager instances.
             c = config.getSubStore(PROP_INSTANCE);
-            Enumeration instances = c.getSubStoreNames();
+            Enumeration<String> instances = c.getSubStoreNames();
 
             while (instances.hasMoreElements()) {
                 String insName = (String) instances.nextElement();
@@ -380,12 +380,12 @@ public class AuthSubsystem implements IAuthSubsystem {
     /**
      * Enumerate all authentication manager instances.
      */
-    public Enumeration getAuthManagers() {
-        Vector inst = new Vector();
-        Enumeration e = mAuthMgrInsts.keys();
+    public Enumeration<IAuthManager> getAuthManagers() {
+        Vector<IAuthManager> inst = new Vector<IAuthManager>();
+        Enumeration<String> e = mAuthMgrInsts.keys();
 
         while (e.hasMoreElements()) {
-            IAuthManager p = get((String) e.nextElement());
+            IAuthManager p = get( e.nextElement());
 
             if (p != null) {
                 inst.addElement(p);
@@ -397,7 +397,7 @@ public class AuthSubsystem implements IAuthSubsystem {
     /**
      * Enumerate all registered authentication manager plugins.
      */
-    public Enumeration getAuthManagerPlugins() {
+    public Enumeration<AuthMgrPlugin> getAuthManagerPlugins() {
         return (mAuthMgrPlugins.elements());
     }
 
@@ -459,7 +459,7 @@ public class AuthSubsystem implements IAuthSubsystem {
      * <P>
      */
     public void shutdown() {
-        for (Enumeration e = mAuthMgrInsts.keys();
+        for (Enumeration<String> e = mAuthMgrInsts.keys();
             e.hasMoreElements();) {
 
             IAuthManager mgr = (IAuthManager) get((String) e.nextElement());
@@ -475,11 +475,11 @@ public class AuthSubsystem implements IAuthSubsystem {
         mAuthMgrInsts = null;
     }
 
-    public Hashtable getPlugins() {
+    public Hashtable<String, AuthMgrPlugin> getPlugins() {
         return mAuthMgrPlugins;
     }
 
-    public Hashtable getInstances() {
+    public Hashtable<String, AuthManagerProxy> getInstances() {
         return mAuthMgrInsts;
     }
 

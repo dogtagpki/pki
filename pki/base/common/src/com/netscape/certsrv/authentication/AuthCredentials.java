@@ -30,18 +30,16 @@ import com.netscape.certsrv.base.IArgBlock;
  * @version $Revision$, $Date$
  */
 public class AuthCredentials implements IAuthCredentials {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = 5862936214648594328L;
-    private Hashtable authCreds = null;
+    private Hashtable<String, Object> authCreds = null;
     private IArgBlock argblk = null;
     
     /**
      * Constructor
      */
     public AuthCredentials() {
-        authCreds = new Hashtable();
+        authCreds = new Hashtable<String, Object>();
     }
 
     /**
@@ -80,7 +78,7 @@ public class AuthCredentials implements IAuthCredentials {
      * fetch the elements sequentially.
      * @return an enumeration of the values in this credential set
      */
-    public Enumeration getElements() {
+    public Enumeration<Object> getElements() {
         return (authCreds.elements());
     }
     

@@ -164,13 +164,13 @@ public interface IAuthSubsystem extends ISubsystem {
      * authentication subsystem.
      * @return a list of authentication managers
      */
-    public Enumeration getAuthManagers();
+    public Enumeration<IAuthManager> getAuthManagers();
 
     /**
      * Gets an enumeration of authentication manager plugins.
      * @return a list of authentication plugins
      */
-    public Enumeration getAuthManagerPlugins();
+    public Enumeration<AuthMgrPlugin> getAuthManagerPlugins();
 
     /**
      * Gets a single authentication manager plugin implementation
@@ -201,13 +201,13 @@ public interface IAuthSubsystem extends ISubsystem {
      * Get a hashtable containing all authentication plugins.
      * @return all authentication plugins.
      */
-    public Hashtable getPlugins();
+    public Hashtable<String, AuthMgrPlugin> getPlugins();
 
     /**
      * Get a hashtable containing all authentication instances.
      * @return all authentication instances.
      */
-    public Hashtable getInstances();
+    public Hashtable<?, ?> getInstances();
 
     /**
      * Get an authentication manager interface for the given name.

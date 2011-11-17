@@ -48,7 +48,7 @@ import com.netscape.certsrv.usrgrp.Certificates;
  * @version $Revision$, $Date$
  */
 public class AuthToken implements IAuthToken {
-    protected Hashtable mAttrs = null;
+    protected Hashtable<String, Object> mAttrs = null;
 
     /* Subject name of the certificate in the authenticating entry */
     public static final String TOKEN_CERT_SUBJECT = "tokenCertSubject";
@@ -101,7 +101,7 @@ public class AuthToken implements IAuthToken {
      * @param authMgr The authentication manager that created this Token.
      */
     public AuthToken(IAuthManager authMgr) {
-        mAttrs = new Hashtable();
+        mAttrs = new Hashtable<String, Object>();
         if (authMgr != null) {
           set(TOKEN_AUTHMGR_INST_NAME, authMgr.getName());
           set(TOKEN_AUTHMGR_IMPL_NAME, authMgr.getImplName());
@@ -133,7 +133,7 @@ public class AuthToken implements IAuthToken {
      * Enumerate all attribute names in the AuthToken.
      * @return Enumeration of all attribute names in this AuthToken.
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return (mAttrs.keys());
     }
 
@@ -408,7 +408,7 @@ public class AuthToken implements IAuthToken {
      * Enumerate all attribute values in the AuthToken.
      * @return Enumeration of all attribute names in this AuthToken.
      */
-    public Enumeration getVals() {
+    public Enumeration<Object> getVals() {
         return (mAttrs.elements());
     }
 

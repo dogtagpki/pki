@@ -29,7 +29,6 @@ package com.netscape.certsrv.authentication;
 public class AuthMgrPlugin {
     protected String mId = null;
     protected String mClassPath = null;
-    protected Class mClass = null;
     protected boolean mVisible = true;
 
     /**
