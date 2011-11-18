@@ -133,7 +133,7 @@ public interface IKeyService {
      * @return recovery parameters
      * @exception EBaseException failed to create
      */
-    public Hashtable createRecoveryParams(String recoveryID) 
+    public Hashtable<String, Object> createRecoveryParams(String recoveryID)
         throws EBaseException;
 
     /**
@@ -152,7 +152,7 @@ public interface IKeyService {
      * @return recovery parameters
      * @exception EBaseException failed to retrieve
      */
-    public Hashtable getRecoveryParams(String recoveryID) 
+    public Hashtable<String, Object> getRecoveryParams(String recoveryID)
         throws EBaseException;
 
     /**

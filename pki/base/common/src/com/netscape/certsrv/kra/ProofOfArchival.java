@@ -94,7 +94,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     protected String mIssuer = null;
     protected Date mDateOfArchival = null;
 
-    protected static Vector mNames = new Vector();
+    protected static Vector<String> mNames = new Vector<String>();
     static {
         mNames.addElement(ATTR_VERSION);
         mNames.addElement(ATTR_SERIALNO);
@@ -195,7 +195,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
      *
      * @return a list of names
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return mNames.elements();
     }
 
@@ -204,7 +204,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
      * 
      * @return a list of serializable attribute names
      */
-    public Enumeration getSerializableAttrNames() {
+    public Enumeration<String> getSerializableAttrNames() {
         return mNames.elements();
     }
 	

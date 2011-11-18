@@ -164,7 +164,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      *
      * @return list of auto recovery identifiers
      */
-    public Enumeration getAutoRecoveryIDs();
+    public Enumeration<String> getAutoRecoveryIDs();
 
     /**
      * Returns the storage key unit that manages the
@@ -259,7 +259,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * @param id request id
      * @return volatile requests
      */
-    public Hashtable createVolatileRequest(RequestId id);
+    public Hashtable<String, Object> createVolatileRequest(RequestId id);
 
     /**
      * Retrieves the request object.
@@ -267,7 +267,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * @param id request id
      * @return volatile requests
      */
-    public Hashtable getVolatileRequest(RequestId id);
+    public Hashtable<String, Object> getVolatileRequest(RequestId id);
 
     /**
      * Destroys the request object.
@@ -276,7 +276,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      */
     public void destroyVolatileRequest(RequestId id);
 
-    public Vector getAppAgents(
+    public Vector<Credential> getAppAgents(
         String recoveryID) throws EBaseException;
 
     /**

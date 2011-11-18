@@ -103,7 +103,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     private final static String KEY_RESP_NAME = "keyRepository";
     private static final String PROP_REPLICAID_DN = "dbs.replicadn";
 
-    private Hashtable mRequestProcessor = new Hashtable();
 
     protected boolean mInitialized = false;
     protected IConfigStore mConfig = null;
@@ -115,7 +114,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     protected IRequestQueue mRequestQueue = null;
     protected TransportKeyUnit mTransportKeyUnit = null;
     protected StorageKeyUnit mStorageKeyUnit = null;
-    protected Hashtable mAutoRecovery = new Hashtable();
+    protected Hashtable<String, Credential[]> mAutoRecovery = new Hashtable<String, Credential[]>();
     protected boolean mAutoRecoveryOn = false;
     protected KeyRepository mKeyDB = null;
     protected ReplicaIDRepository mReplicaRepot = null;
@@ -123,7 +122,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     protected IRequestNotifier mPNotify = null;
     protected ISubsystem mOwner = null;
     protected int mRecoveryIDCounter = 0;
-    protected Hashtable mRecoveryParams = new Hashtable();
+    protected Hashtable<String, Hashtable<String, Object>> mRecoveryParams = new Hashtable<String, Hashtable<String, Object>>();
     protected org.mozilla.jss.crypto.X509Certificate mJssCert = null;
     protected CryptoToken mKeygenToken = null;
 
@@ -524,7 +523,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return list of user IDs that are accepted in the
      * auto recovery mode
      */
-    public Enumeration getAutoRecoveryIDs() {
+    public Enumeration<String> getAutoRecoveryIDs() {
         return mAutoRecovery.keys();
     }
 
@@ -599,11 +598,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         return Integer.toString(mRecoveryIDCounter++);
     }
 
-    public Hashtable createRecoveryParams(String recoveryID) 
+    public Hashtable<String, Object> createRecoveryParams(String recoveryID)
         throws EBaseException {
-        Hashtable h = new Hashtable();
+        Hashtable<String, Object> h = new Hashtable<String, Object>();
 
-        h.put(PARAM_CREDS, new Vector());
+        h.put(PARAM_CREDS, new Vector<Credential>());
         h.put(PARAM_LOCK, new Object());
         mRecoveryParams.put(recoveryID, h);
         return h;
@@ -614,14 +613,14 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         mRecoveryParams.remove(recoveryID);
     }
 
-    public Hashtable getRecoveryParams(String recoveryID) 
+    public Hashtable<String, Object> getRecoveryParams(String recoveryID)
         throws EBaseException {
-        return (Hashtable) mRecoveryParams.get(recoveryID);
+        return (Hashtable<String, Object>) mRecoveryParams.get(recoveryID);
     }
 
     public void createPk12(String recoveryID, byte[] pk12)
         throws EBaseException {
-        Hashtable h = getRecoveryParams(recoveryID);
+        Hashtable<String, Object> h = getRecoveryParams(recoveryID);
 
         h.put(PARAM_PK12, pk12);
     }
@@ -633,7 +632,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     public void createError(String recoveryID, String error)
         throws EBaseException {
-        Hashtable h = getRecoveryParams(recoveryID);
+        Hashtable<String, Object> h = getRecoveryParams(recoveryID);
 
         h.put(PARAM_ERROR, error);
     }
@@ -646,10 +645,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Retrieve the current approval agents
      */
-    public Vector getAppAgents(
+    public Vector<Credential> getAppAgents(
         String recoveryID) throws EBaseException {
-        Hashtable h = getRecoveryParams(recoveryID);
-        Vector dc = (Vector) h.get(PARAM_CREDS);
+        Hashtable<String, Object> h = getRecoveryParams(recoveryID);
+        @SuppressWarnings("unchecked")
+		Vector<Credential> dc = (Vector<Credential>) h.get(PARAM_CREDS);
 
         return dc;
     }
@@ -662,8 +662,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     public Credential[] getDistributedCredentials(
         String recoveryID) 
         throws EBaseException {
-        Hashtable h = getRecoveryParams(recoveryID);
-        Vector dc = (Vector) h.get(PARAM_CREDS);
+        Hashtable<String, Object> h = getRecoveryParams(recoveryID);
+        @SuppressWarnings("unchecked")
+		Vector<Credential> dc = (Vector<Credential>) h.get(PARAM_CREDS);
         Object lock = (Object) h.get(PARAM_LOCK);
 
         synchronized (lock) {
@@ -684,7 +685,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Verifies credential.
      */
-    private void verifyCredential(Vector creds, String uid, 
+    private void verifyCredential(Vector<Credential>  creds, String uid,
         String pwd) throws EBaseException {
             // see if we have the uid already
 
@@ -698,7 +699,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
 
         for (int i = 0; i < creds.size(); i++) {
-            Credential c = (Credential) creds.elementAt(i);
+            Credential c =  creds.elementAt(i);
 
             if (c.getIdentifier().equals(uid)) {
                 // duplicated uid
@@ -715,8 +716,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     public void addDistributedCredential(String recoveryID, 
         String uid, String pwd) throws EBaseException {
-        Hashtable h = getRecoveryParams(recoveryID);
-        Vector dc = (Vector) h.get(PARAM_CREDS);
+        Hashtable<String, Object> h = getRecoveryParams(recoveryID);
+        @SuppressWarnings("unchecked")
+		Vector<Credential> dc = (Vector<Credential> ) h.get(PARAM_CREDS);
         Object lock = (Object) h.get(PARAM_LOCK);
 
         synchronized (lock) {
@@ -1014,7 +1016,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         IRequestQueue queue = null;
         IRequest r = null;
-        Hashtable params = null;
+        Hashtable<String, Object> params = null;
 
         CMS.debug("KeyRecoveryAuthority: in synchronous doKeyRecovery()");
         // ensure that any low-level exceptions are reported
@@ -1148,7 +1150,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         IRequestQueue queue = null;
         IRequest r = null;
-        Hashtable params = null;
+        Hashtable<String, Object> params = null;
 
         CMS.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery()");
         queue = getRequestQueue();
@@ -1492,7 +1494,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 	*/
 
-    public Hashtable mVolatileRequests = new Hashtable();
+    public Hashtable<String, Hashtable<String, Object>> mVolatileRequests = new Hashtable<String, Hashtable<String, Object>>();
 
     /**
      * Creates a request object to store attributes that
@@ -1501,15 +1503,15 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * persistent storage. Things like passwords are not
      * desirable to be stored.
      */
-    public Hashtable createVolatileRequest(RequestId id) {
-        Hashtable params = new Hashtable();
+    public Hashtable<String, Object> createVolatileRequest(RequestId id) {
+        Hashtable<String, Object> params = new Hashtable<String, Object>();
 
         mVolatileRequests.put(id.toString(), params);
         return params;
     }
 
-    public Hashtable getVolatileRequest(RequestId id) {
-        return (Hashtable) mVolatileRequests.get(id.toString());
+    public Hashtable<String, Object> getVolatileRequest(RequestId id) {
+        return (Hashtable<String, Object>) mVolatileRequests.get(id.toString());
     }
 
     public void destroyVolatileRequest(RequestId id) {
