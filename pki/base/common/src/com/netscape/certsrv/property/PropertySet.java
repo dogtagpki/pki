@@ -26,7 +26,7 @@ import java.util.Hashtable;
  */
 public class PropertySet {
 
-  private Hashtable mProperties = new Hashtable();
+  private Hashtable<String, IDescriptor> mProperties = new Hashtable<String, IDescriptor>();
 
   public PropertySet()
   {
@@ -37,7 +37,7 @@ public class PropertySet {
      mProperties.put(name, desc);
   }
 
-  public Enumeration getNames()
+  public Enumeration<String> getNames()
   {
     return mProperties.keys();
   }

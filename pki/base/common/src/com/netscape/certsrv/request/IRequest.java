@@ -643,7 +643,7 @@ public interface IRequest {
      * @param key  The extdata key
      * @return  A Vector of strings, or null on error.
      */
-    public Vector getExtDataInStringVector(String key);
+    public Vector<String> getExtDataInStringVector(String key);
 
     /**
      * Gets boolean value for given type or default value

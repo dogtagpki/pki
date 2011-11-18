@@ -58,7 +58,7 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
      * @return list of users
      * @exception EUsrGrpException thrown when any internal error occurs
      */
-    public Enumeration listUsers(String filter) throws EUsrGrpException;
+    public Enumeration<IUser> listUsers(String filter) throws EUsrGrpException;
 
     /**
      * Adds the given user to the internal database
@@ -107,7 +107,7 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
      * @param filter the search filter
      * @return a list of groups that match the given search filter
      */
-    public Enumeration findGroups(String filter);
+    public Enumeration<IGroup> findGroups(String filter);
 
     /**
      * Find a group for the given name
@@ -125,7 +125,7 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
      * its description.
      * @exception EUsrGrpException thrown when failed to list groups
      */
-    public Enumeration listGroups(String filter) throws EUsrGrpException;
+    public Enumeration<IGroup> listGroups(String filter) throws EUsrGrpException;
 
     /**
      * Retrieves a group from LDAP for the given group name

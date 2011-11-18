@@ -44,7 +44,7 @@ public class PluginRegistry implements IPluginRegistry {
     private IConfigStore mConfig = null;
     private IConfigStore mFileConfig = null;
     private ISubsystem mOwner = null;
-    private Hashtable mTypes = new Hashtable();
+    private Hashtable<String, Hashtable <String ,IPluginInfo>> mTypes = new Hashtable<String, Hashtable<String, IPluginInfo>>();
 
     public PluginRegistry() {
     }
@@ -158,7 +158,7 @@ public class PluginRegistry implements IPluginRegistry {
 
     public void removePluginInfo(String type, String id)
         throws ERegistryException {
-        Hashtable plugins = (Hashtable)mTypes.get(type);
+        Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
         if (plugins == null)
           return;
         plugins.remove(id);
@@ -173,10 +173,10 @@ public class PluginRegistry implements IPluginRegistry {
 
     public void addPluginInfo(String type, String id, IPluginInfo info, int saveConfig)
         throws ERegistryException {
-        Hashtable plugins = (Hashtable) mTypes.get(type); 
+        Hashtable<String, IPluginInfo> plugins =  mTypes.get(type);
 
         if (plugins == null) {
-            plugins = new Hashtable();
+            plugins = new Hashtable<String, IPluginInfo>();
             mTypes.put(type, plugins);
         }
         Locale locale = Locale.getDefault();
@@ -192,7 +192,7 @@ public class PluginRegistry implements IPluginRegistry {
 
     public void rebuildConfigStore(Locale locale)
         throws ERegistryException {
-        Enumeration types = mTypes.keys();
+        Enumeration<String> types = mTypes.keys();
         StringBuffer typesBuf = new StringBuffer();
 
         while (types.hasMoreElements()) {
@@ -202,9 +202,9 @@ public class PluginRegistry implements IPluginRegistry {
             if (types.hasMoreElements()) {
                 typesBuf.append(",");
             }
-            Hashtable mPlugins = (Hashtable) mTypes.get(type);
+            Hashtable<String, IPluginInfo> mPlugins = mTypes.get(type);
             StringBuffer idsBuf = new StringBuffer();
-            Enumeration plugins = mPlugins.keys();
+            Enumeration<String> plugins = mPlugins.keys();
 
             while (plugins.hasMoreElements()) {
                 String id = (String) plugins.nextElement();
@@ -266,15 +266,15 @@ public class PluginRegistry implements IPluginRegistry {
     /**
      * Returns all type names.
      */
-    public Enumeration getTypeNames() {
+    public Enumeration<String> getTypeNames() {
         return mTypes.keys();
     }
 
     /**
      * Returns a list of identifiers of the given type.
      */
-    public Enumeration getIds(String type) {
-        Hashtable plugins = (Hashtable) mTypes.get(type);
+    public Enumeration<String> getIds(String type) {
+        Hashtable<String, IPluginInfo> plugins =  mTypes.get(type);
 
         if (plugins == null)
             return null;
@@ -285,11 +285,11 @@ public class PluginRegistry implements IPluginRegistry {
      * Retrieves the plugin information.
      */
     public IPluginInfo getPluginInfo(String type, String id) {
-        Hashtable plugins = (Hashtable) mTypes.get(type);
+        Hashtable <String ,IPluginInfo> plugins = mTypes.get(type);
 
         if (plugins == null)
             return null;
-        return (IPluginInfo) plugins.get(id);
+        return plugins.get(id);
     }
 
 }

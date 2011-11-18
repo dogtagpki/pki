@@ -89,7 +89,7 @@ public interface IProfileAuthenticator extends IAuthManager {
      *
      * @return a list of property names
      */
-    public Enumeration getValueNames();
+    public Enumeration<String> getValueNames();
 
     /**
      * Checks if the value of the given property should be

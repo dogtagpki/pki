@@ -39,8 +39,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public abstract class EnrollOutput implements IProfileOutput { 
     private IConfigStore mConfig = null;
-    private Vector mValueNames = new Vector();
-    protected Vector mConfigNames = new Vector();
+    private Vector<String> mValueNames = new Vector<String>();
+    protected Vector<String> mConfigNames = new Vector<String>();
  
     /**
      * Initializes this default policy.
@@ -98,7 +98,7 @@ public abstract class EnrollOutput implements IProfileOutput {
     /**
      * Retrieves a list of names of the value parameter.
      */
-    public Enumeration getValueNames() {
+    public Enumeration<String> getValueNames() {
         return mValueNames.elements();
     }
 
@@ -115,7 +115,7 @@ public abstract class EnrollOutput implements IProfileOutput {
         request.setExtData(name, value);
     }
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         return mConfigNames.elements();
     }
 

@@ -109,7 +109,7 @@ public interface IPolicyDefault extends IConfigTemplate {
      * @return a list of property names. The values are
      *         of type java.lang.String
      */
-    public Enumeration getValueNames();
+    public Enumeration<String> getValueNames();
 
     /**
      * Retrieves the descriptor of the given property 

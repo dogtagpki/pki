@@ -245,11 +245,11 @@ public class RegistryAdminServlet extends AdminServlet {
         throws ServletException, IOException {
 
         String scope = req.getParameter(Constants.OP_SCOPE);
-        Enumeration impls = mRegistry.getIds(scope);
+        Enumeration<String> impls = mRegistry.getIds(scope);
         NameValuePairs nvp = new NameValuePairs();
 
         while (impls.hasMoreElements()) {
-            String id = (String) impls.nextElement();
+            String id =  impls.nextElement();
             IPluginInfo info = mRegistry.getPluginInfo(scope, id);
 
             nvp.add(id, info.getClassName() + "," + 
@@ -276,7 +276,7 @@ public class RegistryAdminServlet extends AdminServlet {
                 Class.forName(className).newInstance();
 
             if (policyDefaultClass != null) {
-                Enumeration impls = mRegistry.getIds("constraintPolicy");
+                Enumeration<String> impls = mRegistry.getIds("constraintPolicy");
 
                 while (impls.hasMoreElements()) {
                     String constraintID = (String) impls.nextElement();
@@ -332,11 +332,11 @@ public class RegistryAdminServlet extends AdminServlet {
         } catch (Exception e) {
         }
         if (template != null) {
-            Enumeration names = template.getConfigNames();
+            Enumeration<String> names = template.getConfigNames();
 
             if (names != null) {
                 while (names.hasMoreElements()) {
-                    String name = (String) names.nextElement(); 
+                    String name = names.nextElement();
                         CMS.debug("RegistryAdminServlet: getProfileImpl descriptor " + name);
                     IDescriptor desc = template.getConfigDescriptor(getLocale(req), name);
 

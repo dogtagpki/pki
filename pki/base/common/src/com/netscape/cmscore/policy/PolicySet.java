@@ -40,8 +40,8 @@ import com.netscape.cmscore.util.Debug;
  */
 public class PolicySet implements IPolicySet {
     private String mName;
-    private Vector mRuleNames = new Vector();
-    private Vector mRules = new Vector();
+    private Vector<String> mRuleNames = new Vector<String>();
+    private Vector<IPolicyRule> mRules = new Vector<IPolicyRule>();
     private ILogger mLogger = CMS.getLogger();
 
     public PolicySet(String name) {
@@ -140,7 +140,7 @@ public class PolicySet implements IPolicySet {
      *
      * @return An enumeration of rules.
      */
-    public Enumeration getRules() {
+    public Enumeration<IPolicyRule> getRules() {
         return mRules.elements();
     }
 

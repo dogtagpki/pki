@@ -275,7 +275,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed on demand
-        Enumeration instances = mOnDemandOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         int i = 0;
 
@@ -320,7 +320,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed on demand
-        Enumeration instances = mOnDemandOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
@@ -382,7 +382,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed on demand
-        Enumeration instances = mOnDemandOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
@@ -427,7 +427,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed on demand
-        Enumeration instances = mOnDemandOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
@@ -471,7 +471,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed on demand
-        Enumeration instances = mOnDemandOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
@@ -511,7 +511,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed on demand
-        Enumeration instances = mOnDemandOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
@@ -600,7 +600,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed at server startup
-        Enumeration instances = mStartupOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
         int i = 0;
 
@@ -645,7 +645,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed at server startup
-        Enumeration instances = mStartupOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
@@ -707,7 +707,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed at server startup
-        Enumeration instances = mStartupOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
@@ -753,7 +753,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed at server startup
-        Enumeration instances = mStartupOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
@@ -797,7 +797,7 @@ public class SelfTestSubsystem
 
         // loop through all self test plugin instances
         // specified to be executed at server startup
-        Enumeration instances = mStartupOrder.elements();
+        Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
@@ -846,7 +846,7 @@ public class SelfTestSubsystem
 
             // loop through all self test plugin instances
             // specified to be executed at server startup
-            Enumeration instances = mStartupOrder.elements();
+            Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
             while (instances.hasMoreElements()) {
                 SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
@@ -980,7 +980,7 @@ public class SelfTestSubsystem
         }
 
         // loop through all self test plugin instances
-        Enumeration instances = mSelfTestInstances.elements();
+        Enumeration<ISelfTest> instances = mSelfTestInstances.elements();
 
         while (instances.hasMoreElements()) {
             ISelfTest instance = (ISelfTest) instances.nextElement();
@@ -1355,7 +1355,7 @@ public class SelfTestSubsystem
             throw new EMissingSelfTestException();
         }
 
-        Enumeration loggerInstances = loggerConfig.getPropertyNames();
+        Enumeration<String> loggerInstances = loggerConfig.getPropertyNames();
 
         if (loggerInstances.hasMoreElements()) {
             loadStatus++;
@@ -1495,7 +1495,7 @@ public class SelfTestSubsystem
             throw new EMissingSelfTestException();
         }
 
-        Enumeration instances = instanceConfig.getPropertyNames();
+        Enumeration<String> instances = instanceConfig.getPropertyNames();
 
         if (instances.hasMoreElements()) {
             loadStatus++;
@@ -1842,7 +1842,7 @@ public class SelfTestSubsystem
     public void startup()
         throws EBaseException {
         // loop through all self test plugin instances
-        Enumeration instances = mSelfTestInstances.elements();
+        Enumeration<ISelfTest> instances = mSelfTestInstances.elements();
 
         while (instances.hasMoreElements()) {
             ISelfTest instance = (ISelfTest) instances.nextElement();
@@ -1852,7 +1852,7 @@ public class SelfTestSubsystem
 
         if (!CMS.isPreOpMode()) {
             // run all self test plugin instances (designated at startup)
-            Enumeration selftests = mStartupOrder.elements();
+            Enumeration<SelfTestOrderedInstance> selftests = mStartupOrder.elements();
 
             if (selftests.hasMoreElements()) {
                 // log that execution of startup self tests has begun
@@ -1883,13 +1883,13 @@ public class SelfTestSubsystem
      */
     public void shutdown() {
         // reverse order of all self test plugin instances
-        Collection  collection = mSelfTestInstances.values();
-        Vector list = new Vector(collection);
+        Collection<ISelfTest>  collection = mSelfTestInstances.values();
+        Vector<ISelfTest> list = new Vector<ISelfTest>(collection);
 
         Collections.reverse(list);
 
         // loop through all self test plugin instances
-        ListIterator instances = list.listIterator();
+        ListIterator<ISelfTest> instances = list.listIterator();
 
         while (instances.hasNext()) {
             ISelfTest instance = (ISelfTest) instances.next();

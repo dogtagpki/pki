@@ -40,10 +40,10 @@ public class Group implements IGroup {
     private static final long serialVersionUID = -1264387079578766750L;
     private IUsrGrp mBase = null;
     private String mName = null;
-    private Vector mMembers = new Vector();
+    private Vector<String> mMembers = new Vector<String>();
     private String mDescription = null;
 
-    private static final Vector mNames = new Vector();
+    private static final Vector<String> mNames = new Vector<String>();
     static {
         mNames.addElement(ATTR_NAME);
         mNames.addElement(ATTR_ID);
@@ -75,7 +75,7 @@ public class Group implements IGroup {
         mMembers.addElement(name);
     }
 
-    public Enumeration getMemberNames() {
+    public Enumeration<String> getMemberNames() {
         return mMembers.elements();
     }
 
@@ -90,13 +90,14 @@ public class Group implements IGroup {
         return false;
     }
 
-    public void set(String name, Object object) throws EBaseException {
+    @SuppressWarnings("unchecked")
+	public void set(String name, Object object) throws EBaseException {
         if (name.equals(ATTR_NAME)) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         } else if (name.equals(ATTR_ID)) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         } else if (name.equals(ATTR_MEMBERS)) {
-            mMembers = (Vector) object;
+            mMembers = (Vector<String>) object;
         } else if (name.equals(ATTR_DESCRIPTION)) {
             mDescription = (String) object;
         } else {
@@ -120,7 +121,7 @@ public class Group implements IGroup {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return mNames.elements();
     }
 }

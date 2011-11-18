@@ -110,7 +110,7 @@ public interface IPolicyRule
      * @return nvPairs A Vector of name/value pairs. Each name/value
      *				pair is constructed as a String in name=value format.
      */
-    public Vector getInstanceParams();
+    public Vector<String> getInstanceParams();
 
     /**
      * Return default parameters for a policy implementation.
@@ -118,7 +118,7 @@ public interface IPolicyRule
      * @return nvPairs A Vector of name/value pairs. Each name/value
      *		  		pair is constructed as a String in name=value.
      */
-    public Vector getDefaultParams();
+    public Vector<String>  getDefaultParams();
 
     public void setError(IRequest req, String format, Object[] params);
 

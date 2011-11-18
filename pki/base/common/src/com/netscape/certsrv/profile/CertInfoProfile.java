@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.IConfigStore;
 
 public class CertInfoProfile 
 {
-    private Vector mDefaults = new Vector();
+    private Vector<ICertInfoPolicyDefault> mDefaults = new Vector<ICertInfoPolicyDefault>();
     private String mName = null;
     private String mID = null;
     private String mDescription = null;
@@ -96,7 +96,7 @@ public class CertInfoProfile
 
     public void populate(X509CertInfo info)
     {
-        Enumeration e1 = mDefaults.elements();
+        Enumeration<ICertInfoPolicyDefault> e1 = mDefaults.elements();
         while (e1.hasMoreElements()) {
           ICertInfoPolicyDefault def = 
                (ICertInfoPolicyDefault)e1.nextElement();

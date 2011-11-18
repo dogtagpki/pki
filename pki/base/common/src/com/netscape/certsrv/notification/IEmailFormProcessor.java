@@ -67,12 +67,12 @@ public interface IEmailFormProcessor {
      * @return mail content
      */
     public String getEmailContent(String form,
-        Hashtable tok2vals);
+        Hashtable<String, Object> tok2vals);
 
     /**
      * takes a vector of strings and concatenate them
      */
-    public String formContent(Vector vec);
+    public String formContent(Vector<String> vec);
 
     /**
      * logs an entry in the log file.

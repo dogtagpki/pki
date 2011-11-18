@@ -71,8 +71,8 @@ public class EmailFormProcessor implements IEmailFormProcessor {
         };
 
     // stores the eventual content of the email
-    Vector mContent = new Vector();
-    Hashtable mTok2vals = null;
+    Vector<String> mContent = new Vector<String>();
+    Hashtable<String, Object> mTok2vals = null;
 
     public EmailFormProcessor() {
     }
@@ -87,7 +87,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
      * @return mail content
      */
     public String getEmailContent(String form,
-        Hashtable tok2vals) {
+        Hashtable<String, Object> tok2vals) {
         mTok2vals = tok2vals;
 
         if (form == null) {
@@ -154,7 +154,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
             boolean matched = false;
             String tok = null;
 
-            for (Enumeration e = mTok2vals.keys(); e.hasMoreElements();) {
+            for (Enumeration<String> e = mTok2vals.keys(); e.hasMoreElements();) {
                 // get key
                 tok = (String) e.nextElement();
 
@@ -167,7 +167,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
                         String s = (String) o;
 
                         if (!s.equals("")) {
-                            mContent.add(o);
+                            mContent.add(s);
                         } else {
                             break;
                         }
@@ -221,18 +221,18 @@ public class EmailFormProcessor implements IEmailFormProcessor {
     /**
      * takes a vector of strings and concatenate them
      */
-    public String formContent(Vector vec) {
+    public String formContent(Vector<String> vec) {
         String content = null;
 
-        Enumeration e = vec.elements();
+        Enumeration<String> e = vec.elements();
 
         // initialize content with first element
         if (e.hasMoreElements()) {
-            content = (String) e.nextElement();
+            content =  e.nextElement();
         }
 
         while (e.hasMoreElements()) {
-            String v = (String) e.nextElement();
+            String v = e.nextElement();
 
             content += v;
         }

@@ -41,7 +41,7 @@ public interface IConfigTemplate {
      * 
      * @return parameter names
      */
-    public Enumeration getConfigNames();
+    public Enumeration<String> getConfigNames();
 
     /**
      * Returns the descriptors of configuration parameter.

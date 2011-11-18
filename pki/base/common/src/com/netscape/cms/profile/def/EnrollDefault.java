@@ -80,13 +80,13 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     public static final String GN_OID_NAME = "OIDName";
 
     protected IConfigStore mConfig = null;
-    protected Vector mConfigNames = new Vector();
-    protected Vector mValueNames = new Vector();
+    protected Vector<String> mConfigNames = new Vector<String>();
+    protected Vector<String> mValueNames = new Vector<String>();
 
     public EnrollDefault() {
     }
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         return mConfigNames.elements();
     }
 
@@ -212,7 +212,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         mValueNames.addElement(name);
     }
 
-    public Enumeration getValueNames() {
+    public Enumeration<String> getValueNames() {
         return mValueNames.elements();
     }
 
@@ -291,7 +291,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                     info.get(X509CertInfo.EXTENSIONS);
             if (exts == null)
                 return;
-            Enumeration e = exts.getNames();
+            Enumeration<?> e = exts.getNames();
 
             while (e.hasMoreElements()) {
                 String n = (String) e.nextElement();
@@ -323,7 +323,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     protected Extension getExtension(String name, CertificateExtensions exts) {
         if (exts == null)
             return null;
-        Enumeration e = exts.getElements();
+        Enumeration<?> e = exts.getElements();
 
         while (e.hasMoreElements()) {
             Extension ext = (Extension) e.nextElement();
@@ -515,7 +515,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
               String realm = nameValue.substring(pos0 + 1, pos1).trim();
               String name_type = nameValue.substring(pos1 + 1, pos2).trim();
               String name_strings = nameValue.substring(pos2 + 1).trim();
-              Vector strings = new Vector();
+              Vector<String> strings = new Vector<String>();
               StringTokenizer st = new StringTokenizer(name_strings, ",");
               while (st.hasMoreTokens()) {
                      strings.addElement(st.nextToken());
@@ -637,7 +637,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         return true;
     }
 
-    protected String buildRecords(Vector recs) throws EPropertyException {
+    protected String buildRecords(Vector<?> recs) throws EPropertyException {
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < recs.size(); i++) {
@@ -646,7 +646,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             sb.append("Record #");
             sb.append(i);
             sb.append("\r\n");
-            Enumeration e = pairs.getNames();
+            Enumeration<?> e = pairs.getNames();
 
             while (e.hasMoreElements()) {
                 String key = (String) e.nextElement();
@@ -663,10 +663,10 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         return sb.toString();
     }
 
-    protected Vector parseRecords(String value) throws EPropertyException {
+    protected Vector<NameValuePairs> parseRecords(String value) throws EPropertyException {
         StringTokenizer st = new StringTokenizer(value, "\r\n");
         int num = 0;
-        Vector v = new Vector();
+        Vector<NameValuePairs> v = new Vector<NameValuePairs>();
         NameValuePairs nvps = null;
 
         while (st.hasMoreTokens()) {

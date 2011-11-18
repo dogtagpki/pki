@@ -197,7 +197,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
         try {
             if (userid.indexOf('=') == -1) {
-                Enumeration e = findUsers(userid);
+                Enumeration<IUser> e = findUsers(userid);
 
                 if (e != null && e.hasMoreElements()) {
                     IUser u = (IUser) e.nextElement();
@@ -215,7 +215,7 @@ public final class UGSubsystem implements IUGSubsystem {
                     LDAPSearchResults res = 
                         ldapconn.search(userid,
                             LDAPv2.SCOPE_SUB, "(objectclass=*)", null, false);
-                    Enumeration e = buildUsers(res);
+                    Enumeration<IUser> e = buildUsers(res);
 
                     if (e.hasMoreElements()) {
                         return (IUser) e.nextElement();
@@ -248,7 +248,7 @@ public final class UGSubsystem implements IUGSubsystem {
             LDAPSearchResults res = 
                 ldapconn.search(getUserBaseDN(),
                     LDAPConnection.SCOPE_SUB, filter, null, false);
-            Enumeration e = buildUsers(res);
+            Enumeration<IUser> e = buildUsers(res);
 
             return (User) e.nextElement();
         } catch (LDAPException e) {
@@ -306,7 +306,7 @@ public final class UGSubsystem implements IUGSubsystem {
                     LDAPv2.SCOPE_SUB, "(" + filter + ")", 
                     null, false);
 
-            Enumeration e = buildUsers(res);
+            Enumeration<IUser> e = buildUsers(res);
 
             return (User) e.nextElement();
         } catch (LDAPException e) {
@@ -333,7 +333,7 @@ public final class UGSubsystem implements IUGSubsystem {
     /**
      * Searchs for identities that matches the filter.
      */
-    public Enumeration findUsers(String filter) throws EUsrGrpException {
+    public Enumeration<IUser> findUsers(String filter) throws EUsrGrpException {
         if (filter == null) {
             return null;
         }
@@ -346,7 +346,7 @@ public final class UGSubsystem implements IUGSubsystem {
                     LDAPv2.SCOPE_SUB, "(uid=" + filter + ")", 
                     null, false);
 
-            Enumeration e = buildUsers(res);
+            Enumeration<IUser> e = buildUsers(res);
 
             return e;
         } catch (LDAPException e) {
@@ -373,7 +373,7 @@ public final class UGSubsystem implements IUGSubsystem {
      * Searchs for identities that matches the filter.
      * retrieves uid only, for efficiency of user listing
      */
-    public Enumeration listUsers(String filter) throws EUsrGrpException {
+    public Enumeration<IUser> listUsers(String filter) throws EUsrGrpException {
         if (filter == null) {
             return null;
         }
@@ -392,7 +392,7 @@ public final class UGSubsystem implements IUGSubsystem {
             cons.setMaxResults(0);
             LDAPSearchResults res = ldapconn.search(getUserBaseDN(),
                     LDAPv2.SCOPE_SUB, "(uid=" + filter + ")", attrs, false, cons);
-            Enumeration e = lbuildUsers(res);
+            Enumeration<IUser> e = lbuildUsers(res);
 
             return e;
         } catch (LDAPException e) {
@@ -412,9 +412,9 @@ public final class UGSubsystem implements IUGSubsystem {
         return null;
     }
 
-    protected Enumeration lbuildUsers(LDAPSearchResults res) throws
+    protected Enumeration<IUser> lbuildUsers(LDAPSearchResults res) throws
             EUsrGrpException {
-        Vector v = new Vector();
+        Vector<IUser> v = new Vector<IUser>();
 
         while (res.hasMoreElements()) {
             LDAPEntry entry = (LDAPEntry) res.nextElement();
@@ -425,9 +425,9 @@ public final class UGSubsystem implements IUGSubsystem {
         return v.elements();
     }
 
-    protected Enumeration buildUsers(LDAPSearchResults res) throws
+    protected Enumeration<IUser> buildUsers(LDAPSearchResults res) throws
             EUsrGrpException {
-        Vector v = new Vector();
+        Vector<IUser> v = new Vector<IUser>();
 
         if (res != null) {
             while (res.hasMoreElements()) {
@@ -469,13 +469,14 @@ public final class UGSubsystem implements IUGSubsystem {
             entry.getAttribute(LDAP_ATTR_USER_CERT);
 
         if (certAttr != null) {
-            Vector certVector = new Vector();
-            Enumeration e = certAttr.getByteValues();
+            Vector<X509Certificate> certVector = new Vector<X509Certificate>();
+            @SuppressWarnings("unchecked")
+			Enumeration<byte[]> e = certAttr.getByteValues();
 
             try {
                 for (; e != null && e.hasMoreElements();) {
                     X509Certificate cert = new X509CertImpl(
-                            (byte[]) e.nextElement());
+                             e.nextElement());
 
                     certVector.addElement(cert);
                 }
@@ -486,7 +487,7 @@ public final class UGSubsystem implements IUGSubsystem {
             if (certVector != null && certVector.size() != 0) {
                 // Make an array of certs
                 X509Certificate[] certArray = new X509Certificate[certVector.size()];
-                Enumeration en = certVector.elements();
+                Enumeration<X509Certificate> en = certVector.elements();
                 int i = 0;
 
                 while (en.hasMoreElements()) {
@@ -544,10 +545,11 @@ public final class UGSubsystem implements IUGSubsystem {
         LDAPAttribute mailAttr = entry.getAttribute("mail");
 
         if (mailAttr != null) {
-            Enumeration en = mailAttr.getStringValues();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> en = mailAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
-                String mail = (String) en.nextElement();
+                String mail =  en.nextElement();
 
                 if (mail != null) {
                     id.setEmail(mail);
@@ -570,7 +572,8 @@ public final class UGSubsystem implements IUGSubsystem {
         LDAPAttribute phoneAttr = entry.getAttribute("telephonenumber");
 
         if (phoneAttr != null) {
-            Enumeration en = phoneAttr.getStringValues();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> en = phoneAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
                 String phone = (String) en.nextElement();
@@ -589,7 +592,8 @@ public final class UGSubsystem implements IUGSubsystem {
         if (userTypeAttr == null) 
             id.setUserType("");
         else {
-            Enumeration en = userTypeAttr.getStringValues();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> en = userTypeAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
                 String userType = (String) en.nextElement();
@@ -607,7 +611,8 @@ public final class UGSubsystem implements IUGSubsystem {
         if (userStateAttr == null)
             id.setState("");
         else {
-            Enumeration en = userStateAttr.getStringValues();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> en = userStateAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
                 String userState = (String) en.nextElement();
@@ -624,8 +629,9 @@ public final class UGSubsystem implements IUGSubsystem {
             entry.getAttribute(LDAP_ATTR_USER_CERT);
 
         if (certAttr != null) {
-            Vector certVector = new Vector();
-            Enumeration e = certAttr.getByteValues();
+            Vector<X509Certificate> certVector = new Vector<X509Certificate>();
+            @SuppressWarnings("unchecked")
+			Enumeration<byte[]> e = certAttr.getByteValues();
 
             try {
                 for (; e != null && e.hasMoreElements();) {
@@ -641,7 +647,7 @@ public final class UGSubsystem implements IUGSubsystem {
             if (certVector != null && certVector.size() != 0) {
                 // Make an array of certs
                 X509Certificate[] certArray = new X509Certificate[certVector.size()];
-                Enumeration en = certVector.elements();
+                Enumeration<X509Certificate> en = certVector.elements();
                 int i = 0;
 
                 while (en.hasMoreElements()) {
@@ -1132,8 +1138,8 @@ public final class UGSubsystem implements IUGSubsystem {
         }
     }
 
-    protected Enumeration buildGroups(LDAPSearchResults res) {
-        Vector v = new Vector();
+    protected Enumeration<IGroup> buildGroups(LDAPSearchResults res) {
+        Vector<IGroup> v = new Vector<IGroup>();
 
         while (res.hasMoreElements()) {
             LDAPEntry entry = (LDAPEntry) res.nextElement();
@@ -1146,7 +1152,7 @@ public final class UGSubsystem implements IUGSubsystem {
     /**
      * Finds groups.
      */
-    public Enumeration findGroups(String filter) {
+    public Enumeration<IGroup> findGroups(String filter) {
         if (filter == null) {
             return null;
         }
@@ -1183,7 +1189,7 @@ public final class UGSubsystem implements IUGSubsystem {
     }
 
     public IGroup findGroup(String filter) {
-        Enumeration groups = findGroups(filter);
+        Enumeration<IGroup> groups = findGroups(filter);
 
         if (groups == null || !groups.hasMoreElements())
             return null;
@@ -1194,7 +1200,7 @@ public final class UGSubsystem implements IUGSubsystem {
      * List groups.  more efficient than find Groups.  only retrieves
      *	 group names and description.
      */
-    public Enumeration listGroups(String filter) throws EUsrGrpException {
+    public Enumeration<IGroup>  listGroups(String filter) throws EUsrGrpException {
         if (filter == null) {
             return null;
         }
@@ -1243,7 +1249,8 @@ public final class UGSubsystem implements IUGSubsystem {
         LDAPAttribute grpDesc = entry.getAttribute("description");
 
         if (grpDesc != null) {
-            Enumeration en = grpDesc.getStringValues();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> en = grpDesc.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
                 String desc = (String) en.nextElement();
@@ -1274,7 +1281,8 @@ public final class UGSubsystem implements IUGSubsystem {
             return grp;
         }
 
-        Enumeration e = attr.getStringValues();
+        @SuppressWarnings("unchecked")
+		Enumeration<String> e = attr.getStringValues();
 
         while (e.hasMoreElements()) {
             String v = (String) e.nextElement();
@@ -1331,7 +1339,7 @@ public final class UGSubsystem implements IUGSubsystem {
             // read the group object
             LDAPSearchResults res = ldapconn.search(name,
                     LDAPConnection.SCOPE_BASE, "(objectclass=*)", null, false);
-            Enumeration e = buildGroups(res);
+            Enumeration<IGroup> e = buildGroups(res);
 
             if (e == null || e.hasMoreElements() == false)
                 return null;
@@ -1363,7 +1371,8 @@ public final class UGSubsystem implements IUGSubsystem {
             if (attr == null) {
                 return false;
             }
-            Enumeration en = attr.getStringValues();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> en = attr.getStringValues();
 
             for (; en.hasMoreElements();) {
                 String v = (String) en.nextElement();
@@ -1491,7 +1500,7 @@ public final class UGSubsystem implements IUGSubsystem {
             attrs.add(new LDAPAttribute("objectclass", oc));
             attrs.add(new LDAPAttribute("cn", group.getGroupID()));
             attrs.add(new LDAPAttribute("description", group.getDescription()));
-            Enumeration e = grp.getMemberNames();
+            Enumeration<String> e = grp.getMemberNames();
 
             if (e.hasMoreElements() == true) {
                 LDAPAttribute attrMembers = new LDAPAttribute("uniquemember");
@@ -1589,7 +1598,7 @@ public final class UGSubsystem implements IUGSubsystem {
                     new LDAPAttribute("description", desc));
             }
 
-            Enumeration e = grp.getMemberNames();
+            Enumeration<String> e = grp.getMemberNames();
 
             if (e.hasMoreElements() == true) {
                 while (e.hasMoreElements()) {

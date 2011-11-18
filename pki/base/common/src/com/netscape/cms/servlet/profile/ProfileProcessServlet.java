@@ -703,12 +703,12 @@ public class ProfileProcessServlet extends ProfileServlet {
                     IProfileOutput profileOutput = profile.getProfileOutput(
                             outputId);
 
-                    Enumeration outputNames = profileOutput.getValueNames();
+                    Enumeration<String> outputNames = profileOutput.getValueNames();
 
                     if (outputNames != null) {
                         while (outputNames.hasMoreElements()) {
                             ArgSet outputset = new ArgSet();
-                            String outputName = (String)
+                            String outputName =
                                 outputNames.nextElement();
                             IDescriptor outputDesc =
                                 profileOutput.getValueDescriptor(locale,

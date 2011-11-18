@@ -830,7 +830,7 @@ class Request
      * this isn't that efficient but will do for now.
      */
     public void copyContents(IRequest req) {
-        Enumeration e = req.getExtDataKeys();
+        Enumeration<String> e = req.getExtDataKeys();
         while (e.hasMoreElements()) {
             String key = (String) e.nextElement();
             if (!key.equals(IRequest.ISSUED_CERTS) &&
@@ -858,11 +858,11 @@ class Request
                (! key.equals(""));
     }
 
-    protected boolean isValidExtDataHashtableValue(Hashtable hash) {
+    protected boolean isValidExtDataHashtableValue(Hashtable<String, String> hash) {
         if (hash == null) {
             return false;
         }
-        Enumeration keys = hash.keys();
+        Enumeration<String> keys = hash.keys();
         while (keys.hasMoreElements()) {
             Object key = keys.nextElement();
             if (! ((key instanceof String) &&

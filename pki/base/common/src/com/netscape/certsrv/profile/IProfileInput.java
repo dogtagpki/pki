@@ -83,7 +83,7 @@ public interface IProfileInput extends IConfigTemplate {
      *
      * @return a list of property names
      */
-    public Enumeration getValueNames();
+    public Enumeration<String> getValueNames();
 
     /**
      * Retrieves the descriptor of the given value 

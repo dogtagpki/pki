@@ -124,7 +124,7 @@ public interface IProfileSubsystem extends ISubsystem {
      *
      * @return a list of profile ids
      */
-    public Enumeration getProfileIds();
+    public Enumeration<String>  getProfileIds();
 
     /**
      * Checks if owner id should be enforced during profile approval.

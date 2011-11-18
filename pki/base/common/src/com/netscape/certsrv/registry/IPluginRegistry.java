@@ -49,7 +49,7 @@ public interface IPluginRegistry extends ISubsystem {
      *
      * @return a list of String-based names
      */
-    public Enumeration getTypeNames();
+    public Enumeration<String> getTypeNames();
 
     /**
      * Returns a list of plugin identifiers of the given type.
@@ -57,7 +57,7 @@ public interface IPluginRegistry extends ISubsystem {
      * @param type plugin type
      * @return a list of plugin IDs
      */
-    public Enumeration getIds(String type);
+    public Enumeration<String> getIds(String type);
 
     /**
      * Retrieves the plugin information.

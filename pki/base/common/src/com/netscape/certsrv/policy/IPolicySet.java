@@ -90,7 +90,7 @@ public interface IPolicySet {
      *
      * @return An enumeration of rules.
      */
-    Enumeration getRules();
+    Enumeration<IPolicyRule> getRules();
 
     /**
      * Apply policy rules on a request. This call may modify

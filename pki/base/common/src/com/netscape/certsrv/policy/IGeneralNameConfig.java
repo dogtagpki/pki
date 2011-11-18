@@ -56,7 +56,7 @@ public interface IGeneralNameConfig {
      * @return a vector of general names
      * @exception EBaseException failed to form general name
      */
-    public Vector formGeneralNames(Object value)
+    public Vector<GeneralName> formGeneralNames(Object value)
         throws EBaseException;
 
     /**

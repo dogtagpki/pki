@@ -168,5 +168,5 @@ public interface IRegistrationAuthority extends ISubsystem {
      *
      * @return name enumeration of all request listeners
      */
-    public Enumeration getRequestListenerNames();
+    public Enumeration<String> getRequestListenerNames();
 }

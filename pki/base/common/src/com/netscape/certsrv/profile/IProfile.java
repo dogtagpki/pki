@@ -26,6 +26,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.cms.profile.common.ProfilePolicy;
 
 /**
  * This interface represents a profile. A profile contains 
@@ -137,7 +138,7 @@ public interface IProfile {
      *
      * @return input policy id list
      */
-    public Enumeration getProfileInputIds();
+    public Enumeration<String> getProfileInputIds();
 
     /**
      * Retrieves input policy by id.
@@ -152,7 +153,7 @@ public interface IProfile {
      *
      * @return output policy id list
      */
-    public Enumeration getProfileOutputIds();
+    public Enumeration<String> getProfileOutputIds();
 
     /**
      * Retrieves output policy by id.
@@ -243,7 +244,7 @@ public interface IProfile {
      *
      * @return a list of policy set id
      */
-    public Enumeration getProfilePolicySetIds();
+    public Enumeration<String> getProfilePolicySetIds();
 
     /**
      * Creates a profile policy.
@@ -325,7 +326,7 @@ public interface IProfile {
      * @param setId set id
      * @return a list of policy id
      */
-    public Enumeration getProfilePolicyIds(String setId);
+    public Enumeration<String> getProfilePolicyIds(String setId);
 
     /**
      * Retrieves a default set id for the given request.
@@ -343,7 +344,7 @@ public interface IProfile {
      * @param setId set id
      * @return a list of policies
      */
-    public Enumeration getProfilePolicies(String setId);
+    public Enumeration<ProfilePolicy> getProfilePolicies(String setId);
 
     /**
      * Creates one or more requests. Normally, only one request will

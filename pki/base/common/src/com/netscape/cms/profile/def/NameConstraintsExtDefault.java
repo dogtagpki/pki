@@ -163,7 +163,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
     }
 
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         refreshConfigAndValueNames();
         return super.getConfigNames();
     }

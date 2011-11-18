@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.IAttrSet;
  *
  * @version $Revision$, $Date$
  */
-public class AttrSetCollection extends Hashtable {
+public class AttrSetCollection extends Hashtable<String, IAttrSet> {
 
     /**
      *

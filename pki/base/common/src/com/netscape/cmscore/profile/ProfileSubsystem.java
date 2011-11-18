@@ -46,9 +46,9 @@ public class ProfileSubsystem implements IProfileSubsystem {
 
     private IConfigStore mConfig = null;
     private ISubsystem mOwner = null;
-    private Vector mProfileIds = new Vector();
-    private Hashtable mProfiles = new Hashtable();
-    private Hashtable mProfileClassIds = new Hashtable();
+    private Vector<String> mProfileIds = new Vector<String>();
+    private Hashtable<String, IProfile> mProfiles = new Hashtable<String, IProfile>();
+    private Hashtable<String, String> mProfileClassIds = new Hashtable<String, String>();
 
     /**
      * Retrieves the name of this subsystem.
@@ -106,7 +106,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
             CMS.debug("Done Profile Creation - " + id);
         }
 
-        Enumeration ee = getProfileIds();
+        Enumeration<String> ee = getProfileIds();
 
         while (ee.hasMoreElements()) {
             String id = (String) ee.nextElement();
@@ -308,7 +308,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
      * Retrieves a list of profile ids. The return
      * list is of type String.
      */
-    public Enumeration getProfileIds() {
+    public Enumeration<String> getProfileIds() {
         return mProfileIds.elements();
     }
 

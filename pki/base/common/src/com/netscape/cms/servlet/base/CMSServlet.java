@@ -1042,7 +1042,7 @@ public abstract class CMSServlet extends HttpServlet {
      */
     protected void saveHttpParams(
         IArgBlock httpParams, IRequest req) {
-        Hashtable<String, Object> saveParams = new Hashtable<String, Object>();
+        Hashtable<String, String> saveParams = new Hashtable<String, String>();
 
         Enumeration<String> names = httpParams.elements();
 
@@ -1065,7 +1065,7 @@ public abstract class CMSServlet extends HttpServlet {
                 // retrieves string values.
                 // TODO - when we can use JDK5 features we should typecast
                 // the params until they get here
-                saveParams.put(name, httpParams.get(name));
+                saveParams.put(name, (String) httpParams.get(name));
             }
         }
         req.setExtData(IRequest.HTTP_PARAMS, saveParams);
@@ -1477,7 +1477,7 @@ public abstract class CMSServlet extends HttpServlet {
 
         // # 56230 - expose auth token parameters to the policy predicate
         if (token != null && req != null) {
-            Enumeration e = token.getElements();
+            Enumeration<String> e = token.getElements();
             while (e.hasMoreElements()) {
                 String n = (String) e.nextElement();
                 String[] x1 = token.getInStringArray(n);
@@ -2197,7 +2197,7 @@ public abstract class CMSServlet extends HttpServlet {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
 
-        Enumeration groups = null;
+        Enumeration<IGroup> groups = null;
 
         try {
             groups = mUG.findGroups("*");

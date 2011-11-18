@@ -73,7 +73,7 @@ public interface IPolicyProcessor extends ISubsystem,
      * 		   about policy implementations. Currently only the
      *		   the implementation id is expected.
      */
-    Enumeration getPolicyImplsInfo();
+    Enumeration<String> getPolicyImplsInfo();
 
     /**
      * Returns the rule implementations registered with this processor.
@@ -81,7 +81,7 @@ public interface IPolicyProcessor extends ISubsystem,
      * @return An Enumeration of uninitialized IPolicyRule 
      *					objects.
      */
-    Enumeration getPolicyImpls();
+    Enumeration<IPolicyRule> getPolicyImpls();
 
     /**
      * Returns an implementation identified by a given id.
@@ -98,7 +98,7 @@ public interface IPolicyProcessor extends ISubsystem,
      * @return A vector of name/value pairs in the form of
      *	name=value.
      */
-    Vector getPolicyImplConfig(String id);
+    Vector<String> getPolicyImplConfig(String id);
 
     /**
      * Deletes a policy implementation identified by an impl id.
@@ -129,14 +129,14 @@ public interface IPolicyProcessor extends ISubsystem,
      * @return An Enumeration of Strings describing the information 
      *			about policy rule instances.
      */
-    Enumeration getPolicyInstancesInfo();
+    Enumeration<String> getPolicyInstancesInfo();
 
     /**
      * Returns policy instances registered with this processor.
      *
      * @return An Enumeration of policy instances.
      */
-    Enumeration getPolicyInstances();
+    Enumeration<IPolicyRule>  getPolicyInstances();
 
     /**
      * Returns instance configuration for a given instance id.
@@ -145,7 +145,7 @@ public interface IPolicyProcessor extends ISubsystem,
      * @return A vector of name/value pairs in the form of
      *	name=value.
      */
-    Vector getPolicyInstanceConfig(String id);
+    Vector<String>  getPolicyInstanceConfig(String id);
 
     /**
      * Returns instance configuration for a given instance id.
@@ -172,7 +172,7 @@ public interface IPolicyProcessor extends ISubsystem,
      * @param ht a Hashtable of config params.
      * @exception EBaseException is thrown if an error occurs in addition.
      */
-    void addPolicyInstance(String id, Hashtable ht)
+    void addPolicyInstance(String id, Hashtable<String, String> ht)
         throws EBaseException;
 
     /**
@@ -183,7 +183,7 @@ public interface IPolicyProcessor extends ISubsystem,
      * @param ht a Hashtable of config params.
      * @exception EBaseException is thrown if an error occurs in addition.
      */
-    void modifyPolicyInstance(String id, Hashtable ht)
+    void modifyPolicyInstance(String id, Hashtable<String, String> ht)
         throws EBaseException;
 
     /**

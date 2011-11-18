@@ -170,7 +170,7 @@ public class MailNotification implements IMailNotification {
      * sets the recipients' email addresses
      * @param addresses a list of email addresses of the recipients
      */
-    public void setTo(Vector addresses) {
+    public void setTo(Vector<String> addresses) {
         // concatenate addresses into comma separated mTo String
 
     }

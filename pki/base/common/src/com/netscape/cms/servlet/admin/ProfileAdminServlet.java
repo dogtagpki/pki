@@ -51,6 +51,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cms.profile.common.ProfilePolicy;
 
 
 /**
@@ -383,7 +384,7 @@ public class ProfileAdminServlet extends AdminServlet {
         HttpServletResponse resp)
         throws ServletException, IOException {
 
-        Enumeration impls = mRegistry.getIds("profile");
+        Enumeration<String> impls = mRegistry.getIds("profile");
         NameValuePairs nvp = new NameValuePairs();
 
         while (impls.hasMoreElements()) {
@@ -592,11 +593,12 @@ public class ProfileAdminServlet extends AdminServlet {
             }
 
             IProfileInput input = null;
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
             NameValuePairs nvps = new NameValuePairs();
 
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name =  names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -718,11 +720,12 @@ public class ProfileAdminServlet extends AdminServlet {
             }
 
             IProfileOutput output = null;
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
             NameValuePairs nvps = new NameValuePairs();
 
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name =  names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -819,10 +822,11 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             String profileId = "";
             String policyId = "";
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name =  names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -939,10 +943,11 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             String profileId = "";
             String inputId = "";
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name = names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -1056,7 +1061,8 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             String profileId = "";
             String outputId = "";
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
                 String name = (String) names.nextElement();
@@ -1205,7 +1211,8 @@ public class ProfileAdminServlet extends AdminServlet {
             IPolicyDefault def = policy.getDefault();
             IConfigStore defConfig = def.getConfigStore();
         
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
                 String name = (String) names.nextElement();
@@ -1341,10 +1348,11 @@ public class ProfileAdminServlet extends AdminServlet {
             IPolicyConstraint con = policy.getConstraint();
             IConfigStore conConfig = con.getConfigStore();
 
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name =  names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -1478,7 +1486,8 @@ public class ProfileAdminServlet extends AdminServlet {
             IPolicyDefault def = policy.getDefault();
             IConfigStore defConfig = def.getConfigStore();
         
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
                 String name = (String) names.nextElement();
@@ -1606,7 +1615,8 @@ public class ProfileAdminServlet extends AdminServlet {
             IProfileInput input = profile.getProfileInput(inputId);
             IConfigStore inputConfig = input.getConfigStore();
 
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
                 String name = (String) names.nextElement();
@@ -1725,7 +1735,8 @@ public class ProfileAdminServlet extends AdminServlet {
             IProfileOutput output = profile.getProfileOutput(outputId);
             IConfigStore outputConfig = output.getConfigStore();
 
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
                 String name = (String) names.nextElement();
@@ -1849,7 +1860,8 @@ public class ProfileAdminServlet extends AdminServlet {
             IPolicyConstraint con = policy.getConstraint();
             IConfigStore conConfig = con.getConfigStore();
 
-            Enumeration names = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> names = req.getParameterNames();
 
             CMS.debug("ProfileAdminServlet: modifyPolicyConstraintConfig policy " + policy + " con " + con); 
             while (names.hasMoreElements()) {
@@ -1959,10 +1971,10 @@ public class ProfileAdminServlet extends AdminServlet {
         rule = policy.getDefault();
 
         NameValuePairs nvp = new NameValuePairs();
-        Enumeration names = rule.getConfigNames();
+        Enumeration<String> names = rule.getConfigNames();
 
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
+            String name = names.nextElement();
             IDescriptor desc = rule.getConfigDescriptor(getLocale(req), name);
 
             if (desc == null) {
@@ -2007,10 +2019,10 @@ public class ProfileAdminServlet extends AdminServlet {
         IPolicyConstraint rule = policy.getConstraint();
 
         NameValuePairs nvp = new NameValuePairs();
-        Enumeration names = rule.getConfigNames();
+        Enumeration<String> names = rule.getConfigNames();
 
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
+            String name = names.nextElement();
             IDescriptor desc = rule.getConfigDescriptor(getLocale(req), name);
 
             if (desc == null) {
@@ -2040,7 +2052,7 @@ public class ProfileAdminServlet extends AdminServlet {
         }
 
         NameValuePairs nvp = new NameValuePairs();
-        Enumeration setIds = profile.getProfilePolicySetIds();
+        Enumeration<String> setIds = profile.getProfilePolicySetIds();
 
         if (!setIds.hasMoreElements()) {
             // no set id; this is a brand new profile
@@ -2049,7 +2061,7 @@ public class ProfileAdminServlet extends AdminServlet {
         }
         while (setIds.hasMoreElements()) {
             String setId = (String) setIds.nextElement();
-            Enumeration policies = profile.getProfilePolicies(setId);
+            Enumeration<ProfilePolicy> policies = profile.getProfilePolicies(setId);
 
             while (policies.hasMoreElements()) {
                 IProfilePolicy policy = (IProfilePolicy) policies.nextElement();
@@ -2082,7 +2094,7 @@ public class ProfileAdminServlet extends AdminServlet {
         }
 
         NameValuePairs nvp = new NameValuePairs();
-        Enumeration outputs = profile.getProfileOutputIds();
+        Enumeration<String> outputs = profile.getProfileOutputIds();
 
         while (outputs.hasMoreElements()) {
             String outputId = (String) outputs.nextElement();
@@ -2109,7 +2121,7 @@ public class ProfileAdminServlet extends AdminServlet {
         }
 
         NameValuePairs nvp = new NameValuePairs();
-        Enumeration inputs = profile.getProfileInputIds();
+        Enumeration<String> inputs = profile.getProfileInputIds();
 
         while (inputs.hasMoreElements()) {
             String inputId = (String) inputs.nextElement();
@@ -2143,10 +2155,10 @@ public class ProfileAdminServlet extends AdminServlet {
         NameValuePairs nvp = new NameValuePairs();
 
         profileInput = profile.getProfileInput(inputId);
-        Enumeration names = profileInput.getConfigNames();
+        Enumeration<String> names = profileInput.getConfigNames();
 
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
+            String name = names.nextElement();
             IDescriptor desc = profileInput.getConfigDescriptor(
 		getLocale(req), name);
             if (desc == null) {
@@ -2184,10 +2196,10 @@ public class ProfileAdminServlet extends AdminServlet {
         NameValuePairs nvp = new NameValuePairs();
 
         profileOutput = profile.getProfileOutput(outputId);
-        Enumeration names = profileOutput.getConfigNames();
+        Enumeration<String> names = profileOutput.getConfigNames();
 
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
+            String name = names.nextElement();
             IDescriptor desc = profileOutput.getConfigDescriptor(
 		getLocale(req), name);
             if (desc == null) {
@@ -2208,10 +2220,10 @@ public class ProfileAdminServlet extends AdminServlet {
         throws ServletException, IOException {
 
         NameValuePairs nvp = new NameValuePairs();
-        Enumeration e = mProfileSub.getProfileIds();
+        Enumeration<String> e = mProfileSub.getProfileIds();
 
         while (e.hasMoreElements()) {
-            String profileId = (String) e.nextElement();
+            String profileId =  e.nextElement();
             IProfile profile = null;
 
             try {

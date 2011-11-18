@@ -65,7 +65,7 @@ public interface IMailNotification {
      * sets the recipients' email addresses
      * @param addresses a list of email addresses of the recipients
      */
-    public void setTo(Vector addresses);
+    public void setTo(Vector<String> addresses);
 
     /**
      * sets the recipient's email address
