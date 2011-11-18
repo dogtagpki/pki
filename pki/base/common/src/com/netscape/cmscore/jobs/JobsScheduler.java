@@ -69,9 +69,9 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
     protected String mId = ID;
     protected Thread mScheduleThread = null;
 
-    public Hashtable mJobPlugins = new Hashtable();
-    public Hashtable mJobs = new Hashtable();
-    private Hashtable mJobThreads = new Hashtable();
+    public Hashtable<String, JobPlugin> mJobPlugins = new Hashtable<String, JobPlugin>();
+    public Hashtable<String, IJob> mJobs = new Hashtable<String, IJob>();
+    private Hashtable<String, Thread> mJobThreads = new Hashtable<String, Thread>();
 
     private IConfigStore mConfig = null;
     private ILogger mLogger = null;
@@ -122,7 +122,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         setInterval(i);
 
         IConfigStore c = mConfig.getSubStore(PROP_IMPL);
-        Enumeration mImpls = c.getSubStoreNames();
+        Enumeration<String> mImpls = c.getSubStoreNames();
 
         // register all job plugins
         while (mImpls.hasMoreElements()) {
@@ -136,7 +136,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
 
         // register all jobs
         c = config.getSubStore(PROP_JOB);
-        Enumeration jobs = c.getSubStoreNames();
+        Enumeration<String> jobs = c.getSubStoreNames();
 
         while (jobs.hasMoreElements()) {
             String jobName = (String) jobs.nextElement();
@@ -196,11 +196,11 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         }
     }
 
-    public Hashtable getPlugins() {
+    public Hashtable<String, JobPlugin> getPlugins() {
         return mJobPlugins;
     }
 
-    public Hashtable getInstances() {
+    public Hashtable<String, IJob> getInstances() {
         return mJobs;
     }
 
@@ -278,8 +278,8 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
 			
             IJob job = null;
 
-            for (Enumeration e = mJobs.elements(); e.hasMoreElements();) {
-                job = (IJob) e.nextElement();
+            for (Enumeration<IJob> e = mJobs.elements(); e.hasMoreElements();) {
+                job = e.nextElement();
 
                 // is it enabled?
                 IConfigStore cs = job.getConfigStore();
@@ -337,7 +337,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         /**
          * is it the right month?
          */
-        Vector moy =
+        Vector<CronRange> moy =
             jcron.getItem(JobCron.CRON_MONTH_OF_YEAR).getElements();
 		
         int cronMoy = jcron.MOY_cal2cron(now);
@@ -350,8 +350,8 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         /**
          * is it the right date?
          */
-        Vector dow = jcron.getItem(JobCron.CRON_DAY_OF_WEEK).getElements();
-        Vector dom = jcron.getItem(JobCron.CRON_DAY_OF_MONTH).getElements();
+        Vector<CronRange> dow = jcron.getItem(JobCron.CRON_DAY_OF_WEEK).getElements();
+        Vector<CronRange> dom = jcron.getItem(JobCron.CRON_DAY_OF_MONTH).getElements();
 
         // can't be both empty
         if ((dow.isEmpty()) && dom.isEmpty()) {
@@ -369,7 +369,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         /**
          * is it the right hour?
          */
-        Vector hour = jcron.getItem(JobCron.CRON_HOUR).getElements();
+        Vector<CronRange> hour = jcron.getItem(JobCron.CRON_HOUR).getElements();
 
         if (jcron.isElement(now.get(Calendar.HOUR_OF_DAY), hour) == false) {
             return false;
@@ -379,7 +379,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         /**
          * is it the right minute?
          */
-        Vector minute = jcron.getItem(JobCron.CRON_MINUTE).getElements();
+        Vector<CronRange> minute = jcron.getItem(JobCron.CRON_MINUTE).getElements();
 
         if (jcron.isElement(now.get(Calendar.MINUTE), minute) == false) {
             return false;
@@ -436,7 +436,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         mJobs.clear();
         mJobs = null;
 
-        Enumeration enums = mJobThreads.keys();
+        Enumeration<String> enums = mJobThreads.keys();
         while (enums.hasMoreElements()) {
             String id = (String)enums.nextElement();
             Thread currthread = (Thread)mJobThreads.get(id);
@@ -537,7 +537,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
             level, msg);
     }
 
-    public Hashtable getJobPlugins() {
+    public Hashtable<String, JobPlugin> getJobPlugins() {
         return mJobPlugins;
     }
 }

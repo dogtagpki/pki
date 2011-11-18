@@ -99,13 +99,13 @@ public interface IJobsScheduler extends ISubsystem {
      * Retrieves all the job implementations.
      * @return a Hashtable of available job plugin implementations
      */
-    public Hashtable getPlugins();
+    public Hashtable<String, JobPlugin> getPlugins();
 
     /**
      * Retrieves all the job instances.
      * @return a Hashtable of job instances
      */
-    public Hashtable getInstances(); 
+    public Hashtable<String, IJob>  getInstances();
 
     /**
      * Retrieves the configuration parameters of the given

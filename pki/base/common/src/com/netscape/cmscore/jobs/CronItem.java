@@ -48,7 +48,7 @@ public class CronItem {
 
     // store all elements in a field.
     // elements can either be numbers or ranges (CronRange)
-    protected Vector mElements = new Vector();
+    protected Vector<CronRange> mElements = new Vector<CronRange>();
 	
     public CronItem(int min, int max) {
         mMin = min;
@@ -151,7 +151,7 @@ public class CronItem {
      *	 represented as CronRange
      * @return a vector of CronRanges
      */
-    public Vector getElements() {
+    public Vector<CronRange> getElements() {
         return mElements;
     }
 

@@ -209,10 +209,10 @@ public class JobCron implements IJobCron {
      * @return boolean (true/false) on whether the element is one of
      *	 the elements in the item
      */
-    boolean isElement(int element, Vector item) {
+    boolean isElement(int element, Vector<CronRange> item) {
         // loop through all of the elements of an item
-        for (Enumeration e = item.elements(); e.hasMoreElements();) {
-            CronRange cElement = (CronRange) e.nextElement();
+        for (Enumeration<CronRange> e = item.elements(); e.hasMoreElements();) {
+            CronRange cElement = e.nextElement();
 
             // is a number
             if (cElement.getBegin() == cElement.getEnd()) {
