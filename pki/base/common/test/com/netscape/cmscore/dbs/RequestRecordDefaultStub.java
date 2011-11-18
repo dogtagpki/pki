@@ -20,7 +20,7 @@ public class RequestRecordDefaultStub implements IRequestRecord, IDBObj {
         return null;
     }
 
-    public Enumeration getAttrNames() {
+    public Enumeration<String> getAttrNames() {
         return null;
     }
 
@@ -34,11 +34,11 @@ public class RequestRecordDefaultStub implements IRequestRecord, IDBObj {
     public void delete(String name) throws EBaseException {
     }
 
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return null;
     }
 
-    public Enumeration getSerializableAttrNames() {
+    public Enumeration<String> getSerializableAttrNames() {
         return null;
     }
 }

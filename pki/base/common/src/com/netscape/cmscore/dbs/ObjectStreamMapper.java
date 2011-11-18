@@ -48,7 +48,7 @@ import com.netscape.certsrv.logging.ILogger;
 public class ObjectStreamMapper implements IDBAttrMapper {
 
     private String mLdapName = null;
-    private Vector v = new Vector();
+    private Vector<String> v = new Vector<String>();
     private ILogger mLogger = CMS.getLogger();
 
     /**
@@ -62,7 +62,7 @@ public class ObjectStreamMapper implements IDBAttrMapper {
     /**
      * Retrieves a list of supported ldap attributes.
      */
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
 

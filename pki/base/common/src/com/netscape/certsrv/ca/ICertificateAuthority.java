@@ -29,6 +29,7 @@ import netscape.security.x509.X509CertInfo;
 
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -225,7 +226,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return enumeration of all the CRL issuing points
      */
-    public Enumeration getCRLIssuingPoints();
+    public Enumeration<ICRLIssuingPoint> getCRLIssuingPoints();
 
     /**
      * Retrieves CRL issuing point with the given identifier.
@@ -280,7 +281,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return name enumeration of all request listeners
      */
-    public Enumeration getRequestListenerNames();
+    public Enumeration<String>  getRequestListenerNames();
 
     /**
      * Retrieves the request listener for issued certificates.

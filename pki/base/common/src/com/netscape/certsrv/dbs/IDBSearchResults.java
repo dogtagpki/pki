@@ -28,7 +28,7 @@ import java.util.Enumeration;
  *
  * @version $Revision$, $Date$ 
  */
-public interface IDBSearchResults extends Enumeration {
+public interface IDBSearchResults extends Enumeration<Object> {
 
     /**
      * Checks if any element is available.

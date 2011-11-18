@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.security.PublicKey;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Vector;
 
 import netscape.security.x509.X500Name;
 
@@ -178,9 +177,9 @@ public class KeyRepository extends Repository implements IKeyRepository {
         IKeyRecordList list = findKeyRecordsInList(filter,
                     null, "serialno", 10);
         int size = list.getSize();
-        Enumeration e = list.getKeyRecords(0, size - 1);
+        Enumeration<IKeyRecord> e = list.getKeyRecords(0, size - 1);
         while (e.hasMoreElements()) {
-            KeyRecord rec = (KeyRecord) e.nextElement();
+            IKeyRecord rec =  e.nextElement();
             deleteKeyRecord(rec.getSerialNumber());
         }
     }
@@ -353,10 +352,10 @@ CMS.debug("filter= " + filter);
         return result;
     }
 
-    public Enumeration searchKeys(String filter, int maxSize)
+    public Enumeration<Object> searchKeys(String filter, int maxSize)
         throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<Object> e = null;
 
         try {
             e = s.search(getDN(), filter, maxSize);
@@ -367,10 +366,10 @@ CMS.debug("filter= " + filter);
         return e;
     }
 
-    public Enumeration searchKeys(String filter, int maxSize, int timeLimit)
+    public Enumeration<Object> searchKeys(String filter, int maxSize, int timeLimit)
         throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<Object> e = null;
 
         try {
             e = s.search(getDN(), filter, maxSize, timeLimit);
@@ -468,8 +467,6 @@ CMS.debug("filter= " + filter);
               return ret;
           }
           int ltSize = recList.getSizeBeforeJumpTo();
-
-          Vector cList = new Vector(ltSize);
 
           CMS.debug("KeyRepository:getLastSerialNumberInRange: ltSize " + ltSize);
 

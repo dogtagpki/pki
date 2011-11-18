@@ -34,9 +34,9 @@ public class MetaAttributeDef {
 
     private String mName;
     private ObjectIdentifier mOid;
-    private Class mValueClass;
-    private static Hashtable mNameToAttrDef = new Hashtable();
-    private static Hashtable mOidToAttrDef = new Hashtable();
+    private Class<?> mValueClass;
+    private static Hashtable<String, MetaAttributeDef> mNameToAttrDef = new Hashtable<String, MetaAttributeDef>();
+    private static Hashtable<ObjectIdentifier, MetaAttributeDef> mOidToAttrDef = new Hashtable<ObjectIdentifier, MetaAttributeDef>();
 
     private MetaAttributeDef() {
     }
@@ -49,7 +49,7 @@ public class MetaAttributeDef {
      * @param valueClass attribute value class
      * @param oid attribute object identifier
      */
-    private MetaAttributeDef(String name, Class valueClass, 
+    private MetaAttributeDef(String name, Class<?> valueClass,
         ObjectIdentifier oid) {
         mName = name;
         mValueClass = valueClass;
@@ -72,7 +72,7 @@ public class MetaAttributeDef {
      *
      * @return returns Java class for the attribute values
      */
-    public Class getValueClass() { 
+    public Class<?> getValueClass() {
         return mValueClass; 
     }
 
@@ -98,7 +98,7 @@ public class MetaAttributeDef {
      * @exception IllegalArgumentException if name or valueClass are null, or
      * conflicting attribute definition already exists
      */
-    public static MetaAttributeDef register(String name, Class valueClass, 
+    public static MetaAttributeDef register(String name, Class<?> valueClass,
         ObjectIdentifier oid) {
         if (name == null) {
             throw new IllegalArgumentException(
@@ -183,7 +183,7 @@ public class MetaAttributeDef {
      *
      * @return returns enumeration of the registered attribute names
      */
-    public static Enumeration getAttributeNames() {
+    public static Enumeration<String> getAttributeNames() {
         return mNameToAttrDef.keys();
     }
 
@@ -193,7 +193,7 @@ public class MetaAttributeDef {
      *
      * @return returns enumeration of the attribute object identifiers
      */
-    public static Enumeration getAttributeNameOids() {
+    public static Enumeration<ObjectIdentifier> getAttributeNameOids() {
         return mOidToAttrDef.keys();
     }
 }

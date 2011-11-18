@@ -46,6 +46,6 @@ public interface IKeyRecordList {
      * @return key records
      * @exception EBaseException failed to retrieve key records
      */
-    public Enumeration getKeyRecords(int startidx, int endidx)
+    public Enumeration<IKeyRecord> getKeyRecords(int startidx, int endidx)
         throws EBaseException;
 }

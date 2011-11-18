@@ -103,7 +103,8 @@ public class RequestRecord
     }
 
     // IDBObj.set
-    public void set(String name, Object o) {
+    @SuppressWarnings("unchecked")
+	public void set(String name, Object o) {
         if (name.equals(IRequestRecord.ATTR_REQUEST_ID))
             mRequestId = (RequestId) o;
         else if (name.equals(IRequestRecord.ATTR_REQUEST_STATE))

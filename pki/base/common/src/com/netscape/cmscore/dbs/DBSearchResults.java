@@ -40,13 +40,13 @@ import com.netscape.certsrv.logging.ILogger;
 public class DBSearchResults implements IDBSearchResults {
 
     private IDBRegistry mRegistry = null;
-    private Enumeration mRes = null;
+    private Enumeration<Object> mRes = null;
     private ILogger mLogger = CMS.getLogger();
 
     /**
      * Constructs search results.
      */
-    public DBSearchResults(IDBRegistry registry, Enumeration res) {
+    public DBSearchResults(IDBRegistry registry, Enumeration<Object> res) {
         mRegistry = registry;
         mRes = res;
     }

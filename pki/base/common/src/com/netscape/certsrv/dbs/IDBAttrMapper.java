@@ -42,7 +42,7 @@ public interface IDBAttrMapper {
      *
      * @return a list of supported attribute names
      */
-    public Enumeration getSupportedLDAPAttributeNames();
+    public Enumeration<String> getSupportedLDAPAttributeNames();
 
     /**
      * Maps object attribute into LDAP attributes.

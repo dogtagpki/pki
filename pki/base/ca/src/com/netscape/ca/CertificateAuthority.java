@@ -134,7 +134,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     protected ISubsystem mOwner = null;
     protected IConfigStore mConfig = null;
     protected ILogger mLogger = CMS.getLogger();
-    protected Hashtable<String, CRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, CRLIssuingPoint>(); 
+    protected Hashtable<String, ICRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, ICRLIssuingPoint>(); 
     protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl. 
     protected SigningUnit mSigningUnit;
     protected SigningUnit mOCSPSigningUnit;
@@ -522,7 +522,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * <P>
      */
     public void shutdown() {
-        Enumeration<CRLIssuingPoint> enums = mCRLIssuePoints.elements();
+        Enumeration<ICRLIssuingPoint> enums = mCRLIssuePoints.elements();
         while (enums.hasMoreElements()) {
             CRLIssuingPoint point = (CRLIssuingPoint)enums.nextElement();
             point.shutdown();
@@ -668,7 +668,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * <P>
      * @return security service
      */
-    public Enumeration<CRLIssuingPoint> getCRLIssuingPoints() {
+    public Enumeration<ICRLIssuingPoint> getCRLIssuingPoints() {
         return mCRLIssuePoints.elements();
     }
 

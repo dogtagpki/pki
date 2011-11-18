@@ -39,5 +39,5 @@ public interface IDBObj extends IAttrSet {
      *
      * @return a list of serializable attribute names
      */
-    public Enumeration getSerializableAttrNames(); 
+    public Enumeration<String> getSerializableAttrNames();
 }

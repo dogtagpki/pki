@@ -33,7 +33,7 @@ public class ModificationSet {
     /**
      * A list of modifications
      */
-    private Vector mods = new Vector();
+    private Vector<Modification> mods = new Vector<Modification>();
 
     /**
      * Constructs modification set.
@@ -57,7 +57,7 @@ public class ModificationSet {
      *
      * @return a list of Modifications
      */
-    public Enumeration getModifications() {
+    public Enumeration<Modification> getModifications() {
         return mods.elements();
     }
 }

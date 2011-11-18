@@ -74,7 +74,7 @@ public interface IRequestRecord
      *
      * @return list of attribute names
      */
-    public Enumeration getAttrNames();
+    public Enumeration<String> getAttrNames();
 
     /**
      * Gets the request attribute value by the name.
@@ -105,7 +105,7 @@ public interface IRequestRecord
      *
      * @return attribute list
      */
-    public Enumeration getElements();
+    public Enumeration<String> getElements();
 
     // IDBObj.getSerializableAttrNames
     //public Enumeration getSerializableAttrNames();

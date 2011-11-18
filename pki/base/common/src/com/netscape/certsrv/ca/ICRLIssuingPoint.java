@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.RevokedCertificate;
 import netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -295,7 +296,7 @@ public interface ICRLIssuingPoint {
      * @param end next after last requested CRL entry
      * @return set of all the revoked certificates or null if there are none.
      */
-    public Set getRevokedCertificates(int start, int end);
+    public Set<RevokedCertificate> getRevokedCertificates(int start, int end);
 
     /**
      * Returns certificate authority.
@@ -373,7 +374,7 @@ public interface ICRLIssuingPoint {
      *
      * @return split times from CRL generation in milliseconds
      */
-    public Vector getSplitTimes();
+    public Vector<Long> getSplitTimes();
 
     /**
      * Generates CRL now based on cache or local directory if cache
