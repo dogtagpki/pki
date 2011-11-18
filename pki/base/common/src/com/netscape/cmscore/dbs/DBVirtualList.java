@@ -47,7 +47,7 @@ import com.netscape.certsrv.logging.ILogger;
  * @author mzhao
  * @version $Revision$, $Date$
  */
-public class DBVirtualList implements IDBVirtualList {
+public class DBVirtualList<E> implements IDBVirtualList<E> {
 
     private IDBRegistry mRegistry = null;
     private LDAPConnection mConn = null;
@@ -57,7 +57,7 @@ public class DBVirtualList implements IDBVirtualList {
     // virtual list size
     private int mSize = -1;
 
-    private Vector mEntries = new Vector();
+    private Vector<E> mEntries = new Vector<E>();
     // mSize is get or not?
     private boolean mInitialized = false;
     private LDAPSortKey[] mKeys;
@@ -460,7 +460,8 @@ public class DBVirtualList implements IDBVirtualList {
 
                 try {
                     //maintain mEntries as vector of LDAPEntry
-                    Object o = mRegistry.createObject(entry.getAttributeSet());
+                    @SuppressWarnings("unchecked")
+					E o = (E)mRegistry.createObject(entry.getAttributeSet());
 
                     mEntries.addElement(o);
                 } catch (Exception e) {
@@ -631,7 +632,7 @@ public class DBVirtualList implements IDBVirtualList {
      *
      * @param index the index of the element to fetch
      */
-    public Object getElementAt(int index) {
+    public E getElementAt(int index) {
 
         /* mSize may not be init at this time! Bad !
          * the caller should really check the index is within bound before this
@@ -715,12 +716,12 @@ public class DBVirtualList implements IDBVirtualList {
 
         if ((offset < 0) || (offset >= mEntries.size()))
             //XXX
-            return ("No entry at " + index);
+            return null; //("No entry at " + index);
         else
             return mEntries.elementAt(offset);
     }
 
-    public Object getJumpToElementAt(int i) {
+    public E getJumpToElementAt(int i) {
         return mEntries.elementAt(i);
     }
 

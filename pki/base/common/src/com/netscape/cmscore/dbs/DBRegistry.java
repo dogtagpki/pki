@@ -57,11 +57,11 @@ import com.netscape.certsrv.logging.ILogger;
 public class DBRegistry implements IDBRegistry, ISubsystem {
 
     private IConfigStore mConfig = null;
-    private Hashtable mOCclassNames = new Hashtable();
-    private Hashtable mOCldapNames = new Hashtable();
-    private Hashtable mAttrufNames = new Hashtable();
+    private Hashtable<String, String[]> mOCclassNames = new Hashtable<String, String[]>();
+    private Hashtable<String, NameAndObject> mOCldapNames = new Hashtable<String, NameAndObject>();
+    private Hashtable<String, IDBAttrMapper> mAttrufNames = new Hashtable<String, IDBAttrMapper>();
     private IFilterConverter mConverter = null;
-    private Vector mDynAttrMappers = new Vector();
+    private Vector<IDBDynAttrMapper> mDynAttrMappers = new Vector<IDBDynAttrMapper>();
 
     private ILogger mLogger = CMS.getLogger();
 
@@ -130,7 +130,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
     public void registerObjectClass(String className, String ldapNames[])
         throws EDBException {
         try {
-            Class c = Class.forName(className);
+            Class<?> c = Class.forName(className);
 
             mOCclassNames.put(className, ldapNames);
             mOCldapNames.put(sortAndConcate(
@@ -244,7 +244,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
         int level = 0;
         int start = 0;
         int end = 0;
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         for (int i = 0; i < f.length(); i++) {
             if (f.charAt(i) == '(') {
@@ -364,7 +364,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
 	    
         if (attrs == null)
             return null;
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         for (int i = 0; i < attrs.length; i++) {
 
@@ -379,7 +379,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
                 if (mapper == null) {
                     throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
                 }
-                Enumeration e = mapper.getSupportedLDAPAttributeNames();
+                Enumeration<String> e = mapper.getSupportedLDAPAttributeNames();
 
                 while (e.hasMoreElements()) {
                     String s = (String) e.nextElement();
@@ -391,7 +391,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
             } else {
                 IDBDynAttrMapper matchingDynAttrMapper = null;
                 // check if a dynamic mapper can handle the attribute
-                for (Iterator dynMapperIter = mDynAttrMappers.iterator();
+                for (Iterator<IDBDynAttrMapper> dynMapperIter = mDynAttrMappers.iterator();
                      dynMapperIter.hasNext();) {
                     IDBDynAttrMapper dynAttrMapper =
                             (IDBDynAttrMapper)dynMapperIter.next();
@@ -429,7 +429,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
      */
     public LDAPAttributeSet createLDAPAttributeSet(IDBObj obj) 
         throws EBaseException {
-        Enumeration e = obj.getSerializableAttrNames();
+        Enumeration<String> e = obj.getSerializableAttrNames();
         LDAPAttributeSet attrs = new LDAPAttributeSet();
 
         // add object class to attribute set
@@ -462,8 +462,9 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
         attrs.remove("objectclass");
 
         // sort the object class values
-        Enumeration vals = attr.getStringValues();
-        Vector v = new Vector();
+        @SuppressWarnings("unchecked")
+		Enumeration<String> vals = attr.getStringValues();
+        Vector<String> v = new Vector<String>();
 
         while (vals.hasMoreElements()) {
             v.addElement(vals.nextElement());
@@ -478,11 +479,11 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
             throw new EDBException(
                     CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", sorted));
         }
-        Class c = (Class) no.getObject();
+        Class<?> c = (Class<?>) no.getObject();
 
         try {
             IDBObj obj = (IDBObj) c.newInstance();
-            Enumeration ee = obj.getSerializableAttrNames();
+            Enumeration<String> ee = obj.getSerializableAttrNames();
 
             while (ee.hasMoreElements()) {
                 String oname = (String) ee.nextElement();
@@ -516,7 +517,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
      * Sorts and concate given strings.
      */
     private String sortAndConcate(String s[]) {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         // sort it first
         for (int i = 0; i < s.length; i++) {

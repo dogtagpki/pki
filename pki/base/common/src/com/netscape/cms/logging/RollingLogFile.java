@@ -519,7 +519,7 @@ public class RollingLogFile extends LogFile {
     /**
      * Retrieve log file list.
      */
-    public synchronized NameValuePairs retrieveLogList(Hashtable req
+    public synchronized NameValuePairs retrieveLogList(Hashtable<String, String>  req
         ) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
@@ -584,8 +584,8 @@ public class RollingLogFile extends LogFile {
         return "RollingLogFile";
     }
 
-    public Vector getDefaultParams() {
-        Vector v = super.getDefaultParams();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = super.getDefaultParams();
 
         v.addElement(PROP_MAX_FILE_SIZE + "=");
         v.addElement(PROP_ROLLOVER_INTERVAL + "=");
@@ -593,8 +593,8 @@ public class RollingLogFile extends LogFile {
         return v;
     }
 
-    public Vector getInstanceParams() {
-        Vector v = super.getInstanceParams();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = super.getInstanceParams();
 
         try {
             v.addElement(PROP_MAX_FILE_SIZE + "=" + mMaxFileSize / 1024);
@@ -617,7 +617,7 @@ public class RollingLogFile extends LogFile {
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] p = super.getExtendedPluginInfo(locale);
-        Vector info = new Vector();
+        Vector<String> info = new Vector<String>();
 
         for (int i = 0; i < p.length; i++) {
             if (!p[i].startsWith(IExtendedPluginInfo.HELP_TOKEN) && !p[i].startsWith(IExtendedPluginInfo.HELP_TEXT))

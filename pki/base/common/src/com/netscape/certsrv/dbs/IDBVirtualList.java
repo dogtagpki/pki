@@ -27,7 +27,7 @@ import com.netscape.certsrv.base.EBaseException;
  *
  * @version $Revision$, $Date$
  */
-public interface IDBVirtualList {
+public interface IDBVirtualList<E>  {
 
     /**
      * Sets the paging size of this virtual list.
@@ -107,7 +107,7 @@ public interface IDBVirtualList {
      *
      * @param index the index of the element to fetch
      */
-    public Object getElementAt(int index);
+    public E getElementAt(int index);
 
     /**
      * Retrieves and jumps to element in the given position.
@@ -115,7 +115,7 @@ public interface IDBVirtualList {
      * @param i position
      * @return object
      */
-    public Object getJumpToElementAt(int i);
+    public E getJumpToElementAt(int i);
 
     /**
      * Processes elements as soon as it arrives. It is

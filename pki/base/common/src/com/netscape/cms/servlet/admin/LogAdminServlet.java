@@ -83,9 +83,9 @@ public class LogAdminServlet extends AdminServlet {
         super();
     }
 
-    public static Hashtable toHashtable(HttpServletRequest req) {
-        Hashtable httpReqHash = new Hashtable();
-        Enumeration names = req.getParameterNames();
+    public static Hashtable<String, String> toHashtable(HttpServletRequest req) {
+        Hashtable<String, String> httpReqHash = new Hashtable<String, String>();
+        Enumeration<?> names = req.getParameterNames();
 
         while (names.hasMoreElements()) {
             String name = (String) names.nextElement();
@@ -342,7 +342,7 @@ public class LogAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
         String insts = null;
-        Enumeration e = mSys.getLogInsts().keys();
+        Enumeration<String> e = mSys.getLogInsts().keys();
 
         for (; e.hasMoreElements();) {
             String name = (String) e.nextElement();
@@ -422,7 +422,8 @@ public class LogAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void addLogPlugin(HttpServletRequest req, 
+    @SuppressWarnings("unchecked")
+	private synchronized void addLogPlugin(HttpServletRequest req,
         HttpServletResponse resp, String scope)
         throws ServletException, IOException, EBaseException {
         String auditMessage = null;
@@ -507,10 +508,10 @@ public class LogAdminServlet extends AdminServlet {
                 destStore.getSubStore("impl");
 
             // Does the class exist?
-            Class newImpl = null;
+            Class<ILogEventListener> newImpl = null;
 
             try {
-                newImpl = Class.forName(classPath);
+                newImpl = (Class<ILogEventListener>) Class.forName(classPath);
             } catch (ClassNotFoundException e) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -810,7 +811,7 @@ public class LogAdminServlet extends AdminServlet {
                 return;
             }
 
-            Vector configParams = mSys.getLogDefaultParams(implname);
+            Vector<String> configParams = mSys.getLogDefaultParams(implname);
 
             IConfigStore destStore =
                 mConfig.getSubStore("log");
@@ -1029,7 +1030,7 @@ public class LogAdminServlet extends AdminServlet {
         HttpServletResponse resp) throws ServletException, 
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        Enumeration e = mSys.getLogPlugins().keys();
+        Enumeration<String> e = mSys.getLogPlugins().keys();
 
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
@@ -1304,7 +1305,7 @@ public class LogAdminServlet extends AdminServlet {
 
             // first check if any instances from this log
             // DON'T remove log if any instance
-            for (Enumeration e = mSys.getLogInsts().keys();
+            for (Enumeration<String> e = mSys.getLogInsts().keys();
                 e.hasMoreElements();) {
                 String name = (String) e.nextElement();
                 ILogEventListener log = mSys.getLogInstance(name);
@@ -1559,7 +1560,7 @@ public class LogAdminServlet extends AdminServlet {
 
             ILogEventListener oldinst =
                 (ILogEventListener) mSys.getLogInstance(id);
-            Vector oldConfigParms = oldinst.getInstanceParams();
+            Vector<String> oldConfigParms = oldinst.getInstanceParams();
             NameValuePairs saveParams = new NameValuePairs();
 
             // implName is always required so always include it it.
@@ -1585,7 +1586,7 @@ public class LogAdminServlet extends AdminServlet {
 
             // create new substore.
 
-            Vector configParams = mSys.getLogInstanceParams(id);
+            Vector<String> configParams = mSys.getLogInstanceParams(id);
 
             //instancesConfig.removeSubStore(id);
 
@@ -2204,7 +2205,7 @@ public class LogAdminServlet extends AdminServlet {
             return;
         }
 
-        Vector configParams = mSys.getLogDefaultParams(implname);
+        Vector<String> configParams = mSys.getLogDefaultParams(implname);
         NameValuePairs params = new NameValuePairs();
 
         // implName is always required so always send it.
@@ -2250,7 +2251,7 @@ public class LogAdminServlet extends AdminServlet {
 
         ILogEventListener logInst = (ILogEventListener)
             mSys.getLogInstance(id);
-        Vector configParams = logInst.getInstanceParams();
+        Vector<String> configParams = logInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
         params.add(Constants.PR_LOG_IMPL_NAME, 
@@ -2276,7 +2277,7 @@ public class LogAdminServlet extends AdminServlet {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
-        Enumeration keys = saveParams.getNames();
+        Enumeration<String> keys = saveParams.getNames();
 
         while (keys.hasMoreElements()) {
             String key = (String) keys.nextElement();
@@ -2329,11 +2330,12 @@ public class LogAdminServlet extends AdminServlet {
         HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        Enumeration enum1 = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+		Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.PR_DEBUG_LOG_ENABLE)) {

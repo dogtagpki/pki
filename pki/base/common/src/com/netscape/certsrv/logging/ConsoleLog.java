@@ -88,7 +88,7 @@ public class ConsoleLog implements ILogEventListener {
 	 * @exception IOException
 	 * @exception EBaseException
      */
-    public synchronized NameValuePairs retrieveLogContent(Hashtable req) throws ServletException,
+    public synchronized NameValuePairs retrieveLogContent(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException {
         return null;
     }
@@ -97,7 +97,7 @@ public class ConsoleLog implements ILogEventListener {
      * Retrieve log file list.
 	 * <br> unimplemented
      */
-    public synchronized NameValuePairs retrieveLogList(Hashtable req) throws ServletException,
+    public synchronized NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException {
         return null;
     }
@@ -110,14 +110,14 @@ public class ConsoleLog implements ILogEventListener {
         return "ConsoleLog";
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         return v;
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         return v;
     }

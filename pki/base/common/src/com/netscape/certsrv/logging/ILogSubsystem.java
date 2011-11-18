@@ -65,7 +65,7 @@ public interface ILogSubsystem extends ISubsystem {
      * Hashtable contains the name/value pair of pluginName/LogPlugin
      * @see LogPlugin
      */
-    public Hashtable getLogPlugins();
+    public Hashtable<String, LogPlugin>  getLogPlugins();
 
     /**
      * get the list of log instances that are available
@@ -73,7 +73,7 @@ public interface ILogSubsystem extends ISubsystem {
      * Hashtable contains the name/value pair of instName/ILogEventListener
      * @see LogPlugin
      */
-    public Hashtable getLogInsts();
+    public Hashtable<String, ILogEventListener> getLogInsts();
 
     /**
      * Get the default configuration parameter names associated with a 
@@ -87,7 +87,7 @@ public interface ILogSubsystem extends ISubsystem {
      * @exception ELogException when instantiation of the plugin
      * implementation fails.
      */
-    public Vector getLogDefaultParams(String implName) throws
+    public Vector<String> getLogDefaultParams(String implName) throws
             ELogException;
 
     /**
@@ -99,6 +99,6 @@ public interface ILogSubsystem extends ISubsystem {
      * @return a Vector of default configuration paramter names
      * associated with this log instance.
      */
-    public Vector getLogInstanceParams(String insName)
+    public Vector<String> getLogInstanceParams(String insName)
         throws ELogException;
 }

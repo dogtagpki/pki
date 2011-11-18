@@ -193,7 +193,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * The selected log event types
      */
     protected String mSelectedEventsList = null;
-    protected Vector mSelectedEvents = null;
+    protected Vector<String> mSelectedEvents = null;
 
     /**
      * The eventType that this log is triggered
@@ -297,8 +297,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     /**
      * turns a comma-separated String into a Vector
      */
-    protected Vector string2Vector(String theString) {
-        Vector theVector = new Vector();
+    protected Vector<String> string2Vector(String theString) {
+        Vector<String> theVector = new Vector<String>();
         if (theString == null) {
             return theVector;
         }
@@ -337,7 +337,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * @param events comma-separated event list
      */
     public void replaceEvents(String events) {
-        Vector v = string2Vector(events);
+        Vector<String> v = string2Vector(events);
         mSelectedEvents.removeAllElements();
         mSelectedEvents = v;
     }
@@ -1145,8 +1145,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * @param fName The log file name to be read. If it's null, read the current
      * log file
      */
-    public Vector readEntry(int maxLine, int lowLevel, int source, String fName) {
-        Vector mEntries = new Vector();
+    public Vector<LogEntry> readEntry(int maxLine, int lowLevel, int source, String fName) {
+        Vector<LogEntry> mEntries = new Vector<LogEntry>();
         String fileName = mFileName;
         BufferedReader fBuffer;
         int lineNo = 0; // lineNo of the current entry in the log file
@@ -1319,12 +1319,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * and from  source "source". If the parameter is omitted. All entries
      * are sent back.
      */
-    public synchronized NameValuePairs retrieveLogContent(Hashtable req) throws ServletException,
+    public synchronized NameValuePairs retrieveLogContent(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         String tmp, fName = null;
         int maxLine = -1, level = -1, source = -1;
-        Vector entries = null;
+        Vector<LogEntry>  entries = null;
 
         if ((tmp = (String)req.get(Constants.PR_LOG_ENTRY)) != null) {
             maxLine = Integer.parseInt(tmp);
@@ -1359,7 +1359,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     /**
      * Retrieve log file list.
      */
-    public synchronized NameValuePairs retrieveLogList(Hashtable req) throws ServletException,
+    public synchronized NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException {
         return null;
     }
@@ -1372,8 +1372,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         return "LogFile";
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement(PROP_TYPE + "=");
         v.addElement(PROP_ON + "=");
@@ -1394,8 +1394,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         return v;
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         try {
 

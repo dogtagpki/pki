@@ -77,7 +77,7 @@ public class CertificateRepository extends Repository
     private boolean mSkipIfInconsistent = false;
 
     private int mCertStatusUpdateInterval = 0;
-    private Hashtable mCRLIssuingPoints = new Hashtable();
+    private Hashtable<String, ICRLIssuingPoint> mCRLIssuingPoints = new Hashtable<String, ICRLIssuingPoint>();
 
     private int mTransitMaxRecords = 1000000;
     private int mTransitRecordPageSize = 200;
@@ -134,7 +134,6 @@ public class CertificateRepository extends Repository
         }
         int ltSize = recList.getSizeBeforeJumpTo();
 
-        Vector cList = new Vector(ltSize);
 
         CMS.debug("CertificateRepository:getLastSerialNumberInRange: ltSize " + ltSize);
 
@@ -183,7 +182,7 @@ public class CertificateRepository extends Repository
         ICertRecordList list =findCertRecordsInList(filter, 
                     null, "serialno", 10);
         int size = list.getSize();
-        Enumeration e = list.getCertRecords(0, size - 1);
+        Enumeration<ICertRecord> e = list.getCertRecords(0, size - 1);
         while (e.hasMoreElements()) {
             CertRecord rec = (CertRecord) e.nextElement();
             BigInteger cur = rec.getSerialNumber();
@@ -425,7 +424,7 @@ public class CertificateRepository extends Repository
         CertRecord curRec = null;
 
         int i;
-        Object obj = null;
+        ICertRecord obj = null;
 
         for (i = 0; i < ltSize; i++) {
             obj = recList.getCertRecord(i);
@@ -891,7 +890,7 @@ public class CertificateRepository extends Repository
         CertRecordList list = null;
 
         try {
-            DBVirtualList vlist = (DBVirtualList) s.createVirtualList(getDN(), filter, attrs,
+            DBVirtualList<ICertRecord> vlist = (DBVirtualList<ICertRecord>) s.createVirtualList(getDN(), filter, attrs,
                     sortKey, pageSize);
 
             list = new CertRecordList(vlist);

@@ -57,8 +57,8 @@ public class LogSubsystem implements ILogSubsystem {
     public static final String PROP_PLUGIN = "pluginName";
     public static final String PROP_INSTANCE = "instance";
 
-    public Hashtable mLogPlugins = new Hashtable();
-    public Hashtable mLogInsts = new Hashtable();
+    public Hashtable<String, LogPlugin> mLogPlugins = new Hashtable<String, LogPlugin>();
+    public Hashtable<String, ILogEventListener> mLogInsts = new Hashtable<String, ILogEventListener>();
 
     /**
      * Constructs a log subsystem.
@@ -88,7 +88,7 @@ public class LogSubsystem implements ILogSubsystem {
 
         // load log plugin implementation
         IConfigStore c = config.getSubStore(PROP_IMPL);
-        Enumeration mImpls = c.getSubStoreNames();
+        Enumeration<String> mImpls = c.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
             String id = (String) mImpls.nextElement();
@@ -102,7 +102,7 @@ public class LogSubsystem implements ILogSubsystem {
 
             // load log instances
         c = config.getSubStore(PROP_INSTANCE);
-        Enumeration instances = c.getSubStoreNames();
+        Enumeration<String> instances = c.getSubStoreNames();
 
         while (instances.hasMoreElements()) {
             String insName = (String) instances.nextElement();
@@ -158,7 +158,7 @@ public class LogSubsystem implements ILogSubsystem {
 
     public void startup() throws EBaseException {
         Debug.trace("entering LogSubsystem.startup()");
-        Enumeration enum1 = mLogInsts.keys();
+        Enumeration<String> enum1 = mLogInsts.keys();
 
         while (enum1.hasMoreElements()) {
             String instName = (String) enum1.nextElement();
@@ -220,15 +220,15 @@ public class LogSubsystem implements ILogSubsystem {
         return (ILogEventListener) mLogInsts.get(insName);
     }
 
-    public Hashtable getLogPlugins() {
+    public Hashtable<String, LogPlugin> getLogPlugins() {
         return mLogPlugins;
     }
 
-    public Hashtable getLogInsts() {
+    public Hashtable<String, ILogEventListener> getLogInsts() {
         return mLogInsts;
     }
 
-    public Vector getLogDefaultParams(String implName) throws
+    public Vector<String> getLogDefaultParams(String implName) throws
             ELogException {
         // is this a registered implname?
         LogPlugin plugin = (LogPlugin)
@@ -245,7 +245,7 @@ public class LogSubsystem implements ILogSubsystem {
         try {
             LogInst = (ILogEventListener)
                     Class.forName(className).newInstance();
-            Vector v = LogInst.getDefaultParams();
+            Vector<String> v = LogInst.getDefaultParams();
 
             return v;
         } catch (InstantiationException e) {
@@ -260,14 +260,14 @@ public class LogSubsystem implements ILogSubsystem {
         }
     }
 
-    public Vector getLogInstanceParams(String insName) throws
+    public Vector<String> getLogInstanceParams(String insName) throws
             ELogException {
         ILogEventListener logInst = getLogInstance(insName);
 
         if (logInst == null) {
             return null;
         }
-        Vector v = logInst.getInstanceParams();
+        Vector<String> v = logInst.getInstanceParams();
 
         return v;
     }

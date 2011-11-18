@@ -24,6 +24,7 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 
 
@@ -36,12 +37,12 @@ import com.netscape.certsrv.dbs.certdb.ICertRecordList;
  */
 public class CertRecordList implements ICertRecordList {
 
-    private IDBVirtualList mVlist = null;
+    private IDBVirtualList<ICertRecord> mVlist = null;
 
     /**
      * Constructs a request list.
      */
-    public CertRecordList(IDBVirtualList vlist) {
+    public CertRecordList(IDBVirtualList<ICertRecord> vlist) {
         mVlist = vlist;
     }
 
@@ -89,12 +90,12 @@ public class CertRecordList implements ICertRecordList {
      * It's no good to call this if you didnt check
      * if the startidx, endidx are valid.
      */
-    public Enumeration getCertRecords(int startidx, int endidx)
+    public Enumeration<ICertRecord> getCertRecords(int startidx, int endidx)
         throws EBaseException {
-        Vector entries = new Vector();
+        Vector<ICertRecord> entries = new Vector<ICertRecord>();
 
         for (int i = startidx; i <= endidx; i++) {
-            Object element = mVlist.getElementAt(i);
+            ICertRecord element = mVlist.getElementAt(i);
 
             //  CMS.debug("gerCertRecords[" + i + "] element: " + element);
             if (element != null) {
@@ -104,12 +105,11 @@ public class CertRecordList implements ICertRecordList {
         return entries.elements();
     }
 
-    public Object getCertRecord(int index)
+    public ICertRecord getCertRecord(int index)
         throws EBaseException {
 
-        Object element = mVlist.getElementAt(index);
+        return mVlist.getElementAt(index);
 
-        return element;
 
     }
 

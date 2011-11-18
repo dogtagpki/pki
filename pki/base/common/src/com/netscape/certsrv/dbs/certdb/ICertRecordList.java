@@ -91,6 +91,6 @@ public interface ICertRecordList {
      * @return object
      * @exception EBaseException failed to retrieve
      */
-    public Object getCertRecord(int index)
+    public ICertRecord getCertRecord(int index)
         throws EBaseException;
 }

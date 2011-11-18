@@ -95,14 +95,14 @@ public interface ILogEventListener extends EventListener {
          * @exception IOException For input/output problems.
          * @exception EBaseException For other problems.
      */
-    public NameValuePairs retrieveLogContent(Hashtable req) throws ServletException,
+    public NameValuePairs retrieveLogContent(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException;
 
     /**
     * Retrieve list of log files.
     *
     */
-    public NameValuePairs retrieveLogList(Hashtable req) throws ServletException,
+    public NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException;
 
     /**
@@ -121,11 +121,11 @@ public interface ILogEventListener extends EventListener {
     * Return list of default config parameters for this log event listener.
     * @return Vector of default parameters.
     */
-    public Vector getDefaultParams();
+    public Vector<String> getDefaultParams();
 
     /**
     * Return list of instance config parameters for this log event listener.
     * @return Vector of instance parameters.
     */
-    public Vector getInstanceParams();
+    public Vector<String> getInstanceParams();
 }
