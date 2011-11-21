@@ -154,7 +154,8 @@ public class CMSTemplate extends CMSFile {
      */
     public void renderOutput(OutputStream rout, CMSTemplateParams input)
         throws IOException {
-        Enumeration e = null, q = null;
+        Enumeration<String> e = null;
+        Enumeration<IArgBlock>  q = null;
         IArgBlock r = null;
         boolean headerBlock = false, fixedBlock = false, queryBlock = false;
         CMSTemplateParams data = (CMSTemplateParams) input;
@@ -193,7 +194,7 @@ public class CMSTemplate extends CMSFile {
                 e = r.elements();
                 while (e.hasMoreElements()) {
                     headerBlock = true;
-                    String n = (String) e.nextElement();
+                    String n =  e.nextElement();
                     Object v = r.getValue(n);
 
                     out.println("header." + n + " = " + renderValue(v) + ";");
@@ -206,7 +207,7 @@ public class CMSTemplate extends CMSFile {
                 e = r.elements();
                 while (e.hasMoreElements()) {
                     fixedBlock = true;
-                    String n = (String) e.nextElement();
+                    String n = e.nextElement();
                     Object v = r.getValue(n);
 
                     out.println("fixed." + n + " = " + renderValue(v) + ";");
@@ -227,10 +228,10 @@ public class CMSTemplate extends CMSFile {
                     out.println("record.SERVER_ATTRS = new Array;");
 
                     // Get a query record
-                    r = (IArgBlock) q.nextElement();
+                    r =  q.nextElement();
                     e = r.elements();
                     while (e.hasMoreElements()) {
-                        String n = (String) e.nextElement();
+                        String n = e.nextElement();
                         Object v = r.getValue(n);
 
                         out.println("record." + n + "=" + renderValue(v) + ";");

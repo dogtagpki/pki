@@ -444,7 +444,8 @@ class AVAPattern {
             if (ldapAttr == null) 
                 return null;
             String value = null;
-            Enumeration ldapValues = ldapAttr.getStringValues();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> ldapValues = ldapAttr.getStringValues();
 
             for (int i = 0; ldapValues.hasMoreElements(); i++) {
                 String val = (String) ldapValues.nextElement();
@@ -522,7 +523,7 @@ class AVAPattern {
 
         if (plus == -1) 
             return new String[] { rdn };
-        Vector avas = new Vector();
+        Vector<String> avas = new Vector<String>();
         StringTokenizer token = new StringTokenizer(rdn, "+");
 
         while (token.hasMoreTokens()) 

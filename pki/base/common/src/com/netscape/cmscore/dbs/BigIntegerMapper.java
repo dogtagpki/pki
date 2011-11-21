@@ -41,7 +41,7 @@ import com.netscape.certsrv.dbs.IDBObj;
 public class BigIntegerMapper implements IDBAttrMapper {
 
     private String mLdapName = null;
-    private Vector v = new Vector();
+    private Vector<String> v = new Vector<String>();
 
     /**
      * Constructs BigInteger mapper.
@@ -54,7 +54,7 @@ public class BigIntegerMapper implements IDBAttrMapper {
     /**
      * Returns a list of supported ldap attribute names.
      */
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
 

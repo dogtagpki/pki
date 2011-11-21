@@ -80,7 +80,7 @@ public class OwnerImpl implements Owner {
 	if (!isOwner(caller))
 	    throw new NotOwnerException();
 	
-	Enumeration e = ownerGroup.members();
+	Enumeration<? extends Principal> e = ownerGroup.members();
 	//
 	// check if there is atleast 2 members left.
 	//

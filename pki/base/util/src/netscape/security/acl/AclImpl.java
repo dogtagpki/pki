@@ -38,12 +38,12 @@ public class AclImpl extends OwnerImpl implements Acl {
     // ACLs. One each depending on whether the entity is a group
     // or principal.
     //
-    private Hashtable allowedUsersTable = new Hashtable(23);
-    private Hashtable allowedGroupsTable = new Hashtable(23);
-    private Hashtable deniedUsersTable = new Hashtable(23);
-    private Hashtable deniedGroupsTable = new Hashtable(23);
+    private Hashtable<Principal, AclEntry> allowedUsersTable = new Hashtable<Principal, AclEntry>(23);
+    private Hashtable<Principal, AclEntry> allowedGroupsTable = new Hashtable<Principal, AclEntry>(23);
+    private Hashtable<Principal, AclEntry> deniedUsersTable = new Hashtable<Principal, AclEntry>(23);
+    private Hashtable<Principal, AclEntry> deniedGroupsTable = new Hashtable<Principal, AclEntry>(23);
     private String aclName = null;
-    private Vector zeroSet = new Vector(1,1);
+    private Vector<Permission> zeroSet = new Vector<Permission>(1,1);
 
 
     /**
@@ -100,7 +100,7 @@ public class AclImpl extends OwnerImpl implements Acl {
 	if (!isOwner(caller))
 	    throw new NotOwnerException();
 
-	Hashtable aclTable = findTable(entry); 
+	Hashtable<Principal, AclEntry> aclTable = findTable(entry);
 	Principal key = entry.getPrincipal();
 
 	if (aclTable.get(key) != null)
@@ -126,7 +126,7 @@ public class AclImpl extends OwnerImpl implements Acl {
 	if (!isOwner(caller))
 	    throw new NotOwnerException();
 
-	Hashtable aclTable = findTable(entry);
+	Hashtable<Principal, AclEntry> aclTable = findTable(entry);
 	Object key = entry.getPrincipal();
 
 	Object o = aclTable.remove(key);
@@ -163,12 +163,12 @@ public class AclImpl extends OwnerImpl implements Acl {
      * @param user the principal for which the ACL entry is returned.
      * @return The resulting permission set that the principal is allowed. 
      */
-    public synchronized Enumeration getPermissions(Principal user) {
+    public synchronized Enumeration<Permission> getPermissions(Principal user) {
 
-	Enumeration individualPositive;
-	Enumeration individualNegative;
-	Enumeration groupPositive;
-	Enumeration groupNegative;
+	Enumeration<Permission> individualPositive;
+	Enumeration<Permission> individualNegative;
+	Enumeration<Permission> groupPositive;
+	Enumeration<Permission> groupNegative;
 
 	//
 	// canonicalize the sets. That is remove common permissions from
@@ -183,8 +183,8 @@ public class AclImpl extends OwnerImpl implements Acl {
 	// net positive permissions is individual positive permissions
 	// plus (group positive - individual negative).
 	//
-	Enumeration temp1 = subtract(groupPositive, individualNegative);
-	Enumeration netPositive = union(individualPositive, temp1);
+	Enumeration<Permission> temp1 = subtract(groupPositive, individualNegative);
+	Enumeration<Permission> netPositive = union(individualPositive, temp1);
 
 	// recalculate the enumeration since we lost it in performing the
 	// subtraction
@@ -197,7 +197,7 @@ public class AclImpl extends OwnerImpl implements Acl {
 	// plus (group negative - individual positive).
 	//
 	temp1 = subtract(groupNegative, individualPositive);
-	Enumeration netNegative = union(individualNegative, temp1);
+	Enumeration<Permission> netNegative = union(individualNegative, temp1);
 
 	return subtract(netPositive, netNegative);
     }
@@ -215,7 +215,7 @@ public class AclImpl extends OwnerImpl implements Acl {
      */
     public boolean checkPermission(Principal principal, Permission permission) 
     {
-	Enumeration permSet = getPermissions(principal);
+	Enumeration<Permission> permSet = getPermissions(principal);
 	while (permSet.hasMoreElements()) {
 	    Permission p = (Permission) permSet.nextElement();
 	    if (p.equals(permission)) 
@@ -227,7 +227,7 @@ public class AclImpl extends OwnerImpl implements Acl {
     /**
      * returns an enumeration of the entries in this ACL.
      */
-    public synchronized Enumeration entries() {
+    public synchronized Enumeration<AclEntry> entries() {
 	return new AclEnumerator(this, 
 				 allowedUsersTable, allowedGroupsTable, 
 				 deniedUsersTable, deniedGroupsTable);
@@ -239,7 +239,7 @@ public class AclImpl extends OwnerImpl implements Acl {
      */
     public String toString() {
 	StringBuffer sb = new StringBuffer();
-	Enumeration entries = entries();
+	Enumeration<AclEntry> entries = entries();
 	while (entries.hasMoreElements()) {
 	    AclEntry entry = (AclEntry) entries.nextElement();
 	    sb.append(entry.toString().trim());
@@ -256,8 +256,8 @@ public class AclImpl extends OwnerImpl implements Acl {
     // This method figures out which 
     // table is the one that this AclEntry belongs to.
     //
-    private Hashtable findTable(AclEntry entry) {
-	Hashtable aclTable = null;
+    private Hashtable<Principal, AclEntry> findTable(AclEntry entry) {
+	Hashtable<Principal, AclEntry> aclTable = null;
 
 	Principal p = entry.getPrincipal();
 	if (p instanceof Group) {
@@ -277,14 +277,14 @@ public class AclImpl extends OwnerImpl implements Acl {
     //
     // returns the set e1 U e2.
     //
-    private static Enumeration union(Enumeration e1, Enumeration e2) {
-	Vector v = new Vector(20, 20);
+    private <T>  Enumeration<T> union(Enumeration<T> e1, Enumeration<T> e2) {
+	Vector<T> v = new Vector<T>(20, 20);
 
 	while (e1.hasMoreElements()) 
 	    v.addElement(e1.nextElement());
 
 	while (e2.hasMoreElements()) {
-	    Object o = e2.nextElement();
+	    T o = e2.nextElement();
 	    if (!v.contains(o))
 		v.addElement(o);
 	}
@@ -295,14 +295,14 @@ public class AclImpl extends OwnerImpl implements Acl {
     //
     // returns the set e1 - e2.
     //
-    private Enumeration subtract(Enumeration e1, Enumeration e2) {
-	Vector v = new Vector (20, 20);
+    private <T> Enumeration<T> subtract(Enumeration<T> e1, Enumeration<T> e2) {
+	Vector<T> v = new Vector<T> (20, 20);
 
 	while (e1.hasMoreElements()) 
 	    v.addElement(e1.nextElement());
 
 	while (e2.hasMoreElements()) {
-	    Object o = e2.nextElement();
+	    T o = e2.nextElement();
 	    if (v.contains(o))
 		v.removeElement(o);
 	}
@@ -310,9 +310,9 @@ public class AclImpl extends OwnerImpl implements Acl {
 	return v.elements();
     }
 
-    private Enumeration getGroupPositive(Principal user) {
-	Enumeration groupPositive = zeroSet.elements();
-	Enumeration e = allowedGroupsTable.keys();
+    private Enumeration<Permission> getGroupPositive(Principal user) {
+	Enumeration<Permission>  groupPositive = zeroSet.elements();
+	Enumeration<Principal> e = allowedGroupsTable.keys();
 	while (e.hasMoreElements()) {
 	    Group g = (Group) e.nextElement();
 	    if (g.isMember(user)) {
@@ -323,9 +323,9 @@ public class AclImpl extends OwnerImpl implements Acl {
 	return groupPositive;
     }
 
-    private Enumeration getGroupNegative(Principal user) {
-	Enumeration groupNegative = zeroSet.elements();
-	Enumeration e = deniedGroupsTable.keys();
+    private Enumeration<Permission> getGroupNegative(Principal user) {
+	Enumeration<Permission> groupNegative = zeroSet.elements();
+	Enumeration<Principal> e = deniedGroupsTable.keys();
 	while (e.hasMoreElements()) {
 	    Group g = (Group) e.nextElement();
 	    if (g.isMember(user)) {
@@ -336,16 +336,16 @@ public class AclImpl extends OwnerImpl implements Acl {
 	return groupNegative;
     }
 
-    private Enumeration getIndividualPositive(Principal user) {
-	Enumeration individualPositive = zeroSet.elements();
+    private Enumeration<Permission> getIndividualPositive(Principal user) {
+	Enumeration<Permission> individualPositive = zeroSet.elements();
 	AclEntry ae = (AclEntry) allowedUsersTable.get(user);
 	if (ae != null)
 	    individualPositive = ae.permissions();
 	return individualPositive;
     }
 
-    private Enumeration getIndividualNegative(Principal user) {
-	Enumeration individualNegative = zeroSet.elements();
+    private Enumeration<Permission> getIndividualNegative(Principal user) {
+	Enumeration<Permission> individualNegative = zeroSet.elements();
 	AclEntry ae  = (AclEntry) deniedUsersTable.get(user);
 	if (ae != null)
 	    individualNegative = ae.permissions();
@@ -353,12 +353,12 @@ public class AclImpl extends OwnerImpl implements Acl {
     }
 }
 
-final class AclEnumerator implements Enumeration {
+final class AclEnumerator implements Enumeration<AclEntry> {
     Acl acl;
-    Enumeration u1, u2, g1, g2;
+    Enumeration<AclEntry> u1, u2, g1, g2;
 
-    AclEnumerator(Acl acl, Hashtable u1, Hashtable g1, 
-		  Hashtable u2, Hashtable g2) {
+    AclEnumerator(Acl acl, Hashtable<Principal, AclEntry> u1, Hashtable<Principal, AclEntry> g1,
+		  Hashtable<Principal, AclEntry> u2, Hashtable<Principal, AclEntry> g2) {
 	this.acl = acl;
 	this.u1 = u1.elements();
 	this.u2 = u2.elements();
@@ -373,9 +373,8 @@ final class AclEnumerator implements Enumeration {
 		g2.hasMoreElements());
     }
 
-    public Object nextElement() 
+    public AclEntry nextElement()
     {
-	Object o;
 	synchronized (acl) {
 	    if (u1.hasMoreElements())
 		return u1.nextElement();

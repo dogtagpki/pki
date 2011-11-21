@@ -309,7 +309,7 @@ public class AgentCertAuthentication implements IAuthManager,
     /**
      * Retrieves a list of names of the value parameter.
      */
-    public Enumeration getValueNames() {
+    public Enumeration<String> getValueNames() {
         return null;
     }
 

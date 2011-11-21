@@ -32,14 +32,14 @@ import java.util.Hashtable;
  * @version $Revision$, $Date$
  */
 public class ArgSet implements IArgValue {
-    private Hashtable mArgs = new Hashtable();
+    private Hashtable<String, IArgValue> mArgs = new Hashtable<String, IArgValue>();
 
     /**
      * Returns a list of argument names.
      *
      * @return list of argument names
      */
-    public Enumeration getNames() {
+    public Enumeration<String> getNames() {
         return mArgs.keys();
     }
 

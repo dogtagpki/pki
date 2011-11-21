@@ -32,7 +32,7 @@ import java.util.Vector;
  */
 public class AclEntryImpl implements AclEntry {
     private Principal user = null;
-    private Vector permissionSet = new Vector(10, 10);
+    private Vector<Permission> permissionSet = new Vector<Permission>(10, 10);
     private boolean negative = false;
 
     /**
@@ -126,7 +126,7 @@ public class AclEntryImpl implements AclEntry {
     /**
      * return an enumeration of the permissions in this ACL entry.
      */
-    public Enumeration permissions() {
+    public Enumeration<Permission> permissions() {
 	return permissionSet.elements();
     }
 
@@ -144,7 +144,7 @@ public class AclEntryImpl implements AclEntry {
 	else
 	    s.append("User.");
 	s.append(user + "=");
-	Enumeration e = permissions();
+	Enumeration<Permission> e = permissions();
 	while(e.hasMoreElements()) {
 	    Permission p = (Permission) e.nextElement();
 	    s.append(p);
@@ -160,7 +160,7 @@ public class AclEntryImpl implements AclEntry {
     public synchronized Object clone() {
 	AclEntryImpl cloned;
 	cloned = new AclEntryImpl(user);
-	cloned.permissionSet = (Vector) permissionSet.clone();
+	cloned.permissionSet = new Vector<Permission>(permissionSet);
 	cloned.negative = negative;
 	return cloned;
     }

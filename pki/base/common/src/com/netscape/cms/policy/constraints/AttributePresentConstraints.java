@@ -66,7 +66,6 @@ public class AttributePresentConstraints extends APolicyRule
 
     private boolean mEnabled = false;
     private ILogger mLogger = CMS.getLogger();
-    private Hashtable mContentParams = new Hashtable();
 
     private ICertAuthority mSub = null;
     private IConfigStore mConfig = null;
@@ -180,13 +179,13 @@ public class AttributePresentConstraints extends APolicyRule
     protected static final String PROP_VALUE = "value";
     protected static final String DEF_VALUE = "";
 
-    protected static Vector    mParamNames;
-    protected static Hashtable mParamDefault;
-    protected        Hashtable mParamValue = null;
+    protected static Vector<String>    mParamNames;
+    protected static Hashtable<String, Object> mParamDefault;
+    protected        Hashtable<String, Object> mParamValue = null;
 
     static {
-        mParamNames = new Vector();
-        mParamDefault = new Hashtable();
+        mParamNames = new Vector<String>();
+        mParamDefault = new Hashtable<String, Object>();
         addParam(PROP_LDAP_HOST, DEF_LDAP_HOST);
         addParam(PROP_LDAP_PORT, DEF_LDAP_PORT);
         addParam(PROP_LDAP_SSL, DEF_LDAP_SSL);
@@ -246,7 +245,7 @@ public class AttributePresentConstraints extends APolicyRule
         throws EBaseException {
         mConfig = config;
 
-        mParamValue = new Hashtable();
+        mParamValue = new Hashtable<String, Object>();
 
         getStringConfigParam(mConfig, PROP_LDAP_HOST);
         getIntConfigParam(mConfig, PROP_LDAP_PORT);
@@ -345,10 +344,10 @@ public class AttributePresentConstraints extends APolicyRule
         return res;
     }
 
-    public Vector getInstanceParams() {
-        Vector params = new Vector();
+    public Vector<String>  getInstanceParams() {
+        Vector<String> params = new Vector<String>();
 
-        Enumeration e = mParamNames.elements();
+        Enumeration<String> e = mParamNames.elements();
 
         while (e.hasMoreElements()) {
             try {
@@ -364,10 +363,10 @@ public class AttributePresentConstraints extends APolicyRule
         return params;
     }
 
-    public Vector getDefaultParams() {
-        Vector params = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> params = new Vector<String>();
 
-        Enumeration e = mParamNames.elements();
+        Enumeration<String> e = mParamNames.elements();
 
         while (e.hasMoreElements()) {
             try {
