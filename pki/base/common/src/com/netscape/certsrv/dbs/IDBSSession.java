@@ -162,7 +162,7 @@ public interface IDBSSession {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public IDBVirtualList createVirtualList(String base, String filter, 
+    public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
         String attrs[]) throws EBaseException;
 
     /**
@@ -189,7 +189,7 @@ public interface IDBSSession {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public IDBVirtualList createVirtualList(String base, String filter, 
+    public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
         String attrs[], String sortKey, int pageSize) 
         throws EBaseException;
 
@@ -205,7 +205,7 @@ public interface IDBSSession {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public IDBVirtualList createVirtualList(String base, String filter, 
+    public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
         String attrs[], String startFrom, 
         String sortKey, int pageSize) 
         throws EBaseException;

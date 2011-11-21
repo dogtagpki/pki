@@ -18,6 +18,7 @@
 package com.netscape.cmscore.dbs;
 
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.cert.Certificate;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
@@ -416,7 +418,7 @@ public class CertificateRepository extends Repository
 
         ltSize = Math.min(ltSize, mTransitMaxRecords);
 
-        Vector cList = new Vector(ltSize);
+        Vector<Serializable> cList = new Vector<Serializable>(ltSize);
 
         CMS.debug("transidValidCertificates: list size: " + size);
         CMS.debug("transitValidCertificates: ltSize " + ltSize);
@@ -474,7 +476,7 @@ public class CertificateRepository extends Repository
         }
 
         int ltSize = recList.getSizeBeforeJumpTo();
-        Vector cList = new Vector(ltSize);
+        Vector<Serializable> cList = new Vector<Serializable>(ltSize);
 
         ltSize = Math.min(ltSize, mTransitMaxRecords);
 
@@ -533,7 +535,7 @@ public class CertificateRepository extends Repository
 
         ltSize = Math.min(ltSize, mTransitMaxRecords);
 
-        Vector cList = new Vector(ltSize);
+        Vector<Serializable> cList = new Vector<Serializable>(ltSize);
 
         CMS.debug("transidInValidCertificates: list size: " + size);
         CMS.debug("transitInValidCertificates: ltSize " + ltSize);
@@ -575,7 +577,7 @@ public class CertificateRepository extends Repository
 
     }
 
-    private void transitCertList(Vector cList, String newCertStatus) throws EBaseException {
+    private void transitCertList(Vector<Serializable> cList, String newCertStatus) throws EBaseException {
         CertRecord cRec = null;
         BigInteger serial = null;
 
@@ -601,10 +603,10 @@ public class CertificateRepository extends Repository
                 
                 // inform all CRLIssuingPoints about revoked and expired certificate
 
-                Enumeration eIPs = mCRLIssuingPoints.elements();
+                Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
                 while (eIPs.hasMoreElements()) {
-                    ICRLIssuingPoint ip = (ICRLIssuingPoint) eIPs.nextElement();
+                    ICRLIssuingPoint ip = eIPs.nextElement();
 
                     if (ip != null) {
                         ip.addExpiredCert(serial);
@@ -817,10 +819,10 @@ public class CertificateRepository extends Repository
 
     }
 
-    public Enumeration findCertificates(String filter)
+    public Enumeration<X509CertImpl> findCertificates(String filter)
         throws EBaseException {
         Enumeration e = findCertRecords(filter);
-        Vector v = new Vector();
+        Vector<X509CertImpl> v = new Vector<X509CertImpl>();
 
         while (e.hasMoreElements()) {
             CertRecord rec = (CertRecord) e.nextElement();
@@ -890,7 +892,7 @@ public class CertificateRepository extends Repository
         CertRecordList list = null;
 
         try {
-            DBVirtualList<ICertRecord> vlist = (DBVirtualList<ICertRecord>) s.createVirtualList(getDN(), filter, attrs,
+            IDBVirtualList<ICertRecord> vlist =  s.createVirtualList(getDN(), filter, attrs,
                     sortKey, pageSize);
 
             list = new CertRecordList(vlist);
@@ -932,7 +934,7 @@ public class CertificateRepository extends Repository
             }
 	    }
 
-            DBVirtualList vlist = (DBVirtualList) s.createVirtualList(getDN(), filter, 
+            IDBVirtualList<ICertRecord> vlist =  s.createVirtualList(getDN(), filter,
                     attrs, jumpToVal, sortKey, pageSize);
 
             list = new CertRecordList(vlist);
@@ -953,7 +955,7 @@ public class CertificateRepository extends Repository
 
         try {
 
-            DBVirtualList vlist = (DBVirtualList) s.createVirtualList(getDN(), filter,
+            IDBVirtualList<ICertRecord> vlist =  s.createVirtualList(getDN(), filter,
                     attrs, jumpTo, sortKey, pageSize);
 
             list = new CertRecordList(vlist);
@@ -1014,38 +1016,38 @@ public class CertificateRepository extends Repository
      * temp solution...
      */
     public class RenewableCertificateCollection {
-        Vector mToRenew = null;
-        Vector mToNotify = null;
+        Vector<Object> mToRenew = null;
+        Vector<Object> mToNotify = null;
         public RenewableCertificateCollection() {
         }
 
-        public Vector getRenewable() {
+        public Vector<Object> getRenewable() {
             return mToRenew;
         }
 
-        public Vector getNotifiable() {
+        public Vector<Object> getNotifiable() {
             return mToNotify;
         }
 
         public void addCertificate(String renewalFlag, Object o) {
             if (renewalFlag.equals(CertRecord.AUTO_RENEWAL_ENABLED)) {
                 if (mToRenew == null)
-                    mToRenew = new Vector();
+                    mToRenew = new Vector<Object>();
                 mToRenew.addElement(o);
             }
             if (renewalFlag.equals(CertRecord.AUTO_RENEWAL_DISABLED)) {
                 if (mToNotify == null)
-                    mToNotify = new Vector();
+                    mToNotify = new Vector<Object>();
                 mToNotify.addElement(o);
             }
         }
     }
 
-    public Hashtable getRenewableCertificates(String renewalTime)
+    public Hashtable<String, RenewableCertificateCollection> getRenewableCertificates(String renewalTime)
         throws EBaseException {
         IDBSSession s = mDBService.createSession();
 
-        Hashtable tab = null;
+        Hashtable<String, RenewableCertificateCollection> tab = null;
 
         try {
             String filter = "(&(" + CertRecord.ATTR_CERT_STATUS + "=" +
@@ -1063,7 +1065,7 @@ public class CertificateRepository extends Repository
             int size = list.getSize();
             Enumeration e = list.getCertRecords(0, size - 1);
 
-            tab = new Hashtable();
+            tab = new Hashtable<String, RenewableCertificateCollection>();
             while (e.hasMoreElements()) {
                 CertRecord rec = (CertRecord) e.nextElement();
                 X509CertImpl cert = rec.getCertificate();
@@ -1131,7 +1133,7 @@ public class CertificateRepository extends Repository
             int size = list.getSize();
             Enumeration e = list.getCertRecords(0, size - 1);
 
-            Vector v = new Vector();
+            Vector<X509CertImpl> v = new Vector<X509CertImpl>();
 
             while (e.hasMoreElements()) {
                 CertRecord rec = (CertRecord) e.nextElement();
@@ -1168,7 +1170,7 @@ public class CertificateRepository extends Repository
                 e = list.getCertRecords(0, size - 1);
             }
 
-            Vector v = new Vector();
+            Vector<X509CertImpl> v = new Vector<X509CertImpl>();
 
             while (e != null && e.hasMoreElements()) {
                 CertRecord rec = (CertRecord) e.nextElement();
@@ -1191,10 +1193,10 @@ public class CertificateRepository extends Repository
      * @param from	The starting point of the serial number range.
      * @param to	The ending point of the serial number range.
      */
-    public Enumeration getValidCertificates(String from, String to)
+    public Enumeration<CertRecord> getValidCertificates(String from, String to)
 		throws EBaseException {
 			IDBSSession s = mDBService.createSession();
-			Vector v = new Vector();
+			Vector<CertRecord> v = new Vector<CertRecord>();
 
 			try {
 
@@ -1822,10 +1824,10 @@ public class CertificateRepository extends Repository
                 if (status != null && (status.equals(ICertRecord.STATUS_VALID) ||
                     status.equals(ICertRecord.STATUS_REVOKED))) {
 
-                    Enumeration eIPs = mCRLIssuingPoints.elements();
+                    Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
                     while (eIPs.hasMoreElements()) {
-                        ICRLIssuingPoint ip = (ICRLIssuingPoint) eIPs.nextElement();
+                        ICRLIssuingPoint ip = eIPs.nextElement();
 
                         if (ip != null) {
                             if (status.equals(ICertRecord.STATUS_REVOKED)) {
