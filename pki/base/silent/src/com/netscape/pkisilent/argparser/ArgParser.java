@@ -1494,10 +1494,6 @@ public class ArgParser
 	    }
 	   while (c != '%');
 
-	   if (nameTail == null)
-	    { throw new IllegalArgumentException
-		 ("Null option name given");
-	    }
 	   if (!nameTail.oneWord)
 	    { for (ndesc=rec.nameList; ndesc!=null; ndesc=ndesc.next)
 	       { ndesc.oneWord = false; 

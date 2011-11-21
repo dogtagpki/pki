@@ -415,16 +415,6 @@ public class HashEnrollServlet extends CMSServlet {
             // }
         }
 
-        if (certAuthEnroll == true) {
-            // log(ILogger.LL_DEBUG, "just gotten subjectDN and serialNumber from ssl client cert");
-            if (authToken == null) {
-                // authToken is null, can't match to anyone; bail!
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_ERR_PROCESS_ENROLL_NO_AUTH"));
-                return;
-            }
-        }
-
         // fill certInfo from input types: keygen, cmc, pkcs10 or crmf
         KeyGenInfo keyGenInfo = 
             httpParams.getValueAsKeyGenInfo(SUBJECT_KEYGEN_INFO, null);	

@@ -84,13 +84,7 @@ public class FileAsString {
             br = new BufferedReader(fr);
             mFilename = filename;
         } catch (IOException e) {
-            try {
-                if (fr != null) {
-                    fr.close();
-                }
-            } catch (Exception f) {
-            }
-            throw e;
+        	throw e;
         }
         return br;
     }

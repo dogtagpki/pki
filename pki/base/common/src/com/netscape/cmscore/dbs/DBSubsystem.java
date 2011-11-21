@@ -434,18 +434,9 @@ public class DBSubsystem implements IDBSubsystem {
             nextRange = (String) attr.getStringValues().nextElement();
 
             BigInteger nextRangeNo = new BigInteger(nextRange);
-            if (nextRangeNo == null) {
-               throw new EBaseException("nextRangeNo is null!");
-            }
-
             BigInteger incrementNo = new BigInteger((String) h.get(PROP_INCREMENT));
-            if (incrementNo == null) {
-               throw new EBaseException("incrementNo is null!");
-            }
-
             // To make sure attrNextRange always increments, first delete the current value and then 
             // increment.  Two operations in the same transaction 
-
             LDAPAttribute attrNextRange = new LDAPAttribute(PROP_NEXT_RANGE,  nextRangeNo.add(incrementNo).toString());
             LDAPModification [] mods = {
                 new LDAPModification( LDAPModification.DELETE, attr), 

@@ -1523,8 +1523,6 @@ public class CAAdminServlet extends AdminServlet {
          */
         IConfigStore eeConfig = null;
 
-        if (eeGateway != null) 
-            eeConfig = eeGateway.getConfigStore();
         IConfigStore caConfig = mCA.getConfigStore();
 
         Enumeration enum1 = req.getParameterNames();

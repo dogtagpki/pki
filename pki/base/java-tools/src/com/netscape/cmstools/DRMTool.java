@@ -1632,14 +1632,6 @@ public class DRMTool
         // the BINARY BASE 64 byte[] object
         try {
             cert = new X509CertImpl( decodedBASE64Cert );
-            if( cert == null ) {
-                log( "ERROR:  Unable to parse "
-                   + "certificate from '"
-                   + mTargetStorageCertificateFilename
-                   + "'."
-                   + NEWLINE, true );
-                System.exit( 0 );
-            }
         } catch( CertificateException exWrapCertificate ) {
             log( "ERROR:  Error encountered "
                + "in parsing certificate in '"

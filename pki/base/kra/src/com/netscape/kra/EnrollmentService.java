@@ -352,19 +352,6 @@ public class EnrollmentService implements IService {
                     privateKeyData, owner, 
                     publicKey.getAlgorithmId().getOID().toString(), agentId);
 
-            if (rec == null) {
-
-                auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
-
-                audit(auditMessage);
-                throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
-            }
-
             // we deal with RSA key only
             try {
                 RSAPublicKey rsaPublicKey = new RSAPublicKey(publicKeyData);
@@ -787,7 +774,7 @@ public class EnrollmentService implements IService {
             }
         }
 
-        if (key != null) {
+        {
             key = key.trim();
 
             if (key.equals("")) {
@@ -795,8 +782,6 @@ public class EnrollmentService implements IService {
             } else {
                 return key;
             }
-        } else {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
     }
     /**

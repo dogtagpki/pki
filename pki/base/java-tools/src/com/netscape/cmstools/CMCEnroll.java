@@ -288,16 +288,13 @@ public class CMCEnroll {
             ByteArrayOutputStream bs = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(bs);
             
-            if (fullEnrollmentReq != null) {
+            {
                 // format is PR_REQUEST_CMC
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
 
                 fullEnrollmentReq.encode(os);
                 ps.print(com.netscape.osutil.OSUtil.BtoA(os.toByteArray()));
                 //fullEnrollmentReq.print(ps); // no header/trailer
-            } else {
-                // format is PR_REQUEST_PKCS10
-                pkcs.print(ps);
             }
             asciiBASE64Blob = bs.toString();
         } catch (Exception e) {

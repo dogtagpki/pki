@@ -90,7 +90,6 @@ public class PinRemovalListener implements IRequestListener {
     public String[] getConfigParams() 
         throws EBaseException {
 
-        if (1 == 2) throw new EBaseException("");
         return configParams;
     }
 

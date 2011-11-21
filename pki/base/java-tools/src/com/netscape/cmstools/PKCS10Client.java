@@ -102,9 +102,6 @@ public class PKCS10Client
             dbdir = ".";
 
 	try { 
-            // initialize CryptoManager
-            if (dbdir == null)
-                dbdir = ".";
             String mPrefix = "";
             CryptoManager.InitializationValues vals =
               new CryptoManager.InitializationValues(dbdir, mPrefix,

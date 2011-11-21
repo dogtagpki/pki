@@ -84,10 +84,8 @@ public class KeyRecordList implements IKeyRecordList {
                 entries.addElement(element);
             }
         }
-        if (entries != null) {
+        {
             return entries.elements();
-        } else {
-            return null;
         }
     }
 }

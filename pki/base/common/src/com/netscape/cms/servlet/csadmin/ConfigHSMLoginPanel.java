@@ -156,7 +156,7 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
 
         password = new Password(tokPwd.toCharArray());
 
-        if (password != null) {
+        {
             try {
                 if (token.passwordIsInitialized()) {
                     CMS.debug(
@@ -188,10 +188,6 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
                 context.put("errorString", e.toString());
                 rv = false;
             }
-        } else { // no password in password file, get from user
-            CMS.debug(
-                    "ConfigHSMLoginPanel:  loginToken():no password in cache, getting from user");
-            rv = false;
         }
         return rv;
     }

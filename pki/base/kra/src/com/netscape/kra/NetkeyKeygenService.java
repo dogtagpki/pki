@@ -548,12 +548,7 @@ public class NetkeyKeygenService implements IService {
 						  keypair.getPublic().getAlgorithm(),
 						  agentId);
 
-		    if (rec == null) {
-			request.setExtData(IRequest.RESULT, Integer.valueOf(11));
-			CMS.debug("NetkeyKeygenService: privatekey recording failed");
-			return false;
-		    } else
-			CMS.debug("NetkeyKeygenService: got key record");
+		    CMS.debug("NetkeyKeygenService: got key record");
 		    
 		    // we deal with RSA key only
 		    try {

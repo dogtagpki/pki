@@ -294,7 +294,7 @@ CMS.debug("**** mFormPath = "+mFormPath);
                 EBaseException ee = new EBaseException("No matched certificate is found");
 
                 cmsReq.setError(ee);
-            } else if (error == null) {
+            } else {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
                   outputXML(resp, argSet);
@@ -303,9 +303,6 @@ CMS.debug("**** mFormPath = "+mFormPath);
                   form.renderOutput(out, argSet);
                   cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
-            } else {
-                cmsReq.setStatus(CMSRequest.ERROR);
-                cmsReq.setError(error);
             }
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,

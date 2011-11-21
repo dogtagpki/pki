@@ -311,22 +311,6 @@ public class AddCRLServlet extends CMSServlet {
             log(ILogger.LL_INFO, "AddCRLServlet: CRL Issuer DN " + 
                 crl.getIssuerDN().getName());
 
-            // update the CRLIssuingPoint record
-            if (crl == null) {
-                // error
-
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CRL_VALIDATION,
-                    auditSubjectID,
-                    ILogger.FAILURE );
-
-                audit( auditMessage );
-
-                throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DECODING_CRL_ERROR"));
-            }
-
             ICRLIssuingPointRecord pt = null;
 
             try {

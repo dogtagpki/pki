@@ -321,9 +321,7 @@ public class RollingLogFile extends LogFile {
         if (index != -1) { // "/"  exist in fileName
             pathName = fileName.substring(0, index);
             baseName = fileName.substring(index + 1);
-            if (dirName == null) {
-                dirName = pathName;
-            } else {
+            {
                 dirName = dirName.concat("/" + pathName);
             }
         }else { // "/" NOT exist in fileName

@@ -906,23 +906,9 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                     // find from internaldb if it's ca. (ra does not have that.)
                     // find from internaldb usrgrp info
                     
-                    if (cert == null) {
+                    {
                         // find from certDB
                         si.verify(digest, id);
-                    } else {
-                        PublicKey signKey = cert.getPublicKey();
-                        PrivateKey.Type keyType = null;
-                        String alg = signKey.getAlgorithm();
-
-                        if (alg.equals("RSA")) {
-                            keyType = PrivateKey.RSA;
-                        } else if (alg.equals("DSA")) {
-                            keyType = PrivateKey.DSA;
-                        } else {
-                        }
-                        PK11PubKey pubK = PK11PubKey.fromRaw(keyType, ((X509Key) signKey).getKey());
-
-                        si.verify(digest, id, pubK);
                     }
                     
                 } // 

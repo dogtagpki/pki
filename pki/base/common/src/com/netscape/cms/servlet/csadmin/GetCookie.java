@@ -249,13 +249,10 @@ public class GetCookie extends CMSServlet {
                         try {
                             ServletOutputStream out = httpResp.getOutputStream();
 
-                            if (error == null) {
+                            {
                                 cmsReq.setStatus(CMSRequest.SUCCESS);
                                 httpResp.setContentType("text/html");
                                 form.renderOutput(out, argSet);
-                            } else {
-                                cmsReq.setStatus(CMSRequest.ERROR);
-                                cmsReq.setError(error);
                             }
                         } catch (IOException e) {
                             log(ILogger.LL_FAILURE,

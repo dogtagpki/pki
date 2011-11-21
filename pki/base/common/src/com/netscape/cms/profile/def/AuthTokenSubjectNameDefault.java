@@ -79,10 +79,8 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
 
             try {
                 x500name = new X500Name(value);
-                if (x500name != null) {
+                {
                     CMS.debug("AuthTokenSubjectNameDefault: setValue x500name=" + x500name.toString());
-                } else {
-                    CMS.debug("AuthTokenSubjectNameDefault: setValue x500name=null");
                 }
             } catch (IOException e) {
                 CMS.debug("AuthTokenSubjectNameDefault: setValue " + 

@@ -555,8 +555,6 @@ public class CMCOutputTemplate {
                         } catch (EBaseException ee) {
                             CMS.debug("CMCOutputTemplate: Certificate in the confirm acceptance control was not found");
                         }
-                        if (impl != null)
-                            confirmAccepted = true;
                     }
                     CMCStatusInfo cmcStatusInfo = null;
                     if (confirmAccepted) {

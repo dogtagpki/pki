@@ -180,36 +180,14 @@ public class UpdateNumberRange extends CMSServlet {
 
             String endNumStr = cs.getString(endNumConfig, "");
             endNum = new BigInteger(endNumStr, radix);
-            if ( endNum == null ) {
-                CMS.debug( "UpdateNumberRange::process() - " +
-                           "request endNum is null!" );
-                return;
-            }
-
             String decrementStr = cs.getString(cloneNumConfig, "");
             BigInteger decrement = new BigInteger(decrementStr, radix);
-            if (decrement == null) {
-                CMS.debug("UpdateNumberRange::process() - " +
-                           "request decrement string is null!" );
-                return;
-            }
-  
             beginNum = endNum.subtract(decrement).add(oneNum);
 
             if (beginNum.compareTo(repo.getTheSerialNumber()) < 0) {
                 String nextEndNumStr = cs.getString(nextEndConfig, "");
                 BigInteger endNum2 = new BigInteger(nextEndNumStr, radix);
-                if (endNum2 == null) {
-                    CMS.debug("UpdateNumberRange::process() - " +
-                        "Unused requests less than cloneTransferNumber!" );
-                    auditMessage = CMS.getLogMessage(
-                                       LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
-                                       auditSubjectID,
-                                       ILogger.FAILURE,
-                                       auditParams);
-                    audit(auditMessage);
-                    return;
-                } else {
+                {
                     CMS.debug("Transferring from the end of on-deck range");
                     String newValStr = endNum2.subtract(decrement).toString(radix);
                     repo.setNextMaxSerial(newValStr);
@@ -228,18 +206,6 @@ public class UpdateNumberRange extends CMSServlet {
             if( beginNum == null ) {
                 CMS.debug( "UpdateNumberRange::process() - " +
                            "beginNum is null!" );
-                auditMessage = CMS.getLogMessage(
-                                   LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
-                                   auditSubjectID,
-                                   ILogger.FAILURE,
-                                   auditParams);
-                audit(auditMessage);
-                return;
-            }
-
-            if( endNum == null ) {
-                CMS.debug( "UpdateNumberRange::process() - " +
-                           "endNum is null!" );
                 auditMessage = CMS.getLogMessage(
                                    LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
                                    auditSubjectID,

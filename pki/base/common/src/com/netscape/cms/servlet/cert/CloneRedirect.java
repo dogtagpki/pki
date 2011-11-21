@@ -124,7 +124,7 @@ public class CloneRedirect extends CMSServlet {
         try {
             ServletOutputStream out = resp.getOutputStream();
 
-            if (error == null) {
+            {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
                   outputXML(resp, argSet);
@@ -133,9 +133,6 @@ public class CloneRedirect extends CMSServlet {
                   form.renderOutput(out, argSet);
                   cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
-            } else {
-                cmsReq.setStatus(CMSRequest.ERROR);
-                cmsReq.setError(error);
             }
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, 

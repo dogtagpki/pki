@@ -235,10 +235,6 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         LDAPAttribute attr, byte[] bval) {
 
         LDAPAttribute at = new LDAPAttribute(attr.getName(), bval);
-        if (at == null) {
-            return at;
-        }
-
         // determine if the given cert is a signing or an encryption
         // certificate
         X509CertImpl thisCert = null;

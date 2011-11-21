@@ -429,15 +429,10 @@ ldapInit();
                        request.setExtData(mLdapStringAttrs[i], escapeValueRfc1779(sla[0], false).toString());
                }
             }
-//cfu
-            if (request != null)  {
+            {
                 CMS.debug("pattern = "+pattern);
                 sbjname = mapPattern(request, pattern);
                 CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): subject name mapping done");
-            } else {
-                CMS.debug( "nsTokenUserKeySubjectNameDefault::getSubjectName() "
-                         + "- request is null!" );
-                throw new EProfileException( "request is null" );
             }
             CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): attributes set in request");
 

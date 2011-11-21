@@ -835,8 +835,6 @@ public class KeyCertUtil {
             return; // isCA is not optional
         if (isCA.equals("null"))
             return; // no BasicConstraints requested
-        if ((isCA == null) && (certLen == null))
-            return;
         int len = 0;
         boolean bool = false;
 

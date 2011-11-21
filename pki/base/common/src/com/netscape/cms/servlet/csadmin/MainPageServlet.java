@@ -85,13 +85,10 @@ public class MainPageServlet extends CMSServlet {
         try {
             ServletOutputStream out = response.getOutputStream();
 
-            if (error == null) {
+            {
                 cmsReq.setStatus(CMSRequest.SUCCESS);
                 response.setContentType("text/html");
                 form.renderOutput(out, argSet);
-            } else {
-                cmsReq.setStatus(CMSRequest.ERROR);
-                cmsReq.setError(error);
             }
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,

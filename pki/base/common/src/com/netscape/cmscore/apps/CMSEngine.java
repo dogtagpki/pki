@@ -464,10 +464,6 @@ public class CMSEngine implements ICMSEngine {
             if (aclStr != null) {
                 StringTokenizer atok = new StringTokenizer(aclStr, ";");
 
-                if (atok == null) {
-                    throw new EACLsException(CMS.getUserMessage("CMS_ACL_NULL_VALUE", "atok"));
-                }
-
                 while (atok.hasMoreTokens()) {
                     String acs = (String) atok.nextToken();
 

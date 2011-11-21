@@ -1688,15 +1688,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             }
         }
 
-        if (key != null) {
-            key = key.trim();
-
-            if (key.equals("")) {
-                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            } else {
-                return key;
-            }
-        } else {
+        {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
     }

@@ -258,13 +258,6 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
                 cmsReq.setStatus(CMSRequest.ERROR);
                 return;
             }
-            if (crl == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_FAILED_DECODE_CRL"));
-                cmsReq.setError(new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_DECODE_CRL_FAILED")));
-                cmsReq.setStatus(CMSRequest.ERROR);
-                return;
-            }
             if ((op.equals("importDeltaCRL") || (op.equals("displayCRL") &&
                  crlDisplayType != null && crlDisplayType.equals("deltaCRL"))) &&
                   ((!(crlIP != null && crlIP.isThisCurrentDeltaCRL(crl))) &&

@@ -292,7 +292,7 @@ public class AddCAServlet extends CMSServlet {
             ServletOutputStream out = resp.getOutputStream();
             String error = null;
 
-            if (error == null) {
+            {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
                   outputXML(resp, argSet);
@@ -301,9 +301,6 @@ public class AddCAServlet extends CMSServlet {
                   form.renderOutput(out, argSet);
                   cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
-            } else {
-                cmsReq.setStatus(CMSRequest.ERROR);
-                //  cmsReq.setError(error);
             }
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
