@@ -447,7 +447,7 @@ This package is a part of the PKI Core used by the Certificate System.
 %{__mkdir_p} build
 cd build
 %cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CORE:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
-%{__make} VERBOSE=1 %{?_smp_mflags}
+%{__make} VERBOSE=1 %{?_smp_mflags} all test
 
 
 %install
@@ -721,6 +721,9 @@ fi
 
 
 %changelog
+* Mon Nov 28 2011 Endi S. Dewata <edewata@redhat.com> 9.0.16-2
+- Added JUnit tests
+ 
 * Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.16-1
 - 'pki-setup'
 - 'pki-symkey'

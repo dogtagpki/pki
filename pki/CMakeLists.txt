@@ -72,6 +72,9 @@ macro_ensure_out_of_source_build("${PROJECT_NAME} requires an out of source buil
 # add macros
 include(MacroCopyFile)
 include(UseJava)
+include(JUnit)
+
+add_custom_target(test)
 
 # search for libraries
 
