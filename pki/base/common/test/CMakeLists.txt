@@ -51,6 +51,8 @@ set(pki-common-test_SRCS
     com/netscape/cmscore/request/RequestTest.java
     com/netscape/cmscore/test/CMSBaseTestCase.java
     com/netscape/cmscore/test/TestHelper.java
+    com/netscape/test/TestListener.java
+    com/netscape/test/TestRunner.java
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH
@@ -64,6 +66,7 @@ set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 # build test jar file
 # TODO: create CMake function to compile without building jar file
+# TODO: build test only when the test is invoked
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape)
 add_jar(pki-common-test ${pki-common-test_SRCS})
 add_dependencies(pki-common-test
@@ -72,11 +75,15 @@ add_dependencies(pki-common-test
 )
 
 # create test target
+# do not include xalan and xerces in class path
 # TODO: create CMake function to find all JUnit test classes
 add_junit_test(test-pki-common
     CLASSPATH
         ${pki-common-test_JAR_FILE}
-        ${CMAKE_JAVA_INCLUDE_PATH}
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}
+        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR}
+        ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR} ${JUNIT_JAR}
     TESTS
         com.netscape.certsrv.authentication.AuthTokenTest
         com.netscape.certsrv.request.AgentApprovalsTest
@@ -87,6 +94,8 @@ add_junit_test(test-pki-common
         com.netscape.cmscore.request.RequestQueueTest
         com.netscape.cmscore.request.RequestRecordTest
         com.netscape.cmscore.request.RequestTest
+    REPORTS_DIR
+        reports
 )
 
 # include test into the main test

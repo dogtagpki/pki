@@ -28,11 +28,13 @@ function(add_junit_test TARGET_NAME)
         set(SEPARATOR ":")
     endif(WIN32 AND NOT CYGWIN)
 
+    set(REPORTS_DIR "reports")
+
     foreach (ARG ${ARGN})
-        if (ARG MATCHES "CLASSPATH" OR ARG MATCHES "TESTS")
+        if (ARG MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
             set(TYPE ${ARG})
         
-        else (ARG MATCHES "TESTS")
+        else (ARG MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
 
             if (TYPE MATCHES "CLASSPATH")
                 set(CLASSPATH "${CLASSPATH}${SEPARATOR}${ARG}")
@@ -40,14 +42,24 @@ function(add_junit_test TARGET_NAME)
             elseif (TYPE MATCHES "TESTS")
                 set(TESTS ${TESTS} ${ARG})
 
-            endif(TYPE MATCHES "TESTS")
+            elseif (TYPE MATCHES "REPORTS_DIR")
+                set(REPORTS_DIR ${ARG})
 
-        endif(ARG MATCHES "CLASSPATH" OR ARG MATCHES "TESTS")
+            endif(TYPE MATCHES "CLASSPATH")
+
+        endif(ARG MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
 
     endforeach(ARG)
 
     add_custom_target(${TARGET_NAME}
-        COMMAND ${CMAKE_Java_RUNTIME} -classpath ${CLASSPATH} org.junit.runner.JUnitCore ${TESTS}
+        COMMAND
+            mkdir -p "${REPORTS_DIR}"
+        COMMAND
+            ${CMAKE_Java_RUNTIME}
+            -Djunit.reports.dir=${REPORTS_DIR}
+            -classpath ${CLASSPATH}
+            com.netscape.test.TestRunner
+            ${TESTS}
     )
 
 endfunction(add_junit_test)
