@@ -447,7 +447,8 @@ This package is a part of the PKI Core used by the Certificate System.
 %{__mkdir_p} build
 cd build
 %cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CORE:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
-%{__make} VERBOSE=1 %{?_smp_mflags} all test
+%{__make} VERBOSE=1 %{?_smp_mflags} all
+%{__make} VERBOSE=1 %{?_smp_mflags} test
 
 
 %install
