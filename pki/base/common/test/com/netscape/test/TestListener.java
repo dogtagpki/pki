@@ -23,7 +23,6 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
-import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -217,15 +216,31 @@ public class TestListener extends RunListener {
         testCaseElement.appendChild(failureElement);
 
         Description description = failure.getDescription();
-        String exceptionName = failure.getException().getClass().getName();
+        Throwable exception = failure.getException();
+        String exceptionName = exception.getClass().getName();
 
         failureElement.setAttribute("message", failure.getMessage());
         failureElement.setAttribute("type", exceptionName);
 
         Text messageElement = document.createTextNode(
-            exceptionName + ": " +failure.getMessage() + "\n\tat " +
-            description.getClassName() + "." + description.getMethodName() + "()"
+            exceptionName + ": " +failure.getMessage() + "\n"
         );
+
+        // print stack trace
+        for (StackTraceElement element : exception.getStackTrace()) {
+            if (!element.getClassName().equals(description.getClassName())) continue;
+
+            String source = "Unknown Source";
+            if (element.getFileName() != null && element.getLineNumber() >= 0) {
+                source = element.getFileName() + ":" + element.getLineNumber();
+            }
+
+            messageElement.appendData("\tat " +
+                element.getClassName() + "." + element.getMethodName() +
+                "(" + source + ")\n"
+            );
+        }
+
         failureElement.appendChild(messageElement);
 
         failureCount++;
