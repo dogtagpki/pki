@@ -2147,7 +2147,7 @@ public class DRMTool
             }
         }
 
-        return revised_data;
+        return revised_data.replaceAll( "\\s+$", "" );
     }
 
 
