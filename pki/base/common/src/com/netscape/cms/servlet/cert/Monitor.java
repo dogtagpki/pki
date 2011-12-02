@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.cert;
 
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -343,8 +344,9 @@ public class Monitor extends CMSServlet {
                 int hour = Integer.parseInt(z.substring(8, 10));
                 int minute = Integer.parseInt(z.substring(10, 12));
                 int second = Integer.parseInt(z.substring(12, 14));
-
-                d = new Date(year, month, date, hour, minute, second);
+                Calendar calendar= Calendar.getInstance();
+                calendar.set(year, month, date, hour, minute, second);
+                d = calendar.getTime();
             } catch (NumberFormatException nfe) {
             }
         } else if (z != null && z.length() > 1 && z.charAt(0) == '-') {  // -5
@@ -361,21 +363,25 @@ public class Monitor extends CMSServlet {
     }
 
     String DateToZString(Date d) {
-        String time = "" + (d.getYear() + 1900);
-        int i = d.getMonth() + 1;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(d);
+        
+        
+        String time = "" + (calendar.get(Calendar.YEAR));
+        int i = calendar.get(Calendar.MONTH) + 1;
 
         if (i < 10) time += "0";
         time += i;
-        i = d.getDate();
+        i =  calendar.get(Calendar.DAY_OF_MONTH);
         if (i < 10) time += "0";
         time += i;
-        i = d.getHours();
+        i = calendar.get(Calendar.HOUR_OF_DAY);
         if (i < 10) time += "0";
         time += i;
-        i = d.getMinutes();
+        i = calendar.get(Calendar.MINUTE);
         if (i < 10) time += "0";
         time += i;
-        i = d.getSeconds();
+        i = calendar.get(Calendar.SECOND);
         if (i < 10) time += "0";
         time += i + "Z";
         return time;
