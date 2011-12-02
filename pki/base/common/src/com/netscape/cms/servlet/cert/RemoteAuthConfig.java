@@ -62,6 +62,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class RemoteAuthConfig extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -5803015919915253940L;
     private final static String INFO = "RemoteAuthConfig";
     private final static String TPL_FILE = "remoteAuthConfig.template";
     private final static String ENABLE_REMOTE_CONFIG = "enableRemoteConfiguration";

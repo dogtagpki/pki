@@ -45,6 +45,11 @@ import netscape.security.x509.Extension;
  */
 public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1856407688086284397L;
+
     // The object identifiers
     private static final int CertType_data[] = { 2, 16, 840, 1, 113730, 1, 1 };
 

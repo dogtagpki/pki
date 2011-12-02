@@ -35,6 +35,10 @@ import com.netscape.certsrv.base.MessageFormatter;
 public class ELogException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -8903703675126348145L;
+    /**
     * Resource bundle class name.
     */
     private static final String LOG_RESOURCES = LogResources.class.getName();

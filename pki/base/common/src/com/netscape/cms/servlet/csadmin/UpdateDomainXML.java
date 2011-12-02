@@ -58,6 +58,10 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateDomainXML extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4059169588555717548L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
     private final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE =

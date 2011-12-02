@@ -23,6 +23,11 @@ package com.netscape.certsrv.authorization;
 public class EAuthzAccessDenied extends EAuthzException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 603324526695263260L;
+
+    /**
      * Constructs a exception for access denied by Authz manager
      * @param errorString Detailed error message.
      */

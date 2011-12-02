@@ -27,6 +27,11 @@ package com.netscape.certsrv.ca;
 public class EErrorPublishCRL extends ECAException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -5773392283237284399L;
+
+    /**
      * Constructs a CA exception caused by publishing error.
      * <P>
      * @param errorString Detailed error message.

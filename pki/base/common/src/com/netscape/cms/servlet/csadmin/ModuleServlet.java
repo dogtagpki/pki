@@ -31,6 +31,11 @@ import com.netscape.certsrv.apps.CMS;
 public class ModuleServlet extends BaseServlet {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 6518965840466227888L;
+
+    /**
      * Collect information on where keys are to be generated.
      * Once collected, write to CS.cfg:
      *    "preop.module=soft"

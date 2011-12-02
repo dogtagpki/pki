@@ -21,6 +21,10 @@ package com.netscape.cmsutil.radius;
 
 
 public class RejectException extends Exception {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6410697638175895003L;
     private AccessReject _res = null;
 
     public RejectException(AccessReject res) {

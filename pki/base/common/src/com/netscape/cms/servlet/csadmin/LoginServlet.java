@@ -30,6 +30,11 @@ import com.netscape.certsrv.apps.CMS;
 
 public class LoginServlet extends BaseServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4766622132710080340L;
+
     public boolean authenticate(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

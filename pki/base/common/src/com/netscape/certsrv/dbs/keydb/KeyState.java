@@ -30,6 +30,10 @@ import java.io.Serializable;
  */
 public final class KeyState implements Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5452723730414730579L;
     private int mStateCode;
 
     /**

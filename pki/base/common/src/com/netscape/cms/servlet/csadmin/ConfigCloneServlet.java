@@ -28,6 +28,11 @@ import org.apache.velocity.context.Context;
 
 public class ConfigCloneServlet extends BaseServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -9065299591659111350L;
+
     public Template process(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

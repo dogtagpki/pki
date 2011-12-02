@@ -32,6 +32,10 @@ import java.util.Hashtable;
  */
 public class MetaInfo implements IAttrSet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7722068404789828101L;
     public static final String REQUEST_ID = "requestId";
     public static final String IN_LDAP_PUBLISH_DIR = "inLdapPublishDir";
 

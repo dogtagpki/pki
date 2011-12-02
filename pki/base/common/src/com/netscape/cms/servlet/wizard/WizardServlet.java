@@ -47,6 +47,10 @@ import com.netscape.cmsutil.crypto.Module;
  */
 public class WizardServlet extends VelocityServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4513510177445656799L;
     private String name = null;
     private Vector mPanels = new Vector();
 

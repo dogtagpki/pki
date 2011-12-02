@@ -30,6 +30,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class ECAException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -2963412888833532478L;
+    /**
      * CA resource class name.
      */
     private static final String CA_RESOURCES = CAResources.class.getName();		

@@ -50,6 +50,11 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GetAsyncPk12 extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 6933634840339605800L;
+
     private final static String INFO = "getAsyncPk12";
 
     private final static String TPL_FILE = "finishAsyncRecovery.template";

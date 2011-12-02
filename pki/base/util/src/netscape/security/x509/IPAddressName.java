@@ -37,6 +37,10 @@ import netscape.security.util.DerValue;
  * @author Hemma Prafullchandra
  */
 public class IPAddressName implements GeneralNameInterface {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4240184399679453666L;
     private byte[] address;
 
     /**

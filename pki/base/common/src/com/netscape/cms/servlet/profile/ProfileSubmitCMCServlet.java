@@ -73,6 +73,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
  */
 public class ProfileSubmitCMCServlet extends ProfileServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8017841111435988197L;
     private static final String ARG_AUTH_TOKEN = "auth_token";
     private static final String PROP_PROFILE_ID = "profileId";
     private static final String PROP_AUTHORITY_ID = "authorityId";

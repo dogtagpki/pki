@@ -610,6 +610,10 @@ class CRLUpdater extends Thread {
 
 
 class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5299660983298765746L;
     private X509CertImpl mCACert = null;
     private X509CRLImpl mCRL = null;
 

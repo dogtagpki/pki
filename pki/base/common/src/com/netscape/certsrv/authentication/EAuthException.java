@@ -27,6 +27,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class EAuthException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -2763649418082002427L;
+    /**
      * Resource class name
      */
     private static final String AUTH_RESOURCES = AuthResources.class.getName();

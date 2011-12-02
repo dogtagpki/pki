@@ -53,6 +53,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class QueryReq extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8729364426329835378L;
     // constants
     private final static String INFO = "QueryReq";
     private final static String IN_SHOW_ALL = "showAll";

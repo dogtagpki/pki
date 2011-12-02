@@ -23,6 +23,11 @@ package com.netscape.certsrv.authentication;
 public class EMissingCredential extends EAuthException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 1252384491944341767L;
+
+    /**
      * Constructs a exception for a missing required authentication credential
      * @param errorString Detailed error message.
      */

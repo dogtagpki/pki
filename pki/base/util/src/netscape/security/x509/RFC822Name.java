@@ -35,6 +35,10 @@ import netscape.security.util.DerValue;
  */
 public class RFC822Name implements GeneralNameInterface
 {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -1453025303548809007L;
     private String name;
 
     /**

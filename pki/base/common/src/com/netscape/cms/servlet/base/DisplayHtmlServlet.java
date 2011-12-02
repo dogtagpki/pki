@@ -40,6 +40,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class DisplayHtmlServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4343458180370708327L;
     public final static String PROP_TEMPLATE = "template";
     public final static String PROP_HTML_PATH = "htmlPath";
 

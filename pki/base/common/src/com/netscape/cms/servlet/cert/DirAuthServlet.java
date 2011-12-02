@@ -52,6 +52,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class DirAuthServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3906057586972768401L;
     private final static String TPL_FILE = "/ra/hashEnrollmentSubmit.template";
     private final static String TPL_ERROR_FILE = "/ra/GenErrorHashDirEnroll.template";
     private String mFormPath = null;

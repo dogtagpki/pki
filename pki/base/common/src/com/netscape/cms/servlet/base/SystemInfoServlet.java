@@ -40,6 +40,11 @@ import com.netscape.certsrv.apps.CMS;
  */
 public class SystemInfoServlet extends HttpServlet { 
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -438134935001530607L;
+
     public SystemInfoServlet() {
     }
 

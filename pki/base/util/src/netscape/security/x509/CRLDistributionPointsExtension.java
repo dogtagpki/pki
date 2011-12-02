@@ -64,6 +64,10 @@ public class CRLDistributionPointsExtension extends Extension
     implements CertAttrSet
 {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8551761833349709229L;
     // vector of CRLDistributionPoint
     private SEQUENCE distributionPoints = new SEQUENCE();
 

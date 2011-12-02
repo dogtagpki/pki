@@ -32,6 +32,10 @@ import netscape.security.util.ObjectIdentifier;
  * @version 1.5
  */
 public class CertificatePolicyId implements java.io.Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2376810529862707757L;
     private ObjectIdentifier id;
 
     /**

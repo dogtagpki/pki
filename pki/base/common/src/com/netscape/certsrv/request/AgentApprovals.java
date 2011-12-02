@@ -34,6 +34,11 @@ public class AgentApprovals
     implements Serializable {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -3827259076159153561L;
+
+    /**
      * Adds an approval to approval's list.
      * <p>
      * If an approval is already present for this user,

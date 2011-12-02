@@ -56,6 +56,11 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class CAAdminServlet extends AdminServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 6200983242040946840L;
+
     public final static String PROP_EMAIL_TEMPLATE = "emailTemplate";
 
     private final static String INFO = "CAAdminServlet";

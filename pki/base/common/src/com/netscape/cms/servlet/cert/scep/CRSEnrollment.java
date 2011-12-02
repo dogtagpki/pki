@@ -138,7 +138,11 @@ import com.netscape.cmsutil.scep.CRSPKIMessage;
  */
 public class CRSEnrollment extends HttpServlet
 {
-  protected IProfileSubsystem     mProfileSubsystem = null;
+  /**
+     *
+     */
+    private static final long serialVersionUID = 8483002540957382369L;
+protected IProfileSubsystem     mProfileSubsystem = null;
   protected String                mProfileId = null;
   protected ICertAuthority        mAuthority;
   protected IConfigStore          mConfig = null;
@@ -2036,7 +2040,11 @@ throws EBaseException {
 
 
     class CryptoContextException extends Exception {
-      public CryptoContextException() { super(); }
+      /**
+         *
+         */
+        private static final long serialVersionUID = -1124116326126256475L;
+    public CryptoContextException() { super(); }
       public CryptoContextException(String s) { super(s); }
     }
 
@@ -2184,11 +2192,19 @@ throws EBaseException {
 
 
   class CRSFailureException extends Exception {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1962741611501549051L;
     public CRSFailureException() { super(); }
     public CRSFailureException(String s) { super(s); }
   }
 
   class CRSInvalidSignatureException extends Exception {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 9096408193567657944L;
     public CRSInvalidSignatureException() { super(); }
     public CRSInvalidSignatureException(String s) { super(s); }
   }
@@ -2196,7 +2212,11 @@ throws EBaseException {
     
 
   class CRSPolicyException extends Exception {
-      public CRSPolicyException() { super(); }
+      /**
+     *
+     */
+    private static final long serialVersionUID = 5846593800658787396L;
+    public CRSPolicyException() { super(); }
       public CRSPolicyException(String s) { super(s); }
   }
 

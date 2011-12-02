@@ -57,6 +57,11 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GetInfo extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1909881831730252799L;
+
     private final static String INFO = "GetInfo";
 
     private String mFormPath = null;

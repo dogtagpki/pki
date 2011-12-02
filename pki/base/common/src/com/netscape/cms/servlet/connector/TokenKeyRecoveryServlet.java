@@ -51,6 +51,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 //XXX add auditing later
 public class TokenKeyRecoveryServlet extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2322410659376501336L;
     private final static String INFO = "TokenKeyRecoveryServlet";
     public final static String PROP_AUTHORITY = "authority";
     protected ServletConfig mConfig = null;

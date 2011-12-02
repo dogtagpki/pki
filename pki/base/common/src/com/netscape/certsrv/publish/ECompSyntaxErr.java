@@ -32,6 +32,11 @@ import com.netscape.certsrv.ldap.ELdapException;
 public class ECompSyntaxErr extends ELdapException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -2224290038321971845L;
+
+    /**
      *   Construct a ECompSyntaxErr
      *   @param errorString The descriptive error condition.
      */

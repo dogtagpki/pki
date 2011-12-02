@@ -30,6 +30,10 @@ import com.netscape.certsrv.base.IArgBlock;
  * @version $Revision$, $Date$
  */
 public class AuthCredentials implements IAuthCredentials {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5862936214648594328L;
     private Hashtable authCreds = null;
     private IArgBlock argblk = null;
     

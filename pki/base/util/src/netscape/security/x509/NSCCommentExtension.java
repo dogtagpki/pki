@@ -40,6 +40,10 @@ public class NSCCommentExtension extends Extension
 implements CertAttrSet {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 4066287070285105375L;
+    /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
      */

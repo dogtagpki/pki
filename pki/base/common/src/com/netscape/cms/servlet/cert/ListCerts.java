@@ -66,6 +66,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class ListCerts extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3568155814023099576L;
     private final static String TPL_FILE = "queryCert.template";
     private final static String INFO = "ListCerts";
     private final static BigInteger MINUS_ONE = new BigInteger("-1");

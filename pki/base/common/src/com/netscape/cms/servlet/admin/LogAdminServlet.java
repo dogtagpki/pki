@@ -56,6 +56,11 @@ import com.netscape.certsrv.logging.LogPlugin;
  */
 public class LogAdminServlet extends AdminServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -99699953656847603L;
+
     private final static String INFO = "LogAdminServlet";
 
     private ILogSubsystem mSys = null;

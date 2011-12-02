@@ -45,6 +45,10 @@ import netscape.security.util.DerValue;
  */
 public class GeneralName implements GeneralNameInterface {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2244101501095555042L;
     // Private data members
     private GeneralNameInterface name = null;
 

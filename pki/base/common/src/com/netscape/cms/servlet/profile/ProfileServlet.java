@@ -54,6 +54,10 @@ import com.netscape.cms.servlet.common.Utils;
  */
 public class ProfileServlet extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -7011378748671762375L;
     public final static String ARG_ERROR_CODE = "errorCode";
     public final static String ARG_ERROR_REASON = "errorReason";
     public final static String ARG_RECORD = "record";

@@ -63,6 +63,11 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
  * @version $Revision$, $Date$
  */
 public class RenewalServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3094124661102395244L;
+
     // renewal templates.
     public static final String 
         RENEWAL_SUCCESS_TEMPLATE = "RenewalSuccess.template";

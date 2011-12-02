@@ -45,6 +45,10 @@ import netscape.security.util.DerValue;
 public final
 class AlgIdDSA extends AlgorithmId implements DSAParams
 {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5978220691806461631L;
     /*
      * The three unsigned integer parameters.
      */

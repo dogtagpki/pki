@@ -34,6 +34,10 @@ import netscape.security.util.DerValue;
  * @see GeneralNameInterface
  */
 public class URIName implements GeneralNameInterface {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8340049830612859508L;
     private String name;
 
     /**

@@ -46,6 +46,10 @@ public class KeyUsageExtension extends Extension
 implements CertAttrSet {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 2899719374157256708L;
+    /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
      */  

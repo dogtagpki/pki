@@ -50,6 +50,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class GetStats extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3336253558044271816L;
     private final static String TPL_FILE = "getStats.template";
     private String mFormPath = null;
 

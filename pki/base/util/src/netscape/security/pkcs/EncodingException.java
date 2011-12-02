@@ -18,6 +18,11 @@
 package netscape.security.pkcs;
 
 public class EncodingException extends Exception {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6126764125859196917L;
+
     public EncodingException() {
 	super();
     }

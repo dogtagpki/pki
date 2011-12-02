@@ -58,6 +58,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class DisplayCRL extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1152016798229054027L;
     private final static String INFO = "DisplayCRL";
     private final static String TPL_FILE = "displayCRL.template";
     //private final static String E_TPL_FILE = "error.template";

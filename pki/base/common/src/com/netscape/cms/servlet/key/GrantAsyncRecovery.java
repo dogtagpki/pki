@@ -47,6 +47,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GrantAsyncRecovery extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4200111795169532676L;
     private final static String INFO = "grantAsyncRecovery";
     private final static String TPL_FILE = "grantAsyncRecovery.template";
 

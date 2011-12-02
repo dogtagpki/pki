@@ -37,6 +37,11 @@ import netscape.security.util.DerValue;
  * @version 1.7
  */
 public class CertificateAlgorithmId implements CertAttrSet, Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 6084780721443376563L;
+
     private AlgorithmId	algId;
 
     /**

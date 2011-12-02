@@ -26,6 +26,11 @@ package com.netscape.certsrv.logging;
 public class ELogNotFound extends ELogException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 7970168133875460127L;
+
+    /**
      * Constructs a exception for a missing required log.
      * @param errorString Detailed error message.
      */

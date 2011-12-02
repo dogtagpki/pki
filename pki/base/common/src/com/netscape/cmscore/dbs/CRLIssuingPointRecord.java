@@ -39,6 +39,10 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
  */
 public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 400565044343905267L;
     protected String mId = null;               // internal unique id
     protected BigInteger mCRLNumber = null;      // CRL number
     protected Long mCRLSize = null;

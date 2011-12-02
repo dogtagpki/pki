@@ -65,6 +65,11 @@ public class FreshestCRLExtension extends Extension
     implements CertAttrSet
 {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8040203589629281781L;
+
     // vector of CRLDistributionPoint
     private SEQUENCE distributionPoints = new SEQUENCE();
 

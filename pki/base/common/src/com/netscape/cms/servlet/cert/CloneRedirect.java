@@ -49,6 +49,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class CloneRedirect extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3217967115281965166L;
     private final static String PROP_REDIRECT_URL = "masterURL";
     private final static String TPL_FILE = "cloneRedirect.template";
 

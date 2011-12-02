@@ -92,6 +92,11 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
  * @version $Revision$, $Date$
  */
 public class HashEnrollServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5532936020515258333L;
+
     public final static String ADMIN_ENROLL_SERVLET_ID = "adminEnroll";
 
     // enrollment templates.

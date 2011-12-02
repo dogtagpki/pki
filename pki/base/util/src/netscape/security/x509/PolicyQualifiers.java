@@ -33,6 +33,10 @@ import netscape.security.util.DerValue;
  */
 public class PolicyQualifiers implements java.io.Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 6932694408774694516L;
     private Vector mInfo = new Vector();
 
     /**

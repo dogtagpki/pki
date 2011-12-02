@@ -32,6 +32,10 @@ import netscape.security.util.DerValue;
  */
 public class CPSuri extends Qualifier {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2814961293159006960L;
     private String mURI = null;
 
     /**

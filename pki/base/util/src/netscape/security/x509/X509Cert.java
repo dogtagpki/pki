@@ -50,6 +50,10 @@ public
 class X509Cert implements Certificate, Serializable
 {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6968141532738786900L;
     /* The algorithm id */
     protected AlgorithmId algid;
 

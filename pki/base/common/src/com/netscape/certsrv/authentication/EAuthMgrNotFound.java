@@ -23,6 +23,11 @@ package com.netscape.certsrv.authentication;
 public class EAuthMgrNotFound extends EAuthException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 3102946146034004983L;
+
+    /**
      * Constructs a exception for a missing authentication manager
      * @param errorString error string for missing authentication manager
      */

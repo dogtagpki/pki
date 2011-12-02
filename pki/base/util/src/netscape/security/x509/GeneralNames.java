@@ -37,6 +37,11 @@ import netscape.security.util.DerValue;
  */
 public class GeneralNames extends Vector {
     /**
+     *
+     */
+    private static final long serialVersionUID = 3204492869396713312L;
+
+    /**
      * Create the GeneralNames, decoding from the passed DerValue.
 	 *
 	 * <b>Caution when using this constructor. It may be broken!

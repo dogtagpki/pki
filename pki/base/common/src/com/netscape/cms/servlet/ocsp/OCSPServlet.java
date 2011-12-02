@@ -55,6 +55,10 @@ import com.netscape.cmsutil.ocsp.TBSRequest;
  */
 public class OCSPServlet extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 120903601883352030L;
     public final static String PROP_AUTHORITY = "authority";
     public final static String PROP_CLIENTAUTH = "GetClientCert";
     public final static String PROP_MAX_REQUEST_SIZE = "MaxRequestSize";

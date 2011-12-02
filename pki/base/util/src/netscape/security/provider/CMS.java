@@ -25,7 +25,11 @@ import java.security.Provider;
 
 public final class CMS extends Provider {
 
-	private static final String INFO = "CMS " + 
+	/**
+     *
+     */
+    private static final long serialVersionUID = 1065207998900104219L;
+    private static final String INFO = "CMS " +
          "(DSA key/parameter generation; DSA signing; " +
          "SHA-1, MD5 digests; SecureRandom; X.509 certificates)";
 

@@ -1159,6 +1159,10 @@ implements Serializable, DerEncoder {
     }
 
     protected static class CertificateRep1 implements java.io.Serializable {
+        /**
+         *
+         */
+        private static final long serialVersionUID = -5207881613631592409L;
         private String type1;
         private byte[] data1;
 

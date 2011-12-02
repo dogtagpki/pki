@@ -28,6 +28,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class EAuthzException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 6265731237976616272L;
+    /**
      * Resource class name.
      */
     private static final String AUTHZ_RESOURCES = AuthzResources.class.getName();

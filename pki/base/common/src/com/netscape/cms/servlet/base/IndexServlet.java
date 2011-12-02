@@ -40,6 +40,11 @@ import com.netscape.cms.servlet.common.IndexTemplateFiller;
  * @version $Revision$, $Date$
  */
 public class IndexServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8632685610380549L;
+
     public final static String PROP_TEMPLATE = "template";
 
     private final static String INFO = "indexServlet";

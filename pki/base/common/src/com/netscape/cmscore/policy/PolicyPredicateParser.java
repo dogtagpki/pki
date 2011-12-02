@@ -350,6 +350,10 @@ class PredicateTokenizer {
 
 
 class AttributeSet implements IAttrSet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3985810281989018413L;
     Hashtable ht = new Hashtable();
     public AttributeSet() {
     }

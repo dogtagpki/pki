@@ -50,6 +50,10 @@ import com.netscape.certsrv.logging.ILogger;
  * @version $Revision$, $Date$
  */
 public class JobsAdminServlet extends AdminServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 561767449283982015L;
     // ... remove later
     private final static String EDIT = ";edit";
     private final static String VISIBLE = ";visible";

@@ -64,6 +64,10 @@ import java.util.Set;
 
 public class ArraySet extends AbstractSet
 		      implements Set, Cloneable, java.io.Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3497902530270794207L;
     private ArrayList a;
 
     /**

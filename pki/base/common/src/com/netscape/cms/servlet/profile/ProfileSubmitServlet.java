@@ -81,6 +81,10 @@ import com.netscape.cmsutil.xml.XMLObject;
  */
 public class ProfileSubmitServlet extends ProfileServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7557922703180866442L;
     private static final String ARG_AUTH_TOKEN = "auth_token";
     private static final String ARG_REQUEST_OWNER = "requestOwner";
     private static final String PROP_PROFILE_ID = "profileId";

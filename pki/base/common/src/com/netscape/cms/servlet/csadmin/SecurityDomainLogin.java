@@ -33,6 +33,11 @@ import com.netscape.certsrv.base.IConfigStore;
 
 public class SecurityDomainLogin extends BaseServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -1616344299101179396L;
+
     public boolean authenticate(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

@@ -30,6 +30,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class EDBException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -895521374187351529L;
+    /**
      * Resource class name.
      */
     private static final String DB_RESOURCES = DBResources.class.getName();		

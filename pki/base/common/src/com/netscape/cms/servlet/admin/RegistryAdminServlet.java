@@ -45,6 +45,11 @@ import com.netscape.certsrv.registry.IPluginRegistry;
  * @version $Revision$, $Date$
  */
 public class RegistryAdminServlet extends AdminServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2104924641665675578L;
+
     public final static String PROP_AUTHORITY = "authority";
 
     private final static String INFO = "RegistryAdminServlet";

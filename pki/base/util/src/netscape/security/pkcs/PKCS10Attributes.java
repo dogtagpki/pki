@@ -37,6 +37,10 @@ import netscape.security.util.DerValue;
  */
 public class PKCS10Attributes extends Vector implements DerEncoder {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1362260612357629542L;
     private Hashtable map;
 
     /**

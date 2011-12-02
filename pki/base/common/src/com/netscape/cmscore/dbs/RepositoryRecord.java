@@ -36,6 +36,10 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
  */
 public class RepositoryRecord implements IRepositoryRecord {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1648450747848783853L;
     private BigInteger mSerialNo = null;
     private String mPublishingStatus = null;
 

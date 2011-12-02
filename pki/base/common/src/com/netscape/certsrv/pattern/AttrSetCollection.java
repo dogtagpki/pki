@@ -31,6 +31,11 @@ import com.netscape.certsrv.base.IAttrSet;
 public class AttrSetCollection extends Hashtable {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -8499028375092730021L;
+
+    /**
      * Constructs a collection.
      */
     public AttrSetCollection() {

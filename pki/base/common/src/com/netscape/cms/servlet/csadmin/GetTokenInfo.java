@@ -39,6 +39,10 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetTokenInfo extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8416582986909026263L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
 

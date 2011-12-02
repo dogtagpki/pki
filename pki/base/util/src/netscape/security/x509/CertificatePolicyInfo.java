@@ -28,7 +28,11 @@ import netscape.security.util.DerValue;
  * @author Christine Ho 
  */
 public class CertificatePolicyInfo implements java.io.Serializable {
-	private CertificatePolicyId mPolicyIdentifier;
+	/**
+     *
+     */
+    private static final long serialVersionUID = -8516006396099280477L;
+    private CertificatePolicyId mPolicyIdentifier;
 	private PolicyQualifiers mPolicyQualifiers;
 
     /**

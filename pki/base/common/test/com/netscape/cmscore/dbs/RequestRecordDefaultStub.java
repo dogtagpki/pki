@@ -11,6 +11,11 @@ import com.netscape.certsrv.request.RequestId;
  * Default stub for RequestRecord tests.
  */
 public class RequestRecordDefaultStub implements IRequestRecord, IDBObj {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3486144284074519531L;
+
     public RequestId getRequestId() {
         return null;
     }

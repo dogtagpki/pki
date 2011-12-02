@@ -52,6 +52,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class GetEnableStatus extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3879769989681379834L;
     private final static String TPL_FILE = "userEnroll.template";
     private String mFormPath = null;
 

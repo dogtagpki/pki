@@ -51,6 +51,7 @@ import com.netscape.cms.profile.def.UserKeyDefault;
  *
  * @version $Revision$, $Date$
  */
+@SuppressWarnings("serial")
 public class KeyConstraint extends EnrollConstraint {
 
     public static final String CONFIG_KEY_TYPE = "keyType"; // (EC, RSA)

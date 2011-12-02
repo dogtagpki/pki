@@ -50,6 +50,11 @@ import com.netscape.certsrv.ocsp.IOCSPStore;
  */
 public class OCSPAdminServlet extends AdminServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3349635369730415767L;
+
     protected static final String PROP_ENABLED = "enabled";
 
     private final static String INFO = "OCSPAdminServlet";

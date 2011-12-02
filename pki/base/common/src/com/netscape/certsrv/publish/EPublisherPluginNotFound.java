@@ -29,6 +29,11 @@ import com.netscape.certsrv.ldap.ELdapException;
 public class EPublisherPluginNotFound extends ELdapException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -8626436244270286308L;
+
+    /**
      * Constructs a exception for a missing publisher plugin.
      * @param errorString Detailed error message.
      */

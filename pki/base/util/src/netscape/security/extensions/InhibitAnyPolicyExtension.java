@@ -46,6 +46,10 @@ public class InhibitAnyPolicyExtension
           extends Extension implements CertAttrSet 
 {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8963439897419343166L;
     public static final String OID = "2.5.29.54";
     public static final String NAME = OIDMap.EXT_INHIBIT_ANY_POLICY_NAME;
 

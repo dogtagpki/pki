@@ -28,6 +28,11 @@ import org.apache.velocity.context.Context;
 
 public class ConfigCertReqServlet extends BaseServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4489288758636916446L;
+
     public Template process(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

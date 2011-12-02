@@ -33,6 +33,11 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class ConfigJoinServlet extends ConfigBaseServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -5848083581083497909L;
+
     public boolean isDisplayMode(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

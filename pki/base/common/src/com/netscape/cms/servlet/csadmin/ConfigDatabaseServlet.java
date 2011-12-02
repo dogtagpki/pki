@@ -31,6 +31,10 @@ import com.netscape.certsrv.base.IConfigStore;
 
 public class ConfigDatabaseServlet extends ConfigBaseServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2625626176089893989L;
     private static final String HOST = "localhost";
     private static final String PORT = "389";
     private static final String BASEDN = "o=netscapeCertificateServer";

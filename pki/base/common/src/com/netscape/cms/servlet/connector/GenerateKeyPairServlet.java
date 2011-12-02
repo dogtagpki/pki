@@ -53,6 +53,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 //XXX add auditing later
 public class GenerateKeyPairServlet extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4308385291961910458L;
     private final static String INFO = "GenerateKeyPairServlet";
     public final static String PROP_AUTHORITY = "authority";
     protected ServletConfig mConfig = null;

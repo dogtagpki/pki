@@ -23,6 +23,11 @@ package com.netscape.certsrv.authentication;
 public class EInvalidCredentials extends EAuthException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -5695804026210904331L;
+
+    /**
      * Constructs an Invalid Credentials exception.
      * @param errorString Detailed error message.
      */

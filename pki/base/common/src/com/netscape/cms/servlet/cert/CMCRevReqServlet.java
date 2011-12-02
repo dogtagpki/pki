@@ -75,6 +75,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class CMCRevReqServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4731070386698127770L;
     public final static String GETCERTS_FOR_CHALLENGE_REQUEST = "getCertsForChallenge";
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
     // revocation templates.

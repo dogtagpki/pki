@@ -53,6 +53,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class DisplayHashUserEnroll extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -7063912475278810362L;
     private final static String TPL_FILE = "/ra/hashDirUserEnroll.template";
     private final static String TPL_ERROR_FILE = "/ra/GenErrorHashDirEnroll.template";
     private String mFormPath = null;

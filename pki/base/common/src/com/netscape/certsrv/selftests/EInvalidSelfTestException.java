@@ -53,6 +53,10 @@ public class EInvalidSelfTestException
     // helper parameters //
     ///////////////////////
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 942550656371185199L;
     private String mInstanceName = null;
     private String mInstanceStore = null;
     private String mInstanceParameter = null;

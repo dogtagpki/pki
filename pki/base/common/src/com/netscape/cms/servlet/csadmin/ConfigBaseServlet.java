@@ -30,6 +30,11 @@ import com.netscape.certsrv.apps.CMS;
 
 
 public abstract class ConfigBaseServlet extends BaseServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7692352201878710530L;
+
     public boolean isDisplayMode(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

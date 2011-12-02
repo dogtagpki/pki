@@ -54,6 +54,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class SrchKeyForRecovery extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5426987963811540460L;
     private final static String TPL_FILE = "srchKeyForRecovery.template";
     private final static String INFO = "srchKey";
     private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReturns";

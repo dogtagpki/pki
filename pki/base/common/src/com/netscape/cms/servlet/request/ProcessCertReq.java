@@ -89,6 +89,10 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
  */
 public class ProcessCertReq extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 812464895240811318L;
     private final static String INFO = "processReq";
     private final static String SEQNUM = "seqNum";
     private final static String TO_DO = "toDo";

@@ -261,6 +261,10 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
 
     class RequestRecordStub extends RequestRecordDefaultStub {
+        /**
+         *
+         */
+        private static final long serialVersionUID = 4106967075497999274L;
         Hashtable extAttrData = new Hashtable();
         int setCallCounter = 0;
 

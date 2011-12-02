@@ -28,7 +28,11 @@ import java.io.IOException;
   */
 class StringScanException extends IOException
 {
-	int failIdx;
+	/**
+     *
+     */
+    private static final long serialVersionUID = 4923445904507805754L;
+    int failIdx;
 
 	/** 
 	  * Creates a new StringScanException with the given message. 

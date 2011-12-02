@@ -23,6 +23,11 @@ package com.netscape.certsrv.authorization;
 public class EAuthzMgrPluginNotFound extends EAuthzException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -2647973726997526429L;
+
+    /**
      * Constructs a exception for a missing authorization plugin
      * @param errorString Detailed error message.
      */

@@ -27,7 +27,12 @@ import java.io.IOException;
   */
 public class ArgParseException extends IOException
 {
-	/** 
+	/**
+     *
+     */
+    private static final long serialVersionUID = -604960834535589460L;
+
+    /**
 	  * Creates a new ArgParseException with the given message. 
 	  * 
 	  * @param msg Exception message

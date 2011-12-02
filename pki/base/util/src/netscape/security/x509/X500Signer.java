@@ -43,6 +43,10 @@ import java.security.Signer;
 public final class X500Signer extends Signer
 {
     /**
+     *
+     */
+    private static final long serialVersionUID = -3148659822293810158L;
+    /**
      * Called for each chunk of the data being signed.  That
      * is, you can present the data in many chunks, so that
      * it doesn't need to be in a single sequential buffer.

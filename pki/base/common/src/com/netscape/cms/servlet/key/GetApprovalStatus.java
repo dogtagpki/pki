@@ -53,6 +53,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GetApprovalStatus extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8257339915430654983L;
     private final static String INFO = "getApprovalStatus";
     private final static String TPL_FILE = "getApprovalStatus.template";
     private final static String TPL_FINISH = "finishRecovery.template";

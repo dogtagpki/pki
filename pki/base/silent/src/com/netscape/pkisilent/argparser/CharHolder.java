@@ -25,6 +25,10 @@ package com.netscape.pkisilent.argparser;
 public class CharHolder implements java.io.Serializable
 {
 	/**
+     *
+     */
+    private static final long serialVersionUID = 7340010668929015745L;
+    /**
 	 * Value of the character, set and examined
 	 * by the application as needed.
 	 */

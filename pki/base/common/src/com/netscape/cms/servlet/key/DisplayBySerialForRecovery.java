@@ -54,6 +54,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class DisplayBySerialForRecovery extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 6876016034084761827L;
     private final static String INFO = "displayBySerial";
     private final static String TPL_FILE = "displayBySerialForRecovery.template";
 

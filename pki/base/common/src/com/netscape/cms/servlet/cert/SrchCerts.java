@@ -69,6 +69,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class SrchCerts extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -5876805830088921643L;
     private final static String TPL_FILE = "srchCert.template";
     private final static String INFO = "SrchCerts";
     private final static BigInteger MINUS_ONE = new BigInteger("-1");

@@ -43,6 +43,10 @@ import com.netscape.certsrv.base.MessageFormatter;
 public class EPolicyException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -1969940775036388085L;
+    /**
      * Resource class name.
      */
     private static final String POLICY_RESOURCES = PolicyResources.class.getName();

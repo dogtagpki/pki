@@ -28,6 +28,11 @@ import org.apache.velocity.context.Context;
 
 public class DatabaseServlet extends BaseServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 6474664942834474385L;
+
     public Template process(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

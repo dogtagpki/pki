@@ -64,6 +64,10 @@ import netscape.security.x509.URIName;
  * @version $Revision$, $Date$
  */
 public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7373316523212538446L;
     public static final String NAME = "AuthInfoAccessExtension";
     public static final String NAME2 = "AuthorityInformationAccess";
 

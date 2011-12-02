@@ -30,6 +30,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class ECMSGWException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 7546430025179838019L;
+    /**
      * CA resource class name.
      */
     private static final String CMSGW_RESOURCES = CMSGWResources.class.getName();		

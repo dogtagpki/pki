@@ -71,6 +71,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class DoRevokeTPS extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2980600514636454836L;
     private final static String INFO = "DoRevoke";
     private final static String TPL_FILE = "revocationResult.template";
 

@@ -40,6 +40,10 @@ import netscape.security.util.DerValue;
  */
 public class EDIPartyName implements GeneralNameInterface {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8669257424766789063L;
     // Private data members
     private static final byte TAG_ASSIGNER = 0;
     private static final byte TAG_PARTYNAME = 1;

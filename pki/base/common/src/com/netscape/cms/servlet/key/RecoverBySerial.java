@@ -56,6 +56,10 @@ import com.netscape.cmsutil.util.Cert;
  */
 public class RecoverBySerial extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4544485601409309840L;
     private final static String INFO = "recoverBySerial";
     private final static String TPL_FILE = "recoverBySerial.template";
 

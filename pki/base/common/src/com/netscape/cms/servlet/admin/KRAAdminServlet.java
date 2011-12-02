@@ -53,6 +53,11 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
  * @version $Revision$, $Date$
  */
 public class KRAAdminServlet extends AdminServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -5794220348195666729L;
+
     protected static final String PROP_ENABLED = "enabled";
 
     private final static String INFO = "KRAAdminServlet";

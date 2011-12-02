@@ -59,6 +59,10 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
  * @version $Revision$, $Date$
  */
 public class GetCertFromRequest extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5310646832256611066L;
     private final static String PROP_IMPORT = "importCert";
     protected static final String 
         GET_CERT_FROM_REQUEST_TEMPLATE = "ImportCert.template";

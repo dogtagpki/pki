@@ -51,6 +51,10 @@ import netscape.security.util.ObjectIdentifier;
  * @version 1.9
  */
 public class Extension implements Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -643549610716024753L;
     protected ObjectIdentifier	extensionId = null;
     protected boolean		critical = false;
     protected byte[]		extensionValue = null;

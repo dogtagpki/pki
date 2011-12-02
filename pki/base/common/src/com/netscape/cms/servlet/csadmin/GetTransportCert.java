@@ -49,6 +49,10 @@ import com.netscape.cmsutil.xml.XMLObject;
  */
 public class GetTransportCert extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2495152202191979339L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
     private final static String AUTH_FAILURE = "2";

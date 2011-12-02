@@ -30,6 +30,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class EOCSPException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 2152152848080759882L;
+    /**
      * CA resource class name.
      */
     private static final String OCSP_RESOURCES = OCSPResources.class.getName();

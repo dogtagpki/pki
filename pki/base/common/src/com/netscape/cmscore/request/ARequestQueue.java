@@ -1413,6 +1413,10 @@ class Request
 }
 
 class RequestIAttrSetWrapper implements IAttrSet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8231914824991772682L;
     IRequest mRequest;
 
     public RequestIAttrSetWrapper(IRequest request) {

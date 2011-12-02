@@ -54,6 +54,10 @@ public class ESelfTestException
     // ESelfTestException parameters //
     ///////////////////////////////////
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8001373369705595891L;
     private static final String SELFTEST_RESOURCES = SelfTestResources.class.getName();
 
 

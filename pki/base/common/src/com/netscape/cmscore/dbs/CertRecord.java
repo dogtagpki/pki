@@ -44,6 +44,10 @@ import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
  */
 public class CertRecord implements IDBObj, ICertRecord {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6231895305929417777L;
     private BigInteger mId = null;
     private X509CertImpl mX509Certificate = null;
     private String mStatus = null;

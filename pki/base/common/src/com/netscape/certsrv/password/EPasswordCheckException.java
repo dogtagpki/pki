@@ -29,6 +29,10 @@ import com.netscape.certsrv.base.PasswordResources;
 public class EPasswordCheckException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 6274695122717026554L;
+    /**
      * Resource class name.
      */
     private static final String PASSWORD_CHECK_RESOURCES = PasswordResources.class.getName();

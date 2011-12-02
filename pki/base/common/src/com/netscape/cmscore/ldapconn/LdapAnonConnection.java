@@ -33,6 +33,11 @@ import netscape.ldap.LDAPv2;
 public class LdapAnonConnection extends LDAPConnection {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 6671180208419384682L;
+
+    /**
      * instantiates a connection to a ldap server
      */
     public LdapAnonConnection(LdapConnInfo connInfo)

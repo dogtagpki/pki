@@ -151,6 +151,11 @@ public class DBRegistryTest extends CMSBaseTestCase {
  */
  class RequestRecordStub extends RequestRecordDefaultStub {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2155124580267335995L;
+
     String[] attrs = new String[] { IRequestRecord.ATTR_EXT_DATA };
 
     boolean getCalled = false;

@@ -33,6 +33,11 @@ import java.util.Locale;
 public class EBaseException extends Exception {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 8213021692117483973L;
+
+    /**
      * The resource bundle to use for error messages.
      * Subclasses can override to use its own resource bundle.
      */

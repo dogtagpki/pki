@@ -36,6 +36,10 @@ import com.netscape.certsrv.usrgrp.IUsrGrp;
  */
 public class User implements IUser {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -7407288327775546979L;
     public static final String ATTR_X509_CERTIFICATES = "userCertificates";
     private IUsrGrp mBase = null;
     private String mUserid = null;

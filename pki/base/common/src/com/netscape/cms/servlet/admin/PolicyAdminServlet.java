@@ -55,6 +55,11 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
  * @version $Revision$, $Date$
  */
 public class PolicyAdminServlet extends AdminServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8850646362111106656L;
+
     public final static String PROP_AUTHORITY = "authority";
 
     private final static String INFO = "PolicyAdminServlet";

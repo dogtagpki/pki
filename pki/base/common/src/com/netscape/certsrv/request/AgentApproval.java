@@ -32,6 +32,10 @@ public class AgentApproval
     implements Serializable {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -3444654917454805225L;
+    /**
      * Returns the approving agent's user name.
      *
      * @return an identifier for the agent

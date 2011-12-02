@@ -35,7 +35,11 @@ import netscape.security.util.ObjectIdentifier;
  * @see GeneralNameInterface
  */
 public class OIDName implements GeneralNameInterface {
-     private ObjectIdentifier oid;
+     /**
+     *
+     */
+    private static final long serialVersionUID = 9198510631835117121L;
+    private ObjectIdentifier oid;
 
     /**
      * Create the OIDName object from the passed encoded Der value.

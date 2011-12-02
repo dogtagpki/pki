@@ -29,6 +29,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class EExtensionsException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 6442466262945583489L;
+    /**
      * Resource class name.
      */
     private static final String EXTENSIONS_RESOURCES =

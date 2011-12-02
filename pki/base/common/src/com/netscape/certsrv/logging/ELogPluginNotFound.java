@@ -26,6 +26,11 @@ package com.netscape.certsrv.logging;
 public class ELogPluginNotFound extends ELogException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 256873523074609116L;
+
+    /**
      * Constructs a exception for a missing log plugin.
      * @param errorString Detailed error message.
      */

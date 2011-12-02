@@ -53,6 +53,10 @@ import com.netscape.certsrv.usrgrp.IUser;
  */
 public class ACLAdminServlet extends AdminServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -322237202045924779L;
     private IUGSubsystem mUG = null;
     private static final String PROP_ACLS = "acls";
     private static final String PROP_EVAL = "accessEvaluator";

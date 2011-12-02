@@ -29,6 +29,11 @@ import com.netscape.certsrv.ldap.ELdapException;
 public class ERuleNotFound extends ELdapException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 8442034769483263745L;
+
+    /**
      * Constructs a exception for a missing required rule, which links a publisher and mapper.
      * @param errorString Detailed error message.
      */

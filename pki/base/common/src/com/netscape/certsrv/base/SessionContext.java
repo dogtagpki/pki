@@ -35,6 +35,11 @@ import java.util.Hashtable;
 public class SessionContext extends Hashtable implements IAuthInfo {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -3376355842991589505L;
+
+    /**
      * End user locale of the current processing request in the current thread.
      */
     public static final String LOCALE = "locale"; // Locale

@@ -55,6 +55,11 @@ import java.util.Hashtable;
 public class SimpleProperties extends Hashtable {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -6129810287662322712L;
+
+    /**
      * A property list that contains default values for any keys not
      * found in this property list.
      *

@@ -37,6 +37,10 @@ import java.util.Vector;
  */
 public class ACL implements IACL, java.io.Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -1867465948611161868L;
     protected Vector mEntries = new Vector(); // ACL entries
     protected Vector mRights = null; // possible rights entries
     protected String mResourceACLs = null; // exact resourceACLs string on ldap server

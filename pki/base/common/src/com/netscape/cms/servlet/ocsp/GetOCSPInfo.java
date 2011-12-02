@@ -49,6 +49,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class GetOCSPInfo extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3633557968127876119L;
     private final static String TPL_FILE = "getOCSPInfo.template";
     private String mFormPath = null;
 

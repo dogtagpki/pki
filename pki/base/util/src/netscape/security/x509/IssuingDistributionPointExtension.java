@@ -93,6 +93,11 @@ public class IssuingDistributionPointExtension extends Extension
     implements CertAttrSet
 {
     /**
+     *
+     */
+    private static final long serialVersionUID = -1281544042375527550L;
+
+    /**
      * The Object Identifier for this extension.
      */
     public static final String OID = "2.5.29.28";

@@ -72,6 +72,10 @@ import com.netscape.cmsutil.util.Cert;
  */
 public class UsrGrpAdminServlet extends AdminServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4341817607402387714L;
     private final static String INFO = "UsrGrpAdminServlet";
     private final static String RES_CA_GROUP = "certServer.ca.group";
     private final static String RES_RA_GROUP = "certServer.ra.group";

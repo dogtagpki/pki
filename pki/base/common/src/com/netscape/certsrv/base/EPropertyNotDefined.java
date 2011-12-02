@@ -30,6 +30,11 @@ package com.netscape.certsrv.base;
 public class EPropertyNotDefined extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -7986464387187170352L;
+
+    /**
      * Constructs an instance of this exception given the name of the
      * property that's not found.
      * <p>

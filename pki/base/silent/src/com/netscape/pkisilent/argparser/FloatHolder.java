@@ -25,6 +25,10 @@ package com.netscape.pkisilent.argparser;
 public class FloatHolder implements java.io.Serializable
 {
 	/**
+     *
+     */
+    private static final long serialVersionUID = -7962968109874934361L;
+    /**
 	 * Value of the float, set and examined
 	 * by the application as needed.
 	 */

@@ -88,6 +88,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class CheckRequest extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2791195859767119636L;
     // constants
     public static String FULL_RESPONSE = "cmcFullEnrollmentResponse";
     private final static String INFO = "CheckRequest";

@@ -390,6 +390,11 @@ public class LdapDNCompsMap
      * name=value components. components are anded.
      */
     public static class SearchFilter extends Vector {
+        /**
+         *
+         */
+        private static final long serialVersionUID = 4210302171279891828L;
+
         public String toFilterString() {
             StringBuffer buf = new StringBuffer();
 

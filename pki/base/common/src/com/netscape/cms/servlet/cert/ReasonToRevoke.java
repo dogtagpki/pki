@@ -56,6 +56,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class ReasonToRevoke extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8447580860330758660L;
     private final static String TPL_FILE = "reasonToRevoke.template";
     private final static String INFO = "ReasonToRevoke";
 

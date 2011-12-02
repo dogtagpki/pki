@@ -70,6 +70,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
  * @version $Revision$, $Date$
  */
 public class ProfileProcessServlet extends ProfileServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5244627530516577838L;
     private static final String PROP_AUTHORITY_ID = "authorityId";
     private String mAuthorityId = null;
     private Nonces mNonces = null;

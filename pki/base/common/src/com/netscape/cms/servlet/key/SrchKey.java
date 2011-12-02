@@ -53,6 +53,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class SrchKey extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6404955402865756665L;
     private final static String TPL_FILE = "srchKey.template";
     private final static String INFO = "srchKey";
     private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReturns";

@@ -23,6 +23,11 @@ package com.netscape.certsrv.authorization;
 public class EAuthzMgrNotFound extends EAuthzException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 858647841945772328L;
+
+    /**
      * Constructs a exception for a missing required authorization manager
      * @param errorString Detailed error message.
      */

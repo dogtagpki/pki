@@ -30,6 +30,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class EUsrGrpException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 5549165292376270875L;
+    /**
      * Identity resource class name.
      */
     private static final String USRGRP_RESOURCES = UsrGrpResources.class.getName();

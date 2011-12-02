@@ -36,6 +36,11 @@ import netscape.security.util.DerValue;
 public class Qualifier implements java.io.Serializable {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 2214531407387992974L;
+
+    /**
      * Create a PolicyQualifierInfo
      *
      * @param id the ObjectIdentifier for the policy id.

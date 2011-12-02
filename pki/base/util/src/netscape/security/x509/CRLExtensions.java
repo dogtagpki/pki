@@ -41,6 +41,10 @@ import netscape.security.util.DerValue;
  */
 public class CRLExtensions extends Vector {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 365767738692986418L;
     private Hashtable map;
 
     // Parse the encoded extension

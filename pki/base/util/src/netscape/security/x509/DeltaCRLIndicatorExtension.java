@@ -46,6 +46,10 @@ public class DeltaCRLIndicatorExtension extends Extension
 implements CertAttrSet {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 7182919216525364676L;
+    /**
      * Attribute name.
      */
     public static final String NAME = "DeltaCRLIndicator";

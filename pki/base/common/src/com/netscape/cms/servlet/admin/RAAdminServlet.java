@@ -46,6 +46,11 @@ import com.netscape.certsrv.request.IRequestListener;
  * @version $Revision$, $Date$
  */
 public class RAAdminServlet extends AdminServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8417319111438832435L;
+
     protected static final String PROP_ENABLED = "enabled";
 
     /*==========================================================

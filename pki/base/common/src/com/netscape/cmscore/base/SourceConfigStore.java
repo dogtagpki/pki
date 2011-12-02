@@ -32,6 +32,11 @@ import com.netscape.certsrv.base.ISourceConfigStore;
 public class SourceConfigStore extends SimpleProperties implements ISourceConfigStore {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -1703553593020810628L;
+
+    /**
      * Retrieves a property from the config store
      * <P>
      *

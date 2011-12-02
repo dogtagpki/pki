@@ -25,6 +25,10 @@ package com.netscape.pkisilent.argparser;
 public class ObjectHolder implements java.io.Serializable
 {
 	/**
+     *
+     */
+    private static final long serialVersionUID = 1825881254530066307L;
+    /**
 	 * Value of the Object reference, set and examined
 	 * by the application as needed.
 	 */

@@ -42,6 +42,10 @@ import com.netscape.certsrv.dbs.keydb.KeyState;
  */
 public class KeyRecord implements IDBObj, IKeyRecord {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3765000841161998984L;
     private BigInteger mSerialNo = null;
     private KeyState mState = null;
     private MetaInfo mMetaInfo = null;

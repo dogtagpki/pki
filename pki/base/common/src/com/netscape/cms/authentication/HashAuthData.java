@@ -32,6 +32,10 @@ import java.util.Vector;
  */
 public class HashAuthData extends Hashtable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -988354133432275910L;
     public static final long TIMEOUT = 600000;
     public static final long LASTLOGIN = 0;
 

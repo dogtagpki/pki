@@ -36,6 +36,10 @@ import netscape.security.x509.OIDMap;
  */
 public class OCSPNoCheckExtension extends Extension implements CertAttrSet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4692759557964594790L;
     public static final String OID = "1.3.6.1.5.5.7.48.1.5";
     public static final String NAME = "OCSPNoCheckExtension";
 

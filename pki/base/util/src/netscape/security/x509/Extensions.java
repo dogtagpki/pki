@@ -43,6 +43,10 @@ import netscape.security.util.DerValue;
 public class Extensions extends Vector
 implements CertAttrSet {
     /**
+     *
+     */
+    private static final long serialVersionUID = 4597917347772057433L;
+    /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
      */  

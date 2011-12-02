@@ -57,6 +57,10 @@ import com.netscape.certsrv.logging.ILogger;
  */
 public class AuthAdminServlet extends AdminServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6258411211380144425L;
     private final static String INFO = "AuthAdminServlet";
     private IAuthSubsystem mAuths = null;
 

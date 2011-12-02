@@ -25,6 +25,10 @@ package com.netscape.pkisilent.argparser;
 public class BooleanHolder implements java.io.Serializable
 {
 	/**
+     *
+     */
+    private static final long serialVersionUID = -2863748864787121510L;
+    /**
 	 * Value of the boolean, set and examined
 	 * by the application as needed.
 	 */

@@ -33,6 +33,10 @@ import com.netscape.certsrv.notification.IEmailResolverKeys;
  * @version $Revision$, $Date$
  */
 public class EmailResolverKeys implements IEmailResolverKeys {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8823197350102151516L;
     private Hashtable mKeys = null;
 
     public EmailResolverKeys() {

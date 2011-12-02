@@ -53,6 +53,10 @@ public class EMissingSelfTestException
     // helper parameters //
     ///////////////////////
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2969459432517671352L;
     private String mInstanceName = null;
     private String mInstanceStore = null;
     private String mInstanceParameter = null;

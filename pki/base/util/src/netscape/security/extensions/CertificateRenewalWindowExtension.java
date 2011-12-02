@@ -45,6 +45,10 @@ import netscape.security.x509.Extension;
  */
 public class CertificateRenewalWindowExtension extends Extension 
     implements CertAttrSet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4470220533545299271L;
     public static final String NAME = "CertificateRenewalWindow";
     public static final int OID[] = { 2, 16, 840, 1, 113730, 1, 15};
     public static final ObjectIdentifier ID = new ObjectIdentifier(OID);

@@ -28,6 +28,11 @@ import java.security.GeneralSecurityException;
 public class X509ExtensionException extends GeneralSecurityException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 8152491877676477910L;
+
+    /**
      * Constructs an X509ExtensionException with no detail message. A
      * detail message is a String that describes this particular
      * exception.

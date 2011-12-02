@@ -31,6 +31,11 @@ public class PolicyMessage
     extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -8129371562473386912L;
+
+    /**
      * Class constructor that registers policy message.
      * <p>
      * @param message message string

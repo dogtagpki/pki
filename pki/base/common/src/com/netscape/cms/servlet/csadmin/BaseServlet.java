@@ -34,6 +34,11 @@ import com.netscape.certsrv.apps.CMS;
 public class BaseServlet extends VelocityServlet {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 3169697149104780149L;
+
+    /**
      * Returns usage of this servlet.
      */
     public String getUsage() {

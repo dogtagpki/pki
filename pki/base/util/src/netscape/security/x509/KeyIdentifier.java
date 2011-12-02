@@ -30,6 +30,10 @@ import netscape.security.util.DerValue;
  * @version 1.4
  */
 public class KeyIdentifier implements java.io.Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2412286879441154979L;
     private byte[] octetString;
 
     /**

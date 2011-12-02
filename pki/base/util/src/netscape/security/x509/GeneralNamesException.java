@@ -28,6 +28,11 @@ import java.security.GeneralSecurityException;
  */
 public class GeneralNamesException extends GeneralSecurityException {
     /**
+     *
+     */
+    private static final long serialVersionUID = -8320001725384815795L;
+
+    /**
      * Constructs a GeneralNamesException with no detail message.
      */
     public GeneralNamesException() {

@@ -59,6 +59,11 @@ import com.netscape.certsrv.base.ISourceConfigStore;
  */
 public class PropConfigStore implements IConfigStore, Cloneable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4714108964096659077L;
+
     protected static final String PROP_SUBSTORES = "substores";
 
     /**

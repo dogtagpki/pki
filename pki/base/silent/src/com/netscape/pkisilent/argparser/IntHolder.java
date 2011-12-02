@@ -25,6 +25,10 @@ package com.netscape.pkisilent.argparser;
 public class IntHolder implements java.io.Serializable
 {
 	/**
+     *
+     */
+    private static final long serialVersionUID = -5303361328570056819L;
+    /**
 	 * Value of the integer, set and examined
 	 * by the application as needed.
 	 */

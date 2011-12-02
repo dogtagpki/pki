@@ -39,6 +39,10 @@ import netscape.security.util.DerValue;
  */
 public class CertificateSubjectName implements CertAttrSet, Serializable {
     /**
+     *
+     */
+    private static final long serialVersionUID = 503643453152834350L;
+    /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
      */  

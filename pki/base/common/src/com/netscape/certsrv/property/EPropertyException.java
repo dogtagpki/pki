@@ -28,6 +28,11 @@ import com.netscape.certsrv.base.EBaseException;
 public class EPropertyException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -6100285768016343010L;
+
+    /**
      * Constructs property exception
      *
      * @param msg exception message

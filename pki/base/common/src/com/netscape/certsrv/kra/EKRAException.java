@@ -32,6 +32,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class EKRAException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -6803576959258754821L;
+    /**
      * KRA resource class name.
      * <P>
      */

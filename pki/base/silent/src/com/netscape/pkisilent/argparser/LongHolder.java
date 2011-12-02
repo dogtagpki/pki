@@ -25,6 +25,10 @@ package com.netscape.pkisilent.argparser;
 public class LongHolder implements java.io.Serializable
 {
 	/**
+     *
+     */
+    private static final long serialVersionUID = 1559599139421340971L;
+    /**
 	 * Value of the long, set and examined
 	 * by the application as needed.
 	 */

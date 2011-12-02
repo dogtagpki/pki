@@ -36,6 +36,10 @@ import netscape.security.util.ObjectIdentifier;
  */
 public class PolicyQualifierInfo  implements java.io.Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2930016944517192379L;
     public static final int OID_CPS[] = { 1, 3, 6, 1, 5, 5, 7, 2, 1 };
     public static final ObjectIdentifier QT_CPS = new
        ObjectIdentifier(OID_CPS);

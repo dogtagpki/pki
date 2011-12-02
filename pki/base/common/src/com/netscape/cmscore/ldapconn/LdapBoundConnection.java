@@ -39,6 +39,10 @@ import com.netscape.certsrv.apps.CMS;
  * overridden to prevent this.
  */
 public class LdapBoundConnection extends LDAPConnection {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2242077674357271559L;
     // LDAPConnection calls authenticate so must set this for first 
     // authenticate call.
     private boolean mAuthenticated = false;

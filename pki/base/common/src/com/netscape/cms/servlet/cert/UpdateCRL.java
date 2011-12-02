@@ -67,6 +67,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class UpdateCRL extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -1182106454856991246L;
     private final static String INFO = "UpdateCRL";
     private final static String TPL_FILE = "updateCRL.template";
 

@@ -35,6 +35,10 @@ import netscape.security.util.DerValue;
  */
 public class UserNotice extends Qualifier {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5770869942793748051L;
     private NoticeReference mNoticeReference = null;
     private DisplayText mDisplayText = null;
 

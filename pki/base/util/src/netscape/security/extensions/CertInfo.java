@@ -40,6 +40,10 @@ import netscape.security.x509.X509CertInfo;
  * creation time so an object of this type is always serializable.
  */
 public class CertInfo extends X509CertInfo {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2883888348288591989L;
     public static final CertificateSubjectName SERIALIZE_SUBJECT;
     public static final CertificateIssuerName SERIALIZE_ISSUER;
     public static final CertificateValidity SERIALIZE_VALIDITY;

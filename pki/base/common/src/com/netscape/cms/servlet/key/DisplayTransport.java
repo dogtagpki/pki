@@ -43,6 +43,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class DisplayTransport extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6509083753395783705L;
     private final static String INFO = "displayTransport";
 
     /**

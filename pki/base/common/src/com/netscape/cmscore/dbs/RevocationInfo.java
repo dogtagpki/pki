@@ -38,6 +38,10 @@ import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
  */
 public class RevocationInfo implements IRevocationInfo, Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -157323417902547417L;
     private Date mRevocationDate = null;
     private CRLExtensions mCRLEntryExtensions = null;
 

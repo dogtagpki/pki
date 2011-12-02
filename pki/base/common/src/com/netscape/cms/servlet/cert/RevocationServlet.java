@@ -64,6 +64,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class RevocationServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -9086730404084717413L;
     private final static String PROP_REVOKEBYDN = "revokeByDN";
     // revocation templates.
     private final static String TPL_FILE = "reasonToRevoke.template";

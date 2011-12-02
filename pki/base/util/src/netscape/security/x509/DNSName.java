@@ -31,6 +31,10 @@ import netscape.security.util.DerValue;
  * @version 1.4
  */
 public class DNSName implements GeneralNameInterface {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2907649488092607056L;
     private String name;
 
     /**

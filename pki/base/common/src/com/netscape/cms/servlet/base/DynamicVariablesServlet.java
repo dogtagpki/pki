@@ -50,6 +50,10 @@ import com.netscape.certsrv.base.IConfigStore;
  * @version $Revision$, $Date$
  */
 public class DynamicVariablesServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7246774978153039460L;
     public final static String PROP_ACCESS = "ServletAccess";
     public final static String PROP_AUTHMGR = "AuthMgr";
     public final static String PROP_CLIENTAUTH = "GetClientCert";

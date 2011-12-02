@@ -56,6 +56,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class SearchReqs extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2449481964851735051L;
     private final static String TPL_FILE = "queryReq.template";
     private final static String INFO = "QueryReq";
     private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReqReturns";

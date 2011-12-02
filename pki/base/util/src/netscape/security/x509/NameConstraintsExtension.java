@@ -61,6 +61,10 @@ import netscape.security.util.PrettyPrintFormat;
 public class NameConstraintsExtension extends Extension
 implements CertAttrSet {
     /**
+     *
+     */
+    private static final long serialVersionUID = -3506940192931244539L;
+    /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
      */  

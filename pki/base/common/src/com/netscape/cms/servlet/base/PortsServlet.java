@@ -39,6 +39,10 @@ import com.netscape.cmsutil.xml.XMLObject;
  */
 public class PortsServlet extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3750153734073658934L;
     private final static String INFO = "ports";
 
     public PortsServlet() {

@@ -514,6 +514,11 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * used to keep track of connections from this factory.
      */
     public class BoundConnection extends LdapBoundConnection {
+        /**
+         *
+         */
+        private static final long serialVersionUID = 1353616391879078337L;
+
         public BoundConnection(LdapConnInfo connInfo, LdapAuthInfo authInfo)
             throws LDAPException {
             super(connInfo, authInfo);

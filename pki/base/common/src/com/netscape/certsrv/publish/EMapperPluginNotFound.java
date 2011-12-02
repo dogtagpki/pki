@@ -29,6 +29,11 @@ import com.netscape.certsrv.ldap.ELdapException;
 public class EMapperPluginNotFound extends ELdapException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 3564854656103487939L;
+
+    /**
      * Constructs a exception for a missing mapper plugin
      * @param errorString Detailed error message.
      */

@@ -25,6 +25,10 @@ package com.netscape.pkisilent.argparser;
 public class DoubleHolder implements java.io.Serializable
 {
 	/**
+     *
+     */
+    private static final long serialVersionUID = 5461991811517552431L;
+    /**
 	 * Value of the double, set and examined
 	 * by the application as needed.
 	 */

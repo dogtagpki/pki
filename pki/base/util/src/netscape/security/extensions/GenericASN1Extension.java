@@ -45,6 +45,11 @@ import netscape.security.x509.OIDMap;
  */
 public class GenericASN1Extension extends Extension 
 implements CertAttrSet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8047548816784949009L;
+
     protected static final int MAX_ATTR = 10;
 
     protected static final String PROP_CRITICAL =

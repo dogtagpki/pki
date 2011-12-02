@@ -19,7 +19,11 @@ package netscape.security.x509;
 
 public class InvalidIPAddressException extends RuntimeException
 {
-	public InvalidIPAddressException() {
+	/**
+     *
+     */
+    private static final long serialVersionUID = -1601934234587845028L;
+    public InvalidIPAddressException() {
 		super();
 	}
 	public InvalidIPAddressException(String ip) {

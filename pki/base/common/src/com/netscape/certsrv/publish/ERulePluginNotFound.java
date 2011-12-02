@@ -29,6 +29,11 @@ import com.netscape.certsrv.ldap.ELdapException;
 public class ERulePluginNotFound extends ELdapException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 4056965992924762809L;
+
+    /**
      * Constructs a exception for a missing rule plugin.
      * @param errorString Detailed error message.
      */

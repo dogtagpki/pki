@@ -73,6 +73,11 @@ import com.netscape.certsrv.dbs.IDBObj;
 public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -2533562170977678799L;
+
+    /**
      * Constants
      */
     public static final BigInteger DEFAULT_VERSION = new BigInteger("1");

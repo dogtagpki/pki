@@ -92,6 +92,10 @@ import com.netscape.symkey.SessionKey;
  */
 public final class CMSAdminServlet extends AdminServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 714370238027440050L;
     private final static String INFO = "CMSAdminServlet";
     private final static String BEGIN_HEADER = "-----BEGIN CERTIFICATE-----";
     private final static String END_HEADER = "-----END CERTIFICATE-----";

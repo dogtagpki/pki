@@ -30,6 +30,11 @@ public class CertException extends SecurityException {
 
     // Zero is reserved.
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4046189948107720588L;
+
     /** Indicates that the signature in the certificate is not valid. */
     public static final int verf_INVALID_SIG = 1;
 

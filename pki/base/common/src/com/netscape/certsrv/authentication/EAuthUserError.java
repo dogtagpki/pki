@@ -23,6 +23,11 @@ package com.netscape.certsrv.authentication;
 public class EAuthUserError extends EAuthException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 287839079094761375L;
+
+    /**
      * Constructs a exception for a Invalid attribute value
      * @param errorString Detailed error message.
      */

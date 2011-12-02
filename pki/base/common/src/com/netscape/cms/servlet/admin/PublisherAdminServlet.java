@@ -77,6 +77,11 @@ import com.netscape.cmsutil.password.IPasswordStore;
  * @version $Revision$, $Date$
  */
 public class PublisherAdminServlet extends AdminServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7055088618787207262L;
+
     public final static String PROP_AUTHORITY = "authority";
 
     private final static String INFO = "PublisherAdminServlet";

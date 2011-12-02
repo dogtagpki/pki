@@ -53,6 +53,10 @@ public class EDuplicateSelfTestException
     // helper parameters //
     ///////////////////////
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -7484729117186395701L;
     private String mInstanceName = null;
     private String mInstanceStore = null;
     private String mInstanceParameter = null;

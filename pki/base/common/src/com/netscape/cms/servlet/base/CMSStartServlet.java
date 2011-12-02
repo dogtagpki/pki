@@ -40,6 +40,10 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class CMSStartServlet extends HttpServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 515623839479425172L;
     public final static String PROP_CMS_CFG = "cfgPath";
 
     public void init(ServletConfig config) throws ServletException {

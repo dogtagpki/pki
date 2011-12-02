@@ -36,6 +36,11 @@ import com.netscape.certsrv.base.MessageFormatter;
  */
 public class SystemEvent implements IBundleLogEvent {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7160410535724580752L;
+
     protected Object mParams[] = null;
 
     private String mEventType = null;

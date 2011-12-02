@@ -34,6 +34,10 @@ import com.netscape.certsrv.usrgrp.IUsrGrp;
  * @version $Revision$, $Date$
  */
 public class Group implements IGroup {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -1264387079578766750L;
     private IUsrGrp mBase = null;
     private String mName = null;
     private Vector mMembers = new Vector();

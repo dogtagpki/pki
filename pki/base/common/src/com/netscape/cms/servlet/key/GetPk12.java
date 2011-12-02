@@ -51,6 +51,11 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GetPk12 extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8974964964333880697L;
+
     private final static String INFO = "getPk12";
 
     private final static String TPL_FILE = "finishRecovery.template";

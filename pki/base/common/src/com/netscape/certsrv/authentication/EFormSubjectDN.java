@@ -23,6 +23,11 @@ package com.netscape.certsrv.authentication;
 public class EFormSubjectDN extends EAuthException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 4052335779095200482L;
+
+    /**
      * Constructs an Error on formulating the subject dn.
      * @param errorString Detailed error message.
      */

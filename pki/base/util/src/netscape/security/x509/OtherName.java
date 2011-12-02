@@ -43,6 +43,10 @@ import netscape.security.util.ObjectIdentifier;
  * @author Hemma Prafullchandra
  */
 public class OtherName implements GeneralNameInterface {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3533614377346132611L;
     private ObjectIdentifier mOID = null;
     private byte[] mData = null;
 

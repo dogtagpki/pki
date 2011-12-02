@@ -63,6 +63,10 @@ import com.netscape.cmsutil.util.Cert;
  */
 public class AddCRLServlet extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1476080474638590902L;
     public static final String BEGIN_HEADER =
         "-----BEGIN CERTIFICATE REVOCATION LIST-----";
     public static final String END_HEADER =

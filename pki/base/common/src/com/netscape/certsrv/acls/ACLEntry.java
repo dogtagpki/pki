@@ -30,6 +30,10 @@ import java.util.StringTokenizer;
  */
 public class ACLEntry implements IACLEntry, java.io.Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 422656406529200393L;
     protected Hashtable mPerms = new Hashtable();
     protected String mExpressions = null;
     protected boolean mNegative = false;

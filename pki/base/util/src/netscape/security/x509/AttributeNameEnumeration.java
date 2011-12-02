@@ -30,6 +30,11 @@ import java.util.Vector;
  */
 public class AttributeNameEnumeration extends Vector {
     /**
+     *
+     */
+    private static final long serialVersionUID = 6855308073169292869L;
+
+    /**
      * The default constructor for this class.
      */
     public AttributeNameEnumeration() {

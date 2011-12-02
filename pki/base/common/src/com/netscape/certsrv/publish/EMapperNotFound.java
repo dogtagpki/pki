@@ -29,6 +29,11 @@ import com.netscape.certsrv.ldap.ELdapException;
 public class EMapperNotFound extends ELdapException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -2222814261042222152L;
+
+    /**
      * Constructs a exception for a missing required mapper
      * @param errorString Detailed error message.
      */

@@ -53,6 +53,10 @@ import com.netscape.certsrv.apps.CMS;
  */
 public class ProxyServlet extends HttpServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2535349161521094539L;
     private String mDest = null;
     private String mDestContext = null;
     private String mSrcContext = null;

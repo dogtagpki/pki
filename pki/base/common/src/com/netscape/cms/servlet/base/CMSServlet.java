@@ -106,6 +106,10 @@ import com.netscape.cmsutil.xml.XMLObject;
  * @version $Revision$, $Date$
  */
 public abstract class CMSServlet extends HttpServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3886300199374147160L;
     // servlet init params
     // xxxx todo:Should enforce init param value checking!
     public final static String SUCCESS = "0";

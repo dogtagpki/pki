@@ -54,6 +54,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class ExamineRecovery extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -953282265332774966L;
     private final static String INFO = "examineRecovery";
     private final static String TPL_FILE = "examineRecovery.template";
 

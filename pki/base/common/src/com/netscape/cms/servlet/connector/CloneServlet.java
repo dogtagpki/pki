@@ -67,6 +67,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
  * @version $Revision$, $Date$
  */
 public class CloneServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3474557834182380981L;
     public static final String INFO = "Clone Servlet";
     public final static String PROP_AUTHORITY = "authority";
     protected ServletConfig mConfig = null;

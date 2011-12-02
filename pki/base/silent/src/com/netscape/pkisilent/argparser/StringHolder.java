@@ -25,6 +25,10 @@ package com.netscape.pkisilent.argparser;
 public class StringHolder implements java.io.Serializable
 {
 	/**
+     *
+     */
+    private static final long serialVersionUID = -3184348746223759310L;
+    /**
 	 * Value of the String reference, set and examined
 	 * by the application as needed.
 	 */

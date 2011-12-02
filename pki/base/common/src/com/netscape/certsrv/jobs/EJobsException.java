@@ -30,6 +30,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class EJobsException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 4542243534794168088L;
+    /**
      * Identity resource class name.
      */
     private static final String JOBS_RESOURCES = JobsResources.class.getName();

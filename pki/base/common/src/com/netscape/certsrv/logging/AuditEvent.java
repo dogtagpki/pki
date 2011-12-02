@@ -37,6 +37,11 @@ import com.netscape.certsrv.base.MessageFormatter;
  */
 public class AuditEvent implements IBundleLogEvent {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -844306657733902324L;
+
     protected Object mParams[] = null;
 
     private String mEventType = null;

@@ -32,6 +32,11 @@ package com.netscape.certsrv.profile;
 public class ERejectException extends EProfileException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -542393641391361342L;
+
+    /**
      * Creates a rejection exception. 
      *
      * @param msg localized message that indicates

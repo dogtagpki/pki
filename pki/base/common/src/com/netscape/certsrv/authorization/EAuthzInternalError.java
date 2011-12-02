@@ -23,6 +23,11 @@ package com.netscape.certsrv.authorization;
 public class EAuthzInternalError extends EAuthzException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -2954801841027751903L;
+
+    /**
      * Constructs an authorization internal error exception
      * @param errorString error with a detailed message.
      */

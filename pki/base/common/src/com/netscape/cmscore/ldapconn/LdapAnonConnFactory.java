@@ -444,6 +444,11 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * used to keep track of connections from this factory.
      */
     public class AnonConnection extends LdapAnonConnection {
+        /**
+         *
+         */
+        private static final long serialVersionUID = 4813780131074412404L;
+
         public AnonConnection(LdapConnInfo connInfo)
             throws LDAPException {
             super(connInfo);

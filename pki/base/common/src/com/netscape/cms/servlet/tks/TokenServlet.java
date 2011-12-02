@@ -63,6 +63,10 @@ import com.netscape.symkey.SessionKey;
  * @version $Revision$, $Date$
  */
 public class TokenServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8687436109695172791L;
     protected static final String PROP_ENABLED = "enabled";
     protected static final String TRANSPORT_KEY_NAME ="sharedSecret";
     private final static String INFO = "TokenServlet";

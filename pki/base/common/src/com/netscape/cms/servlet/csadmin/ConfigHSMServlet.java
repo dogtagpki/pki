@@ -41,6 +41,10 @@ import com.netscape.cmsutil.crypto.Module;
 
 
 public class ConfigHSMServlet extends ConfigBaseServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -330521231753992202L;
     private CryptoManager mCryptoManager = null;
     private Vector mSupportedModules = null;
     private Vector mOtherModules = null;

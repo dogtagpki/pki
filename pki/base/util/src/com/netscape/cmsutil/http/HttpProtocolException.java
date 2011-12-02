@@ -22,6 +22,11 @@ import java.io.IOException;
 
 
 public class HttpProtocolException extends IOException {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -953002842302351684L;
+
     public HttpProtocolException() {
         super();
     }

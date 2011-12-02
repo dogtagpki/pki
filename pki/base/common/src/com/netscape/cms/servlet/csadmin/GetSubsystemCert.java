@@ -42,6 +42,10 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetSubsystemCert extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -5720342238234153488L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
 

@@ -20,6 +20,11 @@ package netscape.security.pkcs;
 import java.io.IOException;
 
 public class ParsingException extends IOException {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8135726194372647410L;
+
     public ParsingException() {
 	super();
     }

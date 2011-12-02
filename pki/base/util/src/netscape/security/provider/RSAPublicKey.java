@@ -47,7 +47,12 @@ public final class RSAPublicKey extends X509Key implements Serializable {
 	   in bits (redundant!)
 	   */
 
-  private static final ObjectIdentifier ALGORITHM_OID = 
+  /**
+     *
+     */
+    private static final long serialVersionUID = 7764823589128565374L;
+
+private static final ObjectIdentifier ALGORITHM_OID =
   	AlgorithmId.RSAEncryption_oid;
 	
   private BigInt modulus;

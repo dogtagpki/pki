@@ -29,6 +29,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class EListenersException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 8895858413292894796L;
+    /**
      * CA resource class name.
      */
     private static final String LISTENERS_RESOURCES = ListenersResources.class.getName();

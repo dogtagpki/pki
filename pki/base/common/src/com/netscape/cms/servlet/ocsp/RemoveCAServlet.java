@@ -49,6 +49,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class RemoveCAServlet extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4519898238552366358L;
     private final static String TPL_FILE = "removeCA.template";
     private String mFormPath = null;
     private IOCSPAuthority mOCSPAuthority = null;

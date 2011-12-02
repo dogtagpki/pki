@@ -23,6 +23,11 @@ package com.netscape.cmscore.util;
  * and fails to operate properly.
  */
 public class AssertionException extends Error {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5647721098177211353L;
+
     public AssertionException() {
     }
 

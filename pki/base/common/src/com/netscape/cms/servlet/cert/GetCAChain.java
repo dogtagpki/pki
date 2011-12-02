@@ -56,7 +56,11 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 	 * @version $Revision$, $Date$
 	 */
 	public class GetCAChain extends CMSServlet {
-	    private final static String TPL_FILE = "displayCaCert.template";
+	    /**
+         *
+         */
+        private static final long serialVersionUID = -8189048155415074581L;
+        private final static String TPL_FILE = "displayCaCert.template";
 	    private String mFormPath = null;
 
 	    public GetCAChain() {

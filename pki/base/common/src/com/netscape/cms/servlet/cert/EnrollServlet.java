@@ -84,6 +84,11 @@ import com.netscape.cms.servlet.processors.PKIProcessor;
  * @version $Revision$, $Date$
  */
 public class EnrollServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6983729702665630013L;
+
     public final static String ADMIN_ENROLL_SERVLET_ID = "caadminEnroll";
 
     // enrollment templates.

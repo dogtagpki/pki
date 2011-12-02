@@ -44,6 +44,10 @@ import com.netscape.certsrv.base.KeyGenInfo;
  */
 public class ArgBlock implements IArgBlock {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6054531129316353282L;
     /*==========================================================
      * variables
      *==========================================================*/

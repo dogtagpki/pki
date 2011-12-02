@@ -38,6 +38,10 @@ import netscape.security.x509.OIDMap;
  */
 public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 765403075764697489L;
     public static final String OID = "2.5.29.37";
     public static final String NAME = OIDMap.EXT_KEY_USAGE_NAME;
     public static final String OID_OCSPSigning = "1.3.6.1.5.5.7.3.9";

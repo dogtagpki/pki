@@ -23,6 +23,11 @@ package com.netscape.certsrv.authentication;
 public class ECompSyntaxErr extends EAuthException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 5434000917203952218L;
+
+    /**
      * Constructs an component syntax error
      * @param errorString Detailed error message.
      */

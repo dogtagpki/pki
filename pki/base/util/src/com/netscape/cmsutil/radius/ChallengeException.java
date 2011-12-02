@@ -21,6 +21,10 @@ package com.netscape.cmsutil.radius;
 
 
 public class ChallengeException extends Exception {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3496050461777520369L;
     private AccessChallenge _res = null;
 
     public ChallengeException(AccessChallenge res) {

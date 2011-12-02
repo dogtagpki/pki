@@ -27,6 +27,10 @@ package com.netscape.certsrv.security;
  */
 public class Credential implements java.io.Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -7810193228062824943L;
     private String mId = null;
     private String mPassword = null;
 

@@ -82,6 +82,11 @@ public class ExceptionFormatter {
 
 class TestException extends Exception {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -5737463439434110385L;
+
     public TestException() {
     }
 

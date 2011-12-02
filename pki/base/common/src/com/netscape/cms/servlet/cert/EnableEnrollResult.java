@@ -54,6 +54,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @see com.netscape.cms.servlet.cert.DisableEnrollResult
  */
 public class EnableEnrollResult extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2646998784859783012L;
     private final static String TPL_FILE = "enableEnrollResult.template";
     private String mFormPath = null;
     private Random random = null;

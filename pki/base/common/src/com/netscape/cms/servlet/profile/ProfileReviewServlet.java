@@ -62,6 +62,11 @@ import com.netscape.cms.servlet.common.CMSRequest;
  */
 public class ProfileReviewServlet extends ProfileServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6559751428547928511L;
+
     private static final String PROP_AUTHORITY_ID = "authorityId";
 
     private String mAuthorityId = null; 

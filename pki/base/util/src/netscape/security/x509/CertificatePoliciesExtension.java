@@ -54,6 +54,10 @@ public class CertificatePoliciesExtension extends Extension
 implements CertAttrSet {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -3729294064061837367L;
+    /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
      */

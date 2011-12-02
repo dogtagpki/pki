@@ -28,6 +28,11 @@ import org.apache.velocity.context.Context;
 
 public class DisplayServlet extends BaseServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8753831516572779596L;
+
     public Template process(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

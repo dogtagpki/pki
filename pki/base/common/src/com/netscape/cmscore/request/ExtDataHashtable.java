@@ -12,6 +12,11 @@ import java.util.Set;
  */
 public class ExtDataHashtable extends Hashtable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8401134619951331450L;
+
     public ExtDataHashtable() {
         super();
     }

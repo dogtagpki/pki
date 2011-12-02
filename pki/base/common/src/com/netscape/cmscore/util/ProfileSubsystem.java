@@ -51,6 +51,10 @@ import com.netscape.certsrv.base.ISubsystem;
  */
 public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -7411549542009497317L;
     private String mId = null;
     private Thread mMonitoring = new Thread(this);
     private TextArea mTextArea = null;
@@ -217,6 +221,10 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
 
 
 class ThreadTableModel extends AbstractTableModel { 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6977965542104110870L;
     Vector rowData;
     Vector columnNames;
 

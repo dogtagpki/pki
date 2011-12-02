@@ -31,6 +31,11 @@ import com.netscape.certsrv.base.EBaseException;
 public class EProfileException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -4259647804183018757L;
+
+    /**
      * Creates a profile exception.
      *
      * @param msg additional message for the handler

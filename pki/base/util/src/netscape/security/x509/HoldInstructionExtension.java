@@ -47,6 +47,10 @@ public class HoldInstructionExtension extends Extension
 implements CertAttrSet {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -6706557233070964984L;
+    /**
      * Attribute name.
      */
     public static final String NAME = "HoldInstruction";

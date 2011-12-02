@@ -30,6 +30,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class ENotificationException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 2101529206306996303L;
+    /**
      * Identity resource class name.
      */
     private static final String NOTIFICATION_RESOURCES = NotificationResources.class.getName();

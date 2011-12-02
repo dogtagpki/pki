@@ -46,6 +46,10 @@ public class CRLNumberExtension extends Extension
 implements CertAttrSet {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 2992307666566322402L;
+    /**
      * Attribute name.
      */
     public static final String NAME = "CRLNumber";

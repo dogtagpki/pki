@@ -31,6 +31,10 @@ import com.netscape.certsrv.base.EBaseException;
 public class ELdapException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -4345538974758823452L;
+    /**
      * Ldap resource class name.
      */
     private static final String LDAP_RESOURCES = LdapResources.class.getName();		

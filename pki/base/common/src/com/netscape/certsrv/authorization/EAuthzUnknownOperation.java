@@ -23,6 +23,11 @@ package com.netscape.certsrv.authorization;
 public class EAuthzUnknownOperation extends EAuthzException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 4344508835702220953L;
+
+    /**
      * Constructs a exception for an operation unknown to the authorization manager
      * @param errorString Detailed error message.
      */

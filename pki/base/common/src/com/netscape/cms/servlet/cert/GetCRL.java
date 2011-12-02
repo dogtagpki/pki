@@ -55,6 +55,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class GetCRL extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7132206924070383013L;
     private final static String TPL_FILE = "displayCRL.template";
     private String mFormPath = null;
 

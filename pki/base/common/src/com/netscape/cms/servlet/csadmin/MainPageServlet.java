@@ -39,6 +39,10 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
 public class MainPageServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2425301522251239666L;
     private static final String PROP_AUTHORITY_ID="authorityId";
     private String mAuthorityId = null;
     private String mFormPath = null;

@@ -624,6 +624,10 @@ public class RequestTest extends CMSBaseTestCase {
     }
 
     class X509CertInfoStub extends X509CertInfo {
+        /**
+         *
+         */
+        private static final long serialVersionUID = -821992386369710423L;
         boolean getEncodedCalled = false;
 
         public X509CertInfoStub() {
@@ -636,6 +640,10 @@ public class RequestTest extends CMSBaseTestCase {
     }
 
     class RevokedCertImplStub extends RevokedCertImpl {
+        /**
+         *
+         */
+        private static final long serialVersionUID = -9088436260566619005L;
         boolean getEncodedCalled = false;
 
 

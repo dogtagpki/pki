@@ -53,6 +53,10 @@ import java.security.Provider;
  */
 public final class Sun extends Provider {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 9134942296334703727L;
     private static String info = "SUN Security Provider v1.0, " + 
     "DSA signing and key generation, SHA-1 and MD5 message digests.";
 

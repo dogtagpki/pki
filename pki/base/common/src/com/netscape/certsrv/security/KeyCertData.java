@@ -40,6 +40,11 @@ import com.netscape.certsrv.common.Constants;
 public class KeyCertData extends Properties {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -9084106429445432037L;
+
+    /**
      * Constructs a key certificate data.
      */
     public KeyCertData() {

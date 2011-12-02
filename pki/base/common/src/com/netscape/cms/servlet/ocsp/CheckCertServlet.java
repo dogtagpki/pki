@@ -56,6 +56,10 @@ import com.netscape.cmsutil.util.Cert;
  */
 public class CheckCertServlet extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7782198059640825050L;
     public static final String BEGIN_HEADER =
         "-----BEGIN CERTIFICATE-----";
     public static final String END_HEADER =

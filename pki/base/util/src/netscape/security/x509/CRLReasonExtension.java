@@ -40,6 +40,10 @@ import netscape.security.util.DerValue;
 public final class CRLReasonExtension  extends Extension implements CertAttrSet {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 4544973296866779535L;
+    /**
      * Canned instances for all revocation reasons
      */
     public static final CRLReasonExtension UNSPECIFIED = new CRLReasonExtension(RevocationReason.UNSPECIFIED);

@@ -50,6 +50,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GrantRecovery extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 991970686415492L;
     private final static String INFO = "grantRecovery";
     private final static String TPL_FILE = "grantRecovery.template";
 

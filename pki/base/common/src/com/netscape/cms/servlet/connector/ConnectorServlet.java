@@ -81,6 +81,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
  * @version $Revision$, $Date$
  */
 public class ConnectorServlet extends CMSServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1221916495803185863L;
     public static final String INFO = "Connector Servlet";
     public final static String PROP_AUTHORITY = "authority";
     protected ServletConfig mConfig = null;

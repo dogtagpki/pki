@@ -55,6 +55,10 @@ import netscape.security.util.DerValue;
 public class PolicyConstraintsExtension extends Extension
 implements CertAttrSet {
     /**
+     *
+     */
+    private static final long serialVersionUID = -3723759691127622370L;
+    /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
      */  

@@ -44,6 +44,10 @@ public class CertificateIssuerExtension extends Extension
                                         implements CertAttrSet
 {
     /**
+     *
+     */
+    private static final long serialVersionUID = 8643788952936025986L;
+    /**
      * Attribute name.
      */
     public static final String NAME = "CertificateIssuer";

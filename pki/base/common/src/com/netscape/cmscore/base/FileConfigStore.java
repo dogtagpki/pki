@@ -50,6 +50,10 @@ import com.netscape.cmsutil.util.Utils;
 public class FileConfigStore extends PropConfigStore implements 
         IConfigStore {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2642124526598175633L;
     private File mFile = null;
 
     /**

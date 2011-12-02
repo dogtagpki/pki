@@ -62,6 +62,11 @@ import com.netscape.cmscore.util.Debug;
 public class RequestRecord
     extends ARequestRecord
     implements IRequestRecord, IDBObj {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8044665107558872084L;
+
     public RequestId getRequestId() {
         return mRequestId;
     }

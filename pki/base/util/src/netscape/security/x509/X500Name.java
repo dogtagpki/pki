@@ -55,6 +55,11 @@ import netscape.security.util.ObjectIdentifier;
 
 public class X500Name implements Principal, GeneralNameInterface {
     /**
+     *
+     */
+    private static final long serialVersionUID = -730790062013191108L;
+
+    /**
      * Constructs a name from a Ldap DN string, such
      * as &lb;CN=Dave, OU=JavaSoft, O=Sun Microsystems, C=US&rb;.  The
      * older "/C=US/O=Sun Microsystems, Inc/OU=JavaSoft/CN=Dave" syntax

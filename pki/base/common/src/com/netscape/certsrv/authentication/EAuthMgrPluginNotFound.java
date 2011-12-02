@@ -23,6 +23,11 @@ package com.netscape.certsrv.authentication;
 public class EAuthMgrPluginNotFound extends EAuthException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 7422356574227925974L;
+
+    /**
      * Constructs a exception for a missing authentication manager plugin
      * @param errorString error for a missing authentication manager plugin 
      */

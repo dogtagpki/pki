@@ -86,6 +86,10 @@ import com.netscape.cms.servlet.base.UserInfo;
  */
 public class AdminServlet extends HttpServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7740464244137421542L;
     private final static String HDR_AUTHORIZATION = "Authorization";
     private final static String HDR_LANG = "accept-language";
     private final static String HDR_CONTENT_LEN = "Content-Length";

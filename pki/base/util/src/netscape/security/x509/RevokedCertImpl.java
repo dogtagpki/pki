@@ -69,6 +69,10 @@ import netscape.security.util.ObjectIdentifier;
 public class RevokedCertImpl extends RevokedCertificate
  implements Serializable{
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3449642360223397701L;
     private SerialNumber serialNumber;
     private Date revocationDate;
     private CRLExtensions extensions = null;

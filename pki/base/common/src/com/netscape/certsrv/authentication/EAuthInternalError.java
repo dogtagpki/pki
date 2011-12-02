@@ -23,6 +23,11 @@ package com.netscape.certsrv.authentication;
 public class EAuthInternalError extends EAuthException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -4020816090107820450L;
+
+    /**
      * Constructs an authentication internal error exception
      * with a detailed message.
      * @param errorString Detailed error message.

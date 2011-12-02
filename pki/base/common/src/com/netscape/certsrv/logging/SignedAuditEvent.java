@@ -37,6 +37,11 @@ import com.netscape.certsrv.base.MessageFormatter;
  */
 public class SignedAuditEvent implements IBundleLogEvent {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4287822756516673931L;
+
     protected Object mParams[] = null;
 
     private String mEventType = null;

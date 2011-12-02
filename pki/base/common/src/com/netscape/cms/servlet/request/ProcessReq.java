@@ -58,6 +58,10 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class ProcessReq extends CMSServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6941843162486565610L;
     private final static String INFO = "processReq";
     private final static String SEQNUM = "seqNum";
     private final static String DO_ASSIGN = "doAssign";

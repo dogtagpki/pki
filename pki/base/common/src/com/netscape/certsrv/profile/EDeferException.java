@@ -33,6 +33,11 @@ package com.netscape.certsrv.profile;
 public class EDeferException extends EProfileException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -8267140233153746034L;
+
+    /**
      * Creates a defer exception.
      *
      * @param msg localized message that will be 

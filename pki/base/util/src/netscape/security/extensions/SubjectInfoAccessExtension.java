@@ -46,6 +46,11 @@ import netscape.security.x509.URIName;
  * @version $Revision$, $Date$
  */
 public class SubjectInfoAccessExtension extends Extension implements CertAttrSet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7237321566602583325L;
+
     public static final String NAME = "SubjectInfoAccessExtension";
 
     public static final int OID_OCSP[] = { 1, 3, 6, 1, 5, 5, 7, 48, 1 };

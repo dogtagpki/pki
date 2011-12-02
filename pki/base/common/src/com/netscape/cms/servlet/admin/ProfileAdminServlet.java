@@ -64,6 +64,11 @@ import com.netscape.certsrv.registry.IPluginRegistry;
  * @version $Revision$, $Date$
  */
 public class ProfileAdminServlet extends AdminServlet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4828203666899891742L;
+
     public final static String PROP_AUTHORITY = "authority";
 
     private final static String INFO = "ProfileAdminServlet";

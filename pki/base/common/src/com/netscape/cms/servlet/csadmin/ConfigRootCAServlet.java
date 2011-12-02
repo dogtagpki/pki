@@ -35,6 +35,11 @@ import com.netscape.certsrv.profile.CertInfoProfile;
 
 public class ConfigRootCAServlet extends ConfigBaseServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1128630821163059659L;
+
     public boolean isDisplayMode(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

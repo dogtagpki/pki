@@ -47,6 +47,10 @@ public class InvalidityDateExtension extends Extension
 implements CertAttrSet {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 2191026017389643053L;
+    /**
      * Attribute name.
      */
     public static final String NAME = "InvalidityDate";

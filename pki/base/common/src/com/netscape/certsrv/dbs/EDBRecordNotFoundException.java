@@ -26,6 +26,11 @@ package com.netscape.certsrv.dbs;
 public class EDBRecordNotFoundException extends EDBException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -3797213848651705426L;
+
+    /**
      * Constructs a ldap server down exception with host & port info.
      *
      * @param errorString Detailed error message.

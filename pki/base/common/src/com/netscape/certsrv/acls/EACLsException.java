@@ -37,6 +37,10 @@ import com.netscape.certsrv.base.MessageFormatter;
 public class EACLsException extends EBaseException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 5471535135648315104L;
+    /**
      * resource class name
      */
     private static final String ACL_RESOURCES = ACLsResources.class.getName();

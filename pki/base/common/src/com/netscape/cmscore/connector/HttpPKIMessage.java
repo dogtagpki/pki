@@ -37,6 +37,10 @@ import com.netscape.cmscore.util.Debug;
  * simple name/value pair message. 
  */
 public class HttpPKIMessage implements IHttpPKIMessage {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3378261119472034953L;
     // initialized to "" because nulls don't serialize well.
     public String reqType = "";
     public String reqId = "";

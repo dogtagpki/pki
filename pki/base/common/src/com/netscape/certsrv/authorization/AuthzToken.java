@@ -35,6 +35,11 @@ import com.netscape.certsrv.base.IAttrSet;
  * @version $Revision$, $Date$
  */
 public class AuthzToken implements IAttrSet {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4716145610877112054L;
+
     private Hashtable mAttrs = null;
 
     /**
