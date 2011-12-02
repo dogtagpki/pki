@@ -20,6 +20,7 @@ package com.netscape.cms.jobs;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -487,15 +488,18 @@ public class RenewalNotificationJob
         }
     }
 
-    private String makeLDAPDateString(Date d) {
+    private String makeLDAPDateString(Date date) {
 		
-        String ldfYear = "" + Integer.toString(d.getYear());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        String ldfYear = "" + Integer.toString(calendar.get(Calendar.YEAR) - 1900);
 		
-        String ldfMonth = getPadded(d.getMonth());
-        String ldfDate = getPadded(d.getDate());
-        String ldfHours = getPadded(d.getHours());
-        String ldfMinutes = getPadded(d.getMinutes());
-        String ldfSeconds = getPadded(d.getSeconds());
+        String ldfMonth = getPadded(calendar.get(Calendar.MONTH));
+        String ldfDate = getPadded(calendar.get(Calendar.DAY_OF_MONTH));
+        String ldfHours = getPadded(calendar.get(Calendar.HOUR));
+        String ldfMinutes = getPadded(calendar.get(Calendar.MINUTE));
+        String ldfSeconds = getPadded(calendar.get(Calendar.SECOND));
 		
         return ldfYear + ldfMonth + ldfDate + ldfHours + ldfMinutes + ldfSeconds + "Z";
     }

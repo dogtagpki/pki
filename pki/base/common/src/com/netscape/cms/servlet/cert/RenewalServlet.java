@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -190,8 +191,11 @@ public class RenewalServlet extends CMSServlet {
 
             if (beginYear != -1 && beginMonth != -1 && beginDate != -1 &&
                 endYear != -1 && endMonth != -1 && endDate != -1) {
-                notBefore = new Date(beginYear, beginMonth, beginDate);
-                notAfter = new Date(endYear, endMonth, endDate);
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(beginYear, beginMonth, beginDate);
+                notBefore = calendar.getTime();
+                calendar.set(endYear, endMonth, endDate);
+                notAfter = calendar.getTime();
             }
         } // coming from client
         else {

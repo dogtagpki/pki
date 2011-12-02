@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.cert;
 
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -597,20 +598,20 @@ public class RemoteAuthConfig extends CMSServlet {
     }
 
     private String makeInstanceName() {
-        Date now = new Date();
-        int y = 1900 + now.getYear();
+        Calendar now = Calendar.getInstance();
+        int y = now.get(Calendar.YEAR);
         String name = "R" + y;
 
-        if (now.getMonth() < 10) name += "0";
-        name += now.getMonth();
-        if (now.getDate() < 10) name += "0";
-        name += now.getDate();
-        if (now.getHours() < 10) name += "0";
-        name += now.getHours();
-        if (now.getMinutes() < 10) name += "0";
-        name += now.getMinutes();
-        if (now.getSeconds() < 10) name += "0";
-        name += now.getSeconds();
+        if (now.get(Calendar.MONTH) < 10) name += "0";
+        name += now.get(Calendar.MONTH);
+        if (now.get(Calendar.DAY_OF_MONTH) < 10) name += "0";
+        name += now.get(Calendar.DAY_OF_MONTH);
+        if (now.get(Calendar.HOUR_OF_DAY) < 10) name += "0";
+        name += now.get(Calendar.HOUR_OF_DAY);
+        if (now.get(Calendar.MINUTE) < 10) name += "0";
+        name += now.get(Calendar.MINUTE);
+        if (now.get(Calendar.SECOND) < 10) name += "0";
+        name += now.get(Calendar.SECOND);
         return name;
     }
 }
