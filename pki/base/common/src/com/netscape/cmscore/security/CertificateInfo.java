@@ -27,7 +27,6 @@ import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
-import java.util.Calendar;
 import java.util.Date;
 
 import netscape.security.util.DerInputStream;
@@ -143,13 +142,10 @@ public abstract class CertificateInfo {
             int afterSec =
                 Integer.parseInt(mProperties.getAfterSec());
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(beginYear, beginMonth, beginDate,
+            notBeforeDate = new Date(beginYear, beginMonth, beginDate,
                         beginHour, beginMin, beginSec);
-            notBeforeDate = calendar.getTime();
-            calendar.set(afterYear, afterMonth, afterDate,
-                    afterHour, afterMin, afterSec);
-            notAfterDate = calendar.getTime();
+            notAfterDate = new Date(afterYear, afterMonth, afterDate,
+                        afterHour, afterMin, afterSec);
         }
         return new CertificateValidity(notBeforeDate, notAfterDate);
     }
