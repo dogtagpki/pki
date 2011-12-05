@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
@@ -230,8 +231,8 @@ public class CertificateIssuerExtension extends Extension
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+    public Enumeration<String> getElements() {
+        Vector<String> elements = new Vector<String>();
         elements.addElement(CERTIFICATE_ISSUER);
 
         return (elements.elements());

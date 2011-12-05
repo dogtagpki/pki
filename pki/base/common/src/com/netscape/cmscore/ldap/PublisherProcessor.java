@@ -65,12 +65,12 @@ import com.netscape.cmscore.util.Debug;
 public class PublisherProcessor implements
 		IPublisherProcessor, IXcertPublisherProcessor {
 
-    public Hashtable mPublisherPlugins = new Hashtable();
-    public Hashtable mPublisherInsts = new Hashtable();
-    public Hashtable mMapperPlugins = new Hashtable();
-    public Hashtable mMapperInsts = new Hashtable();
-    public Hashtable mRulePlugins = new Hashtable();
-    public Hashtable mRuleInsts = new Hashtable();
+    public Hashtable<String, PublisherPlugin> mPublisherPlugins = new Hashtable<String, PublisherPlugin>();
+    public Hashtable<String, PublisherProxy> mPublisherInsts = new Hashtable<String, PublisherProxy>();
+    public Hashtable<String, MapperPlugin> mMapperPlugins = new Hashtable<String, MapperPlugin>();
+    public Hashtable<String, MapperProxy> mMapperInsts = new Hashtable<String, MapperProxy>();
+    public Hashtable<String, RulePlugin> mRulePlugins = new Hashtable<String, RulePlugin>();
+    public Hashtable<String, ILdapRule> mRuleInsts = new Hashtable<String, ILdapRule>();
 
     /**
      protected PublishRuleSet mRuleSet = null;
@@ -112,7 +112,7 @@ public class PublisherProcessor implements
         IConfigStore publisherConfig = config.getSubStore("publisher");
         IConfigStore c = publisherConfig.getSubStore(PROP_IMPL);
         mCreateOwnDNEntry = mConfig.getBoolean("createOwnDNEntry", false);
-        Enumeration mImpls = c.getSubStoreNames();
+        Enumeration<String> mImpls = c.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
             String id = (String) mImpls.nextElement();
@@ -126,7 +126,7 @@ public class PublisherProcessor implements
 
             // load publisher instances
         c = publisherConfig.getSubStore(PROP_INSTANCE);
-        Enumeration instances = c.getSubStoreNames();
+        Enumeration<String> instances = c.getSubStoreNames();
 
         while (instances.hasMoreElements()) {
             String insName = (String) instances.nextElement();
@@ -460,35 +460,35 @@ public class PublisherProcessor implements
         }
     }
 
-    public Hashtable getRulePlugins() {
+    public Hashtable<String, RulePlugin> getRulePlugins() {
         return mRulePlugins;
     }
 
-    public Hashtable getRuleInsts() {
+    public Hashtable<String, ILdapRule> getRuleInsts() {
         return mRuleInsts;
     }
 
-    public Hashtable getMapperPlugins() {
+    public Hashtable<String, MapperPlugin> getMapperPlugins() {
         return mMapperPlugins;
     }
 
-    public Hashtable getPublisherPlugins() {
+    public Hashtable<String, PublisherPlugin> getPublisherPlugins() {
         return mPublisherPlugins;
     }
 
-    public Hashtable getMapperInsts() {
+    public Hashtable<String, MapperProxy> getMapperInsts() {
         return mMapperInsts;
     }
 
-    public Hashtable getPublisherInsts() {
+    public Hashtable<String, PublisherProxy> getPublisherInsts() {
         return mPublisherInsts;
     }
 
     //certType can be client,server,ca,crl,smime
     //XXXshould make it static to make it faster
-    public Enumeration getRules(String publishingType) {
-        Vector rules = new Vector();
-        Enumeration e = mRuleInsts.keys();
+    public Enumeration<ILdapRule> getRules(String publishingType) {
+        Vector<ILdapRule> rules = new Vector<ILdapRule>();
+        Enumeration<String> e = mRuleInsts.keys();
 			
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
@@ -525,13 +525,13 @@ public class PublisherProcessor implements
         return rules.elements();
     }
 
-    public Enumeration getRules(String publishingType, IRequest req) {
+    public Enumeration<ILdapRule> getRules(String publishingType, IRequest req) {
         if (req == null) {
             return getRules(publishingType);
         }
 
-        Vector rules = new Vector();
-        Enumeration e = mRuleInsts.keys();
+        Vector<ILdapRule> rules = new Vector<ILdapRule>();
+        Enumeration<String> e = mRuleInsts.keys();
 			
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
@@ -575,11 +575,10 @@ public class PublisherProcessor implements
      }
      **/
 
-    public Vector getMapperDefaultParams(String implName) throws
+    public Vector<String> getMapperDefaultParams(String implName) throws
             ELdapException {
         // is this a registered implname?
-        MapperPlugin plugin = (MapperPlugin)
-            mMapperPlugins.get(implName);
+        MapperPlugin plugin = mMapperPlugins.get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE,
@@ -597,7 +596,7 @@ public class PublisherProcessor implements
         try {
             mapperInst = (ILdapMapper)
                     Class.forName(className).newInstance();
-            Vector v = mapperInst.getDefaultParams();
+            Vector<String> v = mapperInst.getDefaultParams();
 
             return v;
         } catch (InstantiationException e) {
@@ -612,7 +611,7 @@ public class PublisherProcessor implements
         }
     }
 
-    public Vector getMapperInstanceParams(String insName) throws
+    public Vector<String> getMapperInstanceParams(String insName) throws
             ELdapException {
         ILdapMapper mapperInst = null;
         MapperProxy proxy = (MapperProxy) mMapperInsts.get(insName);
@@ -624,12 +623,12 @@ public class PublisherProcessor implements
         if (mapperInst == null) {
             return null;
         }
-        Vector v = mapperInst.getInstanceParams();
+        Vector<String> v = mapperInst.getInstanceParams();
 
         return v;
     }
 
-    public Vector getPublisherDefaultParams(String implName) throws
+    public Vector<String> getPublisherDefaultParams(String implName) throws
             ELdapException {
         // is this a registered implname?
         PublisherPlugin plugin = (PublisherPlugin)
@@ -651,7 +650,7 @@ public class PublisherProcessor implements
         try {
             publisherInst = (ILdapPublisher)
                     Class.forName(className).newInstance();
-            Vector v = publisherInst.getDefaultParams();
+            Vector<String> v = publisherInst.getDefaultParams();
 
             return v;
         } catch (InstantiationException e) {
@@ -728,23 +727,22 @@ public class PublisherProcessor implements
         return proxy.getPublisher();
     }
 
-    public Vector getPublisherInstanceParams(String insName) throws
+    public Vector<String> getPublisherInstanceParams(String insName) throws
             ELdapException {
         ILdapPublisher publisherInst = getPublisherInstance(insName);
 
         if (publisherInst == null) {
             return null;
         }
-        Vector v = publisherInst.getInstanceParams();
+        Vector<String> v = publisherInst.getInstanceParams();
 
         return v;
     }
 
-    public Vector getRuleDefaultParams(String implName) throws
+    public Vector<String> getRuleDefaultParams(String implName) throws
             ELdapException {
         // is this a registered implname?
-        RulePlugin plugin = (RulePlugin)
-            mRulePlugins.get(implName);
+        RulePlugin plugin = mRulePlugins.get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE,
@@ -763,7 +761,7 @@ public class PublisherProcessor implements
             ruleInst = (ILdapRule)
                     Class.forName(className).newInstance();
 			
-            Vector v = ruleInst.getDefaultParams();
+            Vector<String> v = ruleInst.getDefaultParams();
 
             return v;
         } catch (InstantiationException e) {
@@ -778,11 +776,10 @@ public class PublisherProcessor implements
         }
     }
 
-    public Vector getRuleInstanceParams(String implName) throws
+    public Vector<String> getRuleInstanceParams(String implName) throws
             ELdapException {
         // is this a registered implname?
-        RulePlugin plugin = (RulePlugin)
-            mRulePlugins.get(implName);
+        RulePlugin plugin = mRulePlugins.get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE,
@@ -800,7 +797,7 @@ public class PublisherProcessor implements
         try {
             ruleInst = (ILdapRule)
                     Class.forName(className).newInstance();
-            Vector v = ruleInst.getInstanceParams();
+            Vector<String> v = ruleInst.getInstanceParams();
             IConfigStore rc = ruleInst.getConfigStore();
 
             return v;
@@ -864,7 +861,7 @@ public class PublisherProcessor implements
         CMS.debug("PublishProcessor::publishCACert");
 
             // get mapper and publisher for cert type.
-        Enumeration rules = getRules(PROP_LOCAL_CA);
+        Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CA);
 
         if (rules == null || !rules.hasMoreElements()) {
             if (isClone()) {
@@ -934,7 +931,7 @@ public class PublisherProcessor implements
             return;
 
             // get mapper and publisher for cert type.
-        Enumeration rules = getRules(PROP_LOCAL_CA);
+        Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CA);
 
         if (rules == null || !rules.hasMoreElements()) {
             if (isClone()) {
@@ -1001,7 +998,7 @@ public class PublisherProcessor implements
 		CMS.debug("PublisherProcessor: in publishXCertPair()");
 
             // get mapper and publisher for cert type.
-        Enumeration rules = getRules(PROP_XCERT);
+        Enumeration<ILdapRule> rules = getRules(PROP_XCERT);
 
         if (rules == null || !rules.hasMoreElements()) {
             if (isClone()) {
@@ -1063,7 +1060,7 @@ public class PublisherProcessor implements
             return;
 
             // get mapper and publisher for cert type.
-        Enumeration rules = getRules("certs", req);
+        Enumeration<ILdapRule> rules = getRules("certs", req);
 
          // Bugscape  #52306  -  Remove superfluous log messages on failure
         if (rules == null || !rules.hasMoreElements()) {
@@ -1120,7 +1117,7 @@ public class PublisherProcessor implements
             return;
 
             // get mapper and publisher for cert type.
-        Enumeration rules = getRules("certs", req);
+        Enumeration<ILdapRule> rules = getRules("certs", req);
 
         if (rules == null || !rules.hasMoreElements()) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND_FOR_REQUEST", "certs", req.getRequestId().toString()));
@@ -1189,7 +1186,7 @@ public class PublisherProcessor implements
         ILdapPublisher publisher = null;
 
         // get mapper and publisher for cert type.
-        Enumeration rules = getRules(PROP_LOCAL_CRL);
+        Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CRL);
 
         if (rules == null || !rules.hasMoreElements()) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOR_CRL"));
@@ -1279,7 +1276,7 @@ public class PublisherProcessor implements
         if (!enabled())
             return;
             // get mapper and publisher for cert type.
-        Enumeration rules = getRules(PROP_LOCAL_CRL);
+        Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CRL);
 
         if (rules == null || !rules.hasMoreElements()) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOR_CRL"));
@@ -1364,9 +1361,10 @@ public class PublisherProcessor implements
 
             try {
                 if (dirdn instanceof Vector) {
-                    int n = ((Vector)dirdn).size();
+                    Vector<?> dirdnVector = (Vector<?>)dirdn;
+                    int n = dirdnVector.size();
                     for (int i = 0; i < n; i++) {
-                        publisher.publish(conn, (String)(((Vector)dirdn).elementAt(i)), cert);
+                        publisher.publish(conn, (String)dirdnVector.elementAt(i), cert);
                     }
                 } else if (dirdn instanceof String || 
                            publisher instanceof com.netscape.cms.publish.publishers.FileBasedPublisher) {

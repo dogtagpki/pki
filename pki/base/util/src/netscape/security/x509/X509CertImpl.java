@@ -42,8 +42,9 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.Vector;
 
-import netscape.security.util.ArraySet;
 import netscape.security.util.BigInt;
 import netscape.security.util.DerEncoder;
 import netscape.security.util.DerOutputStream;
@@ -618,8 +619,8 @@ implements Serializable, DerEncoder {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+    public Enumeration<String> getElements() {
+        Vector<String> elements = new Vector<String>();
         elements.addElement(NAME + DOT + INFO);
         elements.addElement(NAME + DOT + ALG_ID);
         elements.addElement(NAME + DOT + SIGNATURE);
@@ -912,7 +913,7 @@ implements Serializable, DerEncoder {
                                              CertificateExtensions.NAME);
                 if (exts == null)
                 return null;
-            ArraySet extSet = new ArraySet();
+            Set<String> extSet = new TreeSet();
             Extension ex;
                 for (Enumeration e = exts.getElements(); e.hasMoreElements(); ) {
                 ex = (Extension)e.nextElement();
@@ -941,7 +942,7 @@ implements Serializable, DerEncoder {
                 if (exts == null)
                 return null;
 
-            ArraySet extSet = new ArraySet();
+            Set extSet = new TreeSet();
             Extension ex;
                 for (Enumeration e = exts.getElements(); e.hasMoreElements(); ) {
                 ex = (Extension)e.nextElement();

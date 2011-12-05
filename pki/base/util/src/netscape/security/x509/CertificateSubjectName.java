@@ -24,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
@@ -185,8 +186,8 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+    public Enumeration<String> getElements() {
+        Vector<String> elements = new Vector<String>();
         elements.addElement(DN_NAME);
 
         return(elements.elements());

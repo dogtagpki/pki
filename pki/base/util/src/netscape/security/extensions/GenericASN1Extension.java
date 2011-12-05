@@ -28,12 +28,13 @@ import java.text.ParseException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AttributeNameEnumeration;
+
 import netscape.security.x509.CertAttrSet;
 import netscape.security.x509.Extension;
 import netscape.security.x509.OIDMap;
@@ -351,7 +352,7 @@ implements CertAttrSet {
      * attribute.
      */
     public Enumeration getElements () {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+        Vector<String> elements = new Vector<String>();
         elements.addElement("octet");
 
 	    return (elements.elements());

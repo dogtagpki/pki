@@ -97,7 +97,6 @@ set(pki-nsutil_java_SRCS
     netscape/security/x509/CertificateValidity.java
     netscape/security/x509/PKIXExtensions.java
     netscape/security/x509/PrintableConverter.java
-    netscape/security/x509/AttributeNameEnumeration.java
     netscape/security/x509/SubjectDirAttributesExtension.java
     netscape/security/x509/CRLDistributionPoint.java
     netscape/security/x509/NameConstraintsExtension.java
@@ -176,7 +175,6 @@ set(pki-nsutil_java_SRCS
     netscape/security/util/ByteArrayTagOrder.java
     netscape/security/util/PrettyPrintResources.java
     netscape/security/util/PrettyPrintFormat.java
-    netscape/security/util/ArraySet.java
     netscape/security/util/CharToByteUniversalString.java
     netscape/security/util/ByteToCharIA5String.java
     netscape/security/util/PubKeyPrettyPrint.java

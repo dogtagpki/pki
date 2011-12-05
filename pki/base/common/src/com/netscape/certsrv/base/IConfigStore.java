@@ -249,7 +249,7 @@ public interface IConfigStore extends ISourceConfigStore {
      * Retrives and enumeration of all properties in this config-store.
      * @return An enumeration of all properties in this config-store
      */
-    public Enumeration getPropertyNames();
+    public Enumeration<String> getPropertyNames();
 
     /**
      * Returns an enumeration of the names of the substores of 
@@ -258,7 +258,7 @@ public interface IConfigStore extends ISourceConfigStore {
      * @return An enumeration of the names of the sub-stores of this 
      * config-store
      */
-    public Enumeration getSubStoreNames();
+    public Enumeration<String> getSubStoreNames();
 
     /**
      * Commits all the data into file immediately.

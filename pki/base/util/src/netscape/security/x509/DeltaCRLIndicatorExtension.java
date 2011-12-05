@@ -24,6 +24,7 @@ import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerOutputStream;
@@ -222,8 +223,8 @@ implements CertAttrSet {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements () {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+    public Enumeration<String> getElements () {
+        Vector<String> elements = new Vector<String>();
         elements.addElement(NUMBER);
         return (elements.elements());
     }

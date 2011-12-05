@@ -39,18 +39,18 @@ import netscape.security.util.DerValue;
  * @author Hemma Prafullchandra
  * @version 1.4
  */
-public class CRLExtensions extends Vector {
+public class CRLExtensions extends Vector<Extension> {
 
     /**
      *
      */
     private static final long serialVersionUID = 365767738692986418L;
-    private Hashtable map;
+    private Hashtable<String,Extension> map;
 
     // Parse the encoded extension
     private void parseExtension(Extension ext) throws X509ExtensionException {
         try {
-            Class extClass = OIDMap.getClass(ext.getExtensionId());
+            Class<?> extClass = OIDMap.getClass(ext.getExtensionId());
             if (extClass == null) {   // Unsupported extension
                 if (ext.isCritical()) {
                     throw new IOException("Unsupported CRITICAL extension: "
@@ -61,8 +61,8 @@ public class CRLExtensions extends Vector {
                     return;
                 }
             }
-            Class[] params = { Boolean.class, Object.class };
-            Constructor cons = extClass.getConstructor(params);
+            Class<?>[] params = { Boolean.class, Object.class };
+            Constructor<?> cons = extClass.getConstructor(params);
             byte[] extData = ext.getExtensionValue();
             int extLen = extData.length;
 	    Object value = Array.newInstance(byte.class, extLen);
@@ -73,8 +73,8 @@ public class CRLExtensions extends Vector {
 	    Object[] passed = new Object[] {new Boolean(ext.isCritical()),
                                                         value};
             CertAttrSet crlExt = (CertAttrSet)cons.newInstance(passed);
-	    map.put(crlExt.getName(), crlExt);
-            addElement(crlExt);
+	    map.put(crlExt.getName(), (Extension) crlExt);
+            addElement((Extension) crlExt);
 
         } catch (InvocationTargetException invk) {
 	  throw new X509ExtensionException(
@@ -89,7 +89,7 @@ public class CRLExtensions extends Vector {
      * Default constructor.
      */
     public CRLExtensions() {
-        map = new Hashtable();
+        map = new Hashtable<String, Extension>();
     }
 
     /**
@@ -102,7 +102,7 @@ public class CRLExtensions extends Vector {
     public CRLExtensions(DerInputStream in)
     throws CRLException, X509ExtensionException {
 
-        map = new Hashtable();
+        map = new Hashtable<String, Extension>();
         try {
             DerValue[] exts = in.getSequence(5);
 
@@ -128,7 +128,7 @@ public class CRLExtensions extends Vector {
             DerValue val = new DerValue(in);
             DerInputStream str = val.toDerInputStream();
 
-            map = new Hashtable();
+            map = new Hashtable<String, Extension>();
             DerValue[] exts = str.getSequence(5);
 
             for (int i = 0; i < exts.length; i++) {
@@ -213,7 +213,7 @@ public class CRLExtensions extends Vector {
      *        alias.
      * @exception IOException on errors.
      */  
-    public void set(String alias, Object obj) throws IOException {
+    public void set(String alias, Extension obj) throws IOException {
         map.put(alias, obj);
         addElement(obj);
     }
@@ -222,7 +222,7 @@ public class CRLExtensions extends Vector {
      * Return an enumeration of names of the extensions.
      * @return an enumeration of the names of the extensions in this CRL. 
      */  
-    public Enumeration getElements () {
+    public Enumeration<Extension> getElements () {
         return (map.elements());
     }
 }

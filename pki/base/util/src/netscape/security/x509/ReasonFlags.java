@@ -19,6 +19,7 @@ package netscape.security.x509;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import netscape.security.util.BitArray;
 import netscape.security.util.DerInputStream;
@@ -266,8 +267,8 @@ public class ReasonFlags {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements () {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+    public Enumeration<String> getElements () {
+        Vector<String> elements = new Vector<String>();
         elements.addElement(UNUSED);
         elements.addElement(KEY_COMPROMISE);
         elements.addElement(CA_COMPROMISE);

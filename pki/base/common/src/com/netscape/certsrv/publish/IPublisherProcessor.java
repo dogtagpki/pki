@@ -68,39 +68,39 @@ public interface IPublisherProcessor extends ISubsystem {
      * Returns Hashtable of rule plugins.
      */
 
-    public Hashtable getRulePlugins();
+    public Hashtable<String, RulePlugin> getRulePlugins();
 
     /**
      *
      * Returns Hashtable of rule  instances.
      */
 
-    public Hashtable getRuleInsts();
+    public Hashtable<String, ILdapRule> getRuleInsts();
 
     /**
      *
      * Returns Hashtable of mapper plugins.
      */
 
-    public Hashtable getMapperPlugins();
+    public Hashtable<String, MapperPlugin> getMapperPlugins();
 
     /**
      *
      * Returns Hashtable of publisher plugins.
      */
-    public Hashtable getPublisherPlugins();
+    public Hashtable<String, PublisherPlugin> getPublisherPlugins();
 
     /**
      *
      * Returns Hashtable of rule mapper instances.
      */
-    public Hashtable getMapperInsts();
+    public Hashtable<String, MapperProxy> getMapperInsts();
 
     /**
      *
      * Returns Hashtable of rule publisher instances.
      */
-    public Hashtable getPublisherInsts();
+    public Hashtable<String, PublisherProxy> getPublisherInsts();
 
     /**
      *
@@ -108,7 +108,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @param publishingType Type for which to retrieve rule list.
      */
 
-    public Enumeration getRules(String publishingType);
+    public Enumeration<ILdapRule> getRules(String publishingType);
 
     /**
      *
@@ -116,7 +116,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @param publishingType Type for which to retrieve rule list.
      * @param req  Corresponding publish request.
      */
-    public Enumeration getRules(String publishingType, IRequest req);
+    public Enumeration<ILdapRule> getRules(String publishingType, IRequest req);
 
     /**
      *
@@ -124,7 +124,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @param implName name of MapperPlugin.
      */
 
-    public Vector getMapperDefaultParams(String implName) throws
+    public Vector<String> getMapperDefaultParams(String implName) throws
             ELdapException;
 
     /**
@@ -134,7 +134,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @exception ELdapException failed due to Ldap error.
      */
 
-    public Vector getMapperInstanceParams(String insName) throws
+    public Vector<String> getMapperInstanceParams(String insName) throws
             ELdapException;
 
     /**
@@ -143,7 +143,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @param implName name of PublisherPlugin.
      * @exception ELdapException failed due to Ldap error.
      */
-    public Vector getPublisherDefaultParams(String implName) throws
+    public Vector<String> getPublisherDefaultParams(String implName) throws
             ELdapException;
 
     /**
@@ -201,7 +201,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @param insName name of PublisherProxy.
      * @return Vector of current instance parameters.
      */
-    public Vector getPublisherInstanceParams(String insName) throws
+    public Vector<String> getPublisherInstanceParams(String insName) throws
             ELdapException;
 
     /**
@@ -211,7 +211,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @return Vector of initial default parameters.
      * @exception ELdapException failed due to Ldap error.
      */
-    public Vector getRuleDefaultParams(String implName) throws
+    public Vector<String> getRuleDefaultParams(String implName) throws
             ELdapException;
 
     /**
@@ -221,7 +221,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @return Vector of current instance parameters.
      * @exception ELdapException failed due to Ldap error.
      */
-    public Vector getRuleInstanceParams(String implName) throws
+    public Vector<String> getRuleInstanceParams(String implName) throws
             ELdapException;
 
     /**

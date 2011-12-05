@@ -71,19 +71,19 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     private IConfigStore mConfig = null;
     private IConfigStore mCRLExtConfig = null;
 
-    private Vector mCRLExtensionNames = new Vector();
-    private Vector mCRLEntryExtensionNames = new Vector();
-    private Vector mEnabledCRLExtensions = new Vector();
-    private Vector mCriticalCRLExtensions = new Vector();
-    private Hashtable mCRLExtensionClassNames = new Hashtable();
-    private Hashtable mCRLExtensionIDs = new Hashtable();
+    private Vector<String> mCRLExtensionNames = new Vector<String>();
+    private Vector<String> mCRLEntryExtensionNames = new Vector<String>();
+    private Vector<String> mEnabledCRLExtensions = new Vector<String>();
+    private Vector<String> mCriticalCRLExtensions = new Vector<String>();
+    private Hashtable<String, String> mCRLExtensionClassNames = new Hashtable<String, String>();
+    private Hashtable<String, String> mCRLExtensionIDs = new Hashtable<String, String>();
 
-    private static final Vector mDefaultCRLExtensionNames = new Vector();
-    private static final Vector mDefaultCRLEntryExtensionNames = new Vector();
-    private static final Vector mDefaultEnabledCRLExtensions = new Vector();
-    private static final Vector mDefaultCriticalCRLExtensions = new Vector();
-    private static final Hashtable mDefaultCRLExtensionClassNames = new Hashtable();
-    private static final Hashtable mDefaultCRLExtensionIDs = new Hashtable();
+    private static final Vector<String> mDefaultCRLExtensionNames = new Vector<String>();
+    private static final Vector<String> mDefaultCRLEntryExtensionNames = new Vector<String>();
+    private static final Vector<String> mDefaultEnabledCRLExtensions = new Vector<String>();
+    private static final Vector<String> mDefaultCriticalCRLExtensions = new Vector<String>();
+    private static final Hashtable<String, String> mDefaultCRLExtensionClassNames = new Hashtable<String, String>();
+    private static final Hashtable<String, String> mDefaultCRLExtensionIDs = new Hashtable<String, String>();
 
     private ILogger mLogger = CMS.getLogger();
 
@@ -215,10 +215,10 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         }	
 
         if (crlExtConfig != null) {
-            Enumeration enumExts = crlExtConfig.getSubStoreNames();
+            Enumeration<String> enumExts = crlExtConfig.getSubStoreNames();
 
             while (enumExts.hasMoreElements()) {
-                String extName = (String) enumExts.nextElement();
+                String extName =  enumExts.nextElement();
                 IConfigStore extConfig = crlExtConfig.getSubStore(extName);
 
                 if (extConfig != null) {
@@ -357,19 +357,21 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 mCRLExtensionClassNames.put(extName, extClass);
 
                 try {
-                    Class crlExtClass = Class.forName(extClass);
+                    Class<ICMSCRLExtension> crlExtClass = (Class<ICMSCRLExtension>) Class.forName(extClass);
 
                     if (crlExtClass != null) {
-                        ICMSCRLExtension cmsCRLExt = (ICMSCRLExtension) crlExtClass.newInstance();
+                        ICMSCRLExtension cmsCRLExt =  crlExtClass.newInstance();
 
                         if (cmsCRLExt != null) {
-                            String id = (String) cmsCRLExt.getCRLExtOID();
+                            String id =  cmsCRLExt.getCRLExtOID();
 
                             if (id != null) {
                                 mCRLExtensionIDs.put(id, extName);
                             }
                         }
                     }
+                } catch (ClassCastException e) {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INCORRECT_CLASS", extClass, e.toString()));
                 } catch (ClassNotFoundException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_FOUND", extClass, e.toString()));
                 } catch (InstantiationException e) {
@@ -380,7 +382,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
             } else {
                 if (mDefaultCRLExtensionClassNames.containsKey(extName)) {
-                    extClass = (String) mCRLExtensionClassNames.get(extName);
+                    extClass =  mCRLExtensionClassNames.get(extName);
                     extConfig.putString(PROP_CLASS, extClass);
                     modifiedConfig = true;
                 }
@@ -388,14 +390,14 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             }
         } catch (EPropertyNotFound e) {
             if (mDefaultCRLExtensionClassNames.containsKey(extName)) {
-                extClass = (String) mDefaultCRLExtensionClassNames.get(extName);
+                extClass =  mDefaultCRLExtensionClassNames.get(extName);
                 extConfig.putString(PROP_CLASS, extClass);
                 modifiedConfig = true;
             }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_MISSING", extName));
         } catch (EBaseException e) {
             if (mDefaultCRLExtensionClassNames.containsKey(extName)) {
-                extClass = (String) mDefaultCRLExtensionClassNames.get(extName);
+                extClass =  mDefaultCRLExtensionClassNames.get(extName);
                 extConfig.putString(PROP_CLASS, extClass);
                 modifiedConfig = true;
             }
@@ -426,28 +428,28 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         String name = null;
 
         if (mCRLExtensionIDs.containsKey(id)) {
-            name = (String) mCRLExtensionIDs.get(id);
+            name =  mCRLExtensionIDs.get(id);
         }
         return name;
     }
 
-    public Vector getCRLExtensionNames() {
-        return (Vector) mCRLExtensionNames.clone();
+    public Vector<String> getCRLExtensionNames() {
+        return new Vector<String>(mCRLExtensionNames);
     }
 
-    public Vector getCRLEntryExtensionNames() {
-        return (Vector) mCRLEntryExtensionNames.clone();
+    public Vector<String> getCRLEntryExtensionNames() {
+        return new Vector<String>( mCRLEntryExtensionNames);
     }
 
     public void addToCRLExtensions(CRLExtensions crlExts, String extName, Extension ext) {
         if (mCRLExtensionClassNames.containsKey(extName)) {
-            String name = (String) mCRLExtensionClassNames.get(extName);
+            String name =  mCRLExtensionClassNames.get(extName);
 
             try {
-                Class extClass = Class.forName(name);
+                Class<ICMSCRLExtension > extClass = (Class<ICMSCRLExtension>) Class.forName(name);
 
                 if (extClass != null) {
-                    ICMSCRLExtension cmsCRLExt = (ICMSCRLExtension) extClass.newInstance();
+                    ICMSCRLExtension cmsCRLExt = extClass.newInstance();
 
                     if (cmsCRLExt != null) {
                         if (ext != null) {
@@ -466,6 +468,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                         }
                     }
                 }
+            } catch (ClassCastException e) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INCORRECT_CLASS", name, e.toString()));
             } catch (ClassNotFoundException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_FOUND", name, e.toString()));
             } catch (InstantiationException e) {
@@ -511,12 +515,12 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             }
 
             if (mCRLExtensionClassNames.containsKey(id)) {
-                String name = (String) mCRLExtensionClassNames.get(id);
+                String name =  mCRLExtensionClassNames.get(id);
 
                 if (name != null) {
 
                     try {
-                        Class extClass = Class.forName(name);
+                        Class<?> extClass = Class.forName(name);
 
                         if (extClass != null) {
                             ICMSCRLExtension cmsCRLExt = (ICMSCRLExtension) extClass.newInstance();
@@ -662,10 +666,10 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public String getClassPath(String name) {
-        Enumeration enum1 = mCRLExtensionClassNames.elements();
+        Enumeration<String> enum1 = mCRLExtensionClassNames.elements();
 
         while (enum1.hasMoreElements()) {
-            String extClassName = (String) enum1.nextElement();
+            String extClassName = enum1.nextElement();
 
             if (extClassName != null) {
                 int i = extClassName.lastIndexOf('.');

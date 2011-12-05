@@ -28,6 +28,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
@@ -116,7 +117,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
     private byte[]	rawCertInfo = null;
   
     // The certificate attribute name to integer mapping stored here
-    private static final Hashtable map = new Hashtable();
+    private static final Hashtable<String, Integer> map = new Hashtable<String, Integer>();
     static {
         map.put(VERSION, Integer.valueOf(ATTR_VERSION));
         map.put(SERIAL_NUMBER, Integer.valueOf(ATTR_SERIAL));
@@ -221,8 +222,8 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+    public Enumeration<String> getElements() {
+        Vector<String> elements = new Vector<String>();
         elements.addElement(VERSION);
         elements.addElement(SERIAL_NUMBER);
         elements.addElement(ALGORITHM_ID);
@@ -806,7 +807,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * Returns the integer attribute number for the passed attribute name.
      */
     private int attributeMap(String name) {
-        Integer num = (Integer)map.get(name);
+        Integer num = map.get(name);
         if (num == null) {
             return(0);
         }

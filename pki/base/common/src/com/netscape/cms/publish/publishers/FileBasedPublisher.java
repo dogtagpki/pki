@@ -115,8 +115,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the current instance parameters.
      */
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
         String dir = "";
         String ext = "";
 
@@ -155,8 +155,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the initial default parameters.
      */
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement(PROP_DIR+"=");
         v.addElement(PROP_DER+"=true");

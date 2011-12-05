@@ -29,9 +29,9 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.Vector;
 
-import netscape.security.util.ArraySet;
 import netscape.security.util.BitArray;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CRLExtensions;
@@ -72,7 +72,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.publish.ICRLPublisher;
+import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
@@ -122,7 +122,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private IConfigStore mConfigStore;
 
-    private ICRLPublisher mCRLPublisher = null;
     private int mCountMod = 0;
     private int mCount = 0;
     private int mPageSize = CRL_PAGE_SIZE;
@@ -163,16 +162,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * CRL cache
      */
-    private Hashtable mCRLCerts = new Hashtable();
-    private Hashtable mRevokedCerts = new Hashtable();
-    private Hashtable mUnrevokedCerts = new Hashtable();
-    private Hashtable mExpiredCerts = new Hashtable();
+    private Hashtable<BigInteger,RevokedCertificate> mCRLCerts = new Hashtable<BigInteger, RevokedCertificate>();
+    private Hashtable<BigInteger,RevokedCertificate> mRevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
+    private Hashtable<BigInteger,RevokedCertificate> mUnrevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
+    private Hashtable<BigInteger,RevokedCertificate> mExpiredCerts = new Hashtable<BigInteger, RevokedCertificate>();
     private boolean mIncludeExpiredCerts = false;
     private boolean mIncludeExpiredCertsOneExtraTime = false;
     private boolean mCACertsOnly = false;
 
     private boolean mProfileCertsOnly = false;
-    private Vector  mProfileList = null;
+    private Vector<String>  mProfileList = null;
 
     /**
      * Enable CRL cache.
@@ -209,7 +208,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * Enable CRL daily updates at listed times.
      */
     private boolean mEnableDailyUpdates = false;
-    private Vector mDailyUpdates = null; 
+    private Vector<Vector<Integer>> mDailyUpdates = null; 
     private int mCurrentDay = 0;
     private int mLastDay = 0;
     private int mTimeListSize = 0;
@@ -407,7 +406,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         if (mProfileCertsOnly && mProfileList != null && mProfileList.size() > 0) {
             for (int k = 0; k < mProfileList.size(); k++) {
-                String profileId = (String) mProfileList.elementAt(k);
+                String profileId = mProfileList.elementAt(k);
                 if (id != null && profileId != null && profileId.equalsIgnoreCase(id)) {
                     b = true;
                     break;
@@ -513,16 +512,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return ((h * 60) + m);
     }
 
-    private boolean areTimeListsIdentical(Vector list1, Vector list2) {
+    private boolean areTimeListsIdentical(Vector<Vector<Integer>> list1, Vector<Vector<Integer>> list2) {
         boolean identical = true;
         if (list1 == null || list2 == null) identical = false;
         if (identical && list1.size() != list2.size()) identical = false;
         for (int i = 0; identical && i < list1.size(); i++) {
-            Vector times1 = (Vector)list1.elementAt(i);
-            Vector times2 = (Vector)list2.elementAt(i);
+            Vector<Integer> times1 = list1.elementAt(i);
+            Vector<Integer> times2 = list2.elementAt(i);
             if (times1.size() != times2.size()) identical = false;
             for (int j = 0; identical && j < times1.size(); j++) {
-                if ((((Integer)(times1.elementAt(j))).intValue()) != (((Integer)(times2.elementAt(j))).intValue())) {
+                if ((((times1.elementAt(j))).intValue()) != (((times2.elementAt(j))).intValue())) {
                     identical = false;
                 }
             }
@@ -531,16 +530,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return identical;
     }
 
-    private int getTimeListDays(Vector listedDays) {
-        int days = (listedDays != null)? listedDays.size(): 0;
-        CMS.debug("getTimeListDays: "+days);
-        return days;
-    }
+    private int getTimeListSize(Vector<Vector<Integer>> listedDays) {
 
-    private int getTimeListSize(Vector listedDays) {
         int listSize = 0;
         for (int i = 0; listedDays != null && i < listedDays.size(); i++) {
-            Vector listedTimes = (Vector)listedDays.elementAt(i);
+            Vector<Integer> listedTimes = listedDays.elementAt(i);
             listSize += ((listedTimes != null)? listedTimes.size(): 0);
         }
         CMS.debug("getTimeListSize:  ListSize="+listSize);
@@ -554,16 +548,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
        return extendedTimeList;
     }
 
-    private Vector getTimeList(String list) {
+    private Vector<Vector<Integer>> getTimeList(String list) {
         boolean timeListPresent = false;
         if (list == null || list.length() == 0) return null;
         if (list.charAt(0) == ',' || list.charAt(list.length()-1) == ',') return null;
 
-        Vector listedDays = new Vector();
+        Vector<Vector<Integer>> listedDays = new Vector<Vector<Integer>>();
 
         StringTokenizer days = new StringTokenizer(list, ";", true);
-        int n = 0;
-        Vector listedTimes = null;
+        Vector<Integer> listedTimes = null;
         while (days.hasMoreTokens()) {
             String dayList = days.nextToken().trim();
             if (dayList == null) continue;
@@ -572,16 +565,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 if (timeListPresent) {
                     timeListPresent = false;
                 } else {
-                    listedTimes = new Vector();
+                    listedTimes = new Vector<Integer>();
                     listedDays.addElement(listedTimes);
-                    n++;
                 }
                 continue;
             } else {
-                listedTimes = new Vector();
+                listedTimes = new Vector<Integer>();
                 listedDays.addElement(listedTimes);
                 timeListPresent = true;
-                n++;
             }
             int t0 = -1;
             StringTokenizer times = new StringTokenizer(dayList, ",");
@@ -606,18 +597,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
         }
         if (!timeListPresent) {
-            listedTimes = new Vector();
-            listedDays.addElement(listedTimes);
-            n++;
+            listedTimes = new Vector<Integer>();
+            listedDays.addElement(listedTimes);            
         }
 
         return listedDays;
     }
 
-    private String checkProfile(String id, Enumeration e) {
+    private String checkProfile(String id, Enumeration<String> e) {
         if (e != null) {
             while (e.hasMoreElements()) {
-                String profileId = (String) e.nextElement();
+                String profileId =  e.nextElement();
                 if (profileId != null && profileId.equalsIgnoreCase(id))
                     return id;
             }
@@ -625,14 +615,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return null;
     }
 
-    private Vector getProfileList(String list) {
-        Enumeration e = null;
+    private Vector<String> getProfileList(String list) {
+        Enumeration<String> e = null;
         IConfigStore pc = CMS.getConfigStore().getSubStore("profile");
         if (pc != null) e = pc.getSubStoreNames();
         if (list == null) return null;
         if (list.length() > 0 && list.charAt(list.length()-1) == ',') return null;
 
-        Vector listedProfiles = new Vector();
+        Vector<String> listedProfiles = new Vector<String>();
 
         StringTokenizer elements = new StringTokenizer(list, ",", true);
         int t0 = -1;
@@ -849,15 +839,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             if (mCRLCacheIsCleared && mUpdatingCRL == CRL_UPDATE_DONE) {
                                 mRevokedCerts = crlRecord.getRevokedCerts();
                                 if (mRevokedCerts == null) {
-                                    mRevokedCerts = new Hashtable();
+                                    mRevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
                                 }
                                 mUnrevokedCerts = crlRecord.getUnrevokedCerts();
                                 if (mUnrevokedCerts == null) {
-                                    mUnrevokedCerts = new Hashtable();
+                                    mUnrevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
                                 }
                                 mExpiredCerts = crlRecord.getExpiredCerts();
                                 if (mExpiredCerts == null) {
-                                    mExpiredCerts = new Hashtable();
+                                    mExpiredCerts = new Hashtable<BigInteger, RevokedCertificate>();
                                 }
                                 if (isDeltaCRLEnabled()) {
                                     mNextUpdate = x509crl.getNextUpdate();
@@ -987,7 +977,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                 if (name.equals(Constants.PR_DAILY_UPDATES)) {
                     boolean extendedTimeList = isTimeListExtended(value);
-                    Vector dailyUpdates = getTimeList(value);
+                    Vector<Vector<Integer>> dailyUpdates = getTimeList(value);
                     if (mExtendedTimeList != extendedTimeList) {
                         mExtendedTimeList = extendedTimeList;
                         modifiedSchedule = true;
@@ -1190,12 +1180,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
 
                 if (name.equals(Constants.PR_PROFILE_LIST)) {
-                    Vector profileList = getProfileList(value);
+                    Vector<String> profileList = getProfileList(value);
                     if (((profileList != null) ^ (mProfileList != null)) ||
                         (profileList != null && mProfileList != null &&
                         (!mProfileList.equals(profileList)))) {
                         if (profileList != null) {
-                            mProfileList = (Vector) profileList.clone();
+                            @SuppressWarnings("unchecked")
+                            Vector<String> newProfileList =  (Vector<String>) profileList.clone();
+                            mProfileList = newProfileList;
                         } else {
                             mProfileList = null;
                         }
@@ -1388,15 +1380,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return set of all the revoked certificates or null if there are none.
      */
-    public Set getRevokedCertificates(int start, int end) {
+    public Set<RevokedCertificate> getRevokedCertificates(int start, int end) {
         if (mCRLCacheIsCleared || mCRLCerts == null || mCRLCerts.isEmpty()) {
             return null;
         } else {
-            ArraySet certSet = new ArraySet();
-            Collection badCerts = mCRLCerts.values();
-            Object[] objs = badCerts.toArray();
-            for (int i = start; i < end && i < objs.length; i++)
-                certSet.add(objs[i]);
+            Set<RevokedCertificate> certSet = new TreeSet<RevokedCertificate>(mCRLCerts.values());
             return certSet;
         }
     }
@@ -1531,10 +1519,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (mEnableDailyUpdates &&
             mDailyUpdates != null && mDailyUpdates.size() > 0) {
             int n = 0;
-            if (mDailyUpdates.size() == 1 && ((Vector)mDailyUpdates.elementAt(0)).size() == 1 &&
+            if (mDailyUpdates.size() == 1 && mDailyUpdates.elementAt(0).size() == 1 &&
                 mEnableUpdateFreq && mAutoUpdateInterval > 0) {
                 // Interval updates with starting time
-                long firstTime = MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(0)).elementAt(0)).longValue();
+                long firstTime = MINUTE * ((Integer)mDailyUpdates.elementAt(0).elementAt(0)).longValue();
                 long t = firstTime;
                 long interval = mAutoUpdateInterval;
                 if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) &&
@@ -1572,11 +1560,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
                 int i, m;
                 for (i = 0, m = 0; i < mCurrentDay; i++) {
-                    m += ((Vector)mDailyUpdates.elementAt(i)).size();
+                    m += mDailyUpdates.elementAt(i).size();
                 }
                 // search the current day
-                for (i = 0; i < ((Vector)mDailyUpdates.elementAt(mCurrentDay)).size(); i++) {
-                    long t = MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(mCurrentDay)).elementAt(i)).longValue();
+                for (i = 0; i < mDailyUpdates.elementAt(mCurrentDay).size(); i++) {
+                    long t = MINUTE * ((Integer)mDailyUpdates.elementAt(mCurrentDay).elementAt(i)).longValue();
                     if (mEnableDailyUpdates && mExtendedTimeList) {
                         if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) && isDeltaEnabled) {
                             if (t < 0) {
@@ -1600,9 +1588,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     n++;
                 }
 
-                if (i < ((Vector)mDailyUpdates.elementAt(mCurrentDay)).size()) {
+                if (i < mDailyUpdates.elementAt(mCurrentDay).size()) {
                     // found inside the current day
-                    next = (MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(mCurrentDay)).elementAt(i)).longValue());
+                    next = (MINUTE * ((Integer)mDailyUpdates.elementAt(mCurrentDay).elementAt(i)).longValue());
                     if (mEnableDailyUpdates && mExtendedTimeList && next < 0) {
                         next *= -1;
                         if (fromLastUpdate) {
@@ -1623,15 +1611,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
                 } else {
                     // done with today
-                    int j = i - ((Vector)mDailyUpdates.elementAt(mCurrentDay)).size();
+                    int j = i - mDailyUpdates.elementAt(mCurrentDay).size();
                     int nDays = 1;
                     long t = 0;
                     if (mDailyUpdates.size() > 1) {
                         while (nDays <= mDailyUpdates.size()) {
                             int nextDay = (mCurrentDay + nDays) % mDailyUpdates.size();
-                            if (j < ((Vector)mDailyUpdates.elementAt(nextDay)).size()) {
+                            if (j < mDailyUpdates.elementAt(nextDay).size()) {
                                 if (nextDay == 0 && (!(mEnableDailyUpdates && mExtendedTimeList))) j = 0;
-                                t = MINUTE * ((Integer)((Vector)mDailyUpdates.elementAt(nextDay)).elementAt(j)).longValue();
+                                t = MINUTE * ((Integer)mDailyUpdates.elementAt(nextDay).elementAt(j)).longValue();
                                 if (mEnableDailyUpdates && mExtendedTimeList) {
                                     if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) && isDeltaEnabled) {
                                         if (t < 0) {
@@ -1651,7 +1639,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                 }
                                 break;
                             } else {
-                                j -= ((Vector)mDailyUpdates.elementAt(nextDay)).size();
+                                j -= mDailyUpdates.elementAt(nextDay).size();
                             }
                             nDays++;
                         }
@@ -1816,7 +1804,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 filter += "(|";
             }
             for (int k = 0; k < mProfileList.size(); k++) {
-                String id = (String) mProfileList.elementAt(k);
+                String id = mProfileList.elementAt(k);
                 filter += "(" + CertRecord.ATTR_META_INFO + "=profileId:" + id + ")";
             }
             if (mProfileList.size() > 1) {
@@ -1996,9 +1984,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         CMSCRLExtensions exts = (CMSCRLExtensions) this.getCRLExtensions();
         CRLExtensions ext = new CRLExtensions();
         
-        Vector extNames = exts.getCRLExtensionNames();
+        Vector<String> extNames = exts.getCRLExtensionNames();
             for (int i = 0; i < extNames.size(); i++) {
-                String curName = (String) extNames.elementAt(i);
+                String curName = extNames.elementAt(i);
                 if (curName.equals(extName)) {
                    exts.addToCRLExtensions(ext, extName, null);
                 }
@@ -2020,10 +2008,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         if (mAllowExtensions && exts != null && exts.size() > 0) {
             entryExt = new CRLExtensions();
-            Vector extNames = mCMSCRLExtensions.getCRLEntryExtensionNames();
+            Vector<String> extNames = mCMSCRLExtensions.getCRLEntryExtensionNames();
 
             for (int i = 0; i < extNames.size(); i++) {
-                String extName = (String) extNames.elementAt(i);
+                String extName = extNames.elementAt(i);
 
                 if (mCMSCRLExtensions.isCRLExtensionEnabled(extName)) {
                     int k;
@@ -2088,7 +2076,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         RevokedCertImpl newRevokedCert =
                             new RevokedCertImpl(serialNumber, revocationDate, entryExt);
 
-                        mCRLCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
+                        mCRLCerts.put(serialNumber, newRevokedCert);
                     }
                 } else {
                     Date revocationDate = revokedCert.getRevocationDate();
@@ -2269,7 +2257,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         Date revocationDate = null;
 
         if (mCRLCerts.containsKey(serialNumber)) {
-            revocationDate = ((RevokedCertificate) mCRLCerts.get(serialNumber)).getRevocationDate();
+            revocationDate = mCRLCerts.get(serialNumber).getRevocationDate();
         }
 
         if (checkDeltaCache && isDeltaCRLEnabled()) {
@@ -2277,7 +2265,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 revocationDate = null;
             }
             if (mRevokedCerts.containsKey(serialNumber)) {
-                revocationDate = ((RevokedCertificate) mRevokedCerts.get(serialNumber)).getRevocationDate();
+                revocationDate = mRevokedCerts.get(serialNumber).getRevocationDate();
             }
             if (!includeExpiredCerts && mExpiredCerts.containsKey(serialNumber)) {
                 revocationDate = null;
@@ -2287,8 +2275,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return revocationDate;
     }
 
-    public Vector getSplitTimes() {
-        Vector splits = new Vector();
+    public Vector<Long> getSplitTimes() {
+        Vector<Long> splits = new Vector<Long>();
 
         for (int i = 0; i < mSplits.length; i++) {
             splits.addElement(Long.valueOf(mSplits[i]));
@@ -2377,9 +2365,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
 
         mSplits[0] -= System.currentTimeMillis();
-        Hashtable clonedRevokedCerts = (Hashtable) mRevokedCerts.clone();
-        Hashtable clonedUnrevokedCerts = (Hashtable) mUnrevokedCerts.clone();
-        Hashtable clonedExpiredCerts = (Hashtable) mExpiredCerts.clone();
+        @SuppressWarnings("unchecked")
+        Hashtable<BigInteger, RevokedCertificate> clonedRevokedCerts = (Hashtable<BigInteger, RevokedCertificate>)mRevokedCerts.clone();
+        @SuppressWarnings("unchecked")
+        Hashtable<BigInteger, RevokedCertificate> clonedUnrevokedCerts = (Hashtable<BigInteger, RevokedCertificate>)mUnrevokedCerts.clone();
+        @SuppressWarnings("unchecked")
+        Hashtable<BigInteger, RevokedCertificate> clonedExpiredCerts = (Hashtable<BigInteger, RevokedCertificate> )mExpiredCerts.clone();
 
         mSplits[0] += System.currentTimeMillis();
 
@@ -2417,15 +2408,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         } else {
             if (isDeltaCRLEnabled()) {
                 mSplits[1] -= System.currentTimeMillis();
-                Hashtable deltaCRLCerts = (Hashtable) clonedRevokedCerts.clone();
+                @SuppressWarnings("unchecked")
+                Hashtable<BigInteger, RevokedCertificate> deltaCRLCerts = (Hashtable<BigInteger, RevokedCertificate> )clonedRevokedCerts.clone();
 
                 deltaCRLCerts.putAll(clonedUnrevokedCerts);
                 if (mIncludeExpiredCertsOneExtraTime) {
                     if (!clonedExpiredCerts.isEmpty()) {
-                        for (Enumeration e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
-                            BigInteger serialNumber = (BigInteger) e.nextElement();
+                        for (Enumeration<BigInteger> e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
+                            BigInteger serialNumber = e.nextElement();
                             if ((mLastFullUpdate != null &&
-                                 mLastFullUpdate.after(((RevokedCertificate)(mExpiredCerts.get(serialNumber))).getRevocationDate())) ||
+                                 mLastFullUpdate.after((mExpiredCerts.get(serialNumber)).getRevocationDate())) ||
                                  mLastFullUpdate == null) {
                                 deltaCRLCerts.put(serialNumber, clonedExpiredCerts.get(serialNumber));
                             }
@@ -2438,10 +2430,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mLastCRLNumber = mCRLNumber;
 
                 CRLExtensions ext = new CRLExtensions();
-                Vector extNames = mCMSCRLExtensions.getCRLExtensionNames();
+                Vector<String> extNames = mCMSCRLExtensions.getCRLExtensionNames();
 
                 for (int i = 0; i < extNames.size(); i++) {
-                    String extName = (String) extNames.elementAt(i);
+                    String extName = extNames.elementAt(i);
 
                     if (mCMSCRLExtensions.isCRLExtensionEnabled(extName) &&
                         (!extName.equals(FreshestCRLExtension.NAME))) {
@@ -2542,8 +2534,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     (mCRLCerts.isEmpty() && (mCRLSize == 0) && (!clonedRevokedCerts.isEmpty()))) {
 
                     if (!clonedUnrevokedCerts.isEmpty()) {
-                        for (Enumeration e = clonedUnrevokedCerts.keys(); e.hasMoreElements();) {
-                            BigInteger serialNumber = (BigInteger) e.nextElement();
+                        for (Enumeration<BigInteger> e = clonedUnrevokedCerts.keys(); e.hasMoreElements();) {
+                            BigInteger serialNumber = e.nextElement();
 
                             if (mCRLCerts.containsKey(serialNumber)) {
                                 mCRLCerts.remove(serialNumber);
@@ -2553,8 +2545,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
 
                     if (!clonedRevokedCerts.isEmpty()) {
-                        for (Enumeration e = clonedRevokedCerts.keys(); e.hasMoreElements();) {
-                            BigInteger serialNumber = (BigInteger) e.nextElement();
+                        for (Enumeration<BigInteger> e = clonedRevokedCerts.keys(); e.hasMoreElements();) {
+                            BigInteger serialNumber = e.nextElement();
 
                             mCRLCerts.put(serialNumber, mRevokedCerts.get(serialNumber));
                             mRevokedCerts.remove(serialNumber);
@@ -2562,12 +2554,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
 
                     if (!clonedExpiredCerts.isEmpty()) {
-                        for (Enumeration e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
-                            BigInteger serialNumber = (BigInteger) e.nextElement();
+                        for (Enumeration<BigInteger> e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
+                            BigInteger serialNumber = e.nextElement();
 
                             if ((!mIncludeExpiredCertsOneExtraTime) ||
                                  (mLastFullUpdate != null &&
-                                  mLastFullUpdate.after(((RevokedCertificate)(mExpiredCerts.get(serialNumber))).getRevocationDate())) ||
+                                  mLastFullUpdate.after((mExpiredCerts.get(serialNumber)).getRevocationDate())) ||
                                  mLastFullUpdate == null) {
                                 if (mCRLCerts.containsKey(serialNumber)) {
                                     mCRLCerts.remove(serialNumber);
@@ -2599,10 +2591,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
             if (mAllowExtensions) {
                 ext = new CRLExtensions();
-                Vector extNames = mCMSCRLExtensions.getCRLExtensionNames();
+                Vector<String> extNames = mCMSCRLExtensions.getCRLExtensionNames();
 
                 for (int i = 0; i < extNames.size(); i++) {
-                    String extName = (String) extNames.elementAt(i);
+                    String extName = extNames.elementAt(i);
 
                     if (mCMSCRLExtensions.isCRLExtensionEnabled(extName) &&
                         (!extName.equals(DeltaCRLIndicatorExtension.NAME))) {
@@ -2777,8 +2769,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         throws EBaseException {
         publishCRL(x509crl, false);
     }
-
-    protected void publishCRL(X509CRLImpl x509crl, boolean isDeltaCRL) 
+    
+    /*
+     *  The Session Context is a Hashtable, but without type information.
+     *  Suppress the warnings generated by adding to the session context   
+     *   
+     */
+    @SuppressWarnings("unchecked")
+	protected void publishCRL(X509CRLImpl x509crl, boolean isDeltaCRL) 
         throws EBaseException {
         SessionContext sc = SessionContext.getContext();
 
@@ -2816,7 +2814,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             if (x509crl != null &&
                 mPublisherProcessor != null && mPublisherProcessor.enabled()) {
-                Enumeration rules = mPublisherProcessor.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
+                Enumeration<ILdapRule> rules = mPublisherProcessor.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
                 if (rules == null || !rules.hasMoreElements()) {
                     CMS.debug("CRL publishing is not enabled.");
                 } else {
@@ -2937,7 +2935,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
 
 class CertRecProcessor implements IElementProcessor {
-    private Hashtable mCRLCerts = null;
+    private Hashtable<BigInteger, RevokedCertificate> mCRLCerts = null;
     private boolean mAllowExtensions = false;
     private ILogger mLogger;
     private CRLIssuingPoint mIP = null;
@@ -2946,7 +2944,7 @@ class CertRecProcessor implements IElementProcessor {
     private boolean mIssuingDistPointEnabled = false;
     private BitArray mOnlySomeReasons = null;
 
-    public CertRecProcessor(Hashtable crlCerts, CRLIssuingPoint ip, ILogger logger, boolean allowExtensions) {
+    public CertRecProcessor(Hashtable<BigInteger, RevokedCertificate> crlCerts, CRLIssuingPoint ip, ILogger logger, boolean allowExtensions) {
         mCRLCerts = crlCerts;
         mLogger = logger;
         mIP = ip;
@@ -2984,9 +2982,9 @@ class CertRecProcessor implements IElementProcessor {
 
        //Get info out of the IssuingDistPointExtension
         CRLExtensions ext = new CRLExtensions();
-        Vector extNames = exts.getCRLExtensionNames();
+        Vector<String> extNames = exts.getCRLExtensionNames();
             for (int i = 0; i < extNames.size(); i++) {
-                String extName = (String) extNames.elementAt(i);
+                String extName = extNames.elementAt(i);
                 if (extName.equals(IssuingDistributionPointExtension.NAME)) {
                    exts.addToCRLExtensions(ext, extName, null);
                 }

@@ -34,13 +34,12 @@ import java.security.cert.Certificate;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.TreeSet;
 
-import netscape.security.util.ArraySet;
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
@@ -103,7 +102,7 @@ public class X509CRLImpl extends X509CRL {
     private Date             thisUpdate = null;
     private Date             nextUpdate = null;
 //    private static final Hashtable revokedCerts = new Hashtable();
-    private Hashtable revokedCerts = new Hashtable();
+    private Hashtable<BigInteger,RevokedCertificate> revokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
 //    private static CRLExtensions    extensions = null;
     private CRLExtensions    extensions = null;
     private boolean entriesIncluded = true;
@@ -281,7 +280,7 @@ public class X509CRLImpl extends X509CRL {
      */
     public X509CRLImpl(X500Name issuer, AlgorithmId algId,
                        Date thisDate, Date nextDate,
-                       Hashtable badCerts, CRLExtensions crlExts)
+                       Hashtable<BigInteger,RevokedCertificate> badCerts, CRLExtensions crlExts)
     throws CRLException, X509ExtensionException {
         this.issuer = issuer;
         this.thisUpdate = thisDate;
@@ -354,7 +353,7 @@ public class X509CRLImpl extends X509CRL {
                 tmp.putUTCTime(nextUpdate);
 
             if (! revokedCerts.isEmpty()) {
-                for (Enumeration e = revokedCerts.elements();
+                for (Enumeration<RevokedCertificate> e = revokedCerts.elements();
                                              e.hasMoreElements();)
                     ((RevokedCertImpl)e.nextElement()).encode(rCerts);
                 tmp.write(DerValue.tag_Sequence, rCerts);
@@ -538,7 +537,7 @@ public class X509CRLImpl extends X509CRL {
             sb.append("\nNO certificates have been revoked\n");
         else {
             sb.append("\nRevoked Certificates:\n");
-            for (Enumeration e = revokedCerts.elements();
+            for (Enumeration<RevokedCertificate> e = revokedCerts.elements();
                                              e.hasMoreElements();)
                 sb.append(((RevokedCertificate)e.nextElement()).toString());
         }
@@ -671,24 +670,22 @@ public class X509CRLImpl extends X509CRL {
      * none.
      * @see RevokedCertificate
      */
-    public Set getRevokedCertificates() {
+    public Set<RevokedCertificate> getRevokedCertificates() {
         if (revokedCerts == null || revokedCerts.isEmpty())
             return null;
         else {
-            ArraySet certSet = new ArraySet();
-            Collection badCerts = revokedCerts.values();
-            Object[] objs = badCerts.toArray();
-            for (int i = 0; i < objs.length; i++)
-                certSet.add(objs[i]);
+            Set<RevokedCertificate> certSet = new TreeSet<RevokedCertificate>(revokedCerts.values());
             return certSet;
         }
     }
 
-    public Hashtable getListOfRevokedCertificates() {
-        if (revokedCerts == null)
+    @SuppressWarnings("unchecked")
+    public Hashtable<BigInteger,RevokedCertificate> getListOfRevokedCertificates() {
+        if (revokedCerts == null){
             return null;
-        else
-            return (Hashtable)revokedCerts.clone();
+        }else{
+            return (Hashtable<BigInteger,RevokedCertificate>)revokedCerts.clone();
+        }
     }
 
     public int getNumberOfRevokedCertificates() {
@@ -808,17 +805,18 @@ public class X509CRLImpl extends X509CRL {
      * @return a set of the extension oid strings in the
      * CRL that are marked critical.
      */
-    public Set getCriticalExtensionOIDs() {
+    public Set<String> getCriticalExtensionOIDs() {
         if (extensions == null)
             return null;
-        ArraySet extSet = new ArraySet();
+        Set<String> extSet = new TreeSet<String>();
         Extension ex;
-            for (Enumeration e = extensions.getElements();
+        for (Enumeration<Extension> e = extensions.getElements();
                                              e.hasMoreElements();) {
-            ex = (Extension)e.nextElement();
-                if (ex.isCritical())
-                extSet.add(((ObjectIdentifier)ex.getExtensionId()).toString());
+        	ex = e.nextElement();
+        	if (ex.isCritical()){
+        		extSet.add(((ObjectIdentifier)ex.getExtensionId()).toString());
             }
+        }
         return extSet;
     }
 
@@ -829,14 +827,14 @@ public class X509CRLImpl extends X509CRL {
      * @return a set of the extension oid strings in the
      * CRL that are NOT marked critical.
      */
-    public Set getNonCriticalExtensionOIDs() {
+    public Set<String> getNonCriticalExtensionOIDs() {
         if (extensions == null)
             return null;
-        ArraySet extSet = new ArraySet();
+        Set<String> extSet = new TreeSet<String>();
         Extension ex;
-            for (Enumeration e = extensions.getElements();
+            for (Enumeration<Extension> e = extensions.getElements();
                                              e.hasMoreElements();) {
-            ex = (Extension)e.nextElement();
+            ex = e.nextElement();
                 if ( ! ex.isCritical())
                 extSet.add(((ObjectIdentifier)ex.getExtensionId()).toString());
             }
@@ -865,9 +863,9 @@ public class X509CRLImpl extends X509CRL {
                 ObjectIdentifier findOID = new ObjectIdentifier(oid);
                 Extension ex = null;
                 ObjectIdentifier inCertOID;
-                for (Enumeration e=extensions.getElements();
+                for (Enumeration<Extension> e=extensions.getElements();
                                                  e.hasMoreElements();) {
-                    ex = (Extension)e.nextElement();
+                    ex = e.nextElement();
                     inCertOID = ex.getExtensionId();
                     if (inCertOID.equals(findOID)) {
                         crlExt = ex;
@@ -894,7 +892,7 @@ public class X509CRLImpl extends X509CRL {
         CRLExtensions exts = getExtensions();
         if (exts == null)
            return null;
-        Enumeration e = exts.getElements();
+        Enumeration<Extension> e = exts.getElements();
         while (e.hasMoreElements()) {
            Extension ext = (Extension)e.nextElement();
            if (ext instanceof CRLNumberExtension) {
@@ -912,7 +910,7 @@ public class X509CRLImpl extends X509CRL {
             CRLExtensions exts = getExtensions();
             if (exts == null)
                 return null;
-            Enumeration e = exts.getElements();
+            Enumeration<Extension> e = exts.getElements();
             while (e.hasMoreElements()) {
                 Extension ext = (Extension)e.nextElement();
                 if (ext instanceof DeltaCRLIndicatorExtension) {
@@ -930,7 +928,7 @@ public class X509CRLImpl extends X509CRL {
             CRLExtensions exts = getExtensions();
             if (exts == null)
                 return false;
-            Enumeration e = exts.getElements();
+            Enumeration<Extension> e = exts.getElements();
             while (e.hasMoreElements()) {
                 Extension ext = (Extension)e.nextElement();
                 if (ext instanceof DeltaCRLIndicatorExtension) {

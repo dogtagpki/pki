@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import netscape.security.util.BitArray;
 import netscape.security.util.DerOutputStream;
@@ -385,8 +386,8 @@ implements CertAttrSet {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements () {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+    public Enumeration<String> getElements () {
+        Vector<String> elements = new Vector<String>();
         elements.addElement(DIGITAL_SIGNATURE);
         elements.addElement(NON_REPUDIATION);
         elements.addElement(KEY_ENCIPHERMENT);

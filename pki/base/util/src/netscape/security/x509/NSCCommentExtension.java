@@ -213,7 +213,7 @@ implements CertAttrSet {
      * attribute.
      */
     public Enumeration getElements () {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+        Vector elements = new Vector();
         elements.addElement(mInfos);
         return (elements.elements());
     }

@@ -22,6 +22,8 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.Hashtable;
 
+import netscape.security.x509.RevokedCertificate;
+
 import com.netscape.certsrv.dbs.IDBObj;
 
 
@@ -134,27 +136,27 @@ public interface ICRLIssuingPointRecord extends IDBObj {
      *
      * @return list of recently revoked certificates
      */
-    public Hashtable getCRLCacheNoClone();
-    public Hashtable getCRLCache();
+    public Hashtable<BigInteger,RevokedCertificate> getCRLCacheNoClone();
+    public Hashtable<BigInteger,RevokedCertificate> getCRLCache();
 
     /**
      * Retrieves cache information about revoked certificates.
      *
      * @return list of recently revoked certificates
      */
-    public Hashtable getRevokedCerts();
+    public Hashtable<BigInteger,RevokedCertificate> getRevokedCerts();
 
     /**
      * Retrieves cache information about certificates released from hold.
      *
      * @return list of certificates recently released from hold
      */
-    public Hashtable getUnrevokedCerts();
+    public Hashtable<BigInteger,RevokedCertificate> getUnrevokedCerts();
 
     /**
      * Retrieves cache information about expired certificates.
      *
      * @return list of recently expired certificates
      */
-    public Hashtable getExpiredCerts();
+    public Hashtable<BigInteger,RevokedCertificate> getExpiredCerts();
 }

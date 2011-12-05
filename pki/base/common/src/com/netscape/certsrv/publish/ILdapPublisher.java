@@ -48,12 +48,12 @@ public interface ILdapPublisher extends ILdapPlugin {
     /**
      * Returns the current instance parameters.
      */
-    public Vector getInstanceParams();
+    public Vector<String> getInstanceParams();
 
     /**
      * Returns the initial default parameters.
      */
-    public Vector getDefaultParams();
+    public Vector<String> getDefaultParams();
 
     /**
      * Publish an object.

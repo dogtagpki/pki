@@ -46,12 +46,12 @@ public interface ILdapMapper extends ILdapPlugin {
     /**
      * Returns the initial default parameters.
      */
-    public Vector getDefaultParams();
+    public Vector<String> getDefaultParams();
 
     /**
      * Returns the current instance parameters.
      */
-    public Vector getInstanceParams();
+    public Vector<String> getInstanceParams();
 
     /**
      * maps a certificate to a LDAP entry.

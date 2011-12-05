@@ -59,7 +59,7 @@ implements CertAttrSet, Serializable {
      */
     public static final String NAME = "extensions";
 
-    private Hashtable map;
+    private Hashtable<String, Object> map;
 
     // Parse the encoded extension
     public void parseExtension(Extension ext) throws IOException {
@@ -89,8 +89,8 @@ implements CertAttrSet, Serializable {
                     value};
             CertAttrSet certExt = (CertAttrSet) cons.newInstance(passed);
             if (certExt != null && certExt.getName() != null) {
-                map.put(certExt.getName(), certExt);
-                addElement(certExt);
+                map.put(certExt.getName(), (Extension) certExt);
+                addElement((Extension) certExt);
             }
         } catch (NoSuchMethodException nosuch) {
             throw new IOException(nosuch.toString());

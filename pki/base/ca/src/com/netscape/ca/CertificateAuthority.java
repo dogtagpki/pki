@@ -134,7 +134,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     protected ISubsystem mOwner = null;
     protected IConfigStore mConfig = null;
     protected ILogger mLogger = CMS.getLogger();
-    protected Hashtable mCRLIssuePoints = new Hashtable(); 
+    protected Hashtable<String, CRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, CRLIssuingPoint>(); 
     protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl. 
     protected SigningUnit mSigningUnit;
     protected SigningUnit mOCSPSigningUnit;
@@ -1670,7 +1670,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             //throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
             return;
         }
-        Enumeration issuePointIdEnum = crlConfig.getSubStoreNames();
+        Enumeration<String> issuePointIdEnum = crlConfig.getSubStoreNames();
 
         if (issuePointIdEnum == null || !issuePointIdEnum.hasMoreElements()) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL_SUBSTORE"));

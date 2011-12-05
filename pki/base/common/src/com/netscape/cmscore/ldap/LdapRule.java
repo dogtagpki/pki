@@ -66,20 +66,20 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         mConfig = config;
 
         mProcessor = processor;
-        Enumeration mappers = mProcessor.getMapperInsts().keys();
-        Enumeration publishers = mProcessor.getPublisherInsts().keys();
+        Enumeration<String> mappers = mProcessor.getMapperInsts().keys();
+        Enumeration<String> publishers = mProcessor.getPublisherInsts().keys();
 
         String map = NOMAPPER;
 
         for (; mappers.hasMoreElements();) {
-            String name = (String) mappers.nextElement();
+            String name =  mappers.nextElement();
 
             map = map + "," + name;
         }
         String publish = "";
 
         for (; publishers.hasMoreElements();) {
-            String name = (String) publishers.nextElement();
+            String name =  publishers.nextElement();
 
             publish = publish + "," + name;
         }
@@ -168,11 +168,11 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
     /**
      * Returns the current instance parameters.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         //if (mProcessor == null) System.out.println("xxxxnull");
         //dont know why the processor was null in getExtendedPluginInfo()
-        Enumeration mappers = mProcessor.getMapperInsts().keys();
-        Enumeration publishers = mProcessor.getPublisherInsts().keys();
+        Enumeration<String> mappers = mProcessor.getMapperInsts().keys();
+        Enumeration<String> publishers = mProcessor.getPublisherInsts().keys();
         String map = NOMAPPER;
 
         for (; mappers.hasMoreElements();) {
@@ -197,7 +197,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
          mExtendedPluginInfo.add("predicate","string;");
          */
 
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         try {
             v.addElement(IPublisherProcessor.PROP_TYPE + "=" + 
@@ -288,8 +288,8 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
     /**
      * Returns the initial default parameters.
      */
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement(IPublisherProcessor.PROP_TYPE + "=");
         v.addElement(IPublisherProcessor.PROP_PREDICATE + "=");

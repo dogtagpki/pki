@@ -27,6 +27,7 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
@@ -245,8 +246,8 @@ public class CertificateValidity implements CertAttrSet, Serializable {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+    public Enumeration<String> getElements() {
+        Vector<String> elements = new Vector<String>();
         elements.addElement(NOT_BEFORE);
         elements.addElement(NOT_AFTER);
   

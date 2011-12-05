@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import netscape.security.util.BitArray;
 import netscape.security.util.DerOutputStream;
@@ -348,8 +349,8 @@ public class IssuingDistributionPointExtension extends Extension
         }
     }
 
-    public Enumeration getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
+    public Enumeration<String> getElements() {
+        Vector<String> elements = new Vector<String>();
         elements.addElement(ISSUING_DISTRIBUTION_POINT);
         return (elements.elements());
 //        return (new Vector()).elements();

@@ -27,8 +27,8 @@ import java.security.cert.CRLException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Set;
+import java.util.TreeSet;
 
-import netscape.security.util.ArraySet;
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
@@ -294,7 +294,7 @@ public class RevokedCertImpl extends RevokedCertificate
     public Set getCriticalExtensionOIDs() {
         if (extensions == null)
             return null;
-        ArraySet extSet = new ArraySet();
+        Set extSet = new TreeSet();
         Extension ex;
             for (Enumeration e = extensions.getElements();
                                           e.hasMoreElements();) {
@@ -315,7 +315,7 @@ public class RevokedCertImpl extends RevokedCertificate
     public Set getNonCriticalExtensionOIDs() {
         if (extensions == null)
             return null;
-        ArraySet extSet = new ArraySet();
+        Set extSet = new TreeSet();
         Extension ex;
             for (Enumeration e = extensions.getElements();
                                           e.hasMoreElements();) {
