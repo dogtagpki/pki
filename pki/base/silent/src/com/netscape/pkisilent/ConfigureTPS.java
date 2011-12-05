@@ -20,7 +20,6 @@ package com.netscape.pkisilent;
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 import com.netscape.osutil.OSUtil;
 import com.netscape.pkisilent.argparser.ArgParser;
@@ -32,9 +31,6 @@ import com.netscape.pkisilent.http.HTTPResponse;
 
 public class ConfigureTPS
 {
-
-	public static Hashtable mUsedPort = new Hashtable();
-
 	// define global variables
 
 	public static HTTPClient hc = null;
@@ -505,8 +501,8 @@ public class ConfigureTPS
 		HTTPResponse hr = null;
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
-		ArrayList friendly_list = null;
-		ArrayList dn_list = null;
+		ArrayList<String> friendly_list = null;
+		ArrayList<String> dn_list = null;
 
 
 		String query_string = "p=11" +
@@ -541,10 +537,10 @@ public class ConfigureTPS
 		HTTPResponse hr = null;
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
-		ArrayList req_list = null;
-		ArrayList cert_list = null;
-		ArrayList dn_list = null;
-		ArrayList friendly_list = null;
+		ArrayList<String> req_list = null;
+		ArrayList<String> cert_list = null;
+		ArrayList<String> dn_list = null;
+		ArrayList<String> friendly_list = null;
 
 		String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port ;
 
@@ -583,10 +579,10 @@ public class ConfigureTPS
 		HTTPResponse hr = null;
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
-		ArrayList req_list = null;
-		ArrayList cert_list = null;
-		ArrayList dn_list = null;
-		ArrayList pp_list = null;
+		ArrayList<String> req_list = null;
+		ArrayList<String> cert_list = null;
+		ArrayList<String> dn_list = null;
+		ArrayList<String> pp_list = null;
 
 
 		String query_string = "p=13" +

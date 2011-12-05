@@ -78,7 +78,7 @@ import java.util.Hashtable;
  * @since   JDK1.0
  */
 
-class CMSProperties extends Hashtable {
+class CMSProperties extends Hashtable<String,String> {
 
     /**
      * use serialVersionUID from JDK 1.1.X for interoperability
@@ -543,9 +543,9 @@ class CMSProperties extends Hashtable {
             writeln(awriter, "#" + header);
         }
         writeln(awriter, "#" + new Date().toString());
-        for (Enumeration e = keys(); e.hasMoreElements();) {
-            String key = (String) e.nextElement();
-            String val = (String) get(key);
+        for (Enumeration<String> e = keys(); e.hasMoreElements();) {
+            String key =  e.nextElement();
+            String val =  get(key);
 
             key = saveConvert(key, true);
 
@@ -575,8 +575,8 @@ class CMSProperties extends Hashtable {
      * @see     #defaults
      */
     public String getProperty(String key) {
-        Object oval = super.get(key);
-        String sval = (oval instanceof String) ? (String) oval : null;
+        String oval = super.get(key);
+        String sval = (oval instanceof String) ?  oval : null;
 
         return ((sval == null) && (defaults != null))
                 ? defaults.getProperty(key)
@@ -611,8 +611,8 @@ class CMSProperties extends Hashtable {
      * @see     java.util.Enumeration
      * @see     java.util.Properties#defaults
      */
-    public Enumeration propertyNames() {
-        Hashtable h = new Hashtable();
+    public Enumeration<String> propertyNames() {
+        Hashtable<String, String> h = new Hashtable<String, String>();
 
         enumerate(h);
         return h.keys();
@@ -626,12 +626,12 @@ class CMSProperties extends Hashtable {
      */
     public void list(PrintStream out) {
         out.println("-- listing properties --");
-        Hashtable h = new Hashtable();
+        Hashtable<String, String> h = new Hashtable<String, String>();
 
         enumerate(h);
-        for (Enumeration e = h.keys(); e.hasMoreElements();) {
-            String key = (String) e.nextElement();
-            String val = (String) h.get(key);
+        for (Enumeration<String> e = h.keys(); e.hasMoreElements();) {
+            String key =  e.nextElement();
+            String val =  h.get(key);
 
             if (val.length() > 40) {
                 val = val.substring(0, 37) + "...";
@@ -655,12 +655,12 @@ class CMSProperties extends Hashtable {
      */
     public void list(PrintWriter out) {
         out.println("-- listing properties --");
-        Hashtable h = new Hashtable();
+        Hashtable<String, String> h = new Hashtable<String, String>();
 
         enumerate(h);
-        for (Enumeration e = h.keys(); e.hasMoreElements();) {
-            String key = (String) e.nextElement();
-            String val = (String) h.get(key);
+        for (Enumeration<String> e = h.keys(); e.hasMoreElements();) {
+            String key =  e.nextElement();
+            String val =  h.get(key);
 
             if (val.length() > 40) {
                 val = val.substring(0, 37) + "...";
@@ -673,12 +673,12 @@ class CMSProperties extends Hashtable {
      * Enumerates all key/value pairs in the specified hastable.
      * @param h the hashtable
      */
-    private synchronized void enumerate(Hashtable h) {
+    private synchronized void enumerate(Hashtable<String, String> h) {
         if (defaults != null) {
             defaults.enumerate(h);
         }
-        for (Enumeration e = keys(); e.hasMoreElements();) {
-            String key = (String) e.nextElement();
+        for (Enumeration<String> e = keys(); e.hasMoreElements();) {
+            String key =  e.nextElement();
 
             h.put(key, get(key));
         }

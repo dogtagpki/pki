@@ -10,7 +10,7 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/symkey/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/tks/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/src"/>
-	<classpathentry kind="src" path="base/silent/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/silent/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-base.jar"/>

@@ -9,7 +9,7 @@ public class PKISilent {
 	private static void usage() {
 		System.out.print("usage:  java " + PKISilent.class.getCanonicalName());
 		boolean first = true;
-		for (Class c : classes) {
+		for (Class<?> c : classes) {
 			if (first) {
 				System.out.println(" [ ");
 			} else {
@@ -21,13 +21,13 @@ public class PKISilent {
 		System.out.println(" ] ");
 	}
 
-	static Class[] classes = { ConfigureCA.class, ConfigureDRM.class,
+	static Class<?>[] classes = { ConfigureCA.class, ConfigureDRM.class,
 			ConfigureOCSP.class, ConfigureRA.class, ConfigureSubCA.class,
 			ConfigureTKS.class, ConfigureTPS.class, CreateInstance.class, };
 
 	public static final void main(String[] args) {
 		HashMap<String, Method> classMap = new HashMap<String, Method>();
-		for (Class c : classes) {
+		for (Class<?> c : classes) {
 			try {
 				classMap.put(c.getSimpleName(),
 						c.getMethod("main", String[].class));

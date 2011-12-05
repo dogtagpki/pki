@@ -327,7 +327,8 @@ public class Utilities {
             CertificateSubjectName csn1 = (CertificateSubjectName)
                     certinfo.get(X509CertInfo.SUBJECT);
 
-            Enumeration en = csn1.getElements();
+            @SuppressWarnings("unchecked")
+			Enumeration<String> en = csn1.getElements();
 
             X500Name dname = (X500Name) csn1.get(CertificateSubjectName.DN_NAME);
 

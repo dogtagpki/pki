@@ -28,7 +28,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
@@ -45,7 +44,6 @@ import com.netscape.pkisilent.http.HTTPResponse;
 
 public class ConfigureCA {
 
-    public static Hashtable mUsedPort = new Hashtable();
 
     // global constants
     public static final String DEFAULT_KEY_TYPE = "RSA";
@@ -520,7 +518,7 @@ public class ConfigureCA {
             HTTPResponse hr = null;
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
-            ArrayList al = null;
+            ArrayList<String> al = null;
             String query_string = null;
             if (clone) {
                 query_string = "p=10" + "&op=next" + "&xml=true" 
@@ -572,11 +570,11 @@ public class ConfigureCA {
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
 
-            al = px.constructvaluelist("CertReqPair", "DN");
+            al = px.constructValueList("CertReqPair", "DN");
             // get ca cert subject name
             if (al != null) {
                 for (int i = 0; i < al.size(); i++) {
-                    String temp = (String) al.get(i);
+                    String temp =  al.get(i);
 
                     if (temp.indexOf("Certificate Authority") > 0) {
                         ca_cert_name = temp;
@@ -613,9 +611,9 @@ public class ConfigureCA {
             HTTPResponse hr = null;
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
-            ArrayList req_list = null;
-            ArrayList cert_list = null;
-            ArrayList dn_list = null;
+            ArrayList<String> req_list = null;
+            ArrayList<String> cert_list = null;
+            ArrayList<String> dn_list = null;
             String query_string = null;
 
             // use subject names provided as input
@@ -643,9 +641,9 @@ public class ConfigureCA {
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
 		
-            req_list = px.constructvaluelist("CertReqPair", "Request");
-            cert_list = px.constructvaluelist("CertReqPair", "Certificate");
-            dn_list = px.constructvaluelist("CertReqPair", "Nickname");
+            req_list = px.constructValueList("CertReqPair", "Request");
+            cert_list = px.constructValueList("CertReqPair", "Certificate");
+            dn_list = px.constructValueList("CertReqPair", "Nickname");
 
             System.out.println("req_list_size=" + req_list.size());
             System.out.println("cert_list_size=" + cert_list.size());
@@ -654,9 +652,9 @@ public class ConfigureCA {
             if (external_ca.equalsIgnoreCase("true")) {
                 if ((req_list != null) && (dn_list != null)) {
                     for (int i = 0; i < dn_list.size(); i++) {
-                        String temp = (String) dn_list.get(i);
+                        String temp =  dn_list.get(i);
                         if (temp.indexOf("caSigningCert") >= 0) {
-                            ca_cert_req = (String) req_list.get(i);
+                            ca_cert_req =  req_list.get(i);
                         }
                     }
                 }
@@ -703,23 +701,23 @@ public class ConfigureCA {
 
             if (req_list != null && cert_list != null && dn_list != null) {
                 for (int i = 0; i < dn_list.size(); i++) {
-                    String temp = (String) dn_list.get(i);
+                    String temp =  dn_list.get(i);
 					
                     if (temp.indexOf("caSigningCert") >= 0) {
-                        ca_cert_req = (String) req_list.get(i);
-                        ca_cert_cert = (String) cert_list.get(i);
+                        ca_cert_req =  req_list.get(i);
+                        ca_cert_cert =  cert_list.get(i);
                     } else if (temp.indexOf("ocspSigningCert") >= 0) {
-                        ocsp_cert_req = (String) req_list.get(i);
-                        ocsp_cert_cert = (String) cert_list.get(i);
+                        ocsp_cert_req =  req_list.get(i);
+                        ocsp_cert_cert =  cert_list.get(i);
                     } else if (temp.indexOf("subsystemCert") >= 0) {
-                        ca_subsystem_cert_req = (String) req_list.get(i);
-                        ca_subsystem_cert_cert = (String) cert_list.get(i);
+                        ca_subsystem_cert_req =  req_list.get(i);
+                        ca_subsystem_cert_cert =  cert_list.get(i);
                     } else if (temp.indexOf("auditSigningCert") >=0) {
-                        ca_audit_signing_cert_req = (String) req_list.get(i);
-                        ca_audit_signing_cert_cert = (String) cert_list.get(i);
+                        ca_audit_signing_cert_req =  req_list.get(i);
+                        ca_audit_signing_cert_cert =  cert_list.get(i);
                     } else {
-                        server_cert_req = (String) req_list.get(i);
-                        server_cert_cert = (String) cert_list.get(i);
+                        server_cert_req =  req_list.get(i);
+                        server_cert_cert =  cert_list.get(i);
                     }
                 }
             }
@@ -790,10 +788,10 @@ public class ConfigureCA {
             HTTPResponse hr = null;
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
-            ArrayList req_list = null;
-            ArrayList cert_list = null;
-            ArrayList dn_list = null;
-            ArrayList pp_list = null;
+            ArrayList<String> req_list = null;
+            ArrayList<String> cert_list = null;
+            ArrayList<String> dn_list = null;
+            ArrayList<String> pp_list = null;
             String genString = "...certificate be generated internally...";
 
             String query_string = "p=12" + "&op=apply" + "&xml=true" + "&subsystem="
@@ -816,9 +814,9 @@ public class ConfigureCA {
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
 
-            req_list = px.constructvaluelist("CertReqPair", "Request");
-            cert_list = px.constructvaluelist("CertReqPair", "Certificate");
-            dn_list = px.constructvaluelist("CertReqPair", "Nickname");
+            req_list = px.constructValueList("CertReqPair", "Request");
+            cert_list = px.constructValueList("CertReqPair", "Certificate");
+            dn_list = px.constructValueList("CertReqPair", "Nickname");
 
             System.out.println("req_list_size=" + req_list.size());
             System.out.println("cert_list_size=" + cert_list.size());
@@ -826,23 +824,23 @@ public class ConfigureCA {
 
             if (req_list != null && cert_list != null && dn_list != null) {
                 for (int i = 0; i < dn_list.size(); i++) {
-                    String temp = (String) dn_list.get(i);
+                    String temp =  dn_list.get(i);
 
                     if (temp.indexOf("caSigningCert") >= 0) {
-                        ca_cert_req = (String) req_list.get(i);
-                        ca_cert_cert = (String) cert_list.get(i);
+                        ca_cert_req =  req_list.get(i);
+                        ca_cert_cert =  cert_list.get(i);
                     } else if (temp.indexOf("ocspSigningCert") >= 0) {
-                        ocsp_cert_req = (String) req_list.get(i);
-                        ocsp_cert_cert = (String) cert_list.get(i);
+                        ocsp_cert_req =  req_list.get(i);
+                        ocsp_cert_cert =  cert_list.get(i);
                     } else if (temp.indexOf("subsystemCert") >= 0) {
-                        ca_subsystem_cert_req = (String) req_list.get(i);
-                        ca_subsystem_cert_cert = (String) cert_list.get(i);
+                        ca_subsystem_cert_req =  req_list.get(i);
+                        ca_subsystem_cert_cert =  cert_list.get(i);
                     } else if (temp.indexOf("auditSigningCert") >= 0) {
-                        ca_audit_signing_cert_req = (String) req_list.get(i);
-                        ca_audit_signing_cert_cert = (String) cert_list.get(i);
+                        ca_audit_signing_cert_req =  req_list.get(i);
+                        ca_audit_signing_cert_cert =  cert_list.get(i);
                     } else {
-                        server_cert_req = (String) req_list.get(i);
-                        server_cert_cert = (String) cert_list.get(i);
+                        server_cert_req =  req_list.get(i);
+                        server_cert_cert =  cert_list.get(i);
                     }
                 }
             }

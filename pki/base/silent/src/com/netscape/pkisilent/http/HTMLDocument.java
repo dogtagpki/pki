@@ -35,16 +35,16 @@ public class HTMLDocument
   // A list of URLs of files that should be retrieved along with the main
   // contents of the document.  This may include any images contained in the
   // document, and possibly any external stylesheets.
-  LinkedHashSet associatedFiles;
+  LinkedHashSet<String> associatedFiles;
 
   // A list of URLs of frames that are contained in the document.
-  LinkedHashSet documentFrames;
+  LinkedHashSet<String> documentFrames;
 
   // A list of URLs of links that are contained in the document.
-  LinkedHashSet documentLinks;
+  LinkedHashSet<String> documentLinks;
 
   // A list of URLs of images that are contained in the document.
-  LinkedHashSet documentImages;
+  LinkedHashSet<String> documentImages;
 
   // A regular expression pattern that can be used to extract a URI from an HREF
   // tag.
@@ -210,10 +210,10 @@ public class HTMLDocument
 
     try
     {
-      associatedFiles = new LinkedHashSet();
-      documentFrames  = new LinkedHashSet();
-      documentLinks   = new LinkedHashSet();
-      documentImages  = new LinkedHashSet();
+      associatedFiles = new LinkedHashSet<String>();
+      documentFrames  = new LinkedHashSet<String>();
+      documentLinks   = new LinkedHashSet<String>();
+      documentImages  = new LinkedHashSet<String>();
       textData        = new StringBuffer();
 
       lastElementStartPos = 0;

@@ -33,7 +33,7 @@ public class CertSelection implements SSLClientCertificateSelectionCallback
 		client_cert = nickname;
 	}
 
-	public String select(Vector nicknames)
+	public String select(@SuppressWarnings("rawtypes") Vector nicknames)
 	{
 
 		// when this method is called by SSLSocket we get a vector

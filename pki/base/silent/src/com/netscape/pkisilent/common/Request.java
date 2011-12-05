@@ -49,7 +49,7 @@ public class Request extends TestClient {
 
     private String approveseqnumFrom, approveseqnumTo;
     // Request variables
-    private Vector seqNum = new Vector();
+    private Vector<String> seqNum = new Vector<String>();
     private String AUTH_ID = null;
 
     // Cert Detail variables 
@@ -154,7 +154,7 @@ public class Request extends TestClient {
      * @param endrequestnumber.
      */
 
-    public Vector ListPendingRequests(String fromRequestNumber, String toRequestNumber) {
+    public Vector<String> ListPendingRequests(String fromRequestNumber, String toRequestNumber) {
         reqState = "showWaiting";
         reqType = "enrollment";
         approveseqnumFrom = fromRequestNumber;
@@ -170,7 +170,7 @@ public class Request extends TestClient {
      */
 
 
-    public Vector ListAllRequests(String fromRequestNumber, String toRequestNumber) {
+    public Vector<String> ListAllRequests(String fromRequestNumber, String toRequestNumber) {
         reqState = "showAll";
         reqType = "enrollment";
         approveseqnumFrom = fromRequestNumber;

@@ -27,13 +27,13 @@ import com.netscape.pkisilent.common.Utilities;
 public class HTTPResponse
 {
   // The set of cookie values included in this response.
-  ArrayList cookieValueList;
+  ArrayList<String> cookieValueList;
 
   // The names of the headers included in this response.
-  ArrayList headerNameList;
+  ArrayList<String> headerNameList;
 
   // The values of the headers included in this response.
-  ArrayList headerValueList;
+  ArrayList<String> headerValueList;
 
   // The actual data associated with this response.
   byte[] responseData;
@@ -57,8 +57,8 @@ public class HTTPResponse
   String responseMessage;
 
 	// Parsed Content Name/Value pair info
-	ArrayList contentName;
-	ArrayList contentValue;
+	ArrayList<String> contentName;
+	ArrayList<String> contentValue;
 
 
 
@@ -80,11 +80,11 @@ public class HTTPResponse
     contentType     = null;
     contentLength   = -1;
     responseData    = new byte[0];
-    cookieValueList = new ArrayList();
-    headerNameList  = new ArrayList();
-    headerValueList = new ArrayList();
-    contentName = new ArrayList();
-    contentValue = new ArrayList();
+    cookieValueList = new ArrayList<String>();
+    headerNameList  = new ArrayList<String>();
+    headerValueList = new ArrayList<String>();
+    contentName = new ArrayList<String>();
+    contentValue = new ArrayList<String>();
   }
 
 
@@ -141,7 +141,7 @@ public class HTTPResponse
     {
       if (lowerName.equals(headerNameList.get(i)))
       {
-        return (String) headerValueList.get(i);
+        return  headerValueList.get(i);
       }
     }
 
@@ -157,7 +157,7 @@ public class HTTPResponse
    */
   public String[] getHeaderValues(String headerName)
   {
-    ArrayList valueList = new ArrayList();
+    ArrayList<String> valueList = new ArrayList<String>();
     String    lowerName = headerName.toLowerCase();
 
     for (int i=0; i < headerNameList.size(); i++)
@@ -218,8 +218,8 @@ public class HTTPResponse
     String[][] headerElements = new String[headerNameList.size()][2];
     for (int i=0; i < headerNameList.size(); i++)
     {
-      headerElements[i][0] = (String) headerNameList.get(i);
-      headerElements[i][1] = (String) headerValueList.get(i);
+      headerElements[i][0] =  headerNameList.get(i);
+      headerElements[i][1] =  headerValueList.get(i);
     }
 
     return headerElements;
@@ -288,19 +288,19 @@ public class HTTPResponse
 		{
 			if (headerName.equals(contentName.get(i)))
 			{
-				return (String) contentValue.get(i);
+				return  contentValue.get(i);
 			}
 		}
 
 		return null;
 	}
 
-	public ArrayList getContentNames()
+	public ArrayList<String> getContentNames()
 	{
 		return contentName;
 	}
 
-	public ArrayList getContentValues()
+	public ArrayList<String> getContentValues()
 	{
 		return contentValue;
 	}
@@ -370,10 +370,10 @@ public class HTTPResponse
 		{
 			System.out.println("cookie list: " + cookieValueList.get(i));
 
-			String temp = (String) cookieValueList.get(i);
+			String temp =  cookieValueList.get(i);
 			if (temp.startsWith(headerName))
 			{
-				return (String) cookieValueList.get(i);
+				return  cookieValueList.get(i);
 			}
 	}
 

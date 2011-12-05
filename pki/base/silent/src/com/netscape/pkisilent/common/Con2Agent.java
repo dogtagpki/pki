@@ -75,8 +75,8 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
         return true;
     }
 
-    public String select(Vector nicknames) {
-        Enumeration e = nicknames.elements();
+    public String select(@SuppressWarnings("rawtypes") Vector nicknames) {
+        Enumeration<?> e = nicknames.elements();
 
         System.out.println("nicknames size = " + nicknames.size());
         int i = 0;

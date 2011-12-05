@@ -25,7 +25,6 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
@@ -41,8 +40,6 @@ import com.netscape.pkisilent.http.HTTPResponse;
 
 public class ConfigureOCSP
 {
-    public static Hashtable mUsedPort = new Hashtable();
-
     public static final String DEFAULT_KEY_TYPE = "RSA";
     public static final String DEFAULT_KEY_SIZE = "2048";
     public static final String DEFAULT_KEY_CURVENAME = "nistp256";
@@ -419,7 +416,7 @@ public class ConfigureOCSP
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-        ArrayList al = null;
+        ArrayList<String> al = null;
 
         String query_string = "p=8" + "&op=next" + "&xml=true" +
                             "&signing_custom_size=" + signing_key_size +
@@ -452,11 +449,11 @@ public class ConfigureOCSP
         px.parse(bais);
         px.prettyprintxml();
         
-        al = px.constructvaluelist("CertReqPair","DN");
+        al = px.constructValueList("CertReqPair","DN");
         // get ca cert subject name
         if (al != null) {
             for (int i=0; i < al.size(); i++) {
-                String temp = (String) al.get(i);
+                String temp =  al.get(i);
                 if (temp.indexOf("OCSP Signing") > 0) {
                     ocsp_signing_cert_name = temp;
                 } else if (temp.indexOf("OCSP Subsystem") > 0) {
@@ -483,9 +480,9 @@ public class ConfigureOCSP
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-        ArrayList req_list = null;
-        ArrayList cert_list = null;
-        ArrayList dn_list = null;
+        ArrayList<String> req_list = null;
+        ArrayList<String> cert_list = null;
+        ArrayList<String> dn_list = null;
 
         String domain_url = "https://" + ca_hostname + ":" + ca_ssl_port ;
 
@@ -509,26 +506,26 @@ public class ConfigureOCSP
         px.parse(bais);
         px.prettyprintxml();
         
-        req_list = px.constructvaluelist("CertReqPair","Request");
-        cert_list = px.constructvaluelist("CertReqPair","Certificate");
-        dn_list = px.constructvaluelist("CertReqPair","Nickname");
+        req_list = px.constructValueList("CertReqPair","Request");
+        cert_list = px.constructValueList("CertReqPair","Certificate");
+        dn_list = px.constructValueList("CertReqPair","Nickname");
 
         if (req_list != null && cert_list != null && dn_list != null) {
             for (int i=0; i < dn_list.size(); i++) {
-                String temp = (String) dn_list.get(i);
+                String temp =  dn_list.get(i);
 
                 if (temp.indexOf("ocspSigningCert") >= 0 ) {
-                    ocsp_signing_cert_req = (String) req_list.get(i);
-                    ocsp_signing_cert_cert = (String) cert_list.get(i);
+                    ocsp_signing_cert_req =  req_list.get(i);
+                    ocsp_signing_cert_cert =  cert_list.get(i);
                 } else if (temp.indexOf("subsystemCert") >= 0 ) {
-                    ocsp_subsystem_cert_req = (String) req_list.get(i);
-                    ocsp_subsystem_cert_cert = (String) cert_list.get(i);
+                    ocsp_subsystem_cert_req =  req_list.get(i);
+                    ocsp_subsystem_cert_cert =  cert_list.get(i);
                 } else if (temp.indexOf("auditSigningCert") >=0) {
-                    ocsp_audit_signing_cert_req = (String) req_list.get(i);
-                    ocsp_audit_signing_cert_cert = (String) cert_list.get(i);
+                    ocsp_audit_signing_cert_req =  req_list.get(i);
+                    ocsp_audit_signing_cert_cert =  cert_list.get(i);
                 } else {
-                    server_cert_req = (String) req_list.get(i);
-                    server_cert_cert = (String) cert_list.get(i);
+                    server_cert_req =  req_list.get(i);
+                    server_cert_cert =  cert_list.get(i);
                 }
             }
         }
@@ -542,10 +539,10 @@ public class ConfigureOCSP
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-        ArrayList req_list = null;
-        ArrayList cert_list = null;
-        ArrayList dn_list = null;
-        ArrayList pp_list = null;
+        ArrayList<String> req_list = null;
+        ArrayList<String> cert_list = null;
+        ArrayList<String> dn_list = null;
+        ArrayList<String> pp_list = null;
 
 
         String query_string = "p=10" + "&op=next" + "&xml=true" +

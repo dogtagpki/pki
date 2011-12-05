@@ -1008,7 +1008,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback
   {
     // Create an array list that we will use to hold the chunks of information
     // read from the server.
-    ArrayList bufferList = new ArrayList();
+    ArrayList<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
 
 
     // Create a variable to hold the total number of bytes in the data.

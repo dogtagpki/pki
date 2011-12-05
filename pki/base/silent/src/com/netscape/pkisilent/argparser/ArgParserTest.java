@@ -64,7 +64,7 @@ public class ArgParserTest
 
 	private static String[] argsFromString (String s)
 	 {
-	   Vector vec = new Vector(100);
+	   Vector<String> vec = new Vector<String>(100);
 	   try
 	    { ArgParser.stringToArgs (vec, s, /*allowQuotedStings=*/false);
 	    }
@@ -632,7 +632,7 @@ public class ArgParserTest
 	      if (resultIdx >= 0)
 	       { verify (result instanceof Vector,
 			 "Expecting result to be stored in a vector");
-		 Vector vec = (Vector)result;
+		 Vector<?> vec = (Vector<?>)result;
 		 verify (vec.size()==resultIdx+1, 
 			 "Expecting result vector size " + (resultIdx+1));
 		 return vec.get(resultIdx);
@@ -1128,7 +1128,7 @@ public class ArgParserTest
 	    };
 	   test.checkMatches (tests, MULTI_WORD);
 
-	   Vector vec = new Vector(100);
+	   Vector<String> vec = new Vector<String>(100);
 
 	   test.checkAdd ("-foov3 %iX3", vec,'i',3,"-foov3 ",null,"",null);
 	   tests = new MTest[]

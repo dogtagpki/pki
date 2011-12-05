@@ -20,7 +20,6 @@ package com.netscape.pkisilent;
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 import com.netscape.osutil.OSUtil;
 import com.netscape.pkisilent.argparser.ArgParser;
@@ -33,7 +32,6 @@ import com.netscape.pkisilent.http.HTTPResponse;
 public class ConfigureRA
 {
 
-	public static Hashtable mUsedPort = new Hashtable();
 
 	// define global variables
 
@@ -421,9 +419,9 @@ public class ConfigureRA
 		HTTPResponse hr = null;
 		ByteArrayInputStream bais = null;
 		ParseXML px = new ParseXML();
-		ArrayList req_list = null;
-		ArrayList cert_list = null;
-		ArrayList dn_list = null;
+		ArrayList<String> req_list = null;
+		ArrayList<String> cert_list = null;
+		ArrayList<String> dn_list = null;
 
 		String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port ;
 
