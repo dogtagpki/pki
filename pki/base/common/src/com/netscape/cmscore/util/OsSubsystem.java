@@ -32,7 +32,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.osutil.LibC;
 import com.netscape.osutil.OSUtil;
-import com.netscape.osutil.ResourceLimit;
 import com.netscape.osutil.Signal;
 import com.netscape.osutil.SignalListener;
 import com.netscape.osutil.UserID;
@@ -174,42 +173,6 @@ public final class OsSubsystem implements ISubsystem {
     }
 
     /**
-     * Hooks up unix signals.
-     */
-    private void initUnix() throws EBaseException {
-        // Set up signal handling.  We pretty much exit on anything
-        // Signal.watch(Signal.SIGHUP); 
-        // Signal.watch(Signal.SIGTERM);
-        // Signal.watch(Signal.SIGINT);
-        // mSignalThread = new SignalThread();
-        // mSignalThread.setDaemon(true);
-        // mSignalThread.start();
-
-        Signal.addSignalListener(Signal.SIGHUP, new SIGHUPListener(this)); 
-        Signal.addSignalListener(Signal.SIGTERM, new SIGTERMListener(this)); 
-        Signal.addSignalListener(Signal.SIGINT, new SIGINTListener(this)); 
-
-        /* Increase the maximum number of file descriptors */
-        int i = mConfig.getInteger("maxFiles", 
-                ResourceLimit.getHardLimit(ResourceLimit.RLIMIT_NOFILE));
-
-        ResourceLimit.setLimits(ResourceLimit.RLIMIT_NOFILE,
-            i, ResourceLimit.getHardLimit(ResourceLimit.RLIMIT_NOFILE));
-
-        // write current pid to specified file
-        String pf = mConfig.getString("pidFile", null);
-
-        if (pf == null) {
-            return; // development environment does not rely on this
-        }
-        File pidFile = new File(pf);
-
-        if (pidFile.exists()) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_PID_EXIST"));
-        }
-    }
-
-    /**
      * Used to change the process user id usually called after the appropriate 
      * network ports have been opened.
      */
@@ -341,24 +304,6 @@ public final class OsSubsystem implements ISubsystem {
          restartNT();
          }
          **/
-    }
-
-    /**
-     * Unix restart
-     * <P>
-     */
-    private void restartUnix() {
-        // Tell watch dog to restart us
-        int ppid = LibC.getppid();
-
-        Signal.send(ppid, Signal.SIGHUP);
-    }
-
-    /**
-     * NT restart
-     * <P>
-     */
-    private void restartNT() {
     }
 
     /**

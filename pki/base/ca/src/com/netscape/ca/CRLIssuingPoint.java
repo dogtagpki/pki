@@ -531,7 +531,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     private int getTimeListSize(Vector<Vector<Integer>> listedDays) {
-
         int listSize = 0;
         for (int i = 0; listedDays != null && i < listedDays.size(); i++) {
             Vector<Integer> listedTimes = listedDays.elementAt(i);

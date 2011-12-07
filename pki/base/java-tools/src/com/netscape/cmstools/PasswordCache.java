@@ -335,24 +335,6 @@ public class PasswordCache {
             System.exit(1);
         }
     }
-
-    private static boolean badPassword(String pwd) {
-       // XXX - implement only password checking
-       return false;
-/*
-        PasswordChecker pwdChecker = new PasswordChecker();
-
-        if (!pwdChecker.isGoodPassword(pwd)) {
-            String reason = pwdChecker.getReason(pwd);
-
-            System.out.println("New password does not pass password " +
-                "quality test: " + reason);
-            return true;
-        } else {
-            return false;
-        }
-*/
-    }
 }
 
 

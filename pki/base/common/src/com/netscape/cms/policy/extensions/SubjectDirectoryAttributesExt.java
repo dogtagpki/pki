@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.StringTokenizer;
 import java.util.Vector;
 
 import netscape.security.util.DerValue;
@@ -190,18 +189,6 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
                 NAME, "IOException Error");
             return PolicyResult.REJECTED;
         } 
-    }
-
-    private Vector formValues(String val) {
-        StringTokenizer tokenizer = new StringTokenizer(val, "+");
-        Vector v = new Vector();
-
-        while (tokenizer.hasMoreElements()) {
-            String s = (String) tokenizer.nextElement();   
-
-            v.addElement(s);
-        }
-        return v;
     }
 
     public Vector getInstanceParams() {

@@ -337,35 +337,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
     }
 
     /**
-     * Retrieves configuration parameters of 
-     * authentication manager.
-     */
-    private synchronized void getConfig(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
-            IOException, EBaseException {
-        super.getConfig(mMgr.getConfigStore(), req, resp);
-    }
-
-    /**
-     * Sets configuration parameters of 
-     * User/Group manager.
-     */
-    private synchronized void setConfig(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
-            IOException, EBaseException {
-        super.setConfig(mMgr.getConfigStore(), req, resp);
-    }
-
-    /**
-     * Lists configuration parameters.
-     */
-    private synchronized void listConfig(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
-            IOException, EBaseException {
-        super.listConfig(mMgr.getConfigStore(), req, resp);
-    }
-
-    /**
      * Searches for users in LDAP directory.  List uids only
      *
      * Request/Response Syntax:

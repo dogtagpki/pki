@@ -40,20 +40,6 @@ public class CMSConfig extends ServerInfo {
         readCMSConfig();
     }
 
-    private void getProperties(String filePath) throws Exception {
-        try {
-            FileInputStream fis = new FileInputStream(filePath);
-
-            props = new CMSProperties();
-            props.load(fis);
-            System.out.println("Reading Properties file successful");
-            fis.close();
-        } catch (Exception e) {
-            System.out.println("exception " + e.getMessage());
-        }
-
-    }
-
     private void readCMSConfig() {
 
         try {
@@ -515,51 +501,6 @@ public class CMSConfig extends ServerInfo {
 
     public void DisableCardCryptoValidationinTKS() {
         CMSprops.setProperty("cardcryptogram.validate.enable", "false");
-    }
-
-    private void ARLOn() {
-        CMSprops.setProperty(
-                "ca.crl.MasterCRL.extension.IssuingDistributionPoint.critical",
-                "true");
-        CMSprops.setProperty(
-                "ca.crl.MasterCRL.extension.IssuingDistributionPoint.enable",
-                "true");
-        CMSprops.setProperty(
-                "ca.crl.MasterCRL.extension.IssuingDistributionPoint.indirectCRL",
-                "false");
-        CMSprops.setProperty(
-                "ca.crl.MasterCRL.extension.IssuingDistributionPoint.onlyContainsCACerts",
-                "true");
-        CMSprops.setProperty(
-                "ca.crl.MasterCRL.extension.IssuingDistributionPoint.onlyContainsUserCerts",
-                "false");
-        CMSprops.setProperty(
-                "ca.crl.MasterCRL.extension.IssuingDistributionPoint.onlySomeReasons",
-                null);
-        CMSprops.setProperty(
-                "ca.crl.MasterCRL.extension.IssuingDistributionPoint.pointName",
-                null);
-        CMSprops.setProperty(
-                "ca.crl.MasterCRL.extension.IssuingDistributionPoint.pointType",
-                "DirectoryName");
-        CMSprops.setProperty(
-                "ca.crl.MasterCRL.extension.IssuingDistributionPoint.type",
-                "CRLExtension");
-        CMSprops.setProperty("ca.crl.MasterCRL.allowExtensions", "true");
-        CMSprops.setProperty("ca.crl.MasterCRL.alwaysUpdate", "true");
-        CMSprops.setProperty("ca.crl.MasterCRL.autoUpdateInterval", "5");
-        CMSprops.setProperty("ca.crl.MasterCRL.caCertsOnly", "true");
-        CMSprops.setProperty("ca.crl.MasterCRL.cacheUpdateInterval", "5");
-        CMSprops.setProperty("ca.crl.MasterCRL.class",
-                "com.netscape.cmscore.ca.CRLIssuingPoint");
-
-        CMSprops.setProperty("ca.crl.MasterCRL.description",
-                "CA's complete Certificate Revocation List");
-        CMSprops.setProperty("ca.crl.MasterCRL.enableCRLCache", "true");
-        CMSprops.setProperty("ca.crl.MasterCRL.includeExpiredCerts", "true");
-        CMSprops.setProperty("ca.crl.MasterCRL.nextUpdateSkew", "5");
-        CMSprops.setProperty("ca.crl.MasterCRL.signingAlgorithm", "SHA1withRSA");
-
     }
 
     // Policies 

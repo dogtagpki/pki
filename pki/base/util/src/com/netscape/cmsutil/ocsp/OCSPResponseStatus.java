@@ -69,11 +69,6 @@ public class OCSPResponseStatus implements ASN1Value
 		return responseStatus.getValue();
 	}
 
-	///////////////////////////////////////////////////////////////////////
-	// Constructors
-	///////////////////////////////////////////////////////////////////////
-	private OCSPResponseStatus() { }
-
 	public OCSPResponseStatus(long val)
 	{
 		responseStatus = new ENUMERATED(val);

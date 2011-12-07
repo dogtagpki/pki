@@ -71,9 +71,6 @@ public class CRLDistributionPointsExtension extends Extension
     // vector of CRLDistributionPoint
     private SEQUENCE distributionPoints = new SEQUENCE();
 
-    // no default constructor
-    private CRLDistributionPointsExtension() { }
-
     // Cached DER-encoding to improve performance.
     private byte[] cachedEncoding=null;
 

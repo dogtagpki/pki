@@ -577,14 +577,6 @@ class StringScanner
 	    }
 	 }
 
-	private int skipWhiteSpace(int k)
-	 {
-	   while (Character.isWhitespace(buf[k]))
-	    { k++;
-	    }
-	   return k;
-	 }
-
 	public boolean atEnd()
 	 {
 	   return idx == len;

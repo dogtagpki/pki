@@ -1120,22 +1120,6 @@ public class CMSEngine implements ICMSEngine {
         mServerCertNickname = newName;
     }
 
-    private String lineParsing(String input, String newName) {
-        //<SSLPARAMS servercertnickname="Server-Cert cert-firefly"
-        int index = input.indexOf("servercertnickname");
-
-        if (index >= 0) {
-            String str = input.substring(index + 20);
-            int index2 = str.indexOf("\"");
-            String newLine = input.substring(0, index + 20)
-                + newName + str.substring(index2);
-
-            return newLine;
-        } else {
-            return input;
-        }
-    }
-
     public String getFingerPrint(Certificate cert)
         throws CertificateEncodingException, NoSuchAlgorithmException {
         return CertUtils.getFingerPrint(cert);

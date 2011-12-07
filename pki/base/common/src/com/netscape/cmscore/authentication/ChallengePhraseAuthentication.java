@@ -295,16 +295,6 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         return authToken;
     }
 
-    private String getDecimalStr(String str) {
-        String newStr = str;
-
-        if (str.startsWith("0x") || str.startsWith("0X")) {
-            newStr = "" + Integer.parseInt(str.trim().substring(2), 16);
-        }
-  
-        return newStr;
-    }
-
     private boolean compareChallengePassword(CertRecord record, String pwd) 
         throws EBaseException {
         MetaInfo metaInfo = (MetaInfo) record.get(CertRecord.ATTR_META_INFO);

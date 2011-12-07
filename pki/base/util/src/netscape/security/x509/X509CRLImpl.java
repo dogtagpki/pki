@@ -111,12 +111,6 @@ public class X509CRLImpl extends X509CRL {
     private boolean readOnly = false;
 
     /**
-     * Not to be used. As it would lead to cases of uninitialized
-     * CRL objects.
-     */
-    private X509CRLImpl() { }
-
-    /**
      * Unmarshals an X.509 CRL from its encoded form, parsing the encoded
      * bytes.  This form of constructor is used by agents which
      * need to examine and use CRL contents. Note that the buffer

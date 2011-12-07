@@ -855,43 +855,6 @@ public class EnrollmentService implements IService {
     }
 
     /**
-     * Signed Audit Log Recovery ID
-     *
-     * This method is called to obtain the "RecoveryID" for
-     * a signed audit log message.
-     * <P>
-     *
-     * @return id string containing the signed audit log message RecoveryID
-     */
-    private String auditRecoveryID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
-
-        String recoveryID = null;
-
-        // Initialize recoveryID
-        SessionContext auditContext = SessionContext.getExistingContext();
-
-        if (auditContext != null) {
-            recoveryID = (String)
-                    auditContext.get(SessionContext.RECOVERY_ID);
-
-            if (recoveryID != null) {
-                recoveryID = recoveryID.trim();
-            } else {
-                recoveryID = ILogger.UNIDENTIFIED;
-            }
-        } else {
-            recoveryID = ILogger.UNIDENTIFIED;
-        }
-
-        return recoveryID;
-    }
-
-    
-    /**
      * Signed Audit Log
      *
      * This method is called to store messages to the signed audit log.

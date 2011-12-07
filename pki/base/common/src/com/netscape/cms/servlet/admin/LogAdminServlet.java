@@ -1410,81 +1410,6 @@ public class LogAdminServlet extends AdminServlet {
         }
     }
 
-    private synchronized void getLogConfig(HttpServletRequest req, 
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
-
-        String implname = req.getParameter(Constants.RS_ID);
-
-        if (implname == null) {
-            //System.out.println("SRVLT_NULL_RS_ID");
-            sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
-            return;
-        }
-
-        Vector configParams = mSys.getLogDefaultParams(implname);
-        NameValuePairs params = new NameValuePairs();
-
-        // implName is always required so always send it.
-        params.add(Constants.PR_LOG_IMPL_NAME, "");
-        if (configParams != null) {
-            for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
-                int index = kv.indexOf('=');
-
-                params.add(kv.substring(0, index), 
-                    kv.substring(index + 1));
-            }
-        }
-        sendResponse(0, null, params, resp);
-        return;
-    }
-
-    private synchronized void getLogInstConfig(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
-            IOException, EBaseException {
-        String id = req.getParameter(Constants.RS_ID);
-
-        if (id == null) {
-            //System.out.println("SRVLT_NULL_RS_ID");
-            sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
-            return;
-        }
-
-        // does log instance exist?
-        if (mSys.getLogInsts().containsKey(id) == false) {
-            sendResponse(ERROR,
-                new ELogNotFound(CMS.getUserMessage(getLocale(req),"CMS_LOG_INSTANCE_NOT_FOUND",id)).toString(),
-                null, resp);
-            return;
-        }
-
-        ILogEventListener logInst = (ILogEventListener)
-            mSys.getLogInstance(id);
-        Vector configParams = logInst.getInstanceParams();
-        NameValuePairs params = new NameValuePairs();
-
-        params.add(Constants.PR_LOG_IMPL_NAME, 
-            getLogPluginName(logInst));
-        // implName is always required so always send it.
-        if (configParams != null) {
-            for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
-                int index = kv.indexOf('=');
-
-                params.add(kv.substring(0, index), 
-                    kv.substring(index + 1));
-            }
-        }
-
-        sendResponse(SUCCESS, null, params, resp);
-        return;
-    }
-
     /**
      * Modify log instance
      * <P>
@@ -2382,29 +2307,6 @@ public class LogAdminServlet extends AdminServlet {
         logPath = logPath.trim();
 
         return logPath;
-    }
-
-    /**
-     * Signed Audit Check Log Expiration Time
-     *
-     * This method is called to extract the log expiration time.
-     * <P>
-     *
-     * @param req http servlet request
-     * @return a string containing the log expiration time
-     */
-    private String auditCheckLogExpirationTime(HttpServletRequest req) {
-        // check to see if the log expiration time parameter was changed
-        String expirationTime = req.getParameter(
-                Constants.PR_LOG_EXPIRED_TIME);
-
-        if (expirationTime == null) {
-            expirationTime = "";
-        }
-
-        expirationTime = expirationTime.trim();
-
-        return expirationTime;
     }
 
     private void getGeneralConfig(HttpServletRequest req,

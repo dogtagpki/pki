@@ -39,7 +39,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -357,14 +356,6 @@ public class QueryReq extends CMSServlet {
     	}
     	cmsReq.setStatus(CMSRequest.SUCCESS);
     	return;
-    }
-
-    private static String makeRequestStatusEq(RequestStatus s) {
-        return "(" + "requestState" + "=" + s + ")";
-    }
-
-    private static String makeRequestIdCmp(String op, int bound) {
-        return "(requestId" + op + bound + ")";
     }
 
     /**

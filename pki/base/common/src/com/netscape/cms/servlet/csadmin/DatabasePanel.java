@@ -1210,23 +1210,6 @@ public class DatabasePanel extends WizardPanelBase {
         context.put("panel", "admin/console/config/databasepanel.vm");
     }
 
-    private boolean isAgreementExist(String replicadn, LDAPConnection conn,
-      String name) {
-        String dn = "cn="+name+","+replicadn;
-        String filter = "(cn="+name+")";
-        String[] attrs = {"cn"};
-        try {
-            LDAPSearchResults results = conn.search(dn, LDAPv3.SCOPE_SUB,
-              filter, attrs, false);
-            while (results.hasMoreElements())
-                return true; 
-        } catch (LDAPException e) {
-            return false;
-        }
-
-        return false;
-    }
-
     private void createReplicationManager(LDAPConnection conn, String bindUser, String pwd)
       throws LDAPException {
         LDAPAttributeSet attrs = null;

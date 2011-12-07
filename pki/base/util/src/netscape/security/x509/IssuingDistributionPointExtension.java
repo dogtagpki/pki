@@ -116,10 +116,6 @@ public class IssuingDistributionPointExtension extends Extension
     private byte[] cachedEncoding=null;
 
 
-    // no default constructor
-    private IssuingDistributionPointExtension() { }
-
-
     static {
         try {
             OIDMap.addAttribute(IssuingDistributionPointExtension.class.getName(),

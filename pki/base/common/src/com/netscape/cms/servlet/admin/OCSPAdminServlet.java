@@ -538,25 +538,7 @@ public class OCSPAdminServlet extends AdminServlet {
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     audit( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
+            
         }
-    }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, "CAAdminServlet: " + msg);
     }
 }    

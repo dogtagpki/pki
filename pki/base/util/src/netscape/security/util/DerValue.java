@@ -490,24 +490,6 @@ public class DerValue {
     }
 
     /*
-     * Internal utility ... returns a string regardless of what
-     * restrictions have been placed on its encoding.
-     */
-    private String simpleGetString() throws IOException {
-	StringBuffer s = new StringBuffer(length);
-	try {
-	    int temp = length;
-
-	    data.reset ();
-	    while (temp-- > 0)
-		s.append ((char) data.getByte ());
-	} catch (IOException e) {
-	    return null;
-	}
-	return new String (s);
-    }
-
-    /*
      * @eturns a string if the DerValue is a ASN.1 character string type and
      * if there is a ByteToChar converter for the type. Returns null otherwise.
      */

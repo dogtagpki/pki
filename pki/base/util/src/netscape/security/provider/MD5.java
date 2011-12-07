@@ -69,14 +69,7 @@ public final class MD5 extends MessageDigestSpi implements Cloneable {
 	init();
     }
 
-    private MD5(MD5 md5) {
-	this();
-	this.state = (int[])md5.state.clone();
-	this.transformBuffer = (int[])md5.transformBuffer.clone();
-	this.buffer = (byte[])md5.buffer.clone();
-	this.digestBits = (byte[])md5.digestBits.clone();
-	this.count = md5.count;
-    }
+    
 
     /* **********************************************************
      * The MD5 Functions. These are copied verbatim from

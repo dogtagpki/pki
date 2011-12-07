@@ -19,7 +19,6 @@ package netscape.security.x509;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
@@ -208,17 +207,6 @@ public class OIDMap {
             String className = props.getProperty(name);
 
             name2Class.put(name, className);
-        }
-    }
-
-    // save to file
-    private static void saveDefaults(Properties props,  String fileName) {
-        try {
-            FileOutputStream fos = new FileOutputStream(fileName);
-            props.save(fos, "Registered classes");
-            fos.close();
-        } catch (IOException e) {
-            System.err.println(e);
         }
     }
 

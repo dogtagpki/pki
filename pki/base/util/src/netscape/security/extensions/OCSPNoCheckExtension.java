@@ -97,13 +97,6 @@ public class OCSPNoCheckExtension extends Extension implements CertAttrSet {
         }
     }
     
-    private void encodeThis(DerOutputStream out) throws IOException {
-        if (mCached == null) {
-            super.encode(out);
-            mCached = out.toByteArray();
-        }
-    }
-    
     public String toString() {
         String presentation = "oid=" + OID + " ";
 

@@ -252,20 +252,6 @@ public class ServerInfo {
         }
     } 
 
-    private void getProperties(String filePath) throws Exception {
-        try {
-            FileInputStream fis = new FileInputStream(filePath);
-
-            props = new CMSProperties();
-            props.load(fis);
-            System.out.println("Reading Properties file successful");
-            fis.close();
-        } catch (Exception e) {
-            System.out.println("exception " + e.getMessage());
-        }
-
-    }
-
     private String stripSpace(String s) {
 
         String val = "";

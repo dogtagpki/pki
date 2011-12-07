@@ -748,60 +748,6 @@ public class AutoInstaller {
 
     }
 
-    private boolean taskCloneMaster() {
-        System.out.println("configuring Cert Instance : taskCloneMaster");
-        setConfigURL();
-        String myStringUrl = "http://" + host + ":" + adminPort + configURL;
-
-        System.out.println(myStringUrl);
-        String query = "serverRoot=" + URLEncoder.encode(serverRoot);
-
-        query += "&";
-        query += "&claPortnumEE=" + URLEncoder.encode(caEEPort);
-        query += "&claPortnum=" + URLEncoder.encode(caAgentPortnum);
-        query += "&claHostname=" + URLEncoder.encode(caHostname);
-        query += "&ra=false";
-        query += "&ca=true";
-        query += "&kra=false";
-        query += "&subsystems=ca";
-        query += "&cloning=true";
-        query += "&cloningInstance=" + URLEncoder.encode(cloneInstanceId); 
-        query += "&claTimeout=" + URLEncoder.encode("60");
-        query += "&internaldb.ldapauth.bindDN="
-                + URLEncoder.encode(dbLDAPauthDN);
-        query += "&AdminUserPassword=" + URLEncoder.encode(adminPWD);
-        query += "&db.password=" + URLEncoder.encode(dbPassword);
-        query += "&instanceID=" + URLEncoder.encode(instanceID);
-        query += "&opType=" + URLEncoder.encode("OP_MODIFY");
-        query += "&taskID=" + URLEncoder.encode("taskCloneMaster");
-        query += "&cmsSeed=0";
-        setPostQueryString(query);
-        return Connect(myStringUrl);
-    }
-
-    private boolean taskCloning() {
-        System.out.println("configuring Cert Instance : taskCloning");
-        setConfigURL();
-        String myStringUrl = "http://" + host + ":" + adminPort + configURL;
-
-        System.out.println(myStringUrl);
-        String query = "serverRoot=" + URLEncoder.encode(serverRoot);
-
-        query += "&";
-        query += "&cloneTokenPasswd=" + URLEncoder.encode(dbPassword);
-        query += "&cloneTokenName=" + URLEncoder.encode("internal");
-        query += "&cloningInstance=" + URLEncoder.encode(cloneInstanceId);
-        query += "&cloneSameMachine=true";
-        query += "&AdminUserPassword=" + URLEncoder.encode(adminPWD);
-        query += "&certType=" + URLEncoder.encode(certType);
-        query += "&instanceID=" + URLEncoder.encode(instanceID);
-        query += "&opType=" + URLEncoder.encode("OP_MODIFY");
-        query += "&taskID=" + URLEncoder.encode("taskCloning");
-        query += "&cmsSeed=0";
-        setPostQueryString(query);
-        return Connect(myStringUrl);
-    }
-
     private boolean setSerial(String start, String end) {
         System.out.println("configuring Cert Instance : setCASerial");
         setConfigURL();
@@ -866,25 +812,6 @@ public class AutoInstaller {
         }
         query += "&opType=" + URLEncoder.encode("OP_MODIFY");
         query += "&taskID=" + URLEncoder.encode("configureNetwork");
-        query += "&cmsSeed=0";
-        setPostQueryString(query);
-        return Connect(myStringUrl);
-
-    }
-
-    private boolean serverMigration() {
-        System.out.println("configuring Cert Instance : Server migration");
-        setConfigURL();
-        String myStringUrl = "http://" + host + ":" + adminPort + configURL;
-
-        System.out.println(myStringUrl);
-        String query = "AdminUserPassword=" + URLEncoder.encode(adminPWD);
-
-        query += "&";
-        query += "instanceID=" + URLEncoder.encode(instanceID);
-        query += "&migrationEnable=" + URLEncoder.encode("false");
-        query += "&opType=" + URLEncoder.encode("OP_MODIFY");
-        query += "&taskID=" + URLEncoder.encode("migration");
         query += "&cmsSeed=0";
         setPostQueryString(query);
         return Connect(myStringUrl);
@@ -1570,32 +1497,6 @@ public class AutoInstaller {
         return Connect(myStringUrl);
     }
 
-    private boolean setupKRAAgents() {
-        System.out.println("configuring Cert Instance :  KRA Agents");
-        setConfigURL();
-        String myStringUrl = "http://" + host + ":" + adminPort + configURL;
-
-        System.out.println(myStringUrl);
-        String query = "AdminUserPassword=" + URLEncoder.encode(adminPWD);
-
-        query += "&";
-        query += "instanceID=" + URLEncoder.encode(instanceID);
-        query += "&serverRoot=" + URLEncoder.encode(serverRoot);
-        query += "&opType=" + URLEncoder.encode("OP_MODIFY");
-        query += "&taskID=" + URLEncoder.encode("agents");
-        query += "&n=" + URLEncoder.encode("3");
-        query += "&m=" + URLEncoder.encode("2");
-        query += "&uid2=" + URLEncoder.encode("agent3");
-        query += "&uid0=" + URLEncoder.encode("agent1");
-        query += "&uid1=" + URLEncoder.encode("agent2");
-        query += "&pwd1=" + URLEncoder.encode("netscape");
-        query += "&pwd2=" + URLEncoder.encode("netscape");
-        query += "&pwd0=" + URLEncoder.encode("netscape");
-        query += "&cmsSeed=0";
-        setPostQueryString(query);
-        return Connect(myStringUrl);
-    }
-
     private boolean ConfRA() {
         // Start Configuring 
 
@@ -2229,116 +2130,6 @@ public class AutoInstaller {
     }
 
     // Configure Clone 
-
-    private boolean ConfClone() {
-        // Start Configuring
-
-        // Step 1. Start Deamon
-
-        if (!startDeamon()) {
-            System.out.println(
-                    "Configuring Cert Instance: Unable to start deamon");
-            return false;
-        }
-
-        // Sometimes it takes time to start deamon so wait for few seconds
-        try {
-            System.out.println("going to sleep for 10 seconds");
-            Thread.sleep(10000);
-        } catch (InterruptedException ie) {
-            System.out.println("sleep exection");
-        }
-
-        // Step 1a: Initialize Token ( Changed in 6.0)jjj
-        if (!initializePWD()) {
-            System.out.println(
-                    "Configuring Cert Instance: error initializing pwd token");
-            return false;
-        }
-
-        // Step 2. Configure Internal DB
-        if (!configInternalDB()) {
-            System.out.println(
-                    "Configuring Cert Instance: error configuring internal db");
-            return false;
-        }
-
-        // Step 3. Create Admin Values
-        if (!createAdminValues()) {
-            System.out.println(
-                    "Configuring Cert Instance: error configuring admin values ");
-            return false;
-        }
-
-        // Step 4. SubSystems
-
-        if (!selectSubSystem()) {
-            System.out.println(
-                    "Configuring Cert Instance: error selecting subsystems");
-            return false;
-        }
-
-        // Step 5. SetCASerial
-        if (!setSerial("1000000", "2000000")) {
-            System.out.println("Configuring Cert Instance: error setSerial");
-            return false;
-        }
-
-        if (!setOCSP()) {
-            System.out.println("Configuring Cert Instance: error setOCSP");
-            return false;
-        }
-
-        // Step 5. Network Configuration
-        if (!networkConfig()) {
-            System.out.println(
-                    "Configuring Cert Instance: error configuring network ports ");
-            return false;
-        }
-
-        if (!taskCloning()) {
-            System.out.println("Configuring Cert Instance: error Task Cloning ");
-            return false;
-        }
-
-        if (!taskCloneMaster()) {
-            System.out.println(
-                    "Configuring Cert Instance: error configuring network ports ");
-            return false;
-        }
-
-        // Create a SSL signing cert
-        certType = "serverCert";
-
-        if (!taskCloning()) {
-            System.out.println("Configuring Cert Instance: error Task Cloning ");
-            return false;
-        }
-
-        // Step 11 
-        if (!singleSignON()) {
-            System.out.println(
-                    "Configuring Cert Instance: error setting up singlesignon");
-            return false;
-        }
-
-        // Step 11 
-        if (!doMisc()) {
-            System.out.println(
-                    "Configuring Cert Instance: error setting up miscell");
-            return false;
-        }
-
-        // Step 12 
-        if (!exitDeamon()) {
-            System.out.println(
-                    "Configuring Cert Instance: Unable to exit deamon");
-            return false;
-        }
-
-        return true;
-
-    }
 
     public boolean readProperties() {
         // Read the properties file and assign values to variables .

@@ -21,7 +21,6 @@ package com.netscape.cms.servlet.cert;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -575,87 +574,6 @@ public class ListCerts extends CMSServlet {
 	header.addStringValue(!mReverse? "querySentinelUp":"querySentinelDown", 
 				  firstSerial.toString());
 
-    }
-
-    /**
-     * Process the key search.
-     */
-    private void process(CMSTemplateParams argSet, IArgBlock header, 
-        int maxCount, int sentinel,
-        String filter, HttpServletRequest req,
-        HttpServletResponse resp,
-        String revokeAll, Locale locale)
-        throws EBaseException {
-        try {
-            if (filter.indexOf(CURRENT_TIME, 0) > -1) {
-                filter = insertCurrentTime(filter);
-            }
-            if (revokeAll != null && revokeAll.indexOf(CURRENT_TIME, 0) > -1) {
-                revokeAll = insertCurrentTime(revokeAll);
-            }
-
-            // xxx the filter includes serial number range???
-            ICertRecordList list = 
-                (ICertRecordList) mCertDB.findCertRecordsInList(filter, null, maxCount);
-            // sentinel is the index on the list now, not serial number
-            Enumeration e = 
-                list.getCertRecords(sentinel, sentinel + maxCount - 1);
-
-            int count = 0;
-
-            while (e != null && e.hasMoreElements()) {
-                ICertRecord rec = (ICertRecord) e.nextElement();
-
-                count++;
-                IArgBlock rarg = com.netscape.certsrv.apps.CMS.createArgBlock();
-
-                fillRecordIntoArg(rec, rarg);
-                argSet.addRepeatRecord(rarg);
-            }
-
-            header.addStringValue("op", req.getParameter("op"));
-            if (revokeAll != null)
-                header.addStringValue("revokeAll", revokeAll);
-            if (mAuthName != null)
-                header.addStringValue("issuerName", mAuthName.toString());
-            header.addStringValue("serviceURL", req.getRequestURI());
-            header.addStringValue("templateName", "queryCert");
-            header.addStringValue("queryFilter", filter);
-            header.addIntegerValue("maxCount", maxCount);
-            header.addIntegerValue("totalRecordCount", list.getSize());
-            if ((sentinel + count) < list.getSize())
-                header.addIntegerValue("querySentinelDown", sentinel + count);
-            else
-                header.addStringValue("querySentinelDown", null);
-        } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, com.netscape.certsrv.apps.CMS.getLogMessage("CMSGW_ERROR_LISTCERTS", e.toString()));
-            throw e;
-        }
-        return;
-    }
-
-    private String insertCurrentTime(String filter) {
-        Date now = null;
-        StringBuffer newFilter = new StringBuffer();
-        int k = 0;
-        int i = filter.indexOf(CURRENT_TIME, k);
-
-        while (i > -1) {
-            if (now == null) now = new Date();
-            if (newFilter.length() == 0) {
-                newFilter.append(filter.substring(k, i));
-                newFilter.append(now.getTime());
-            } else {
-                newFilter.append(filter.substring(k, i));
-                newFilter.append(now.getTime());
-            }
-            k = i + CURRENT_TIME.length();
-            i = filter.indexOf(CURRENT_TIME, k);
-        }
-        if (k > 0) {
-            newFilter.append(filter.substring(k, filter.length()));
-        }
-        return newFilter.toString();
     }
 
     /**

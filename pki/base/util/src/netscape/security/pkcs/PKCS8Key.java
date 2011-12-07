@@ -69,18 +69,6 @@ public class PKCS8Key implements PrivateKey {
      */
     public PKCS8Key() { }
 
-    /*
-     * Build and initialize as a "default" key.  All PKCS#8 key
-     * data is stored and transmitted losslessly, but no knowledge
-     * about this particular algorithm is available.
-     */
-    private PKCS8Key (AlgorithmId algid, byte key [])
-    throws InvalidKeyException {
-	this.algid = algid;
-	this.key = key;
-	encode();
-    }
-
     /**
      * Construct PKCS#8 subject public key from a DER value.  If
      * the runtime environment is configured with a specific class for

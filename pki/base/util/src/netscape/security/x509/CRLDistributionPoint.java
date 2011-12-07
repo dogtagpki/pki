@@ -478,11 +478,5 @@ public static class Template implements ASN1Template {
     }
 }
 
-private static void toFile(String filename, byte[] bytes) throws IOException{
-        FileOutputStream fos = new FileOutputStream(filename);
-        fos.write(bytes);
-        fos.close();
-}
-
 
 }

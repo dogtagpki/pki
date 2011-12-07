@@ -78,7 +78,6 @@ public class CertID implements ASN1Value
 	///////////////////////////////////////////////////////////////////////
 	// Constructors
 	///////////////////////////////////////////////////////////////////////
-	private CertID() { }
 
 	public CertID(AlgorithmIdentifier hashAlgorithm,
 		OCTET_STRING issuerNameHash, OCTET_STRING issuerKeyHash,

@@ -98,8 +98,6 @@ public class TBSRequest implements ASN1Value
     // constructors
     ///////////////////////////////////////////////////////////////////////
     
-    private TBSRequest() {}
-
     public TBSRequest(INTEGER version, ANY requestorName,
         SEQUENCE requestList, SEQUENCE requestExtensions)
     {

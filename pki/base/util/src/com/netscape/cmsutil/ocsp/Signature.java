@@ -81,11 +81,6 @@ public class Signature implements ASN1Value
 			return (Certificate) certs.elementAt(index);
 	}
 
-	///////////////////////////////////////////////////////////////////////
-	// constructors
-	///////////////////////////////////////////////////////////////////////
-	private Signature() { }
-
 	public Signature(AlgorithmIdentifier signatureAlgorithm,
 		BIT_STRING signature, SEQUENCE certs)
 	{

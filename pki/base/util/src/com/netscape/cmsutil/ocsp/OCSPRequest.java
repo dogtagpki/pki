@@ -65,11 +65,7 @@ public class OCSPRequest implements ASN1Value
 	{
 		return optionalSignature;
 	}
-
-	///////////////////////////////////////////////////////////////////////
-	// Constructors
-	///////////////////////////////////////////////////////////////////////
-	private OCSPRequest() { }
+	
 
 	/* THIS code is probably broken. It does not properly encode the explicit element */
        

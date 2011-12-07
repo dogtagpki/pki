@@ -64,11 +64,6 @@ public class ResponseBytes implements ASN1Value
 		return response;
 	}
 
-	///////////////////////////////////////////////////////////////////////
-	// Constructors
-	///////////////////////////////////////////////////////////////////////
-	private ResponseBytes() { }
-
 	public ResponseBytes(OBJECT_IDENTIFIER responseType, OCTET_STRING response)
 	{
 		sequence = new SEQUENCE();

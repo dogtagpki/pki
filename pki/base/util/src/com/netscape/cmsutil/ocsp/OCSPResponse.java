@@ -58,11 +58,6 @@ public class OCSPResponse implements ASN1Value
 		return responseBytes;
 	}
 
-	///////////////////////////////////////////////////////////////////////
-	// Constructors
-	///////////////////////////////////////////////////////////////////////
-	private OCSPResponse() { }
-
 	public OCSPResponse(OCSPResponseStatus responseStatus,
 		ResponseBytes responseBytes)
 	{

@@ -130,22 +130,4 @@ public class GetSubsystemCert extends CMSServlet {
         }
         return locale;
     }
-
-    private String normalizeCertStr(String s) {
-        StringBuffer val = new StringBuffer();
-
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == '\n') {
-                continue;
-            } else if (s.charAt(i) == '\r') {
-                continue;
-            } else if (s.charAt(i) == '"') {
-                continue;
-            } else if (s.charAt(i) == ' ') {
-                continue;
-            }
-            val.append(s.charAt(i));
-        }
-        return val.toString();
-    }
 }

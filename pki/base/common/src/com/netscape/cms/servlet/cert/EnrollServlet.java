@@ -37,9 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.KeyUsageExtension;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
@@ -1717,71 +1715,6 @@ public class EnrollServlet extends CMSServlet {
     private void init_testbed_hack(IConfigStore config) 
         throws EBaseException {
         mIsTestBed = config.getBoolean("isTestBed", true);
-    }
-
-    private void do_testbed_hack(
-        int nummsgs, X509CertInfo[] certinfo, IArgBlock httpParams) 
-        throws EBaseException {
-        if (!mIsTestBed) 
-            return;
-
-            // get around bug in cartman - bits are off by one byte.
-        for (int i = 0; i < certinfo.length; i++) {
-            try {
-                X509CertInfo cert = certinfo[i];
-                CertificateExtensions exts = (CertificateExtensions)
-                    cert.get(CertificateExtensions.NAME);
-
-                if (exts == null) {
-                    // should not happen.
-                    continue;
-                }
-                KeyUsageExtension ext = (KeyUsageExtension)
-                    exts.get(KeyUsageExtension.NAME);
-
-                if (ext == null) 
-                    // should not happen 
-                    continue;
-                byte[] value = ext.getExtensionValue();
-
-                if (value[0] == 0x03 && value[1] == 0x02 && value[2] == 0x07) {
-                    byte[] newvalue = new byte[value.length + 1];
-
-                    newvalue[0] = 0x03;
-                    newvalue[1] = 0x03;
-                    newvalue[2] = 0x07;
-                    newvalue[3] = value[3];
-                    // force encryption certs to have digitial signature 
-                    // set too so smime can find the cert for encryption.
-                    if (value[3] == 0x20) {
-
-                        /*
-                         newvalue[3] = 0x3f;
-                         newvalue[4] = (byte)0x80;
-                         */
-                        if (httpParams.getValueAsBoolean(
-                                "dual-use-hack", true)) {
-                            newvalue[3] = (byte) 0xE0; // same as rsa-dual-use.
-                        }
-                    }
-                    newvalue[4] = 0;
-                    KeyUsageExtension newext = 
-                        new KeyUsageExtension(Boolean.valueOf(true), 
-                            (Object) newvalue);
-
-                    exts.delete(KeyUsageExtension.NAME);
-                    exts.set(KeyUsageExtension.NAME, newext);
-
-                }
-            } catch (IOException e) {
-                // should never happen 
-                continue;
-            } catch (CertificateException e) {
-                // should never happen 
-                continue;
-            }
-        }
-
     }
 
     /**

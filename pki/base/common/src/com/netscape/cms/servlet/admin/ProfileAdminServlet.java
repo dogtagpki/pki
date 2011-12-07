@@ -38,7 +38,6 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.policy.IPolicyRule;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
@@ -124,20 +123,6 @@ public class ProfileAdminServlet extends AdminServlet {
      */
     public String getServletInfo() {
         return INFO;
-    }
-
-    private void addDefaultParams(Object ext_info, NameValuePairs nvps) {
-
-        /* make sure policy rules have 'enable' and 'predicate' */
-
-        if (ext_info instanceof IPolicyRule) {
-            if (nvps.getPair(IPolicyRule.PROP_ENABLE) == null) {
-                nvps.add(IPolicyRule.PROP_ENABLE, "boolean;Enable this policy rule");
-            }
-            if (nvps.getPair(PROP_PREDICATE) == null) {
-                nvps.add(PROP_PREDICATE, "string;Rules describing when this policy should run.");
-            }
-        }
     }
 
     /**

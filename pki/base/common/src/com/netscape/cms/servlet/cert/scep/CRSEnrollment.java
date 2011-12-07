@@ -19,7 +19,6 @@ package com.netscape.cms.servlet.cert.scep;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -1853,19 +1852,7 @@ throws EBaseException {
 
 
 
-  /**
-   *  This needs to be re-written to log the messages to the system log, since there
-   *  will be no visual webpage feedback for the user. (he's using a router)
-   */
-
-  private void writeError(String errMsg, HttpServletRequest httpReq,
-                          HttpServletResponse httpResp)
-    throws IOException
-    {
-    }
-
-
-   protected String hashPassword(String pwd) {
+  protected String hashPassword(String pwd) {
         String salt = "lala123";
         byte[] pwdDigest = mSHADigest.digest((salt+pwd).getBytes());
         String b64E = com.netscape.osutil.OSUtil.BtoA(pwdDigest);

@@ -19,10 +19,8 @@ package com.netscape.pkisilent.common;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.Properties;
 
 import org.mozilla.jss.crypto.X509Certificate;
@@ -466,20 +464,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
         String s = x.toString();
 
         return s;
-    }
-
-    private static boolean isSocketUnused(String h, int p) {
-
-        try {
-
-            Socket ss = new Socket(h, p);
-
-            ss.close();
-            return false;
-
-        } catch (IOException e) {
-            return true;
-        }
     }
 
     /**

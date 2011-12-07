@@ -142,19 +142,4 @@ public class CloneRedirect extends CMSServlet {
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
     }
-
-    /**
-     * Display information about redirecting to the master's URL info
-     */
-    private void process(CMSTemplateParams argSet, IArgBlock header,
-        HttpServletRequest req,
-        HttpServletResponse resp,
-        String signatureAlgorithm,
-        Locale locale)
-        throws EBaseException {
-
-        CMS.debug("CloneRedirect: " + CMS.getLogMessage("ADMIN_SRVLT_ADD_MASTER_URL", mNewUrl)); 
-        header.addStringValue("masterURL", mNewUrl);
-        return;
-    }
 }

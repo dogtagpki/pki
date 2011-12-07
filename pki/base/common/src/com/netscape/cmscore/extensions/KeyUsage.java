@@ -231,9 +231,5 @@ public class KeyUsage implements ICMSExtension {
         return params;
     }
 
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, msg);
-    }
-
 }
 

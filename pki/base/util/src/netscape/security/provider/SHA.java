@@ -56,20 +56,6 @@ public class SHA extends MessageDigestSpi implements Cloneable {
 
     private int AA, BB, CC, DD, EE;
 
-    /**
-     * Creates a SHA object.with state (for cloning) */
-    private SHA(SHA sha) {
-	this();
-	this.version = sha.version;
-	System.arraycopy(sha.W, 0, this.W, 0, W.length);
-	this.count = sha.count;
-	this.AA = sha.AA;
-	this.BB = sha.BB;
-	this.CC = sha.CC;
-	this.DD = sha.DD;
-	this.EE = sha.EE;
-    }
-    
     SHA(int version) {
 	this();
 	this.version = version;

@@ -124,22 +124,6 @@ public class PublicKeyMapper implements IDBAttrMapper {
         return mLdapName + op + value;
     }
 
-    private String normalize(String s) {
-        String val = "";
-
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == '\n') {
-                continue;
-            } else if (s.charAt(i) == '\r') {
-                continue;
-            } else if (s.charAt(i) == '"') {
-                continue;
-            }
-            val += s.charAt(i);
-        }
-        return val;
-    }
-
     public static String escapeBinaryData(byte data[]) {
         String result = "";
 

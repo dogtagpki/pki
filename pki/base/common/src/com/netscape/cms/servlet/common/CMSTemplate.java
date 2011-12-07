@@ -574,21 +574,11 @@ public class CMSTemplate extends CMSFile {
             flush();
             return;
         }
-    
-        public void println(String s) throws IOException {
-            print(s);
-            write('\n');
-            flush();
-            return;
-        }
     }
 
 
     private class templateLine {
         private StringBuffer s = new StringBuffer();
-        void templateLine() {
-        }
-
         void println(String p) {
             s.append('\n');
             s.append(p);

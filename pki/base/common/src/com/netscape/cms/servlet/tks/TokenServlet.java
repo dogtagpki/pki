@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -46,7 +45,6 @@ import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -1375,28 +1373,5 @@ public class TokenServlet extends CMSServlet {
         String op = req.getParameter(Constants.OP_TYPE);
 
         super.service(req, resp);
-    }
-
-    /**
-     * Parses uid0=pwd0,uid1=pwd1,... into AgentCredential.
-     *
-     * @param s credential string
-     * @return a list of credentials
-     */
-    private Credential[] parseCredentialStr(String s) {
-        StringTokenizer st = new StringTokenizer(s, ",");
-        Vector v = new Vector();
-
-        while (st.hasMoreTokens()) {
-            String a = st.nextToken();
-            StringTokenizer st0 = new StringTokenizer(a, "=");
-
-            v.addElement(new Credential(st0.nextToken(),
-                    st0.nextToken()));
-        }
-        Credential ac[] = new Credential[v.size()];
-
-        v.copyInto(ac);
-        return ac;
     }
 }

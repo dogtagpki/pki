@@ -159,11 +159,5 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
 
         return false;
     }
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_ACLS,
-            level, "UserOrigReqAccessEvaluator: " + msg);
-    }
 
 }

@@ -390,15 +390,6 @@ import com.netscape.cms.servlet.common.ECMSGWException;
     }
 
     /**
-     * gets base 64 encoded cert chain
-     */
-    private String getChainBase64(byte[] certBytes) {
-        String certBase64 = CMS.BtoA(certBytes);
-
-        return certBase64;
-    }
-
-    /**
      * Retrieves locale based on the request.
      */
     protected Locale getLocale(HttpServletRequest req) {

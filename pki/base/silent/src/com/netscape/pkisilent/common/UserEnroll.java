@@ -155,10 +155,6 @@ public class UserEnroll extends TestClient {
         certType = ct;
     }
 
-    private long getElapsedTime() {
-        return elapsedTime;
-    }
-
     public boolean enroll_load() {
         buildquery();
         setStatusString("");

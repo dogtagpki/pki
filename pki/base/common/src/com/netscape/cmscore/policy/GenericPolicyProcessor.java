@@ -458,19 +458,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         return mAuthority.getId() + ".Policy";
     }
 
-    private void setError(IRequest req, String format, String arg) {
-        if (format == null)
-            return;
-        EPolicyException ex = new EPolicyException(format, arg);
-
-        Vector ev = req.getExtDataInStringVector(IRequest.ERRORS);
-        if (ev == null) {
-            ev = new Vector();
-        }
-        ev.addElement(ex.toString());
-        req.setExtData(IRequest.ERRORS, ev);
-    }
-
     public Enumeration getPolicyImpls() {
         Vector impls = new Vector();
         Enumeration enum1 = mImplTable.elements();

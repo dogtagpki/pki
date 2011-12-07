@@ -98,17 +98,6 @@ public class CMSLDAP {
 
     }
 
-    private boolean RemoveInstance(String basedn) {
-        try {
-            conn.delete(basedn);
-            return true;
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.toString());
-            return false;
-        }
-
-    }
-
     /**
      * Search for certificaterevocationList attribute. Takes basedn and filter as parameters
      */ 

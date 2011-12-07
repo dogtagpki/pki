@@ -20,8 +20,6 @@ package netscape.security.provider;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
-import java.security.AlgorithmParameters;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.MessageDigest;
@@ -32,8 +30,6 @@ import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.interfaces.DSAParams;
-import java.security.spec.DSAParameterSpec;
-import java.security.spec.InvalidParameterSpecException;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
@@ -143,20 +139,6 @@ public final class DSA extends Signature {
 	setParams(params);
     }
 
-    private void initialize(AlgorithmParameters params)
-	throws InvalidAlgorithmParameterException {
-	    try {
-		DSAParameterSpec dsaParamSpec;
-		dsaParamSpec = (DSAParameterSpec)params.getParameterSpec
-		    (DSAParameterSpec.class);
-		dataSHA.reset();
-		setParams(dsaParamSpec);
-	    } catch (InvalidParameterSpecException e) {
-		throw new InvalidAlgorithmParameterException
-		    ("Inappropriate parameter");
-	    }
-    }
-
     /**
      * Sign all the data thus far updated. The signature is formatted
      * according to the Canonical Encoding Rules, returned as a DER
@@ -226,10 +208,6 @@ public final class DSA extends Signature {
 	BigInteger v = generateV(presetY, presetP, presetQ, presetG, w, r);
 
 	return v.equals(r);
-    }
-
-    private void reset() {
-	dataSHA.reset();
     }
 
     BigInteger generateR(BigInteger p, BigInteger q, BigInteger g,
@@ -510,12 +488,6 @@ public final class DSA extends Signature {
 	this.presetG = params.getG();
     }
 
-    private void setParams(DSAParameterSpec params) {
-	this.presetP = params.getP();
-	this.presetQ = params.getQ();
-	this.presetG = params.getG();
-    }
-    
     /**
      * Update a byte to be signed or verified.
      *
@@ -669,12 +641,6 @@ public final class DSA extends Signature {
     static BigInteger testY = new BigInteger(yString, 16);
 
     /* End test vector values */
-
-    private static void debug(Exception e) {
-	if (debug) {
-	    e.printStackTrace();
-	}
-    }
 
     private static void debug(String s) {
 	if (debug) {

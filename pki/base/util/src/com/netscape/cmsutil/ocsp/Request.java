@@ -72,11 +72,6 @@ public class Request implements ASN1Value
 			return (Extension) singleRequestExtensions.elementAt(index);
 	}
 
-	///////////////////////////////////////////////////////////////////////
-	// constructors
-	///////////////////////////////////////////////////////////////////////
-	private Request() { }
-
 	public Request(CertID reqCert, SEQUENCE singleRequestExtensions)
 	{
   		sequence = new SEQUENCE();

@@ -21,7 +21,6 @@ package com.netscape.cms.servlet.cert;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -313,93 +312,6 @@ CMS.debug("**** mFormPath = "+mFormPath);
                 CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
-    }
-
-    /**
-     * get cert to revoke from agent.
-     */
-    private BigInteger getCertFromAgent(
-        IArgBlock httpParams, X509Certificate[] certContainer)
-        throws EBaseException {
-        BigInteger serialno = null;
-        X509Certificate cert = null;
-
-        // get serial no
-        serialno = httpParams.getValueAsBigInteger(SERIAL_NO, null);
-        if (serialno == null) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_REVOKE"));
-            throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_MISSING_SERIALNO_FOR_REVOKE"));
-        }
-
-        // get cert from db if we're cert authority.
-        if (mAuthority instanceof ICertificateAuthority) {
-            cert = getX509Certificate(serialno);
-            if (cert == null) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
-                throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
-            }
-        }
-        certContainer[0] = cert;
-        return serialno;
-    }
-
-    /**
-     * Revoke the specified certificate
-     */
-    private BigInteger getCertFromAuthMgr(
-        AuthToken authToken, X509Certificate[] certContainer) 
-        throws EBaseException {
-        X509CertImpl cert =
-            authToken.getInCert(AuthToken.TOKEN_CERT);
-
-        if (cert == null) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
-            throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
-        }
-        if (mAuthority instanceof ICertificateAuthority && 
-            !isCertFromCA(cert)) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
-            throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
-        }
-        certContainer[0] = cert;
-        BigInteger serialno = ((X509Certificate) cert).getSerialNumber();
-
-        return serialno;
-    }
-
-    /**
-     * get cert to revoke from ssl 
-     */
-    private BigInteger getCertFromSSL(
-        HttpServletRequest req, X509CertImpl[] certContainer) 
-        throws EBaseException {
-        X509Certificate cert = getSSLClientCertificate(req);
-
-        if (cert == null) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_MISSING_CERTS_REVOKE_FROM_SSL"));
-            throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_MISSING_CERTS_REVOKE_FROM_SSL"));
-        }
-        if (mAuthority instanceof ICertificateAuthority && 
-            !isCertFromCA(cert)) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION", ""));
-            throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
-        }
-        BigInteger serialno = ((X509Certificate) cert).getSerialNumber();
-
-        certContainer[0] = (X509CertImpl) cert;
-
-        return serialno;
     }
 
     /**
